@@ -48,3 +48,21 @@ void tokenize(
    }
 }
 
+
+unsigned countDelimiters(
+  const string& str,
+  const string& delimiters)
+{
+  unsigned c = 0;
+  for (int i = 0; i < delimiters.length(); i++)
+    c += count(str.begin(), str.end(), delimiters.at(i));
+  return c;
+}
+
+
+string RevStr(string s)
+{
+  reverse(s.end(), s.begin());
+  return s;
+}
+

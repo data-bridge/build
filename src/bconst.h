@@ -10,9 +10,14 @@
 #ifndef BRIDGE_CONSTANTS_H
 #define BRIDGE_CONSTANTS_H
 
+#include <string>
+
+using namespace std;
+
 #define MAXNOOFCORES 12
 
 #define BRIDGE_PLAYERS 4
+#define BRIDGE_SUITS 4
 #define BRIDGE_DENOMS 5
 #define BRIDGE_TRICKS 13
 

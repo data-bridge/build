@@ -22,6 +22,7 @@ using namespace std;
 #include "Debug.h"
 #include "Tableau.h"
 #include "Contract.h"
+#include "Deal.h"
 
 Debug debug;
 
@@ -30,15 +31,18 @@ int main(int argc, char * argv[])
 {
   Tableau tableau;
   Contract contract;
+  Deal deal;
 
   // tableau.SetEntry(BRIDGE_NORTH, BRIDGE_NOTRUMP, 7);
+  // tableau.SetRBN("::88665+88667:!!");
+  // cout << "TXT:\n" << tableau.ToString(BRIDGE_FORMAT_TXT) << "\n";
 
-  tableau.SetRBN("::88665+88667:!!");
+  // string text;
+  // tableau.GetPar(BRIDGE_NORTH, BRIDGE_VUL_NONE, text);
+  // cout << "Par: '" << text << "'\n";
 
-  cout << "TXT:\n" << tableau.ToString(BRIDGE_FORMAT_TXT) << "\n";
+  deal.Set("3SKJ5HAJ954DJ83CA8,SA764H83DQT7642CK,SQT3HKT62DK9C9532,S982HQ7DA5CQJT764", BRIDGE_FORMAT_LIN);
 
-  string text;
-  tableau.GetPar(BRIDGE_NORTH, BRIDGE_VUL_NONE, text);
-  cout << "Par: '" << text << "'\n";
+  cout << deal.AsString();
 }
 

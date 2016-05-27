@@ -15,8 +15,14 @@
 using namespace std;
 
 void tokenize(
-  const std::string& str,
-  vector<std::string>& tokens,
-  const std::string& delimiters);
+  const string& str,
+  vector<string>& tokens,
+  const string& delimiters);
+
+unsigned countDelimiters(
+  const string& str,
+  const string& delimiters);
+
+string RevStr(string s);
 
 #endif

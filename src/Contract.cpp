@@ -127,7 +127,7 @@ const int DENOM_TO_OVERTRICKS_UNDOUBLED[BRIDGE_DENOMS] =
   20, 20, 30, 30, 30 
 };
 
-bool setTables = false;
+bool setContractTables = false;
 
 struct entryType
 {
@@ -142,9 +142,9 @@ map<string, entryType> CONTRACT_STRING_TO_PARTS;
 Contract::Contract()
 {
   Contract::Reset();
-  if (! setTables)
+  if (! setContractTables)
   {
-    setTables = true;
+    setContractTables = true;
     Contract::SetTables();
   }
 }

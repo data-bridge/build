@@ -11,6 +11,15 @@
 #define BRIDGE_DEAL_H
 
 #include "Deal.h"
+#include "Players.h"
+
+#include <iostream>
+#include <iomanip>
+#include <string>
+#include <sstream>
+#include <vector>
+
+using namespace std;
 
 
 class Deal
@@ -18,7 +27,26 @@ class Deal
   private:
 
     bool setFlag;
-    unsigned holding[BRIDGE_PLAYERS];
+    unsigned holding[BRIDGE_PLAYERS][BRIDGE_SUITS];
+    char cards[BRIDGE_PLAYERS][BRIDGE_SUITS][BRIDGE_TRICKS];
+
+    void SetTables();
+
+    bool StringToPlayer(
+      const string& s,
+      unsigned& p) const;
+
+    bool SetCards(
+      const string suit,
+      unsigned& res) const;
+
+    bool SetHand(
+      const string& hand,
+      const string& delimiters,
+      const unsigned offset,
+      unsigned pholding[]);
+
+    bool SetHands();
 
     bool SetLIN(const string& s);
 
@@ -26,15 +54,11 @@ class Deal
 
     bool SetRBN(const string& s);
 
-    bool SetTXT(const string& s);
+    string AsLIN(const playerType start) const;
 
-    string AsLIN() const;
+    string AsPBN(const playerType start) const;
 
-    string AsPBN() const;
-
-    string AsRBN() const;
-
-    string AsTXT() const;
+    string AsRBN(const playerType start) const;
 
 
   public:
@@ -51,14 +75,22 @@ class Deal
       const string& s,
       const formatType f = BRIDGE_FORMAT_LIN);
 
-    bool GetDDS(unsigned cards[]) const;
+    bool SetTXT(const string cardsArg[][BRIDGE_SUITS]);
+
+    bool SetCards(
+      const vector<string>& cardsArg);
+
+    bool GetDDS(unsigned cards[][BRIDGE_SUITS]) const;
 
     bool operator == (const Deal& d2) const;
 
     bool operator != (const Deal& d2) const;
 
     string AsString(
+      const playerType start = BRIDGE_NORTH,
       const formatType f = BRIDGE_FORMAT_LIN) const;
+
+    string AsTXT(const Players& players) const;
 };
 
 #endif
