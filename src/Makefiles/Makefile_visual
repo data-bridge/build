@@ -1,0 +1,44 @@
+EXPORTER	= Exports.def
+
+SOURCE_FILES 	=		\
+	Bint.cpp		\
+	Contract.cpp		\
+	Debug.cpp		\
+	Tableau.cpp		\
+	parse.cpp		\
+	reader.cpp
+
+TEST		= reader
+
+CC_VS     	= cl
+
+CC_FLAGS_VS     = /O2 /Oi /Ot /Oy /GL /Zi
+CC_FLAGS_DEBUG  = /DEBUG
+
+LD_FLAGS_VS	= /DEBUG
+
+WINDRES_FLAG	= -F pe-i386
+
+CC		= $(CC_VS)
+CC_FLAGS	= $(CC_FLAGS_VS)
+LD_FLAGS	= $(LD_FLAGS_VS)
+
+OBJ_FILES 	= $(subst .cpp,.obj,$(SOURCE_FILES))
+
+# Linking directly.
+
+reader:	$(OBJ_FILES)
+	link /LTCG $(LD_FLAGS) $(OBJ_FILES) /out:$(TEST).exe
+
+%.obj:	%.cpp
+	$(CC) $(CC_FLAGS) /c /EHsc $<
+
+
+depend:
+	makedepend -Y -o.obj -- $(CC_FLAGS) -- $(SOURCE_FILES) $(TEST).cpp
+
+clean:
+	rm -f $(OBJ_FILES) $(TEST_OBJ_FILES) $(TEST).obj $(TEST).exe 
+
+
+# DO NOT DELETE
