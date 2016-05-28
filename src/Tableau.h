@@ -37,7 +37,7 @@ class Tableau
 
     struct dataType
     {
-      unsigned primacy;
+      int primacy;
       unsigned highestMakingNo;
       unsigned dearestMakingNo;
       int dearestScore;
@@ -90,7 +90,7 @@ class Tableau
       const vulType v,
       const unsigned side,
       const playerType dealer,
-      const unsigned bestDown,
+      const int bestDown,
       const unsigned noDecl,
       const unsigned dno,
       const listType slist[][BRIDGE_DENOMS],

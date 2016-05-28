@@ -13,3 +13,5 @@ TODO
   1218   3452  25010 Segment.pm
 
 Go back to char[] in storage of objects
+
+Add compile warnings

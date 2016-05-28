@@ -9,6 +9,8 @@
 // The functions in this file help to parse files.
 
 
+#include <iostream>
+#include <iomanip>
 #include <string>
 #include <vector>
 #include <stdio.h>
@@ -54,7 +56,7 @@ unsigned countDelimiters(
   const string& delimiters)
 {
   unsigned c = 0;
-  for (int i = 0; i < delimiters.length(); i++)
+  for (unsigned i = 0; i < delimiters.length(); i++)
     c += count(str.begin(), str.end(), delimiters.at(i));
   return c;
 }
@@ -62,7 +64,9 @@ unsigned countDelimiters(
 
 string RevStr(string s)
 {
+cout << "sin " << s << endl;
   reverse(s.end(), s.begin());
+cout << "sout " << s << endl;
   return s;
 }
 

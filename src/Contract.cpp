@@ -192,8 +192,8 @@ void Contract::SetTables()
 	  e.tricksRelative = 7;
 	  CONTRACT_STRING_TO_PARTS[s4.str()] = e;
 
-	  unsigned lo = 7 - e.contract.level;
-	  for (unsigned i = lo; i <= lo+13; i++)
+	  int lo = 7 - static_cast<int>(e.contract.level);
+	  for (int i = lo; i <= lo+13; i++)
 	  {
 	    stringstream s5;
 	    e.tricksRelative = i-13;
@@ -205,7 +205,7 @@ void Contract::SetTables()
     }
   }
 
-  for (unsigned i = 0; i < 20; i++)
+  for (int i = 0; i < 20; i++)
     LEVEL_TAG_TO_RELATIVE[LEVEL_SHIFT_TO_TAG[i]] = i-13;
 }
 
@@ -578,6 +578,7 @@ string Contract::AsString(const formatType f) const
     case BRIDGE_FORMAT_PAR:
       return Contract::AsPar();
 
+    case BRIDGE_FORMAT_SIZE:
     default:
       return "";
   }

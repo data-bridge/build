@@ -8,6 +8,7 @@
 
 
 #include "Players.h"
+#include "portab.h"
 
 
 Players::Players()
@@ -49,6 +50,7 @@ bool Players::Set(const int v2)
 string Players::Get(const playerType p) const
 {
   // TODO
+  UNUSED(p);
   return "";
 }
 
@@ -56,6 +58,7 @@ string Players::Get(const playerType p) const
 bool Players::operator == (const Players& b2)
 {
   // TODO
+  UNUSED(b2);
   return true;
 }
 
@@ -63,6 +66,7 @@ bool Players::operator == (const Players& b2)
 bool Players::operator != (const Players& b2)
 {
   // TODO
+  UNUSED(b2);
   return false;
 }
 

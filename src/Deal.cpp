@@ -59,7 +59,7 @@ void Deal::SetTables()
   for (unsigned h = 0; h <= MAX_HOLDING; h++)
   {
     string suit("");
-    for (int bit = 12; bit >= 0; bit++)
+    for (int bit = 12; bit >= 0; bit--)
     {
       if (h & (1 << bit))
         suit += CARDS[bit];
@@ -118,12 +118,14 @@ bool Deal::SetHand(
   const unsigned offset,
   unsigned pholding[])
 {
-  int seen = 0;
+  unsigned seen = 0;
   for (unsigned i = 0; i < delimiters.length(); i++)
     seen += count(hand.begin(), hand.end(), delimiters.at(i));
 
   if (seen != 3+offset)
   {
+cout << "seen " << seen << " offset " << offset << "\n";
+cout << "delimiters " << delimiters << ", " << hand << endl;
     LOG("Not the right number of delimiters");
     return false;
   }
@@ -135,7 +137,10 @@ bool Deal::SetHand(
   for (unsigned s = 0; s < BRIDGE_SUITS; s++)
   {
     if (! Deal::SetCards(suits[s+offset], pholding[s]))
+    {
+cout << "  s " << s << " " << suits[s+offset] << endl;
       return false;
+    }
   }
   return true;
 }
@@ -151,6 +156,9 @@ bool Deal::SetHands()
       strcpy(cards[p][s], HOLDING_TO_SUIT[holding[p][s]].c_str());
       sum += holding[p][s];
       xsum ^= holding[p][s];
+
+cout << "cards[" << p << "][" << s << "]: " <<
+  cards[p][s] << "\n";
     }
     if (sum != MAX_HOLDING || xsum != MAX_HOLDING)
     {
@@ -185,12 +193,17 @@ bool Deal::SetLIN(const string& text)
     c = countDelimiters(tokens[p], "SHDC");
     if (c != 4)
     {
+cout << "token " << tokens[p] << " " << c << endl;
       LOG("Not 4 suits");
       return false;
     }
 
-    if (! Deal::SetHand(tokens[p], "SHDC", 0, holding[p]))
+cout << "SetLin plin " << plin << endl;
+    if (! Deal::SetHand(tokens[p], "SHDC", 1, holding[p]))
+    {
+cout << "Set token " << tokens[p] << " " << c << endl;
       return false;
+    }
 
     for (unsigned s = 0; s < BRIDGE_SUITS; s++)
       holding[PLAYER_LIN_TO_DDS[3]][s] ^= holding[p][s];
@@ -374,6 +387,9 @@ bool Deal::operator != (const Deal& b2) const
 string Deal::AsLIN(const playerType start) const
 {
   string s = "st||md|" + PLAYER_NAMES_SHORT[start];
+cout << "s " << s << endl;
+cout << "'" << cards[0][BRIDGE_SPADES] << "'" << endl;
+cout << "'" << RevStr(cards[0][BRIDGE_SPADES]) << "'" << endl;
   
   // Players are always in same order.
   for (unsigned p = 0; p <= 2; p++)
@@ -384,6 +400,7 @@ string Deal::AsLIN(const playerType start) const
          "C" + RevStr(cards[p][BRIDGE_CLUBS]);
     if (p < 2)
       s += ",";
+cout << "p " << p << ": s " << s << endl;
   }
   return s + "|rh||";
 }

@@ -13,3 +13,10 @@ test/itest
 *.exe
 *.swp
 *.bak
+
+*.tlog
+*.db
+*.idb
+*.sln
+*vcxproj*
+

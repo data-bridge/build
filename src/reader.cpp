@@ -29,6 +29,9 @@ Debug debug;
 
 int main(int argc, char * argv[])
 {
+  UNUSED(argc);
+  UNUSED(argv);
+
   Tableau tableau;
   Contract contract;
   Deal deal;

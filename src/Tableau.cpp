@@ -89,7 +89,7 @@ bool Tableau::SetRBN(const string text)
     return false;
   }
     
-  size_t c = count(text.begin(), text.end(), ':');
+  int c = count(text.begin(), text.end(), ':');
   if (c != 2 && c != 3)
   {
     LOG("Text without 2 or 3 colons: '" + text + "'");
@@ -288,7 +288,7 @@ string Tableau::ToString(formatType f) const
   if (setNum != 20)
     return "";
 
-  stringstream text;
+  stringstream text("");
 
   switch(f)
   {
@@ -326,6 +326,9 @@ string Tableau::ToString(formatType f) const
 	  setw(3) << Tableau::GetEntry(BRIDGE_WEST, drbn) << "\n";
       }
       text << "\n";
+      break;
+    
+    default:
       break;
   }
   return text.str();
@@ -388,7 +391,7 @@ unsigned Tableau::ToRBNPlayer(const playerType p) const
 // 0 is pass, 1 is 1C, ..., 35 is 7NT.
 // Second index is 0 nonvul, 1 vul.
 
-const unsigned SCORES[36][2] =
+const int SCORES[36][2] =
 {
   {    0,   0},
   {   70,  70}, {  70,   70}, {  80,   80}, {  80,   80}, {  90,   90},
@@ -402,7 +405,7 @@ const unsigned SCORES[36][2] =
 
 // First index: 0 nonvul, 1 vul. Second index: tricks down.
 
-const unsigned DOUBLED_SCORES[2][14] =
+const int DOUBLED_SCORES[2][14] =
 {
   {
     0   ,  100,  300,  500,  800, 1100, 1400, 1700,
@@ -417,7 +420,7 @@ const unsigned DOUBLED_SCORES[2][14] =
 // Second index is contract number, 0 .. 35.
 // First index is vul: none, only defender, only declarer, both.
 
-int DOWN_TARGET[36][4] =
+const unsigned DOWN_TARGET[36][4] =
 {
   {0, 0, 0, 0},
   {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
@@ -520,13 +523,13 @@ bool Tableau::GetPar(
 
   // Go through the contracts, starting from the highest one.
   listType * lists = list[side];
-  int vulNo = data.vulNo;
+  unsigned vulNo = data.vulNo;
   int bestPlus = 0;
   unsigned down = 0;
   bool sacFound = false;
 
   int type[5], sacGap[5];
-  int bestDown = 0;
+  unsigned bestDown = 0;
   unsigned sacr[5][5] = 
     { {0, 0, 0, 0, 0}, {0, 0, 0, 0, 0}, {0, 0, 0, 0, 0},
       {0, 0, 0, 0, 0}, {0, 0, 0, 0, 0}
@@ -538,7 +541,8 @@ bool Tableau::GetPar(
     unsigned dno = lists[n].dno;
     unsigned target = DOWN_TARGET[no][vulNo];
 
-    Tableau::BestSacrifice(side, no, dno, dealer, list, sacr, down);
+    Tableau::BestSacrifice(static_cast<unsigned>(side), no, dno, 
+      dealer, list, sacr, down);
 
     if (down <= target)
     {
@@ -561,7 +565,7 @@ bool Tableau::GetPar(
     {
       bestPlus = Max(bestPlus, lists[n].score);
       type[n] = 1;
-      sacGap[n] = target - down;
+      sacGap[n] = static_cast<int>(target - down);
     }
   }
 
@@ -578,9 +582,8 @@ bool Tableau::GetPar(
         continue;
       unsigned plus;
       ReduceContract(l->no, sacGap[n], plus);
-cout << "no " << l->no << ", plus " << plus << "\n";
-      if (! Tableau::AddContract(v, side, l->no, 
-          static_cast<denomType>(l->dno), plus, clist))
+      if (! Tableau::AddContract(v, static_cast<unsigned>(side), l->no, 
+          static_cast<denomType>(l->dno), static_cast<int>(plus), clist))
         return false;
     }
   }
@@ -592,8 +595,9 @@ cout << "no " << l->no << ", plus " << plus << "\n";
       const listType *l = &(lists[n]);
       if (type[n] != 0 || lists[n].down != bestDown) 
         continue;
-      if (! Tableau::AddSacrifices(v, side, dealer, 
-          bestDown, l->no, l->dno, list, sacr, clist))
+      if (! Tableau::AddSacrifices(v, static_cast<unsigned>(side), 
+          dealer, static_cast<int>(bestDown), l->no, l->dno, 
+	  list, sacr, clist))
         return false;
     }
   }
@@ -636,7 +640,7 @@ void Tableau::SurveyScores(
     sside->dearestMakingNo = 0;
     sside->dearestScore = 0;
 
-    for (int dno = 0; dno < BRIDGE_DENOMS; dno++)
+    for (unsigned dno = 0; dno < BRIDGE_DENOMS; dno++)
     {
       listType * slist = &list[side][dno];
       const unsigned * t = table[ DENOM_PAR_TO_DDS[dno] ];
@@ -669,9 +673,9 @@ void Tableau::SurveyScores(
     }
   }
 
-  int primacy = 0;
-  int s0 = stats[0].highestMakingNo;
-  int s1 = stats[1].highestMakingNo;
+  unsigned primacy = 0;
+  unsigned s0 = stats[0].highestMakingNo;
+  unsigned s1 = stats[1].highestMakingNo;
   if (s0 > s1)
     primacy = 0;
   else if (s0 < s1)
@@ -688,7 +692,8 @@ void Tableau::SurveyScores(
     const unsigned tMax = list[0][dno].tricks;
     const unsigned * t = table[ DENOM_PAR_TO_DDS[dno] ];
 
-    for (unsigned pno = dealer; pno <= dealer + 3; pno++)
+    for (unsigned pno = dealer; 
+        pno <= static_cast<unsigned>(dealer) + 3; pno++)
     {
       if (t[pno % 4] != tMax) 
         continue;
@@ -700,7 +705,7 @@ void Tableau::SurveyScores(
   const dataType * sside = &stats[primacy];
 
   const unsigned dmNo = sside->dearestMakingNo;
-  data.primacy = primacy;
+  data.primacy = static_cast<int>(primacy);
   data.highestMakingNo = sside->highestMakingNo;
   data.dearestMakingNo = dmNo;
   data.dearestScore = sside->dearestScore;
@@ -760,10 +765,11 @@ void Tableau::BestSacrifice(
 
     if (eno == dno)
     {
-      unsigned t_max = static_cast<int>((no + 34) / 5);
+      unsigned t_max = (no + 34) / 5;
       const unsigned * t = table[ DENOM_PAR_TO_DDS[dno] ];
       unsigned incrFlag = 0;
-      for (unsigned pno = dealer; pno <= dealer + 3; pno++)
+      for (unsigned pno = dealer; 
+          pno <= static_cast<unsigned>(dealer) + 3; pno++)
       {
         unsigned diff = t_max - t[pno % 4];
         if (pno % 2 == side)
@@ -773,7 +779,7 @@ void Tableau::BestSacrifice(
         }
         else
         {
-          int local = diff + incrFlag;
+          unsigned local = diff + incrFlag;
 	  down = Min(down, local);
         }
       }
@@ -782,7 +788,7 @@ void Tableau::BestSacrifice(
     }
     else
     {
-      down = static_cast<int>((no - sacr.no + 4) / 5);
+      down = (no - sacr.no + 4) / 5;
       if (sacr.no + 5 * down > 35) 
         down = BIGNUM;
     }
@@ -828,7 +834,7 @@ bool Tableau::AddSacrifices(
   const vulType v,
   const unsigned side,
   const playerType dealer,
-  const unsigned bestDown,
+  const int bestDown,
   const unsigned noDecl,
   const unsigned dno,
   const listType slist[][BRIDGE_DENOMS],
@@ -841,29 +847,31 @@ bool Tableau::AddSacrifices(
   for (unsigned eno = 0; eno <= 4; eno++)
   {
     unsigned down = sacr[dno][eno];
-    if (down != bestDown) 
+    if (static_cast<int>(down) != bestDown) 
       continue;
 
     if (eno != dno)
     {
       unsigned noSac = sacrList[eno].no + 5 * bestDown;
       if (! Tableau::AddContract(v, other, noSac, 
-          static_cast<denomType>(eno), -bestDown, clist))
+          static_cast<denomType>(eno), -static_cast<int>(bestDown), 
+	  clist))
 	return false;
       continue;
     }
 
     // Special case: Sacrifice in declarer's best suit.
-    const unsigned tMax = static_cast<int>((noDecl + 34) / 5);
+    const unsigned tMax = (noDecl + 34) / 5;
     const unsigned * t = table[ DENOM_PAR_TO_DDS[dno] ];
     unsigned incrFlag = 0;
     unsigned pHit = 0;
     playerType pnoList[2];
     unsigned sacList[2];
-    for (unsigned pno = dealer; pno <= dealer + 3; pno++)
+    for (unsigned pno = dealer; 
+        pno <= static_cast<unsigned>(dealer) + 3; pno++)
     {
       unsigned pnoMod = pno % 4;
-      int diff = tMax - t[pnoMod];
+      unsigned diff = tMax - t[pnoMod];
       if (pno % 2 == side)
       {
         if (diff == 0) 
@@ -872,7 +880,7 @@ bool Tableau::AddSacrifices(
       else
       {
         down = diff + incrFlag;
-        if (down != bestDown) 
+        if (static_cast<int>(down) != bestDown) 
 	  continue;
         pnoList[pHit] = static_cast<playerType>(pnoMod);
         sacList[pHit] = noDecl + 5 * incrFlag;
@@ -880,7 +888,7 @@ bool Tableau::AddSacrifices(
       }
     }
 
-    int ns0 = sacList[0];
+    unsigned ns0 = sacList[0];
     if (pHit == 1)
     {
       if (! Tableau::AddSpecialSac(v, ns0, 
@@ -889,7 +897,7 @@ bool Tableau::AddSacrifices(
       continue;
     }
 
-    int ns1 = sacList[1];
+    unsigned ns1 = sacList[1];
     if (ns0 == ns1)
     {
       // Both players.
