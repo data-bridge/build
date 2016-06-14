@@ -124,8 +124,6 @@ bool Deal::SetHand(
 
   if (seen != 3+offset)
   {
-cout << "seen " << seen << " offset " << offset << "\n";
-cout << "delimiters " << delimiters << ", " << hand << endl;
     LOG("Not the right number of delimiters");
     return false;
   }
@@ -135,13 +133,9 @@ cout << "delimiters " << delimiters << ", " << hand << endl;
   tokenize(hand, suits, delimiters);
 
   for (unsigned s = 0; s < BRIDGE_SUITS; s++)
-  {
     if (! Deal::SetCards(suits[s+offset], pholding[s]))
-    {
-cout << "  s " << s << " " << suits[s+offset] << endl;
       return false;
-    }
-  }
+
   return true;
 }
 
@@ -156,9 +150,6 @@ bool Deal::SetHands()
       strcpy(cards[p][s], HOLDING_TO_SUIT[holding[p][s]].c_str());
       sum += holding[p][s];
       xsum ^= holding[p][s];
-
-cout << "cards[" << p << "][" << s << "]: " <<
-  cards[p][s] << "\n";
     }
     if (sum != MAX_HOLDING || xsum != MAX_HOLDING)
     {
@@ -193,17 +184,12 @@ bool Deal::SetLIN(const string& text)
     c = countDelimiters(tokens[p], "SHDC");
     if (c != 4)
     {
-cout << "token " << tokens[p] << " " << c << endl;
       LOG("Not 4 suits");
       return false;
     }
 
-cout << "SetLin plin " << plin << endl;
     if (! Deal::SetHand(tokens[p], "SHDC", 1, holding[p]))
-    {
-cout << "Set token " << tokens[p] << " " << c << endl;
       return false;
-    }
 
     for (unsigned s = 0; s < BRIDGE_SUITS; s++)
       holding[PLAYER_LIN_TO_DDS[3]][s] ^= holding[p][s];
@@ -215,16 +201,16 @@ cout << "Set token " << tokens[p] << " " << c << endl;
 
 bool Deal::SetPBN(const string& s)
 {
-  unsigned c = countDelimiters(s, ":| ");
-  if (c != 3)
+  unsigned c = countDelimiters(s, ": ");
+  if (c != 4)
   {
-    LOG("Not 3 delimiters in '" + s + "'");
+    LOG("Not 4 space delimiters in '" + s + "'");
     return false;
   }
 
   vector<string> tokens(BRIDGE_PLAYERS+1);
   tokens.clear();
-  tokenize(s, tokens, ":");
+  tokenize(s, tokens, ": ");
 
   unsigned first;
   if (! Deal::StringToPlayer(tokens[0], first))
@@ -261,18 +247,18 @@ bool Deal::SetRBN(const string& s)
   tokens.clear();
   tokenize(s, tokens, ":");
 
-  // Last is derived, not given (it is re-derived even if given).
-  for (unsigned s = 0; s < BRIDGE_SUITS; s++)
-    holding[PLAYER_RBN_TO_DDS[3]][s] = MAX_HOLDING;
-  
   unsigned first;
   if (! Deal::StringToPlayer(tokens[0], first))
     return false;
 
+  // Last is derived, not given (it is re-derived even if given).
+  const unsigned last = (first + 3) % 4;
+  for (unsigned s = 0; s < BRIDGE_SUITS; s++)
+    holding[last][s] = MAX_HOLDING;
+  
   for (unsigned pno = 0; pno <= 2; pno++)
   {
     unsigned p = (first + pno) % 4;
-
     if (countDelimiters(tokens[pno+1], ".") != 3)
     {
       LOG("Not 3 periods");
@@ -283,7 +269,7 @@ bool Deal::SetRBN(const string& s)
       return false;
 
     for (unsigned s = 0; s < BRIDGE_SUITS; s++)
-      holding[PLAYER_RBN_TO_DDS[3]][s] ^= holding[p][s];
+      holding[last][s] ^= holding[p][s];
   }
 
   return Deal::SetHands();
@@ -292,6 +278,9 @@ bool Deal::SetRBN(const string& s)
 
 bool Deal::SetTXT(const string cardsArg[][BRIDGE_SUITS])
 {
+  // Might be better to pass in the 12 lines as a single string,
+  // and then parse them out here.  Unifies SetTXT with Set.
+
   for (unsigned plin = 0; plin < BRIDGE_PLAYERS; plin++)
     for (unsigned s = 0; s < BRIDGE_SUITS; s++)
       if (! Deal::SetCards(cardsArg[plin][s], holding[plin][s]))
@@ -386,23 +375,20 @@ bool Deal::operator != (const Deal& b2) const
 
 string Deal::AsLIN(const playerType start) const
 {
-  string s = "st||md|" + PLAYER_NAMES_SHORT[start];
-cout << "s " << s << endl;
-cout << "'" << cards[0][BRIDGE_SPADES] << "'" << endl;
-cout << "'" << RevStr(cards[0][BRIDGE_SPADES]) << "'" << endl;
+  stringstream s;
+  s << "st||md|" << PLAYER_DDS_TO_LIN_DEALER[start];
   
   // Players are always in same order.
   for (unsigned p = 0; p <= 2; p++)
   {
-    s += "S" + RevStr(cards[p][BRIDGE_SPADES]) +
-         "H" + RevStr(cards[p][BRIDGE_HEARTS]) +
-         "D" + RevStr(cards[p][BRIDGE_DIAMONDS]) +
-         "C" + RevStr(cards[p][BRIDGE_CLUBS]);
+    s << "S" << cards[p][BRIDGE_SPADES] <<
+         "H" << cards[p][BRIDGE_HEARTS] <<
+         "D" << cards[p][BRIDGE_DIAMONDS] <<
+         "C" << cards[p][BRIDGE_CLUBS];
     if (p < 2)
-      s += ",";
-cout << "p " << p << ": s " << s << endl;
+      s << ",";
   }
-  return s + "|rh||";
+  return s.str() + "|rh||";
 }
 
 
@@ -419,7 +405,7 @@ string Deal::AsPBN(const playerType start) const
          cards[p][BRIDGE_HEARTS] << "." <<
          cards[p][BRIDGE_DIAMONDS] << "." <<
          cards[p][BRIDGE_CLUBS];
-    if (p < 3)
+    if (pno < 3)
       s << " ";
   }
   return s.str() + "\"]\n";

@@ -1,17 +1,17 @@
+Started adding function names in Auction.cpp
+
 DONE
    520   1506  10834 Optimum.pm
    612   2014  13448 Contract.pm
+   468   1403   9666 Deal.pm
 
 TODO
    949   2903  20749 Auction.pm
   2248   6531  53858 Batch.pm
    568   1593  13074 Board.pm
    212    525   4003 Compilation.pm
-   468   1403   9666 Deal.pm
    935   3161  22301 Play.pm
    347    987   6439 Players.pm
   1218   3452  25010 Segment.pm
-
-Go back to char[] in storage of objects
 
 Add compile warnings

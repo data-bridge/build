@@ -13,6 +13,8 @@
 #include <iomanip>
 #include <string>
 #include <vector>
+#include <iterator>
+#include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -62,11 +64,10 @@ unsigned countDelimiters(
 }
 
 
-string RevStr(string s)
+string RevStr(const string& s)
 {
-cout << "sin " << s << endl;
-  reverse(s.end(), s.begin());
-cout << "sout " << s << endl;
-  return s;
+  string t = s;
+  reverse(t.begin(), t.end());
+  return t;
 }
 

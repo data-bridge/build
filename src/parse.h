@@ -23,6 +23,6 @@ unsigned countDelimiters(
   const string& str,
   const string& delimiters);
 
-string RevStr(string s);
+string RevStr(const string& s);
 
 #endif
