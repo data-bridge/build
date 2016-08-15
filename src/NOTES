@@ -15,3 +15,5 @@ TODO
   1218   3452  25010 Segment.pm
 
 Add compile warnings
+
+Part of Auction.pm should probably go in Contract.cpp

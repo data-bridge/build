@@ -20,6 +20,7 @@ using namespace std;
 #define BRIDGE_SUITS 4
 #define BRIDGE_DENOMS 5
 #define BRIDGE_TRICKS 13
+#define BRIDGE_VULS 4
 
 #define Max(x, y) (((x) >= (y)) ? (x) : (y))
 #define Min(x, y) (((x) <= (y)) ? (x) : (y))
@@ -115,6 +116,11 @@ const char DENOM_NAMES_SHORT[BRIDGE_DENOMS] =
 const string DENOM_NAMES_SHORT_RBN[BRIDGE_DENOMS] =
 {
   "NT", "S", "H", "D", "C"
+};
+
+const string VUL_NAMES_SHORT_RBN[BRIDGE_DENOMS] =
+{
+  "Z", "B", "N", "E"
 };
 
 enum formatType
