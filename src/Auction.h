@@ -57,9 +57,6 @@ class Auction
       unsigned& aNo,
       const bool extendedFlag) const;
 
-    bool AddAuctionRBN(
-      const string& s);
-
     string AsLIN() const;
     string AsPBN() const;
     string AsRBN() const;
@@ -92,6 +89,9 @@ class Auction
     void AddPasses();
 
     bool UndoLastCall();
+
+    bool AddAuctionRBN(
+      const string& s);
 
     bool AddAuction(
       const string& s,

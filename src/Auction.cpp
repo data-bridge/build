@@ -82,7 +82,7 @@ void Auction::SetTables()
   AUCTION_NO_TO_CALL_TXT[1] = "DBL";
   AUCTION_NO_TO_CALL_TXT[2] = "RDBL";
 
-  unsigned p = 2;
+  unsigned p = 3;
   for (unsigned level = 1; level <= 7; level++)
   {
     for (unsigned d = 0; d < BRIDGE_DENOMS; d++)
@@ -266,6 +266,7 @@ bool Auction::AddAlert(
 void Auction::AddPasses()
 {
   unsigned add = (activeCNo == 0 ? 4 - numPasses : 3 - numPasses);
+  numPasses += add;
   for (unsigned p = 0; p < add; p++)
     Auction::AddCallNo(0);
 }
@@ -285,16 +286,18 @@ bool Auction::UndoLastCall()
     return false;
   }
 
-  if (sequence[len].no == 0)
+  if (sequence[len-1].no == 0)
   {
+    sequence[len-1].alert = "";
     len--;
     numPasses--;
     return true;
   }
 
+  sequence[len-1].alert = "";
   len--;
   numPasses = 0;
-  while (sequence[len-numPasses].no == 0)
+  while (sequence[len-1-numPasses].no == 0)
     numPasses++;
 
   unsigned p = len - numPasses;
@@ -425,7 +428,7 @@ bool Auction::AddAuctionRBN(const string& s)
   }
 
   size_t pos = 4;
-  unsigned aNo = 1;
+  unsigned aNo = 0;
   while (1)
   {
     if (pos >= l)
@@ -473,6 +476,11 @@ bool Auction::AddAuctionRBN(const string& s)
       aNo = aNoNew;
       sequence[activeBNo].alert = "[" + STR(aNo) + "]";
     }
+    else if (c == '*') 
+    {
+      pos++;
+      sequence[activeBNo].alert = '!';
+    }
     else if (c == 'P' || c == 'X' || c == 'R')
     {
       Auction::AddCall(string(1, c), "");
@@ -485,11 +493,9 @@ bool Auction::AddAuctionRBN(const string& s)
     }
     else
     {
-      string s(1, c);
-      pos++;
-      s += STR(s.at(pos));
-      pos++;
-      if (! Auction::AddCall(s, ""))
+      string t = s.substr(pos, 2);
+      pos += 2;
+      if (! Auction::AddCall(t, ""))
         return false;
     }
   }
@@ -564,17 +570,31 @@ bool Auction::ConsistentWith(const Contract& cref) const
       BRIDGE_MULT_UNDOUBLED);
   else
   {
-    const unsigned level = (activeCNo + 3) / 5;
-    const denomType denom = static_cast<denomType>
-      (activeCNo - 5*level - 2);
+    const unsigned level = (activeCNo + 2) / 5;
+    unsigned denom = (activeCNo - 5*level + 2);
+
+    // Find the declaring side's earliest bid in denom.
+    unsigned p;
+    for (unsigned b = activeBNo % 2; b <= activeBNo; b += 2)
+    {
+      if (sequence[b].no > 2 && (sequence[b].no + 2) % 5 == denom)
+      {
+        p = b;
+	break;
+      }
+    }
     const playerType declarer = static_cast<playerType>
-      ((activeBNo + 3 - static_cast<unsigned>(dealer)) % 4);
+      ((dealer + p) % 4);
+
+    // Switch to DDS encoding.
+    if (denom != 4)
+      denom = 3 - denom;
 
     cown.SetContract(
       vul,
       declarer,
       level,
-      denom,
+      static_cast<denomType>(denom),
       multiplier);
   }
 
@@ -616,24 +636,25 @@ string Auction::AsPBN() const
   for (unsigned b = 0; b < len; b++)
   {
     const Call& c = sequence[b];
-    s << AUCTION_NO_TO_CALL_PBN[c.no];
+    s << AUCTION_NO_TO_CALL_PBN[c.no] << " ";
     if (c.alert != "")
     {
       if (c.alert == "!")
         s << "$15 ";
       else
       {
-        s << "=" << aNo << "=";
+        s << "=" << aNo << "= ";
 	alerts << "[Note \"" << aNo << ":" << c.alert << "\"]\n";
 	aNo++;
       }
     }
+    if (b % 4 == 3)
+      s << "\n";
   }
   if (len % 4 != 3)
     s << "\n";
 
-  s << alerts;
-  return s.str();
+  return s.str() + alerts.str();
 }
 
 
@@ -655,15 +676,19 @@ string Auction::AsRBN() const
   while (sequence[end].no == 0 && sequence[end].alert == "")
     trailing++, end--;
     
-  unsigned aNo = 0;
-  for (unsigned b = 0; b < end; b++)
+  unsigned aNo = 1;
+  for (unsigned b = 0; b <= end; b++)
   {
     const Call& c = sequence[b];
     if (c.no == 1)
       s << "X";
     else
       s << AUCTION_NO_TO_CALL_LIN[c.no];
-    if (c.alert != "")
+    if (c.alert == "!")
+    {
+      s << "*";
+    }
+    else if (c.alert != "")
     {
       s << "^" << aNo;
       alerts << aNo << " " << c.alert << "\n";
@@ -673,16 +698,19 @@ string Auction::AsRBN() const
 
   if (trailing == 3)
     s << "A";
-  s << "\n" << alerts;
-  return s.str();
+  return s.str() + "\n" + alerts.str();
 }
 
 
 string Auction::AsTXT(const string& names) const
 {
   stringstream s, alerts;
-  unsigned aNo = 0;
-  s << setw(15) << "West" << "North" << "East" << "South\n";
+  unsigned aNo = 1;
+  s << left <<
+       setw(15) << "West" << 
+       setw(15) << "North" << 
+       setw(15) << "East" << 
+       setw(15) << "South" << "\n";
   s << names;
 
   if (len == 0)
@@ -692,7 +720,7 @@ string Auction::AsTXT(const string& names) const
     ((dealer + 4 - BRIDGE_WEST) % 4);
   const unsigned wrap = 3 - numSkips;
   for (unsigned i = 0; i < numSkips; i++)
-    s << "";
+    s << setw(15) << "";
   
   for (unsigned b = 0; b < len; b++)
   {
@@ -706,19 +734,18 @@ string Auction::AsTXT(const string& names) const
       else
       {
         bid << " (" << aNo << ")";
-	alerts << "(" << aNo << ")" << c.alert << "\n";
+	alerts << "(" << aNo << ") " << c.alert << "\n";
 	aNo++;
       }
     }
-    s << bid;
+    s << setw(15) << bid.str();
     if (b % 4 == wrap)
       s << "\n";
   }
 
   if (len % 4 != wrap)
     s << "\n";
-  s << alerts;
-  return s.str();
+  return s.str() + alerts.str();
 }
 
 

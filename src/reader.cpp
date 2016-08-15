@@ -141,7 +141,19 @@ void TestAuction(Auction& auction)
     exit(0);
   }
 
-  if (! auction.AddCall("2S", "Weak raise"))
+  if (! auction.AddCall("2S!"))
+  {
+    debug.Print();
+    exit(0);
+  }
+
+  if (! auction.UndoLastCall())
+  {
+    debug.Print();
+    exit(0);
+  }
+
+  if (! auction.AddCall("2H", "Mixed raise"))
   {
     debug.Print();
     exit(0);
@@ -161,7 +173,17 @@ void TestAuction(Auction& auction)
 
   auction.AddPasses();
 
+  cout << "LIN format:\n";
   string s = auction.AsString(BRIDGE_FORMAT_LIN);
+  if (s == "")
+  {
+    debug.Print();
+    exit(0);
+  }
+  cout << s << "\n\n";
+
+  cout << "PBN format:\n";
+  s = auction.AsString(BRIDGE_FORMAT_PBN);
   if (s == "")
   {
     debug.Print();
@@ -169,12 +191,72 @@ void TestAuction(Auction& auction)
   }
   cout << s << "\n";
 
-  s = auction.AsString(BRIDGE_FORMAT_PBN);
+  cout << "RBN format:\n";
+  s = auction.AsString(BRIDGE_FORMAT_RBN);
   if (s == "")
   {
     debug.Print();
     exit(0);
   }
-  cout << s;
+  cout << s << "\n";
+
+  cout << "TXT format:\n";
+  stringstream t;
+  t << left << 
+    setw(15) << "Garozzo" <<
+    setw(15) << "Hamman" <<
+    setw(15) << "Belladonna" <<
+    setw(15) << "Wolff" << "\n";
+
+  s = auction.AsString(BRIDGE_FORMAT_TXT, t.str());
+  if (s == "")
+  {
+    debug.Print();
+    exit(0);
+  }
+  cout << s << "\n";
+
+  auction.Reset();
+  if (! auction.SetDealerVul(BRIDGE_SOUTH, BRIDGE_VUL_EAST_WEST))
+  {
+    debug.Print();
+    exit(0);
+  }
+
+  if (! auction.AddAuctionRBN("A SE:PP1S^1P:2H*P4SA"))
+  {
+    debug.Print();
+    exit(0);
+  }
+
+  if (! auction.AddAlert(1, "6-card majors"))
+  {
+    debug.Print();
+    exit(0);
+  }
+  
+  cout << "RBN format:\n";
+  s = auction.AsString(BRIDGE_FORMAT_RBN);
+
+  if (s == "")
+  {
+    debug.Print();
+    exit(0);
+  }
+
+  cout << s << "\n";
+
+  Contract contract;
+  contract.SetContract(
+    BRIDGE_VUL_EAST_WEST,
+    BRIDGE_NORTH,
+    4,
+    BRIDGE_SPADES,
+    BRIDGE_MULT_UNDOUBLED);
+
+  if (auction.ConsistentWith(contract))
+    cout << "Consistent" << endl;
+  else
+    cout << "Inconsistent" << endl;
 }
 
