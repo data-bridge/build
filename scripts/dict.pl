@@ -6,101 +6,74 @@
 #
 # See LICENSE and README.
 
+
 use strict;
 use warnings;
-use Name;
 
-my %dict;
-set_dictionaries();
-
-my $name = Name->new();
-my @hist;
-
-open my $FH, "<", "c.txt" or die "Can't open file";
-while (<$FH>)
+sub set_valid_special_characters
 {
-  my $line = $_;
-  chomp $line;
-  $line =~ s///g;
+  my ($special_chars, $unicodes) = @_;
 
-  $name->set_string($line);
+  # Special characters that occur in the db file.
+  my @sp = (
+    #  °
+    0xb0, 
+    #  Á     Â    ~A     Ä    AA    AE    C,     È
+    0xc1, 0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7, 0xc8, 
+    #  É     Í     Î    :I
+    0xc9, 0xcd, 0xce, 0xcf,
+    # ~N     Ò     Ó    ~O     Ö    OE     Ú    Ü      ß
+    0xd1, 0xd2, 0xd3, 0xd5, 0xd6, 0xd8, 0xda, 0xdc, 0xdf,
+    #  à     á     â    ~a     ä    aa    ae    c,
+    0xe0, 0xe1, 0xe2, 0xe3, 0xe4, 0xe5, 0xe6, 0xe7, 
+    #  è     é     ê    :e     ì     í     î    :i
+    0xe8, 0xe9, 0xea, 0xeb, 0xec, 0xed, 0xee, 0xef,
+    # ~d    ~n     ò     ó     ô    ~o     Ö    OE
+    0xf0, 0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf8,
+    #  ù     ú     û     ü    :y
+    0xf9, 0xfa, 0xfb, 0xfc, 0xff);
 
-  $name->delete_from_dict(\%{$dict{words}}, 0);
-  $name->delete_from_dict(\%{$dict{after_comma}}, 1);
-  $name->delete_from_dict(\%{$dict{after_dash}}, 2);
+  $special_chars->[$_] = 1 for (@sp);
 
-  $name->delete_titles(\%{$dict{titles}}, \%{$dict{title_pairs}});
+  my @u0 = qw(
+    0101 0102 0105 0107 010D 
+    0115 0119 011B 011E 011F 
+    0120 0123 012B
+    0130 0131 0133 0134
+    0141 0142 0143 0144 014E
+    0151 0152 0156 0159 015A 015B 015E 015F 
+    0160 0161 0162 0164 0166 0167 016B
+    0172 0173 0175 0177 0179 017A 017B 017C 017E 017F
+    0180 018D 018F
+    0190 0199 019A
+    01A6 01C0 01D6 01D8);
 
-  $name->fix_periods();
+  # ASCII approximations
+  my @u1 = qw(
+       a    A    a    c    c    
+       e    e    e    G    g    
+       G    g    i
+       I    i    j    J
+       L    l    N    n    O
+       ö    O    R    r    s    s    S    s    
+       S    s    T    T    T    t    u
+       U    u    w    y    Z    z    Z    y    z   s
+       b    o    E
+       E    k    l
+       R    l    u    u);
 
-  $name->fix_dashes(\%{$dict{first_names}});
-
-  $name->fix_additions(\%{$dict{additions}});
-
-  $name->fix_commas(\%{$dict{places}});
-
-  $name->fix_place_pairs(\%{$dict{place_pairs}});
-
-  # $name->check_tightness();
-
-  $name->fix_trailing_initials();
-
-  if ($name->get_length() >= 7)
+  for my $i (0 .. $#u0)
   {
-    $name->fix_many_tokens(\%{$dict{first_names}});
-  }
-
-  $name->fix_only_short();
-
-  if ($line =~ /URARTU/)
-  {
-    my $x;
-  }
-
-  $name->annotate(
-    \%{$dict{first_names}}, 
-    \%{$dict{poor_last_names}}, 
-    \%{$dict{good_last_names}}, 
-    \%{$dict{ambig_names}}, 
-    \%{$dict{particles}});
-
-  # $name->check_annotations();
-
-  my %fields;
-  $name->capitalize(\%fields);
-
-  $hist[$name->get_length()]++;
-  if ($name->get_length() >= 3)
-  {
-    # print $name->as_string(), "\n";
-    # print print_field($fields{first}, "First");
-    # print print_field($fields{particle}, "Particle");
-    # print print_field($fields{last}, "Last");
-    # print print_field($fields{addition}, "Addition");
-    printf "%-30s", $name->as_string();
-    print print_fields(\%fields);
-    print "\n";
+    $unicodes->{$u0[$i]} = $u1[$i];
   }
 }
-
-# exit;
-for (my $i = 0; $i <= $#hist; $i++)
-{
-  next unless defined $hist[$i];
-  printf "%3d  %6d\n", $i, $hist[$i];
-}
-
-exit;
-for my $k (sort keys %{$dict{after_dash}})
-{
-  printf "%3d  %6s\n", $dict{after_dash}{$k}-1, $k;
-}
-
-exit;
 
 
 sub set_dictionaries
 {
+  my $dict = pop;
+
+  # General dictionary of words from which on we delete.
   my @aw = qw( 
     acbl acm addicted advanced afl after again against agence ah 
     aka aka aksa aksaray all always amateur amici 
@@ -154,8 +127,9 @@ sub set_dictionaries
     years yes you your
     );
 
-  $dict{words}{$_} = 1 for (@aw);
+  $dict->{words}{$_} = 1 for (@aw);
 
+  # Words from which we only delete after the first comma.
   my @cw = qw(
     allsuits bbofan capeletti comments cugino dare de dds duke 
     equality est emerald flannery german gwl i iii iitb irsee iitm
@@ -165,32 +139,36 @@ sub set_dictionaries
     truscott transf unt uom use will zine zero
   );
 
-  $dict{after_comma}{$_} = 1 for (@cw);
+  $dict->{after_comma}{$_} = 1 for (@cw);
 
+  # Words from which we only delete after the first dash.
   my @dw = qw(
     antalya bilgrad cogito club ege fair group
     hard hoch in izmir la low maior mtv uludag xxx
   );
 
-  $dict{after_dash}{$_} = 1 for (@dw);
+  $dict->{after_dash}{$_} = 1 for (@dw);
 
+  # One-word titles that we delete (leaving the rest intact).
   my @tw = qw(adv afm av capt col doc dr dt engin engr fr ir 
     md mr mrs ms mgs opr presidente prof sir tc);
 
-  $dict{titles}{$_} = 1 for (@tw);
+  $dict->{titles}{$_} = 1 for (@tw);
 
-  # Title pairs
+  # Title pairs, separated by space or period.
   my @tw2a = qw(dr  ph m m  t op mgr);
   my @tw2b = qw(med d  d mt c dr inz);
   for my $i (0 .. $#tw2a)
   {
-    push @{$dict{title_pairs}{$tw2a[$i]}}, $tw2b[$i];
+    push @{$dict->{title_pairs}{$tw2a[$i]}}, $tw2b[$i];
   }
 
+  # Name additions.
   my @pw = qw(jr jre sr sen ii iii);
 
-  $dict{additions}{$_} = 1 for (@pw);
+  $dict->{additions}{$_} = 1 for (@pw);
 
+  # Cities.
   my @cl = qw(
     aalesund airdrie alanya alberta aligarh ankara arcadia barcelona
     bochum boston botan calgary dubrovnik fbg fethiye firenze 
@@ -199,18 +177,20 @@ sub set_dictionaries
     oslo riviera rossbach mumbai rognan steinkjer tours turgay 
     victoria);
   
+  # States.
   my @sl = qw(
     alaska angola az bc ca colorado fl florida hawaii in iowa
     jabalpur jodh maine mich motherland ny ottawa qc québec 
     sc tasmania tex wa wi yulin
   );
   
+  # Countries.
   my @nl = qw(denmark finland hungary indonesia 
     malta norway taiwan world);
 
-  $dict{places}{$_} = 1 for (@cl);
-  $dict{places}{$_} = 1 for (@sl);
-  $dict{places}{$_} = 1 for (@nl);
+  $dict->{places}{$_} = 1 for (@cl);
+  $dict->{places}{$_} = 1 for (@sl);
+  $dict->{places}{$_} = 1 for (@nl);
 
   # Place pairs
   my @pw2a = qw(alta  bluff biarritz boca  las    las    santa  green 
@@ -219,9 +199,10 @@ sub set_dictionaries
                 delhi ant   petersburg);
   for my $i (0 .. $#pw2a)
   {
-    $dict{place_pairs}{$pw2a[$i]} = $pw2b[$i];
+    $dict->{place_pairs}{$pw2a[$i]} = $pw2b[$i];
   }
 
+  # Frequently occurring first names (not exhaustive).
   my @fn = qw(
     abdullah ad ada adam adnan adrian ahmed ahmet
     al alain alan albert alberto aleksandar alessandro alex
@@ -306,8 +287,9 @@ sub set_dictionaries
     yvonne zafer zbigniew zbyszek zygmunt
   );
 
-  $dict{first_names}{$_} = 1 for (@fn);
+  $dict->{first_names}{$_} = 1 for (@fn);
 
+  # Ambiguous first names that may also be last names.
   my @alson = qw(
     adam adrian albert allen anders anthony arnold barb
     barry bente bernard betty brian bruce bruno charles
@@ -326,49 +308,103 @@ sub set_dictionaries
     terry thomas victor walter wayne werner yi
   );
 
-  $dict{ambig_names}{$_} = 1 for (@alson);
+  $dict->{ambig_names}{$_} = 1 for (@alson);
 
-  my @pn = qw(
-    bin bir da de del della den der des di du 
-    el ibn in la le op st 't te ten ter van von zu
-  );
-
-  $dict{particles}{$_} = 1 for (@pn);
-
+  # Ambiguous names that are possible last names, but poor ones.
   my @poor = qw(
     betty finn francis giovanni jacques james jean john joseph
     hans karl kurt martin paul pierre rose sara victor
   );
 
-  $dict{poor_last_names}{$_} = 1 for (@poor);
+  $dict->{poor_last_names}{$_} = 1 for (@poor);
 
+  # Ambiguous names that are good last names as well.
   my @good = qw(
     albert anders anthony bernard bruce david simon terry thomas
   );
 
-  $dict{good_last_names}{$_} = 1 for (@good);
+  $dict->{good_last_names}{$_} = 1 for (@good);
+
+  # Dutch last names for which "v.d." expands to "van den".
+  my @van_den = qw(
+    berg bosch enk nieuwenhof
+  );
+
+  $dict->{part_van_den}{$_} = 1 for (@van_den);
+
+  # Dutch last names for which "v.d." expands to "van de".
+  my @van_de = qw(
+    dool heuvel konijnenberg reijt scheur tillaar wetering
+  );
+
+  $dict->{part_van_de}{$_} = 1 for (@van_de);
+
+  # Rest of v.d. are "van der".
+
+  # Dutch last names for which "v" expands to "van".
+  my @van = qw(
+    amerongen amsterdam bussel cranenbroek diemen erp
+    kappel leeuwen luyk nieuwkerk oijen paassen rochow rooijen 
+    straten tartwijk thiel velthoven woerden
+  );
+
+  $dict->{part_van}{$_} = 1 for (@van);
+
+  # Other names (German, Polish) for which "v" expands to "von".
+  my @von = qw(
+    heuzen lowzow werthern zarzycki
+  );
+
+  $dict->{part_von}{$_} = 1 for (@von);
+
+  # Scottish last names for which O Name becomes O'Name.
+  my @scots = qw(
+    briain brien callaghan carroll connell connor
+    donnell donoghue donovan fagan gorman halloran
+    hara keeffe lubaigh mahony mearain neill
+    regan riordan shaunessy sullivan toole
+  );
+
+  $dict->{part_scots}{$_} = 1 for (@scots);
+
+  # Scottish last names for which Mac Name becomes MacName.
+  my @macs = qw(
+    allan allister auliffe brien cann carthy cormac
+    donald evoy ewan gowan gregor innis
+    kenna laughlin namara quilkin
+  );
+
+  $dict->{part_macs}{$_} = 1 for (@macs);
+
+  # Scottish last names for which Mc Name becomes McName.
+  my @mcs = qw(
+    alister allister allan annalley auliffe brien cann
+    carry carthy cormack crudden donagh donald donnell
+    evoy ewan fadden gann gowan gregor iver
+    kanzie kecaze kenna laughlin loughlin mahon michael
+    namara nulty quilkin weeney
+  );
+
+  $dict->{part_mcs}{$_} = 1 for (@mcs);
+
+  # Name particles.
+  my @pn = qw(
+    bin bir da de del della den der des di du 
+    el ibn in la le op st 't te ten ter van von zu
+  );
+
+  $dict->{particles}{$_} = 1 for (@pn);
+
+  # Internet domains.
+  my @domains = qw(
+    at ca ch cn dk es eu fi fr gr hk
+    ie il in it jp kr nl no pl pt tr tw uk
+    com org net int edu gov mil
+  );
+
+  $dict->{domains}{$_} = 1 for (@domains);
 }
 
 
-sub print_field
-{
-  my ($a, $title) = @_;
-  return "" unless defined $a;
-  my $s = sprintf "%-8s %s\n", $title,  join(" ", @$a);
-  return $s;
-}
 
-
-sub print_fields
-{
-  my $a = pop;
-  return "" unless defined $a;
-  my $s = sprintf "%-20s", 
-    (defined $a->{first} ? join(" ", @{$a->{first}}) : "");
-  $s .= sprintf "%-10s", 
-    (defined $a->{particle} ? join(" ", @{$a->{particle}}) : "");
-  $s .= sprintf "%-20s", 
-    (defined $a->{last} ? join(" ", @{$a->{last}}) : "");
-  $s .= sprintf "%-8s", 
-    (defined $a->{addition} ? join(" ", @{$a->{addition}}) : "");
-}
+1;
