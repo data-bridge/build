@@ -19,4 +19,4 @@ test/itest
 *.idb
 *.sln
 *vcxproj*
-
+*.txt
