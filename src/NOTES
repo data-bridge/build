@@ -1,12 +1,10 @@
-Started adding function names in Auction.cpp
-
 DONE
    520   1506  10834 Optimum.pm
    612   2014  13448 Contract.pm
    468   1403   9666 Deal.pm
+   949   2903  20749 Auction.pm
 
 TODO
-   949   2903  20749 Auction.pm
   2248   6531  53858 Batch.pm
    568   1593  13074 Board.pm
    212    525   4003 Compilation.pm
@@ -16,4 +14,46 @@ TODO
 
 Add compile warnings
 
-Part of Auction.pm should probably go in Contract.cpp
+Order
+-----
+Write BBO db parser 
+Write BBO parser for regular LIN files incl. JEC files
+Same for Vugraph files
+Write RBN parser to Pavlicek's files
+Set up hands directory structure of some sort
+
+
+Thoughts on PlayerDB
+--------------------
+struct consisting of
+UID (not in struct?)
+BBO handle
+Country
+Display name
+Last name (several entries permitted)
+First name (several entries permitted)
+
+Use MySQL names, kind of?
+Lookup(UID)
+UID = FindExact(BBO, Display, Last then first name)
+UID list = FindApprox(quality of fit), maybe Select
+UID = Add(struct?)
+bool Merge(UID1, UID2)
+bool Delete(UID)
+Renumber()
+ReadFile(file), set lock
+WriteFile(same or other file)
+Release lock
+Set(UID, struct or field + field name)
+
+Print(by UID, BBO, Display, Last name then first name)
+
+Syntax for .bsf files
+---------------------
+(Bridge script files)
+player alias "Display,Last,First" "Display"
+select segment "segment"
+unselect segment
+postpone (rerun in the end, e.g. for partner counts)
+select board 7
+(stuff to do with the selected board, e.g. contract)
