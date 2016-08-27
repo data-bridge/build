@@ -885,7 +885,12 @@ sub _annotate3
     }
     elsif ($self->{list}[0]{meaning} eq OTHER)
     {
-      if ($self->{list}[0]{cap} eq UPPER &&
+      if ($self->{list}[0]{length} <= 2)
+      {
+        $self->{list}[0]{meaning} = FIRST;
+        $self->{list}[2]{meaning} = LAST;
+      }
+      elsif ($self->{list}[0]{cap} eq UPPER &&
           $self->{list}[2]{cap} eq UPPER)
       {
         if ($self->{list}[2]{meaning} eq FIRST)
@@ -1032,7 +1037,8 @@ sub _annotate5
     {
       # About 2000 cases, pretty good quality.
       $self->{list}[0]{meaning} = FIRST;
-      $self->{list}[2]{meaning} = FIRST;
+      $self->{list}[2]{meaning} = FIRST
+        if $self->{list}[2]{meaning} eq INITIAL;
       $self->{list}[4]{meaning} = LAST;
     }
     elsif ($self->{list}[0]{cap} eq UPPER &&
@@ -1226,6 +1232,9 @@ sub _annotate_long
     $n++ while ($n < $self->{num} && 
           $self->{list}[$n]{meaning} ne PARTICLE);
 
+    # Crude fix for trailing particle
+    $self->{num} -= 2 if ($n == $self->{num}-1);
+
     if ($n < $self->{num})
     {
       # About 400 cases.
@@ -1350,24 +1359,35 @@ sub _capitalize_first
   {
     return _upchar($r->{value}) . "." ;
   }
-  elsif ($r->{length} == 2 &&
-      $r->{cap} eq UPPER &&
-      $r->{letters} eq CONSONLY)
+  elsif ($r->{length} == 2)
   {
-    if ($r->{lower} eq "th")
+    if ($r->{cap} eq UPPER)
     {
-      return "Th.";
+      if ($r->{lower} eq "th")
+      {
+        return "Th.";
+      }
+      else
+      {
+        return _upchar(substr($r->{value}, 0, 1)) . ". " .
+               _upchar(substr($r->{value}, 1, 1)) . ".";
+      }
+    }
+    elsif ($r->{letters} eq CONSONLY)
+    {
+      return _upchar(substr($r->{value}, 0, 1)) .  
+          substr($r->{lower}, 1) . ".";
     }
     else
     {
-      return _upchar(substr($r->{value}, 0, 1)) . ". " .
-             _upchar(substr($r->{value}, 1, 1)) . ".";
+      return _upchar(substr($r->{value}, 0, 1)) . 
+             substr($r->{lower}, 1);
     }
   }
   else
   {
     return _upchar(substr($r->{value}, 0, 1)) . 
-           substr($r->{value}, 1);
+           substr($r->{lower}, 1);
   }
 }
 

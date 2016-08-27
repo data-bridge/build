@@ -52,10 +52,10 @@ while (<$FH>)
 
   $name->fix_only_short();
 
-  # if ($line =~ /Starre/)
-  # {
-    # my $x;
-  # }
+  if ($line =~ /URARTU/)
+  {
+    my $x;
+  }
 
   $name->annotate(
     \%{$dict{first_names}}, 
@@ -72,11 +72,13 @@ while (<$FH>)
   $hist[$name->get_length()]++;
   if ($name->get_length() >= 3)
   {
-    print $name->as_string(), "\n";
-    print print_field($fields{first}, "First");
-    print print_field($fields{particle}, "Particle");
-    print print_field($fields{last}, "Last");
-    print print_field($fields{addition}, "Addition");
+    # print $name->as_string(), "\n";
+    # print print_field($fields{first}, "First");
+    # print print_field($fields{particle}, "Particle");
+    # print print_field($fields{last}, "Last");
+    # print print_field($fields{addition}, "Addition");
+    printf "%-30s", $name->as_string();
+    print print_fields(\%fields);
     print "\n";
   }
 }
@@ -356,3 +358,17 @@ sub print_field
   return $s;
 }
 
+
+sub print_fields
+{
+  my $a = pop;
+  return "" unless defined $a;
+  my $s = sprintf "%-20s", 
+    (defined $a->{first} ? join(" ", @{$a->{first}}) : "");
+  $s .= sprintf "%-10s", 
+    (defined $a->{particle} ? join(" ", @{$a->{particle}}) : "");
+  $s .= sprintf "%-20s", 
+    (defined $a->{last} ? join(" ", @{$a->{last}}) : "");
+  $s .= sprintf "%-8s", 
+    (defined $a->{addition} ? join(" ", @{$a->{addition}}) : "");
+}
