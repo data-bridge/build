@@ -1,4 +1,5 @@
 Created framework for Play.cpp and Play.h
+Make stats (histogram) of #cards given per play
 
 Auction: Output : in RBN every fourth bid
 

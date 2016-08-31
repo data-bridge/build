@@ -70,7 +70,8 @@ Bint.obj: Bint.h
 Contract.obj: Contract.h bconst.h Debug.h
 Deal.obj: bconst.h Deal.h Players.h Debug.h parse.h
 Debug.obj: Debug.h
-Play.obj: Play.h bconst.h Contract.h Deal.h Players.h portab.h Debug.h
+Play.obj: Play.h bconst.h Contract.h Deal.h Players.h Debug.h parse.h
+Play.obj: portab.h
 Players.obj: Players.h bconst.h portab.h
 Tableau.obj: Tableau.h bconst.h Contract.h Debug.h parse.h
 parse.obj: parse.h

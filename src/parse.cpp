@@ -15,12 +15,14 @@
 #include <vector>
 #include <iterator>
 #include <algorithm>
+#include <regex>
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "parse.h"
 
 using namespace std;
+
 
 
 // tokenize splits a string into tokens separated by delimiter.
@@ -69,5 +71,28 @@ string RevStr(const string& s)
   string t = s;
   reverse(t.begin(), t.end());
   return t;
+}
+
+
+// getWords splits on one or more whitespaces
+
+bool getWords(
+  const string& str,
+  string words[],
+  const int maxCount,
+  unsigned& actualCount)
+{
+  regex whitespace("(\\S+)");
+  auto wordsBegin = sregex_iterator(str.begin(), str.end(), whitespace);
+  auto wordsEnd = sregex_iterator();
+
+  if (distance(wordsBegin, wordsEnd) > maxCount)
+    return false;
+
+  actualCount = 0;
+  for (sregex_iterator it = wordsBegin; it != wordsEnd; it++)
+    words[actualCount++] = it->str();
+
+  return true;
 }
 

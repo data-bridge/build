@@ -470,6 +470,22 @@ bool Contract::operator != (const Contract& c2) const
 }
 
 
+playerType Contract::GetDeclarer() const
+{
+  if (! setContractFlag || contract.level == 0)
+    return BRIDGE_NORTH_SOUTH; // Error
+  return contract.declarer;
+}
+
+
+denomType Contract::GetDenom() const
+{
+  if (! setContractFlag || contract.level == 0)
+    return BRIDGE_NOTRUMP; // Not recognizable as error!
+  return contract.denom;
+}
+
+
 string Contract::AsLIN() const
 {
   if (! setContractFlag)

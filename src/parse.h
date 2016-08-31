@@ -25,4 +25,10 @@ unsigned countDelimiters(
 
 string RevStr(const string& s);
 
+bool getWords(
+  const string& str,
+  string words[],
+  const int maxCount,
+  unsigned& actualCount);
+
 #endif

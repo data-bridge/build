@@ -92,6 +92,10 @@ class Contract
 
     bool operator != (const Contract& c2) const;
 
+    playerType GetDeclarer() const;
+
+    denomType GetDenom() const;
+
     string AsString(
       const formatType f = BRIDGE_FORMAT_LIN) const;
 

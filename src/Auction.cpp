@@ -100,7 +100,7 @@ void Auction::SetTables()
     }
   }
 
-  for (unsigned p = 0; p < AUCTION_NUM_CALLS; p++)
+  for (p = 0; p < AUCTION_NUM_CALLS; p++)
   {
     AUCTION_CALL_TO_NO[AUCTION_NO_TO_CALL_LIN[p]] = p;
     AUCTION_CALL_TO_NO[AUCTION_NO_TO_CALL_PBN[p]] = p;

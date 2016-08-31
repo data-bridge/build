@@ -253,8 +253,8 @@ bool Deal::SetRBN(const string& s)
 
   // Last is derived, not given (it is re-derived even if given).
   const unsigned last = (first + 3) % 4;
-  for (unsigned s = 0; s < BRIDGE_SUITS; s++)
-    holding[last][s] = MAX_HOLDING;
+  for (unsigned suit = 0; suit < BRIDGE_SUITS; suit++)
+    holding[last][suit] = MAX_HOLDING;
   
   for (unsigned pno = 0; pno <= 2; pno++)
   {
@@ -268,8 +268,8 @@ bool Deal::SetRBN(const string& s)
     if (! Deal::SetHand(tokens[pno+1], ".", 0, holding[p]))
       return false;
 
-    for (unsigned s = 0; s < BRIDGE_SUITS; s++)
-      holding[last][s] ^= holding[p][s];
+    for (unsigned suit = 0; suit < BRIDGE_SUITS; suit++)
+      holding[last][suit] ^= holding[p][suit];
   }
 
   return Deal::SetHands();
