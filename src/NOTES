@@ -1,5 +1,3 @@
-Debug Play.cpp
-
 databases:
 - names
 - input filename -> number, so can make uid for each hand.
@@ -15,8 +13,6 @@ Should somehow recognize complete duplicates
 Extend to all Pavlicek's formats?
 Maybe use his txt format.
 
-== return false: Set LOG at lowest level always.
-
 Make stats (histogram) of #cards given per play
 
 Auction: Output : in RBN every fourth bid
@@ -29,12 +25,12 @@ DONE
    612   2014  13448 Contract.pm
    468   1403   9666 Deal.pm
    949   2903  20749 Auction.pm
+   935   3161  22301 Play.pm
 
 TODO
   2248   6531  53858 Batch.pm
    568   1593  13074 Board.pm
    212    525   4003 Compilation.pm
-   935   3161  22301 Play.pm
    347    987   6439 Players.pm
   1218   3452  25010 Segment.pm
 

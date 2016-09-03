@@ -334,6 +334,7 @@ bool Auction::ParseRBNDealer(const char c)
       dealer = BRIDGE_WEST;
       break;
     default:
+      LOG("Unknown RBN dealer");
       return false;
   }
   return true;
@@ -357,6 +358,7 @@ bool Auction::ParseRBNVul(const char c)
       vul = BRIDGE_VUL_BOTH;
       break;
     default:
+      LOG("Unknown RBN vulnerability");
       return false;
   }
   return true;
@@ -532,17 +534,30 @@ bool Auction::AddAuction(
 
 bool Auction::operator == (const Auction& a2)
 {
-  if (setDVFlag != a2.setDVFlag ||
-      len != a2.len || 
-      activeCNo != a2.activeCNo ||
-      activeBNo != a2.activeBNo)
+  if (setDVFlag != a2.setDVFlag)
+  {
+    LOG("Different DV status");
     return false;
+  }
+  else if (len != a2.len)
+  {
+    LOG("Different lengths");
+    return false;
+  }
+  else if (activeCNo != a2.activeCNo || activeBNo != a2.activeBNo)
+  {
+    LOG("Different active numbers");
+    return false;
+  }
   
   for (unsigned b = 0; b < len; b++)
   {
     if (sequence[b].no != a2.sequence[b].no ||
         sequence[b].alert != a2.sequence[b].alert)
+    {
+      LOG("Different sequences");
       return false;
+    }
   }
 
   return true;
@@ -558,7 +573,10 @@ bool Auction::operator != (const Auction& a2)
 bool Auction::ConsistentWith(const Contract& cref) const
 {
   if (! Auction::IsOver())
+  {
+    LOG("Auction not over");
     return false;
+  }
 
   Contract cown;
   if (activeCNo == 0)
@@ -694,10 +712,16 @@ string Auction::AsRBN() const
       alerts << aNo << " " << c.alert << "\n";
       aNo++;
     }
+    if (b != end && b % 4 == 3)
+      s << ":";
   }
 
   if (trailing == 3)
+  {
+    if (end % 4 == 3)
+      s << ":";
     s << "A";
+  }
   return s.str() + "\n" + alerts.str();
 }
 

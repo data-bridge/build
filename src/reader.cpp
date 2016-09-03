@@ -50,9 +50,9 @@ int main(int argc, char * argv[])
 
   // TestTableau(tableau);
   // TestDeal(deal);
-  // TestAuction(auction);
+  TestAuction(auction);
 
-  TestPlay(play);
+  // TestPlay(play);
 
   // Players players;
   // cout << deal.AsTXT(players) << "\n";

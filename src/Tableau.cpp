@@ -246,7 +246,11 @@ unsigned Tableau::GetEntry(
 
 bool Tableau::operator ==(const Tableau& tab2) const
 {
-  if (setNum != tab2.setNum) return false;
+  if (setNum != tab2.setNum) 
+  {
+    LOG("Different numbers");
+    return false;
+  }
 
   for (int p = 0; p < BRIDGE_PLAYERS; p++)
   {

@@ -496,25 +496,52 @@ bool Play::operator == (const Play& p2)
   // We don't require the holdings to be identical.
 
   if (setDDFlag != p2.setDDFlag)
+  {
+    LOG("DD not set in same way");
     return false;
+  }
   else if (setDDFlag && (declarer != p2.declarer || denom != p2.denom))
+  {
+    LOG("DD difference");
     return false;
+  }
   else if (setDealFlag != p2.setDealFlag)
+  {
+    LOG("Deal difference");
     return false;
+  }
   else if (len != p2.len)
+  {
+    LOG("Length difference");
     return false;
+  }
   else if (trickToPlay != p2.trickToPlay || cardToPlay != p2.cardToPlay)
+  {
+    LOG("Progress difference");
     return false;
+  }
   else if (playOverFlag != p2.playOverFlag)
+  {
+    LOG("Play-over difference");
     return false;
+  }
   else if (claimMadeFlag != p2.claimMadeFlag)
+  {
+    LOG("Claim status difference");
     return false;
+  }
   else if (tricksDecl != p2.tricksDecl || tricksDef != p2.tricksDef)
+  {
+    LOG("Claim difference");
     return false;
+  }
 
   for (unsigned n = 0; n < len; n++)
     if (sequence[n] != p2.sequence[n])
+    {
+      LOG("Sequence difference");
       return false;
+    }
     
   // leads are implicitly identical when the plays are identical.
   return true;
