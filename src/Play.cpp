@@ -44,7 +44,9 @@ string PLAY_NO_TO_CARD[PLAY_NUM_CARDS];
 
 map<string, cardInfoType> PLAY_CARD_TO_INFO; // All syntaxes
 
-unsigned TRICK_RANKS[BRIDGE_DENOMS][BRIDGE_SUITS][BRIDGE_TRICKS];
+cardInfoType PLAY_NO_TO_INFO[PLAY_NUM_CARDS];
+
+unsigned TRICK_RANKS[BRIDGE_DENOMS][BRIDGE_SUITS][PLAY_NUM_CARDS];
 
 bool setPlayTables = false;
 
@@ -102,6 +104,8 @@ void Play::SetTables()
       PLAY_CARD_TO_INFO[str].bitValue = 1u << (p + 2); // DDS encoding
       PLAY_CARD_TO_INFO[str].suit = d % 4;
       PLAY_CARD_TO_INFO[str].rank = p;
+
+      PLAY_NO_TO_INFO[no] = PLAY_CARD_TO_INFO[str];
     }
   }
 
@@ -118,14 +122,14 @@ void Play::SetTables()
 
       // Suit of lead.
       for (unsigned c = 0; c < BRIDGE_TRICKS; c++)
-        TRICK_RANKS[d][lead][c] = c;
+        TRICK_RANKS[d][lead][BRIDGE_TRICKS*lead + c] = c;
 
       if (d == BRIDGE_NOTRUMP)
         continue;
 
       // Trumps.
       for (unsigned c = 0; c < BRIDGE_TRICKS; c++)
-        TRICK_RANKS[d][lead][c] = c + BRIDGE_TRICKS;
+        TRICK_RANKS[d][lead][BRIDGE_TRICKS*d + c] = c + BRIDGE_TRICKS;
     }
   }
 }
@@ -250,6 +254,7 @@ playStatus Play::AddPlay(const string& str)
   {
     // Trick over.
     unsigned relWinner = Play::TrickWinnerRelative();
+    unsigned absWinner = (leads[trickToPlay].leader + relWinner) % 4;
 
     cardToPlay = 0;
     trickToPlay++;
@@ -261,19 +266,18 @@ playStatus Play::AddPlay(const string& str)
     }
     else
     {
-      leads[trickToPlay].leader = static_cast<playerType>
-        ((leads[trickToPlay-1].leader + relWinner) % 4);
+      leads[trickToPlay].leader = static_cast<playerType>(absWinner);
     }
 
-    if ((declarer + leads[trickToPlay].leader) % 2 == 0)
+    if ((declarer + absWinner) % 2 == 0)
     {
       tricksDecl++;
-      leads[trickToPlay].wonByDeclarer = true;
+      leads[trickToPlay-1].wonByDeclarer = true;
     }
     else
     {
       tricksDef++;
-      leads[trickToPlay].wonByDeclarer = false;
+      leads[trickToPlay-1].wonByDeclarer = false;
     }
   }
   else
@@ -300,6 +304,7 @@ unsigned Play::TrickWinnerRelative() const
       highest = rp[sequence[start+p]];
     }
   }
+
   return winner;
 }
 
@@ -311,23 +316,50 @@ playStatus Play::AddTrickPBN(const string& str)
 
   string plays[BRIDGE_PLAYERS];
   unsigned count;
-  if (! getWords(str, plays, 4, count) || count != 4)
+  if (! getWords(str, plays, 4, count))
   {
     LOG("Not a valid PBN play line " + str);
     return PLAY_INVALID_PBN;
   }
 
   unsigned offset = static_cast<unsigned>
-    ((leads[0].leader + 4 - leads[trickToPlay].leader) % 4);
-  for (unsigned p = offset; p < offset+4; p++)
-    Play::AddPlay(plays[(offset + p) % 4]);
+    ((leads[trickToPlay].leader + 4 - leads[0].leader) % 4);
+cout << "count " << count << " offset " << offset << "\n";
+  for (unsigned p = offset; p < offset+count; p++)
+  {
+    unsigned pp = p % 4;
+cout << "p " << p << " pp " << pp << "\n";
+    if (pp >= count)
+      continue;
+cout << "play " << plays[pp] << endl;
+    if (plays[pp] != "-")
+    {
+      playStatus ps = Play::AddPlay(plays[pp]);
+      if (ps != PLAY_NO_ERROR)
+        return ps;
+    }
+  }
 
   return PLAY_NO_ERROR;
 }
 
 
-playStatus Play::AddAllRBN(const string& str)
+playStatus Play::AddAllRBN(const string& sIn)
 {
+  if (sIn.length() < 2)
+  {
+    LOG("String too short: " + sIn);
+    return PLAY_INVALID_RBN;
+  }
+
+  if (sIn.at(0) != 'P' || sIn.at(1) != ' ')
+  {
+    LOG("Must start with P");
+    return PLAY_INVALID_RBN;
+  }
+
+  const string str = sIn.substr(2, string::npos);
+
   int seen = count(str.begin(), str.end(), ':');
   if (seen > BRIDGE_TRICKS-1)
   {
@@ -350,7 +382,6 @@ playStatus Play::AddAllRBN(const string& str)
     }
 
     const char suitLed = trick.at(0); // Might be invalid
-
     stringstream s;
     unsigned i = 0;
     unsigned b = 0;
@@ -505,6 +536,7 @@ string Play::AsLIN() const
     if (l % 4 == 3)
       s << "pg||";
   }
+
   return s.str();
 }
 
@@ -523,10 +555,30 @@ string Play::AsPBN() const
     for (unsigned c = 0; c < 4; c++)
     {
       unsigned p = offset + (openingLeader + 4 - leads[t].leader + c) % 4;
-      s << (p >= len ? "-" : PLAY_NO_TO_CARD[sequence[p]]);
+      s << PLAY_NO_TO_CARD[sequence[p]] << " ";
     }
     s << "\n";
   }
+
+  if (len > trickToPlay << 2)
+  {
+    unsigned offset = trickToPlay << 2;
+    bool dashing = true;
+    for (unsigned c = 0; c < 4; c++)
+    {
+      unsigned p = 
+        offset + (openingLeader + 4 - leads[trickToPlay].leader + c) % 4;
+      if (p < len)
+      {
+        dashing = false;
+        s << PLAY_NO_TO_CARD[sequence[p]] << " ";
+      }
+      else if (dashing)
+        s << " - ";
+    }
+    s << "\n";
+  }
+
   if (claimMadeFlag)
     s << "*\n";
 
@@ -540,10 +592,18 @@ string Play::AsRBN() const
   s << "P ";
   for (unsigned l = 0; l < len; l++)
   {
-    s << PLAY_NO_TO_CARD[sequence[l]];
-    if (l % 4 == 3)
-      s << (l == len-1 ? "\n" : ":");
+    if (l % 4 == 0)
+      s << PLAY_NO_TO_CARD[sequence[l]];
+    else if (PLAY_NO_TO_INFO[sequence[l]].suit != 
+        static_cast<unsigned>(leads[l >> 2].suit))
+      s << PLAY_NO_TO_CARD[sequence[l]];
+    else
+      s << PLAY_CARDS[PLAY_NO_TO_INFO[sequence[l]].rank];
+
+    if (l % 4 == 3 && l != len-1)
+      s << ":";
   }
+  s << "\n";
   return s.str();
 
 }
@@ -568,26 +628,32 @@ string Play::AsTXT() const
   unsigned tDef = 0;
 
   for (unsigned l = 0; l < len; l++)
-  for (unsigned t = 0; t < trickToPlay; t++)
   {
     unsigned c = l % 4;
-    // 0: haven't started new trick yet
-    if (l
-    s << setw(6) << PLAYER_NAMES_LONG[leads[t].leader];
+    unsigned t = l >> 2;
+    if (c == 0)
+      s << setw(6) << PLAYER_NAMES_LONG[leads[t].leader];
 
-    unsigned offset = t << 2;
-    for (unsigned c = 0; c < 4; c++)
-      s << setw(4) << PLAY_NO_TO_CARD[sequence[offset+c]];
+    s << setw(4) << PLAY_NO_TO_CARD[sequence[l]];
 
-    s << setw(11) << (leads[t].wonByDeclarer ? "declarer" : "defenders");
-
-    if (leads[t].wonByDeclarer)
-      tDecl++;
-    else
-      tDef++;
-
-    s << setw(6) << tDecl << setw(5) << tDef << "\n";
+    if (c == 3)
+    {
+      if (leads[t].wonByDeclarer)
+      {
+        s << setw(11) << "declarer";
+        tDecl++;
+      }
+      else
+      {
+        s << setw(11) << "defenders";
+        tDef++;
+      }
+      s << setw(6) << tDecl << setw(5) << tDef << "\n";
+    }
   }
+  if (len % 4 != 3)
+    s << "\n";
+
   if (claimMadeFlag)
     s << "Claim: " << tricksDecl << " tricks";
   s << "\n\n";

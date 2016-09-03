@@ -289,10 +289,13 @@ void TestPlay(Play& play)
 
   if (! play.SetHoldingDDS(cards)) assert(false);
 
+  Players players;
+  cout << deal.AsTXT(players);
+
   const char *vlist[] =
     {"DT", "D6", "DA", "D7",
      "C5", "CK", "CA", "C6",
-     "C2", "CQ", "C7", "C3",
+     "CQ", "C7", "C3", "C2",
      "HQ", "HK", "H2", "H6",
      "H4", "H3", "HA", "C8",
      "H9", "D5", "H5", "D3",
@@ -302,26 +305,26 @@ void TestPlay(Play& play)
      "S4", "S9", "ST", "SQ",
      "S5"
     };
-  const vector<string> list(vlist, end(vlist));
+  const vector<string> vvlist(vlist, end(vlist));
 
-  for (const string &card: list)
+  for (const string &card: vvlist)
   {
     if (play.AddPlay(card) != PLAY_NO_ERROR)
     {
+      debug.Print();
       assert(false);
     }
-    else
-      cout << "Card: " << card << "\n";
-      cout << play.AsString(BRIDGE_FORMAT_TXT);
   }
 
   if (play.Claim(9) != PLAY_CLAIM_NO_ERROR) assert(false);
   cout << play.AsString(BRIDGE_FORMAT_LIN) << "\n";
+  cout << play.ClaimAsString(BRIDGE_FORMAT_LIN) << endl; 
+
   cout << play.AsString(BRIDGE_FORMAT_PBN);
   cout << play.AsString(BRIDGE_FORMAT_RBN);
   cout << play.AsString(BRIDGE_FORMAT_TXT);
+  cout << endl;
 
-  cout << play.ClaimAsString(BRIDGE_FORMAT_LIN) << endl; 
 
   play.Reset();
   play.SetContract(contract);
@@ -330,21 +333,62 @@ void TestPlay(Play& play)
     assert(false);
   }
 
-  if (! play.AddTrickPBN("DT  D6  DA  D7  ")) assert(false);
-  if (! play.AddTrickPBN("CA  C6  C5  CK  ")) assert(false);
-  if (! play.AddTrickPBN("CQ  C7  C3  C2  ")) assert(false);
-  if (! play.AddTrickPBN("HQ  HK  H2  H6  ")) assert(false);
-  if (! play.AddTrickPBN("C8  H4  H3  HA  ")) assert(false);
-  if (! play.AddTrickPBN("D5  H5  D3  H9  ")) assert(false);
-  if (! play.AddTrickPBN("D9  D8  D4  DK  ")) assert(false);
-  if (! play.AddTrickPBN("DQ  H8  DJ  D2  ")) assert(false);
-  if (! play.AddTrickPBN("S2  S3  S7  SA  ")) assert(false);
-  if (! play.AddTrickPBN("S9  ST  SQ  S4  ")) assert(false);
+  const char *tlist[] =
+    {"DT  D6  DA  D7  ",
+     "CA  C6  C5  CK  ",
+     "CQ  C7  C3  C2  ",
+     "HQ  HK  H2  H6  ",
+     "C8  H4  H3  HA  ",
+     "D5  H5  D3  H9  ",
+     "D9  D8  D4  DK  ",
+     "DQ  H8  DJ  D2  ",
+     "S2  S3  S7  SA  ",
+     "S9  ST  SQ  S4  ",
+     " -   -  S5"
+    };
+  const vector<string> ttlist(tlist, end(tlist));
+
+  for (const string &trick: ttlist)
+  {
+    if (play.AddTrickPBN(trick) != PLAY_NO_ERROR)
+    {
+      debug.Print();
+      assert(false);
+    }
+    else
+    {
+      cout << "trick " << trick << "\n";
+      cout << play.AsString(BRIDGE_FORMAT_TXT);
+    }
+  }
 
   if (play.Claim(9) != PLAY_CLAIM_NO_ERROR) assert(false);
   cout << play.AsString(BRIDGE_FORMAT_LIN);
   cout << play.AsString(BRIDGE_FORMAT_PBN);
   cout << play.AsString(BRIDGE_FORMAT_RBN);
   cout << play.AsString(BRIDGE_FORMAT_TXT);
+  cout << endl;
+
+  play.Reset();
+  play.SetContract(contract);
+  if (! play.SetHoldingDDS(cards))
+  {
+    assert(false);
+  }
+
+  if (play.AddAllRBN(
+    "P DT6A7:C5KA6:CQ732:HQK26:H43AC8:H9D55D3:DK984:D2QH8J:S37A2:S49TQ:S5")
+    != PLAY_NO_ERROR)
+  {
+    debug.Print();
+    assert(false);
+  }
+
+  if (play.Claim(9) != PLAY_CLAIM_NO_ERROR) assert(false);
+  cout << play.AsString(BRIDGE_FORMAT_LIN);
+  cout << play.AsString(BRIDGE_FORMAT_PBN);
+  cout << play.AsString(BRIDGE_FORMAT_RBN);
+  cout << play.AsString(BRIDGE_FORMAT_TXT);
+  cout << endl;
 }
 

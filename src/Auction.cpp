@@ -403,7 +403,7 @@ bool Auction::GetRBNAlertNo(
 bool Auction::AddAuctionRBN(const string& s)
 {
   const size_t l = s.length();
-  if (s.length() < 5)
+  if (l < 5)
   {
     LOG("String too short: " + s);
     return false;
