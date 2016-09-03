@@ -324,14 +324,11 @@ playStatus Play::AddTrickPBN(const string& str)
 
   unsigned offset = static_cast<unsigned>
     ((leads[trickToPlay].leader + 4 - leads[0].leader) % 4);
-cout << "count " << count << " offset " << offset << "\n";
   for (unsigned p = offset; p < offset+count; p++)
   {
     unsigned pp = p % 4;
-cout << "p " << p << " pp " << pp << "\n";
     if (pp >= count)
       continue;
-cout << "play " << plays[pp] << endl;
     if (plays[pp] != "-")
     {
       playStatus ps = Play::AddPlay(plays[pp]);
@@ -431,16 +428,6 @@ bool Play::UndoPlay()
     return false;
   }
 
-  unsigned cardUndone = sequence[len-1];
-  len--;
-
-  string str = PLAY_NO_TO_CARD[cardUndone];
-  cardInfoType& info = PLAY_CARD_TO_INFO[str];
-  playerType pUndone = static_cast<playerType>
-    ((leads[trickToPlay].leader + cardToPlay + 3) % 4);
-
-  holding[pUndone][info.suit] ^= info.bitValue;
-
   if (cardToPlay == 0)
   {
     // Undo last card of previous trick, including winner etc.
@@ -454,6 +441,13 @@ bool Play::UndoPlay()
   else
     cardToPlay--;
 
+  unsigned cardUndone = sequence[len-1];
+  len--;
+
+  string str = PLAY_NO_TO_CARD[cardUndone];
+  cardInfoType& info = PLAY_CARD_TO_INFO[str];
+  playerType pUndone = static_cast<playerType>
+    ((leads[trickToPlay].leader + cardToPlay) % 4);
 
   return true;
 }

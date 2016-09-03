@@ -50,9 +50,8 @@ int main(int argc, char * argv[])
 
   // TestTableau(tableau);
   // TestDeal(deal);
-  TestAuction(auction);
-
-  // TestPlay(play);
+  // TestAuction(auction);
+  TestPlay(play);
 
   // Players players;
   // cout << deal.AsTXT(players) << "\n";
@@ -292,6 +291,8 @@ void TestPlay(Play& play)
   Players players;
   cout << deal.AsTXT(players);
 
+  // Test setting the play card by card.
+
   const char *vlist[] =
     {"DT", "D6", "DA", "D7",
      "C5", "CK", "CA", "C6",
@@ -332,6 +333,8 @@ void TestPlay(Play& play)
   {
     assert(false);
   }
+
+  // Test setting the play one PBN trick at a time.
 
   const char *tlist[] =
     {"DT  D6  DA  D7  ",
@@ -376,6 +379,8 @@ void TestPlay(Play& play)
     assert(false);
   }
 
+  // Test setting the RBN play.
+
   if (play.AddAllRBN(
     "P DT6A7:C5KA6:CQ732:HQK26:H43AC8:H9D55D3:DK984:D2QH8J:S37A2:S49TQ:S5")
     != PLAY_NO_ERROR)
@@ -390,5 +395,53 @@ void TestPlay(Play& play)
   cout << play.AsString(BRIDGE_FORMAT_RBN);
   cout << play.AsString(BRIDGE_FORMAT_TXT);
   cout << endl;
+
+  play.Reset();
+  play.SetContract(contract);
+  if (! play.SetHoldingDDS(cards))
+  {
+    assert(false);
+  }
+
+  // Test undo.
+
+  play.AddPlay("DT");
+  play.AddPlay("D6");
+  play.AddPlay("DA");
+  play.AddPlay("D7");
+  play.AddPlay("C5");
+  play.AddPlay("CK");
+  play.AddPlay("CA");
+  play.AddPlay("C6");
+  cout << play.AsString(BRIDGE_FORMAT_TXT);
+
+  if (! play.UndoPlay())
+  {
+    cout << "Can't undo 1" << endl;
+    assert(false);
+  }
+  if (! play.UndoPlay())
+  {
+    cout << "Can't undo 2" << endl;
+    assert(false);
+  }
+
+  cout << play.AsString(BRIDGE_FORMAT_TXT);
+
+  if (play.AddPlay("CQ") != PLAY_NO_ERROR)
+  {
+    debug.Print();
+    cout << "Can't re-add 1" << endl;
+    assert(false);
+  }
+  cout << play.AsString(BRIDGE_FORMAT_TXT);
+  if (play.AddPlay("C6") != PLAY_NO_ERROR)
+  {
+    debug.Print();
+    cout << "Can't re-add 2" << endl;
+    assert(false);
+  }
+  cout << play.AsString(BRIDGE_FORMAT_TXT);
+
 }
 
