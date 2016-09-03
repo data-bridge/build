@@ -33,11 +33,11 @@ WARN_FLAGS      =               \
         /wd4996                 \
         /WX
 
-CC_FLAGS_VS     = /O2 /Oi /Ot /Oy /GL /Zi
+CC_FLAGS_VS     = /O2 /Oi /Ot /Oy /GL /Zi /EHsc
 CC_FLAGS_DEBUG  = /DEBUG
 
 
-LD_FLAGS_VS	= 
+LD_FLAGS_VS	= /INCREMENTAL:NO /DEBUG /OPT:REF /OPT:ICF
 
 WINDRES_FLAG	= -F pe-i386
 

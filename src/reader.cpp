@@ -24,6 +24,7 @@ using namespace std;
 #include "Contract.h"
 #include "Deal.h"
 #include "Auction.h"
+#include "Play.h"
 
 Debug debug;
 
@@ -32,6 +33,8 @@ void TestTableau(Tableau& tableau);
 void TestDeal(Deal& deal);
 
 void TestAuction(Auction& auction);
+
+void TestPlay(Play& play);
 
 
 int main(int argc, char * argv[])
@@ -43,11 +46,13 @@ int main(int argc, char * argv[])
   Contract contract;
   Deal deal;
   Auction auction;
+  Play play;
 
   // TestTableau(tableau);
   // TestDeal(deal);
+  // TestAuction(auction);
 
-  TestAuction(auction);
+  TestPlay(play);
 
   // Players players;
   // cout << deal.AsTXT(players) << "\n";
@@ -258,5 +263,88 @@ void TestAuction(Auction& auction)
     cout << "Consistent" << endl;
   else
     cout << "Inconsistent" << endl;
+}
+
+
+void TestPlay(Play& play)
+{
+  Contract contract;
+  contract.SetContract(
+    BRIDGE_VUL_EAST_WEST,
+    BRIDGE_EAST,
+    4,
+    BRIDGE_HEARTS,
+    BRIDGE_MULT_UNDOUBLED);
+
+  play.SetContract(contract);
+
+  Deal deal;
+  deal.Set("N:Q75.32.AJ43.9543 AJ4.AT976.K72.K2 962.Q.QT95.AQJT8 KT83.KJ854.86.76", BRIDGE_FORMAT_PBN);
+  
+  unsigned cards[BRIDGE_PLAYERS][BRIDGE_SUITS];
+  if (! deal.GetDDS(cards))
+  {
+    assert(false);
+  }
+
+  if (! play.SetHoldingDDS(cards)) assert(false);
+
+  const char *vlist[] =
+    {"DT", "D6", "DA", "D7",
+     "C5", "CK", "CA", "C6",
+     "C2", "CQ", "C7", "C3",
+     "HQ", "HK", "H2", "H6",
+     "H4", "H3", "HA", "C8",
+     "H9", "D5", "H5", "D3",
+     "DK", "D9", "D8", "D4",
+     "D2", "DQ", "H8", "DJ",
+     "S3", "S7", "SA", "S2",
+     "S4", "S9", "ST", "SQ",
+     "S5"
+    };
+  const vector<string> list(vlist, end(vlist));
+
+  for (const string &card: list)
+  {
+    if (play.AddPlay(card) != PLAY_NO_ERROR)
+    {
+      assert(false);
+    }
+    else
+      cout << "Card: " << card << "\n";
+      cout << play.AsString(BRIDGE_FORMAT_TXT);
+  }
+
+  if (play.Claim(9) != PLAY_CLAIM_NO_ERROR) assert(false);
+  cout << play.AsString(BRIDGE_FORMAT_LIN) << "\n";
+  cout << play.AsString(BRIDGE_FORMAT_PBN);
+  cout << play.AsString(BRIDGE_FORMAT_RBN);
+  cout << play.AsString(BRIDGE_FORMAT_TXT);
+
+  cout << play.ClaimAsString(BRIDGE_FORMAT_LIN) << endl; 
+
+  play.Reset();
+  play.SetContract(contract);
+  if (! play.SetHoldingDDS(cards))
+  {
+    assert(false);
+  }
+
+  if (! play.AddTrickPBN("DT  D6  DA  D7  ")) assert(false);
+  if (! play.AddTrickPBN("CA  C6  C5  CK  ")) assert(false);
+  if (! play.AddTrickPBN("CQ  C7  C3  C2  ")) assert(false);
+  if (! play.AddTrickPBN("HQ  HK  H2  H6  ")) assert(false);
+  if (! play.AddTrickPBN("C8  H4  H3  HA  ")) assert(false);
+  if (! play.AddTrickPBN("D5  H5  D3  H9  ")) assert(false);
+  if (! play.AddTrickPBN("D9  D8  D4  DK  ")) assert(false);
+  if (! play.AddTrickPBN("DQ  H8  DJ  D2  ")) assert(false);
+  if (! play.AddTrickPBN("S2  S3  S7  SA  ")) assert(false);
+  if (! play.AddTrickPBN("S9  ST  SQ  S4  ")) assert(false);
+
+  if (play.Claim(9) != PLAY_CLAIM_NO_ERROR) assert(false);
+  cout << play.AsString(BRIDGE_FORMAT_LIN);
+  cout << play.AsString(BRIDGE_FORMAT_PBN);
+  cout << play.AsString(BRIDGE_FORMAT_RBN);
+  cout << play.AsString(BRIDGE_FORMAT_TXT);
 }
 

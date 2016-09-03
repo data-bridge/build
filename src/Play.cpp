@@ -136,7 +136,6 @@ bool Play::SetContract(const Contract& contract)
   if (! contract.ContractIsSet() || contract.IsPassedOut())
     return false;
 
-  UNUSED(contract);
   return Play::SetDeclAndDenom(contract.GetDeclarer(), contract.GetDenom());
 }
 
@@ -179,6 +178,7 @@ bool Play::SetHoldingDDS(
     LOG("Holding already set");
     return false;
   }
+  setDealFlag = true;
 
   // No error checking.
   for (int p = 0; p < BRIDGE_PLAYERS; p++)
@@ -220,7 +220,9 @@ playStatus Play::AddPlay(const string& str)
     return PLAY_CARD_NOT_HELD;
   }
 
-  if (cardToPlay > 0 && holding[player][leads[trickToPlay].suit] > 0)
+  if (cardToPlay > 0 && 
+      INFO.suit != static_cast<unsigned>(leads[trickToPlay].suit) &&
+      holding[player][leads[trickToPlay].suit] > 0)
   {
     LOG("Revoke " + str);
     return PLAY_REVOKE;
@@ -565,8 +567,12 @@ string Play::AsTXT() const
   unsigned tDecl = 0;
   unsigned tDef = 0;
 
+  for (unsigned l = 0; l < len; l++)
   for (unsigned t = 0; t < trickToPlay; t++)
   {
+    unsigned c = l % 4;
+    // 0: haven't started new trick yet
+    if (l
     s << setw(6) << PLAYER_NAMES_LONG[leads[t].leader];
 
     unsigned offset = t << 2;
