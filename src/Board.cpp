@@ -44,55 +44,30 @@ void Board::Reset()
 }
 
 
-bool Board::NewInstance()
+unsigned Board::NewInstance()
 {
   len++;
-  numActive++;
-  return true;
+  auction[numActive+1].CopyDealerVulFrom(auction[numActive]);
+  return numActive++;
 }
 
 
-bool Board::SetDealer(
+bool Board::SetDealerVul(
   const string& d,
-  const formatType f)
-{
-  // TODO
-  UNUSED(d);
-  UNUSED(f);
-  return true;
-}
-
-
-bool Board::CheckDealer(
-  const string& d,
-  const formatType f) const
-{
-  // TODO
-  UNUSED(d);
-  UNUSED(f);
-  return true;
-}
-
-
-bool Board::SetVul(
   const string& v,
   const formatType f)
 {
-  // TODO
-  UNUSED(v);
-  UNUSED(f);
-  return true;
+  // Only the first one is independent.
+  return auction[0].SetDealerVul(d, v, f);
 }
 
 
-bool Board::CheckVul(
+bool Board::CheckDealerVul(
+  const string& d,
   const string& v,
   const formatType f) const
 {
-  // TODO
-  UNUSED(v);
-  UNUSED(f);
-  return true;
+  return auction[0].CheckDealerVul(d, v, f);
 }
 
 

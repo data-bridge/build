@@ -111,9 +111,206 @@ void Auction::SetTables()
 }
 
 
+bool Auction::SetDealerLIN(
+  const string& d,
+  playerType& p) const
+{
+  unsigned u;
+  try
+  {
+    u = stoul(d, nullptr, 0);
+  }
+  catch (const invalid_argument& ia)
+  {
+    UNUSED(ia);
+    LOG("Not a LIN dealer");
+    return false;
+  }
+  catch(const out_of_range& ia)
+  {
+    UNUSED(ia);
+    LOG("Not a LIN dealer");
+    return false;
+  }
+
+  if (u < 1 || u > 4)
+  {
+    LOG("LIN dealer out of range");
+    return false;
+  }
+
+  p = static_cast<playerType>((u+1) % 4);
+  return true;
+}
+
+
+bool Auction::SetDealerPBN(
+  const string& d,
+  playerType& p) const
+{
+  if (d == "N")
+    p = BRIDGE_NORTH;
+  else if (d == "E")
+    p = BRIDGE_EAST;
+  else if (d == "S")
+    p = BRIDGE_SOUTH;
+  else if (d == "W")
+    p = BRIDGE_WEST;
+  else
+  {
+    LOG("Invalid PBN dealer");
+    return false;
+  }
+  return true;
+}
+
+
+bool Auction::SetDealerTXT(
+  const string& d,
+  playerType& p) const
+{
+  if (d == "North")
+    p = BRIDGE_NORTH;
+  else if (d == "East")
+    p = BRIDGE_EAST;
+  else if (d == "South")
+    p = BRIDGE_SOUTH;
+  else if (d == "West")
+    p = BRIDGE_WEST;
+  else
+  {
+    LOG("Invalid PBN dealer");
+    return false;
+  }
+  return true;
+}
+
+
+bool Auction::SetVulLIN(
+  const string& v,
+  vulType& vOut) const
+{
+  if (v == "o")
+    vOut = BRIDGE_VUL_NONE;
+  else if (v == "e")
+    vOut = BRIDGE_VUL_EAST_WEST;
+  else if (v == "n")
+    vOut = BRIDGE_VUL_NORTH_SOUTH;
+  else if (v == "b")
+    vOut = BRIDGE_VUL_BOTH;
+  else
+  {
+    LOG("Invalid LIN vulnerability");
+    return false;
+  }
+  return true;
+}
+
+bool Auction::SetVulPBN(
+  const string& v,
+  vulType& vOut) const
+{
+  if (v == "None")
+    vOut = BRIDGE_VUL_NONE;
+  else if (v == "NS")
+    vOut = BRIDGE_VUL_EAST_WEST;
+  else if (v == "EW")
+    vOut = BRIDGE_VUL_NORTH_SOUTH;
+  else if (v == "All")
+    vOut = BRIDGE_VUL_BOTH;
+  else
+  {
+    LOG("Invalid PBN vulnerability");
+    return false;
+  }
+  return true;
+}
+
+bool Auction::SetVulRBN(
+  const string& v,
+  vulType& vOut) const
+{
+  if (v == "Z")
+    vOut = BRIDGE_VUL_NONE;
+  else if (v == "E")
+    vOut = BRIDGE_VUL_EAST_WEST;
+  else if (v == "N")
+    vOut = BRIDGE_VUL_NORTH_SOUTH;
+  else if (v == "B")
+    vOut = BRIDGE_VUL_BOTH;
+  else
+  {
+    LOG("Invalid RBN vulnerability");
+    return false;
+  }
+  return true;
+}
+
+bool Auction::SetVulTXT(
+  const string& v,
+  vulType& vOut) const
+{
+  if (v == "None")
+    vOut = BRIDGE_VUL_NONE;
+  else if (v == "E-W")
+    vOut = BRIDGE_VUL_EAST_WEST;
+  else if (v == "N-S")
+    vOut = BRIDGE_VUL_NORTH_SOUTH;
+  else if (v == "Both")
+    vOut = BRIDGE_VUL_BOTH;
+  else
+  {
+    LOG("Invalid TXT vulnerability");
+    return false;
+  }
+  return true;
+}
+
+
+bool Auction::ParseDealerVul(
+  const string& d,
+  const string& v,
+  const formatType f,
+  playerType& dOut,
+  vulType& vOut) const
+{
+  switch(f)
+  {
+    case BRIDGE_FORMAT_LIN:
+      if (! Auction::SetDealerLIN(d, dOut))
+        return false;
+      if (! Auction::SetVulLIN(v, vOut))
+        return false;
+      break;
+    
+    case BRIDGE_FORMAT_PBN:
+    case BRIDGE_FORMAT_RBN: // Same as PBN
+      if (! Auction::SetDealerPBN(d, dOut))
+        return false;
+      if (! Auction::SetVulPBN(v, vOut))
+        return false;
+      break;
+    
+    case BRIDGE_FORMAT_TXT:
+      if (! Auction::SetDealerTXT(d, dOut))
+        return false;
+      if (! Auction::SetVulTXT(v, vOut))
+        return false;
+      break;
+    
+    default:
+      LOG("Invalid format " + STR(f));
+      return "";
+  }
+
+  return true;
+}
+
+
 bool Auction::SetDealerVul(
-  const playerType d,
-  const vulType v)
+  const string& d,
+  const string& v,
+  const formatType f)
 {
   if (setDVFlag)
   {
@@ -121,22 +318,42 @@ bool Auction::SetDealerVul(
     return false;
   }
 
-  if (d >= BRIDGE_NORTH_SOUTH)
-  {
-    LOG("Invalid dealer " + STR(d));
+  playerType dOut;
+  vulType vOut;
+  if (! Auction::ParseDealerVul(d, v, f, dOut, vOut))
     return false;
-  }
-
-  if (v >= BRIDGE_VUL_SIZE)
-  {
-    LOG("Invalid vulnerability " + STR(v));
-    return false;
-  }
-
   setDVFlag = true;
-  dealer = d;
-  vul = v;
+  dealer = dOut;
+  vul = vOut;
   return true;
+}
+
+
+void Auction::CopyDealerVulFrom(const Auction& a2)
+{
+  setDVFlag = true;
+  dealer = a2.dealer;
+  vul = a2.vul;
+}
+
+
+bool Auction::CheckDealerVul(
+  const string& d,
+  const string& v,
+  const formatType f) const
+{
+  if (! setDVFlag)
+  {
+    LOG("Dealer and vulnerability not set");
+    return false;
+  }
+
+  playerType dOut;
+  vulType vOut;
+  if (! Auction::ParseDealerVul(d, v, f, dOut, vOut))
+    return false;
+
+  return (dealer == dOut && vul == vOut);
 }
 
 
@@ -684,7 +901,7 @@ string Auction::AsRBN() const
   stringstream s, alerts;
   s << "A " << 
     PLAYER_NAMES_SHORT[dealer] <<
-    VUL_NAMES_SHORT_RBN[vul] << ":";
+    VUL_NAMES_RBN[vul] << ":";
   
   if (Auction::IsPassedOut())
     return s.str();
@@ -796,6 +1013,108 @@ string Auction::AsString(
     
     case BRIDGE_FORMAT_TXT:
       return Auction::AsTXT(names);
+    
+    default:
+      LOG("Invalid format " + STR(f));
+      return "";
+  }
+}
+
+
+string Auction::DealerAsLIN() const
+{
+  stringstream s;
+  s << PLAYER_DDS_TO_LIN_DEALER[dealer];
+  return s.str();
+}
+
+
+string Auction::DealerAsPBN() const
+{
+  return PLAYER_NAMES_SHORT[dealer];
+}
+
+
+string Auction::DealerAsTXT() const
+{
+  return PLAYER_NAMES_LONG[dealer];
+}
+
+
+string Auction::VulAsLIN() const
+{
+  return VUL_NAMES_LIN[vul];
+}
+
+
+string Auction::VulAsPBN() const
+{
+  return VUL_NAMES_PBN[vul];
+}
+
+
+string Auction::VulAsRBN() const
+{
+  return VUL_NAMES_RBN[vul];
+}
+
+
+string Auction::VulAsTXT() const
+{
+  return VUL_NAMES_TXT[vul];
+}
+
+
+string Auction::DealerAsString(
+  const formatType f) const
+{
+  if (! setDVFlag)
+  {
+    LOG("Dealer/vul not set");
+    return "";
+  }
+
+  switch(f)
+  {
+    case BRIDGE_FORMAT_LIN:
+      return Auction::DealerAsLIN();
+    
+    case BRIDGE_FORMAT_PBN:
+    case BRIDGE_FORMAT_RBN:
+      return Auction::DealerAsPBN();
+    
+    case BRIDGE_FORMAT_TXT:
+      return Auction::AsTXT();
+    
+    default:
+      LOG("Invalid format " + STR(f));
+      return "";
+  }
+}
+
+
+string Auction::VulAsString(
+  const formatType f) const
+{
+  if (! setDVFlag)
+  {
+    LOG("Dealer/vul not set");
+    return "";
+  }
+
+  switch(f)
+  {
+    case BRIDGE_FORMAT_LIN:
+      return Auction::VulAsLIN();
+    
+    case BRIDGE_FORMAT_PBN:
+      return Auction::VulAsPBN();
+    
+    case BRIDGE_FORMAT_RBN:
+      return Auction::VulAsRBN();
+    
+    case BRIDGE_FORMAT_TXT:
+      return Auction::VulAsTXT();
     
     default:
       LOG("Invalid format " + STR(f));

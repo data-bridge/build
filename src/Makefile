@@ -2,7 +2,6 @@ EXPORTER	= Exports.def
 
 SOURCE_FILES 	=		\
 	Auction.cpp		\
-	Bint.cpp		\
         Board.cpp               \
 	Contract.cpp		\
 	Deal.cpp		\
@@ -67,7 +66,6 @@ clean:
 # DO NOT DELETE
 
 Auction.obj: Auction.h bconst.h Contract.h Debug.h portab.h
-Bint.obj: Bint.h
 Board.obj: bconst.h Board.h Deal.h Players.h Tableau.h Contract.h Valuation.h
 Board.obj: Auction.h Play.h Debug.h portab.h
 Contract.obj: Contract.h bconst.h Debug.h

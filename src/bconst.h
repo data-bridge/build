@@ -118,9 +118,22 @@ const string DENOM_NAMES_SHORT_RBN[BRIDGE_DENOMS] =
   "NT", "S", "H", "D", "C"
 };
 
-const string VUL_NAMES_SHORT_RBN[BRIDGE_DENOMS] =
+const string VUL_NAMES_LIN[BRIDGE_SUITS] =
+{
+  "o", "b", "n", "e"
+};
+const string VUL_NAMES_PBN[BRIDGE_SUITS] =
+{
+  "None", "Both", "NS", "EW"
+};
+const string VUL_NAMES_RBN[BRIDGE_SUITS] =
 {
   "Z", "B", "N", "E"
+};
+
+const string VUL_NAMES_TXT[BRIDGE_SUITS] =
+{
+  "None", "Both", "N-S", "E-W"
 };
 
 enum formatType

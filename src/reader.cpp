@@ -115,7 +115,7 @@ void TestDeal(Deal& deal)
 
 void TestAuction(Auction& auction)
 {
-  if (! auction.SetDealerVul(BRIDGE_SOUTH, BRIDGE_VUL_EAST_WEST))
+  if (! auction.SetDealerVul("S", "EW", BRIDGE_FORMAT_PBN))
   {
     debug.Print();
     exit(0);
@@ -221,7 +221,7 @@ void TestAuction(Auction& auction)
   cout << s << "\n";
 
   auction.Reset();
-  if (! auction.SetDealerVul(BRIDGE_SOUTH, BRIDGE_VUL_EAST_WEST))
+  if (! auction.SetDealerVul("S", "EW", BRIDGE_FORMAT_PBN))
   {
     debug.Print();
     exit(0);

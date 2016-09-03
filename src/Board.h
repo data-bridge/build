@@ -50,22 +50,21 @@ class Board
 
     void Reset();
 
-    bool NewInstance();
+    unsigned NewInstance();
 
-    bool SetDealer(
+    unsigned GetLength() const;
+
+    bool SetInstance(
+      unsigned no);
+
+    bool SetDealerVul(
       const string& d,
+      const string& v,
       const formatType f);
 
-    bool CheckDealer(
+    bool CheckDealerVul(
       const string& d,
-      const formatType f) const;
-
-    bool SetVul(
-      const string& d,
-      const formatType f);
-
-    bool CheckVul(
-      const string& d,
+      const string& v,
       const formatType f) const;
 
     bool SetDeal(

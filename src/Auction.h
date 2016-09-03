@@ -43,6 +43,41 @@ class Auction
 
     void SetTables();
 
+    bool SetDealerLIN(
+      const string& d,
+      playerType& dOut) const;
+
+    bool SetDealerPBN(
+      const string& d,
+      playerType& dOut) const;
+
+    bool SetDealerTXT(
+      const string& d,
+      playerType& dOut) const;
+
+    bool SetVulLIN(
+      const string& v,
+      vulType& vOut) const;
+
+    bool SetVulPBN(
+      const string& v,
+      vulType& vOut) const;
+
+    bool SetVulRBN(
+      const string& v,
+      vulType& vOut) const;
+
+    bool SetVulTXT(
+      const string& v,
+      vulType& vOut) const;
+
+    bool ParseDealerVul(
+      const string& d,
+      const string& v,
+      const formatType f,
+      playerType& dOut,
+      vulType& vOut) const;
+
     void AddCallNo(
       const unsigned no,
       const string& alert = "");
@@ -62,6 +97,15 @@ class Auction
     string AsRBN() const;
     string AsTXT(const string& names = "") const;
 
+    string DealerAsLIN() const;
+    string DealerAsPBN() const;
+    string DealerAsTXT() const;
+
+    string VulAsLIN() const;
+    string VulAsPBN() const;
+    string VulAsRBN() const;
+    string VulAsTXT() const;
+
   public:
 
     Auction();
@@ -71,8 +115,16 @@ class Auction
     void Reset();
 
     bool SetDealerVul(
-      const playerType d,
-      const vulType v);
+      const string& d,
+      const string& v,
+      const formatType f);
+
+    bool CheckDealerVul(
+      const string& d,
+      const string& v,
+      const formatType f) const;
+
+    void CopyDealerVulFrom(const Auction& a2);
 
     bool IsOver() const;
 
@@ -106,6 +158,10 @@ class Auction
     string AsString(
       const formatType f,
       const string& names = "") const;
+    
+    string DealerAsString(const formatType f) const;
+
+    string VulAsString(const formatType f) const;
 };
 
 #endif
