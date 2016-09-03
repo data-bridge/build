@@ -47,14 +47,19 @@ class Contract
 
     void CalculateScore();
 
+    string DeclarerAsPBN() const;
+
+    string VulAsRBN() const;
+
+    string TricksAsPBN() const;
+
+    string ScoreAsPBN() const;
+    string ScoreAsTXT() const;
+
     string AsLIN() const;
-
     string AsPBN() const;
-
     string AsRBN() const;
-
     string AsTXT() const;
-
     string AsPar() const;
 
 
@@ -81,7 +86,7 @@ class Contract
 
     bool SetContract(
       const vulType vul,
-      const string cstring);
+      const string& cstring);
 
     bool SetTricks(
       const unsigned tricks);
@@ -99,15 +104,13 @@ class Contract
     string AsString(
       const formatType f = BRIDGE_FORMAT_LIN) const;
 
-    string AsTXTBlock() const;
+    string DeclarerAsString(const formatType f) const;
 
-    string DeclarerAsPBN() const;
+    string VulAsString(const formatType f) const;
 
-    string VulAsRBN() const;
+    string TricksAsString(const formatType f) const;
 
-    string TricksAsPBN() const;
-
-    string ScoreAsPBN() const;
+    string ScoreAsString(const formatType f) const;
 };
 
 #endif

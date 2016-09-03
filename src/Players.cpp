@@ -55,7 +55,7 @@ string Players::Get(const playerType p) const
 }
 
 
-bool Players::operator == (const Players& b2)
+bool Players::operator == (const Players& b2) const
 {
   // TODO
   UNUSED(b2);
@@ -63,7 +63,7 @@ bool Players::operator == (const Players& b2)
 }
 
 
-bool Players::operator != (const Players& b2)
+bool Players::operator != (const Players& b2) const
 {
   // TODO
   UNUSED(b2);

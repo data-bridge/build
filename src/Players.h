@@ -38,9 +38,9 @@ class Players
 
     string Get(playerType p) const;
 
-    bool operator == (const Players& p2);
+    bool operator == (const Players& p2) const;
 
-    bool operator != (const Players& p2);
+    bool operator != (const Players& p2) const;
 };
 
 #endif

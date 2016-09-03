@@ -49,16 +49,14 @@ class Deal
     bool SetHands();
 
     bool SetLIN(const string& s);
-
     bool SetPBN(const string& s);
-
     bool SetRBN(const string& s);
+    bool SetTXT(const string cardsArg[][BRIDGE_SUITS]);
 
     string AsLIN(const playerType start) const;
-
     string AsPBN(const playerType start) const;
-
     string AsRBN(const playerType start) const;
+    string AsTXT(const Players& players) const;
 
 
   public:
@@ -75,10 +73,9 @@ class Deal
       const string& s,
       const formatType f = BRIDGE_FORMAT_LIN);
 
-    bool SetTXT(const string cardsArg[][BRIDGE_SUITS]);
-
-    bool SetCards(
-      const vector<string>& cardsArg);
+    bool Set(
+      const string cardsArg[][BRIDGE_SUITS],
+      const formatType f = BRIDGE_FORMAT_LIN);
 
     bool GetDDS(unsigned cards[][BRIDGE_SUITS]) const;
 
@@ -90,7 +87,10 @@ class Deal
       const playerType start = BRIDGE_NORTH,
       const formatType f = BRIDGE_FORMAT_LIN) const;
 
-    string AsTXT(const Players& players) const;
+    string AsString(
+      const Players& players,
+      const formatType f = BRIDGE_FORMAT_LIN) const;
+
 };
 
 #endif

@@ -532,7 +532,7 @@ bool Auction::AddAuction(
 }
 
 
-bool Auction::operator == (const Auction& a2)
+bool Auction::operator == (const Auction& a2) const
 {
   if (setDVFlag != a2.setDVFlag)
   {
@@ -564,7 +564,7 @@ bool Auction::operator == (const Auction& a2)
 }
 
 
-bool Auction::operator != (const Auction& a2)
+bool Auction::operator != (const Auction& a2) const
 {
   return !(* this == a2);
 }

@@ -63,6 +63,8 @@ class Tableau
       const unsigned listRBN[],
       const playerType p);
 
+    bool SetRBN(const string& text);
+    
     unsigned ToRBNPlayer(const playerType p) const;
 
     void SurveyScores(
@@ -124,7 +126,9 @@ class Tableau
 
     bool TableIsSet() const;
 
-    bool SetRBN(const string text);
+    bool Set(
+      const string& text,
+      const formatType f);
     
     bool SetEntry(
       const playerType p,
@@ -139,7 +143,7 @@ class Tableau
 
     bool operator !=(const Tableau& tab2) const;
 
-    string ToString(
+    string AsString(
       formatType f = BRIDGE_FORMAT_LIN) const;
     
     bool GetPar(

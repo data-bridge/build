@@ -61,8 +61,8 @@ int main(int argc, char * argv[])
 void TestTableau(Tableau& tableau)
 {
   tableau.SetEntry(BRIDGE_NORTH, BRIDGE_NOTRUMP, 7);
-  tableau.SetRBN("::88665+88667:!!");
-  cout << "TXT:\n" << tableau.ToString(BRIDGE_FORMAT_TXT) << "\n";
+  tableau.Set("::88665+88667:!!", BRIDGE_FORMAT_RBN);
+  cout << "TXT:\n" << tableau.AsString(BRIDGE_FORMAT_TXT) << "\n";
 
   string text;
   tableau.GetPar(BRIDGE_NORTH, BRIDGE_VUL_NONE, text);
@@ -289,7 +289,7 @@ void TestPlay(Play& play)
   if (! play.SetHoldingDDS(cards)) assert(false);
 
   Players players;
-  cout << deal.AsTXT(players);
+  cout << deal.AsString(players, BRIDGE_FORMAT_TXT);
 
   // Test setting the play card by card.
 

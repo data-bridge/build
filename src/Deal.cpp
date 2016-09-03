@@ -325,6 +325,41 @@ bool Deal::Set(
 }
 
 
+bool Deal::Set(
+  const string cardsArg[][BRIDGE_SUITS],
+  const formatType f)
+{
+  if (setFlag)
+  {
+    LOG("Already set");
+    return false;
+  }
+
+  setFlag = true;
+  switch(f)
+  {
+    case BRIDGE_FORMAT_LIN:
+      LOG("LIN matrix set format not implemented");
+      return "";
+
+    case BRIDGE_FORMAT_PBN:
+      LOG("PBN matrix set format not implemented");
+      return "";
+
+    case BRIDGE_FORMAT_RBN:
+      LOG("RBN matrix set format not implemented");
+      return "";
+
+    case BRIDGE_FORMAT_TXT:
+      return Deal::SetTXT(cardsArg);
+
+    default:
+      LOG("Unacceptable format");
+      return false;
+  }
+}
+
+
 bool Deal::GetDDS(unsigned holdingArg[][BRIDGE_SUITS]) const
 {
   if (! setFlag)
@@ -495,6 +530,41 @@ string Deal::AsString(
       return Deal::AsRBN(start);
 
     default:
+      LOG("Other plain deal formats not implemented");
+      return "";
+  }
+}
+
+
+string Deal::AsString(
+  const Players& players,
+  const formatType f) const
+{
+  if (! setFlag)
+  {
+    LOG("Not set");
+    return false;
+  }
+
+  switch(f)
+  {
+    case BRIDGE_FORMAT_LIN:
+      LOG("LIN player format not implemented");
+      return "";
+
+    case BRIDGE_FORMAT_PBN:
+      LOG("PBN player format not implemented");
+      return "";
+
+    case BRIDGE_FORMAT_RBN:
+      LOG("RBN player format not implemented");
+      return "";
+
+    case BRIDGE_FORMAT_TXT:
+      return Deal::AsTXT(players);
+
+    default:
+      LOG("Other plain deal formats not implemented");
       return "";
   }
 }

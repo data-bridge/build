@@ -3,6 +3,7 @@ EXPORTER	= Exports.def
 SOURCE_FILES 	=		\
 	Auction.cpp		\
 	Bint.cpp		\
+        Board.cpp               \
 	Contract.cpp		\
 	Deal.cpp		\
 	Debug.cpp		\
@@ -67,6 +68,8 @@ clean:
 
 Auction.obj: Auction.h bconst.h Contract.h Debug.h portab.h
 Bint.obj: Bint.h
+Board.obj: bconst.h Board.h Deal.h Players.h Tableau.h Contract.h Valuation.h
+Board.obj: Auction.h Play.h Debug.h portab.h
 Contract.obj: Contract.h bconst.h Debug.h
 Deal.obj: bconst.h Deal.h Players.h Debug.h parse.h
 Debug.obj: Debug.h
@@ -76,6 +79,6 @@ Players.obj: Players.h bconst.h portab.h
 Tableau.obj: Tableau.h bconst.h Contract.h Debug.h parse.h
 parse.obj: parse.h
 reader.obj: portab.h bconst.h Debug.h Tableau.h Contract.h Deal.h Players.h
-reader.obj: Auction.h
+reader.obj: Auction.h Play.h
 reader.obj: portab.h bconst.h Debug.h Tableau.h Contract.h Deal.h Players.h
-reader.obj: Auction.h
+reader.obj: Auction.h Play.h

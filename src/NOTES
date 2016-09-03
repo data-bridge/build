@@ -1,3 +1,19 @@
+DONE
+   520   1506  10834 Optimum.pm
+   612   2014  13448 Contract.pm
+   468   1403   9666 Deal.pm
+   949   2903  20749 Auction.pm
+   935   3161  22301 Play.pm
+
+TODO
+  2248   6531  53858 Batch.pm
+   568   1593  13074 Board.pm
+   212    525   4003 Compilation.pm
+   347    987   6439 Players.pm
+  1218   3452  25010 Segment.pm
+
+Look at iterators: (1) auto, (2) it-> instead of new lookup?
+
 databases:
 - names
 - input filename -> number, so can make uid for each hand.
@@ -19,22 +35,6 @@ Auction: Output : in RBN every fourth bid
 
 Reconcile modified lin files (and pbn and rbn?) with original ones.
 Companion .fix files?
-
-DONE
-   520   1506  10834 Optimum.pm
-   612   2014  13448 Contract.pm
-   468   1403   9666 Deal.pm
-   949   2903  20749 Auction.pm
-   935   3161  22301 Play.pm
-
-TODO
-  2248   6531  53858 Batch.pm
-   568   1593  13074 Board.pm
-   212    525   4003 Compilation.pm
-   347    987   6439 Players.pm
-  1218   3452  25010 Segment.pm
-
-Add compile warnings
 
 Order
 -----

@@ -414,6 +414,33 @@ playStatus Play::AddAllRBN(const string& sIn)
 }
 
 
+playStatus Play::AddPlays(
+  const string& str,
+  const formatType f)
+{
+  switch(f)
+  {
+    case BRIDGE_FORMAT_LIN:
+      LOG("Currently unimplemented format " + STR(f));
+      return PLAY_INVALID_FORMAT;
+
+    case BRIDGE_FORMAT_PBN:
+      return Play::AddTrickPBN(str);
+
+    case BRIDGE_FORMAT_RBN:
+      return Play::AddAllRBN(str);
+
+    case BRIDGE_FORMAT_TXT:
+      LOG("Currently unimplemented format " + STR(f));
+      return PLAY_INVALID_FORMAT;
+
+    default:
+      LOG("Invalid format " + STR(f));
+      return PLAY_INVALID_FORMAT;
+  }
+}
+
+
 bool Play::UndoPlay()
 {
   if (playOverFlag)
@@ -448,12 +475,13 @@ bool Play::UndoPlay()
   cardInfoType& info = PLAY_CARD_TO_INFO[str];
   playerType pUndone = static_cast<playerType>
     ((leads[trickToPlay].leader + cardToPlay) % 4);
+  holding[pUndone][info.suit] ^= info.bitValue;
 
   return true;
 }
 
 
-bool Play::PlayIsOver()
+bool Play::PlayIsOver() const
 {
   return playOverFlag;
 }
@@ -485,7 +513,7 @@ bool Play::ClaimIsMade() const
 }
 
 
-bool Play::operator == (const Play& p2)
+bool Play::operator == (const Play& p2) const
 {
   // We don't require the holdings to be identical.
 
@@ -542,7 +570,7 @@ bool Play::operator == (const Play& p2)
 }
 
 
-bool Play::operator != (const Play& p2)
+bool Play::operator != (const Play& p2) const
 {
   return ! (* this == p2);
 }

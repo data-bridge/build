@@ -28,7 +28,8 @@ enum playStatus
   PLAY_CARD_INVALID = 4,
   PLAY_HOLDING_NOT_SET = 5,
   PLAY_INVALID_PBN = 6,
-  PLAY_INVALID_RBN = 7
+  PLAY_INVALID_RBN = 7,
+  PLAY_INVALID_FORMAT = 8
 };
 
 
@@ -105,6 +106,10 @@ class Play
 
     playStatus AddPlay(
       const string& str);
+
+    playStatus AddPlays(
+      const string& str,
+      const formatType f);
     
     playStatus AddTrickPBN(
       const string& str);
@@ -114,16 +119,16 @@ class Play
     
     bool UndoPlay();
 
-    bool PlayIsOver();
+    bool PlayIsOver() const;
 
     claimStatus Claim(
       const unsigned tricks);
     
     bool ClaimIsMade() const;
 
-    bool operator == (const Play& p2);
+    bool operator == (const Play& p2) const;
 
-    bool operator != (const Play& p2);
+    bool operator != (const Play& p2) const;
 
     string AsString(
       const formatType f) const;

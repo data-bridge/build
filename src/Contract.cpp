@@ -276,7 +276,7 @@ bool Contract::SetContract(
 
 bool Contract::SetContract(
   const vulType vulIn,
-  const string cstring)
+  const string& cstring)
 {
   if (cstring == "P")
     return Contract::SetPassedOut();
@@ -601,20 +601,6 @@ string Contract::AsString(const formatType f) const
 }
 
 
-string Contract::AsTXTBlock() const
-{
-  if (! setContractFlag)
-    return "";
-
-  stringstream s;
-  s << "Contract: " << Contract::AsTXT() << "\n";
-  if (setResultFlag)
-    s << "Score   : " << score << "\n";
-  
-  return s.str();
-}
-
-
 string Contract::DeclarerAsPBN() const
 {
   if (! setResultFlag || contract.level == 0)
@@ -630,9 +616,61 @@ string Contract::DeclarerAsPBN() const
 }
 
 
+string Contract::DeclarerAsString(const formatType f) const
+{
+  switch(f)
+  {
+    case BRIDGE_FORMAT_LIN:
+      LOG("LIN declarer not implemented");
+      return "";
+
+    case BRIDGE_FORMAT_PBN:
+      return Contract::DeclarerAsPBN();
+
+    case BRIDGE_FORMAT_RBN:
+      LOG("RBN declarer not implemented");
+      return "";
+
+    case BRIDGE_FORMAT_TXT:
+      LOG("TXT declarer not implemented");
+      return "";
+
+    default:
+      LOG("Other declarer formats not implemented");
+      return "";
+  }
+}
+
+
 string Contract::VulAsRBN() const
 {
   return VUL_RBN_TAG[vul];
+}
+
+
+string Contract::VulAsString(const formatType f) const
+{
+  switch(f)
+  {
+    case BRIDGE_FORMAT_LIN:
+      LOG("LIN vulnerability not implemented");
+      return "";
+
+    case BRIDGE_FORMAT_PBN:
+      LOG("PBN vulnerability not implemented");
+      return "";
+
+    case BRIDGE_FORMAT_RBN:
+      return Contract::VulAsRBN();
+
+    case BRIDGE_FORMAT_TXT:
+      LOG("TXT vulnerability not implemented");
+      return "";
+
+    default:
+      LOG("Other vulnerability formats not implemented");
+      return "";
+  }
 }
 
 
@@ -648,6 +686,32 @@ string Contract::TricksAsPBN() const
 }
 
 
+string Contract::TricksAsString(const formatType f) const
+{
+  switch(f)
+  {
+    case BRIDGE_FORMAT_LIN:
+      LOG("LIN tricks not implemented");
+      return "";
+
+    case BRIDGE_FORMAT_PBN:
+      LOG("PBN tricks not implemented");
+      return "";
+
+    case BRIDGE_FORMAT_RBN:
+      return Contract::VulAsRBN();
+
+    case BRIDGE_FORMAT_TXT:
+      LOG("TXT tricks not implemented");
+      return "";
+
+    default:
+      LOG("Other tricks formats not implemented");
+      return "";
+  }
+}
+
+
 string Contract::ScoreAsPBN() const
 {
   if (! setResultFlag || contract.level == 0)
@@ -658,4 +722,42 @@ string Contract::ScoreAsPBN() const
   
   return s.str();
 }
+
+
+string Contract::ScoreAsTXT() const
+{
+  if (! setContractFlag || ! setResultFlag)
+    return "";
+
+  stringstream s;
+  s << "Score   : " << score << "\n";
+  return s.str();
+}
+
+
+string Contract::ScoreAsString(const formatType f) const
+{
+  switch(f)
+  {
+    case BRIDGE_FORMAT_LIN:
+      LOG("LIN score not implemented");
+      return "";
+
+    case BRIDGE_FORMAT_PBN:
+      LOG("PBN score not implemented");
+      return "";
+
+    case BRIDGE_FORMAT_RBN:
+      LOG("RBN score not implemented");
+      return "";
+
+    case BRIDGE_FORMAT_TXT:
+      return Contract::ScoreAsTXT();
+
+    default:
+      LOG("Other score formats not implemented");
+      return "";
+  }
+}
+
 

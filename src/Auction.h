@@ -97,9 +97,9 @@ class Auction
       const string& s,
       const formatType f);
 
-    bool operator == (const Auction& a2);
+    bool operator == (const Auction& a2) const;
 
-    bool operator != (const Auction& a2);
+    bool operator != (const Auction& a2) const;
 
     bool ConsistentWith(const Contract& cref) const;
       

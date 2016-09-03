@@ -81,7 +81,7 @@ bool Tableau::SetRBNPlayer(
 }
 
 
-bool Tableau::SetRBN(const string text)
+bool Tableau::SetRBN(const string& text)
 {
   if (text == "")
   {
@@ -210,6 +210,34 @@ bool Tableau::SetRBN(const string text)
 }
 
 
+bool Tableau::Set(
+  const string& text,
+  const formatType f)
+{
+  switch(f)
+  {
+    case BRIDGE_FORMAT_LIN:
+      LOG("LIN tableau not implemented");
+      return "";
+
+    case BRIDGE_FORMAT_PBN:
+      LOG("PBN tableau not implemented");
+      return "";
+
+    case BRIDGE_FORMAT_RBN:
+      return Tableau::SetRBN(text);
+
+    case BRIDGE_FORMAT_TXT:
+      LOG("TXT tableau not implemented");
+      return "";
+
+    default:
+      LOG("Other tableau formats not implemented");
+      return "";
+  }
+}
+
+
 bool Tableau::SetEntry(
   const playerType p,
   const denomType d,
@@ -287,7 +315,7 @@ bool Tableau::operator !=(const Tableau& tab2) const
 }
 
 
-string Tableau::ToString(formatType f) const
+string Tableau::AsString(formatType f) const
 {
   if (setNum != 20)
     return "";
