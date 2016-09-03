@@ -322,18 +322,14 @@ bool Board::operator != (const Board& b2) const
 string Board::DealerAsString(
   const formatType f) const
 {
-  // TODO
-  UNUSED(f);
-  return "";
+  return auction[numActive].DealerAsString(f);
 }
 
 
 string Board::VulAsString(
   const formatType f) const
 {
-  // TODO
-  UNUSED(f);
-  return "";
+  return auction[numActive].VulAsString(f);
 }
 
 
