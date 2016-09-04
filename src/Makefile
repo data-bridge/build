@@ -7,11 +7,14 @@ SOURCE_FILES 	=		\
 	Date.cpp		\
 	Deal.cpp		\
 	Debug.cpp		\
+        Location.cpp            \
 	Play.cpp		\
 	Players.cpp		\
+        Scoring.cpp             \
         Segment.cpp             \
+        Session.cpp             \
 	Tableau.cpp		\
-        Team.cpp                \
+        Teams.cpp               \
 	parse.cpp		\
 	reader.cpp
 
@@ -68,22 +71,25 @@ clean:
 
 # DO NOT DELETE
 
-Auction.obj: Auction.h bconst.h Contract.h Debug.h portab.h
+Auction.obj: Auction.h bconst.h Contract.h Debug.h parse.h portab.h
 Board.obj: bconst.h Board.h Deal.h Players.h Tableau.h Contract.h Valuation.h
 Board.obj: Auction.h Play.h Debug.h portab.h
 Contract.obj: Contract.h bconst.h Debug.h
-Date.obj: Date.h bconst.h portab.h
+Date.obj: Date.h bconst.h portab.h parse.h debug.h Debug.h
 Deal.obj: bconst.h Deal.h Players.h Debug.h parse.h
 Debug.obj: Debug.h
+Location.obj: Location.h bconst.h portab.h debug.h Debug.h
 Play.obj: Play.h bconst.h Contract.h Deal.h Players.h Debug.h parse.h
 Play.obj: portab.h
 Players.obj: Players.h bconst.h portab.h
-Segment.obj: Segment.h Board.h Deal.h Players.h bconst.h Tableau.h Contract.h
-Segment.obj: Valuation.h Auction.h Play.h Date.h Team.h portab.h debug.h
-Segment.obj: Debug.h
+Scoring.obj: Scoring.h bconst.h portab.h debug.h Debug.h
+Segment.obj: Segment.h Date.h bconst.h Location.h Session.h Scoring.h Teams.h
+Segment.obj: Board.h Deal.h Players.h Tableau.h Contract.h Valuation.h
+Segment.obj: Auction.h Play.h portab.h debug.h Debug.h
+Session.obj: Session.h bconst.h portab.h parse.h debug.h Debug.h
 Tableau.obj: Tableau.h bconst.h Contract.h Debug.h parse.h
-Team.obj: Team.h bconst.h portab.h debug.h Debug.h
-parse.obj: parse.h
+Teams.obj: Teams.h bconst.h portab.h debug.h Debug.h
+parse.obj: parse.h portab.h
 reader.obj: portab.h bconst.h Debug.h Tableau.h Contract.h Deal.h Players.h
 reader.obj: Auction.h Play.h
 reader.obj: portab.h bconst.h Debug.h Tableau.h Contract.h Deal.h Players.h

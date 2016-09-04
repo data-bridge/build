@@ -7,8 +7,10 @@
 */
 
 
+#include <regex>
 #include "Segment.h"
 #include "portab.h"
+#include "parse.h"
 #include "debug.h"
 
 extern Debug debug;
@@ -34,12 +36,11 @@ void Segment::Reset()
 
   seg.title = ""; 
   seg.date.Reset();
-  seg.location = ""; 
+  seg.location.Reset();
   seg.event = ""; 
-  seg.session = ""; 
-  seg.scoring = BRIDGE_SCORING_UNDEFINED;
-  seg.team1.Reset();
-  seg.team2.Reset();
+  seg.session.Reset(); 
+  seg.scoring.Reset();
+  seg.teams.Reset();
 }
 
 
@@ -66,48 +67,114 @@ Board * Segment::GetBoard(const unsigned extNo)
 }
 
 
-bool Segment::SetTitleLIN(const string t[])
+bool Segment::SetTitleLIN(const string t)
 {
-  // TODO
-  UNUSED(t);
-  return true;
-}
+  // We cater to several uses of the first three fields:
+  //
+  //           own table   own MP    own tourney   Vugraph    RBN-generated
+  // 0         BBO         #9651 ... #9651 ...     41st...    T + S(1)
+  // 1         IMPs        BBO       BBO           DOSB-...   S(2)
+  // 2         P           P         I             I          I
+  // scoring   I           P         I             I          I
+  //
+  // Field #0 may have the form text§date§location§session
+  // when we generate it.  Otherwise we lose RBN information.
+  //
+  // Fields 3 and 4 are board ranges (ignored and re-generated).
+  // Fields 5 through 8 are team tags.
+
+  int seen = count(t.begin(), t.end(), ',');
+  if (seen != 8)
+  {
+    LOG("LIN vg needs exactly 8 commas.");
+    return false;
+  }
+
+  vector<string> v(9);
+  tokenize(t, v, ":");
+
+  // Try to pick out the RBN-generated line.
+  regex re("^(\\.+)\\s+(\\w)$");
+  smatch match;
+  if (regex_search(v[0], match, re) && 
+      match.size() >= 2 &&
+      seg.session.IsRBNPart(match.str(2)))
+  {
+    if (! Segment::SetTitle(match.str(1), BRIDGE_FORMAT_RBN))
+      return false;
+
+    // Make a synthetic RBN-like session line (a bit wasteful).
+    stringstream s;
+    s << "S " << match.str(1) << ":" << v[1] << "\n";
+    if (! Segment::SetSession(s.str(), BRIDGE_FORMAT_RBN))
+      return false;
+  }
+
+  // See whether the title line contains extra information.
+  seen = count(t.begin(), t.end(), '§');
+  if (seen == 3)
+  {
+    vector<string> vv(4);
+    tokenize(v[0], vv, "§");
+    stringstream ss;
+    ss << "T " << vv[0];
+    if (! Segment::SetTitle(ss.str(), BRIDGE_FORMAT_RBN))
+      return false;
+
+    ss.clear();
+    ss << "D " << vv[1];
+    if (! Segment::SetDate(ss.str(), BRIDGE_FORMAT_RBN))
+      return false;
+
+    ss.clear();
+    ss << "L " << vv[2];
+    if (! Segment::SetLocation(ss.str(), BRIDGE_FORMAT_RBN))
+      return false;
+
+    ss.clear();
+    ss << "S " << vv[3];
+    if (! Segment::SetSession(ss.str(), BRIDGE_FORMAT_RBN))
+      return false;
+  }
+  else
+  {
+    stringstream ss;
+    ss << "T " << t;
+    if (! Segment::SetTitle(ss.str(), BRIDGE_FORMAT_RBN))
+      return false;
+  }
 
 
-bool Segment::SetTitlePBN(const string& t)
-{
-  // TODO
-  UNUSED(t);
-  return true;
-}
+  if (v[2] == "P" && v[1] != "IMPs")
+    Segment::SetScoring("P", BRIDGE_FORMAT_LIN);
+  else
+    Segment::SetScoring("I", BRIDGE_FORMAT_LIN);
+    
 
+  // Synthesize an RBN-like team line (a bit wasteful).
+  stringstream s;
+  s << "K " << v[5] << ":" << v[6];
+  if (v[7] != "" || v[8] != "")
+  {
+    s << ":" << (v[7] == "" ? 0 : v[7]);
+    s << ":" << (v[8] == "" ? 0 : v[8]);
+  }
+  s << "\n";
+  string s0[1];
+  s0[0] = s.str();
 
-bool Segment::SetTitleRBN(const string& t)
-{
-  // TODO
-  UNUSED(t);
-  return true;
-}
+  if (! Segment::SetTeams(s0, BRIDGE_FORMAT_LIN))
+    return false;
 
-
-bool Segment::SetTitleTXT(const string t[])
-{
-  // TODO
-  UNUSED(t);
   return true;
 }
 
 
 bool Segment::SetTitle(
-  const string t[],
+  const string& t,
   const formatType f)
 {
-  // In LIN this includes 2 lines (vg positions 1 and 2)
-  // and may contain a number of other information (beyond the
-  // LIN format).
-  // In PBN it is the Description tag.
-  // In RBN it is the T tag.
-  // In TXT it 7 lines (derived from RBN tags T, D, L, E, S, F).
+  // In LIN this includes the entire vg line.
   
   switch(f)
   {
@@ -115,13 +182,16 @@ bool Segment::SetTitle(
       return Segment::SetTitleLIN(t);
 
     case BRIDGE_FORMAT_PBN:
-      return Segment::SetTitlePBN(t[0]);
+      seg.title = t;
+      return true;
 
     case BRIDGE_FORMAT_RBN:
-      return Segment::SetTitlePBN(t[0]);
+      seg.title = t;
+      return true;
 
     case BRIDGE_FORMAT_TXT:
-      return Segment::SetTitleTXT(t);
+      seg.title = t;
+      return true;
 
     default:
       LOG("Invalid format " + STR(f));
@@ -139,41 +209,16 @@ bool Segment::SetDate(
 
 
 bool Segment::SetLocation(
-  const string& t)
+  const string& t,
+  const formatType f)
 {
-  seg.location = t;
-  return true;
+  return seg.location.Set(t, f);
 }
 
 
-bool Segment::SetEvent(
-  const string& t)
+bool Segment::SetEvent(const string& t)
 {
   seg.event = t;
-  return true;
-}
-
-
-bool Segment::SetSessionPBN(const string& t)
-{
-  // TODO
-  UNUSED(t);
-  return true;
-}
-
-
-bool Segment::SetSessionRBN(const string& t)
-{
-  // TODO
-  UNUSED(t);
-  return true;
-}
-
-
-bool Segment::SetSessionTXT(const string& t)
-{
-  // TODO
-  UNUSED(t);
   return true;
 }
 
@@ -182,56 +227,7 @@ bool Segment::SetSession(
   const string& t,
   const formatType f)
 {
-  switch(f)
-  {
-    case BRIDGE_FORMAT_LIN:
-      LOG("No LIN session format");
-      return false;
-
-    case BRIDGE_FORMAT_PBN:
-      return Segment::SetSessionPBN(t);
-
-    case BRIDGE_FORMAT_RBN:
-      return Segment::SetSessionRBN(t);
-
-    case BRIDGE_FORMAT_TXT:
-      return Segment::SetSessionTXT(t);
-
-    default:
-      LOG("Invalid format " + STR(f));
-      return false;
-  }
-}
-
-
-bool Segment::SetScoringLIN(const string& t)
-{
-  // TODO
-  UNUSED(t);
-  return true;
-}
-
-bool Segment::SetScoringPBN(const string& t)
-{
-  // TODO
-  UNUSED(t);
-  return true;
-}
-
-
-bool Segment::SetScoringRBN(const string& t)
-{
-  // TODO
-  UNUSED(t);
-  return true;
-}
-
-
-bool Segment::SetScoringTXT(const string& t)
-{
-  // TODO
-  UNUSED(t);
-  return true;
+  return seg.session.Set(t, f);
 }
 
 
@@ -239,24 +235,7 @@ bool Segment::SetScoring(
   const string& t,
   const formatType f)
 {
-  switch(f)
-  {
-    case BRIDGE_FORMAT_LIN:
-      return Segment::SetScoringLIN(t);
-
-    case BRIDGE_FORMAT_PBN:
-      return Segment::SetScoringPBN(t);
-
-    case BRIDGE_FORMAT_RBN:
-      return Segment::SetScoringRBN(t);
-
-    case BRIDGE_FORMAT_TXT:
-      return Segment::SetScoringTXT(t);
-
-    default:
-      LOG("Invalid format " + STR(f));
-      return false;
-  }
+  return seg.scoring.Set(t, f);
 }
 
 
@@ -269,13 +248,7 @@ bool Segment::SetTeams(
   // In RBN this is 1 line.
   // In TXT this is 1 line.
 
-  bool b1 = seg.team1.Set(list, 1, f); 
-  bool b2 = seg.team2.Set(list, 2, f); 
-
-  if (b1 && b2)
-    return true;
-  else
-    return false;
+  return seg.teams.Set(list, f); 
 }
 
 
@@ -308,9 +281,7 @@ bool Segment::operator == (const Segment& s2) const
     LOG("Different scoring");
     return false;
   }
-  else if (seg.team1 != s2.seg.team1)
-    return false;
-  else if (seg.team2 != s2.seg.team2)
+  else if (seg.teams != s2.seg.teams)
     return false;
   else
     return true;
@@ -330,24 +301,6 @@ string Segment::TitleAsLIN() const
 }
 
 
-string Segment::TitleAsPBN() const
-{
- // TODO
-}
-
-
-string Segment::TitleAsRBN() const
-{
- // TODO
-}
-
-
-string Segment::TitleAsTXT() const
-{
- // TODO
-}
-
-
 string Segment::TitleAsString(
   const formatType f,
   const segOutputType s) const
@@ -356,19 +309,23 @@ string Segment::TitleAsString(
 
   if (! firstStringFlag && s == SEGMENT_DELTA)
     return "";
+
+  stringstream st;
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
       return Segment::TitleAsLIN();
 
     case BRIDGE_FORMAT_PBN:
-      return Segment::TitleAsPBN();
+      st << "[Description \"" << seg.title << "]\"\n";
+      return st.str();
 
     case BRIDGE_FORMAT_RBN:
-      return Segment::TitleAsRBN();
+      st << "T " << seg.title << "\n";
+      return st.str();
 
     case BRIDGE_FORMAT_TXT:
-      return Segment::TitleAsTXT();
+      return seg.title;
 
     default:
       LOG("Invalid format " + STR(f));
@@ -393,53 +350,7 @@ string Segment::LocationAsString(
 {
   if (! firstStringFlag && s == SEGMENT_DELTA)
     return "";
-
-  stringstream st;
-  string sr;
-
-  switch(f)
-  {
-    case BRIDGE_FORMAT_LIN:
-      LOG("No LIN location format");
-      return "";
-
-    case BRIDGE_FORMAT_PBN:
-      st << "[Site \"" << seg.location << "\"]\n";
-      return st.str();
-
-    case BRIDGE_FORMAT_RBN:
-      st << "L " << seg.location << "\n";
-      return st.str();
-
-    case BRIDGE_FORMAT_TXT:
-      sr = seg.location;
-      size_t pos;
-      if ((pos = sr.find(":", 0)) != string::npos)
-        sr.replace(pos, 1, ", ");
-      return sr;
-
-    default:
-      LOG("Invalid format " + STR(f));
-      return false;
-  }
-}
-
-
-string Segment::EventAsPBN() const
-{
-  // TODO
-}
-
-
-string Segment::EventAsRBN() const
-{
-  // TODO
-}
-
-
-string Segment::EventAsTXT() const
-{
-  // TODO
+  return seg.location.AsString(f);
 }
 
 
@@ -449,6 +360,8 @@ string Segment::EventAsString(
 {
   if (! firstStringFlag && s == SEGMENT_DELTA)
     return "";
+
+  stringstream st;
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
@@ -456,36 +369,20 @@ string Segment::EventAsString(
       return "";
 
     case BRIDGE_FORMAT_PBN:
-      return Segment::EventAsPBN();
+      st << "[Event \"" + seg.event + "\"]\n";
+      return st.str();
 
     case BRIDGE_FORMAT_RBN:
-      return Segment::EventAsRBN();
+      st << "E " << seg.event << "\n";
+      return st.str();
 
     case BRIDGE_FORMAT_TXT:
-      return Segment::EventAsTXT();
+      return seg.event;
 
     default:
       LOG("Invalid format " + STR(f));
       return false;
   }
-}
-
-
-string Segment::SessionAsPBN() const
-{
-  // TODO
-}
-
-
-string Segment::SessionAsRBN() const
-{
-  // TODO
-}
-
-
-string Segment::SessionAsTXT() const
-{
-  // TODO
 }
 
 
@@ -495,43 +392,7 @@ string Segment::SessionAsString(
 {
   if (! firstStringFlag && s == SEGMENT_DELTA)
     return "";
-  switch(f)
-  {
-    case BRIDGE_FORMAT_LIN:
-      LOG("No LIN session format");
-      return "";
-
-    case BRIDGE_FORMAT_PBN:
-      return Segment::SessionAsPBN();
-
-    case BRIDGE_FORMAT_RBN:
-      return Segment::SessionAsRBN();
-
-    case BRIDGE_FORMAT_TXT:
-      return Segment::SessionAsTXT();
-
-    default:
-      LOG("Invalid format " + STR(f));
-      return false;
-  }
-}
-
-
-string Segment::ScoringAsPBN() const
-{
-  // TODO
-}
-
-
-string Segment::ScoringAsRBN() const
-{
-  // TODO
-}
-
-
-string Segment::ScoringAsTXT() const
-{
-  // TODO
+  return seg.session.AsString(f);
 }
 
 
@@ -541,25 +402,7 @@ string Segment::ScoringAsString(
 {
   if (! firstStringFlag && s == SEGMENT_DELTA)
     return "";
-  switch(f)
-  {
-    case BRIDGE_FORMAT_LIN:
-      LOG("No LIN scoring format");
-      return "";
-
-    case BRIDGE_FORMAT_PBN:
-      return Segment::ScoringAsPBN();
-
-    case BRIDGE_FORMAT_RBN:
-      return Segment::ScoringAsRBN();
-
-    case BRIDGE_FORMAT_TXT:
-      return Segment::ScoringAsTXT();
-
-    default:
-      LOG("Invalid format " + STR(f));
-      return false;
-  }
+  return seg.scoring.AsString(f);
 }
 
 
@@ -569,7 +412,7 @@ string Segment::TeamsAsString(
 {
   if (! firstStringFlag && s == SEGMENT_DELTA)
     return "";
-  return seg.team1.AsString(seg.team2, f);
+  return seg.teams.AsString(f);
 }
 
 

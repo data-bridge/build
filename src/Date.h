@@ -29,6 +29,17 @@ class Date
 
     dateType date;
 
+    unsigned StringToMonth(const string& m);
+    bool SetLIN(const string& t);
+    bool SetPBN(const string& t);
+    bool SetRBN(const string& t);
+    bool SetTXT(const string& t);
+
+    string AsLIN() const;
+    string AsPBN() const;
+    string AsRBN() const;
+    string AsTXT() const;
+
 
   public:
 

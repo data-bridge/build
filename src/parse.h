@@ -31,4 +31,16 @@ bool getWords(
   const int maxCount,
   unsigned& actualCount);
 
+bool StringToUnsigned(
+  const string& s,
+  unsigned& res);
+
+bool StringToInt(
+  const string& s,
+  int& res);
+
+bool StringToFloat(
+  const string& s,
+  float& res);
+
 #endif

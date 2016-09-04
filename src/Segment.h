@@ -10,9 +10,12 @@
 #ifndef BRIDGE_SEGMENT_H
 #define BRIDGE_SEGMENT_H
 
-#include "Board.h"
 #include "Date.h"
-#include "Team.h"
+#include "Location.h"
+#include "Session.h"
+#include "Scoring.h"
+#include "Teams.h"
+#include "Board.h"
 #include "bconst.h"
 #include <string>
 
@@ -30,30 +33,15 @@ class Segment
 {
   private:
 
-    enum scoringType
-    {
-      BRIDGE_SCORING_IMPS = 0,
-      BRIDGE_SCORING_BAM = 1,
-      BRIDGE_SCORING_TOTAL = 2,
-      BRIDGE_SCORING_CROSS_IMPS = 3,
-      BRIDGE_SCORING_MATCHPOINTS = 4,
-      BRIDGE_SCORING_INSTANT = 5,
-      BRIDGE_SCORING_RUBBER = 6,
-      BRIDGE_SCORING_CHICAGO = 7,
-      BRIDGE_SCORING_CAVENDISH = 8,
-      BRIDGE_SCORING_UNDEFINED = 9
-    };
-
     struct sdata
     {
       string title;
       Date date;
-      string location;
+      Location location;
       string event;
-      string session;
-      scoringType scoring;
-      Team team1;
-      Team team2;
+      Session session;
+      Scoring scoring;
+      Teams teams;
     };
 
     struct boardPairType
@@ -69,40 +57,9 @@ class Segment
     vector<boardPairType> boards;
     bool firstStringFlag;
 
-    bool SetTitleLIN(const string t[]);
-    bool SetTitlePBN(const string& t);
-    bool SetTitleRBN(const string& t);
-    bool SetTitleTXT(const string t[]);
-
-    bool SetEventPBN(const string& t);
-    bool SetEventRBN(const string& t);
-    bool SetEventTXT(const string& t);
-
-    bool SetSessionPBN(const string& t);
-    bool SetSessionRBN(const string& t);
-    bool SetSessionTXT(const string& t);
-
-    bool SetScoringLIN(const string& t);
-    bool SetScoringPBN(const string& t);
-    bool SetScoringRBN(const string& t);
-    bool SetScoringTXT(const string& t);
+    bool SetTitleLIN(const string t);
 
     string TitleAsLIN() const;
-    string TitleAsPBN() const;
-    string TitleAsRBN() const;
-    string TitleAsTXT() const;
-
-    string EventAsPBN() const;
-    string EventAsRBN() const;
-    string EventAsTXT() const;
-
-    string SessionAsPBN() const;
-    string SessionAsRBN() const;
-    string SessionAsTXT() const;
-
-    string ScoringAsPBN() const;
-    string ScoringAsRBN() const;
-    string ScoringAsTXT() const;
 
 
   public:
@@ -118,14 +75,16 @@ class Segment
     Board * GetBoard(const unsigned no);
 
     bool SetTitle(
-      const string t[],
+      const string& t,
       const formatType f);
 
     bool SetDate(
       const string& d,
       const formatType f);
 
-    bool SetLocation(const string& l);
+    bool SetLocation(
+      const string& l,
+      const formatType f);
 
     bool SetEvent(const string& e);
 

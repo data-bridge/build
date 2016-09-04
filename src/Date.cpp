@@ -7,11 +7,31 @@
 */
 
 
+#include <regex>
 #include "Date.h"
 #include "portab.h"
+#include "parse.h"
 #include "debug.h"
 
 extern Debug debug;
+
+
+const string DATE_MONTHS[] =
+{
+  "None",
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December"
+};
 
 
 Date::Date()
@@ -33,14 +53,198 @@ void Date::Reset()
 }
 
 
+unsigned Date::StringToMonth(const string& m)
+{
+  string s;
+  // Can't get this to work with the Microsoft compiler.
+  // transform(m.begin(), m.end(), s.begin(), (int (*)(int))tolower);
+  for (unsigned i = 0; i < m.length(); i++)
+    s[i] = static_cast<char>(tolower(m[i]));
+
+  if (s == "january")
+    date.month = 1;
+  else if (s == "february")
+    date.month = 2;
+  else if (s == "march")
+   date.month = 3;
+  else if (s == "april")
+   date.month = 4;
+  else if (s == "may")
+   date.month = 5;
+  else if (s == "june")
+   date.month = 6;
+  else if (s == "july")
+   date.month = 7;
+  else if (s == "august")
+   date.month = 8;
+  else if (s == "september")
+   date.month = 9;
+  else if (s == "october")
+   date.month = 10;
+  else if (s == "november")
+   date.month = 11;
+  else if (s == "december")
+   date.month = 12;
+}
+
+
+bool Date::SetLIN(const string& t)
+{
+  // Note that this parses the date in the *file name*, not a real
+  // date field.
+
+  try
+  {
+    // mm-dd-yy
+    regex re("(\\d\\d)-(\\d\\d)-(\\d\\d)");
+    smatch match;
+    if (regex_search(t, match, re) && match.size() >= 3)
+    {
+      (void) StringToUnsigned(match.str(1), date.month);
+
+      (void) StringToUnsigned(match.str(2), date.day);
+
+      (void) StringToUnsigned(match.str(3), date.year);
+      if (date.year > 20)
+        date.year = 1900 + date.year;
+      else
+        date.year = 2000 + date.year;
+
+    }
+    else
+    {
+      return false;
+    }
+  }
+  catch (regex_error& e)
+  {
+    UNUSED(e);
+    return false;
+  }
+}
+
+
+bool Date::SetPBN(const string& t)
+{
+  try
+  {
+    regex re("(\\d\\d\\d\\d).(\\d\\d)");
+    smatch match;
+    if (regex_search(t, match, re) && match.size() >= 2)
+    {
+      (void) StringToUnsigned(match.str(1), date.year);
+      (void) StringToUnsigned(match.str(2), date.month);
+    }
+    else
+    {
+      return false;
+    }
+  }
+  catch (regex_error& e)
+  {
+    UNUSED(e);
+    return false;
+  }
+}
+
+
+bool Date::SetRBN(const string& t)
+{
+  if (t.length() == 6)
+  {
+    try
+    {
+      regex re("(\\d\\d\\d\\d)(\\d\\d)");
+      smatch match;
+      if (regex_search(t, match, re) && match.size() >= 2)
+      {
+        (void) StringToUnsigned(match.str(1), date.year);
+        (void) StringToUnsigned(match.str(2), date.month);
+      }
+      else
+      {
+        return false;
+      }
+    }
+    catch (regex_error& e)
+    {
+      UNUSED(e);
+      return false;
+    }
+  }
+  else
+  {
+    try
+    {
+      regex re("(\\d\\d\\d\\d)(\\d\\d)(\\d\\d)");
+      smatch match;
+      if (regex_search(t, match, re) && match.size() >= 3)
+      {
+        (void) StringToUnsigned(match.str(1), date.year);
+        (void) StringToUnsigned(match.str(2), date.month);
+        (void) StringToUnsigned(match.str(3), date.day);
+      }
+      else
+      {
+        return false;
+      }
+    }
+    catch (regex_error& e)
+    {
+      UNUSED(e);
+      return false;
+    }
+  }
+}
+
+
+bool Date::SetTXT(const string& t)
+{
+  try
+  {
+    regex re("(\\w+) (\\d\\d\\d\\d)");
+    smatch match;
+    if (regex_search(t, match, re) && match.size() >= 2)
+    {
+      (void) StringToUnsigned(match.str(2), date.year);
+      string m = match.str(1);
+      date.month = Date::StringToMonth(m);
+    }
+    else
+    {
+      return false;
+    }
+  }
+  catch (regex_error& e)
+  {
+    UNUSED(e);
+    return false;
+  }
+}
+
+
 bool Date::Set(
   const string& t,
   const formatType f)
 {
-  UNUSED(t);
-  UNUSED(f);
-  // TODO
-  return true;
+  switch(f)
+  {
+    case BRIDGE_FORMAT_LIN:
+      return Date::SetLIN(t);
+    
+    case BRIDGE_FORMAT_PBN:
+      return Date::SetPBN(t);
+    
+    case BRIDGE_FORMAT_RBN:
+      return Date::SetRBN(t);
+    
+    case BRIDGE_FORMAT_TXT:
+      return Date::SetTXT(t);
+    
+    default:
+      LOG("Invalid format " + STR(f));
+      return "";
+  }
 }
 
 
@@ -72,10 +276,81 @@ bool Date::operator != (const Date& d2) const
 }
 
 
+string Date::AsLIN() const
+{
+  if (date.day == 0 || date.month == 0 || date.year == 0)
+    return "";
+
+  stringstream s;
+  s << 
+    date.month << "-" <<
+    date.day << "-" <<
+    (date.year % 100);
+  return s.str();
+}
+
+
+string Date::AsPBN() const
+{
+  if (date.day == 0 || date.month == 0 || date.year == 0)
+    return "";
+
+  stringstream s;
+  s << "[Date \"" << date.year << "." <<
+    date.month << "." <<
+    date.day <<
+    "\"]\n";
+  return s.str();
+}
+
+
+string Date::AsRBN() const
+{
+  if (date.month == 0 || date.year == 0)
+    return "D ";
+
+  stringstream s;
+  s << "D " <<
+    date.year <<
+    date.month;
+  if (date.day == 0)
+    s << date.day;
+  return s.str() + "\n";
+}
+
+
+string Date::AsTXT() const
+{
+  if (date.month == 0 || date.year == 0)
+    return "";
+
+  stringstream s;
+  if (date.day > 0)
+    s << date.day << " ";
+  s << DATE_MONTHS[date.month] << " " << date.year << "\n";
+  return s.str() + "\n";
+}
+
+
 string Date::AsString(const formatType f) const
 {
-  UNUSED(f);
-  // TODO
-  return "";
+  switch(f)
+  {
+    case BRIDGE_FORMAT_LIN:
+      return Date::AsLIN();
+    
+    case BRIDGE_FORMAT_PBN:
+      return Date::AsPBN();
+    
+    case BRIDGE_FORMAT_RBN:
+      return Date::AsRBN();
+    
+    case BRIDGE_FORMAT_TXT:
+      return Date::AsTXT();
+    
+    default:
+      LOG("Invalid format " + STR(f));
+      return "";
+  }
 }
 

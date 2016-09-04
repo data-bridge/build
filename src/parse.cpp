@@ -20,6 +20,7 @@
 #include <stdlib.h>
 
 #include "parse.h"
+#include "portab.h"
 
 using namespace std;
 
@@ -93,6 +94,84 @@ bool getWords(
   for (sregex_iterator it = wordsBegin; it != wordsEnd; it++)
     words[actualCount++] = it->str();
 
+  return true;
+}
+
+
+bool StringToUnsigned(
+  const string& s,
+  unsigned& res)
+{
+  unsigned u;
+  try
+  {
+    u = stoul(s, nullptr, 0);
+  }
+  catch (const invalid_argument& ia)
+  {
+    UNUSED(ia);
+    return false;
+  }
+  catch (const out_of_range& ia)
+  {
+    UNUSED(ia);
+    return false;
+  }
+
+  if (u < 1)
+    return false;
+
+  res = u;
+  return true;
+}
+
+
+bool StringToInt(
+  const string& s,
+  int& res)
+{
+  int i;
+  try
+  {
+    i = stoi(s, nullptr, 0);
+  }
+  catch (const invalid_argument& ia)
+  {
+    UNUSED(ia);
+    return false;
+  }
+  catch (const out_of_range& ia)
+  {
+    UNUSED(ia);
+    return false;
+  }
+
+  res = i;
+  return true;
+}
+
+
+bool StringToFloat(
+  const string& s,
+  float& res)
+{
+  float f;
+  try
+  {
+    f = stof(s, nullptr);
+  }
+  catch (const invalid_argument& ia)
+  {
+    UNUSED(ia);
+    return false;
+  }
+  catch (const out_of_range& ia)
+  {
+    UNUSED(ia);
+    return false;
+  }
+
+  res = f;
   return true;
 }
 

@@ -1,16 +1,15 @@
-DONE
-   520   1506  10834 Optimum.pm
-   612   2014  13448 Contract.pm
-   468   1403   9666 Deal.pm
-   949   2903  20749 Auction.pm
-   935   3161  22301 Play.pm
-   568   1593  13074 Board.pm
+Unit-test:
+Date
+Location
+Players
+Scoring
+Session
+Teams
+Board
 
 TODO
   2248   6531  53858 Batch.pm
    212    525   4003 Compilation.pm
-   347    987   6439 Players.pm
-  1218   3452  25010 Segment.pm
 
 Look at iterators: (1) auto, (2) it-> instead of new lookup?
 
@@ -36,7 +35,15 @@ Could possibly delete old hands and update them, ditto input file.
 Should somehow recognize complete duplicates
 
 Extend to all Pavlicek's formats?
-Maybe use his txt format.
+- DAT: Very basic text format
+- DUP: Half binary, probably makes sense to do
+- EML: Another txt-like format
+- PPL: Sparse binary format -- do?
+- RBX: Easy variation on RBN
+- REC: Yet another txt-like format
+- TXT: Maybe use his instead of mine
+- HTM: Don't do
+
 
 Make stats (histogram) of #cards given per play
 

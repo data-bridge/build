@@ -10,6 +10,7 @@
 #include "Auction.h"
 #include "Debug.h"
 #include <map>
+#include "parse.h"
 #include "portab.h"
 
 extern Debug debug;
@@ -116,24 +117,13 @@ bool Auction::SetDealerLIN(
   playerType& p) const
 {
   unsigned u;
-  try
+  if (! StringToUnsigned(d, u))
   {
-    u = stoul(d, nullptr, 0);
-  }
-  catch (const invalid_argument& ia)
-  {
-    UNUSED(ia);
-    LOG("Not a LIN dealer");
-    return false;
-  }
-  catch(const out_of_range& ia)
-  {
-    UNUSED(ia);
     LOG("Not a LIN dealer");
     return false;
   }
 
-  if (u < 1 || u > 4)
+  if (u > 4)
   {
     LOG("LIN dealer out of range");
     return false;
