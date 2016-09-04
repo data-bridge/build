@@ -4,15 +4,24 @@ DONE
    468   1403   9666 Deal.pm
    949   2903  20749 Auction.pm
    935   3161  22301 Play.pm
+   568   1593  13074 Board.pm
 
 TODO
   2248   6531  53858 Batch.pm
-   568   1593  13074 Board.pm
    212    525   4003 Compilation.pm
    347    987   6439 Players.pm
   1218   3452  25010 Segment.pm
 
 Look at iterators: (1) auto, (2) it-> instead of new lookup?
+
+Tableau: Call DDS
+Trace: (1) old trace, can count mistakes
+(2) new trace, can compare within suit and between suits,
+probably friend of Deal.  Need new DDS function?
+
+How to multi-thread the DDS calls?
+Threads consume single boards from segments (all instances).
+
 
 databases:
 - names
@@ -31,14 +40,11 @@ Maybe use his txt format.
 
 Make stats (histogram) of #cards given per play
 
-Auction: Output : in RBN every fourth bid
-
 Reconcile modified lin files (and pbn and rbn?) with original ones.
 Companion .fix files?
 
 Order
 -----
-Write BBO db parser 
 Write BBO parser for regular LIN files incl. JEC files
 Same for Vugraph files
 Write RBN parser to Pavlicek's files

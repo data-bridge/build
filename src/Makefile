@@ -4,11 +4,14 @@ SOURCE_FILES 	=		\
 	Auction.cpp		\
         Board.cpp               \
 	Contract.cpp		\
+	Date.cpp		\
 	Deal.cpp		\
 	Debug.cpp		\
 	Play.cpp		\
 	Players.cpp		\
+        Segment.cpp             \
 	Tableau.cpp		\
+        Team.cpp                \
 	parse.cpp		\
 	reader.cpp
 
@@ -69,12 +72,17 @@ Auction.obj: Auction.h bconst.h Contract.h Debug.h portab.h
 Board.obj: bconst.h Board.h Deal.h Players.h Tableau.h Contract.h Valuation.h
 Board.obj: Auction.h Play.h Debug.h portab.h
 Contract.obj: Contract.h bconst.h Debug.h
+Date.obj: Date.h bconst.h portab.h
 Deal.obj: bconst.h Deal.h Players.h Debug.h parse.h
 Debug.obj: Debug.h
 Play.obj: Play.h bconst.h Contract.h Deal.h Players.h Debug.h parse.h
 Play.obj: portab.h
 Players.obj: Players.h bconst.h portab.h
+Segment.obj: Segment.h Board.h Deal.h Players.h bconst.h Tableau.h Contract.h
+Segment.obj: Valuation.h Auction.h Play.h Date.h Team.h portab.h debug.h
+Segment.obj: Debug.h
 Tableau.obj: Tableau.h bconst.h Contract.h Debug.h parse.h
+Team.obj: Team.h bconst.h portab.h debug.h Debug.h
 parse.obj: parse.h
 reader.obj: portab.h bconst.h Debug.h Tableau.h Contract.h Deal.h Players.h
 reader.obj: Auction.h Play.h
