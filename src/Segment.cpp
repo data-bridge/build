@@ -15,6 +15,8 @@
 
 extern Debug debug;
 
+#define BIG_BOARD 99999
+
 
 Segment::Segment()
 {
@@ -31,6 +33,9 @@ void Segment::Reset()
 {
   len = 0;
   boards.clear();
+
+  bmin = BIG_BOARD;
+  bmax = 0;
 
   firstStringFlag = true;
 
@@ -52,6 +57,10 @@ bool Segment::MakeBoard(const unsigned no)
   boards.resize(len+1);
   boards[len].extNo = no;
   len++;
+  if (no < bmin)
+    bmin = no;
+  if (no > bmax)
+    bmax = no;
   return true;
 }
 
@@ -94,6 +103,7 @@ bool Segment::SetTitleLIN(const string t)
   tokenize(t, v, ":");
 
   // Try to pick out the RBN-generated line.
+  bool eventFlag = true;
   regex re("^(\\.+)\\s+(\\w)$");
   smatch match;
   if (regex_search(v[0], match, re) && 
@@ -108,6 +118,7 @@ bool Segment::SetTitleLIN(const string t)
     s << "S " << match.str(1) << ":" << v[1] << "\n";
     if (! Segment::SetSession(s.str(), BRIDGE_FORMAT_RBN))
       return false;
+    eventFlag = false;
   }
 
   // See whether the title line contains extra information.
@@ -141,6 +152,14 @@ bool Segment::SetTitleLIN(const string t)
     stringstream ss;
     ss << "T " << t;
     if (! Segment::SetTitle(ss.str(), BRIDGE_FORMAT_RBN))
+      return false;
+  }
+
+  if (eventFlag)
+  {
+    stringstream ss;
+    ss << "E " << v[1];
+    if (! Segment::SetEvent(ss.str()))
       return false;
   }
 
@@ -296,8 +315,38 @@ bool Segment::operator != (const Segment& s2) const
 
 string Segment::TitleAsLIN() const
 {
-  // TODO
   // In LIN this is the entire vg field.
+  // We don't generate the specific "format" that Pavlicek uses
+  // in his LIN files.
+  
+  stringstream s;
+  s << "vg|";
+
+  if (seg.title == "Bridge Base Online")
+  {
+    s << seg.title << ",IMPs,P";
+  }
+  else if (seg.event == "Bridge Base Online")
+  {
+    s << seg.title << "," << 
+        seg.event << "," << 
+        seg.scoring.AsString(BRIDGE_FORMAT_LIN);
+  }
+  else
+  {
+    // Fudged extension of title format.
+    s << seg.title << "§" <<
+        seg.date.AsString(BRIDGE_FORMAT_LIN) << "§" <<
+        seg.location.AsString(BRIDGE_FORMAT_LIN) << "§" <<
+        seg.session.AsString(BRIDGE_FORMAT_LIN) << "," <<
+        seg.event << "," << 
+        seg.scoring.AsString(BRIDGE_FORMAT_LIN);
+  }
+
+  s << bmin << "," << bmax << "," <<
+      seg.teams.AsString(BRIDGE_FORMAT_LIN) << "|";
+  
+  return s.str();
 }
 
 

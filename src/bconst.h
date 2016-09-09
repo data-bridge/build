@@ -146,5 +146,10 @@ enum formatType
   BRIDGE_FORMAT_SIZE = 5
 };
 
+const string FORMAT_NAMES[BRIDGE_FORMAT_SIZE] =
+{
+  "LIN", "PBN", "RBN", "TXT", "PAR"
+};
+
 #endif
 

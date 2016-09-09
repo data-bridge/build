@@ -25,6 +25,36 @@ using namespace std;
 extern Debug debug;
 
 
+void TestLocationCase(
+  Location& location,
+  const string& s,
+  const formatType f); 
+void TestScoringCase(
+  Scoring& scoring,
+  const string& s,
+  const formatType f);
+
+void TestSessionCase(
+  Session& session,
+  const string& s,
+  const formatType f);
+
+void TestTeamsCase(
+  Teams& teams,
+  const string list[2],
+  const formatType f);
+
+void TestSegmentCase(
+  Segment& segment,
+  const string& title,
+  const string& date,
+  const string& location,
+  const string& event,
+  const string& session,
+  const string& scoring,
+  const string teamList[],
+  const formatType f);
+
 
 void TestTableau(Tableau& tableau)
 {
@@ -429,31 +459,12 @@ void TestDate(Date& date)
 }
 
 
-void TestLocation(Location& location)
+void TestLocationCase(
+  Location& location,
+  const string& s,
+  const formatType f)
 {
-  if (! location.Set("Fort Lauderdale, FL", BRIDGE_FORMAT_RBN))
-  {
-    cout << "Can't set location" << endl;
-    assert(false);
-  }
-
-  cout << "LIN: " << location.AsString(BRIDGE_FORMAT_LIN) << "\n";
-  cout << "PBN: " << location.AsString(BRIDGE_FORMAT_PBN);
-  cout << "RBN: " << location.AsString(BRIDGE_FORMAT_RBN);
-  cout << "TXT: " << location.AsString(BRIDGE_FORMAT_TXT) << "\n";
-
-  if (! location.Set("Fort Lauderdale:FL", BRIDGE_FORMAT_RBN))
-  {
-    cout << "Can't set location" << endl;
-    assert(false);
-  }
-
-  cout << "LIN: " << location.AsString(BRIDGE_FORMAT_LIN) << "\n";
-  cout << "PBN: " << location.AsString(BRIDGE_FORMAT_PBN);
-  cout << "RBN: " << location.AsString(BRIDGE_FORMAT_RBN);
-  cout << "TXT: " << location.AsString(BRIDGE_FORMAT_TXT) << "\n";
-
-  if (! location.Set("Fort Lauderdale, FL", BRIDGE_FORMAT_TXT))
+  if (! location.Set(s, f))
   {
     cout << "Can't set location" << endl;
     assert(false);
@@ -466,40 +477,55 @@ void TestLocation(Location& location)
 }
 
 
+void TestLocation(Location& location)
+{
+  TestLocationCase(location, "Fort Lauderdale, FL", BRIDGE_FORMAT_RBN);
+  TestLocationCase(location, "Fort Lauderdale:FL", BRIDGE_FORMAT_RBN);
+  TestLocationCase(location, "Fort Lauderdale, FL", BRIDGE_FORMAT_TXT);
+}
+
+
+void TestScoringCase(
+  Scoring& scoring,
+  const string& s,
+  const formatType f)
+{
+  if (! scoring.Set(s, f))
+  {
+    cout << "Can't set scoring" << endl;
+    assert(false);
+  }
+
+  cout << "LIN: " << scoring.AsString(BRIDGE_FORMAT_LIN) << "\n";
+  cout << "PBN: " << scoring.AsString(BRIDGE_FORMAT_PBN);
+  cout << "RBN: " << scoring.AsString(BRIDGE_FORMAT_RBN);
+  cout << "TXT: " << scoring.AsString(BRIDGE_FORMAT_TXT) << "\n";
+}
+
+
 void TestScoring(Scoring& scoring)
 {
-  if (! scoring.Set("I", BRIDGE_FORMAT_LIN))
+  TestScoringCase(scoring, "I", BRIDGE_FORMAT_LIN);
+  TestScoringCase(scoring, "Matchpoints", BRIDGE_FORMAT_PBN);
+  TestScoringCase(scoring, "R", BRIDGE_FORMAT_RBN);
+}
+
+
+void TestTeamsCase(
+  Teams& teams,
+  const string list[2],
+  const formatType f)
+{
+  if (! teams.Set(list, f))
   {
-    cout << "Can't set scoring" << endl;
+    cout << "Can't set teams" << endl;
     assert(false);
   }
 
-  cout << "LIN: " << scoring.AsString(BRIDGE_FORMAT_LIN) << "\n";
-  cout << "PBN: " << scoring.AsString(BRIDGE_FORMAT_PBN);
-  cout << "RBN: " << scoring.AsString(BRIDGE_FORMAT_RBN);
-  cout << "TXT: " << scoring.AsString(BRIDGE_FORMAT_TXT) << "\n";
-
-  if (! scoring.Set("Matchpoints", BRIDGE_FORMAT_PBN))
-  {
-    cout << "Can't set scoring" << endl;
-    assert(false);
-  }
-
-  cout << "LIN: " << scoring.AsString(BRIDGE_FORMAT_LIN) << "\n";
-  cout << "PBN: " << scoring.AsString(BRIDGE_FORMAT_PBN);
-  cout << "RBN: " << scoring.AsString(BRIDGE_FORMAT_RBN);
-  cout << "TXT: " << scoring.AsString(BRIDGE_FORMAT_TXT) << "\n";
-
-  if (! scoring.Set("R", BRIDGE_FORMAT_RBN))
-  {
-    cout << "Can't set scoring" << endl;
-    assert(false);
-  }
-
-  cout << "LIN: " << scoring.AsString(BRIDGE_FORMAT_LIN) << "\n";
-  cout << "PBN: " << scoring.AsString(BRIDGE_FORMAT_PBN);
-  cout << "RBN: " << scoring.AsString(BRIDGE_FORMAT_RBN);
-  cout << "TXT: " << scoring.AsString(BRIDGE_FORMAT_TXT) << "\n";
+  cout << "LIN: " << teams.AsString(BRIDGE_FORMAT_LIN) << "\n";
+  cout << "PBN: " << teams.AsString(BRIDGE_FORMAT_PBN);
+  cout << "RBN: " << teams.AsString(BRIDGE_FORMAT_RBN);
+  cout << "TXT: " << teams.AsString(BRIDGE_FORMAT_TXT) << "\n\n";
 }
 
 
@@ -507,64 +533,146 @@ void TestTeams(Teams& teams)
 {
   string list[2];
   list[0] = "Nickell:Schwartz";
-  if (! teams.Set(list, BRIDGE_FORMAT_RBN))
-  {
-    cout << "Can't set teams" << endl;
-    assert(false);
-  }
-
-  cout << "LIN: " << teams.AsString(BRIDGE_FORMAT_LIN) << "\n";
-  cout << "PBN: " << teams.AsString(BRIDGE_FORMAT_PBN);
-  cout << "RBN: " << teams.AsString(BRIDGE_FORMAT_RBN);
-  cout << "TXT: " << teams.AsString(BRIDGE_FORMAT_TXT) << "\n\n";
+  TestTeamsCase(teams, list, BRIDGE_FORMAT_RBN);
 
   list[0] = "Nickell:Schwartz:999:22";
-  if (! teams.Set(list, BRIDGE_FORMAT_RBN))
-  {
-    cout << "Can't set teams" << endl;
-    assert(false);
-  }
-
-  cout << "LIN: " << teams.AsString(BRIDGE_FORMAT_LIN) << "\n";
-  cout << "PBN: " << teams.AsString(BRIDGE_FORMAT_PBN);
-  cout << "RBN: " << teams.AsString(BRIDGE_FORMAT_RBN);
-  cout << "TXT: " << teams.AsString(BRIDGE_FORMAT_TXT) << "\n\n";
+  TestTeamsCase(teams, list, BRIDGE_FORMAT_RBN);
 
   list[0] = "Nickell:Schwartz:76.33:91.50";
-  if (! teams.Set(list, BRIDGE_FORMAT_RBN))
-  {
-    cout << "Can't set teams" << endl;
-    assert(false);
-  }
-
-  cout << "LIN: " << teams.AsString(BRIDGE_FORMAT_LIN) << "\n";
-  cout << "PBN: " << teams.AsString(BRIDGE_FORMAT_PBN);
-  cout << "RBN: " << teams.AsString(BRIDGE_FORMAT_RBN);
-  cout << "TXT: " << teams.AsString(BRIDGE_FORMAT_TXT) << "\n\n";
+  TestTeamsCase(teams, list, BRIDGE_FORMAT_RBN);
 
   list[0] = "Nickell:999";
   list[1] = "Schwartz:22";
-  if (! teams.Set(list, BRIDGE_FORMAT_PBN))
-  {
-    cout << "Can't set teams" << endl;
-    assert(false);
-  }
-
-  cout << "LIN: " << teams.AsString(BRIDGE_FORMAT_LIN) << "\n";
-  cout << "PBN: " << teams.AsString(BRIDGE_FORMAT_PBN);
-  cout << "RBN: " << teams.AsString(BRIDGE_FORMAT_RBN);
-  cout << "TXT: " << teams.AsString(BRIDGE_FORMAT_TXT) << "\n\n";
+  TestTeamsCase(teams, list, BRIDGE_FORMAT_PBN);
 
   list[0] = "Meltzer (470) vs. Schwartz (451)";
-  if (! teams.Set(list, BRIDGE_FORMAT_TXT))
+  TestTeamsCase(teams, list, BRIDGE_FORMAT_TXT);
+}
+
+
+void TestSessionCase(
+  Session& session,
+  const string& s,
+  const formatType f)
+{
+  if (! session.Set(s, f))
   {
-    cout << "Can't set teams" << endl;
+    cout << "Can't set session";
     assert(false);
   }
 
-  cout << "LIN: " << teams.AsString(BRIDGE_FORMAT_LIN) << "\n";
-  cout << "PBN: " << teams.AsString(BRIDGE_FORMAT_PBN);
-  cout << "RBN: " << teams.AsString(BRIDGE_FORMAT_RBN);
-  cout << "TXT: " << teams.AsString(BRIDGE_FORMAT_TXT) << "\n\n";
+  cout << "LIN: " << session.AsString(BRIDGE_FORMAT_LIN) << "\n";
+  cout << "PBN: " << session.AsString(BRIDGE_FORMAT_PBN);
+  cout << "RBN: " << session.AsString(BRIDGE_FORMAT_RBN);
+  cout << "TXT: " << session.AsString(BRIDGE_FORMAT_TXT) << "\n\n";
+}
+
+
+void TestSession(Session& session)
+{
+  TestSessionCase(session, "R32:2", BRIDGE_FORMAT_RBN);
+  TestSessionCase(session, "Round of 32, Segment 7", BRIDGE_FORMAT_RBN);
+  TestSessionCase(session, "Round of 32:Segment 7", BRIDGE_FORMAT_RBN);
+  TestSessionCase(session, "Round of 32, Segment 7", BRIDGE_FORMAT_TXT);
+  TestSessionCase(session, "Heptaquad, Segment 7", BRIDGE_FORMAT_TXT);
+  TestSessionCase(session, "Pentacubed", BRIDGE_FORMAT_RBN);
+}
+
+
+void TestSegmentCase(
+  Segment& segment,
+  const string& title,
+  const string& date,
+  const string& location,
+  const string& event,
+  const string& session,
+  const string& scoring,
+  const string teamList[],
+  const formatType f)
+{
+  if (! segment.SetTitle(title, f))
+  {
+    cout << "Can't set title";
+    assert(false);
+  }
+
+  if (f == BRIDGE_FORMAT_LIN)
+    goto SEGOUT;
+
+  if (! segment.SetDate(date, f))
+  {
+    cout << "Can't set date";
+    assert(false);
+  }
+
+  if (! segment.SetLocation(location, f))
+  {
+    cout << "Can't set location";
+    assert(false);
+  }
+
+  if (! segment.SetEvent(event))
+  {
+    cout << "Can't set event";
+    assert(false);
+  }
+
+  if (! segment.SetSession(session, f))
+  {
+    cout << "Can't set session";
+    assert(false);
+  }
+
+  if (! segment.SetScoring(scoring, f))
+  {
+    cout << "Can't set scoring";
+    assert(false);
+  }
+
+  if (! segment.SetTeams(teamList, f))
+  {
+    cout << "Can't set teams";
+    assert(false);
+  }
+
+  SEGOUT:
+  cout << FORMAT_NAMES[f] << ":\n";
+  cout << segment.TitleAsString(f, SEGMENT_FORCE) << "\n";
+  cout << segment.DateAsString(f, SEGMENT_FORCE) << "\n";
+  cout << segment.LocationAsString(f, SEGMENT_FORCE) << "\n";
+  cout << segment.EventAsString(f, SEGMENT_FORCE) << "\n";
+  cout << segment.SessionAsString(f, SEGMENT_FORCE) << "\n";
+  cout << segment.ScoringAsString(f, SEGMENT_FORCE) << "\n";
+  cout << segment.TeamsAsString(f, SEGMENT_FORCE) << "\n\n";
+}
+
+
+void TestSegment(Segment& segment)
+{
+  string list[2];
+  TestSegmentCase(segment,
+      "Bridge Base Online,IMPs,P,1,16,Meltzer,490,Schwarz,459",
+      "", "", "", "", "", list, BRIDGE_FORMAT_LIN);
+
+  TestSegmentCase(segment,
+      "#9651,Bridge Base Online,P,17,32,Meltzer,491,Schwarz,460",
+      "", "", "", "", "", list, BRIDGE_FORMAT_LIN);
+    
+  TestSegmentCase(segment,
+      "#9651,Bridge Base Online,I,33,48,Meltzer,492,Schwarz,461",
+      "", "", "", "", "", list, BRIDGE_FORMAT_LIN);
+    
+  TestSegmentCase(segment,
+      "BB,Semis,I,49,64,Meltzer,493,Schwarz,462",
+      "", "", "", "", "", list, BRIDGE_FORMAT_LIN);
+    
+  TestSegmentCase(segment,
+      "BB Semifinal,Segment 4,I,65,80,Meltzer,493,Schwarz,463",
+      "", "", "", "", "", list, BRIDGE_FORMAT_LIN);
+
+  TestSegmentCase(segment,
+      "BB§20000630§Hotel Hilton:FL§R32:4,Event,I,65,80,Meltzer,493,Schwarz,463",
+      "", "", "", "", "", list, BRIDGE_FORMAT_LIN);
+    
 }
 

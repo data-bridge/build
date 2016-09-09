@@ -1,7 +1,8 @@
+Board:
+Valuation, CheckBoard
+
 Unit-test:
 Players
-Session
-Board
 Group
 Segment
 

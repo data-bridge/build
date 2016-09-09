@@ -34,9 +34,10 @@ class Session
 {
   private:
 
-    string general;
+    string general1;
     stageType stage;
     unsigned roundOf;
+    string general2;
     unsigned sessionNo;
 
     stageType CharToType(const char c) const;
@@ -44,6 +45,14 @@ class Session
     stageType StringToType(
       const string& t,
       unsigned& rOf) const;
+
+    void SetPart1(const string& t);
+    void SetPart2(const string& t);
+
+    string AsLIN() const;
+    string AsPBN() const;
+    string AsRBN() const;
+    string AsTXT() const;
 
 
   public:

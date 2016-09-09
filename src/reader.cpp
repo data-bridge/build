@@ -38,6 +38,8 @@ int main(int argc, char * argv[])
   Location location;
   Scoring scoring;
   Teams teams;
+  Session session;
+  Segment segment;
 
   // TestTableau(tableau);
   // TestDeal(deal);
@@ -46,8 +48,10 @@ int main(int argc, char * argv[])
   // TestDate(date);
   // TestLocation(location);
   // TestScoring(scoring);
+  // TestTeams(teams);
+  // TestSession(session);
 
-  TestTeams(teams);
+  TestSegment(segment);
 
   // Players players;
   // cout << deal.AsTXT(players) << "\n";

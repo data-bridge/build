@@ -19,6 +19,8 @@
 #include "Location.h"
 #include "Scoring.h"
 #include "Teams.h"
+#include "Session.h"
+#include "Segment.h"
 
 
 void TestTableau(Tableau& tableau);
@@ -36,6 +38,10 @@ void TestLocation(Location& location);
 void TestScoring(Scoring& scoring);
 
 void TestTeams(Teams& teams);
+
+void TestSession(Session& session);
+
+void TestSegment(Segment& segment);
 
 #endif
 
