@@ -14,6 +14,7 @@
 extern Debug debug;
 
 
+// No doubt LIN also has tags for some of these
 const string SCORING_LIN[] =
 {
   "I", "X", "X", "X", "P", "X", "X", "X", "X", "X"
@@ -21,7 +22,8 @@ const string SCORING_LIN[] =
 
 const string SCORING_PBN[] =
 {
-  "IMPs", "X", "X", "X", "Matchpoints", "X", "X", "X", "X", "X"
+  "IMP", "BAM", "X", "X", "Matchpoints", 
+  "Instant", "Rubber", "Chicago", "Cavendish", "X"
 };
 
 const string SCORING_RBN[] =
@@ -177,7 +179,7 @@ string Scoring::AsPBN() const
 {
   if (scoring == BRIDGE_SCORING_UNDEFINED)
     return "";
-  return SCORING_PBN[scoring];
+  return "[Scoring \"" + SCORING_PBN[scoring] + "\"]\n";
 }
 
 
@@ -185,7 +187,7 @@ string Scoring::AsRBN() const
 {
   if (scoring == BRIDGE_SCORING_UNDEFINED)
     return "";
-  return SCORING_RBN[scoring];
+  return "F " + SCORING_RBN[scoring] + "\n";
 }
 
 

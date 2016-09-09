@@ -52,7 +52,7 @@ bool Location::Set(
         location.general = t;
       else
       {
-        location.general = t.substr(0, pos-1);
+        location.general = t.substr(0, pos);
         location.specific = t.substr(pos+1, string::npos);
       }
       return true;
@@ -66,7 +66,7 @@ bool Location::Set(
           location.general = t;
         else
         {
-          location.general = t.substr(0, pos-1);
+          location.general = t.substr(0, pos);
           location.specific = t.substr(pos+2, string::npos);
         }
       }
@@ -115,7 +115,7 @@ string Location::AsString(const formatType f) const
       s << "[Site \"" << location.general;
       if (location.specific != "")
         s << ":" << location.specific;
-      return s.str() + "\n";
+      return s.str() + "\"]\n";
     
     case BRIDGE_FORMAT_RBN:
       s << "L " << location.general;

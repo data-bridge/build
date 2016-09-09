@@ -8,6 +8,7 @@
 
 
 #include <regex>
+#include <iomanip>
 #include "Date.h"
 #include "portab.h"
 #include "parse.h"
@@ -53,7 +54,7 @@ void Date::Reset()
 }
 
 
-unsigned Date::StringToMonth(const string& m)
+void Date::StringToMonth(const string& m)
 {
   string s;
   // Can't get this to work with the Microsoft compiler.
@@ -85,6 +86,49 @@ unsigned Date::StringToMonth(const string& m)
    date.month = 11;
   else if (s == "december")
    date.month = 12;
+  else
+    date.month = 0;
+}
+
+
+bool Date::CheckDate() const
+{
+  if (date.year > 2100)
+  {
+    LOG("Year is mighty large");
+    return false;
+  }
+
+  if (date.month > 12)
+  {
+    LOG("Month is too large");
+    return false;
+  }
+
+  if (date.day > 31)
+  {
+    LOG("Month is too large");
+    return false;
+  }
+
+  if (date.month == 0 && date.day > 0)
+  {
+    LOG("Don't want day in unknown month");
+    return false;
+  }
+
+  if (date.month == 0 || date.day == 0)
+    return true;
+
+  if (date.month == 2)
+    return (date.day < 30); // Yeah yeah, leap years
+  else if (date.month == 4 || 
+      date.month == 6 || 
+      date.month == 9 ||
+      date.month == 11)
+    return (date.day < 31);
+  else
+    return true;
 }
 
 
@@ -119,8 +163,11 @@ bool Date::SetLIN(const string& t)
   catch (regex_error& e)
   {
     UNUSED(e);
+    LOG("Bad date");
     return false;
   }
+
+  return Date::CheckDate();
 }
 
 
@@ -145,6 +192,7 @@ bool Date::SetPBN(const string& t)
     UNUSED(e);
     return false;
   }
+  return Date::CheckDate();
 }
 
 
@@ -195,6 +243,7 @@ bool Date::SetRBN(const string& t)
       return false;
     }
   }
+  return Date::CheckDate();
 }
 
 
@@ -208,7 +257,7 @@ bool Date::SetTXT(const string& t)
     {
       (void) StringToUnsigned(match.str(2), date.year);
       string m = match.str(1);
-      date.month = Date::StringToMonth(m);
+      Date::StringToMonth(m); // sets date.month
     }
     else
     {
@@ -220,6 +269,7 @@ bool Date::SetTXT(const string& t)
     UNUSED(e);
     return false;
   }
+  return Date::CheckDate();
 }
 
 
@@ -282,24 +332,33 @@ string Date::AsLIN() const
     return "";
 
   stringstream s;
-  s << 
-    date.month << "-" <<
-    date.day << "-" <<
-    (date.year % 100);
+  s <<  
+    setfill('0') << setw(2) << date.month << "-" <<
+    setfill('0') << setw(2) << date.day << "-" <<
+    setfill('0') << setw(2) << (date.year % 100);
   return s.str();
 }
 
 
 string Date::AsPBN() const
 {
-  if (date.day == 0 || date.month == 0 || date.year == 0)
+  if (date.day == 0 && date.month == 0 && date.year == 0)
     return "";
 
   stringstream s;
-  s << "[Date \"" << date.year << "." <<
-    date.month << "." <<
-    date.day <<
-    "\"]\n";
+  s << "[Date \"";
+  if (date.year == 0)
+    s << "????.";
+  else
+    s << setfill('0') << setw(4) << date.year << ".";
+  if (date.month == 0)
+    s << "??.";
+  else
+    s << setfill('0') << setw(2) << date.month << ".";
+  if (date.day == 0)
+    s << "??\"]\n";
+  else
+    s << setfill('0') << setw(2) << date.day << "\"]\n";
   return s.str();
 }
 
@@ -312,8 +371,8 @@ string Date::AsRBN() const
   stringstream s;
   s << "D " <<
     date.year <<
-    date.month;
-  if (date.day == 0)
+    setfill('0') << setw(2) << date.month;
+  if (date.day > 0)
     s << date.day;
   return s.str() + "\n";
 }

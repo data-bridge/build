@@ -29,7 +29,10 @@ class Date
 
     dateType date;
 
-    unsigned StringToMonth(const string& m);
+    void StringToMonth(const string& m);
+
+    bool CheckDate() const;
+
     bool SetLIN(const string& t);
     bool SetPBN(const string& t);
     bool SetRBN(const string& t);

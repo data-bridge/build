@@ -7,6 +7,7 @@ SOURCE_FILES 	=		\
 	Date.cpp		\
 	Deal.cpp		\
 	Debug.cpp		\
+	Group.cpp		\
         Location.cpp            \
 	Play.cpp		\
 	Players.cpp		\
@@ -15,6 +16,7 @@ SOURCE_FILES 	=		\
         Session.cpp             \
 	Tableau.cpp		\
         Teams.cpp               \
+	UnitTest.cpp		\
 	parse.cpp		\
 	reader.cpp
 
@@ -78,19 +80,27 @@ Contract.obj: Contract.h bconst.h Debug.h
 Date.obj: Date.h bconst.h portab.h parse.h debug.h Debug.h
 Deal.obj: bconst.h Deal.h Players.h Debug.h parse.h
 Debug.obj: Debug.h
+Group.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
+Group.obj: Teams.h Board.h Deal.h Players.h Tableau.h Contract.h Valuation.h
+Group.obj: Auction.h Play.h portab.h parse.h debug.h Debug.h
 Location.obj: Location.h bconst.h portab.h debug.h Debug.h
 Play.obj: Play.h bconst.h Contract.h Deal.h Players.h Debug.h parse.h
 Play.obj: portab.h
-Players.obj: Players.h bconst.h portab.h
+Players.obj: bconst.h Players.h portab.h parse.h Debug.h
 Scoring.obj: Scoring.h bconst.h portab.h debug.h Debug.h
 Segment.obj: Segment.h Date.h bconst.h Location.h Session.h Scoring.h Teams.h
 Segment.obj: Board.h Deal.h Players.h Tableau.h Contract.h Valuation.h
-Segment.obj: Auction.h Play.h portab.h debug.h Debug.h
+Segment.obj: Auction.h Play.h portab.h parse.h debug.h Debug.h
 Session.obj: Session.h bconst.h portab.h parse.h debug.h Debug.h
 Tableau.obj: Tableau.h bconst.h Contract.h Debug.h parse.h
-Teams.obj: Teams.h bconst.h portab.h debug.h Debug.h
+Teams.obj: Teams.h bconst.h portab.h parse.h Debug.h
+UnitTest.obj: portab.h bconst.h UnitTest.h Tableau.h Contract.h Deal.h
+UnitTest.obj: Players.h Auction.h Play.h Date.h Location.h Scoring.h Teams.h
+UnitTest.obj: Debug.h
 parse.obj: parse.h portab.h
-reader.obj: portab.h bconst.h Debug.h Tableau.h Contract.h Deal.h Players.h
-reader.obj: Auction.h Play.h
-reader.obj: portab.h bconst.h Debug.h Tableau.h Contract.h Deal.h Players.h
-reader.obj: Auction.h Play.h
+reader.obj: UnitTest.h Tableau.h bconst.h Contract.h Deal.h Players.h
+reader.obj: Auction.h Play.h Date.h Location.h Scoring.h Teams.h portab.h
+reader.obj: Debug.h
+reader.obj: UnitTest.h Tableau.h bconst.h Contract.h Deal.h Players.h
+reader.obj: Auction.h Play.h Date.h Location.h Scoring.h Teams.h portab.h
+reader.obj: Debug.h

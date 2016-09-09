@@ -131,9 +131,13 @@ bool StringToInt(
   int& res)
 {
   int i;
+  size_t pos;
   try
   {
-    i = stoi(s, nullptr, 0);
+    i = stoi(s, &pos);
+    if (pos != s.size())
+      return false;
+
   }
   catch (const invalid_argument& ia)
   {
@@ -156,9 +160,12 @@ bool StringToFloat(
   float& res)
 {
   float f;
+  size_t pos;
   try
   {
-    f = stof(s, nullptr);
+    f = static_cast<float>(stod(s, &pos));
+    if (pos != s.size())
+      return false;
   }
   catch (const invalid_argument& ia)
   {

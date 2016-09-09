@@ -42,6 +42,14 @@ class Teams
       const string& t,
       teamType& tt) const;
 
+    bool SetSinglePBN(
+      const string& t,
+      teamType& tt) const;
+
+    bool SetSingleTXT(
+      const string& t,
+      teamType& tt) const;
+
     bool SetLIN(const string& t);
     bool SetPBN(
       const string& t1,
@@ -52,6 +60,17 @@ class Teams
     bool TeamIsEqual(
       const teamType& ta,
       const teamType& tb) const;
+
+    string SingleAsLIN(const teamType& tt) const;
+    string SingleAsPBN(const teamType& tt) const;
+    string SingleAsTXT(const teamType& tt) const;
+
+    string CarryAsString(const teamType& tt) const;
+
+    string AsLIN() const;
+    string AsPBN() const;
+    string AsRBN() const;
+    string AsTXT() const;
 
 
   public:

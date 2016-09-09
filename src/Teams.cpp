@@ -7,6 +7,7 @@
 */
 
 
+#include <regex>
 #include "Teams.h"
 #include "portab.h"
 #include "parse.h"
@@ -62,6 +63,64 @@ bool Teams::ExtractCarry(
     LOG("Bad carry-over format");
     return false;
   }
+  return true;
+}
+
+
+bool Teams::SetSinglePBN(
+  const string& t,
+  teamType& tt) const
+{
+  int seen = count(t.begin(), t.end(), ':');
+  if (seen == 1)
+  {
+    vector<string> v(2);
+    v.clear();
+    tokenize(t, v, ":");
+    tt.name = v[0];
+    if (Teams::ExtractCarry(v[1], tt))
+      return true;
+    else
+    {
+      LOG("Cannot extract carry");
+      return false;
+    }
+  }
+  else
+  {
+    tt.name = t;
+    return true;
+  }
+}
+
+
+bool Teams::SetSingleTXT(
+  const string& t,
+  teamType& tt) const
+{
+  try
+  {
+    regex re("^(.+)\\s+\\((.+)\\)");
+    smatch match;
+    if (regex_search(t, match, re) && match.size() >= 2)
+    {
+      if (! Teams::ExtractCarry(match.str(2), tt))
+      {
+        LOG("Cannot extract carry");
+        return false;
+      }
+      tt.name = match.str(1);
+      return true;
+    }
+    else
+      tt.name = t;
+  }
+  catch (regex_error& e)
+  {
+    UNUSED(e);
+    tt.name = t;
+  }
+  return true;
 }
 
 
@@ -69,10 +128,11 @@ bool Teams::SetPBN(
   const string& t1,
   const string& t2)
 {
-  UNUSED(t1);
-  UNUSED(t2);
-  // TODO
-  return true;
+  if (Teams::SetSinglePBN(t1, team1) && Teams::SetSinglePBN(t2, team2))
+    return true;
+
+  Teams::Reset();
+  return false;
 }
 
 
@@ -82,6 +142,7 @@ bool Teams::SetRBN(const string& t)
   if (seen == 1)
   {
     vector<string> v(2);
+    v.clear();
     tokenize(t, v, ":");
     team1.name = v[0];
     team2.name = v[1];
@@ -89,6 +150,7 @@ bool Teams::SetRBN(const string& t)
   else if (seen == 3)
   {
     vector<string> v(4);
+    v.clear();
     tokenize(t, v, ":");
 
     teamType tt1, tt2;
@@ -115,9 +177,21 @@ bool Teams::SetRBN(const string& t)
 
 bool Teams::SetTXT(const string& t)
 {
-  UNUSED(t);
-  // TODO
-  return true;
+  size_t pos;
+  if ((pos = t.find(" vs. ", 0)) == string::npos || t.size() < pos+6)
+  {
+    LOG("Cannot find two teams");
+    return false;
+  }
+
+  string s1 = t.substr(0, pos);
+  string s2 = t.substr(pos+5, string::npos);
+
+  if (Teams::SetSingleTXT(s1, team1) && Teams::SetSingleTXT(s2, team2))
+    return true;
+
+  Teams::Reset();
+  return false;
 }
 
 
@@ -166,7 +240,7 @@ bool Teams::TeamIsEqual(
     return false;
   }
   else if (ta.carry == BRIDGE_CARRY_FLOAT &&
-      abs(ta.carryf - tb.carryf) > 0.001)
+      abs(ta.carryf - tb.carryf) > 0.001f)
   {
     LOG("Different team integer float value");
     return false;
@@ -194,10 +268,119 @@ bool Teams::operator != (const Teams& t2) const
 }
 
 
+string Teams::SingleAsLIN(const teamType& tt) const
+{
+  return tt.name + "," + CarryAsString(tt);
+}
+
+
+string Teams::SingleAsPBN(const teamType& tt) const
+{
+  stringstream s;
+  s << tt.name;
+  if (tt.carry != BRIDGE_CARRY_NONE)
+    s << ":" << Teams::CarryAsString(tt);
+  return s.str();
+}
+
+
+string Teams::SingleAsTXT(const teamType& tt) const
+{
+  stringstream s;
+  s << tt.name;
+  if (tt.carry != BRIDGE_CARRY_NONE)
+    s << " (" << Teams::CarryAsString(tt) << ")";
+  return s.str();
+}
+
+
+string Teams::CarryAsString(const teamType& tt) const
+{
+  stringstream s;
+
+  switch(tt.carry)
+  {
+    case BRIDGE_CARRY_NONE:
+      return "";
+
+    case BRIDGE_CARRY_INT:
+      s << tt.carryi;
+      return s.str();
+
+    case BRIDGE_CARRY_FLOAT:
+      s << fixed << setprecision(2) << tt.carryf;
+      return s.str();
+
+    default:
+      LOG("Unknown carry");
+      return "";
+  }
+}
+
+
+string Teams::AsLIN() const
+{
+  return Teams::SingleAsLIN(team1) + "," + Teams::SingleAsLIN(team2);
+}
+
+
+string Teams::AsPBN() const
+{
+  if (team1.name == "" && team2.name == "" &&
+      team1.carry == BRIDGE_CARRY_NONE &&
+      team2.carry == BRIDGE_CARRY_NONE)
+    return "";
+
+  return "[OpenTeam \"" + Teams::SingleAsPBN(team1) + "\"]\n" +
+      "[VisitTeam \"" + Teams::SingleAsPBN(team2) + "\"]\n";
+}
+
+
+string Teams::AsRBN() const
+{
+  if (team1.name == "" && team2.name == "" &&
+      team1.carry == BRIDGE_CARRY_NONE &&
+      team2.carry == BRIDGE_CARRY_NONE)
+    return "";
+
+  stringstream s;
+  s << "K " << team1.name << ":" << team2.name;
+  if (team1.carry == BRIDGE_CARRY_NONE &&
+      team2.carry == BRIDGE_CARRY_NONE)
+    return s.str() + "\n";
+
+  s << ":" << Teams::CarryAsString(team1) << 
+      ":" << Teams::CarryAsString(team2) << "\n";
+
+  return s.str();
+}
+
+
+string Teams::AsTXT() const
+{
+  return Teams::SingleAsTXT(team1) + " vs. " + Teams::SingleAsTXT(team2);
+}
+
+
 string Teams::AsString(const formatType f) const
 {
-  UNUSED(f);
-  // TODO
-  return "";
+  switch(f)
+  {
+    case BRIDGE_FORMAT_LIN:
+      return Teams::AsLIN();
+
+    case BRIDGE_FORMAT_PBN:
+      return Teams::AsPBN();
+    
+    case BRIDGE_FORMAT_RBN:
+      return Teams::AsRBN();
+    
+    case BRIDGE_FORMAT_TXT:
+      return Teams::AsTXT();
+    
+    default:
+      LOG("Invalid format " + STR(f));
+      return "";
+  }
 }
 
