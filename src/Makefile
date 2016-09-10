@@ -77,7 +77,7 @@ clean:
 Auction.obj: Auction.h bconst.h Contract.h Debug.h parse.h portab.h
 Board.obj: bconst.h Board.h Deal.h Players.h Tableau.h Contract.h Valuation.h
 Board.obj: Auction.h Play.h Debug.h portab.h
-Contract.obj: Contract.h bconst.h Debug.h
+Contract.obj: Contract.h bconst.h Debug.h parse.h portab.h
 Date.obj: Date.h bconst.h portab.h parse.h debug.h Debug.h
 Deal.obj: bconst.h Deal.h Players.h Debug.h parse.h
 Debug.obj: Debug.h
@@ -97,11 +97,14 @@ Tableau.obj: Tableau.h bconst.h Contract.h Debug.h parse.h
 Teams.obj: Teams.h bconst.h portab.h parse.h Debug.h
 UnitTest.obj: portab.h bconst.h UnitTest.h Tableau.h Contract.h Deal.h
 UnitTest.obj: Players.h Auction.h Play.h Date.h Location.h Scoring.h Teams.h
-UnitTest.obj: Debug.h
+UnitTest.obj: Session.h Segment.h Board.h Valuation.h Debug.h
+fileRBN.obj: fileRBN.h Group.h Segment.h Date.h bconst.h Location.h Session.h
+fileRBN.obj: Scoring.h Teams.h Board.h Deal.h Players.h Tableau.h Contract.h
+fileRBN.obj: Valuation.h Auction.h Play.h parse.h portab.h debug.h Debug.h
 parse.obj: parse.h portab.h
-reader.obj: UnitTest.h Tableau.h bconst.h Contract.h Deal.h Players.h
-reader.obj: Auction.h Play.h Date.h Location.h Scoring.h Teams.h portab.h
-reader.obj: Debug.h
-reader.obj: UnitTest.h Tableau.h bconst.h Contract.h Deal.h Players.h
-reader.obj: Auction.h Play.h Date.h Location.h Scoring.h Teams.h portab.h
-reader.obj: Debug.h
+reader.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
+reader.obj: Teams.h Board.h Deal.h Players.h Tableau.h Contract.h Valuation.h
+reader.obj: Auction.h Play.h UnitTest.h fileRBN.h portab.h Debug.h
+reader.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
+reader.obj: Teams.h Board.h Deal.h Players.h Tableau.h Contract.h Valuation.h
+reader.obj: Auction.h Play.h UnitTest.h fileRBN.h portab.h Debug.h

@@ -81,7 +81,7 @@ bool tryMethod(
   const vector<string>& chunk,
   Segment * segment,
   Board * board,
-  const RBNlabel label,
+  const unsigned label,
   ifstream& fstr,
   const string& info);
 
@@ -212,9 +212,9 @@ bool readRBN(
 
   vector<string> chunk(RBN_LABELS_SIZE);
 
-  Segment * segment;
+  Segment * segment = nullptr;
   unsigned segno = 0;
-  bool newSegFlag;
+  bool newSegFlag = false;
 
   Board * board;
   unsigned bno = 0;
@@ -252,8 +252,7 @@ bool readRBN(
 
     for (unsigned i = 0; i < RBN_LABELS_SIZE; i++)
     {
-      if (! tryMethod(chunk, segment, board, 
-          static_cast<RBNlabel>(i), fstr, RBNname[i]))
+      if (! tryMethod(chunk, segment, board, i, fstr, RBNname[i]))
         return false;
     }
   }
@@ -267,7 +266,7 @@ bool tryMethod(
   const vector<string>& chunk,
   Segment * segment,
   Board * board,
-  const RBNlabel label,
+  const unsigned label,
   ifstream& fstr,
   const string& info)
 {

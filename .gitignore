@@ -14,7 +14,11 @@
 *.idb
 *.sln
 *vcxproj*
-*.txt
 *.pdb
 *.sdf
 *.suo
+
+*.lin
+*.pbn
+*.rbn
+*.txt
