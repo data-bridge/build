@@ -10,38 +10,27 @@
 #define BRIDGE_UNITTEST_H
 
 
-#include "Tableau.h"
-#include "Contract.h"
-#include "Deal.h"
-#include "Auction.h"
-#include "Play.h"
-#include "Date.h"
-#include "Location.h"
-#include "Scoring.h"
-#include "Teams.h"
-#include "Session.h"
-#include "Segment.h"
+void TestTableau();
 
+void TestDeal();
 
-void TestTableau(Tableau& tableau);
+void TestAuction();
 
-void TestDeal(Deal& deal);
+void TestPlay();
 
-void TestAuction(Auction& auction);
+void TestDate();
 
-void TestPlay(Play& play);
+void TestLocation();
 
-void TestDate(Date& date);
+void TestScoring();
 
-void TestLocation(Location& location);
+void TestTeams();
 
-void TestScoring(Scoring& scoring);
+void TestSession();
 
-void TestTeams(Teams& teams);
+void TestSegment();
 
-void TestSession(Session& session);
-
-void TestSegment(Segment& segment);
+void TestPlayers();
 
 #endif
 

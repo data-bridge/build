@@ -345,16 +345,14 @@ string Session::AsLIN() const
 
   stringstream s;
   if (stage != BRIDGE_SESSION_ROUND_OF)
-    s << STAGE_NAMES[stage];
+    s << STAGE_NAMES_SHORT[stage];
   else
-    s << STAGE_NAMES[stage] << roundOf;
+    s << STAGE_NAMES_SHORT[stage] << roundOf;
 
   if (sessionNo > 0)
-    s << ", Segment " << sessionNo << ",";
+    s << ":" << sessionNo;
   else if (general2 != "")
-    s << "," << general2 << ",";
-  else
-    s << ",,";
+    s << ":" << general2;
 
   return s.str();
 }
@@ -362,6 +360,9 @@ string Session::AsLIN() const
 
 string Session::AsPBN() const
 {
+  if (general1 == "" && stage == BRIDGE_SESSION_UNDEFINED)
+    return "";
+
   stringstream s;
   s << "[Stage \"";
   if (stage == BRIDGE_SESSION_UNDEFINED)

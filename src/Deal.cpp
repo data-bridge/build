@@ -470,10 +470,10 @@ string Deal::AsTXT(
 {
   stringstream t;
 
-  const string pn = players.PlayerAsString(BRIDGE_NORTH);
-  const string pe = players.PlayerAsString(BRIDGE_EAST);
-  const string ps = players.PlayerAsString(BRIDGE_SOUTH);
-  const string pw = players.PlayerAsString(BRIDGE_WEST);
+  const string pn = players.PlayerAsString(BRIDGE_NORTH, BRIDGE_FORMAT_TXT);
+  const string pe = players.PlayerAsString(BRIDGE_EAST, BRIDGE_FORMAT_TXT);
+  const string ps = players.PlayerAsString(BRIDGE_SOUTH, BRIDGE_FORMAT_TXT);
+  const string pw = players.PlayerAsString(BRIDGE_WEST, BRIDGE_FORMAT_TXT);
   if (pn != "")
     t << setw(12) << "" << pn << "\n";
 

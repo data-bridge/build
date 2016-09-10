@@ -175,12 +175,25 @@ bool Date::SetPBN(const string& t)
 {
   try
   {
-    regex re("(\\d\\d\\d\\d).(\\d\\d)");
+    // regex re("(\\d\\d\\d\\d).(\\d\\d)");
+    regex re("(....).(..).(..)");
     smatch match;
-    if (regex_search(t, match, re) && match.size() >= 2)
+    if (regex_search(t, match, re) && match.size() >= 3)
     {
-      (void) StringToUnsigned(match.str(1), date.year);
-      (void) StringToUnsigned(match.str(2), date.month);
+      if (match.str(1) == "????")
+        date.year = 0;
+      else if (! StringToUnsigned(match.str(1), date.year))
+        return false;
+
+      if (match.str(2) == "??")
+        date.month = 0;
+      else if (! StringToUnsigned(match.str(2), date.month))
+        return false;
+
+      if (match.str(3) == "??")
+        date.day = 0;
+      else if (! StringToUnsigned(match.str(3), date.day))
+        return false;
     }
     else
     {

@@ -20,15 +20,41 @@ using namespace std;
 #include "bconst.h"
 #include "UnitTest.h"
 
+#include "Tableau.h"
+#include "Contract.h"
+#include "Deal.h"
+#include "Auction.h"
+#include "Play.h"
+#include "Date.h"
+#include "Location.h"
+#include "Scoring.h"
+#include "Teams.h"
+#include "Session.h"
+#include "Segment.h"
+#include "Players.h"
+
+
 #include "Debug.h"
 
 extern Debug debug;
 
 
+void TestAuctionCall(
+  Auction& auction,
+  const string& call);
+
+void TestAuctionCallAlert(
+  Auction& auction,
+  const string& call,
+  const string& alert);
+
+void TestAuctionOutput(Auction& auction);
+
 void TestLocationCase(
   Location& location,
   const string& s,
   const formatType f); 
+
 void TestScoringCase(
   Scoring& scoring,
   const string& s,
@@ -44,7 +70,13 @@ void TestTeamsCase(
   const string list[2],
   const formatType f);
 
-void TestSegmentCase(
+void TestSegmentCaseOutput(Segment& segment);
+
+void TestSegmentCaseLIN(
+  Segment& segment,
+  const string& title);
+
+void TestSegmentCaseOther(
   Segment& segment,
   const string& title,
   const string& date,
@@ -56,8 +88,10 @@ void TestSegmentCase(
   const formatType f);
 
 
-void TestTableau(Tableau& tableau)
+void TestTableau()
 {
+  Tableau tableau;
+
   tableau.SetEntry(BRIDGE_NORTH, BRIDGE_NOTRUMP, 7);
   tableau.Set("::88665+88667:!!", BRIDGE_FORMAT_RBN);
   cout << "TXT:\n" << tableau.AsString(BRIDGE_FORMAT_TXT) << "\n";
@@ -68,8 +102,10 @@ void TestTableau(Tableau& tableau)
 }
 
 
-void TestDeal(Deal& deal)
+void TestDeal()
 {
+  Deal deal;
+
   if (1)
   {
     deal.Set("3SKJ5HAJ954DJ83CA8,SA764H83DQT7642CK,SQT3HKT62DK9C9532,S982HQ7DA5CQJT764", BRIDGE_FORMAT_LIN);
@@ -111,43 +147,70 @@ void TestDeal(Deal& deal)
 }
 
 
-void TestAuction(Auction& auction)
+void TestAuctionCall(
+  Auction& auction,
+  const string& call)
 {
+  if (! auction.AddCall(call))
+  {
+    debug.Print();
+    exit(0);
+  }
+}
+
+
+void TestAuctionCallAlert(
+  Auction& auction,
+  const string& call,
+  const string& alert)
+{
+  if (! auction.AddCall(call, alert))
+  {
+    debug.Print();
+    exit(0);
+  }
+}
+
+void TestAuctionOutput(
+  Auction& auction,
+  const string& names)
+{
+  for (unsigned f2 = 0; f2 <= BRIDGE_FORMAT_TXT; f2++)
+  {
+    formatType ff = static_cast<formatType>(f2);
+    cout << FORMAT_NAMES[ff] << ":\n";
+
+    string s;
+    if (ff == BRIDGE_FORMAT_TXT)
+      s = auction.AsString(ff, names);
+    else
+      s = auction.AsString(ff);
+
+    if (s == "")
+    {
+      debug.Print();
+      exit(0);
+    }
+    cout << s << "\n\n";
+  }
+}
+
+
+void TestAuction()
+{
+  Auction auction;
+
   if (! auction.SetDealerVul("S", "EW", BRIDGE_FORMAT_PBN))
   {
     debug.Print();
     exit(0);
   }
 
-  if (! auction.AddCall("P"))
-  {
-    debug.Print();
-    exit(0);
-  }
-
-  if (! auction.AddCall("P"))
-  {
-    debug.Print();
-    exit(0);
-  }
-
-  if (! auction.AddCall("1S", "5-card majors"))
-  {
-    debug.Print();
-    exit(0);
-  }
-
-  if (! auction.AddCall("P"))
-  {
-    debug.Print();
-    exit(0);
-  }
-
-  if (! auction.AddCall("2S!"))
-  {
-    debug.Print();
-    exit(0);
-  }
+  TestAuctionCall(auction, "P");
+  TestAuctionCall(auction, "P");
+  TestAuctionCallAlert(auction, "1S", "5-card majors");
+  TestAuctionCall(auction, "P");
+  TestAuctionCall(auction, "2S!");
 
   if (! auction.UndoLastCall())
   {
@@ -155,54 +218,12 @@ void TestAuction(Auction& auction)
     exit(0);
   }
 
-  if (! auction.AddCall("2H", "Mixed raise"))
-  {
-    debug.Print();
-    exit(0);
-  }
-
-  if (! auction.AddCall("P"))
-  {
-    debug.Print();
-    exit(0);
-  }
-
-  if (! auction.AddCall("4S"))
-  {
-    debug.Print();
-    exit(0);
-  }
+  TestAuctionCallAlert(auction, "2H", "Mixed raise");
+  TestAuctionCall(auction, "P");
+  TestAuctionCall(auction, "4S");
 
   auction.AddPasses();
 
-  cout << "LIN format:\n";
-  string s = auction.AsString(BRIDGE_FORMAT_LIN);
-  if (s == "")
-  {
-    debug.Print();
-    exit(0);
-  }
-  cout << s << "\n\n";
-
-  cout << "PBN format:\n";
-  s = auction.AsString(BRIDGE_FORMAT_PBN);
-  if (s == "")
-  {
-    debug.Print();
-    exit(0);
-  }
-  cout << s << "\n";
-
-  cout << "RBN format:\n";
-  s = auction.AsString(BRIDGE_FORMAT_RBN);
-  if (s == "")
-  {
-    debug.Print();
-    exit(0);
-  }
-  cout << s << "\n";
-
-  cout << "TXT format:\n";
   stringstream t;
   t << left << 
     setw(15) << "Garozzo" <<
@@ -210,13 +231,8 @@ void TestAuction(Auction& auction)
     setw(15) << "Belladonna" <<
     setw(15) << "Wolff" << "\n";
 
-  s = auction.AsString(BRIDGE_FORMAT_TXT, t.str());
-  if (s == "")
-  {
-    debug.Print();
-    exit(0);
-  }
-  cout << s << "\n";
+  TestAuctionOutput(auction, t.str());
+
 
   auction.Reset();
   if (! auction.SetDealerVul("S", "EW", BRIDGE_FORMAT_PBN))
@@ -237,16 +253,7 @@ void TestAuction(Auction& auction)
     exit(0);
   }
   
-  cout << "RBN format:\n";
-  s = auction.AsString(BRIDGE_FORMAT_RBN);
-
-  if (s == "")
-  {
-    debug.Print();
-    exit(0);
-  }
-
-  cout << s << "\n";
+  TestAuctionOutput(auction, t.str());
 
   Contract contract;
   contract.SetContract(
@@ -263,8 +270,10 @@ void TestAuction(Auction& auction)
 }
 
 
-void TestPlay(Play& play)
+void TestPlay()
 {
+  Play play;
+
   Contract contract;
   contract.SetContract(
     BRIDGE_VUL_EAST_WEST,
@@ -444,8 +453,10 @@ void TestPlay(Play& play)
 }
 
 
-void TestDate(Date& date)
+void TestDate()
 {
+  Date date;
+
   if (! date.Set("20000630", BRIDGE_FORMAT_RBN))
   {
     cout << "Can't set date" << endl;
@@ -477,8 +488,10 @@ void TestLocationCase(
 }
 
 
-void TestLocation(Location& location)
+void TestLocation()
 {
+  Location location;
+
   TestLocationCase(location, "Fort Lauderdale, FL", BRIDGE_FORMAT_RBN);
   TestLocationCase(location, "Fort Lauderdale:FL", BRIDGE_FORMAT_RBN);
   TestLocationCase(location, "Fort Lauderdale, FL", BRIDGE_FORMAT_TXT);
@@ -503,8 +516,10 @@ void TestScoringCase(
 }
 
 
-void TestScoring(Scoring& scoring)
+void TestScoring()
 {
+  Scoring scoring;
+
   TestScoringCase(scoring, "I", BRIDGE_FORMAT_LIN);
   TestScoringCase(scoring, "Matchpoints", BRIDGE_FORMAT_PBN);
   TestScoringCase(scoring, "R", BRIDGE_FORMAT_RBN);
@@ -529,8 +544,10 @@ void TestTeamsCase(
 }
 
 
-void TestTeams(Teams& teams)
+void TestTeams()
 {
+  Teams teams;
+
   string list[2];
   list[0] = "Nickell:Schwartz";
   TestTeamsCase(teams, list, BRIDGE_FORMAT_RBN);
@@ -568,8 +585,10 @@ void TestSessionCase(
 }
 
 
-void TestSession(Session& session)
+void TestSession()
 {
+  Session session;
+
   TestSessionCase(session, "R32:2", BRIDGE_FORMAT_RBN);
   TestSessionCase(session, "Round of 32, Segment 7", BRIDGE_FORMAT_RBN);
   TestSessionCase(session, "Round of 32:Segment 7", BRIDGE_FORMAT_RBN);
@@ -579,7 +598,38 @@ void TestSession(Session& session)
 }
 
 
-void TestSegmentCase(
+void TestSegmentCaseOutput(Segment& segment)
+{
+  for (unsigned f2 = 0; f2 <= BRIDGE_FORMAT_TXT; f2++)
+  {
+    formatType ff = static_cast<formatType>(f2);
+    cout << FORMAT_NAMES[ff] << ":\n";
+    cout << segment.TitleAsString(ff, SEGMENT_FORCE) << "\n";
+    cout << segment.DateAsString(ff, SEGMENT_FORCE) << "\n";
+    cout << segment.LocationAsString(ff, SEGMENT_FORCE) << "\n";
+    cout << segment.EventAsString(ff, SEGMENT_FORCE) << "\n";
+    cout << segment.SessionAsString(ff, SEGMENT_FORCE) << "\n";
+    cout << segment.ScoringAsString(ff, SEGMENT_FORCE) << "\n";
+    cout << segment.TeamsAsString(ff, SEGMENT_FORCE) << "\n" << endl;
+  }
+}
+
+
+void TestSegmentCaseLIN(
+  Segment& segment,
+  const string& title)
+{
+  if (! segment.SetTitle(title, BRIDGE_FORMAT_LIN))
+  {
+    cout << "Can't set LIN title";
+    assert(false);
+  }
+
+  TestSegmentCaseOutput(segment);
+}
+
+
+void TestSegmentCaseOther(
   Segment& segment,
   const string& title,
   const string& date,
@@ -595,9 +645,6 @@ void TestSegmentCase(
     cout << "Can't set title";
     assert(false);
   }
-
-  if (f == BRIDGE_FORMAT_LIN)
-    goto SEGOUT;
 
   if (! segment.SetDate(date, f))
   {
@@ -635,44 +682,76 @@ void TestSegmentCase(
     assert(false);
   }
 
-  SEGOUT:
-  cout << FORMAT_NAMES[f] << ":\n";
-  cout << segment.TitleAsString(f, SEGMENT_FORCE) << "\n";
-  cout << segment.DateAsString(f, SEGMENT_FORCE) << "\n";
-  cout << segment.LocationAsString(f, SEGMENT_FORCE) << "\n";
-  cout << segment.EventAsString(f, SEGMENT_FORCE) << "\n";
-  cout << segment.SessionAsString(f, SEGMENT_FORCE) << "\n";
-  cout << segment.ScoringAsString(f, SEGMENT_FORCE) << "\n";
-  cout << segment.TeamsAsString(f, SEGMENT_FORCE) << "\n\n";
+  TestSegmentCaseOutput(segment);
 }
 
 
-void TestSegment(Segment& segment)
+void TestSegment()
 {
+  Segment segment;
+
   string list[2];
-  TestSegmentCase(segment,
-      "Bridge Base Online,IMPs,P,1,16,Meltzer,490,Schwarz,459",
-      "", "", "", "", "", list, BRIDGE_FORMAT_LIN);
 
-  TestSegmentCase(segment,
-      "#9651,Bridge Base Online,P,17,32,Meltzer,491,Schwarz,460",
-      "", "", "", "", "", list, BRIDGE_FORMAT_LIN);
-    
-  TestSegmentCase(segment,
-      "#9651,Bridge Base Online,I,33,48,Meltzer,492,Schwarz,461",
-      "", "", "", "", "", list, BRIDGE_FORMAT_LIN);
-    
-  TestSegmentCase(segment,
-      "BB,Semis,I,49,64,Meltzer,493,Schwarz,462",
-      "", "", "", "", "", list, BRIDGE_FORMAT_LIN);
-    
-  TestSegmentCase(segment,
-      "BB Semifinal,Segment 4,I,65,80,Meltzer,493,Schwarz,463",
-      "", "", "", "", "", list, BRIDGE_FORMAT_LIN);
+  // LIN inputs.
 
-  TestSegmentCase(segment,
-      "BB§20000630§Hotel Hilton:FL§R32:4,Event,I,65,80,Meltzer,493,Schwarz,463",
-      "", "", "", "", "", list, BRIDGE_FORMAT_LIN);
+  TestSegmentCaseLIN(segment,
+      "Bridge Base Online,IMPs,P,1,16,Meltzer,490,Schwarz,459");
+
+  TestSegmentCaseLIN(segment,
+      "#9651,Bridge Base Online,P,17,32,Meltzer,491,Schwarz,460");
     
+  TestSegmentCaseLIN(segment,
+      "#9651,Bridge Base Online,I,33,48,Meltzer,492,Schwarz,461");
+    
+  TestSegmentCaseLIN(segment,
+      "BB,Semis,I,49,64,Meltzer,493,Schwarz,462");
+    
+  TestSegmentCaseLIN(segment,
+      "BB Semifinal,Segment 4,I,65,80,Meltzer,493,Schwarz,463");
+
+  TestSegmentCaseLIN(segment,
+      "BB%20000630%Hotel Hilton:FL%R32:4,Event,I,65,80,Meltzer,493,Schwarz,463");
+    
+  // PBN inputs.
+  
+  list[0] = "Meltzer:490";
+  list[1] = "Schwartz:460";
+  TestSegmentCaseOther(segment,
+    "Bridge Base Online",
+    "2010.06.??",
+    "Saratoga:CA",
+    "Championship",
+    "Semifinal:Segment 1",
+    "IMPs",
+    list,
+    BRIDGE_FORMAT_PBN);
+
+  // RBN inputs.
+    
+  list[0] = "Meltzer:Schwartz:495:450";
+  TestSegmentCaseOther(segment,
+    "Bridge Base Online",
+    "201006",
+    "Saratoga:CA",
+    "Championship",
+    "Semifinal:Segment 1",
+    "R",
+    list,
+    BRIDGE_FORMAT_RBN);
+}
+
+
+void TestPlayers()
+{
+  Players players;
+
+  if (! players.SetPlayers("+Roth:BIG+GIB:O", BRIDGE_FORMAT_RBN))
+  {
+    cout << "Can't set RBN players";
+    assert(false);
+  }
+
+  cout << players.AsString(BRIDGE_FORMAT_RBN);
+
 }
 

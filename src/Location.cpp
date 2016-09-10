@@ -108,10 +108,14 @@ string Location::AsString(const formatType f) const
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
-      LOG("No LIN location format");
-      return "";
+      s << location.general;
+      if (location.specific != "")
+        s << ":" << location.specific;
+      return s.str();
     
     case BRIDGE_FORMAT_PBN:
+      if (location.specific == "")
+        return "";
       s << "[Site \"" << location.general;
       if (location.specific != "")
         s << ":" << location.specific;

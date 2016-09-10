@@ -78,6 +78,7 @@ bool Players::SetRBNSide(
   }
 
   vector<string> v(2);
+  v.clear();
   tokenize(side, v, "+");
 
   p1 = v[0];
@@ -88,14 +89,13 @@ bool Players::SetRBNSide(
 
 bool Players::SetPlayersRBN(const string& names)
 {
-  if (names.length() <= 2 || names.at(0) != 'N' || names.at(1) != ' ')
+  if (names.length() <= 2)
   {
     LOG("Names are not in RBN format");
     return false;
   }
 
-  string t = names.substr(2, string::npos);
-  int seen = count(t.begin(), t.end(), ':');
+  int seen = count(names.begin(), names.end(), ':');
 
   if (seen == 0 || seen > 2)
   {
@@ -104,7 +104,8 @@ bool Players::SetPlayersRBN(const string& names)
   }
 
   vector<string> v(3);
-  tokenize(t, v, ":");
+  v.clear();
+  tokenize(names, v, ":");
 
   if (! Players::SetRBNSide(v[0], 
       players[BRIDGE_NORTH], players[BRIDGE_SOUTH]))
@@ -116,7 +117,7 @@ bool Players::SetPlayersRBN(const string& names)
 
   if (seen == 2)
   {
-    if (Players::SetRoom(v[2], BRIDGE_FORMAT_RBN))
+    if (! Players::SetRoom(v[2], BRIDGE_FORMAT_RBN))
       return false;
   }
 
@@ -178,8 +179,13 @@ bool Players::SetRoom(
       return true;
     
     case BRIDGE_FORMAT_RBN:
-      LOG("No separate RBN room format");
-      return "";
+      if (rm == "O")
+        room = BRIDGE_ROOM_OPEN;
+      else if (rm == "C")
+        room = BRIDGE_ROOM_CLOSED;
+      else
+        return false;
+      return true;
     
     default:
       LOG("Invalid format " + STR(f));
@@ -212,6 +218,19 @@ bool Players::operator == (const Players& p2) const
 bool Players::operator != (const Players& p2) const
 {
   return ! (* this == p2);
+}
+
+
+string Players::AsLIN() const
+{
+  stringstream s;
+  s << 
+    players[BRIDGE_SOUTH] << "," <<
+    players[BRIDGE_WEST] << "," <<
+    players[BRIDGE_NORTH] << "," <<
+    players[BRIDGE_EAST];
+
+  return s.str() + "\n";
 }
 
 
@@ -258,12 +277,6 @@ string Players::AsString(const formatType f) const
 }
 
 
-string Players::PlayerAsString(const playerType player) const
-{
-  return players[player];
-}
-
-
 string Players::PlayerAsString(
   const playerType player,
   formatType f) const
@@ -282,12 +295,11 @@ string Players::PlayerAsString(
       return s.str();
     
     case BRIDGE_FORMAT_RBN:
-      LOG("No separate LIN player format");
+      LOG("No separate RBN player format");
       return "";
     
     case BRIDGE_FORMAT_TXT:
-      LOG("No separate LIN player format");
-      return "";
+      return players[player];
     
     default:
       LOG("Invalid format " + STR(f));

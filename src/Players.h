@@ -37,6 +37,7 @@ class Players
     
     bool SetPlayersRBN(const string& names);
 
+    string AsLIN() const;
     string AsRBN() const;
       
 
@@ -66,8 +67,6 @@ class Players
     bool operator != (const Players& p2) const;
 
     string AsString(const formatType f) const;
-
-    string PlayerAsString(const playerType player) const;
 
     string PlayerAsString(
       const playerType player,

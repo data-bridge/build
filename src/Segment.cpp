@@ -86,7 +86,7 @@ bool Segment::SetTitleLIN(const string t)
   // 2         P           P         I             I          I
   // scoring   I           P         I             I          I
   //
-  // Field #0 may have the form text§date§location§session
+  // Field #0 may have the form text%date%location%session
   // when we generate it.  Otherwise we lose RBN information.
   //
   // Fields 3 and 4 are board ranges (ignored and re-generated).
@@ -100,11 +100,12 @@ bool Segment::SetTitleLIN(const string t)
   }
 
   vector<string> v(9);
-  tokenize(t, v, ":");
+  v.clear();
+  tokenize(t, v, ",");
 
   // Try to pick out the RBN-generated line.
   bool eventFlag = true;
-  regex re("^(\\.+)\\s+(\\w)$");
+  regex re("^(.+)\\s+(\\w+)$");
   smatch match;
   if (regex_search(v[0], match, re) && 
       match.size() >= 2 &&
@@ -115,51 +116,41 @@ bool Segment::SetTitleLIN(const string t)
 
     // Make a synthetic RBN-like session line (a bit wasteful).
     stringstream s;
-    s << "S " << match.str(1) << ":" << v[1] << "\n";
+    s << match.str(2) << ":" << v[1];
     if (! Segment::SetSession(s.str(), BRIDGE_FORMAT_RBN))
       return false;
+    seg.event = "";
     eventFlag = false;
   }
 
   // See whether the title line contains extra information.
-  seen = count(t.begin(), t.end(), '§');
+  seen = count(t.begin(), t.end(), '%');
   if (seen == 3)
   {
     vector<string> vv(4);
-    tokenize(v[0], vv, "§");
-    stringstream ss;
-    ss << "T " << vv[0];
-    if (! Segment::SetTitle(ss.str(), BRIDGE_FORMAT_RBN))
+    vv.clear();
+    tokenize(v[0], vv, "%");
+    if (! Segment::SetTitle(vv[0], BRIDGE_FORMAT_RBN))
       return false;
 
-    ss.clear();
-    ss << "D " << vv[1];
-    if (! Segment::SetDate(ss.str(), BRIDGE_FORMAT_RBN))
+    if (! Segment::SetDate(vv[1], BRIDGE_FORMAT_RBN))
       return false;
 
-    ss.clear();
-    ss << "L " << vv[2];
-    if (! Segment::SetLocation(ss.str(), BRIDGE_FORMAT_RBN))
+    if (! Segment::SetLocation(vv[2], BRIDGE_FORMAT_RBN))
       return false;
 
-    ss.clear();
-    ss << "S " << vv[3];
-    if (! Segment::SetSession(ss.str(), BRIDGE_FORMAT_RBN))
+    if (! Segment::SetSession(vv[3], BRIDGE_FORMAT_RBN))
+      return false;
+
+    if (! Segment::SetEvent(v[1]))
       return false;
   }
-  else
+  else if (eventFlag)
   {
-    stringstream ss;
-    ss << "T " << t;
-    if (! Segment::SetTitle(ss.str(), BRIDGE_FORMAT_RBN))
+    if (! Segment::SetTitle(v[0], BRIDGE_FORMAT_RBN))
       return false;
-  }
 
-  if (eventFlag)
-  {
-    stringstream ss;
-    ss << "E " << v[1];
-    if (! Segment::SetEvent(ss.str()))
+    if (! Segment::SetEvent(v[1]))
       return false;
   }
 
@@ -169,16 +160,30 @@ bool Segment::SetTitleLIN(const string t)
   else
     Segment::SetScoring("I", BRIDGE_FORMAT_LIN);
     
+  if (v[3] == "")
+    bInmin = 0;
+  else if (! StringToUnsigned(v[3], bInmin))
+  {
+    LOG("Not a board number");
+    return false;
+  }
+
+  if (v[4] == "")
+    bInmax = 0;
+  else if (! StringToUnsigned(v[4], bInmax))
+  {
+    LOG("Not a board number");
+    return false;
+  }
 
   // Synthesize an RBN-like team line (a bit wasteful).
   stringstream s;
-  s << "K " << v[5] << ":" << v[6];
-  if (v[7] != "" || v[8] != "")
+  s << v[5] << ":" << v[7];
+  if (v[6] != "" || v[8] != "")
   {
-    s << ":" << (v[7] == "" ? 0 : v[7]);
+    s << ":" << (v[6] == "" ? 0 : v[6]);
     s << ":" << (v[8] == "" ? 0 : v[8]);
   }
-  s << "\n";
   string s0[1];
   s0[0] = s.str();
 
@@ -324,27 +329,39 @@ string Segment::TitleAsLIN() const
 
   if (seg.title == "Bridge Base Online")
   {
-    s << seg.title << ",IMPs,P";
+    s << seg.title << ",IMPs,P,";
   }
   else if (seg.event == "Bridge Base Online")
   {
     s << seg.title << "," << 
         seg.event << "," << 
-        seg.scoring.AsString(BRIDGE_FORMAT_LIN);
+        seg.scoring.AsString(BRIDGE_FORMAT_LIN) << ",";
   }
   else
   {
     // Fudged extension of title format.
-    s << seg.title << "§" <<
-        seg.date.AsString(BRIDGE_FORMAT_LIN) << "§" <<
-        seg.location.AsString(BRIDGE_FORMAT_LIN) << "§" <<
+    // We also output the RBN mixture format in this way
+    // (although we could recreate it with special scoring functions).
+
+    s << seg.title << "%" <<
+        seg.date.AsString(BRIDGE_FORMAT_LIN) << "%" <<
+        seg.location.AsString(BRIDGE_FORMAT_LIN) << "%" <<
         seg.session.AsString(BRIDGE_FORMAT_LIN) << "," <<
         seg.event << "," << 
-        seg.scoring.AsString(BRIDGE_FORMAT_LIN);
+        seg.scoring.AsString(BRIDGE_FORMAT_LIN) << ",";
   }
 
-  s << bmin << "," << bmax << "," <<
-      seg.teams.AsString(BRIDGE_FORMAT_LIN) << "|";
+  if (bInmin == 0)
+    s << ",";
+  else
+    s << bInmin << ",";
+
+  if (bInmax == 0)
+    s << ",";
+  else
+    s << bInmax << ",";
+
+  s << seg.teams.AsString(BRIDGE_FORMAT_LIN) << "|";
   
   return s.str();
 }
@@ -366,7 +383,7 @@ string Segment::TitleAsString(
       return Segment::TitleAsLIN();
 
     case BRIDGE_FORMAT_PBN:
-      st << "[Description \"" << seg.title << "]\"\n";
+      st << "[Description \"" << seg.title << "\"]\n";
       return st.str();
 
     case BRIDGE_FORMAT_RBN:

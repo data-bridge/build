@@ -57,6 +57,8 @@ class Segment
     vector<boardPairType> boards;
     unsigned bmin;
     unsigned bmax;
+    unsigned bInmin;
+    unsigned bInmax;
     bool firstStringFlag;
 
     bool SetTitleLIN(const string t);
