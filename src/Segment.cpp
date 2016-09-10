@@ -55,7 +55,8 @@ bool Segment::MakeBoard(const unsigned no)
     return false;
 
   boards.resize(len+1);
-  boards[len].extNo = no;
+  boards[len].no = no;
+  boards[len].extNo = 0;
   len++;
   if (no < bmin)
     bmin = no;
@@ -65,11 +66,11 @@ bool Segment::MakeBoard(const unsigned no)
 }
 
 
-Board * Segment::GetBoard(const unsigned extNo) 
+Board * Segment::GetBoard(const unsigned no) 
 {
   for (auto &p: boards)
   {
-    if (p.extNo == extNo)
+    if (p.no == no)
       return &p.board;
   }
   return nullptr;
@@ -142,7 +143,7 @@ bool Segment::SetTitleLIN(const string t)
     if (! Segment::SetSession(vv[3], BRIDGE_FORMAT_RBN))
       return false;
 
-    if (! Segment::SetEvent(v[1]))
+    if (! Segment::SetEvent(v[1], BRIDGE_FORMAT_RBN))
       return false;
   }
   else if (eventFlag)
@@ -150,7 +151,7 @@ bool Segment::SetTitleLIN(const string t)
     if (! Segment::SetTitle(v[0], BRIDGE_FORMAT_RBN))
       return false;
 
-    if (! Segment::SetEvent(v[1]))
+    if (! Segment::SetEvent(v[1], BRIDGE_FORMAT_RBN))
       return false;
   }
 
@@ -240,8 +241,11 @@ bool Segment::SetLocation(
 }
 
 
-bool Segment::SetEvent(const string& t)
+bool Segment::SetEvent(
+  const string& t,
+  const formatType f)
 {
+  UNUSED(f);
   seg.event = t;
   return true;
 }
@@ -273,6 +277,66 @@ bool Segment::SetTeams(
   // In TXT this is 1 line.
 
   return seg.teams.Set(list, f); 
+}
+
+
+bool Segment::SetTeams(
+  const string& s,
+  const formatType f)
+{
+  // In LIN this is 4 lines (last 4 fields of vg).
+  // In PBN this is 2 lines (HomeTeam and VisitTeam).
+  // In RBN this is 1 line.
+  // In TXT this is 1 line.
+
+  string list[1];
+  list[0] = s;
+  return seg.teams.Set(list, f); 
+}
+
+
+bool Segment::SetPlayers(
+  const string& s,
+  const formatType f)
+{
+  // TODO
+  UNUSED(s);
+  UNUSED(f);
+}
+
+
+bool Segment::SetNumber(
+  const unsigned no,
+  const string& extStr)
+{
+  unsigned extNo;
+  if (! StringToUnsigned(extStr, extNo))
+  {
+    LOG("Board number is not numerical");
+    return false;
+  }
+
+  for (auto &p: boards)
+  {
+    if (p.no == no)
+    {
+      p.extNo = extNo;
+      return true;
+    }
+  }
+
+  LOG("Internal board number not found");
+  return false;
+}
+
+
+bool Segment::SetNumber(
+  const string& s,
+  const formatType f)
+{
+  // TODO
+  UNUSED(s);
+  UNUSED(f);
 }
 
 

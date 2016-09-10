@@ -67,6 +67,8 @@ class Board
       const string& v,
       const formatType f) const;
 
+    // Deal
+
     bool SetDeal(
       const string& s,
       const formatType f);
@@ -78,8 +80,80 @@ class Board
     bool GetDealDDS(
       unsigned cards[][BRIDGE_SUITS]) const;
 
+    // Auction
+
+    bool AddCall(
+      const string& call,
+      const string& alert = "");
+
+    bool AddAlert(
+      const unsigned alertNo,
+      const string& alert);
+
+    void AddPasses();
+
+    bool UndoLastCall();
+
+    bool PassOut();
+
+    bool SetAuction(
+      const string& s,
+      const formatType f);
+
+    bool AuctionIsOver() const;
+
+    bool IsPassedOut() const;
+
+    // Contract
+
+    bool ContractIsSet() const;
+
+    bool SetContract(
+      const vulType vul,
+      const playerType declarer,
+      const unsigned level,
+      const denomType denom,
+      const multiplierType mult);
+
+    bool SetContract(
+      const vulType vul,
+      const string& cstring);
+
+    bool SetContract(
+      const string& text,
+      const formatType f);
+
+    bool SetTricks(
+      const unsigned tricks);
+
+    // Play
+
+    playStatus AddPlay(
+      const string& str);
+
+    bool SetPlays(
+      const string& str,
+      const formatType f);
+
+    bool UndoLastPlay();
+
+    bool PlayIsOver() const;
+
+    claimStatus Claim(
+      const unsigned tricks);
+
+    bool ClaimIsMade() const;
+
+    // Result
+
+    bool SetResult(
+      const string& text,
+      const formatType f);
+      
+    bool ResultIsSet() const;
+
     bool SetTableau(
-      const string text,
+      const string& text,
       const formatType f);
 
     bool SetTableauEntry(
@@ -100,62 +174,6 @@ class Board
       playerType dealer,
       vulType v,
       list<Contract>& text) const;
-
-    bool AuctionIsOver() const;
-
-    bool IsPassedOut() const;
-
-    bool AddCall(
-      const string& call,
-      const string& alert = "");
-
-    bool AddAlert(
-      const unsigned alertNo,
-      const string& alert);
-
-    void AddPasses();
-
-    bool UndoLastCall();
-
-    bool AddAuction(
-      const string& s,
-      const formatType f);
-
-    bool ContractIsSet() const;
-
-    bool ResultIsSet() const;
-
-    bool PassOut();
-
-    bool SetContract(
-      const vulType vul,
-      const playerType declarer,
-      const unsigned level,
-      const denomType denom,
-      const multiplierType mult);
-
-    bool SetContract(
-      const vulType vul,
-      const string& cstring);
-
-    bool SetTricks(
-      const unsigned tricks);
-
-    playStatus AddPlay(
-      const string& str);
-
-    playStatus AddPlays(
-      const string& str,
-      const formatType f);
-
-    bool UndoLastPlay();
-
-    bool PlayIsOver() const;
-
-    claimStatus Claim(
-      const unsigned tricks);
-
-    bool ClaimIsMade() const;
 
     bool GetValuation(
       Valuation& valuation) const;

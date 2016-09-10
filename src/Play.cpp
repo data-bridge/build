@@ -341,18 +341,18 @@ playStatus Play::AddTrickPBN(const string& str)
 }
 
 
-playStatus Play::AddAllRBN(const string& sIn)
+bool Play::AddAllRBN(const string& sIn)
 {
   if (sIn.length() < 2)
   {
     LOG("String too short: " + sIn);
-    return PLAY_INVALID_RBN;
+    return false;
   }
 
   if (sIn.at(0) != 'P' || sIn.at(1) != ' ')
   {
     LOG("Must start with P");
-    return PLAY_INVALID_RBN;
+    return false;
   }
 
   const string str = sIn.substr(2, string::npos);
@@ -361,7 +361,7 @@ playStatus Play::AddAllRBN(const string& sIn)
   if (seen > BRIDGE_TRICKS-1)
   {
     LOG("Too many colons in RBN " + str);
-    return PLAY_INVALID_RBN;
+    return false;
   }
 
   vector<string> tricks(BRIDGE_TRICKS);
@@ -375,7 +375,7 @@ playStatus Play::AddAllRBN(const string& sIn)
     if (l < 2 || l > 8)
     {
       LOG("Bad RBN trick " + trick);
-      return PLAY_INVALID_RBN;
+      return false;
     }
 
     const char suitLed = trick.at(0); // Might be invalid
@@ -387,7 +387,7 @@ playStatus Play::AddAllRBN(const string& sIn)
       if (b >= BRIDGE_PLAYERS)
       {
         LOG("Too many plays in trick " + trick);
-        return PLAY_INVALID_RBN;
+        return false;
       }
 
       s.str("");
@@ -405,16 +405,16 @@ playStatus Play::AddAllRBN(const string& sIn)
       }
       playStatus ps = Play::AddPlay(s.str());
       if (ps != PLAY_NO_ERROR)
-        return ps;
+        return false;
       b++;
     }
   }
 
-  return PLAY_NO_ERROR;
+  return true;
 }
 
 
-playStatus Play::AddPlays(
+playStatus Play::SetPlay(
   const string& str,
   const formatType f)
 {
@@ -428,7 +428,8 @@ playStatus Play::AddPlays(
       return Play::AddTrickPBN(str);
 
     case BRIDGE_FORMAT_RBN:
-      return Play::AddAllRBN(str);
+      LOG("Currently unimplemented format " + STR(f));
+      return PLAY_INVALID_FORMAT;
 
     case BRIDGE_FORMAT_TXT:
       LOG("Currently unimplemented format " + STR(f));
@@ -437,6 +438,34 @@ playStatus Play::AddPlays(
     default:
       LOG("Invalid format " + STR(f));
       return PLAY_INVALID_FORMAT;
+  }
+}
+
+
+bool Play::SetPlays(
+  const string& str,
+  const formatType f)
+{
+  switch(f)
+  {
+    case BRIDGE_FORMAT_LIN:
+      LOG("Currently unimplemented format " + STR(f));
+      return false;
+
+    case BRIDGE_FORMAT_PBN:
+      LOG("Currently unimplemented format " + STR(f));
+      return false;
+
+    case BRIDGE_FORMAT_RBN:
+      return Play::AddAllRBN(str);
+
+    case BRIDGE_FORMAT_TXT:
+      LOG("Currently unimplemented format " + STR(f));
+      return false;
+
+    default:
+      LOG("Invalid format " + STR(f));
+      return false;
   }
 }
 

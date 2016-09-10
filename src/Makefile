@@ -17,6 +17,7 @@ SOURCE_FILES 	=		\
 	Tableau.cpp		\
         Teams.cpp               \
 	UnitTest.cpp		\
+	fileRBN.cpp		\
 	parse.cpp		\
 	reader.cpp
 

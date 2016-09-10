@@ -9,6 +9,8 @@
 
 #include "Contract.h"
 #include "Debug.h"
+#include "parse.h"
+#include "portab.h"
 #include <map>
 
 extern Debug debug;
@@ -330,6 +332,22 @@ bool Contract::SetTricks(
     Contract::CalculateScore();
     return true;
   }
+}
+
+
+bool Contract::SetResult(
+  const string& text,
+  const formatType f)
+{
+  UNUSED(f);
+  unsigned u;
+  if (! StringToUnsigned(text, u))
+  {
+    LOG("Not an unsigned result");
+    return false;
+  }
+
+  return Contract::SetTricks(u);
 }
 
 

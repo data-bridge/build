@@ -91,6 +91,10 @@ class Contract
     bool SetTricks(
       const unsigned tricks);
 
+    bool SetResult(
+      const string& text,
+      const formatType f);
+
     bool IsPassedOut() const;	
 
     bool operator == (const Contract& c2) const;

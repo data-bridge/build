@@ -107,14 +107,18 @@ class Play
     playStatus AddPlay(
       const string& str);
 
-    playStatus AddPlays(
+    playStatus SetPlay(
+      const string& str,
+      const formatType f);
+    
+    bool SetPlays(
       const string& str,
       const formatType f);
     
     playStatus AddTrickPBN(
       const string& str);
     
-    playStatus AddAllRBN(
+    bool AddAllRBN(
       const string& str);
     
     bool UndoPlay();

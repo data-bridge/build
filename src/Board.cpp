@@ -12,6 +12,7 @@
 #include "Debug.h"
 #include "portab.h"
 
+#include <assert.h>
 #include <map>
 
 extern Debug debug;
@@ -71,6 +72,8 @@ bool Board::CheckDealerVul(
 }
 
 
+// Deal
+
 bool Board::SetDeal(
   const string& s,
   const formatType f)
@@ -94,8 +97,170 @@ bool Board::GetDealDDS(
 }
 
 
+// Auction
+
+bool Board::AddCall(
+  const string& call,
+  const string& alert)
+{
+  return auction[numActive].AddCall(call, alert);
+}
+
+
+bool Board::AddAlert(
+  const unsigned alertNo,
+  const string& alert)
+{
+  return auction[numActive].AddAlert(alertNo, alert);
+}
+
+
+void Board::AddPasses()
+{
+  auction[numActive].AddPasses();
+}
+
+
+bool Board::UndoLastCall()
+{
+  return auction[numActive].UndoLastCall();
+}
+
+
+bool Board::PassOut()
+{
+  return contract[numActive].SetPassedOut();
+}
+
+
+bool Board::SetAuction(
+  const string& s,
+  const formatType f)
+{
+  return auction[numActive].AddAuction(s, f);
+}
+
+
+bool Board::AuctionIsOver() const
+{
+  return auction[numActive].IsOver();
+}
+
+
+bool Board::IsPassedOut() const
+{
+  return auction[numActive].IsPassedOut();
+}
+
+
+// Contract
+
+bool Board::ContractIsSet() const
+{
+  return contract[numActive].ContractIsSet();
+}
+
+
+bool Board::SetContract(
+  const vulType vul,
+  const playerType declarer,
+  const unsigned level,
+  const denomType denom,
+  const multiplierType mult)
+{
+  return contract[numActive].SetContract(vul, declarer, level, denom, mult);
+}
+
+
+bool Board::SetContract(
+  const vulType vul,
+  const string& cstring)
+{
+  return contract[numActive].SetContract(vul, cstring);
+}
+
+
+bool Board::SetContract(
+  const string& text,
+  const formatType f)
+{
+  // TODO
+  UNUSED(text);
+  UNUSED(f);
+  assert(false);
+  return true;
+}
+
+
+bool Board::SetTricks(
+  const unsigned tricks)
+{
+  return contract[numActive].SetTricks(tricks);
+}
+
+
+// Play
+
+playStatus Board::AddPlay(
+  const string& str)
+{
+  return play[numActive].AddPlay(str);
+}
+
+
+bool Board::SetPlays(
+  const string& str,
+  const formatType f)
+{
+  return play[numActive].SetPlays(str, f);
+}
+
+
+bool Board::UndoLastPlay()
+{
+  return play[numActive].UndoPlay();
+}
+
+
+bool Board::PlayIsOver() const
+{
+  return play[numActive].PlayIsOver();
+}
+
+
+claimStatus Board::Claim(
+  const unsigned tricks)
+{
+  return play[numActive].Claim(tricks);
+}
+
+
+bool Board::ClaimIsMade() const
+{
+  return play[numActive].ClaimIsMade();
+}
+
+
+// Result
+
+bool Board::SetResult(
+  const string& text,
+  const formatType f)
+{
+  return contract[numActive].SetResult(text, f);
+}
+
+
+bool Board::ResultIsSet() const
+{
+  return contract[numActive].ResultIsSet();
+}
+
+
+// Tableau
+
 bool Board::SetTableau(
-  const string text,
+  const string& text,
   const formatType f)
 {
   return tableau.Set(text, f);
@@ -133,138 +298,6 @@ bool Board::GetPar(
   list<Contract>& text) const
 {
   return tableau.GetPar(dealer, v, text);
-}
-
-
-bool Board::AuctionIsOver() const
-{
-  return auction[numActive].IsOver();
-}
-
-
-bool Board::IsPassedOut() const
-{
-  return auction[numActive].IsPassedOut();
-}
-
-
-bool Board::AddCall(
-  const string& call,
-  const string& alert)
-{
-  return auction[numActive].AddCall(call, alert);
-}
-
-
-bool Board::AddAlert(
-  const unsigned alertNo,
-  const string& alert)
-{
-  return auction[numActive].AddAlert(alertNo, alert);
-}
-
-
-void Board::AddPasses()
-{
-  auction[numActive].AddPasses();
-}
-
-
-bool Board::UndoLastCall()
-{
-  return auction[numActive].UndoLastCall();
-}
-
-
-bool Board::AddAuction(
-  const string& s,
-  const formatType f)
-{
-  return auction[numActive].AddAuction(s, f);
-}
-
-
-bool Board::ContractIsSet() const
-{
-  return contract[numActive].ContractIsSet();
-}
-
-
-bool Board::ResultIsSet() const
-{
-  return contract[numActive].ResultIsSet();
-}
-
-
-bool Board::PassOut()
-{
-  return contract[numActive].SetPassedOut();
-}
-
-
-bool Board::SetContract(
-  const vulType vul,
-  const playerType declarer,
-  const unsigned level,
-  const denomType denom,
-  const multiplierType mult)
-{
-  return contract[numActive].SetContract(vul, declarer, level, denom, mult);
-}
-
-
-bool Board::SetContract(
-  const vulType vul,
-  const string& cstring)
-{
-  return contract[numActive].SetContract(vul, cstring);
-}
-
-
-bool Board::SetTricks(
-  const unsigned tricks)
-{
-  return contract[numActive].SetTricks(tricks);
-}
-
-
-playStatus Board::AddPlay(
-  const string& str)
-{
-  return play[numActive].AddPlay(str);
-}
-
-
-playStatus Board::AddPlays(
-  const string& str,
-  const formatType f)
-{
-  return play[numActive].AddPlays(str, f);
-}
-
-
-bool Board::UndoLastPlay()
-{
-  return play[numActive].UndoPlay();
-}
-
-
-bool Board::PlayIsOver() const
-{
-  return play[numActive].PlayIsOver();
-}
-
-
-claimStatus Board::Claim(
-  const unsigned tricks)
-{
-  return play[numActive].Claim(tricks);
-}
-
-
-bool Board::ClaimIsMade() const
-{
-  return play[numActive].ClaimIsMade();
 }
 
 

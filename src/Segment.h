@@ -46,7 +46,8 @@ class Segment
 
     struct boardPairType
     {
-      unsigned extNo;
+      unsigned no; // Internal Segment number
+      unsigned extNo; // Externally seen number
       Board board;
       
     };
@@ -90,7 +91,9 @@ class Segment
       const string& l,
       const formatType f);
 
-    bool SetEvent(const string& e);
+    bool SetEvent(
+      const string& e,
+      const formatType f);
 
     bool SetSession(
       const string& s,
@@ -102,6 +105,22 @@ class Segment
 
     bool SetTeams(
       const string list[],
+      const formatType f);
+
+    bool SetTeams(
+      const string& s,
+      const formatType f);
+
+    bool SetPlayers(
+      const string& s,
+      const formatType f);
+
+    bool SetNumber(
+      const unsigned no,
+      const string& extStr);
+
+    bool SetNumber(
+      const string& s,
       const formatType f);
 
     bool operator == (const Segment& s2) const;

@@ -658,7 +658,7 @@ void TestSegmentCaseOther(
     assert(false);
   }
 
-  if (! segment.SetEvent(event))
+  if (! segment.SetEvent(event, f))
   {
     cout << "Can't set event";
     assert(false);
