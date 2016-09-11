@@ -60,6 +60,17 @@ Board * Segment::GetBoard(const unsigned no)
 }
 
 
+unsigned Segment::GetExtBoardNo(const unsigned no) const
+{
+  for (auto &p: boards)
+  {
+    if (p.no == no)
+      return p.extNo;
+  }
+  return 0;
+}
+
+
 Board * Segment::AcquireBoard(const unsigned no)
 {
   for (auto &p: boards)
@@ -200,6 +211,12 @@ bool Segment::SetTitleLIN(const string t)
 }
 
 
+unsigned Segment::GetLength() const
+{
+  return len;
+}
+
+
 bool Segment::SetTitle(
   const string& t,
   const formatType f)
@@ -312,10 +329,12 @@ void Segment::CopyPlayers()
 {
   if (len <= 1)
     return;
-  else if (! boards[len-1].board.PlayersAreSet())
+
+  unsigned inst = activeBoard->GetInstance();
+  if (! boards[len-2].board.PlayersAreSet(inst))
     return;
   else
-    activeBoard->CopyPlayers(boards[len-1].board);
+    activeBoard->CopyPlayers(boards[len-2].board, inst);
 }
 
 
@@ -333,6 +352,12 @@ bool Segment::SetNumber(
 
   boards[activeNo].extNo = extNo;
   return true;
+}
+
+
+bool Segment::ScoringIsIMPs() const
+{
+  return seg.scoring.ScoringIsIMPs();
 }
 
 
@@ -541,4 +566,24 @@ string Segment::TeamsAsString(
   return seg.teams.AsString(f);
 }
 
+
+string Segment::NumberAsString(
+  const formatType f,
+  const unsigned intNo,
+  const segOutputType s) const
+{
+  if (f != BRIDGE_FORMAT_RBN)
+    return "";
+
+  if (! firstStringFlag && s == SEGMENT_DELTA)
+    return "";
+
+  unsigned extNo = Segment::GetExtBoardNo(intNo);
+  if (extNo == 0)
+    return "";
+
+  stringstream st;
+  st << "B " << extNo << "\n";
+  return st.str();
+}
 

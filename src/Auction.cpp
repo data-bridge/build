@@ -354,6 +354,18 @@ bool Auction::IsOver() const
 }
 
 
+bool Auction::DVIsSet() const
+{
+  return setDVFlag;
+}
+
+
+vulType Auction::GetVul() const
+{
+  return vul;
+}
+
+
 bool Auction::IsPassedOut() const
 {
   return (numPasses == 4);
@@ -641,6 +653,8 @@ bool Auction::AddAuctionRBN(const string& s)
     LOG("Bad vulnerability " + STR(s.at(1)));
     return false;
   }
+
+  setDVFlag = true;
 
   size_t pos = 2;
   unsigned aNo = 0;

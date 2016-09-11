@@ -304,3 +304,92 @@ bool tryMethod(
   }
 }
 
+
+bool writeRBN(
+  Group& group,
+  const string& fname)
+{
+  ofstream fstr(fname.c_str());
+  if (! fstr.is_open())
+  {
+    LOG("No such RBN file");
+    return false;
+  }
+
+  fstr << "% www.rpbridge.net Richard Pavlicek\n";
+
+  const formatType f = BRIDGE_FORMAT_RBN;
+  unsigned numOld = 2;
+  vector<string> oldPlayers(numOld);
+  oldPlayers[0] = "";
+  oldPlayers[1] = "";
+
+  for (unsigned g = 0; g < group.GetLength(); g++)
+  {
+    Segment * segment = group.GetSegment(g);
+
+    fstr << segment->TitleAsString(f, SEGMENT_DELTA);
+    fstr << segment->DateAsString(f, SEGMENT_DELTA);
+    fstr << segment->LocationAsString(f, SEGMENT_DELTA);
+    fstr << segment->EventAsString(f, SEGMENT_DELTA);
+    fstr << segment->SessionAsString(f, SEGMENT_DELTA);
+    fstr << segment->ScoringAsString(f, SEGMENT_DELTA);
+    fstr << segment->TeamsAsString(f, SEGMENT_DELTA);
+
+    for (unsigned b = 0; b < segment->GetLength(); b++)
+    {
+      Board * board = segment->GetBoard(b);
+      if (board == nullptr)
+      {
+        LOG("Invalid board");
+        fstr.close();
+        return false;
+      }
+
+      unsigned numInst = board->GetLength();
+      if (numInst > numOld)
+      {
+        oldPlayers.resize(numInst);
+        for (unsigned j = numOld; j < numInst; j++)
+          oldPlayers[j] = "";
+        numOld = numInst;
+      }
+
+      for (unsigned i = 0; i < board->GetLength(); i++)
+      {
+        if (! board->SetInstance(i))
+        {
+          LOG("Invalid instance");
+          fstr.close();
+          return false;
+        }
+
+        string names = board->PlayersAsString(f);
+        if (names != oldPlayers[i])
+        {
+          fstr << names;
+          oldPlayers[i] = names;
+        }
+        
+        if (i == 0)
+        {
+          fstr << segment->NumberAsString(f, b, SEGMENT_DELTA);
+          fstr << board->DealAsString(BRIDGE_WEST, f);
+        }
+
+        board->CalculateScore();
+
+        fstr << board->AuctionAsString(f);
+        fstr << board->ContractAsString(f);
+        fstr << board->PlayAsString(f);
+        fstr << board->ResultAsString(f, segment->ScoringIsIMPs());
+        fstr << "\n";
+      }
+    }
+  }
+
+
+  fstr.close();
+  return true;
+}
+

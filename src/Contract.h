@@ -46,7 +46,7 @@ class Contract
 
     void SetTables();
 
-    void CalculateScore();
+    int ConvertDiffToIMPs(const int d) const;
 
     string DeclarerAsPBN() const;
 
@@ -56,6 +56,9 @@ class Contract
 
     string ScoreAsPBN() const;
     string ScoreAsTXT() const;
+
+    string ResultAsStringRBN() const;
+    string ResultAsStringRBN(const int refScore) const;
 
     string AsLIN() const;
     string AsPBN() const;
@@ -106,6 +109,8 @@ class Contract
 
     bool IsPassedOut() const;	
 
+    int GetScore() const;
+
     bool operator == (const Contract& c2) const;
 
     bool operator != (const Contract& c2) const;
@@ -113,6 +118,8 @@ class Contract
     playerType GetDeclarer() const;
 
     denomType GetDenom() const;
+
+    void CalculateScore();
 
     string AsString(
       const formatType f = BRIDGE_FORMAT_LIN) const;
@@ -124,6 +131,13 @@ class Contract
     string TricksAsString(const formatType f) const;
 
     string ScoreAsString(const formatType f) const;
+
+    string ResultAsString(
+      const formatType f) const;
+
+    string ResultAsString(
+      const formatType f,
+      const int refScore) const;
 };
 
 #endif

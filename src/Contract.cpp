@@ -44,7 +44,7 @@ map<string, int> LEVEL_TAG_TO_RELATIVE;
 
 const unsigned DENOM_DDS_TO_CATEGORY[BRIDGE_DENOMS] =
 {
-  1, 1, 2, 2, 3
+  2, 2, 1, 1, 3
 };
 
 const string DENOM_DDS_TO_PBN_TAG[BRIDGE_DENOMS] =
@@ -126,8 +126,18 @@ const int CONTRACT_SCORES[22][2][3] =
 
 const int DENOM_TO_OVERTRICKS_UNDOUBLED[BRIDGE_DENOMS] =
 {
-  20, 20, 30, 30, 30 
+  30, 30, 20, 20, 30 
 };
+
+const unsigned IMPscale[26] =
+{
+     0,   10,   40,   80,  120,  160,  210,  260,
+   310,  360,  420,  490,  590,  740,  890, 1090,
+  1290, 1490, 1740, 1900, 2240, 2490, 2990, 3490,
+  3990, 9990
+};
+
+unsigned IMPlookup[501];
 
 bool setContractTables = false;
 
@@ -215,6 +225,21 @@ void Contract::SetTables()
 
   for (int i = 0; i < 20; i++)
     LEVEL_TAG_TO_RELATIVE[LEVEL_SHIFT_TO_TAG[i]] = i-13;
+  
+  // IMPlookup  1,  2,  3,  4,  5,  6,  7, ...
+  // value      0,  0,  1,  1,  1,  2,  2, ...
+  // score      0, 10, 20, 30, 40, 50, 60, ...
+  
+  IMPlookup[0] = 0; // Unused
+  for (unsigned i = 1; i < 501; i++)
+  {
+    unsigned j = 10 * (i-1);
+    unsigned hit = 1;
+    while (j > IMPscale[hit])
+      hit++;
+
+    IMPlookup[i] = hit-1;
+  }
 }
 
 
@@ -315,7 +340,7 @@ bool Contract::SetContract(const string& text)
       contract = entry.contract;
       if (entry.tricksRelative != 7)
       {
-	setResultFlag = true;
+        setResultFlag = true;
         tricksRelative = entry.tricksRelative;
         Contract::CalculateScore();
       }
@@ -345,6 +370,8 @@ bool Contract::SetVul(
   }
 
   vul = v;
+  setVulFlag = true;
+  return true;
 }
 
 
@@ -445,6 +472,30 @@ bool Contract::IsPassedOut() const
     return (contract.level == 0);
   else
     return false;
+}
+
+
+int Contract::GetScore() const
+{
+  return score;
+}
+
+
+int Contract::ConvertDiffToIMPs(const int d) const
+{
+  int v, sign;
+  if (d < 0)
+  {
+    v = -d;
+    sign = -1;
+  }
+  else
+  {
+    v = d;
+    sign = 1;
+  }
+
+  return sign * static_cast<int>(IMPlookup[v/10 + 1]);
 }
 
 
@@ -828,4 +879,89 @@ string Contract::ScoreAsString(const formatType f) const
   }
 }
 
+
+string Contract::ResultAsStringRBN() const
+{
+  stringstream s;
+  s << "R " << contract.level + 6 + tricksRelative;
+  if (score > 0)
+    s << "+";
+  s << score;
+  return s.str();
+}
+
+
+string Contract::ResultAsStringRBN(const int refScore) const
+{
+  stringstream s;
+  s << Contract::ResultAsStringRBN() << ":";
+  int IMPs = Contract::ConvertDiffToIMPs(score - refScore);
+  if (IMPs > 0)
+    s << "+" << IMPs << "\n";
+  else if (IMPs == 0)
+    s << "=\n";
+  else
+    s << IMPs << "\n";
+  return s.str();
+}
+
+
+string Contract::ResultAsString(const formatType f) const
+{
+  if (! setResultFlag)
+    return "";
+
+  switch(f)
+  {
+    case BRIDGE_FORMAT_LIN:
+      LOG("LIN score not implemented");
+      return "";
+
+    case BRIDGE_FORMAT_PBN:
+      LOG("PBN score not implemented");
+      return "";
+
+    case BRIDGE_FORMAT_RBN:
+      return Contract::ResultAsStringRBN() + "\n";
+
+    case BRIDGE_FORMAT_TXT:
+      LOG("TXT score not implemented");
+      return "";
+
+    default:
+      LOG("Other score formats not implemented");
+      return "";
+  }
+}
+
+
+string Contract::ResultAsString(
+  const formatType f,
+  const int refScore) const
+{
+  if (! setResultFlag)
+    return "";
+
+  switch(f)
+  {
+    case BRIDGE_FORMAT_LIN:
+      LOG("LIN score not implemented");
+      return "";
+
+    case BRIDGE_FORMAT_PBN:
+      LOG("PBN score not implemented");
+      return "";
+
+    case BRIDGE_FORMAT_RBN:
+      return Contract::ResultAsStringRBN(refScore);
+
+    case BRIDGE_FORMAT_TXT:
+      LOG("TXT score not implemented");
+      return "";
+
+    default:
+      LOG("Other score formats not implemented");
+      return "";
+  }
+}
 

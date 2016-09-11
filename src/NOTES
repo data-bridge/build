@@ -1,8 +1,5 @@
 grep TODO *.cpp *.h
 grep assert
-players, alternate at segment level
-keep track of instances of a board
-probably no delta functions, just check for new
 
 Contract: There are too many Set functions, probably some unused
 
@@ -10,11 +7,8 @@ Unit test:
 Think of having expected result
 Count pass/fail
 
-make RBN writer
-
 make Board checks
 
-test RBN parser on one file
 Test on concatenated RBN file
 come up with format for accompanying fixes, .fix files
 Read these in, apply before crying wolf

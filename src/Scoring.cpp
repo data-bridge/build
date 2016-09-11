@@ -149,6 +149,12 @@ bool Scoring::Set(
 }
 
 
+bool Scoring::ScoringIsIMPs() const
+{
+  return (scoring == BRIDGE_SCORING_IMPS);
+}
+
+
 bool Scoring::operator == (const Scoring& s2) const
 {
   if (scoring != s2.scoring)

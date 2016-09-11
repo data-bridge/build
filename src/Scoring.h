@@ -59,6 +59,8 @@ class Scoring
       const string& t,
       const formatType f);
 
+    bool ScoringIsIMPs() const;
+
     bool operator == (const Scoring& s2) const;
 
     bool operator != (const Scoring& s2) const;

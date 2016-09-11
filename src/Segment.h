@@ -82,6 +82,10 @@ class Segment
 
     Board * AcquireBoard(const unsigned no);
 
+    unsigned GetExtBoardNo(const unsigned no) const;
+
+    unsigned GetLength() const;
+
     bool SetTitle(
       const string& t,
       const formatType f);
@@ -124,6 +128,8 @@ class Segment
       const string& s,
       const formatType f);
 
+    bool ScoringIsIMPs() const;
+
     bool operator == (const Segment& s2) const;
 
     bool operator != (const Segment& s2) const;
@@ -156,6 +162,10 @@ class Segment
       const formatType f,
       const segOutputType s) const;
 
+     string NumberAsString(
+      const formatType f,
+      const unsigned intNo,
+      const segOutputType s) const;
 };
 
 #endif

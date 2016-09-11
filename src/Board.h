@@ -52,10 +52,12 @@ class Board
 
     unsigned NewInstance();
 
-    unsigned GetLength() const;
-
     bool SetInstance(
       const unsigned no);
+
+    unsigned GetLength() const;
+
+    unsigned GetInstance() const;
 
     bool SetDealerVul(
       const string& d,
@@ -183,12 +185,16 @@ class Board
       const string& text,
       const formatType f);
 
-    bool PlayersAreSet() const;
+    bool PlayersAreSet(const unsigned instance) const;
 
-    void CopyPlayers(const Board& b2);
+    void CopyPlayers(
+      const Board& b2,
+      const unsigned instance);
 
     bool GetValuation(
       Valuation& valuation) const;
+
+    void CalculateScore();
 
     bool CheckBoard() const;
 
@@ -230,6 +236,16 @@ class Board
 
     string ClaimAsString(
       const formatType f) const;
+    
+    string PlayersAsString(
+      const formatType f) const;
+    
+    string ResultAsString(
+      const formatType f) const;
+    
+    string ResultAsString(
+      const formatType f,
+      const bool scoringIsIMPs) const;
 };
 
 #endif

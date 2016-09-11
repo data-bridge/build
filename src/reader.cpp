@@ -40,6 +40,12 @@ int main(int argc, char * argv[])
     debug.Print();
     assert(false);
   }
+
+  if (! writeRBN(group, "out.rbn"))
+  {
+    debug.Print();
+    assert(false);
+  }
 }
 
 

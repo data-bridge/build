@@ -12,7 +12,6 @@
 #include "Debug.h"
 #include "portab.h"
 
-#include <assert.h>
 #include <map>
 
 extern Debug debug;
@@ -81,6 +80,18 @@ bool Board::SetInstance(const unsigned no)
     numActive = no;
     return true;
   }
+}
+
+
+unsigned Board::GetLength() const
+{
+  return len;
+}
+
+
+unsigned Board::GetInstance() const
+{
+  return numActive;
 }
 
 
@@ -179,7 +190,16 @@ bool Board::SetAuction(
   const string& s,
   const formatType f)
 {
-  return auction[numActive].AddAuction(s, f);
+  if (! auction[numActive].AddAuction(s, f))
+    return false;
+
+  if (auction[numActive].DVIsSet())
+  {
+    if (! contract[numActive].SetVul(auction[numActive].GetVul()))
+      return false;
+  }
+
+  return true;
 }
 
 
@@ -352,15 +372,17 @@ bool Board::SetPlayers(
 }
 
 
-bool Board::PlayersAreSet() const
+bool Board::PlayersAreSet(const unsigned inst) const
 {
-  return players[numActive].PlayersAreSet();
+  return players[inst].PlayersAreSet();
 }
 
 
-void Board::CopyPlayers(const Board& b2)
+void Board::CopyPlayers(
+  const Board& b2,
+  const unsigned inst)
 {
-  players[numActive] = b2.players[numActive];
+  players[inst] = b2.players[inst];
 }
 
 
@@ -370,6 +392,12 @@ bool Board::GetValuation(
   // TODO
   UNUSED(valuation);
   return true;
+}
+
+
+void Board::CalculateScore()
+{
+  contract[numActive].CalculateScore();
 }
 
 
@@ -491,5 +519,25 @@ string Board::ClaimAsString(
   const formatType f) const
 {
   return play[numActive].ClaimAsString(f);
+}
+
+
+string Board::PlayersAsString(
+  const formatType f) const
+{
+  return players[numActive].AsString(f);
+}
+
+
+string Board::ResultAsString(
+  const formatType f,
+  const bool scoringIsIMPs) const
+{
+  if (numActive != 1 || 
+     ! scoringIsIMPs ||
+     ! contract[0].ResultIsSet())
+    return contract[numActive].ResultAsString(f);
+  else
+    return contract[numActive].ResultAsString(f, contract[0].GetScore());
 }
 

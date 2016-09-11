@@ -46,6 +46,8 @@ class Group
 
     Segment * GetSegment(const unsigned no);
 
+    unsigned GetLength() const;
+
     bool operator == (const Group& g2) const;
 
     bool operator != (const Group& g2) const;

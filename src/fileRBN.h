@@ -22,5 +22,9 @@ bool readRBN(
   Group& group,
   const string& fname);
 
+bool writeRBN(
+  Group& group,
+  const string& fname);
+
 
 #endif

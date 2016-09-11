@@ -67,6 +67,12 @@ const Segment * Group::GetSegmentReadOnly(const unsigned extNo) const
 }
 
 
+unsigned Group::GetLength() const
+{
+ return len;
+}
+
+
 bool Group::operator == (const Group& g2) const
 {
   if (len != g2.len)

@@ -130,6 +130,10 @@ class Auction
 
     bool IsPassedOut() const;
 
+    bool DVIsSet() const;
+
+    vulType GetVul() const;
+
     bool AddCall(
       const string& call,
       const string& alert = "");
