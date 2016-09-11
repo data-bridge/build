@@ -55,7 +55,7 @@ class Board
     unsigned GetLength() const;
 
     bool SetInstance(
-      unsigned no);
+      const unsigned no);
 
     bool SetDealerVul(
       const string& d,
@@ -152,6 +152,8 @@ class Board
       
     bool ResultIsSet() const;
 
+    // Tableau
+    //
     bool SetTableau(
       const string& text,
       const formatType f);
@@ -174,6 +176,16 @@ class Board
       playerType dealer,
       vulType v,
       list<Contract>& text) const;
+
+    // Players
+
+    bool SetPlayers(
+      const string& text,
+      const formatType f);
+
+    bool PlayersAreSet() const;
+
+    void CopyPlayers(const Board& b2);
 
     bool GetValuation(
       Valuation& valuation) const;

@@ -19,12 +19,12 @@ extern Debug debug;
 
 
 Board::Board():
-  players(1), 
-  auction(1), 
-  contract(1), 
-  play(1)
+  players(0), 
+  auction(0), 
+  contract(0), 
+  play(0)
 {
-  len = 1;
+  len = 0;
   numActive = 0;
 }
 
@@ -36,20 +36,51 @@ Board::~Board()
 
 void Board::Reset()
 {
-  len = 1;
-  players.resize(len);
-  auction.resize(len);
-  contract.resize(len);
-  play.resize(len);
+  len = 0;
+  players.clear();
+  auction.clear();
+  contract.clear();
+  play.clear();
   numActive = 0;
 }
 
 
 unsigned Board::NewInstance()
 {
-  len++;
-  auction[numActive+1].CopyDealerVulFrom(auction[numActive]);
-  return numActive++;
+  numActive = len++;
+  players.resize(len);
+  auction.resize(len);
+  contract.resize(len);
+  play.resize(len);
+
+  if (numActive > 0)
+  {
+    auction[numActive].CopyDealerVulFrom(auction[0]);
+
+    if (deal.IsSet())
+    {
+      unsigned cards[BRIDGE_PLAYERS][BRIDGE_SUITS];
+      if (deal.GetDDS(cards))
+        play[numActive].SetHoldingDDS(cards);
+    }
+  }
+
+  return numActive;
+}
+
+
+bool Board::SetInstance(const unsigned no)
+{
+  if (len == 0 || no > len-1)
+  {
+    LOG("Invalid instance selected");
+    return false;
+  }
+  else
+  {
+    numActive = no;
+    return true;
+  }
 }
 
 
@@ -78,7 +109,18 @@ bool Board::SetDeal(
   const string& s,
   const formatType f)
 {
-  return deal.Set(s, f);
+  if (! deal.Set(s, f))
+    return false;
+
+  if (numActive == 0)
+  {
+    unsigned cards[BRIDGE_PLAYERS][BRIDGE_SUITS];
+    if (! deal.GetDDS(cards))
+      return false;
+
+    return play[0].SetHoldingDDS(cards);
+  }
+  return true;
 }
 
 
@@ -184,11 +226,10 @@ bool Board::SetContract(
   const string& text,
   const formatType f)
 {
-  // TODO
-  UNUSED(text);
-  UNUSED(f);
-  assert(false);
-  return true;
+  if (! contract[numActive].SetContract(text, f))
+    return false;
+
+  return play[numActive].SetContract(contract[numActive]);
 }
 
 
@@ -298,6 +339,28 @@ bool Board::GetPar(
   list<Contract>& text) const
 {
   return tableau.GetPar(dealer, v, text);
+}
+
+
+// Players
+
+bool Board::SetPlayers(
+  const string& text,
+  const formatType f)
+{
+  return players[numActive].SetPlayers(text, f);
+}
+
+
+bool Board::PlayersAreSet() const
+{
+  return players[numActive].PlayersAreSet();
+}
+
+
+void Board::CopyPlayers(const Board& b2)
+{
+  players[numActive] = b2.players[numActive];
 }
 
 

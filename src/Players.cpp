@@ -194,6 +194,13 @@ bool Players::SetRoom(
 }
 
 
+bool Players::PlayersAreSet() const
+{
+  return (players[0] != "" || players[1] != "" ||
+      players[2] != "" || players[3] != "");
+}
+
+
 bool Players::operator == (const Players& p2) const
 {
   for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)

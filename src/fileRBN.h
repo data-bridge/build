@@ -16,7 +16,7 @@
 using namespace std;
 
 
-void setRBNTables();
+void setRBNtables();
 
 bool readRBN(
   Group& group,

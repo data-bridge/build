@@ -49,10 +49,24 @@ void Segment::Reset()
 }
 
 
-bool Segment::MakeBoard(const unsigned no)
+Board * Segment::GetBoard(const unsigned no) 
 {
-  if (Segment::GetBoard(no) != nullptr)
-    return false;
+  for (auto &p: boards)
+  {
+    if (p.no == no)
+      return &p.board;
+  }
+  return nullptr;
+}
+
+
+Board * Segment::AcquireBoard(const unsigned no)
+{
+  for (auto &p: boards)
+  {
+    if (p.no == no)
+      return &p.board;
+  }
 
   boards.resize(len+1);
   boards[len].no = no;
@@ -62,18 +76,9 @@ bool Segment::MakeBoard(const unsigned no)
     bmin = no;
   if (no > bmax)
     bmax = no;
-  return true;
-}
-
-
-Board * Segment::GetBoard(const unsigned no) 
-{
-  for (auto &p: boards)
-  {
-    if (p.no == no)
-      return &p.board;
-  }
-  return nullptr;
+  activeBoard = &boards[len-1].board;
+  activeNo = no;
+  return activeBoard;
 }
 
 
@@ -299,34 +304,18 @@ bool Segment::SetPlayers(
   const string& s,
   const formatType f)
 {
-  // TODO
-  UNUSED(s);
-  UNUSED(f);
+  return activeBoard->SetPlayers(s, f);
 }
 
 
-bool Segment::SetNumber(
-  const unsigned no,
-  const string& extStr)
+void Segment::CopyPlayers()
 {
-  unsigned extNo;
-  if (! StringToUnsigned(extStr, extNo))
-  {
-    LOG("Board number is not numerical");
-    return false;
-  }
-
-  for (auto &p: boards)
-  {
-    if (p.no == no)
-    {
-      p.extNo = extNo;
-      return true;
-    }
-  }
-
-  LOG("Internal board number not found");
-  return false;
+  if (len <= 1)
+    return;
+  else if (! boards[len-1].board.PlayersAreSet())
+    return;
+  else
+    activeBoard->CopyPlayers(boards[len-1].board);
 }
 
 
@@ -334,9 +323,16 @@ bool Segment::SetNumber(
   const string& s,
   const formatType f)
 {
-  // TODO
-  UNUSED(s);
   UNUSED(f);
+  unsigned extNo;
+  if (! StringToUnsigned(s, extNo))
+  {
+    LOG("Board number is not numerical");
+    return false;
+  }
+
+  boards[activeNo].extNo = extNo;
+  return true;
 }
 
 

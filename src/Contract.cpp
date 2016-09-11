@@ -160,6 +160,7 @@ Contract::~Contract()
 void Contract::Reset()
 {
   setContractFlag = false;
+  setVulFlag = false;
   setResultFlag = false;
 }
 
@@ -193,6 +194,11 @@ void Contract::SetTables()
 	  // No trick number given, e.g "4HE".
 	  e.tricksRelative = 7;
 	  CONTRACT_STRING_TO_PARTS[s4.str()] = e;
+
+          // RBN string with ":" and without result.
+          stringstream s4a;
+          s4a << s3.str() << ":" << PLAYER_NAMES_SHORT[decl];
+          CONTRACT_STRING_TO_PARTS[s4a.str()] = e;
 
 	  int lo = 7 - static_cast<int>(e.contract.level);
 	  for (int i = lo; i <= lo+13; i++)
@@ -266,6 +272,7 @@ bool Contract::SetContract(
   else
   {
     setContractFlag = true;
+    setVulFlag = true;
     vul = vulIn;
     contract.declarer = declarer;
     contract.level = level;
@@ -280,22 +287,31 @@ bool Contract::SetContract(
   const vulType vulIn,
   const string& cstring)
 {
-  if (cstring == "P")
+  if (! Contract::SetContract(cstring))
+    return false;
+
+  setVulFlag = true;
+  vul = vulIn;
+}
+
+
+bool Contract::SetContract(const string& text)
+{
+  if (text == "P")
     return Contract::SetPassedOut();
   else
   {
     map<string, entryType>::iterator it = 
-      CONTRACT_STRING_TO_PARTS.find(cstring);
+      CONTRACT_STRING_TO_PARTS.find(text);
     if (it == CONTRACT_STRING_TO_PARTS.end())
     {
-      LOG("Invalid string: '" + cstring + "'");
+      LOG("Invalid string: '" + text + "'");
       return false;
     }
     else
     {
       setContractFlag = true;
-      vul = vulIn;
-      entryType entry = CONTRACT_STRING_TO_PARTS[cstring];
+      entryType entry = CONTRACT_STRING_TO_PARTS[text];
       contract = entry.contract;
       if (entry.tricksRelative != 7)
       {
@@ -307,6 +323,28 @@ bool Contract::SetContract(
       return true;
     }
   }
+}
+
+
+bool Contract::SetContract(
+  const string& text,
+  const formatType f)
+{
+  UNUSED(f);
+  return Contract::SetContract(text);
+}
+
+
+bool Contract::SetVul(
+  const vulType v)
+{
+  if (setVulFlag && vul != v)
+  {
+    LOG("Vulnerability already set differently");
+    return false;
+  }
+
+  vul = v;
 }
 
 
@@ -353,7 +391,7 @@ bool Contract::SetResult(
 
 void Contract::CalculateScore()
 {
-  if (! setContractFlag || ! setResultFlag)
+  if (! setContractFlag || ! setVulFlag || ! setResultFlag)
   {
     score = -1;
     return;
@@ -412,6 +450,18 @@ bool Contract::IsPassedOut() const
 
 bool Contract::operator == (const Contract& c2) const
 {
+  if (setVulFlag != c2.setVulFlag)
+  {
+    LOG("Vulnerabilities are not equally set");
+    return false;
+  }
+
+  if (setVulFlag && vul != c2.vul)
+  {
+    LOG("Vulnerabilities differ");
+    return false;
+  }
+
   if (setContractFlag)
   {
     if (! c2.setContractFlag)
@@ -428,11 +478,6 @@ bool Contract::operator == (const Contract& c2) const
         LOG("First contract is passed out, second one is not");
 	return false;
       }
-    }
-    else if (vul != c2.vul)
-    {
-      LOG("Vulnerabilities differ");
-      return false;
     }
     else if (contract.declarer != c2.contract.declarer)
     {
@@ -668,6 +713,12 @@ string Contract::VulAsRBN() const
 
 string Contract::VulAsString(const formatType f) const
 {
+  if (! setVulFlag)
+  {
+    LOG("Vulnerability not yet");
+    return false;
+  }
+
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
@@ -713,11 +764,11 @@ string Contract::TricksAsString(const formatType f) const
       return "";
 
     case BRIDGE_FORMAT_PBN:
-      LOG("PBN tricks not implemented");
-      return "";
+      return Contract::TricksAsPBN();
 
     case BRIDGE_FORMAT_RBN:
-      return Contract::VulAsRBN();
+      LOG("RBN tricks not implemented");
+      return "";
 
     case BRIDGE_FORMAT_TXT:
       LOG("TXT tricks not implemented");
@@ -762,8 +813,7 @@ string Contract::ScoreAsString(const formatType f) const
       return "";
 
     case BRIDGE_FORMAT_PBN:
-      LOG("PBN score not implemented");
-      return "";
+      return Contract::ScoreAsTXT();
 
     case BRIDGE_FORMAT_RBN:
       LOG("RBN score not implemented");

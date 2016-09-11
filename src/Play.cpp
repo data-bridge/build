@@ -150,7 +150,7 @@ bool Play::SetDeclAndDenom(
 {
   if (setDDFlag)
   {
-    LOG("Dealer and denomination already set");
+    LOG("Declarer and denomination already set");
     return false;
   }
 
@@ -341,21 +341,13 @@ playStatus Play::AddTrickPBN(const string& str)
 }
 
 
-bool Play::AddAllRBN(const string& sIn)
+bool Play::AddAllRBN(const string& str)
 {
-  if (sIn.length() < 2)
+  if (str.length() < 2)
   {
-    LOG("String too short: " + sIn);
+    LOG("String too short: " + str);
     return false;
   }
-
-  if (sIn.at(0) != 'P' || sIn.at(1) != ' ')
-  {
-    LOG("Must start with P");
-    return false;
-  }
-
-  const string str = sIn.substr(2, string::npos);
 
   int seen = count(str.begin(), str.end(), ':');
   if (seen > BRIDGE_TRICKS-1)

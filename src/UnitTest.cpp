@@ -241,7 +241,7 @@ void TestAuction()
     exit(0);
   }
 
-  if (! auction.AddAuctionRBN("A SE:PP1S^1P:2H*P4SA"))
+  if (! auction.AddAuctionRBN("SE:PP1S^1P:2H*P4SA"))
   {
     debug.Print();
     exit(0);

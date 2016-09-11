@@ -62,6 +62,8 @@ class Players
       const string& room,
       const formatType f);
 
+    bool PlayersAreSet() const;
+
     bool operator == (const Players& p2) const;
 
     bool operator != (const Players& p2) const;

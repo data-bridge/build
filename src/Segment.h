@@ -62,6 +62,9 @@ class Segment
     unsigned bInmax;
     bool firstStringFlag;
 
+    Board * activeBoard;
+    unsigned activeNo;
+
     bool SetTitleLIN(const string t);
 
     string TitleAsLIN() const;
@@ -75,9 +78,9 @@ class Segment
 
     void Reset();
 
-    bool MakeBoard(const unsigned no);
-
     Board * GetBoard(const unsigned no);
+
+    Board * AcquireBoard(const unsigned no);
 
     bool SetTitle(
       const string& t,
@@ -115,9 +118,7 @@ class Segment
       const string& s,
       const formatType f);
 
-    bool SetNumber(
-      const unsigned no,
-      const string& extStr);
+    void CopyPlayers();
 
     bool SetNumber(
       const string& s,

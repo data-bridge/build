@@ -77,6 +77,12 @@ typedef bool (Board::*BoardPtr)(const string& s, const formatType f);
 SegPtr segPtr[RBN_LABELS_SIZE];
 BoardPtr boardPtr[RBN_LABELS_SIZE];
 
+bool readChunk(
+  ifstream& fstr,
+  unsigned& lno,
+  vector<string>& chunk,
+  bool& newSegFlag);
+
 bool tryMethod(
   const vector<string>& chunk,
   Segment * segment,
@@ -85,16 +91,10 @@ bool tryMethod(
   ifstream& fstr,
   const string& info);
 
-bool readChunk(
-  ifstream& fstr,
-  unsigned& lno,
-  vector<string>& chunk,
-  bool newSegFlag);
-
 
 void setRBNtables()
 {
-  for (char c = 0; c < 128; c++)
+  for (unsigned char c = 0; c < 128; c++)
   {
     CHAR_TO_LABEL_NO[c] = RBN_LABELS_SIZE;
     CHAR_TO_NEW_SEGMENT[c] = false;
@@ -154,11 +154,12 @@ bool readChunk(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& chunk,
-  bool newSegFlag)
+  bool& newSegFlag)
 {
   string line;
   newSegFlag = false;
-  chunk.clear();
+  for (unsigned i = 0; i < RBN_LABELS_SIZE; i++)
+    chunk[i] = "";
 
   while (getline(fstr, line))
   {
@@ -173,6 +174,9 @@ bool readChunk(
     }
 
     const char c = line.at(0);
+    if (c == '%')
+      continue;
+
     if (CHAR_TO_LABEL_NO[c] == RBN_LABELS_SIZE)
     {
       LOG("Illegal RBN label in line '" + line + "'");
@@ -189,7 +193,7 @@ bool readChunk(
       return false;
     }
 
-    chunk[labelNo] = line;
+    chunk[labelNo] = line.substr(2, string::npos);
   }
   return false;
 }
@@ -216,14 +220,10 @@ bool readRBN(
   unsigned segno = 0;
   bool newSegFlag = false;
 
-  Board * board;
+  Board * board = nullptr;
   unsigned bno = 0;
 
   unsigned lno = 0;
-
-  // TODO
-  // Have to deal with board instances
-  // Need to set assorted vulnerabilities, dealers etc as well
 
   while (readChunk(fstr, lno, chunk, newSegFlag))
   {
@@ -241,20 +241,31 @@ bool readRBN(
       bno = 0;
     }
 
-    board = segment->GetBoard(bno);
-    bno++;
-    if (board == nullptr)
+    if (chunk[RBN_BOARD_NO] != "")
     {
-      LOG("Unknown error");
-      fstr.close();
-      return false;
+      // New board
+      board = segment->AcquireBoard(bno);
+      bno++;
+
+      if (board == nullptr)
+      {
+        LOG("Unknown error");
+        fstr.close();
+        return false;
+      }
     }
+
+    board->NewInstance();
+    segment->CopyPlayers();
 
     for (unsigned i = 0; i < RBN_LABELS_SIZE; i++)
     {
       if (! tryMethod(chunk, segment, board, i, fstr, RBNname[i]))
         return false;
     }
+
+    if (fstr.eof())
+      break;
   }
 
   fstr.close();

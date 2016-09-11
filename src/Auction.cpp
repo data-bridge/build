@@ -364,6 +364,12 @@ void Auction::AddCallNo(
   const unsigned no,
   const string& alert)
 {
+  if (len == lenMax)
+  {
+    lenMax += AUCTION_SEQ_INCR;
+    sequence.resize(lenMax);
+  }
+
   sequence[len].no = no;
   sequence[len].alert = alert;
   len++;
@@ -618,25 +624,25 @@ bool Auction::AddAuctionRBN(const string& s)
     return false;
   }
 
-  if (s.at(0) != 'A' || s.at(1) != ' ' || s.at(4) != ':')
+  if (s.at(2) != ':')
   {
-    LOG("Must start with 'A xy:'");
+    LOG("Must start with 'xy:'");
     return false;
   }
 
-  if (! Auction::ParseRBNDealer(s.at(2)))
+  if (! Auction::ParseRBNDealer(s.at(0)))
   {
-    LOG("Bad dealer " + STR(s.at(2)));
+    LOG("Bad dealer " + STR(s.at(0)));
     return false;
   }
 
-  if (! Auction::ParseRBNVul(s.at(3)))
+  if (! Auction::ParseRBNVul(s.at(1)))
   {
-    LOG("Bad vulnerability " + STR(s.at(3)));
+    LOG("Bad vulnerability " + STR(s.at(1)));
     return false;
   }
 
-  size_t pos = 4;
+  size_t pos = 2;
   unsigned aNo = 0;
   while (1)
   {

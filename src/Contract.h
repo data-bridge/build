@@ -36,6 +36,7 @@ class Contract
   private:
 
     bool setContractFlag;
+    bool setVulFlag;
     bool setResultFlag;
 
     vulType vul;
@@ -87,6 +88,14 @@ class Contract
     bool SetContract(
       const vulType vul,
       const string& cstring);
+
+    bool SetContract(const string& text);
+
+    bool SetContract(
+      const string& text,
+      const formatType f);
+
+    bool SetVul(const vulType vul);
 
     bool SetTricks(
       const unsigned tricks);

@@ -34,7 +34,12 @@ int main(int argc, char * argv[])
   UNUSED(argv);
 
   Group group;
-  readRBN(group, "F10FA1.RBN");
+  setRBNtables();
+  if (! readRBN(group, "S10FA1.RBN"))
+  {
+    debug.Print();
+    assert(false);
+  }
 }
 
 

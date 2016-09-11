@@ -4,6 +4,8 @@ players, alternate at segment level
 keep track of instances of a board
 probably no delta functions, just check for new
 
+Contract: There are too many Set functions, probably some unused
+
 Unit test:
 Think of having expected result
 Count pass/fail
