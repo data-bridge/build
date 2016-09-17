@@ -113,6 +113,11 @@ const char DENOM_NAMES_SHORT[BRIDGE_DENOMS] =
   'S', 'H', 'D', 'C', 'N'
 };
 
+const string DENOM_NAMES_SHORT_PBN[BRIDGE_DENOMS] =
+{
+  "S", "H", "D", "C", "NT"
+};
+
 const string DENOM_NAMES_SHORT_RBN[BRIDGE_DENOMS] =
 {
   "NT", "S", "H", "D", "C"
@@ -124,7 +129,7 @@ const string VUL_NAMES_LIN[BRIDGE_SUITS] =
 };
 const string VUL_NAMES_PBN[BRIDGE_SUITS] =
 {
-  "None", "Both", "NS", "EW"
+  "None", "All", "NS", "EW"
 };
 const string VUL_NAMES_RBN[BRIDGE_SUITS] =
 {

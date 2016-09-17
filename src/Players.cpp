@@ -60,7 +60,17 @@ bool Players::SetPlayer(
     return false;
   }
 
-  players[player] = name;
+  unsigned p;
+  if (player == BRIDGE_SOUTH)
+    p = BRIDGE_SOUTH;
+  else if (player == BRIDGE_WEST)
+    p = BRIDGE_WEST;
+  else if (player == BRIDGE_NORTH)
+    p = BRIDGE_NORTH;
+  else
+    p = BRIDGE_EAST;
+
+  players[p] = name;
   return true;
 }
 

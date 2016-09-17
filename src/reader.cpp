@@ -19,6 +19,7 @@ using namespace std;
 #include "Group.h"
 #include "UnitTest.h"
 #include "fileRBN.h"
+#include "filePBN.h"
 #include "portab.h"
 #include "bconst.h"
 #include "Debug.h"
@@ -35,13 +36,15 @@ int main(int argc, char * argv[])
 
   Group group;
   setRBNtables();
+  setPBNtables();
+
   if (! readRBN(group, "S10FA1.RBN"))
   {
     debug.Print();
     assert(false);
   }
 
-  if (! writeRBN(group, "out.rbn"))
+  if (! writePBN(group, "out.pbn"))
   {
     debug.Print();
     assert(false);

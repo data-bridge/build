@@ -55,8 +55,10 @@ class Contract
     string TricksAsPBN() const;
 
     string ScoreAsPBN() const;
+    string ScoreAsPBN(const int refScore) const;
     string ScoreAsTXT() const;
 
+    string ResultAsStringPBN() const;
     string ResultAsStringRBN() const;
     string ResultAsStringRBN(const int refScore) const;
 
@@ -107,6 +109,8 @@ class Contract
     bool SetTricks(
       const unsigned tricks);
 
+    unsigned GetTricks() const;
+
     bool SetResult(
       const string& text,
       const formatType f);
@@ -139,6 +143,10 @@ class Contract
     string TricksAsString(const formatType f) const;
 
     string ScoreAsString(const formatType f) const;
+
+    string ScoreAsString(
+      const formatType f,
+      const int refScore) const;
 
     string ResultAsString(
       const formatType f) const;

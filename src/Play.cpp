@@ -518,7 +518,12 @@ claimStatus Play::Claim(const unsigned tricks)
       return PLAY_CLAIM_ALREADY;
   }
   else if (playOverFlag)
-    return PLAY_CLAIM_PLAY_OVER;
+  {
+    if (tricksDecl == tricks)
+      return PLAY_CLAIM_NO_ERROR;
+    else
+      return PLAY_CLAIM_PLAY_OVER;
+  }
   else
   {
     playOverFlag = true;
@@ -618,7 +623,7 @@ string Play::AsPBN() const
   stringstream s;
 
   playerType openingLeader = leads[0].leader;
-  s << "[Play \"" << PLAYER_NAMES_LONG[openingLeader] << "\"]\n";
+  s << "[Play \"" << PLAYER_NAMES_SHORT[openingLeader] << "\"]\n";
   for (unsigned t = 0; t < trickToPlay; t++)
   {
     unsigned offset = t << 2;
@@ -633,23 +638,28 @@ string Play::AsPBN() const
   if (len > trickToPlay << 2)
   {
     unsigned offset = trickToPlay << 2;
-    bool dashing = true;
+    unsigned num = len - offset;
     for (unsigned c = 0; c < 4; c++)
     {
       unsigned p = 
         offset + (openingLeader + 4 - leads[trickToPlay].leader + c) % 4;
       if (p < len)
       {
-        dashing = false;
         s << PLAY_NO_TO_CARD[sequence[p]] << " ";
+        num--;
       }
-      else if (dashing)
-        s << " - ";
+      // TODO
+      // PBN uses single dash, and probably not trailing dashes.
+      else // if (num > 0)
+        s << "-- ";
+        // s << "- ";
     }
     s << "\n";
   }
 
-  if (claimMadeFlag)
+  // TODO
+  // PBN only uses * if not all cards have been played.
+  // if (claimMadeFlag)
     s << "*\n";
 
   return s.str();

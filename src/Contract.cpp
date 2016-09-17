@@ -422,6 +422,13 @@ bool Contract::SetTricks(
 }
 
 
+unsigned Contract::GetTricks() const
+{
+  // No checking.
+  return tricksRelative + contract.level + 6;
+}
+
+
 bool Contract::SetScore(
   const string& text,
   const formatType f)
@@ -434,6 +441,7 @@ bool Contract::SetScore(
     return false;
   }
   score = s;
+  return true;
 }
 
 
@@ -670,7 +678,7 @@ string Contract::AsPBN() const
   stringstream s;
   s << "[Contract \"" <<
     contract.level <<
-    DENOM_NAMES_SHORT[contract.denom] <<
+    DENOM_NAMES_SHORT_PBN[contract.denom] <<
     MULT_NUM_TO_LIN_TAG[contract.mult] <<
     "\"]\n";
 
@@ -871,11 +879,31 @@ string Contract::TricksAsString(const formatType f) const
 
 string Contract::ScoreAsPBN() const
 {
-  if (! setResultFlag || contract.level == 0)
+  if (! setResultFlag)
     return "";
 
   stringstream s;
-  s << "[Score \"" << score << "\"]\n";
+  if (score >= 0)
+    s << "[Score \"NS " << score << "\"]\n";
+  else
+    s << "[Score \"EW " << -score << "\"]\n";
+  
+  return s.str();
+}
+
+
+string Contract::ScoreAsPBN(const int refScore) const
+{
+  stringstream s;
+  s << Contract::ScoreAsPBN();
+
+  int IMPs = Contract::ConvertDiffToIMPs(score - refScore);
+  if (IMPs > 0)
+    s << "[ScoreIMP \"NS " << IMPs << "\"]\n";
+  else if (IMPs == 0)
+    s << "[ScoreIMP \"0\"]\n";
+  else
+    s << "[ScoreIMP \"EW " << -IMPs << "\"]\n";
   
   return s.str();
 }
@@ -901,7 +929,7 @@ string Contract::ScoreAsString(const formatType f) const
       return "";
 
     case BRIDGE_FORMAT_PBN:
-      return Contract::ScoreAsTXT();
+      return Contract::ScoreAsPBN();
 
     case BRIDGE_FORMAT_RBN:
       LOG("RBN score not implemented");
@@ -914,6 +942,42 @@ string Contract::ScoreAsString(const formatType f) const
       LOG("Other score formats not implemented");
       return "";
   }
+}
+
+
+string Contract::ScoreAsString(
+  const formatType f,
+  const int refScore) const
+{
+  switch(f)
+  {
+    case BRIDGE_FORMAT_LIN:
+      LOG("LIN score not implemented");
+      return "";
+
+    case BRIDGE_FORMAT_PBN:
+      return Contract::ScoreAsPBN(refScore);
+
+    case BRIDGE_FORMAT_RBN:
+      LOG("RBN score not implemented");
+      return "";
+
+    case BRIDGE_FORMAT_TXT:
+      LOG("TXT score not implemented");
+      return "";
+
+    default:
+      LOG("Other score formats not implemented");
+      return "";
+  }
+}
+
+
+string Contract::ResultAsStringPBN() const
+{
+  stringstream s;
+  s << "[Result\"" << contract.level + 6 + tricksRelative << "\"]\n";
+  return s.str();
 }
 
 
@@ -955,8 +1019,7 @@ string Contract::ResultAsString(const formatType f) const
       return "";
 
     case BRIDGE_FORMAT_PBN:
-      LOG("PBN score not implemented");
-      return "";
+      return Contract::ResultAsStringPBN();
 
     case BRIDGE_FORMAT_RBN:
       return Contract::ResultAsStringRBN() + "\n";

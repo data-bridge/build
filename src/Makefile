@@ -108,7 +108,7 @@ fileRBN.obj: Valuation.h Auction.h Play.h parse.h portab.h debug.h Debug.h
 parse.obj: parse.h portab.h
 reader.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 reader.obj: Teams.h Board.h Deal.h Players.h Tableau.h Contract.h Valuation.h
-reader.obj: Auction.h Play.h UnitTest.h fileRBN.h portab.h Debug.h
+reader.obj: Auction.h Play.h UnitTest.h fileRBN.h filePBN.h portab.h Debug.h
 reader.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 reader.obj: Teams.h Board.h Deal.h Players.h Tableau.h Contract.h Valuation.h
-reader.obj: Auction.h Play.h UnitTest.h fileRBN.h portab.h Debug.h
+reader.obj: Auction.h Play.h UnitTest.h fileRBN.h filePBN.h portab.h Debug.h

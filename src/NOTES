@@ -1,3 +1,10 @@
+Pavlicek notes
+--------------
+PBN generation
+* Play: omitted card is -, not -- (PBN standard v2.1, section 3.6)
+* Play: "The play ends after 13 tricks, or with *."  So no asterisk.
+* Play.cpp around line 650, AsPBN()
+
 grep TODO *.cpp *.h
 grep assert
 

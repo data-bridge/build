@@ -640,13 +640,13 @@ void TestSegmentCaseOutput(Segment& segment)
   {
     formatType ff = static_cast<formatType>(f2);
     cout << FORMAT_NAMES[ff] << ":\n";
-    cout << segment.TitleAsString(ff, SEGMENT_FORCE) << "\n";
-    cout << segment.DateAsString(ff, SEGMENT_FORCE) << "\n";
-    cout << segment.LocationAsString(ff, SEGMENT_FORCE) << "\n";
-    cout << segment.EventAsString(ff, SEGMENT_FORCE) << "\n";
-    cout << segment.SessionAsString(ff, SEGMENT_FORCE) << "\n";
-    cout << segment.ScoringAsString(ff, SEGMENT_FORCE) << "\n";
-    cout << segment.TeamsAsString(ff, SEGMENT_FORCE) << "\n" << endl;
+    cout << segment.TitleAsString(ff) << "\n";
+    cout << segment.DateAsString(ff) << "\n";
+    cout << segment.LocationAsString(ff) << "\n";
+    cout << segment.EventAsString(ff) << "\n";
+    cout << segment.SessionAsString(ff) << "\n";
+    cout << segment.ScoringAsString(ff) << "\n";
+    cout << segment.TeamsAsString(ff) << "\n" << endl;
   }
 }
 

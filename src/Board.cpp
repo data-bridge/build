@@ -341,7 +341,14 @@ bool Board::SetResult(
   const string& text,
   const formatType f)
 {
-  return contract[numActive].SetResult(text, f);
+  if (! contract[numActive].SetResult(text, f))
+    return false;
+
+  if (play[numActive].Claim(contract[numActive].GetTricks()) ==
+      PLAY_CLAIM_NO_ERROR)
+    return true;
+  else
+    return false;
 }
 
 
@@ -553,9 +560,15 @@ string Board::TricksAsString(
 
 
 string Board::ScoreAsString(
-  const formatType f) const
+  const formatType f,
+  const bool scoringIsIMPs) const
 {
-  return contract[numActive].ScoreAsString(f);
+  if (numActive != 1 || 
+     ! scoringIsIMPs ||
+     ! contract[0].ResultIsSet())
+    return contract[numActive].ScoreAsString(f);
+  else
+    return contract[numActive].ScoreAsString(f, contract[0].GetScore());
 }
 
 

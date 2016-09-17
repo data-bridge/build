@@ -254,7 +254,8 @@ class Board
       const formatType f) const;
 
     string ScoreAsString(
-      const formatType f) const;
+      const formatType f,
+      const bool scoringIsIMPs) const;
 
     string PlayAsString(
       const formatType f) const;

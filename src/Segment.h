@@ -53,8 +53,6 @@ class Segment
     };
 
     sdata seg;
-    sdata oldSeg;
-    unsigned oldBoardNo;
 
     unsigned len;
     vector<boardPairType> boards;
@@ -160,45 +158,35 @@ class Segment
     bool operator != (const Segment& s2) const;
 
     string TitleAsString(
-      const formatType f,
-      const segOutputType s) const;
+      const formatType f) const;
 
     string DateAsString(
-      const formatType f,
-      const segOutputType s) const;
+      const formatType f) const;
 
     string LocationAsString(
-      const formatType f,
-      const segOutputType s) const;
+      const formatType f) const;
 
     string EventAsString(
-      const formatType f,
-      const segOutputType s) const;
+      const formatType f) const;
 
     string SessionAsString(
-      const formatType f,
-      const segOutputType s) const;
+      const formatType f) const;
 
     string ScoringAsString(
-      const formatType f,
-      const segOutputType s) const;
+      const formatType f) const;
 
      string TeamsAsString(
-      const formatType f,
-      const segOutputType s) const;
+      const formatType f) const;
 
      string FirstTeamAsString(
-      const formatType f,
-      const segOutputType s) const;
+      const formatType f) const;
 
      string SecondTeamAsString(
-      const formatType f,
-      const segOutputType s) const;
+      const formatType f) const;
 
      string NumberAsString(
       const formatType f,
-      const unsigned intNo,
-      const segOutputType s) const;
+      const unsigned intNo) const;
 };
 
 #endif

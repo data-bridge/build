@@ -10,6 +10,7 @@
 #include "Auction.h"
 #include "Debug.h"
 #include <map>
+#include <assert.h>
 #include "parse.h"
 #include "portab.h"
 
@@ -951,10 +952,15 @@ string Auction::AsPBN() const
     return "";
   
   stringstream s, alerts;
-  s << "[Auction \"" << PLAYER_NAMES_LONG[dealer] << "\"]\n";
+  s << "[Auction \"" << PLAYER_NAMES_SHORT[dealer] << "\"]\n";
   
+  unsigned trailing = 0;
+  unsigned end = len-1;
+  while (sequence[end].no == 0 && sequence[end].alert == "")
+    trailing++, end--;
+    
   unsigned aNo = 1;
-  for (unsigned b = 0; b < len; b++)
+  for (unsigned b = 0; b <= end; b++)
   {
     const Call& c = sequence[b];
     s << AUCTION_NO_TO_CALL_PBN[c.no] << " ";
@@ -972,8 +978,12 @@ string Auction::AsPBN() const
     if (b % 4 == 3)
       s << "\n";
   }
-  if (len % 4 != 3)
-    s << "\n";
+  if (trailing == 3)
+    s << "AP\n";
+  else if (trailing > 0)
+  {
+    assert(false);
+  }
 
   return s.str() + alerts.str();
 }
@@ -1025,6 +1035,11 @@ string Auction::AsRBN() const
       s << ":";
     s << "A";
   }
+  else if (trailing > 0)
+  {
+    assert(false);
+  }
+
   return s.str() + "\n" + alerts.str();
 }
 
@@ -1117,7 +1132,7 @@ string Auction::DealerAsLIN() const
 
 string Auction::DealerAsPBN() const
 {
-  return PLAYER_NAMES_SHORT[dealer];
+  return "[Dealer \"" + PLAYER_NAMES_SHORT[dealer] + "\"]\n";
 }
 
 
@@ -1135,7 +1150,7 @@ string Auction::VulAsLIN() const
 
 string Auction::VulAsPBN() const
 {
-  return VUL_NAMES_PBN[vul];
+  return "[Vulnerable \"" + VUL_NAMES_PBN[vul] + "\"]\n";
 }
 
 

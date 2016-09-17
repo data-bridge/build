@@ -222,9 +222,6 @@ bool readPBNChunk(
       return false;
     }
 
-    if (labelNo <= PBN_VISITTEAM)
-      newSegFlag = true;
-
     if (labelNo == PBN_AUCTION)
     {
       // Multi-line.
@@ -238,12 +235,15 @@ bool readPBNChunk(
       inPlay = true;
     }
     else if (match.str(2) != "#")
+    {
       chunk.single[labelNo] = match.str(2);
+      if (labelNo <= PBN_VISITTEAM)
+        newSegFlag = true;
+
+    }
   }
   return false;
 }
-
-
 
 
 bool readPBN(
@@ -330,7 +330,8 @@ bool tryMethod(
     return true;
   else if (label <= PBN_BOARD)
   {
-    if ((segment->*segPtrPBN[label])(chunk.single[label], BRIDGE_FORMAT_PBN))
+    if ((segment->*segPtrPBN[label])
+        (chunk.single[label], BRIDGE_FORMAT_PBN))
       return true;
     else
     {
@@ -349,7 +350,8 @@ bool tryMethod(
     // TODO
     assert(false);
   }
-  else if ((board->*boardPtrPBN[label])(chunk.single[label], BRIDGE_FORMAT_PBN))
+  else if ((board->*boardPtrPBN[label])
+      (chunk.single[label], BRIDGE_FORMAT_PBN))
     return true;
   else
   {
@@ -375,10 +377,6 @@ bool writePBN(
   fstr << "% www.rpbridge.net Richard Pavlicek\n";
 
   const formatType f = BRIDGE_FORMAT_PBN;
-  unsigned numOld = 2;
-  vector<string> oldPlayers(numOld);
-  oldPlayers[0] = "";
-  oldPlayers[1] = "";
 
   for (unsigned g = 0; g < group.GetLength(); g++)
   {
@@ -393,15 +391,6 @@ bool writePBN(
         return false;
       }
 
-      unsigned numInst = board->GetLength();
-      if (numInst > numOld)
-      {
-        oldPlayers.resize(numInst);
-        for (unsigned j = numOld; j < numInst; j++)
-          oldPlayers[j] = "";
-        numOld = numInst;
-      }
-
       for (unsigned i = 0; i < board->GetLength(); i++)
       {
         if (! board->SetInstance(i))
@@ -413,11 +402,23 @@ bool writePBN(
 
         board->CalculateScore();
 
-        fstr << segment->EventAsString(f, SEGMENT_DELTA);
-        fstr << segment->LocationAsString(f, SEGMENT_DELTA);
-        fstr << segment->DateAsString(f, SEGMENT_DELTA);
+        if (b == 0 && i == 0)
+        {
+          fstr << segment->EventAsString(f);
+          fstr << segment->LocationAsString(f);
+          fstr << segment->DateAsString(f);
+        }
+        else
+        {
+          fstr << "[Event \"#\"]\n";
+          fstr << "[Site \"#\"]\n";
+          fstr << "[Date \"#\"]\n";
+        }
 
-        fstr << segment->NumberAsString(f, i, SEGMENT_DELTA);
+        if (i == 0)
+          fstr << segment->NumberAsString(f, b);
+        else
+          fstr << "[Board \"#\"]\n";
 
         fstr << board->PlayerAsString(BRIDGE_WEST, f);
         fstr << board->PlayerAsString(BRIDGE_NORTH, f);
@@ -428,7 +429,10 @@ bool writePBN(
         fstr << board->VulAsString(f);
         fstr << board->DealAsString(BRIDGE_WEST, f);
 
-        fstr << segment->ScoringAsString(f, SEGMENT_DELTA);
+        if (b == 0 && i == 0)
+          fstr << segment->ScoringAsString(f);
+        else
+          fstr << "[Scoring \"#\"]\n";
 
         fstr << board->DeclarerAsString(f);
         fstr << board->ContractAsString(f);
@@ -436,21 +440,29 @@ bool writePBN(
         fstr << board->AuctionAsString(f);
         fstr << board->PlayAsString(f);
 
-        fstr << segment->TitleAsString(f, SEGMENT_DELTA);
-        fstr << segment->SessionAsString(f, SEGMENT_DELTA);
-
-        fstr << segment->FirstTeamAsString(f, SEGMENT_DELTA);
-        fstr << segment->SecondTeamAsString(f, SEGMENT_DELTA);
+        if (b == 0 && i == 0)
+        {
+          fstr << segment->TitleAsString(f);
+          fstr << segment->SessionAsString(f);
+          fstr << segment->FirstTeamAsString(f);
+          fstr << segment->SecondTeamAsString(f);
+        }
+        else
+        {
+          fstr << "[Description \"#\"]\n";
+          fstr << "[Stage \"#\"]\n";
+          fstr << "[HomeTeam \"#\"]\n";
+          fstr << "[VisitTeam \"#\"]\n";
+        }
 
         fstr << board->RoomAsString(0, f);
-        fstr << board->ScoreAsString(f);
+        fstr << board->ScoreAsString(f, segment->ScoringIsIMPs());
         fstr << board->TableauAsString(f);
 
         fstr << "\n";
       }
     }
   }
-
 
   fstr.close();
   return true;

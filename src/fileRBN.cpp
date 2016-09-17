@@ -329,13 +329,13 @@ bool writeRBN(
   {
     Segment * segment = group.GetSegment(g);
 
-    fstr << segment->TitleAsString(f, SEGMENT_DELTA);
-    fstr << segment->DateAsString(f, SEGMENT_DELTA);
-    fstr << segment->LocationAsString(f, SEGMENT_DELTA);
-    fstr << segment->EventAsString(f, SEGMENT_DELTA);
-    fstr << segment->SessionAsString(f, SEGMENT_DELTA);
-    fstr << segment->ScoringAsString(f, SEGMENT_DELTA);
-    fstr << segment->TeamsAsString(f, SEGMENT_DELTA);
+    fstr << segment->TitleAsString(f);
+    fstr << segment->DateAsString(f);
+    fstr << segment->LocationAsString(f);
+    fstr << segment->EventAsString(f);
+    fstr << segment->SessionAsString(f);
+    fstr << segment->ScoringAsString(f);
+    fstr << segment->TeamsAsString(f);
 
     for (unsigned b = 0; b < segment->GetLength(); b++)
     {
@@ -374,7 +374,7 @@ bool writeRBN(
         
         if (i == 0)
         {
-          fstr << segment->NumberAsString(f, b, SEGMENT_DELTA);
+          fstr << segment->NumberAsString(f, b);
           fstr << board->DealAsString(BRIDGE_WEST, f);
         }
 

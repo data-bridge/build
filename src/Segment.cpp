@@ -44,21 +44,6 @@ void Segment::Reset()
   seg.session.Reset(); 
   seg.scoring.Reset();
   seg.teams.Reset();
-
-  oldSeg.title = "XXX"; 
-  oldSeg.date.Reset();
-  oldSeg.date.Set("1900.01", BRIDGE_FORMAT_PBN);
-  oldSeg.location.Reset();
-  oldSeg.location.Set("XXX", BRIDGE_FORMAT_LIN);
-  oldSeg.event = "XXX"; 
-  oldSeg.session.Reset(); 
-  oldSeg.session.Set("XXX", BRIDGE_FORMAT_LIN);
-  oldSeg.scoring.Reset();
-  oldSeg.scoring.Set("Instant", BRIDGE_FORMAT_PBN);
-  oldSeg.teams.Reset();
-  oldSeg.teams.Set("XXX:YYY", BRIDGE_FORMAT_RBN);
-
-  oldBoardNo = BIG_BOARD;
 }
 
 
@@ -128,8 +113,6 @@ bool Segment::SetTitleLIN(const string t)
     LOG("LIN vg needs exactly 8 commas.");
     return false;
   }
-
-  oldSeg = seg;
 
   vector<string> v(9);
   v.clear();
@@ -242,17 +225,14 @@ bool Segment::SetTitle(
       return Segment::SetTitleLIN(t);
 
     case BRIDGE_FORMAT_PBN:
-      oldSeg.title = seg.title;
       seg.title = t;
       return true;
 
     case BRIDGE_FORMAT_RBN:
-      oldSeg.title = seg.title;
       seg.title = t;
       return true;
 
     case BRIDGE_FORMAT_TXT:
-      oldSeg.title = seg.title;
       seg.title = t;
       return true;
 
@@ -267,7 +247,6 @@ bool Segment::SetDate(
   const string& t,
   const formatType f)
 {
-  oldSeg.date = seg.date;
   return seg.date.Set(t, f);
 }
 
@@ -276,7 +255,6 @@ bool Segment::SetLocation(
   const string& t,
   const formatType f)
 {
-  oldSeg.location = seg.location;
   return seg.location.Set(t, f);
 }
 
@@ -286,7 +264,6 @@ bool Segment::SetEvent(
   const formatType f)
 {
   UNUSED(f);
-  oldSeg.event = seg.event;
   seg.event = t;
   return true;
 }
@@ -296,7 +273,6 @@ bool Segment::SetSession(
   const string& t,
   const formatType f)
 {
-  oldSeg.session = seg.session;
   return seg.session.Set(t, f);
 }
 
@@ -305,7 +281,6 @@ bool Segment::SetScoring(
   const string& t,
   const formatType f)
 {
-  oldSeg.scoring = seg.scoring;
   return seg.scoring.Set(t, f);
 }
 
@@ -314,7 +289,6 @@ bool Segment::SetTeams(
   const string& s,
   const formatType f)
 {
-  oldSeg.teams = seg.teams;
   return seg.teams.Set(s, f); 
 }
 
@@ -323,8 +297,6 @@ bool Segment::SetFirstTeam(
   const string& s,
   const formatType f)
 {
-  oldSeg.teams.SetFirst(
-    seg.teams.FirstAsString(BRIDGE_FORMAT_TXT), BRIDGE_FORMAT_TXT);
   return seg.teams.SetFirst(s, f); 
 }
 
@@ -333,8 +305,6 @@ bool Segment::SetSecondTeam(
   const string& s,
   const formatType f)
 {
-  oldSeg.teams.SetFirst(
-    seg.teams.FirstAsString(BRIDGE_FORMAT_TXT), BRIDGE_FORMAT_TXT);
   return seg.teams.SetSecond(s, f); 
 }
 
@@ -417,7 +387,6 @@ bool Segment::SetNumber(
     return false;
   }
 
-  oldBoardNo = boards[activeNo].extNo;
   boards[activeNo].extNo = extNo;
   return true;
 }
@@ -520,11 +489,11 @@ string Segment::TitleAsLIN() const
 }
 
 
-string Segment::TitleAsString(
-  const formatType f,
-  const segOutputType s) const
+string Segment::TitleAsString(const formatType f) const
 {
   // In LIN this is the entire vg field.
+  if (seg.title == "")
+    return "";
 
   stringstream st;
   switch(f)
@@ -533,14 +502,10 @@ string Segment::TitleAsString(
       return Segment::TitleAsLIN();
 
     case BRIDGE_FORMAT_PBN:
-      if (s == SEGMENT_DELTA && oldSeg.title == seg.title)
-        return "[Description \"#\"\n";
       st << "[Description \"" << seg.title << "\"]\n";
       return st.str();
 
     case BRIDGE_FORMAT_RBN:
-      if (s == SEGMENT_DELTA && oldSeg.title == seg.title)
-        return "";
       st << "T " << seg.title << "\n";
       return st.str();
 
@@ -554,40 +519,23 @@ string Segment::TitleAsString(
 }
 
 
-string Segment::DateAsString(
-  const formatType f,
-  const segOutputType s) const
+string Segment::DateAsString(const formatType f) const
 {
-  if (s == SEGMENT_DELTA && oldSeg.date == seg.date)
-  {
-    if (f == BRIDGE_FORMAT_RBN)
-      return "";
-    else if (f == BRIDGE_FORMAT_PBN)
-      return "[Date \"#\"\n";
-  }
   return seg.date.AsString(f);
 }
 
 
-string Segment::LocationAsString(
-  const formatType f,
-  const segOutputType s) const
+string Segment::LocationAsString(const formatType f) const
 {
-  if (s == SEGMENT_DELTA && oldSeg.title == seg.title)
-  {
-    if (f == BRIDGE_FORMAT_RBN)
-      return "";
-    else if (f == BRIDGE_FORMAT_PBN)
-      return "[Location \"#\"\n";
-  }
   return seg.location.AsString(f);
 }
 
 
-string Segment::EventAsString(
-  const formatType f,
-  const segOutputType s) const
+string Segment::EventAsString(const formatType f) const
 {
+  if (seg.event == "")
+    return "";
+
   stringstream st;
   switch(f)
   {
@@ -596,14 +544,10 @@ string Segment::EventAsString(
       return "";
 
     case BRIDGE_FORMAT_PBN:
-      if (s == SEGMENT_DELTA && oldSeg.event == seg.event)
-        return "[Event \"#\"\n";
       st << "[Event \"" + seg.event + "\"]\n";
       return st.str();
 
     case BRIDGE_FORMAT_RBN:
-      if (s == SEGMENT_DELTA && oldSeg.event == seg.event)
-        return "";
       st << "E " << seg.event << "\n";
       return st.str();
 
@@ -618,93 +562,71 @@ string Segment::EventAsString(
 
 
 string Segment::SessionAsString(
-  const formatType f,
-  const segOutputType s) const
+  const formatType f) const
 {
-  if (s == SEGMENT_DELTA && oldSeg.session == seg.session)
-  {
-    if (f == BRIDGE_FORMAT_RBN)
-      return "";
-    else if (f == BRIDGE_FORMAT_PBN)
-      return "[Stage \"#\"\n";
-  }
   return seg.session.AsString(f);
 }
 
 
 string Segment::ScoringAsString(
-  const formatType f,
-  const segOutputType s) const
+  const formatType f) const
 {
-  if (s == SEGMENT_DELTA && oldSeg.scoring == seg.scoring)
-  {
-    if (f == BRIDGE_FORMAT_RBN)
-      return "";
-    else if (f == BRIDGE_FORMAT_PBN)
-      return "[Scoring \"#\"\n";
-  }
   return seg.scoring.AsString(f);
 }
 
 
 string Segment::TeamsAsString(
-  const formatType f,
-  const segOutputType s) const
+  const formatType f) const
 {
-  if (s == SEGMENT_DELTA && oldSeg.scoring == seg.scoring)
-  {
-    if (f == BRIDGE_FORMAT_RBN)
-      return "";
-  }
   return seg.teams.AsString(f);
 }
 
 
 string Segment::FirstTeamAsString(
-  const formatType f,
-  const segOutputType s) const
+  const formatType f) const
 {
-  if (s == SEGMENT_DELTA && oldSeg.teams == seg.teams)
-  {
-    if (f == BRIDGE_FORMAT_RBN)
-      return "";
-  }
   return seg.teams.FirstAsString(f);
 }
 
 
 string Segment::SecondTeamAsString(
-  const formatType f,
-  const segOutputType s) const
+  const formatType f) const
 {
-  if (s == SEGMENT_DELTA && oldSeg.teams == seg.teams)
-  {
-    if (f == BRIDGE_FORMAT_RBN)
-      return "";
-  }
   return seg.teams.SecondAsString(f);
 }
 
 
 string Segment::NumberAsString(
   const formatType f,
-  const unsigned intNo,
-  const segOutputType s) const
+  const unsigned intNo) const
 {
   unsigned extNo = Segment::GetExtBoardNo(intNo);
   if (extNo == 0)
     return "";
 
-  if (s == SEGMENT_DELTA && oldBoardNo == extNo)
+  stringstream st;
+  switch(f)
   {
-    if (f == BRIDGE_FORMAT_RBN)
-      return "";
-    else if (f == BRIDGE_FORMAT_PBN)
-      return "[Board \"#\"\n";
+    case BRIDGE_FORMAT_LIN:
+      LOG("Invalid format " + STR(f));
+      return false;
+
+    case BRIDGE_FORMAT_PBN:
+      st << "[Board \"" << extNo << "\"]\n";
+      return st.str();
+
+    case BRIDGE_FORMAT_RBN:
+      st << "B " << extNo << "\n";
+      return st.str();
+
+    case BRIDGE_FORMAT_TXT:
+      LOG("Invalid format " + STR(f));
+      return false;
+
+    default:
+      LOG("Invalid format " + STR(f));
+      return false;
   }
 
-  stringstream st;
-  st << "B " << extNo << "\n";
-  return st.str();
 }
 
