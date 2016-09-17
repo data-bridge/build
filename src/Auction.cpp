@@ -319,6 +319,82 @@ bool Auction::SetDealerVul(
 }
 
 
+bool Auction::SetDealer(
+  const string& d,
+  const formatType f)
+{
+  playerType dOut;
+  switch(f)
+  {
+    case BRIDGE_FORMAT_LIN:
+      if (! Auction::SetDealerLIN(d, dOut))
+        return false;
+      setDVFlag = true;
+      dealer = dOut;
+      break;
+    
+    case BRIDGE_FORMAT_PBN:
+    case BRIDGE_FORMAT_RBN: // Same as PBN
+      if (! Auction::SetDealerPBN(d, dOut))
+        return false;
+      setDVFlag = true;
+      dealer = dOut;
+      break;
+    
+    case BRIDGE_FORMAT_TXT:
+      if (! Auction::SetDealerTXT(d, dOut))
+        return false;
+      setDVFlag = true;
+      dealer = dOut;
+      break;
+    
+    default:
+      LOG("Invalid format " + STR(f));
+      return "";
+  }
+
+  return true;
+}
+
+
+bool Auction::SetVul(
+  const string& v,
+  const formatType f)
+{
+  vulType vOut;
+  switch(f)
+  {
+    case BRIDGE_FORMAT_LIN:
+      if (! Auction::SetVulLIN(v, vOut))
+        return false;
+      setDVFlag = true;
+      vul = vOut;
+      break;
+    
+    case BRIDGE_FORMAT_PBN:
+    case BRIDGE_FORMAT_RBN: // Same as PBN
+      if (! Auction::SetVulPBN(v, vOut))
+        return false;
+      setDVFlag = true;
+      vul = vOut;
+      break;
+    
+    case BRIDGE_FORMAT_TXT:
+      if (! Auction::SetVulTXT(v, vOut))
+        return false;
+      setDVFlag = true;
+      vul = vOut;
+      break;
+    
+    default:
+      LOG("Invalid format " + STR(f));
+      return "";
+  }
+
+  return true;
+}
+
+
 void Auction::CopyDealerVulFrom(const Auction& a2)
 {
   setDVFlag = true;

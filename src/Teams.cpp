@@ -196,21 +196,66 @@ bool Teams::SetTXT(const string& t)
 
 
 bool Teams::Set(
-  const string list[],
+  const string& s,
   const formatType f)
 {
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_RBN:
-      return Teams::SetRBN(list[0]);
+      return Teams::SetRBN(s);
     
     case BRIDGE_FORMAT_PBN:
-      return Teams::SetPBN(list[0], list[1]);
+      LOG("Set not implemented for PBN");
+      return false;
     
     
     case BRIDGE_FORMAT_TXT:
-      return Teams::SetTXT(list[0]);
+      return Teams::SetTXT(s);
+    
+    default:
+      LOG("Invalid format " + STR(f));
+      return "";
+  }
+}
+
+
+bool Teams::SetFirst(
+  const string& s,
+  const formatType f)
+{
+  switch(f)
+  {
+    case BRIDGE_FORMAT_LIN:
+    case BRIDGE_FORMAT_RBN:
+    case BRIDGE_FORMAT_TXT:
+      LOG("SetFirst not implemented for this format");
+      return false;
+    
+    case BRIDGE_FORMAT_PBN:
+      return Teams::SetSinglePBN(s, team1);
+    
+    default:
+      LOG("Invalid format " + STR(f));
+      return "";
+  }
+}
+
+
+bool Teams::SetSecond(
+  const string& s,
+  const formatType f)
+{
+  switch(f)
+  {
+    case BRIDGE_FORMAT_LIN:
+    case BRIDGE_FORMAT_RBN:
+    case BRIDGE_FORMAT_TXT:
+      LOG("SetFirst not implemented for this format");
+      return false;
+    
+    case BRIDGE_FORMAT_PBN:
+      return Teams::SetSinglePBN(s, team2);
     
     default:
       LOG("Invalid format " + STR(f));
@@ -324,18 +369,6 @@ string Teams::AsLIN() const
 }
 
 
-string Teams::AsPBN() const
-{
-  if (team1.name == "" && team2.name == "" &&
-      team1.carry == BRIDGE_CARRY_NONE &&
-      team2.carry == BRIDGE_CARRY_NONE)
-    return "";
-
-  return "[OpenTeam \"" + Teams::SingleAsPBN(team1) + "\"]\n" +
-      "[VisitTeam \"" + Teams::SingleAsPBN(team2) + "\"]\n";
-}
-
-
 string Teams::AsRBN() const
 {
   if (team1.name == "" && team2.name == "" &&
@@ -370,7 +403,8 @@ string Teams::AsString(const formatType f) const
       return Teams::AsLIN();
 
     case BRIDGE_FORMAT_PBN:
-      return Teams::AsPBN();
+      LOG("AsString not implemented for PBN");
+      return false;
     
     case BRIDGE_FORMAT_RBN:
       return Teams::AsRBN();
@@ -378,6 +412,58 @@ string Teams::AsString(const formatType f) const
     case BRIDGE_FORMAT_TXT:
       return Teams::AsTXT();
     
+    default:
+      LOG("Invalid format " + STR(f));
+      return "";
+  }
+}
+
+
+string Teams::FirstAsString(const formatType f) const
+{
+  switch(f)
+  {
+    case BRIDGE_FORMAT_LIN:
+    case BRIDGE_FORMAT_RBN:
+      LOG("FirstAsString not implemented");
+      return false;
+
+    case BRIDGE_FORMAT_PBN:
+      if (team1.name == "" && team1.carry == BRIDGE_CARRY_NONE)
+        return "";
+      return "[HomeTeam \"" + Teams::SingleAsPBN(team1) + "\"]\n";
+
+    case BRIDGE_FORMAT_TXT:
+      if (team1.name == "" && team1.carry == BRIDGE_CARRY_NONE)
+        return "";
+      return team1.name;
+
+    default:
+      LOG("Invalid format " + STR(f));
+      return "";
+  }
+}
+
+
+string Teams::SecondAsString(const formatType f) const
+{
+  switch(f)
+  {
+    case BRIDGE_FORMAT_LIN:
+    case BRIDGE_FORMAT_RBN:
+      LOG("FirstAsString not implemented");
+      return false;
+
+    case BRIDGE_FORMAT_PBN:
+      if (team2.name == "" && team2.carry == BRIDGE_CARRY_NONE)
+        return "";
+      return "[VisitTeam \"" + Teams::SingleAsPBN(team2) + "\"]\n";
+
+    case BRIDGE_FORMAT_TXT:
+      if (team2.name == "" && team2.carry == BRIDGE_CARRY_NONE)
+        return "";
+      return team2.name;
+
     default:
       LOG("Invalid format " + STR(f));
       return "";

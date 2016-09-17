@@ -65,6 +65,8 @@ void TestSessionCase(
   const string& s,
   const formatType f);
 
+void TestTeamsOut(const Teams& teams);
+
 void TestTeamsCase(
   Teams& teams,
   const string list[2],
@@ -76,7 +78,7 @@ void TestSegmentCaseLIN(
   Segment& segment,
   const string& title);
 
-void TestSegmentCaseOther(
+void TestSegmentCaseCommon(
   Segment& segment,
   const string& title,
   const string& date,
@@ -84,7 +86,29 @@ void TestSegmentCaseOther(
   const string& event,
   const string& session,
   const string& scoring,
-  const string teamList[],
+  const formatType f);
+
+void TestSegmentCasePBN(
+  Segment& segment,
+  const string& title,
+  const string& date,
+  const string& location,
+  const string& event,
+  const string& session,
+  const string& scoring,
+  const string& team1,
+  const string& team2,
+  const formatType f);
+
+void TestSegmentCaseRBN(
+  Segment& segment,
+  const string& title,
+  const string& date,
+  const string& location,
+  const string& event,
+  const string& session,
+  const string& scoring,
+  const string& teams,
   const formatType f);
 
 
@@ -526,21 +550,27 @@ void TestScoring()
 }
 
 
+void TestTeamsOut(const Teams& teams)
+{
+  cout << "LIN: " << teams.AsString(BRIDGE_FORMAT_LIN) << "\n";
+  cout << "PBN: " << teams.AsString(BRIDGE_FORMAT_PBN);
+  cout << "RBN: " << teams.AsString(BRIDGE_FORMAT_RBN);
+  cout << "TXT: " << teams.AsString(BRIDGE_FORMAT_TXT) << "\n\n";
+}
+
+
 void TestTeamsCase(
   Teams& teams,
-  const string list[2],
+  const string s,
   const formatType f)
 {
-  if (! teams.Set(list, f))
+  if (! teams.Set(s, f))
   {
     cout << "Can't set teams" << endl;
     assert(false);
   }
 
-  cout << "LIN: " << teams.AsString(BRIDGE_FORMAT_LIN) << "\n";
-  cout << "PBN: " << teams.AsString(BRIDGE_FORMAT_PBN);
-  cout << "RBN: " << teams.AsString(BRIDGE_FORMAT_RBN);
-  cout << "TXT: " << teams.AsString(BRIDGE_FORMAT_TXT) << "\n\n";
+  TestTeamsOut(teams);
 }
 
 
@@ -549,21 +579,27 @@ void TestTeams()
   Teams teams;
 
   string list[2];
-  list[0] = "Nickell:Schwartz";
-  TestTeamsCase(teams, list, BRIDGE_FORMAT_RBN);
+  TestTeamsCase(teams, "Nickel:Schwartz", BRIDGE_FORMAT_RBN);
 
-  list[0] = "Nickell:Schwartz:999:22";
-  TestTeamsCase(teams, list, BRIDGE_FORMAT_RBN);
+  TestTeamsCase(teams, "Nickell:Schwartz:999:22", BRIDGE_FORMAT_RBN);
 
-  list[0] = "Nickell:Schwartz:76.33:91.50";
-  TestTeamsCase(teams, list, BRIDGE_FORMAT_RBN);
+  TestTeamsCase(teams, "Nickel:Schwartz:76.33:91.50", BRIDGE_FORMAT_RBN);
 
-  list[0] = "Nickell:999";
-  list[1] = "Schwartz:22";
-  TestTeamsCase(teams, list, BRIDGE_FORMAT_PBN);
+  TestTeamsCase(teams, "Meltzer (470) vs. Schwartz (451)", BRIDGE_FORMAT_TXT);
 
-  list[0] = "Meltzer (470) vs. Schwartz (451)";
-  TestTeamsCase(teams, list, BRIDGE_FORMAT_TXT);
+  if (! teams.SetFirst("Nickell:999", BRIDGE_FORMAT_PBN))
+  {
+    cout << "Can't set first team" << endl;
+    assert(false);
+  }
+
+  if (! teams.SetSecond("Schwartz:22", BRIDGE_FORMAT_PBN))
+  {
+    cout << "Can't set first team" << endl;
+    assert(false);
+  }
+
+  TestTeamsOut(teams);
 }
 
 
@@ -629,7 +665,7 @@ void TestSegmentCaseLIN(
 }
 
 
-void TestSegmentCaseOther(
+void TestSegmentCaseCommon(
   Segment& segment,
   const string& title,
   const string& date,
@@ -637,7 +673,6 @@ void TestSegmentCaseOther(
   const string& event,
   const string& session,
   const string& scoring,
-  const string teamList[],
   const formatType f)
 {
   if (! segment.SetTitle(title, f))
@@ -675,8 +710,55 @@ void TestSegmentCaseOther(
     cout << "Can't set scoring";
     assert(false);
   }
+}
 
-  if (! segment.SetTeams(teamList, f))
+
+void TestSegmentCasePBN(
+  Segment& segment,
+  const string& title,
+  const string& date,
+  const string& location,
+  const string& event,
+  const string& session,
+  const string& scoring,
+  const string& team1,
+  const string& team2,
+  const formatType f)
+{
+  TestSegmentCaseCommon(segment, title, date, location,
+    event, session, scoring, f);
+
+  if (! segment.SetFirstTeam(team1, f))
+  {
+    cout << "Can't set team1";
+    assert(false);
+  }
+
+  if (! segment.SetSecondTeam(team2, f))
+  {
+    cout << "Can't set team2";
+    assert(false);
+  }
+
+  TestSegmentCaseOutput(segment);
+}
+
+
+void TestSegmentCaseRBN(
+  Segment& segment,
+  const string& title,
+  const string& date,
+  const string& location,
+  const string& event,
+  const string& session,
+  const string& scoring,
+  const string& teams,
+  const formatType f)
+{
+  TestSegmentCaseCommon(segment, title, date, location,
+    event, session, scoring, f);
+
+  if (! segment.SetTeams(teams, f))
   {
     cout << "Can't set teams";
     assert(false);
@@ -714,29 +796,27 @@ void TestSegment()
     
   // PBN inputs.
   
-  list[0] = "Meltzer:490";
-  list[1] = "Schwartz:460";
-  TestSegmentCaseOther(segment,
+  TestSegmentCasePBN(segment,
     "Bridge Base Online",
     "2010.06.??",
     "Saratoga:CA",
     "Championship",
     "Semifinal:Segment 1",
     "IMPs",
-    list,
+    "Meltzer:490",
+    "Schwartz:460",
     BRIDGE_FORMAT_PBN);
 
   // RBN inputs.
     
-  list[0] = "Meltzer:Schwartz:495:450";
-  TestSegmentCaseOther(segment,
+  TestSegmentCaseRBN(segment,
     "Bridge Base Online",
     "201006",
     "Saratoga:CA",
     "Championship",
     "Semifinal:Segment 1",
     "R",
-    list,
+    "Meltzer:Schwartz:495:450",
     BRIDGE_FORMAT_RBN);
 }
 

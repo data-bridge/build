@@ -82,7 +82,15 @@ class Teams
     void Reset();
 
     bool Set(
-      const string list[],
+      const string& s,
+      const formatType f);
+      
+    bool SetFirst(
+      const string& s,
+      const formatType f);
+      
+    bool SetSecond(
+      const string& s,
       const formatType f);
       
     bool operator == (const Teams& t2) const;
@@ -90,6 +98,8 @@ class Teams
     bool operator != (const Teams& t2) const;
 
     string AsString(const formatType f) const;
+    string FirstAsString(const formatType f) const;
+    string SecondAsString(const formatType f) const;
 };
 
 #endif

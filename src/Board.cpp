@@ -13,6 +13,7 @@
 #include "portab.h"
 
 #include <map>
+#include <assert.h>
 
 extern Debug debug;
 
@@ -102,6 +103,22 @@ bool Board::SetDealerVul(
 {
   // Only the first one is independent.
   return auction[0].SetDealerVul(d, v, f);
+}
+
+
+bool Board::SetDealer(
+  const string& d,
+  const formatType f)
+{
+  return auction[0].SetDealer(d, f);
+}
+
+
+bool Board::SetVul(
+  const string& v,
+  const formatType f)
+{
+  return auction[0].SetVul(v, f);
 }
 
 
@@ -253,10 +270,26 @@ bool Board::SetContract(
 }
 
 
+bool Board::SetDeclarer(
+  const string& text,
+  const formatType f)
+{
+  return contract[numActive].SetDeclarer(text, f);
+}
+
+
 bool Board::SetTricks(
   const unsigned tricks)
 {
   return contract[numActive].SetTricks(tricks);
+}
+
+
+bool Board::SetScore(
+  const string& text,
+  const formatType f)
+{
+  return contract[numActive].SetScore(text, f);
 }
 
 
@@ -372,6 +405,14 @@ bool Board::SetPlayers(
 }
 
 
+bool Board::SetPlayer(
+  const string& text,
+  const playerType player)
+{
+  return players[numActive].SetPlayer(text, player);
+}
+
+
 bool Board::PlayersAreSet(const unsigned inst) const
 {
   return players[inst].PlayersAreSet();
@@ -386,11 +427,21 @@ void Board::CopyPlayers(
 }
 
 
+bool Board::SetRoom(
+  const string& s,
+  const unsigned inst,
+  const formatType f)
+{
+  return players[inst].SetRoom(s, f);
+}
+
+
 bool Board::GetValuation(
   Valuation& valuation) const
 {
   // TODO
   UNUSED(valuation);
+  assert(false);
   return true;
 }
 
@@ -522,6 +573,14 @@ string Board::ClaimAsString(
 }
 
 
+string Board::PlayerAsString(
+  const playerType p,
+  const formatType f) const
+{
+  return players[numActive].PlayerAsString(p, f);
+}
+
+
 string Board::PlayersAsString(
   const formatType f) const
 {
@@ -539,5 +598,13 @@ string Board::ResultAsString(
     return contract[numActive].ResultAsString(f);
   else
     return contract[numActive].ResultAsString(f, contract[0].GetScore());
+}
+
+
+string Board::RoomAsString(
+  const unsigned no,
+  const formatType f) const
+{
+  return players[numActive].RoomAsString(no, f);
 }
 

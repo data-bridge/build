@@ -74,10 +74,10 @@ bool CHAR_TO_NEW_SEGMENT[128];
 typedef bool (Segment::*SegPtr)(const string& s, const formatType f);
 typedef bool (Board::*BoardPtr)(const string& s, const formatType f);
 
-SegPtr segPtr[RBN_LABELS_SIZE];
-BoardPtr boardPtr[RBN_LABELS_SIZE];
+SegPtr segPtrRBN[RBN_LABELS_SIZE];
+BoardPtr boardPtrRBN[RBN_LABELS_SIZE];
 
-bool readChunk(
+bool readRBNChunk(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& chunk,
@@ -129,28 +129,28 @@ void setRBNtables()
   CHAR_TO_NEW_SEGMENT['F'] = true;
   CHAR_TO_NEW_SEGMENT['K'] = true;
 
-  segPtr[RBN_TITLE_AND_AUTHOR] = &Segment::SetTitle;
-  segPtr[RBN_DATE_AND_TIME] = &Segment::SetDate;
-  segPtr[RBN_LOCATION] = &Segment::SetLocation;
-  segPtr[RBN_EVENT] = &Segment::SetEvent;
-  segPtr[RBN_SESSION] = &Segment::SetSession;
-  segPtr[RBN_SCORING] = &Segment::SetScoring;
-  segPtr[RBN_TEAMS] = &Segment::SetTeams;
+  segPtrRBN[RBN_TITLE_AND_AUTHOR] = &Segment::SetTitle;
+  segPtrRBN[RBN_DATE_AND_TIME] = &Segment::SetDate;
+  segPtrRBN[RBN_LOCATION] = &Segment::SetLocation;
+  segPtrRBN[RBN_EVENT] = &Segment::SetEvent;
+  segPtrRBN[RBN_SESSION] = &Segment::SetSession;
+  segPtrRBN[RBN_SCORING] = &Segment::SetScoring;
+  segPtrRBN[RBN_TEAMS] = &Segment::SetTeams;
 
-  segPtr[RBN_PLAYERS] = &Segment::SetPlayers;
-  segPtr[RBN_BOARD_NO] = &Segment::SetNumber;
+  segPtrRBN[RBN_PLAYERS] = &Segment::SetPlayers;
+  segPtrRBN[RBN_BOARD_NO] = &Segment::SetNumber;
   
-  boardPtr[RBN_DEAL] = &Board::SetDeal;
-  boardPtr[RBN_AUCTION] = &Board::SetAuction;
-  boardPtr[RBN_CONTRACT] = &Board::SetContract;
-  boardPtr[RBN_PLAY] = &Board::SetPlays;
-  boardPtr[RBN_RESULT] = &Board::SetResult;
-  boardPtr[RBN_DOUBLE_DUMMY] = &Board::SetTableau;
+  boardPtrRBN[RBN_DEAL] = &Board::SetDeal;
+  boardPtrRBN[RBN_AUCTION] = &Board::SetAuction;
+  boardPtrRBN[RBN_CONTRACT] = &Board::SetContract;
+  boardPtrRBN[RBN_PLAY] = &Board::SetPlays;
+  boardPtrRBN[RBN_RESULT] = &Board::SetResult;
+  boardPtrRBN[RBN_DOUBLE_DUMMY] = &Board::SetTableau;
 
 }
 
 
-bool readChunk(
+bool readRBNChunk(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& chunk,
@@ -225,7 +225,7 @@ bool readRBN(
 
   unsigned lno = 0;
 
-  while (readChunk(fstr, lno, chunk, newSegFlag))
+  while (readRBNChunk(fstr, lno, chunk, newSegFlag))
   {
     if (newSegFlag)
     {
@@ -285,7 +285,7 @@ bool tryMethod(
     return true;
   else if (label <= RBN_BOARD_NO)
   {
-    if ((segment->*segPtr[label])(chunk[label], BRIDGE_FORMAT_RBN))
+    if ((segment->*segPtrRBN[label])(chunk[label], BRIDGE_FORMAT_RBN))
       return true;
     else
     {
@@ -294,7 +294,7 @@ bool tryMethod(
       return false;
     }
   }
-  else  if ((board->*boardPtr[label])(chunk[label], BRIDGE_FORMAT_RBN))
+  else  if ((board->*boardPtrRBN[label])(chunk[label], BRIDGE_FORMAT_RBN))
     return true;
   else
   {
@@ -316,6 +316,7 @@ bool writeRBN(
     return false;
   }
 
+  fstr << "% RBN\n";
   fstr << "% www.rpbridge.net Richard Pavlicek\n";
 
   const formatType f = BRIDGE_FORMAT_RBN;

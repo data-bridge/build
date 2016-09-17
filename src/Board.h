@@ -64,6 +64,14 @@ class Board
       const string& v,
       const formatType f);
 
+    bool SetDealer(
+      const string& d,
+      const formatType f);
+
+    bool SetVul(
+      const string& v,
+      const formatType f);
+
     bool CheckDealerVul(
       const string& d,
       const string& v,
@@ -125,8 +133,16 @@ class Board
       const string& text,
       const formatType f);
 
+    bool SetDeclarer(
+      const string& text,
+      const formatType f);
+
     bool SetTricks(
       const unsigned tricks);
+
+    bool SetScore(
+      const string& text,
+      const formatType f);
 
     // Play
 
@@ -185,11 +201,20 @@ class Board
       const string& text,
       const formatType f);
 
+    bool SetPlayer(
+      const string& text,
+      const playerType player);
+
     bool PlayersAreSet(const unsigned instance) const;
 
     void CopyPlayers(
       const Board& b2,
       const unsigned instance);
+
+    bool SetRoom(
+      const string& s,
+      const unsigned instance,
+      const formatType f);
 
     bool GetValuation(
       Valuation& valuation) const;
@@ -237,6 +262,10 @@ class Board
     string ClaimAsString(
       const formatType f) const;
     
+    string PlayerAsString(
+      const playerType p,
+      const formatType f) const;
+    
     string PlayersAsString(
       const formatType f) const;
     
@@ -246,6 +275,10 @@ class Board
     string ResultAsString(
       const formatType f,
       const bool scoringIsIMPs) const;
+
+    string RoomAsString(
+      const unsigned no,
+      const formatType f) const;
 };
 
 #endif

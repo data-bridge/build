@@ -360,6 +360,28 @@ bool Contract::SetContract(
 }
 
 
+bool Contract::SetDeclarer(
+  const string& d,
+  const formatType f)
+{
+  UNUSED(f);
+  if (d == "N")
+    contract.declarer = BRIDGE_NORTH;
+  else if (d == "E")
+    contract.declarer = BRIDGE_EAST;
+  else if (d == "S")
+    contract.declarer = BRIDGE_SOUTH;
+  else if (d == "W")
+    contract.declarer = BRIDGE_WEST;
+  else
+  {
+    LOG("Invalid declarer");
+    return false;
+  }
+  return true;
+}
+
+
 bool Contract::SetVul(
   const vulType v)
 {
@@ -397,6 +419,21 @@ bool Contract::SetTricks(
     Contract::CalculateScore();
     return true;
   }
+}
+
+
+bool Contract::SetScore(
+  const string& text,
+  const formatType f)
+{
+  UNUSED(f);
+  int s;
+  if (! StringToInt(text, s))
+  {
+    LOG("Invalid score");
+    return false;
+  }
+  score = s;
 }
 
 

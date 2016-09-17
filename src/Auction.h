@@ -119,6 +119,14 @@ class Auction
       const string& v,
       const formatType f);
 
+    bool SetDealer(
+      const string& d,
+      const formatType f);
+
+    bool SetVul(
+      const string& v,
+      const formatType f);
+
     bool CheckDealerVul(
       const string& d,
       const string& v,

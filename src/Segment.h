@@ -53,6 +53,8 @@ class Segment
     };
 
     sdata seg;
+    sdata oldSeg;
+    unsigned oldBoardNo;
 
     unsigned len;
     vector<boardPairType> boards;
@@ -60,7 +62,6 @@ class Segment
     unsigned bmax;
     unsigned bInmin;
     unsigned bInmax;
-    bool firstStringFlag;
 
     Board * activeBoard;
     unsigned activeNo;
@@ -111,10 +112,14 @@ class Segment
       const formatType f);
 
     bool SetTeams(
-      const string list[],
+      const string& s,
       const formatType f);
 
-    bool SetTeams(
+    bool SetFirstTeam(
+      const string& s,
+      const formatType f);
+
+    bool SetSecondTeam(
       const string& s,
       const formatType f);
 
@@ -122,7 +127,27 @@ class Segment
       const string& s,
       const formatType f);
 
+    bool SetWest(
+      const string& s,
+      const formatType f);
+
+    bool SetNorth(
+      const string& s,
+      const formatType f);
+
+    bool SetEast(
+      const string& s,
+      const formatType f);
+
+    bool SetSouth(
+      const string& s,
+      const formatType f);
+
     void CopyPlayers();
+
+    bool SetRoom(
+      const string& s,
+      const formatType f);
 
     bool SetNumber(
       const string& s,
@@ -159,6 +184,14 @@ class Segment
       const segOutputType s) const;
 
      string TeamsAsString(
+      const formatType f,
+      const segOutputType s) const;
+
+     string FirstTeamAsString(
+      const formatType f,
+      const segOutputType s) const;
+
+     string SecondTeamAsString(
       const formatType f,
       const segOutputType s) const;
 

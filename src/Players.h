@@ -58,6 +58,11 @@ class Players
       const string& name,
       const playerType player);
 
+    bool SetNorth(const string& name);
+    bool SetEast(const string& name);
+    bool SetSouth(const string& name);
+    bool SetWest(const string& name);
+
     bool SetRoom(
       const string& room,
       const formatType f);

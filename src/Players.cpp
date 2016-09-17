@@ -65,6 +65,30 @@ bool Players::SetPlayer(
 }
 
 
+bool Players::SetNorth(const string& name)
+{
+  return Players::SetPlayer(name, BRIDGE_NORTH);
+}
+
+
+bool Players::SetEast(const string& name)
+{
+  return Players::SetPlayer(name, BRIDGE_EAST);
+}
+
+
+bool Players::SetSouth(const string& name)
+{
+  return Players::SetPlayer(name, BRIDGE_SOUTH);
+}
+
+
+bool Players::SetWest(const string& name)
+{
+  return Players::SetPlayer(name, BRIDGE_WEST);
+}
+
+
 bool Players::SetRBNSide(
   const string& side,
   string& p1,

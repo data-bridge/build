@@ -17,6 +17,7 @@ SOURCE_FILES 	=		\
 	Tableau.cpp		\
         Teams.cpp               \
 	UnitTest.cpp		\
+	filePBN.cpp		\
 	fileRBN.cpp		\
 	parse.cpp		\
 	reader.cpp
@@ -98,6 +99,9 @@ Teams.obj: Teams.h bconst.h portab.h parse.h Debug.h
 UnitTest.obj: portab.h bconst.h UnitTest.h Tableau.h Contract.h Deal.h
 UnitTest.obj: Players.h Auction.h Play.h Date.h Location.h Scoring.h Teams.h
 UnitTest.obj: Session.h Segment.h Board.h Valuation.h Debug.h
+filePBN.obj: filePBN.h Group.h Segment.h Date.h bconst.h Location.h Session.h
+filePBN.obj: Scoring.h Teams.h Board.h Deal.h Players.h Tableau.h Contract.h
+filePBN.obj: Valuation.h Auction.h Play.h parse.h portab.h debug.h Debug.h
 fileRBN.obj: fileRBN.h Group.h Segment.h Date.h bconst.h Location.h Session.h
 fileRBN.obj: Scoring.h Teams.h Board.h Deal.h Players.h Tableau.h Contract.h
 fileRBN.obj: Valuation.h Auction.h Play.h parse.h portab.h debug.h Debug.h

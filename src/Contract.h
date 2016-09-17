@@ -98,12 +98,20 @@ class Contract
       const string& text,
       const formatType f);
 
+    bool SetDeclarer(
+      const string& text,
+      const formatType f);
+
     bool SetVul(const vulType vul);
 
     bool SetTricks(
       const unsigned tricks);
 
     bool SetResult(
+      const string& text,
+      const formatType f);
+
+    bool SetScore(
       const string& text,
       const formatType f);
 
