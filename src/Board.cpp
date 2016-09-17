@@ -220,6 +220,23 @@ bool Board::SetAuction(
 }
 
 
+bool Board::SetAuction(
+  const vector<string>& list,
+  const formatType f)
+{
+  if (! auction[numActive].AddAuction(list, f))
+    return false;
+
+  if (auction[numActive].DVIsSet())
+  {
+    if (! contract[numActive].SetVul(auction[numActive].GetVul()))
+      return false;
+  }
+
+  return true;
+}
+
+
 bool Board::AuctionIsOver() const
 {
   return auction[numActive].IsOver();
@@ -307,6 +324,14 @@ bool Board::SetPlays(
   const formatType f)
 {
   return play[numActive].SetPlays(str, f);
+}
+
+
+bool Board::SetPlays(
+  const vector<string>& list,
+  const formatType f)
+{
+  return play[numActive].SetPlays(list, f);
 }
 
 

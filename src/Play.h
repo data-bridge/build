@@ -74,6 +74,8 @@ class Play
 
     LeadInfo leads[BRIDGE_TRICKS];
 
+    bool AddAllPBN(const vector<string>& list);
+
     string AsLIN() const;
     string AsPBN() const;
     string AsRBN() const;
@@ -113,6 +115,10 @@ class Play
     
     bool SetPlays(
       const string& str,
+      const formatType f);
+    
+    bool SetPlays(
+      const vector<string>& str,
       const formatType f);
     
     playStatus AddTrickPBN(

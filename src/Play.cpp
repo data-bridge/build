@@ -10,6 +10,7 @@
 #include "Play.h"
 #include "Debug.h"
 #include <map>
+#include <assert.h>
 #include "parse.h"
 #include "portab.h"
 
@@ -450,6 +451,45 @@ bool Play::SetPlays(
 
     case BRIDGE_FORMAT_RBN:
       return Play::AddAllRBN(str);
+
+    case BRIDGE_FORMAT_TXT:
+      LOG("Currently unimplemented format " + STR(f));
+      return false;
+
+    default:
+      LOG("Invalid format " + STR(f));
+      return false;
+  }
+}
+
+
+bool Play::AddAllPBN(const vector<string>& list)
+{
+  // TODO
+  // Compare opening leader with declarer
+  // Split on \s+
+  // Feed in in right order, careful with leader
+  UNUSED(list);
+  assert(false);
+}
+
+
+bool Play::SetPlays(
+  const vector<string>& list,
+  const formatType f)
+{
+  switch(f)
+  {
+    case BRIDGE_FORMAT_LIN:
+      LOG("Currently unimplemented format " + STR(f));
+      return false;
+
+    case BRIDGE_FORMAT_PBN:
+      return Play::AddAllPBN(list);
+
+    case BRIDGE_FORMAT_RBN:
+      LOG("Currently unimplemented format " + STR(f));
+      return false;
 
     case BRIDGE_FORMAT_TXT:
       LOG("Currently unimplemented format " + STR(f));

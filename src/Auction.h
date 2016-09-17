@@ -92,6 +92,8 @@ class Auction
       unsigned& aNo,
       const bool extendedFlag) const;
 
+    bool AddAuctionPBN(const vector<string>& list);
+
     string AsLIN() const;
     string AsPBN() const;
     string AsRBN() const;
@@ -159,6 +161,10 @@ class Auction
 
     bool AddAuction(
       const string& s,
+      const formatType f);
+
+    bool AddAuction(
+      const vector<string>& s,
       const formatType f);
 
     bool operator == (const Auction& a2) const;

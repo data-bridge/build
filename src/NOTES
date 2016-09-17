@@ -1,5 +1,17 @@
+Auction:
+Need separate dealer and vul flags throughout.
+If we SetScore, then must check against CalculateScore (order?).
+Write AddAuction(list).
+Include alerts =1= I think.
+Contract:
+Probably SetDeclarer gets called after auction (order)?  check vs auction
+Play:
+Write AddAllPBN(list).
+
+
 Pavlicek notes
 --------------
+What is the number of records.  It seems to be #hands * 2 + 1 -- why +1?
 PBN generation
 * Play: omitted card is -, not -- (PBN standard v2.1, section 3.6)
 * Play: "The play ends after 13 tricks, or with *."  So no asterisk.

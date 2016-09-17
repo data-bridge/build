@@ -836,6 +836,46 @@ bool Auction::AddAuction(
 }
 
 
+bool Auction::AddAuctionPBN(const vector<string>& list)
+{
+  // TODO
+  // list[0] -> SetDealerPBN, use return value
+  // check whether dealer already set (should be)
+  // Split on \s+
+  //
+  UNUSED(list);
+  assert(false);
+}
+
+
+bool Auction::AddAuction(
+  const vector<string>& list,
+  const formatType f)
+{
+  switch(f)
+  {
+    case BRIDGE_FORMAT_LIN:
+      LOG("Auction LIN type not implemented");
+      return false;
+    
+    case BRIDGE_FORMAT_PBN:
+      return Auction::AddAuctionPBN(list);
+    
+    case BRIDGE_FORMAT_RBN:
+      LOG("Auction RBN type not implemented");
+      return false;
+    
+    case BRIDGE_FORMAT_TXT:
+      LOG("Auction TXT type not implemented");
+      return false;
+    
+    default:
+      LOG("Unknown auction type");
+      return false;
+  }
+}
+
+
 bool Auction::operator == (const Auction& a2) const
 {
   if (setDVFlag != a2.setDVFlag)

@@ -110,6 +110,10 @@ class Board
       const string& s,
       const formatType f);
 
+    bool SetAuction(
+      const vector<string>& s,
+      const formatType f);
+
     bool AuctionIsOver() const;
 
     bool IsPassedOut() const;
@@ -151,6 +155,10 @@ class Board
 
     bool SetPlays(
       const string& str,
+      const formatType f);
+
+    bool SetPlays(
+      const vector<string>& str,
       const formatType f);
 
     bool UndoLastPlay();

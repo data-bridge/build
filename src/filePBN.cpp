@@ -177,7 +177,7 @@ bool readPBNChunk(
     if (line.empty())
       return true;
 
-    if (line.at(0) == '%')
+    if (line.at(0) == '%' || line.at(0) == '*')
       continue;
     else if (inAuction)
     {
@@ -342,13 +342,11 @@ bool tryMethod(
   }
   else if (label == PBN_AUCTION)
   {
-    // TODO
-    assert(false);
+    return board->SetAuction(chunk.auctionList, BRIDGE_FORMAT_PBN);
   }
   else if (label == PBN_PLAY)
   {
-    // TODO
-    assert(false);
+    return board->SetPlays(chunk.playList, BRIDGE_FORMAT_PBN);
   }
   else if ((board->*boardPtrPBN[label])
       (chunk.single[label], BRIDGE_FORMAT_PBN))
