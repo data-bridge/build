@@ -433,8 +433,30 @@ bool Contract::SetScore(
   const string& text,
   const formatType f)
 {
-  UNUSED(f);
   int s;
+  if (f == BRIDGE_FORMAT_PBN)
+  {
+    // Recognize "NS 50" and "EW 50".
+    string pp = text.substr(0, 3);
+    int sign = 0;
+    if (pp == "NS ")
+      sign = 1;
+    else if (pp == "EW ")
+      sign = -1;
+
+    if (sign)
+    {
+      pp = text.substr(3, string::npos);
+      if (! StringToInt(pp, s))
+      {
+        LOG("Invalid score");
+        return false;
+      }
+      score = sign * s;
+      return true;
+    }
+  }
+
   if (! StringToInt(text, s))
   {
     LOG("Invalid score");
@@ -976,7 +998,7 @@ string Contract::ScoreAsString(
 string Contract::ResultAsStringPBN() const
 {
   stringstream s;
-  s << "[Result\"" << contract.level + 6 + tricksRelative << "\"]\n";
+  s << "[Result \"" << contract.level + 6 + tricksRelative << "\"]\n";
   return s.str();
 }
 

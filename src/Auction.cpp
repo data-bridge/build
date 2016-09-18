@@ -10,6 +10,7 @@
 #include "Auction.h"
 #include "Debug.h"
 #include <map>
+#include <regex>
 #include <assert.h>
 #include "parse.h"
 #include "portab.h"
@@ -204,9 +205,9 @@ bool Auction::SetVulPBN(
   if (v == "None")
     vOut = BRIDGE_VUL_NONE;
   else if (v == "NS")
-    vOut = BRIDGE_VUL_EAST_WEST;
-  else if (v == "EW")
     vOut = BRIDGE_VUL_NORTH_SOUTH;
+  else if (v == "EW")
+    vOut = BRIDGE_VUL_EAST_WEST;
   else if (v == "All")
     vOut = BRIDGE_VUL_BOTH;
   else
@@ -836,15 +837,108 @@ bool Auction::AddAuction(
 }
 
 
+bool Auction::IsPBNNote(
+  const string& s,
+  int& no,
+  string& alert) const
+{
+  regex re("^\\[Note \"(\\d+):(.*)\"\\]$");
+  smatch match;
+  if (regex_search(s, match, re) && match.size() >= 2)
+  {
+    if (! StringToInt(match.str(1), no))
+      return false;
+
+    alert = match.str(2);
+    return true;
+  }
+  else
+    return false;
+}
+
+
 bool Auction::AddAuctionPBN(const vector<string>& list)
 {
-  // TODO
-  // list[0] -> SetDealerPBN, use return value
-  // check whether dealer already set (should be)
-  // Split on \s+
-  //
-  UNUSED(list);
-  assert(false);
+  if (! setDVFlag)
+  {
+    LOG("Dealer and vul should be set by now");
+    return false;
+  }
+
+  playerType dlr;
+  if (! Auction::SetDealerPBN(list[0], dlr))
+  {
+    LOG("Not a PBN dealer");
+    return false;
+  }
+
+  if (dealer != dlr)
+  {
+    LOG("Auction has different dealer");
+    return false;
+  }
+
+  // Get the alerts from the back.
+  unsigned end = list.size() - 1;
+  vector<string> alerts;
+  alerts.clear();
+  int no;
+  string alert;
+  while (end > 0 && Auction::IsPBNNote(list[end], no, alert))
+  {
+    alerts.insert(alerts.begin() + no, alert);
+    end--;
+  }
+
+  // Get the auction (all of it for convenience).
+  string word;
+  vector<string> words;
+  words.clear();
+  for (unsigned i = 1; i <= end; i++)
+  {
+    string s = list[i];
+    while (GetNextWord(s, word))
+      words.push_back(word);
+  }
+
+  const size_t l = words.size();
+  for (size_t i = 0; i < l; i++)
+  {
+    if (i == l-1 || words[i+1].at(0) != '=')
+    {
+      if (i == l-1 && words[i] == "AP")
+      {
+        Auction::AddPasses();
+        return true;
+      }
+      if (! Auction::AddCall(words[i]))
+        return false;
+    }
+    else
+    {
+      unsigned ano;
+      words[i+1].erase(0, 1);
+      if (! StringToUnsigned(words[i+1], ano))
+      {
+        LOG("Not an alert number");
+        return false;
+      }
+
+      if (ano > alerts.size()-1)
+      {
+        LOG("Alert too high");
+        return false;
+      }
+
+      if (! Auction::AddCall(words[i], alerts[ano]))
+        return false;
+
+      // Already consumed the alert.
+      i--;
+    }
+  }
+
+  return true;
 }
 
 
@@ -1003,14 +1097,16 @@ string Auction::AsPBN() const
   for (unsigned b = 0; b <= end; b++)
   {
     const Call& c = sequence[b];
-    s << AUCTION_NO_TO_CALL_PBN[c.no] << " ";
+    if (b % 4 > 0)
+      s << " ";
+    s << AUCTION_NO_TO_CALL_PBN[c.no];
     if (c.alert != "")
     {
       if (c.alert == "!")
-        s << "$15 ";
+        s << " $15";
       else
       {
-        s << "=" << aNo << "= ";
+        s << " =" << aNo << "=";
 	alerts << "[Note \"" << aNo << ":" << c.alert << "\"]\n";
 	aNo++;
       }
@@ -1019,7 +1115,11 @@ string Auction::AsPBN() const
       s << "\n";
   }
   if (trailing == 3)
+  {
+    if (end % 4 != 3)
+      s << " ";
     s << "AP\n";
+  }
   else if (trailing > 0)
   {
     assert(false);

@@ -137,6 +137,12 @@ bool Board::SetDeal(
   const string& s,
   const formatType f)
 {
+  if (numActive > 0)
+  {
+    // Assume the cards are unchanged.  Don't check for now.
+    return true;
+  }
+
   if (! deal.Set(s, f))
     return false;
 
@@ -307,6 +313,28 @@ bool Board::SetScore(
   const formatType f)
 {
   return contract[numActive].SetScore(text, f);
+}
+
+
+bool Board::SetScoreIMP(
+  const string& text,
+  const formatType f)
+{
+  // We regenerate this ourselves, so ignore for now.
+  UNUSED(text);
+  UNUSED(f);
+  return true;
+}
+
+
+bool Board::SetScoreMP(
+  const string& text,
+  const formatType f)
+{
+  // We ignore this for now.
+  UNUSED(text);
+  UNUSED(f);
+  return true;
 }
 
 

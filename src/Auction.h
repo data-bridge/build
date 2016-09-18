@@ -92,6 +92,11 @@ class Auction
       unsigned& aNo,
       const bool extendedFlag) const;
 
+    bool IsPBNNote(
+      const string& s,
+      int& no,
+      string& alert) const;
+
     bool AddAuctionPBN(const vector<string>& list);
 
     string AsLIN() const;

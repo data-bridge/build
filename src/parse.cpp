@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "bconst.h"
 #include "parse.h"
 #include "portab.h"
 
@@ -179,6 +180,58 @@ bool StringToFloat(
   }
 
   res = f;
+  return true;
+}
+
+
+bool GetNextWord(
+  string& s,
+  string& word)
+{
+  // Consumes from s!
+  unsigned pos = 0;
+  unsigned l = s.length();
+  while (pos < l && s.at(pos) != ' ')
+    pos++;
+  
+  if (pos == 0)
+    return false;
+  else if (pos == l)
+  {
+    word = s;
+    s = "";
+    return true;
+  }
+  else
+  {
+    word = s.substr(0, pos);
+    s.erase(0, pos+1);
+    return true;
+  }
+}
+
+
+bool ParsePlayer(
+  const char c,
+  playerType& p)
+{
+  switch(c)
+  {
+    case 'N':
+      p = BRIDGE_NORTH;
+      break;
+    case 'E':
+      p = BRIDGE_EAST;
+      break;
+    case 'S':
+      p = BRIDGE_SOUTH;
+      break;
+    case 'W':
+      p = BRIDGE_WEST;
+      break;
+    default:
+      return false;
+  }
   return true;
 }
 

@@ -43,4 +43,12 @@ bool StringToFloat(
   const string& s,
   float& res);
 
+bool GetNextWord(
+  string& s,
+  string& word);
+
+bool ParsePlayer(
+  const char c,
+  playerType& p);
+
 #endif

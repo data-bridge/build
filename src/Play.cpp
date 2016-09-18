@@ -10,6 +10,7 @@
 #include "Play.h"
 #include "Debug.h"
 #include <map>
+#include <algorithm>
 #include <assert.h>
 #include "parse.h"
 #include "portab.h"
@@ -330,7 +331,7 @@ playStatus Play::AddTrickPBN(const string& str)
     unsigned pp = p % 4;
     if (pp >= count)
       continue;
-    if (plays[pp] != "-")
+    if (plays[pp].at(0) != '-') // - and --
     {
       playStatus ps = Play::AddPlay(plays[pp]);
       if (ps != PLAY_NO_ERROR)
@@ -463,14 +464,47 @@ bool Play::SetPlays(
 }
 
 
+bool BothAreSpaces(char lhs, char rhs)
+{
+  // stackoverflow.com/questions/8362094/
+  // replace-multiple-spaces-with-one-space-in-a-string
+  return (lhs == rhs) && (lhs == ' ');
+}
+
+
 bool Play::AddAllPBN(const vector<string>& list)
 {
-  // TODO
-  // Compare opening leader with declarer
-  // Split on \s+
-  // Feed in in right order, careful with leader
-  UNUSED(list);
-  assert(false);
+  if (! setDDFlag)
+  {
+    LOG("Declarer and denomination should be set by now");
+    return false;
+  }
+
+  playerType opldr;
+  if (! ParsePlayer(list[0].at(0), opldr))
+  {
+    LOG("Not an opening leader");
+    return false;
+  }
+
+  if ((declarer + 1) % 4 != opldr)
+  {
+    LOG("Wrong opening leader");
+    return false;
+  }
+
+  for (unsigned i = 1; i < list.size(); i++)
+  {
+    // Compress adjacent spaces just to be sure.
+    string s = list[i];
+    auto new_end = unique(s.begin(), s.end(), BothAreSpaces);
+    s.erase(new_end, s.end());
+
+    if (Play::AddTrickPBN(s) != PLAY_NO_ERROR)
+      return false;
+  }
+
+  return true;
 }
 
 
@@ -670,7 +704,9 @@ string Play::AsPBN() const
     for (unsigned c = 0; c < 4; c++)
     {
       unsigned p = offset + (openingLeader + 4 - leads[t].leader + c) % 4;
-      s << PLAY_NO_TO_CARD[sequence[p]] << " ";
+      if (c > 0)
+        s << " ";
+      s << PLAY_NO_TO_CARD[sequence[p]];
     }
     s << "\n";
   }
@@ -683,15 +719,17 @@ string Play::AsPBN() const
     {
       unsigned p = 
         offset + (openingLeader + 4 - leads[trickToPlay].leader + c) % 4;
+      if (c > 0)
+        s << " ";
       if (p < len)
       {
-        s << PLAY_NO_TO_CARD[sequence[p]] << " ";
+        s << PLAY_NO_TO_CARD[sequence[p]];
         num--;
       }
       // TODO
       // PBN uses single dash, and probably not trailing dashes.
       else // if (num > 0)
-        s << "-- ";
+        s << "--";
         // s << "- ";
     }
     s << "\n";

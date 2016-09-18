@@ -34,21 +34,39 @@ int main(int argc, char * argv[])
   UNUSED(argc);
   UNUSED(argv);
 
-  Group group;
+  Group groupRBN;
+  Group groupPBN;
   setRBNtables();
   setPBNtables();
 
-  if (! readRBN(group, "S10FA1.RBN"))
+  /*
+  if (! readRBN(groupRBN, "S10FA1.RBN"))
+  {
+    debug.Print();
+    assert(false);
+  }
+  */
+
+  if (! readPBN(groupPBN, "S10FA1.PBN"))
   {
     debug.Print();
     assert(false);
   }
 
-  if (! writePBN(group, "out.pbn"))
+  if (! writeRBN(groupPBN, "out.rbn"))
   {
     debug.Print();
     assert(false);
   }
+
+  /*
+  if (! writePBN(groupPBN, "out.pbn"))
+  {
+    debug.Print();
+    assert(false);
+  }
+  */
+
 }
 
 

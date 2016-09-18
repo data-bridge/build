@@ -1,12 +1,15 @@
 Auction:
-Need separate dealer and vul flags throughout.
 If we SetScore, then must check against CalculateScore (order?).
-Write AddAuction(list).
 Include alerts =1= I think.
 Contract:
 Probably SetDeclarer gets called after auction (order)?  check vs auction
 Play:
 Write AddAllPBN(list).
+
+Use ParsePlayer instead of e.g. Auction::ParseRBNDealer()
+
+
+Clean up code again in the end, delete unused functions etc.
 
 
 Pavlicek notes

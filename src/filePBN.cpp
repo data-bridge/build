@@ -54,8 +54,10 @@ enum PBNlabel
   PBN_PLAY = 20,
   PBN_RESULT = 21,
   PBN_SCORE = 22,
-  PBN_OPTIMUM_RESULT_TABLE = 23,
-  PBN_LABELS_SIZE = 24
+  PBN_SCORE_IMP = 23,
+  PBN_SCORE_MP = 24,
+  PBN_OPTIMUM_RESULT_TABLE = 25,
+  PBN_LABELS_SIZE = 26
 };
 
 const string PBNname[] =
@@ -73,8 +75,6 @@ const string PBNname[] =
   "East",
   "South",
   "Board",
-  "Dealer",
-  "Vulnerable",
   "Room",
   "Deal",
   "Dealer",
@@ -85,6 +85,8 @@ const string PBNname[] =
   "Play",
   "Result",
   "Score",
+  "ScoreIMP",
+  "ScoreMP",
   "OptimumResultTable"
 };
 
@@ -151,6 +153,8 @@ void setPBNtables()
   boardPtrPBN[PBN_CONTRACT] = &Board::SetContract;
   boardPtrPBN[PBN_RESULT] = &Board::SetResult;
   boardPtrPBN[PBN_SCORE] = &Board::SetScore;
+  boardPtrPBN[PBN_SCORE_IMP] = &Board::SetScoreIMP;
+  boardPtrPBN[PBN_SCORE_MP] = &Board::SetScoreMP;
   boardPtrPBN[PBN_OPTIMUM_RESULT_TABLE] = &Board::SetTableau;
 }
 
@@ -200,7 +204,7 @@ bool readPBNChunk(
       }
     }
 
-    regex re("^[(\\w+)\\s+\"(.+)\"]");
+    regex re("^\\[(\\w+)\\s+\"(.+)\"\\]$");
     smatch match;
     if (! regex_search(line, match, re) || match.size() < 2)
     {
@@ -215,7 +219,7 @@ bool readPBNChunk(
       return false;
     }
 
-    const PBNlabel labelNo = it->second;
+    const int labelNo = static_cast<int>(it->second);
     if (chunk.single[labelNo] != "")
     {
       LOG("Label already set in line '" + line + "'");
@@ -326,10 +330,10 @@ bool tryMethod(
   ifstream& fstr,
   const string& info)
 {
-  if (chunk.single[label] == "")
-    return true;
-  else if (label <= PBN_BOARD)
+  if (label <= PBN_ROOM)
   {
+    if (chunk.single[label] == "")
+      return true;
     if ((segment->*segPtrPBN[label])
         (chunk.single[label], BRIDGE_FORMAT_PBN))
       return true;
@@ -342,12 +346,26 @@ bool tryMethod(
   }
   else if (label == PBN_AUCTION)
   {
+    if (chunk.auctionList.size() == 0)
+      return true;
+
     return board->SetAuction(chunk.auctionList, BRIDGE_FORMAT_PBN);
   }
   else if (label == PBN_PLAY)
   {
+    if (chunk.playList.size() == 0)
+      return true;
+
     return board->SetPlays(chunk.playList, BRIDGE_FORMAT_PBN);
   }
+  else if (label == PBN_CONTRACT)
+  {
+    // Easiest way to get declarer into Contract.
+    const string s = chunk.single[label] + chunk.single[PBN_DECLARER];
+    return board->SetContract(s, BRIDGE_FORMAT_PBN);
+  }
+  else if (chunk.single[label] == "")
+    return true;
   else if ((board->*boardPtrPBN[label])
       (chunk.single[label], BRIDGE_FORMAT_PBN))
     return true;

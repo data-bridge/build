@@ -148,6 +148,14 @@ class Board
       const string& text,
       const formatType f);
 
+    bool SetScoreIMP(
+      const string& text,
+      const formatType f);
+
+    bool SetScoreMP(
+      const string& text,
+      const formatType f);
+
     // Play
 
     playStatus AddPlay(
