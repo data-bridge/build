@@ -111,12 +111,10 @@ struct chunkType
 bool readPBNChunk(
   ifstream& fstr,
   unsigned& lno,
-  vector<string>& chunk,
-  vector<string>& auctionList,
-  vector<string>& playList,
+  chunkType& chunk,
   bool& newSegFlag);
 
-bool tryMethod(
+bool tryPBNMethod(
   const chunkType& chunk,
   Segment * segment,
   Board * board,
@@ -309,7 +307,7 @@ bool readPBN(
 
     for (unsigned i = 0; i < PBN_LABELS_SIZE; i++)
     {
-      if (! tryMethod(chunk, segment, board, i, fstr, PBNname[i]))
+      if (! tryPBNMethod(chunk, segment, board, i, fstr, PBNname[i]))
         return false;
     }
 
@@ -322,7 +320,7 @@ bool readPBN(
 }
 
 
-bool tryMethod(
+bool tryPBNMethod(
   const chunkType& chunk,
   Segment * segment,
   Board * board,

@@ -211,6 +211,54 @@ bool GetNextWord(
 }
 
 
+bool ReadNextWord(
+  const string& s,
+  const unsigned startPos,
+  string& word)
+{
+  unsigned l = s.length();
+  unsigned pos = startPos;
+  while (pos < l && s.at(pos) != ' ')
+    pos++;
+  
+  if (pos == startPos)
+    return false;
+  else if (pos == l)
+  {
+    word = s.substr(startPos, string::npos);
+    return true;
+  }
+  else
+  {
+    word = s.substr(startPos, pos);
+    return true;
+  }
+}
+
+
+bool ReadLastWord(
+  const string& s,
+  string& word)
+{
+  int pos = static_cast<int>(s.length()) - 1;
+  while (pos >= 0 && s.at(static_cast<unsigned>(pos)) != ' ')
+    pos--;
+  
+  if (pos == static_cast<int>(s.length()) - 1)
+    return false;
+  else if (pos < 0)
+  {
+    word = s;
+    return true;
+  }
+  else
+  {
+    word = s.substr(static_cast<unsigned>(pos)+1, string::npos);
+    return true;
+  }
+}
+
+
 bool ParsePlayer(
   const char c,
   playerType& p)

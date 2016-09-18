@@ -83,7 +83,7 @@ bool readRBNChunk(
   vector<string>& chunk,
   bool& newSegFlag);
 
-bool tryMethod(
+bool tryRBNMethod(
   const vector<string>& chunk,
   Segment * segment,
   Board * board,
@@ -260,7 +260,7 @@ bool readRBN(
 
     for (unsigned i = 0; i < RBN_LABELS_SIZE; i++)
     {
-      if (! tryMethod(chunk, segment, board, i, fstr, RBNname[i]))
+      if (! tryRBNMethod(chunk, segment, board, i, fstr, RBNname[i]))
         return false;
     }
 
@@ -273,7 +273,7 @@ bool readRBN(
 }
 
 
-bool tryMethod(
+bool tryRBNMethod(
   const vector<string>& chunk,
   Segment * segment,
   Board * board,

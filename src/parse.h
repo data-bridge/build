@@ -47,6 +47,15 @@ bool GetNextWord(
   string& s,
   string& word);
 
+bool ReadNextWord(
+  const string& s,
+  const unsigned startPos,
+  string& word);
+
+bool ReadLastWord(
+  const string& s,
+  string& word);
+
 bool ParsePlayer(
   const char c,
   playerType& p);
