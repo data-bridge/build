@@ -20,6 +20,7 @@ using namespace std;
 #include "UnitTest.h"
 #include "fileRBN.h"
 #include "filePBN.h"
+#include "fileEML.h"
 #include "portab.h"
 #include "bconst.h"
 #include "Debug.h"
@@ -36,8 +37,10 @@ int main(int argc, char * argv[])
 
   Group groupRBN;
   Group groupPBN;
+  Group groupEML;
   setRBNtables();
   setPBNtables();
+  setEMLtables();
 
   /*
   if (! readRBN(groupRBN, "S10FA1.RBN"))
@@ -47,11 +50,20 @@ int main(int argc, char * argv[])
   }
   */
 
-  if (! readPBN(groupPBN, "S10FA1.PBN"))
+  /* if (! readPBN(groupPBN, "S10FA1.PBN"))
   {
     debug.Print();
     assert(false);
   }
+  */
+
+  if (! readEML(groupEML, "S10FA1.EML"))
+  {
+    debug.Print();
+    assert(false);
+  }
+
+
 
   if (! writeRBN(groupPBN, "out.rbn"))
   {

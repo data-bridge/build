@@ -225,12 +225,12 @@ bool ReadNextWord(
     return false;
   else if (pos == l)
   {
-    word = s.substr(startPos, string::npos);
+    word = s.substr(startPos, pos-startPos);
     return true;
   }
   else
   {
-    word = s.substr(startPos, pos);
+    word = s.substr(startPos, pos-startPos);
     return true;
   }
 }
@@ -253,7 +253,7 @@ bool ReadLastWord(
   }
   else
   {
-    word = s.substr(static_cast<unsigned>(pos)+1, string::npos);
+    word = s.substr(static_cast<unsigned>(pos)+1);
     return true;
   }
 }
