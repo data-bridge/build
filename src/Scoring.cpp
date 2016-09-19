@@ -137,6 +137,7 @@ bool Scoring::Set(
       return Scoring::SetLIN(t);
     
     case BRIDGE_FORMAT_PBN:
+    case BRIDGE_FORMAT_EML:
       return Scoring::SetPBN(t);
     
     case BRIDGE_FORMAT_RBN:

@@ -316,6 +316,7 @@ bool Deal::Set(
       return Deal::SetPBN(s);
 
     case BRIDGE_FORMAT_RBN:
+    case BRIDGE_FORMAT_EML:
       return Deal::SetRBN(s);
 
     default:

@@ -343,6 +343,7 @@ bool Auction::SetDealer(
       dealer = dOut;
       break;
     
+    case BRIDGE_FORMAT_EML:
     case BRIDGE_FORMAT_TXT:
       if (! Auction::SetDealerTXT(d, dOut))
         return false;
@@ -381,6 +382,7 @@ bool Auction::SetVul(
       vul = vOut;
       break;
     
+    case BRIDGE_FORMAT_EML:
     case BRIDGE_FORMAT_TXT:
       if (! Auction::SetVulTXT(v, vOut))
         return false;
@@ -824,6 +826,7 @@ bool Auction::AddAuction(
       return false;
     
     case BRIDGE_FORMAT_RBN:
+    case BRIDGE_FORMAT_EML:
       return Auction::AddAuctionRBN(s);
     
     case BRIDGE_FORMAT_TXT:

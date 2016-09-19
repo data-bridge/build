@@ -471,9 +471,20 @@ bool Contract::SetResult(
   const string& text,
   const formatType f)
 {
-  UNUSED(f);
   unsigned u;
-  if (! StringToUnsigned(text, u))
+
+  if (f == BRIDGE_FORMAT_EML)
+  {
+    int i;
+    if (! StringToInt(text, i))
+    {
+      LOG("Not an integer result");
+      return false;
+    }
+
+    u = static_cast<unsigned>(i + static_cast<int>(contract.level + 6));
+  }
+  else if (! StringToUnsigned(text, u))
   {
     LOG("Not an unsigned result");
     return false;

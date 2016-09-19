@@ -133,6 +133,8 @@ void setEMLtables()
   boardPtrEML[EML_DEAL] = &Board::SetDeal;
   boardPtrEML[EML_DEALER] = &Board::SetDealer;
   boardPtrEML[EML_VULNERABLE] = &Board::SetVul;
+  boardPtrEML[EML_AUCTION] = &Board::SetAuction;
+  boardPtrEML[EML_PLAY] = &Board::SetPlays;
 
   boardPtrEML[EML_RESULT] = &Board::SetResult;
   boardPtrEML[EML_SCORE] = &Board::SetScore;
@@ -479,6 +481,10 @@ bool readEML(
 
     for (unsigned i = 0; i < EML_LABELS_SIZE; i++)
     {
+if (i == 10)
+{
+  cout << "HERE\n";
+}
       if (! tryEMLMethod(chunk, segment, board, i, fstr, EMLname[i]))
         return false;
     }

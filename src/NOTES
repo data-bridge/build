@@ -1,3 +1,6 @@
+Auction: RBN auction starts with dealer and vul.
+Pack these up as well?
+
 Auction:
 If we SetScore, then must check against CalculateScore (order?).
 Include alerts =1= I think.
