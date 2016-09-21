@@ -52,6 +52,12 @@ bool ReadNextWord(
   const unsigned startPos,
   string& word);
 
+bool ReadNextWord(
+  const string& s,
+  const unsigned startPos,
+  const unsigned stopPosInclusive,
+  string& word);
+
 bool ReadLastWord(
   const string& s,
   string& word);

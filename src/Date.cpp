@@ -379,7 +379,7 @@ string Date::AsPBN() const
 string Date::AsRBN() const
 {
   if (date.month == 0 || date.year == 0)
-    return "D ";
+    return "D \n";
 
   stringstream s;
   s << "D " <<

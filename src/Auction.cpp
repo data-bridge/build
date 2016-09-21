@@ -736,7 +736,17 @@ bool Auction::AddAuctionRBN(const string& s)
 
   setDVFlag = true;
 
-  size_t pos = 2;
+  return Auction::AddAuctionEML(s, 2);
+
+}
+
+
+bool Auction::AddAuctionEML(
+  const string& s,
+  const unsigned startPos)
+{
+  const size_t l = s.length();
+  size_t pos = startPos;
   unsigned aNo = 0;
   while (1)
   {
@@ -826,8 +836,10 @@ bool Auction::AddAuction(
       return false;
     
     case BRIDGE_FORMAT_RBN:
-    case BRIDGE_FORMAT_EML:
       return Auction::AddAuctionRBN(s);
+
+    case BRIDGE_FORMAT_EML:
+      return Auction::AddAuctionEML(s);
     
     case BRIDGE_FORMAT_TXT:
       LOG("Auction TXT type not implemented");
@@ -1011,7 +1023,7 @@ bool Auction::operator != (const Auction& a2) const
 }
 
 
-bool Auction::ConsistentWith(const Contract& cref) const
+bool Auction::ExtractContract(Contract& contract) const
 {
   if (! Auction::IsOver())
   {
@@ -1019,9 +1031,8 @@ bool Auction::ConsistentWith(const Contract& cref) const
     return false;
   }
 
-  Contract cown;
   if (activeCNo == 0)
-    cown.SetContract(
+    contract.SetContract(
       vul, 
       BRIDGE_NORTH, 
       0, 
@@ -1049,13 +1060,22 @@ bool Auction::ConsistentWith(const Contract& cref) const
     if (denom != 4)
       denom = 3 - denom;
 
-    cown.SetContract(
+    contract.SetContract(
       vul,
       declarer,
       level,
       static_cast<denomType>(denom),
       multiplier);
   }
+  return true;
+}
+
+
+bool Auction::ConsistentWith(const Contract& cref) const
+{
+  Contract cown;
+  if (! Auction::ExtractContract(cown))
+    return false;
 
   return (cown == cref);
 }

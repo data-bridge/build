@@ -451,6 +451,7 @@ bool Play::SetPlays(
       return false;
 
     case BRIDGE_FORMAT_RBN:
+    case BRIDGE_FORMAT_EML:
       return Play::AddAllRBN(str);
 
     case BRIDGE_FORMAT_TXT:

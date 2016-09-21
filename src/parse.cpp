@@ -236,6 +236,32 @@ bool ReadNextWord(
 }
 
 
+bool ReadNextWord(
+  const string& s,
+  const unsigned startPos,
+  const unsigned stopPosInclusive,
+  string& word)
+{
+  unsigned l = s.length();
+  unsigned pos = startPos;
+  while (pos < l && pos <= stopPosInclusive && s.at(pos) != ' ')
+    pos++;
+  
+  if (pos == startPos)
+    return false;
+  else if (pos == l)
+  {
+    word = s.substr(startPos, pos-startPos);
+    return true;
+  }
+  else
+  {
+    word = s.substr(startPos, pos-startPos);
+    return true;
+  }
+}
+
+
 bool ReadLastWord(
   const string& s,
   string& word)

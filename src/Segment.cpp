@@ -492,16 +492,18 @@ string Segment::TitleAsLIN() const
 string Segment::TitleAsString(const formatType f) const
 {
   // In LIN this is the entire vg field.
-  if (seg.title == "")
-    return "";
 
   stringstream st;
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
+      if (seg.title == "")
+        return "";
       return Segment::TitleAsLIN();
 
     case BRIDGE_FORMAT_PBN:
+      if (seg.title == "")
+        return "";
       st << "[Description \"" << seg.title << "\"]\n";
       return st.str();
 
@@ -510,6 +512,8 @@ string Segment::TitleAsString(const formatType f) const
       return st.str();
 
     case BRIDGE_FORMAT_TXT:
+      if (seg.title == "")
+        return "";
       return seg.title;
 
     default:
@@ -533,17 +537,18 @@ string Segment::LocationAsString(const formatType f) const
 
 string Segment::EventAsString(const formatType f) const
 {
-  if (seg.event == "")
-    return "";
-
   stringstream st;
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
+      if (seg.event == "")
+        return "";
       LOG("No LIN event format");
       return "";
 
     case BRIDGE_FORMAT_PBN:
+      if (seg.event == "")
+        return "";
       st << "[Event \"" + seg.event + "\"]\n";
       return st.str();
 

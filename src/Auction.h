@@ -164,6 +164,10 @@ class Auction
     bool AddAuctionRBN(
       const string& s);
 
+    bool AddAuctionEML(
+      const string& s,
+      const unsigned startPos = 0);
+
     bool AddAuction(
       const string& s,
       const formatType f);
@@ -176,6 +180,8 @@ class Auction
 
     bool operator != (const Auction& a2) const;
 
+    bool ExtractContract(Contract& contract) const;
+      
     bool ConsistentWith(const Contract& cref) const;
       
     string AsString(

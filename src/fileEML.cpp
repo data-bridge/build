@@ -72,6 +72,7 @@ const string EMLname[] =
 };
 
 string EMLdashes, EMLequals;
+string EMLshortDashes, EMLshortEquals;
 
 
 typedef bool (Segment::*SegPtr)(const string& s, const formatType f);
@@ -94,9 +95,17 @@ bool readEMLCanvas(
   unsigned& lno,
   vector<string>& canvas);
 
+bool getEMLCanvasWest(
+  const vector<string>& canvas,
+  const unsigned pos,
+  const unsigned openingLine,
+  unsigned& westLine,
+  unsigned& cardStart);
+
 bool getEMLCanvasOffset(
   const vector<string>& canvas,
-  unsigned& openingLine);
+  unsigned& openingLine,
+  unsigned& westLine);
 
 bool getEMLSimpleFields(
   const vector<string>& canvas,
@@ -111,6 +120,8 @@ bool getEMLAuction(
 bool getEMLPlay(
   const vector<string>& canvas,
   const unsigned openingLine,
+  const unsigned westLine,
+  const unsigned cardStart,
   vector<string>& chunk);
 
 bool readEMLChunk(
@@ -146,6 +157,12 @@ void setEMLtables()
 
   EMLequals.resize(0);
   EMLequals.insert(0, 80, '=');
+
+  EMLshortDashes.resize(0);
+  EMLshortDashes.insert(0, 10, '-');
+
+  EMLshortEquals.resize(0);
+  EMLshortEquals.insert(0, 10, '=');
 }
 
 
@@ -161,8 +178,12 @@ bool readEMLCanvas(
     if (line.empty() || line.at(0) == '%')
       continue;
 
-    if (line == EMLdashes || line == EMLequals)
-      break;
+    if (line.size() > 40)
+    {
+      const string mid = line.substr(30, 10);
+      if (mid == EMLshortDashes || mid == EMLshortEquals)
+        break;
+    }
 
     canvas.push_back(line);
   }
@@ -170,9 +191,37 @@ bool readEMLCanvas(
 }
 
 
+bool getEMLCanvasWest(
+  const vector<string>& canvas,
+  const unsigned pos,
+  const unsigned openingLine,
+  unsigned& westLine,
+  unsigned& cardStart)
+{
+  westLine = openingLine;
+  cardStart = 0;
+  string wd = "";
+  while (westLine < canvas.size())
+  {
+    if (canvas[westLine].size() >= pos+1 &&
+        ReadNextWord(canvas[westLine], pos, wd) && 
+        wd == "W")
+    {
+      cardStart = pos+3;
+      break;
+    }
+    westLine++;
+  }
+
+  return (cardStart > 0);
+}
+
+
 bool getEMLCanvasOffset(
   const vector<string>& canvas,
-  unsigned& openingLine)
+  unsigned& openingLine,
+  unsigned& westLine,
+  unsigned& cardStart)
 {
   openingLine = 5;
   string wd = "";
@@ -183,7 +232,17 @@ bool getEMLCanvasOffset(
     openingLine++;
   }
 
-  return (wd == "Opening");
+  if (wd != "Opening")
+    return false;
+
+cout << "guessing opening line " << openingLine << endl;
+
+  if (getEMLCanvasWest(canvas, 42, openingLine, westLine, cardStart))
+    return true;
+  else if (getEMLCanvasWest(canvas, 39, openingLine, westLine, cardStart))
+    return true;
+  else
+    return false;
 }
 
 
@@ -236,23 +295,30 @@ bool getEMLDeal(
   stringstream d;
   d << "W:";
 
-  if (! ReadNextWord(canvas[8], 6, sts)) return false;
-  if (! ReadNextWord(canvas[9], 6, sth)) return false;
-  if (! ReadNextWord(canvas[10], 6, std)) return false;
-  if (! ReadNextWord(canvas[11], 6, stc)) return false;
-  d << sts << "." << sth <<  "." << std << "." << stc << ":";
+  if (! ReadNextWord(canvas[8], 6, sts)) sts = "";
+  if (! ReadNextWord(canvas[9], 6, sth)) sth = "";
+  if (! ReadNextWord(canvas[10], 6, std)) std = "";
+  if (! ReadNextWord(canvas[11], 6, stc)) stc = "";
+  d << sts << "." << sth <<  "." << std << "." << stc << " ";
 
-  if (! ReadNextWord(canvas[2], 18, sts)) return false;
-  if (! ReadNextWord(canvas[3], 18, sth)) return false;
-  if (! ReadNextWord(canvas[4], 18, std)) return false;
-  if (! ReadNextWord(canvas[5], 18, stc)) return false;
-  d << sts << "." << sth <<  "." << std << "." << stc << ":";
+  if (! ReadNextWord(canvas[2], 18, sts)) sts = "";
+  if (! ReadNextWord(canvas[3], 18, sth)) sth = "";
+  if (! ReadNextWord(canvas[4], 18, std)) std = "";
+  if (! ReadNextWord(canvas[5], 18, stc)) stc = "";
+  d << sts << "." << sth <<  "." << std << "." << stc << " ";
 
-  if (! ReadNextWord(canvas[8], 29, sts)) return false;
-  if (! ReadNextWord(canvas[9], 29, sth)) return false;
-  if (! ReadNextWord(canvas[10], 29, std)) return false;
-  if (! ReadNextWord(canvas[11], 29, stc)) return false;
-  d << sts << "." << sth <<  "." << std << "." << stc << ":";
+  if (! ReadNextWord(canvas[8], 29, sts)) sts = "";
+  if (! ReadNextWord(canvas[9], 29, sth)) sth = "";
+  if (! ReadNextWord(canvas[10], 29, std)) std = "";
+  if (! ReadNextWord(canvas[11], 29, stc)) stc = "";
+  d << sts << "." << sth <<  "." << std << "." << stc << " ";
+
+  if (! ReadNextWord(canvas[14], 18, sts)) sts = "";
+  if (! ReadNextWord(canvas[15], 18, sth)) sth = "";
+  if (! ReadNextWord(canvas[16], 18, std)) std = "";
+  if (! ReadNextWord(canvas[17], 18, stc)) stc = "";
+  d << sts << "." << sth <<  "." << std << "." << stc;
+
 
   chunk[EML_DEAL] = d.str();
   return true;
@@ -290,10 +356,13 @@ bool getEMLAuction(
       if (no > 0 && no % 4 == 0)
         d << ":";
 
-      if (wd == "X")
-        d << "D";
-      else if (wd == "XX")
+      if (wd == "XX")
         d << "R";
+      else if (wd.size() == 3 && wd.at(1) == 'N' && wd.at(2) == 'T')
+      {
+        wd.erase(2, 1);
+        d << wd;
+      }
       else if (wd == "pass")
         d << "P";
       else if (wd == "(all")
@@ -315,6 +384,8 @@ bool getEMLAuction(
 bool getEMLPlay(
   const vector<string>& canvas,
   const unsigned openingLine,
+  const unsigned westLine,
+  const unsigned cardStart,
   vector<string>& chunk)
 {
   stringstream d;
@@ -326,18 +397,20 @@ bool getEMLPlay(
     return false;
 
   string wd;
-  unsigned pos0 = 45;
-  unsigned la = canvas[openingLine+6].size();
+  unsigned pos0 = cardStart;
+  unsigned la = canvas[westLine-1].size();
   while (pos0 < la)
   {
     unsigned h;
     bool found = false;
-    if (pos0 == 45)
+    if (pos0 == cardStart)
     {
       // Find the opening lead
       for (h = 0; h < 4; h++)
       {
-        if (ReadNextWord(canvas[openingLine+h+7], 44, wd) && wd == opld)
+        if (canvas[westLine+h].size() >= cardStart+1 &&
+            ReadNextWord(canvas[westLine+h], cardStart-1, cardStart, wd) &&
+            wd == opld)
         {
           found = true;
           break;
@@ -352,7 +425,8 @@ bool getEMLPlay(
       // Find the dash
       for (h = 0; h < 4; h++)
       {
-        if (canvas[openingLine+h+7].at(pos0-2) == '-')
+        if (canvas[westLine+h].size() >= pos0-1 &&
+            canvas[westLine+h].at(pos0-2) == '-')
         {
           found = true;
           break;
@@ -360,12 +434,16 @@ bool getEMLPlay(
       }
 
       if (! found)
+      {
+cout << "no dash for pos0 " << pos0 << endl;
         return false;
+      }
     }
+cout << "pos0 " << pos0 << ": got h " << h << endl;
 
     for (unsigned p = 0; p < 4; p++)
     {
-      unsigned l = openingLine+7 + ((h+p) % 4);
+      unsigned l = westLine + ((h+p) % 4);
 
       // Done?
       if (pos0 > canvas[l].size())
@@ -375,8 +453,11 @@ bool getEMLPlay(
         d << canvas[l].at(pos0);
       else
       {
-        if (! ReadNextWord(canvas[l], pos0-1, wd))
+        if (! ReadNextWord(canvas[l], pos0-1, pos0, wd))
+        {
+cout << "Couldn't read at " << canvas[l] << endl;
           return false;
+        }
         d << wd;
         
       }
@@ -386,6 +467,7 @@ bool getEMLPlay(
 
     pos0 += 3;
   }
+cout << "done with loop, got " << d.str() << endl;
       
   chunk[EML_PLAY] = d.str();
   return true;
@@ -406,24 +488,33 @@ bool readEMLChunk(
   for (unsigned i = 0; i < EML_LABELS_SIZE; i++)
     chunk[i] = "";
 
+cout << "Looking for offset" << endl;
   unsigned openingLine = 0;
-  if (! getEMLCanvasOffset(canvas, openingLine))
+  unsigned westLine = 0;
+  unsigned cardStart = 0;
+  if (! getEMLCanvasOffset(canvas, openingLine, westLine, cardStart))
     return false;
 
+cout << "Looking for simple" << endl;
   if (! getEMLSimpleFields(canvas, openingLine, chunk))
     return false;
 
+cout << "Looking for deal" << endl;
   // Synthesize an RBN-style deal.
   if (! getEMLDeal(canvas, chunk))
     return false;
 
+cout << "Looking for auction" << endl;
   // Synthesize an RBN-style string of bids.
   if (! getEMLAuction(canvas, openingLine, chunk))
     return false;
 
+cout << "Looking for play" << endl;
   // Synthesize an RBN-style string of plays.
-  if (! getEMLPlay(canvas, openingLine, chunk))
+  if (! getEMLPlay(canvas, openingLine, westLine, cardStart, chunk))
     return false;
+
+cout << "got it all" << endl;
 
   return true;
 }
@@ -461,12 +552,14 @@ bool readEML(
   vector<string> chunk(EML_LABELS_SIZE);
   while (readEMLChunk(fstr, lno, chunk))
   {
+cout << "Got a chunk" << endl;
     if (chunk[EML_BOARD] != "" && chunk[EML_BOARD] != lastBoard)
     {
       // New board.
       lastBoard = chunk[EML_BOARD];
       board = segment->AcquireBoard(bno);
       bno++;
+cout << "Got a new board, now up to " << bno << endl;
 
       if (board == nullptr)
       {
@@ -476,21 +569,23 @@ bool readEML(
       }
     }
 
+cout << "making new instance" << endl;
     board->NewInstance();
+cout << "copying players" << endl;
     segment->CopyPlayers();
+cout << "starting loop" << endl;
 
     for (unsigned i = 0; i < EML_LABELS_SIZE; i++)
     {
-if (i == 10)
-{
-  cout << "HERE\n";
-}
+cout << "i " << i << endl;
       if (! tryEMLMethod(chunk, segment, board, i, fstr, EMLname[i]))
         return false;
     }
+cout << "done with chunk" << endl;
 
     if (fstr.eof())
       break;
+cout << "looking for next chunk, lno" << lno << endl;
   }
 
   fstr.close();
@@ -514,7 +609,7 @@ bool tryEMLMethod(
       return true;
     else
     {
-      LOG("Cannot add " + info + " line " + chunk[label] + "'");
+      LOG("Cannot add " + info + " line '" + chunk[label] + "'");
       fstr.close();
       return false;
     }
@@ -523,7 +618,7 @@ bool tryEMLMethod(
     return true;
   else
   {
-    LOG("Cannot add " + info + " line " + chunk[label] + "'");
+    LOG("Cannot add " + info + " line '" + chunk[label] + "'");
     fstr.close();
     return false;
   }

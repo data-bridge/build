@@ -65,7 +65,7 @@ int main(int argc, char * argv[])
 
 
 
-  if (! writeRBN(groupPBN, "out.rbn"))
+  if (! writeRBN(groupEML, "out.rbn"))
   {
     debug.Print();
     assert(false);

@@ -222,7 +222,11 @@ bool Board::SetAuction(
       return false;
   }
 
-  return true;
+  // Doesn't bother us unduly.
+  if (! auction[numActive].ExtractContract(contract[numActive]))
+    return true;
+
+  return play[numActive].SetContract(contract[numActive]);
 }
 
 
@@ -240,6 +244,7 @@ bool Board::SetAuction(
   }
 
   return true;
+
 }
 
 
