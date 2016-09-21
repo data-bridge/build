@@ -482,7 +482,10 @@ bool Contract::SetResult(
       return false;
     }
 
-    u = static_cast<unsigned>(i + static_cast<int>(contract.level + 6));
+    if (i > 0)
+      u = static_cast<unsigned>(i + 6); // Possible Pavlicek error?
+    else
+      u = static_cast<unsigned>(i + static_cast<int>(contract.level + 6));
   }
   else if (! StringToUnsigned(text, u))
   {

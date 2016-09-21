@@ -235,8 +235,6 @@ bool getEMLCanvasOffset(
   if (wd != "Opening")
     return false;
 
-cout << "guessing opening line " << openingLine << endl;
-
   if (getEMLCanvasWest(canvas, 42, openingLine, westLine, cardStart))
     return true;
   else if (getEMLCanvasWest(canvas, 39, openingLine, westLine, cardStart))
@@ -434,12 +432,8 @@ bool getEMLPlay(
       }
 
       if (! found)
-      {
-cout << "no dash for pos0 " << pos0 << endl;
         return false;
-      }
     }
-cout << "pos0 " << pos0 << ": got h " << h << endl;
 
     for (unsigned p = 0; p < 4; p++)
     {
@@ -454,10 +448,7 @@ cout << "pos0 " << pos0 << ": got h " << h << endl;
       else
       {
         if (! ReadNextWord(canvas[l], pos0-1, pos0, wd))
-        {
-cout << "Couldn't read at " << canvas[l] << endl;
           return false;
-        }
         d << wd;
         
       }
@@ -467,7 +458,6 @@ cout << "Couldn't read at " << canvas[l] << endl;
 
     pos0 += 3;
   }
-cout << "done with loop, got " << d.str() << endl;
       
   chunk[EML_PLAY] = d.str();
   return true;
@@ -488,33 +478,26 @@ bool readEMLChunk(
   for (unsigned i = 0; i < EML_LABELS_SIZE; i++)
     chunk[i] = "";
 
-cout << "Looking for offset" << endl;
   unsigned openingLine = 0;
   unsigned westLine = 0;
   unsigned cardStart = 0;
   if (! getEMLCanvasOffset(canvas, openingLine, westLine, cardStart))
     return false;
 
-cout << "Looking for simple" << endl;
   if (! getEMLSimpleFields(canvas, openingLine, chunk))
     return false;
 
-cout << "Looking for deal" << endl;
   // Synthesize an RBN-style deal.
   if (! getEMLDeal(canvas, chunk))
     return false;
 
-cout << "Looking for auction" << endl;
   // Synthesize an RBN-style string of bids.
   if (! getEMLAuction(canvas, openingLine, chunk))
     return false;
 
-cout << "Looking for play" << endl;
   // Synthesize an RBN-style string of plays.
   if (! getEMLPlay(canvas, openingLine, westLine, cardStart, chunk))
     return false;
-
-cout << "got it all" << endl;
 
   return true;
 }
@@ -552,14 +535,12 @@ bool readEML(
   vector<string> chunk(EML_LABELS_SIZE);
   while (readEMLChunk(fstr, lno, chunk))
   {
-cout << "Got a chunk" << endl;
     if (chunk[EML_BOARD] != "" && chunk[EML_BOARD] != lastBoard)
     {
       // New board.
       lastBoard = chunk[EML_BOARD];
       board = segment->AcquireBoard(bno);
       bno++;
-cout << "Got a new board, now up to " << bno << endl;
 
       if (board == nullptr)
       {
@@ -569,23 +550,17 @@ cout << "Got a new board, now up to " << bno << endl;
       }
     }
 
-cout << "making new instance" << endl;
     board->NewInstance();
-cout << "copying players" << endl;
     segment->CopyPlayers();
-cout << "starting loop" << endl;
 
     for (unsigned i = 0; i < EML_LABELS_SIZE; i++)
     {
-cout << "i " << i << endl;
       if (! tryEMLMethod(chunk, segment, board, i, fstr, EMLname[i]))
         return false;
     }
-cout << "done with chunk" << endl;
 
     if (fstr.eof())
       break;
-cout << "looking for next chunk, lno" << lno << endl;
   }
 
   fstr.close();

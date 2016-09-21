@@ -53,6 +53,12 @@ unsigned Board::NewInstance()
   contract.resize(len);
   play.resize(len);
 
+  // Default
+  if (numActive == 0)
+    Board::SetRoom("Open", 0, BRIDGE_FORMAT_PBN);
+  else if (numActive == 1)
+    Board::SetRoom("Closed", 1, BRIDGE_FORMAT_PBN);
+
   if (numActive > 0)
   {
     auction[numActive].CopyDealerVulFrom(auction[0]);

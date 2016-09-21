@@ -23,6 +23,10 @@ PBN generation
 * Play: "The play ends after 13 tricks, or with *."  So no asterisk.
 * Play.cpp around line 650, AsPBN()
 
+EML
+* Are you sure that -x refers to down and +x refers to 6 as basis?
+
+
 grep TODO *.cpp *.h
 grep assert
 
