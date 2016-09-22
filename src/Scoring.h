@@ -44,7 +44,7 @@ class Scoring
     string AsLIN() const;
     string AsPBN() const;
     string AsRBN() const;
-    string AsTXT() const;
+    string AsEML() const;
 
 
   public:

@@ -25,6 +25,7 @@ extern Debug debug;
 
 string AUCTION_NO_TO_CALL_LIN[AUCTION_NUM_CALLS]; // And RBN
 string AUCTION_NO_TO_CALL_PBN[AUCTION_NUM_CALLS];
+string AUCTION_NO_TO_CALL_EML[AUCTION_NUM_CALLS];
 string AUCTION_NO_TO_CALL_TXT[AUCTION_NUM_CALLS];
 
 const string AUCTION_DENOM_LIN[BRIDGE_DENOMS] =
@@ -81,6 +82,10 @@ void Auction::SetTables()
   AUCTION_NO_TO_CALL_PBN[1] = "X";
   AUCTION_NO_TO_CALL_PBN[2] = "XX";
 
+  AUCTION_NO_TO_CALL_EML[0] = "pass";
+  AUCTION_NO_TO_CALL_EML[1] = "X";
+  AUCTION_NO_TO_CALL_EML[2] = "XX";
+
   AUCTION_NO_TO_CALL_TXT[0] = "pass";
   AUCTION_NO_TO_CALL_TXT[1] = "DBL";
   AUCTION_NO_TO_CALL_TXT[2] = "RDBL";
@@ -97,6 +102,7 @@ void Auction::SetTables()
       stringstream s2;
       s2 << level << AUCTION_DENOM_PBN[d] << "";
       AUCTION_NO_TO_CALL_PBN[p] = s2.str();
+      AUCTION_NO_TO_CALL_EML[p] = s2.str();
       AUCTION_NO_TO_CALL_TXT[p] = s2.str();
 
       p++;
@@ -107,6 +113,7 @@ void Auction::SetTables()
   {
     AUCTION_CALL_TO_NO[AUCTION_NO_TO_CALL_LIN[p]] = p;
     AUCTION_CALL_TO_NO[AUCTION_NO_TO_CALL_PBN[p]] = p;
+    AUCTION_CALL_TO_NO[AUCTION_NO_TO_CALL_EML[p]] = p;
     AUCTION_CALL_TO_NO[AUCTION_NO_TO_CALL_TXT[p]] = p;
   }
 
@@ -1207,6 +1214,47 @@ string Auction::AsRBN() const
 }
 
 
+string Auction::AsEML() const
+{
+  stringstream s;
+  s << setw(9) << left << "west" <<
+      setw(9) << left << "north" <<
+      setw(9) << left << "east" <<
+      setw(9) << left << "south" << "\n\n\n";
+
+  if (len == 0)
+    return s.str();
+
+  unsigned trailing = 0;
+  unsigned end = len-1;
+  while (sequence[end].no == 0 && sequence[end].alert == "")
+    trailing++, end--;
+    
+  const unsigned numSkips = static_cast<unsigned>
+    ((dealer + 4 - BRIDGE_WEST) % 4);
+  const unsigned wrap = 3 - numSkips;
+  for (unsigned i = 0; i < numSkips; i++)
+    s << setw(9) << "";
+  
+  for (unsigned b = 0; b <= end; b++)
+  {
+    const Call& c = sequence[b];
+    stringstream bid;
+    bid << AUCTION_NO_TO_CALL_EML[c.no];
+    s << setw(9) << bid.str();
+    if (b % 4 == wrap)
+      s << "\n";
+  }
+
+  if (trailing == 3)
+    s << "(all pass)\n";
+  else if (end % 4 != wrap)
+    s << "\n";
+
+  return s.str();
+}
+
+
 string Auction::AsTXT(const string& names) const
 {
   stringstream s, alerts;
@@ -1275,6 +1323,9 @@ string Auction::AsString(
     case BRIDGE_FORMAT_RBN:
       return Auction::AsRBN();
     
+    case BRIDGE_FORMAT_EML:
+      return Auction::AsEML();
+    
     case BRIDGE_FORMAT_TXT:
       return Auction::AsTXT(names);
     
@@ -1296,6 +1347,12 @@ string Auction::DealerAsLIN() const
 string Auction::DealerAsPBN() const
 {
   return "[Dealer \"" + PLAYER_NAMES_SHORT[dealer] + "\"]\n";
+}
+
+
+string Auction::DealerAsEML() const
+{
+  return "Dlr: " + PLAYER_NAMES_LONG[dealer];
 }
 
 
@@ -1323,6 +1380,12 @@ string Auction::VulAsRBN() const
 }
 
 
+string Auction::VulAsEML() const
+{
+  return "Vul: " + VUL_NAMES_TXT[vul];
+}
+
+
 string Auction::VulAsTXT() const
 {
   return VUL_NAMES_TXT[vul];
@@ -1347,8 +1410,11 @@ string Auction::DealerAsString(
     case BRIDGE_FORMAT_RBN:
       return Auction::DealerAsPBN();
     
+    case BRIDGE_FORMAT_EML:
+      return Auction::DealerAsEML();
+
     case BRIDGE_FORMAT_TXT:
-      return Auction::AsTXT();
+      return Auction::DealerAsTXT();
     
     default:
       LOG("Invalid format " + STR(f));
@@ -1376,6 +1442,9 @@ string Auction::VulAsString(
     
     case BRIDGE_FORMAT_RBN:
       return Auction::VulAsRBN();
+    
+    case BRIDGE_FORMAT_EML:
+      return Auction::VulAsEML();
     
     case BRIDGE_FORMAT_TXT:
       return Auction::VulAsTXT();

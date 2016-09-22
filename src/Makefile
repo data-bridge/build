@@ -3,6 +3,7 @@ EXPORTER	= Exports.def
 SOURCE_FILES 	=		\
 	Auction.cpp		\
         Board.cpp               \
+	Canvas.cpp		\
 	Contract.cpp		\
 	Date.cpp		\
 	Deal.cpp		\
@@ -79,6 +80,7 @@ clean:
 Auction.obj: Auction.h bconst.h Contract.h Debug.h parse.h portab.h
 Board.obj: bconst.h Board.h Deal.h Players.h Tableau.h Contract.h Valuation.h
 Board.obj: Auction.h Play.h Debug.h portab.h
+Canvas.obj: Canvas.h
 Contract.obj: Contract.h bconst.h Debug.h parse.h portab.h
 Date.obj: Date.h bconst.h portab.h parse.h debug.h Debug.h
 Deal.obj: bconst.h Deal.h Players.h Debug.h parse.h
@@ -112,7 +114,9 @@ fileRBN.obj: Valuation.h Auction.h Play.h parse.h portab.h debug.h Debug.h
 parse.obj: bconst.h parse.h portab.h
 reader.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 reader.obj: Teams.h Board.h Deal.h Players.h Tableau.h Contract.h Valuation.h
-reader.obj: Auction.h Play.h UnitTest.h fileRBN.h filePBN.h portab.h Debug.h
+reader.obj: Auction.h Play.h UnitTest.h fileRBN.h filePBN.h fileEML.h
+reader.obj: portab.h Debug.h
 reader.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 reader.obj: Teams.h Board.h Deal.h Players.h Tableau.h Contract.h Valuation.h
-reader.obj: Auction.h Play.h UnitTest.h fileRBN.h filePBN.h portab.h Debug.h
+reader.obj: Auction.h Play.h UnitTest.h fileRBN.h filePBN.h fileEML.h
+reader.obj: portab.h Debug.h

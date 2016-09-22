@@ -19,6 +19,7 @@
 #include <map>
 #include <assert.h>
 
+#include "Canvas.h"
 #include "fileEML.h"
 #include "parse.h"
 #include "portab.h"
@@ -30,7 +31,6 @@ extern Debug debug;
 
 
 const unsigned EMLlineLength = 80;
-const unsigned EMLlineCount = 30;
 
 enum EMLlabel
 {
@@ -40,11 +40,11 @@ enum EMLlabel
   EML_EAST = 3,
   EML_SOUTH = 4,
   EML_BOARD = 5,
-  EML_ROOM = 6,
-  EML_DEAL = 7,
-  EML_DEALER = 8,
-  EML_VULNERABLE = 9,
-  EML_AUCTION = 10,
+  EML_DEAL = 6,
+  EML_DEALER = 7,
+  EML_VULNERABLE = 8,
+  EML_AUCTION = 9,
+  EML_LEAD = 10,
   EML_PLAY = 11,
   EML_RESULT = 12,
   EML_SCORE = 13,
@@ -60,11 +60,11 @@ const string EMLname[] =
   "East",
   "South",
   "Board",
-  "Room",
   "Deal",
   "Dealer",
   "Vulnerable",
   "Auction",
+  "Lead",
   "Play",
   "Result",
   "Score",
@@ -139,7 +139,6 @@ void setEMLtables()
   segPtrEML[EML_SOUTH] = &Segment::SetSouth;
 
   segPtrEML[EML_BOARD] = &Segment::SetNumber;
-  segPtrEML[EML_ROOM] = &Segment::SetRoom;
 
   boardPtrEML[EML_DEAL] = &Board::SetDeal;
   boardPtrEML[EML_DEALER] = &Board::SetDealer;
@@ -156,7 +155,7 @@ void setEMLtables()
   EMLdashes.insert(12, 43, '-');
 
   EMLequals.resize(0);
-  EMLequals.insert(0, 80, '=');
+  EMLequals.insert(0, 79, '=');
 
   EMLshortDashes.resize(0);
   EMLshortDashes.insert(0, 10, '-');
@@ -578,7 +577,7 @@ bool tryEMLMethod(
 {
   if (chunk[label] == "")
     return true;
-  else if (label <= EML_ROOM)
+  else if (label <= EML_BOARD)
   {
     if ((segment->*segPtrEML[label])(chunk[label], BRIDGE_FORMAT_EML))
       return true;
@@ -600,96 +599,6 @@ bool tryEMLMethod(
 }
 
 
-unsigned writeEMLCanvasHeight(
-  Board * board)
-{
-  // unsigned eff = board->GetEffectiveAuctionLength();
-  // playerType p = board->GetDealer();
-  unsigned eff = 0, p = 0;
-  UNUSED(board);
-
-  return eff + ((p + 4 - BRIDGE_WEST) % 4);
-}
-
-
-void writeEMLCanvasFixed(
-  vector<string>& canvas,
-  const unsigned openingLine)
-{
-  canvas[0].replace(16, 5, "north");
-  canvas[6].replace(4, 4, "west");
-  canvas[6].replace(27, 4, "east");
-  canvas[12].replace(16, 5, "south");
-
-  canvas[2].replace(42, 4, "west");
-  canvas[2].replace(51, 5, "north");
-  canvas[2].replace(60, 4, "east");
-  canvas[2].replace(69, 5, "south");
-
-  canvas[openingLine].replace(42, 14, "Opening Lead:");
-  canvas[openingLine+1].replace(42, 7, "Result:");
-  canvas[openingLine+2].replace(42, 5, "Score:");
-
-  canvas[openingLine+7].replace(42, 1, "W");
-  canvas[openingLine+8].replace(42, 1, "N");
-  canvas[openingLine+9].replace(42, 1, "E");
-  canvas[openingLine+10].replace(42, 1, "S");
-}
-
-
-void writeEMLCanvasEasy(
-  vector<string>& canvas,
-  Segment * segment,
-  Board * board)
-{
-  // scoring
-  // dealer
-  // vul
-  // west .. south, in two places
-  // Teams, Board x
-  // result
-  // score
-  // possibly IMPs
-  UNUSED(canvas);
-  UNUSED(segment);
-  UNUSED(board);
-  assert(false);
-}
-
-
-void writeEMLCanvasDeal(
-  vector<string>& canvas,
-  Board * board)
-{
-  UNUSED(canvas);
-  UNUSED(board);
-  assert(false);
-}
-
-
-void writeEMLCanvasAuction(
-  vector<string>& canvas,
-  Board * board)
-{
-  UNUSED(canvas);
-  UNUSED(board);
-  assert(false);
-}
-
-
-void writeEMLCanvasPlay(
-  vector<string>& canvas,
-  Board * board)
-{
-  // need player leading to each trick
-  // opening lead (first card played)
-  // get a whole play structure out
-  UNUSED(canvas);
-  UNUSED(board);
-  assert(false);
-}
-
-
 bool writeEML(
   Group& group,
   const string& fname)
@@ -705,6 +614,8 @@ bool writeEML(
   fstr << "% www.rpbridge.net Richard Pavlicek\n";
 
   const formatType f = BRIDGE_FORMAT_EML;
+  string chunk[EML_LABELS_SIZE];
+  Canvas canvas;
 
   for (unsigned g = 0; g < group.GetLength(); g++)
   {
@@ -730,38 +641,62 @@ bool writeEML(
           return false;
         }
 
-        // Figure out actual number of lines in the canvas,
-        // based on the length of the auction and the dealer.
-        const unsigned clen = writeEMLCanvasHeight(board);
-        vector<string> canvas(clen);
-        for (unsigned j = 0; j < clen; j++)
-          canvas[j].assign(EMLlineLength, ' ');
-
         board->CalculateScore();
 
-        // Fill out the fixed fields directly.
-        writeEMLCanvasFixed(canvas, clen-11);
+        chunk[EML_SCORING] = segment->ScoringAsString(f);
+        chunk[EML_BOARD] = segment->NumberAsString(f, b);
 
-        // Fill out the easy fields.
-        writeEMLCanvasEasy(canvas, segment, board);
+        chunk[EML_WEST] = board->WestAsString(f);
+        chunk[EML_NORTH] = board->NorthAsString(f);
+        chunk[EML_EAST] = board->EastAsString(f);
+        chunk[EML_SOUTH] = board->SouthAsString(f);
 
-        writeEMLCanvasDeal(canvas, board);
+        chunk[EML_DEAL] = board->DealAsString(BRIDGE_WEST, f);
+        chunk[EML_DEALER] = board->DealerAsString(f);
+        chunk[EML_VULNERABLE] = board->VulAsString(f);
+        chunk[EML_AUCTION] = board->AuctionAsString(f);
+        chunk[EML_LEAD] = board->LeadAsString(f);
+        chunk[EML_PLAY] = board->PlayAsString(f);
+        chunk[EML_RESULT] = board->ResultAsString(f, false);
+        chunk[EML_SCORE] = board->ScoreAsString(f, 
+          segment->ScoringIsIMPs());
 
-        writeEMLCanvasAuction(canvas, board);
+        // Convert deal, auction and play from \n to vectors.
+        vector<string> deal, auction, play;
+        ConvertMultilineToVector(chunk[EML_DEAL], deal);
+        ConvertMultilineToVector(chunk[EML_AUCTION], auction);
+        ConvertMultilineToVector(chunk[EML_PLAY], play);
 
-        writeEMLCanvasPlay(canvas, board);
+        // Height of auction determines dimensions.
+        const unsigned a = auction.size();
+        const unsigned alstart = (a <= 6 ? 14 : a+8);
+        const unsigned clen = alstart + 5;
+        const unsigned acstart = (play[0].length() > 38 ? 39u : 42u);
 
-        // Print the canvas, dropping trailing spaces.
-        for (unsigned j = 0; j < clen; j++)
-        {
-          int p = EMLlineLength-1;
-          while (p >= 0 && canvas[j].at(static_cast<unsigned>(p)) == ' ')
-            p--;
-          if (p < 0)
-            fstr << "\n";
-          else
-            fstr << canvas[j].substr(0, static_cast<unsigned>(p+1)) << "\n";
-        }
+        canvas.SetDimensions(clen, 80);
+
+        canvas.SetRectangle(deal, 0, 4);
+        canvas.SetRectangle(auction, 2, 42);
+        canvas.SetRectangle(play, alstart, acstart);
+
+        canvas.SetLine(chunk[EML_SCORING], 0, 0);
+        canvas.SetLine(chunk[EML_WEST], 7, 4);
+        canvas.SetLine(chunk[EML_NORTH], 1, 16);
+        canvas.SetLine(chunk[EML_EAST], 7, 27);
+        canvas.SetLine(chunk[EML_SOUTH], 13, 16);
+        canvas.SetLine(chunk[EML_WEST], 3, 42);
+        canvas.SetLine(chunk[EML_NORTH], 3, 51);
+        canvas.SetLine(chunk[EML_EAST], 3, 60);
+        canvas.SetLine(chunk[EML_SOUTH], 3, 69);
+        canvas.SetLine(chunk[EML_BOARD], 0, 42);
+
+        canvas.SetLine(chunk[EML_DEALER], 1, 0);
+        canvas.SetLine(chunk[EML_VULNERABLE], 2, 0);
+        canvas.SetLine(chunk[EML_LEAD], a+3, 42);
+        canvas.SetLine(chunk[EML_RESULT], a+4, 42);
+        canvas.SetLine(chunk[EML_SCORE], a+5, 42);
+
+        fstr << canvas.AsString() << "\n";
 
         if (i < numInstances-1)
           fstr << EMLdashes << "\n\n";

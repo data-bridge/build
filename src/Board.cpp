@@ -636,6 +636,13 @@ string Board::ScoreAsString(
 }
 
 
+string Board::LeadAsString(
+  const formatType f) const
+{
+  return play[numActive].LeadAsString(f);
+}
+
+
 string Board::PlayAsString(
   const formatType f) const
 {
@@ -662,6 +669,34 @@ string Board::PlayersAsString(
   const formatType f) const
 {
   return players[numActive].AsString(f);
+}
+
+
+string Board::WestAsString(
+  const formatType f) const
+{
+  return players[numActive].PlayerAsString(BRIDGE_WEST, f);
+}
+
+
+string Board::NorthAsString(
+  const formatType f) const
+{
+  return players[numActive].PlayerAsString(BRIDGE_NORTH, f);
+}
+
+
+string Board::EastAsString(
+  const formatType f) const
+{
+  return players[numActive].PlayerAsString(BRIDGE_EAST, f);
+}
+
+
+string Board::SouthAsString(
+  const formatType f) const
+{
+  return players[numActive].PlayerAsString(BRIDGE_SOUTH, f);
 }
 
 

@@ -1,5 +1,63 @@
-Auction: RBN auction starts with dealer and vul.
-Pack these up as well?
+writeEML
+--------
+canvas print in the right order, do deal early
+Need a "rectangle insert":
+* Split a string on newline?
+
+options
+-------
+-i file, single input file
+-I dir, all files with readable endings in dir
+mutually exclusive
+
+-o file, single output file, goes with -i
+-O dir, same as input format if no -f
+
+-f output format (controls -O, -b, -c)
+
+-b "binary compare", write to temp file, read back in, check ==
+-c compare, write to temp file, do a diff either with self or with
+ other file already present with appropriate name
+
+-l log file for all differences
+ think about diffs (eml -> rbn will not have T, L, E, ... recognize?)
+
+-T timer
+-h hint file(s) in input directory, make these
+(existing hints are read in automatically)
+
+-S stats on lengths
+-N name file
+-g generate suggestions for new tables
+
+-A analyse DD
+-p play analyze DD
+
+-n #cores for splitting up multiple files
+
+-v verbose (1, 2, 4, 8?)
+
+
+Start by adding options.cpp
+Then write a script to set combinations
+Then work on combining formats
+
+Thoughts on combining the formats
+---------------------------------
+RBN, PBN, LIN, PBX
+sequential formats
+* Have an overall read function, 
+* Pass in the name of the readChunk function,
+* Pass in array of function pointers,
+* Pass in length of array (or it's a vector<>),
+* TryMethod is also generic?
+* Pass in the dividing line between segment and board functions
+
+TXT, REC, PBN
+* Canvas formats
+* Open and closed may be different
+* 
+
 
 Auction:
 If we SetScore, then must check against CalculateScore (order?).

@@ -628,6 +628,12 @@ string Segment::NumberAsString(
       LOG("Invalid format " + STR(f));
       return false;
 
+    case BRIDGE_FORMAT_EML:
+      if (! seg.scoring.ScoringIsIMPs())
+        return "";
+      st << "Teams Board " << extNo;
+      return st.str();
+
     default:
       LOG("Invalid format " + STR(f));
       return false;

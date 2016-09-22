@@ -339,6 +339,9 @@ string Players::PlayerAsString(
       LOG("No separate RBN player format");
       return "";
     
+    case BRIDGE_FORMAT_EML:
+      return players[player].substr(0, 9);
+
     case BRIDGE_FORMAT_TXT:
       return players[player];
     

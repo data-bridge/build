@@ -273,6 +273,9 @@ class Board
       const formatType f,
       const bool scoringIsIMPs) const;
 
+    string LeadAsString(
+      const formatType f) const;
+
     string PlayAsString(
       const formatType f) const;
 
@@ -284,6 +287,18 @@ class Board
       const formatType f) const;
     
     string PlayersAsString(
+      const formatType f) const;
+    
+    string WestAsString(
+      const formatType f) const;
+    
+    string NorthAsString(
+      const formatType f) const;
+    
+    string EastAsString(
+      const formatType f) const;
+    
+    string SouthAsString(
       const formatType f) const;
     
     string ResultAsString(

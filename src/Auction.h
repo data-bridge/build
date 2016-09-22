@@ -102,15 +102,18 @@ class Auction
     string AsLIN() const;
     string AsPBN() const;
     string AsRBN() const;
+    string AsEML() const;
     string AsTXT(const string& names = "") const;
 
     string DealerAsLIN() const;
     string DealerAsPBN() const;
+    string DealerAsEML() const;
     string DealerAsTXT() const;
 
     string VulAsLIN() const;
     string VulAsPBN() const;
     string VulAsRBN() const;
+    string VulAsEML() const;
     string VulAsTXT() const;
 
   public:

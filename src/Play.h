@@ -79,6 +79,7 @@ class Play
     string AsLIN() const;
     string AsPBN() const;
     string AsRBN() const;
+    string AsEML() const;
     string AsTXT() const;
 
     void SetTables();
@@ -141,6 +142,9 @@ class Play
     bool operator != (const Play& p2) const;
 
     string AsString(
+      const formatType f) const;
+
+    string LeadAsString(
       const formatType f) const;
 
     string ClaimAsString(

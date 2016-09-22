@@ -65,11 +65,13 @@ int main(int argc, char * argv[])
 
 
 
+  /*
   if (! writeRBN(groupEML, "out.rbn"))
   {
     debug.Print();
     assert(false);
   }
+  */
 
   /*
   if (! writePBN(groupPBN, "out.pbn"))
@@ -79,6 +81,11 @@ int main(int argc, char * argv[])
   }
   */
 
+  if (! writeEML(groupEML, "out.eml"))
+  {
+    debug.Print();
+    assert(false);
+  }
 }
 
 

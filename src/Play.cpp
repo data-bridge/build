@@ -768,6 +768,42 @@ string Play::AsRBN() const
 }
 
 
+string Play::AsEML() const
+{
+  stringstream s;
+  s << " ";
+  for (unsigned l = 0; l < (len+3) >> 2; l++)
+    s << setw(3) << l+1;
+  s << "\n";
+
+  stringstream ps[BRIDGE_PLAYERS];
+  for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
+    ps[p] << PLAYER_NAMES_SHORT[(p+3) % 4];
+
+  for (unsigned l = 0; l < len; l++)
+  {
+    unsigned t = l >> 2;
+    unsigned pEML = (leads[t].leader + 1 + l) % 4;
+    if (t > 0 && l % 4 == 0)
+      ps[pEML] << "-";
+    else
+      ps[pEML] << " ";
+
+    if (l % 4 == 0)
+      ps[pEML] << setw(2) << PLAY_NO_TO_CARD[sequence[l]];
+    else if (PLAY_NO_TO_INFO[sequence[l]].suit != 
+        static_cast<unsigned>(leads[l >> 2].suit))
+      ps[pEML] << setw(2) << PLAY_NO_TO_CARD[sequence[l]];
+    else
+      ps[pEML] << setw(2) << PLAY_CARDS[PLAY_NO_TO_INFO[sequence[l]].rank];
+  }
+
+  for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
+    s << ps[p].str() << "\n";
+  return s.str();
+}
+
+
 string Play::AsTXT() const
 {
   if (len == 0)
@@ -834,6 +870,9 @@ string Play::AsString(const formatType f) const
     case BRIDGE_FORMAT_RBN:
       return Play::AsRBN();
 
+    case BRIDGE_FORMAT_EML:
+      return Play::AsEML();
+
     case BRIDGE_FORMAT_TXT:
       return Play::AsTXT();
 
@@ -854,6 +893,39 @@ string Play::ClaimAsLIN() const
 
   return s.str();
   
+}
+
+
+string Play::LeadAsString(const formatType f) const
+{
+  switch(f)
+  {
+    case BRIDGE_FORMAT_LIN:
+      LOG("Currently unimplemented format " + STR(f));
+      return "";
+
+    case BRIDGE_FORMAT_PBN:
+      LOG("Currently unimplemented format " + STR(f));
+      return "";
+
+    case BRIDGE_FORMAT_RBN:
+      LOG("Currently unimplemented format " + STR(f));
+      return "";
+
+    case BRIDGE_FORMAT_EML:
+      if (len == 0)
+        return "Opening Lead:";
+      else
+        return "Opening Lead: " + PLAY_NO_TO_CARD[sequence[0]];
+
+    case BRIDGE_FORMAT_TXT:
+      LOG("Currently unimplemented format " + STR(f));
+      return "";
+
+    default:
+      LOG("Invalid format " + STR(f));
+      return "";
+  }
 }
 
 

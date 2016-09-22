@@ -56,11 +56,14 @@ class Contract
 
     string ScoreAsPBN() const;
     string ScoreAsPBN(const int refScore) const;
+    string ScoreAsEML() const;
+    string ScoreAsEML(const int refScore) const;
     string ScoreAsTXT() const;
 
     string ResultAsStringPBN() const;
     string ResultAsStringRBN() const;
     string ResultAsStringRBN(const int refScore) const;
+    string ResultAsStringEML() const;
 
     string AsLIN() const;
     string AsPBN() const;

@@ -66,4 +66,8 @@ bool ParsePlayer(
   const char c,
   playerType& p);
 
+void ConvertMultilineToVector(
+  const string& sin,
+  vector<string>& sout);
+
 #endif

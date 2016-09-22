@@ -309,3 +309,21 @@ bool ParsePlayer(
   return true;
 }
 
+
+void ConvertMultilineToVector(
+  const string& sin,
+  vector<string>& sout)
+{
+  unsigned l = sin.size();
+  unsigned p = 0;
+  while (p < l)
+  {
+    unsigned found = sin.find("\n", p);
+    if (found == string::npos)
+      return;
+
+    sout.push_back(sin.substr(p, found-p));
+    p = found+1;
+  }
+}
+

@@ -26,6 +26,7 @@ const string CARDS[BRIDGE_TRICKS] =
   "2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K", "A"
 };
 
+
 bool setDealTables = false;
 string HOLDING_TO_SUIT[MAX_HOLDING+1];
 map<string, unsigned> SUIT_TO_HOLDING;
@@ -466,6 +467,36 @@ string Deal::AsRBN(const playerType start) const
 }
 
 
+string Deal::AsEML() const
+{
+  stringstream t;
+  t << setw(12) << "" << "north\n\n";
+  for (unsigned s = 0; s < BRIDGE_SUITS; s++)
+  {
+    t << setw(12) << "" << DENOM_NAMES_SHORT[s] << " " <<
+      (holding[BRIDGE_NORTH][s] == 0 ? "" : cards[BRIDGE_NORTH][s]) << "\n";
+  }
+
+  t << setw(23) << left << "west" << "east\n\n";
+
+  for (unsigned s = 0; s < BRIDGE_SUITS; s++)
+  {
+    t << DENOM_NAMES_SHORT[s] << " " << setw(21) << left << 
+      (holding[BRIDGE_WEST][s] == 0 ? "" : cards[BRIDGE_WEST][s]) <<
+      DENOM_NAMES_SHORT[s] << " " << setw(13) << left <<
+      (holding[BRIDGE_EAST][s] == 0 ? "" : cards[BRIDGE_EAST][s]) << "\n";
+  }
+
+  t << setw(12) << "" << "south\n\n";
+  for (unsigned s = 0; s < BRIDGE_SUITS; s++)
+  {
+    t << setw(12) << "" << DENOM_NAMES_SHORT[s] << " " <<
+      (holding[BRIDGE_SOUTH][s] == 0 ? "" : cards[BRIDGE_SOUTH][s]) << "\n";
+  }
+  return t.str();
+}
+
+
 string Deal::AsTXT(
   const Players& players) const
 {
@@ -529,6 +560,9 @@ string Deal::AsString(
 
     case BRIDGE_FORMAT_RBN:
       return Deal::AsRBN(start);
+
+    case BRIDGE_FORMAT_EML:
+      return Deal::AsEML();
 
     default:
       LOG("Other plain deal formats not implemented");

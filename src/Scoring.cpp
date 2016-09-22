@@ -31,7 +31,7 @@ const string SCORING_RBN[] =
   "I", "B", "T", "X", "M", "N", "R", "C", "A", "P"
 };
 
-const string SCORING_TXT[] =
+const string SCORING_EML[] =
 {
   "IMPs", 
   "Board-a-match", 
@@ -198,11 +198,11 @@ string Scoring::AsRBN() const
 }
 
 
-string Scoring::AsTXT() const
+string Scoring::AsEML() const
 {
   if (scoring == BRIDGE_SCORING_UNDEFINED)
     return "";
-  return SCORING_TXT[scoring];
+  return SCORING_EML[scoring];
 }
 
 
@@ -219,8 +219,8 @@ string Scoring::AsString(const formatType f) const
     case BRIDGE_FORMAT_RBN:
       return Scoring::AsRBN();
     
-    case BRIDGE_FORMAT_TXT:
-      return Scoring::AsTXT();
+    case BRIDGE_FORMAT_EML:
+      return Scoring::AsEML();
     
     default:
       LOG("Invalid format " + STR(f));

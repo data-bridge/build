@@ -945,6 +945,25 @@ string Contract::ScoreAsPBN(const int refScore) const
 }
 
 
+string Contract::ScoreAsEML() const
+{
+  stringstream s;
+  s << "Score: " << score << ",  IMPs:";
+  return s.str();
+}
+
+
+string Contract::ScoreAsEML(const int refScore) const
+{
+  stringstream s;
+  s << Contract::ScoreAsEML();
+
+  int IMPs = Contract::ConvertDiffToIMPs(score - refScore);
+  s << setw(7) << setprecision(2) << fixed << static_cast<double>(IMPs);
+  return s.str();
+}
+
+
 string Contract::ScoreAsTXT() const
 {
   if (! setContractFlag || ! setResultFlag)
@@ -970,6 +989,9 @@ string Contract::ScoreAsString(const formatType f) const
     case BRIDGE_FORMAT_RBN:
       LOG("RBN score not implemented");
       return "";
+
+    case BRIDGE_FORMAT_EML:
+      return Contract::ScoreAsEML();
 
     case BRIDGE_FORMAT_TXT:
       return Contract::ScoreAsTXT();
@@ -997,6 +1019,9 @@ string Contract::ScoreAsString(
     case BRIDGE_FORMAT_RBN:
       LOG("RBN score not implemented");
       return "";
+
+    case BRIDGE_FORMAT_EML:
+      return Contract::ScoreAsEML(refScore);
 
     case BRIDGE_FORMAT_TXT:
       LOG("TXT score not implemented");
@@ -1043,6 +1068,18 @@ string Contract::ResultAsStringRBN(const int refScore) const
 }
 
 
+string Contract::ResultAsStringEML() const
+{
+  stringstream s;
+  // Pavlicek bug?
+  if (tricksRelative < 0)
+    s << "Result: " << tricksRelative;
+  else
+    s << "Result: +" << contract.level + tricksRelative;
+  return s.str();
+}
+
+
 string Contract::ResultAsString(const formatType f) const
 {
   if (! setResultFlag)
@@ -1059,6 +1096,9 @@ string Contract::ResultAsString(const formatType f) const
 
     case BRIDGE_FORMAT_RBN:
       return Contract::ResultAsStringRBN() + "\n";
+
+    case BRIDGE_FORMAT_EML:
+      return Contract::ResultAsStringEML();
 
     case BRIDGE_FORMAT_TXT:
       LOG("TXT score not implemented");
