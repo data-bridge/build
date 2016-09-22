@@ -152,6 +152,9 @@ bool Play::SetDeclAndDenom(
 {
   if (setDDFlag)
   {
+    if (declIn == declarer && denomIn == denom)
+      return true;
+
     LOG("Declarer and denomination already set");
     return false;
   }

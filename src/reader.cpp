@@ -35,38 +35,13 @@ int main(int argc, char * argv[])
   UNUSED(argc);
   UNUSED(argv);
 
-  Group groupRBN;
-  Group groupPBN;
-  Group groupEML;
+  Group group;
   setRBNtables();
   setPBNtables();
   setEMLtables();
 
   /*
-  if (! readRBN(groupRBN, "S10FA1.RBN"))
-  {
-    debug.Print();
-    assert(false);
-  }
-  */
-
-  /* if (! readPBN(groupPBN, "S10FA1.PBN"))
-  {
-    debug.Print();
-    assert(false);
-  }
-  */
-
-  if (! readEML(groupEML, "S10FA1.EML"))
-  {
-    debug.Print();
-    assert(false);
-  }
-
-
-
-  /*
-  if (! writeRBN(groupEML, "out.rbn"))
+  if (! readRBN(group, "S10FA1.RBN"))
   {
     debug.Print();
     assert(false);
@@ -74,14 +49,36 @@ int main(int argc, char * argv[])
   */
 
   /*
-  if (! writePBN(groupPBN, "out.pbn"))
+  if (! readPBN(group, "S10FA1.PBN"))
   {
     debug.Print();
     assert(false);
   }
   */
 
-  if (! writeEML(groupEML, "out.eml"))
+  /* */
+  if (! readEML(group, "S10FA1.EML"))
+  {
+    debug.Print();
+    assert(false);
+  }
+  /* */
+
+
+
+  if (! writeRBN(group, "out.rbn"))
+  {
+    debug.Print();
+    assert(false);
+  }
+
+  if (! writePBN(group, "out.pbn"))
+  {
+    debug.Print();
+    assert(false);
+  }
+
+  if (! writeEML(group, "out.eml"))
   {
     debug.Print();
     assert(false);
