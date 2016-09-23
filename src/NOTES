@@ -1,8 +1,9 @@
-writeEML
---------
-canvas print in the right order, do deal early
-Need a "rectangle insert":
-* Split a string on newline?
+Check that LOG is only set at the lowest level where error occurs.
+In read*, we should perhaps add the input file line number.
+
+Maybe combine the enum and the string on top of each file*.cpp
+
+Actually a lot of the pointed-to functions are the same.  Maybe unify?
 
 options
 -------

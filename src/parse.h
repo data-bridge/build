@@ -58,6 +58,11 @@ bool ReadNextWord(
   const unsigned stopPosInclusive,
   string& word);
 
+bool ReadNextSpacedWord(
+  const string& s,
+  const unsigned startPos,
+  string& word);
+
 bool ReadLastWord(
   const string& s,
   string& word);

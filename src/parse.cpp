@@ -262,6 +262,28 @@ bool ReadNextWord(
 }
 
 
+bool ReadNextSpacedWord(
+  const string& s,
+  const unsigned startPos,
+  string& word)
+{
+  stringstream t;
+  unsigned l = s.length();
+  unsigned pos = startPos;
+  while (pos < l && s.at(pos) != ' ')
+  {
+    t << s.at(pos);
+    pos += 2;
+  }
+
+  if (pos == startPos)
+    return false;
+
+  word = t.str();
+  return true;
+}
+
+
 bool ReadLastWord(
   const string& s,
   string& word)
