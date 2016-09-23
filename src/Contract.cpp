@@ -324,29 +324,26 @@ bool Contract::SetContract(const string& text)
 {
   if (text == "P")
     return Contract::SetPassedOut();
+
+  auto it = CONTRACT_STRING_TO_PARTS.find(text);
+  if (it == CONTRACT_STRING_TO_PARTS.end())
+  {
+    LOG("Invalid string: '" + text + "'");
+    return false;
+  }
   else
   {
-    map<string, entryType>::iterator it = 
-      CONTRACT_STRING_TO_PARTS.find(text);
-    if (it == CONTRACT_STRING_TO_PARTS.end())
+    setContractFlag = true;
+    entryType entry = CONTRACT_STRING_TO_PARTS[text];
+    contract = entry.contract;
+    if (entry.tricksRelative != 7)
     {
-      LOG("Invalid string: '" + text + "'");
-      return false;
+      setResultFlag = true;
+      tricksRelative = entry.tricksRelative;
+      Contract::CalculateScore();
     }
-    else
-    {
-      setContractFlag = true;
-      entryType entry = CONTRACT_STRING_TO_PARTS[text];
-      contract = entry.contract;
-      if (entry.tricksRelative != 7)
-      {
-        setResultFlag = true;
-        tricksRelative = entry.tricksRelative;
-        Contract::CalculateScore();
-      }
 
-      return true;
-    }
+    return true;
   }
 }
 
@@ -355,8 +352,42 @@ bool Contract::SetContract(
   const string& text,
   const formatType f)
 {
-  UNUSED(f);
-  return Contract::SetContract(text);
+  string mod, wd;
+  switch(f)
+  {
+    case BRIDGE_FORMAT_LIN:
+    case BRIDGE_FORMAT_PBN:
+    case BRIDGE_FORMAT_RBN:
+    case BRIDGE_FORMAT_EML:
+      return Contract::SetContract(text);
+
+    case BRIDGE_FORMAT_TXT:
+      if (text.find(" ") == string::npos)
+        return Contract::SetContract(text);
+
+      if (! ReadNextWord(text, 0, mod))
+        return Contract::SetContract(text);
+
+      if (! ReadLastWord(text, wd))
+        return Contract::SetContract(text);
+
+      if (wd == "North")
+        mod += "N";
+      else if (wd == "East")
+        mod += "E";
+      else if (wd == "South")
+        mod += "S";
+      else if (wd == "West")
+        mod += "W";
+      else 
+        return Contract::SetContract(text);
+
+      return Contract::SetContract(mod);
+
+    default:
+      LOG("Other score formats not implemented");
+      return "";
+  }
 }
 
 
@@ -471,6 +502,8 @@ bool Contract::SetResult(
   const string& text,
   const formatType f)
 {
+  // Maybe the usual switch.
+  //
   unsigned u;
 
   if (f == BRIDGE_FORMAT_EML)
@@ -486,6 +519,27 @@ bool Contract::SetResult(
       u = static_cast<unsigned>(i + 6); // Possible Pavlicek error?
     else
       u = static_cast<unsigned>(i + static_cast<int>(contract.level + 6));
+  }
+  else if (f == BRIDGE_FORMAT_TXT)
+  {
+    // Ignore everything but the number of tricks.
+    string wd1, wd2;
+    if (! ReadNextWord(text, 0, wd1))
+      return false;
+
+    if (! ReadNextWord(text, 5, wd2))
+      return false;
+
+    if (! StringToUnsigned(wd2, u))
+      return false;
+
+    if (wd1 == "Down")
+      u = static_cast<unsigned>( static_cast<int>(contract.level + 6 - u));
+    else if (wd1 == "Made")
+      u += 6;
+    else
+      return false;
+      
   }
   else if (! StringToUnsigned(text, u))
   {
@@ -745,7 +799,18 @@ string Contract::AsRBN() const
 
 string Contract::AsTXT() const
 {
-  return Contract::AsLIN();
+  if (! setContractFlag)
+    return "";
+  
+  if (contract.level == 0)
+    return "Passed Out";
+
+  stringstream s;
+  s << contract.level << 
+    DENOM_NAMES_SHORT_PBN[contract.denom] << " " <<
+    PLAYER_NAMES_LONG[contract.declarer] << "\n";
+
+  return s.str();
 }
 
 
@@ -1086,6 +1151,41 @@ string Contract::ResultAsStringEML() const
 }
 
 
+string Contract::ResultAsStringTXT() const
+{
+  stringstream s;
+  if (tricksRelative < 0)
+    s << "Down " << -tricksRelative << " -- ";
+  else
+    s << "Made " << contract.level + tricksRelative << " -- ";
+
+  if (score > 0)
+    s << "NS +" << score;
+  else
+    s << "EW +" << -score;
+  return s.str();
+}
+
+
+string Contract::ResultAsStringTXT(const int refScore) const
+{
+  stringstream s;
+  s << Contract::ResultAsStringTXT();
+
+  if (score == refScore)
+    s << " -- Tie\n";
+  else
+  {
+    int IMPs = Contract::ConvertDiffToIMPs(score - refScore);
+    if (IMPs > 0)
+      s << " -- TEAMo +" << IMPs << " IMPs\n";
+    else
+      s << " -- TEAMc +" << -IMPs << " IMPs\n";
+  }
+  return s.str();
+}
+
+
 string Contract::ResultAsString(const formatType f) const
 {
   if (! setResultFlag)
@@ -1107,8 +1207,7 @@ string Contract::ResultAsString(const formatType f) const
       return Contract::ResultAsStringEML();
 
     case BRIDGE_FORMAT_TXT:
-      LOG("TXT score not implemented");
-      return "";
+      return Contract::ResultAsStringTXT() + "\n";
 
     default:
       LOG("Other score formats not implemented");
@@ -1138,8 +1237,7 @@ string Contract::ResultAsString(
       return Contract::ResultAsStringRBN(refScore);
 
     case BRIDGE_FORMAT_TXT:
-      LOG("TXT score not implemented");
-      return "";
+      return Contract::ResultAsStringTXT(refScore);
 
     default:
       LOG("Other score formats not implemented");

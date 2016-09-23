@@ -512,9 +512,7 @@ string Segment::TitleAsString(const formatType f) const
       return st.str();
 
     case BRIDGE_FORMAT_TXT:
-      if (seg.title == "")
-        return "";
-      return seg.title;
+      return seg.title + "\n";
 
     default:
       LOG("Invalid format " + STR(f));
@@ -557,7 +555,7 @@ string Segment::EventAsString(const formatType f) const
       return st.str();
 
     case BRIDGE_FORMAT_TXT:
-      return seg.event;
+      return seg.event + "\n";
 
     default:
       LOG("Invalid format " + STR(f));
@@ -633,14 +631,14 @@ string Segment::NumberAsString(
       st << "B " << extNo << "\n";
       return st.str();
 
-    case BRIDGE_FORMAT_TXT:
-      LOG("Invalid format " + STR(f));
-      return false;
-
     case BRIDGE_FORMAT_EML:
       if (! seg.scoring.ScoringIsIMPs())
         return "";
       st << "Teams Board " << extNo;
+      return st.str();
+
+    case BRIDGE_FORMAT_TXT:
+      st << extNo << ".";
       return st.str();
 
     default:

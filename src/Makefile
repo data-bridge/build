@@ -121,8 +121,8 @@ parse.obj: bconst.h parse.h portab.h
 reader.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 reader.obj: Teams.h Board.h Deal.h Players.h Tableau.h Contract.h Valuation.h
 reader.obj: Auction.h Play.h UnitTest.h fileRBN.h filePBN.h fileEML.h
-reader.obj: portab.h Debug.h
+reader.obj: fileTXT.h portab.h Debug.h
 reader.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 reader.obj: Teams.h Board.h Deal.h Players.h Tableau.h Contract.h Valuation.h
 reader.obj: Auction.h Play.h UnitTest.h fileRBN.h filePBN.h fileEML.h
-reader.obj: portab.h Debug.h
+reader.obj: fileTXT.h portab.h Debug.h

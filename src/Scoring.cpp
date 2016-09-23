@@ -133,11 +133,11 @@ bool Scoring::Set(
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
-    case BRIDGE_FORMAT_TXT:
       return Scoring::SetLIN(t);
     
     case BRIDGE_FORMAT_PBN:
     case BRIDGE_FORMAT_EML:
+    case BRIDGE_FORMAT_TXT:
       return Scoring::SetPBN(t);
     
     case BRIDGE_FORMAT_RBN:

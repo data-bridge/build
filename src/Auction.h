@@ -103,7 +103,7 @@ class Auction
     string AsPBN() const;
     string AsRBN() const;
     string AsEML() const;
-    string AsTXT(const string& names = "") const;
+    string AsTXT() const;
 
     string DealerAsLIN() const;
     string DealerAsPBN() const;

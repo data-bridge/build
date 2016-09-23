@@ -86,9 +86,9 @@ void Auction::SetTables()
   AUCTION_NO_TO_CALL_EML[1] = "X";
   AUCTION_NO_TO_CALL_EML[2] = "XX";
 
-  AUCTION_NO_TO_CALL_TXT[0] = "pass";
-  AUCTION_NO_TO_CALL_TXT[1] = "DBL";
-  AUCTION_NO_TO_CALL_TXT[2] = "RDBL";
+  AUCTION_NO_TO_CALL_TXT[0] = "Pass";
+  AUCTION_NO_TO_CALL_TXT[1] = "Dbl";
+  AUCTION_NO_TO_CALL_TXT[2] = "Rdbl";
 
   unsigned p = 3;
   for (unsigned level = 1; level <= 7; level++)
@@ -846,11 +846,8 @@ bool Auction::AddAuction(
       return Auction::AddAuctionRBN(s);
 
     case BRIDGE_FORMAT_EML:
-      return Auction::AddAuctionEML(s);
-    
     case BRIDGE_FORMAT_TXT:
-      LOG("Auction TXT type not implemented");
-      return false;
+      return Auction::AddAuctionEML(s);
     
     default:
       LOG("Unknown auction type");
@@ -1255,50 +1252,46 @@ string Auction::AsEML() const
 }
 
 
-string Auction::AsTXT(const string& names) const
+string Auction::AsTXT() const
 {
-  stringstream s, alerts;
-  unsigned aNo = 1;
+  stringstream s;
   s << left <<
-       setw(15) << "West" << 
-       setw(15) << "North" << 
-       setw(15) << "East" << 
-       setw(15) << "South" << "\n";
-  s << names;
+       setw(12) << "West" << 
+       setw(12) << "North" << 
+       setw(12) << "East" << 
+       "South" << "\n";
 
   if (len == 0)
     return s.str();
 
+  unsigned trailing = 0;
+  unsigned end = len-1;
+  while (sequence[end].no == 0 && sequence[end].alert == "")
+    trailing++, end--;
+    
   const unsigned numSkips = static_cast<unsigned>
     ((dealer + 4 - BRIDGE_WEST) % 4);
   const unsigned wrap = 3 - numSkips;
   for (unsigned i = 0; i < numSkips; i++)
-    s << setw(15) << "";
+    s << setw(12) << "";
   
-  for (unsigned b = 0; b < len; b++)
+  for (unsigned b = 0; b <= end; b++)
   {
     const Call& c = sequence[b];
     stringstream bid;
     bid << AUCTION_NO_TO_CALL_TXT[c.no];
-    if (c.alert != "")
-    {
-      if (c.alert == "!")
-        bid << " (*)";
-      else
-      {
-        bid << " (" << aNo << ")";
-	alerts << "(" << aNo << ") " << c.alert << "\n";
-	aNo++;
-      }
-    }
-    s << setw(15) << bid.str();
     if (b % 4 == wrap)
-      s << "\n";
+      s << bid.str() << "\n";
+    else
+      s << setw(12) << bid.str();
   }
 
-  if (len % 4 != wrap)
+  if (trailing == 3)
+    s << "All Pass\n";
+  else if (end % 4 != wrap)
     s << "\n";
-  return s.str() + alerts.str();
+
+  return s.str();
 }
 
 
@@ -1306,6 +1299,7 @@ string Auction::AsString(
   const formatType f,
   const string& names) const
 {
+  UNUSED(names);
   if (! setDVFlag)
   {
     LOG("Dealer/vul not set");
@@ -1327,7 +1321,7 @@ string Auction::AsString(
       return Auction::AsEML();
     
     case BRIDGE_FORMAT_TXT:
-      return Auction::AsTXT(names);
+      return Auction::AsTXT();
     
     default:
       LOG("Invalid format " + STR(f));
@@ -1388,7 +1382,7 @@ string Auction::VulAsEML() const
 
 string Auction::VulAsTXT() const
 {
-  return VUL_NAMES_TXT[vul];
+  return VUL_NAMES_TXT[vul] + " Vul";
 }
 
 

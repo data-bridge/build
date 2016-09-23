@@ -85,6 +85,12 @@ PBN generation
 EML
 * Are you sure that -x refers to down and +x refers to 6 as basis?
 
+TXT
+* It is odd that some auctions end on "Pass Pass Pass", others
+  on "All Pass", even though the same auctions end on "A" in RBN.
+  Example S10FA1.RBN Board 4 (both auctions).  Others don't (Board 3,
+  for instance).  
+
 
 grep TODO *.cpp *.h
 grep assert

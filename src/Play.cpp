@@ -29,6 +29,11 @@ const char PLAY_CARDS[BRIDGE_TRICKS] =
   '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'
 };
 
+const string PLAY_CARDS_TXT[BRIDGE_TRICKS] =
+{
+  "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"
+};
+
 const char PLAY_DENOMS[2 * BRIDGE_SUITS] =
 {
   'S', 'H', 'D', 'C', 's', 'h', 'd', 'c'
@@ -43,6 +48,7 @@ struct cardInfoType
 };
 
 string PLAY_NO_TO_CARD[PLAY_NUM_CARDS];
+string PLAY_NO_TO_CARD_TXT[PLAY_NUM_CARDS];
 
 map<string, cardInfoType> PLAY_CARD_TO_INFO; // All syntaxes
 
@@ -101,6 +107,10 @@ void Play::SetTables()
       unsigned no = BRIDGE_TRICKS * (d % 4) + p;
 
       PLAY_NO_TO_CARD[no] = str;
+
+      stringstream s2;
+      s2 << PLAY_DENOMS[d % 4] << PLAY_CARDS_TXT[p];
+      PLAY_NO_TO_CARD_TXT[no] = s2.str();
 
       PLAY_CARD_TO_INFO[str].no = no;
       PLAY_CARD_TO_INFO[str].bitValue = 1u << (p + 2); // DDS encoding
@@ -455,11 +465,8 @@ bool Play::SetPlays(
 
     case BRIDGE_FORMAT_RBN:
     case BRIDGE_FORMAT_EML:
-      return Play::AddAllRBN(str);
-
     case BRIDGE_FORMAT_TXT:
-      LOG("Currently unimplemented format " + STR(f));
-      return false;
+      return Play::AddAllRBN(str);
 
     default:
       LOG("Invalid format " + STR(f));
@@ -811,50 +818,61 @@ string Play::AsTXT() const
 {
   if (len == 0)
     return "";
+
   stringstream s;
-
-  s << setw(6) << "Leader" <<
-       setw(4) << "C1" <<
-       setw(4) << "C2" <<
-       setw(4) << "C3" <<
-       setw(4) << "C4" <<
-       setw(11) << "Winner" <<
-       setw(6) << "Decl" <<
-       setw(5) << "Def" << "\n";
-
-  unsigned tDecl = 0;
-  unsigned tDef = 0;
-
-  for (unsigned l = 0; l < len; l++)
+  if (len == 1)
   {
-    unsigned c = l % 4;
-    unsigned t = l >> 2;
-    if (c == 0)
-      s << setw(6) << PLAYER_NAMES_LONG[leads[t].leader];
+    s << "Lead: " << PLAY_NO_TO_CARD_TXT[sequence[0]] << "\n";
+    return s.str();
+  }
 
-    s << setw(4) << PLAY_NO_TO_CARD[sequence[l]];
 
-    if (c == 3)
+  s << setw(5) << "Trick" <<
+       setw(7) << "Lead" <<
+       setw(7) << "2nd" <<
+       setw(7) << "3rd" <<
+       setw(7) << "4th" << "\n";
+
+  for (unsigned t = 0; t <= ((len-1) >> 2); t++)
+  {
+    s << t+1 << ". " << PLAYER_NAMES_SHORT[leads[t].leader];
+    if (t >= 9)
+      s << "   ";
+    else
+      s << "    ";
+
+    for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
     {
-      if (leads[t].wonByDeclarer)
+      unsigned pp = 4*t + p;
+      if (pp >= len)
+        break;
+
+      if (p == 0)
       {
-        s << setw(11) << "declarer";
-        tDecl++;
+        if (pp == len-1)
+          s << PLAY_NO_TO_CARD_TXT[sequence[pp]];
+        else
+          s << setw(8) << left << PLAY_NO_TO_CARD_TXT[sequence[pp]];
+      }
+      else if (PLAY_NO_TO_INFO[sequence[pp]].suit != 
+          static_cast<unsigned>(leads[t].suit))
+      {
+        if (p == 3 || pp == len-1)
+          s << PLAY_NO_TO_CARD_TXT[sequence[pp]];
+        else
+          s << setw(7) << left << PLAY_NO_TO_CARD_TXT[sequence[pp]];
       }
       else
       {
-        s << setw(11) << "defenders";
-        tDef++;
+        if (p == 3 || pp == len-1)
+          s << PLAY_CARDS_TXT[PLAY_NO_TO_INFO[sequence[pp]].rank];
+        else
+          s << setw(7) << left <<
+              PLAY_CARDS_TXT[PLAY_NO_TO_INFO[sequence[pp]].rank];
       }
-      s << setw(6) << tDecl << setw(5) << tDef << "\n";
     }
-  }
-  if (len % 4 != 3)
     s << "\n";
-
-  if (claimMadeFlag)
-    s << "Claim: " << tricksDecl << " tricks";
-  s << "\n\n";
+  }
 
   return s.str();
 }

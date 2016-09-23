@@ -57,7 +57,7 @@ class Deal
     string AsPBN(const playerType start) const;
     string AsRBN(const playerType start) const;
     string AsEML() const;
-    string AsTXT(const Players& players) const;
+    string AsTXT() const;
 
 
   public:
@@ -86,10 +86,6 @@ class Deal
 
     string AsString(
       const playerType start = BRIDGE_NORTH,
-      const formatType f = BRIDGE_FORMAT_LIN) const;
-
-    string AsString(
-      const Players& players,
       const formatType f = BRIDGE_FORMAT_LIN) const;
 
 };

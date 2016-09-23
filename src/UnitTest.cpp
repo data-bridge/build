@@ -319,8 +319,7 @@ void TestPlay()
 
   if (! play.SetHoldingDDS(cards)) assert(false);
 
-  Players players;
-  cout << deal.AsString(players, BRIDGE_FORMAT_TXT);
+  cout << deal.AsString(BRIDGE_NORTH, BRIDGE_FORMAT_TXT);
 
   // Test setting the play card by card.
 

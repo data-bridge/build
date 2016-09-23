@@ -399,8 +399,12 @@ string Teams::AsTXT(
   const unsigned score1,
   const unsigned score2) const
 {
-  return Teams::SingleAsTXT(team1) + STR(score1) + "  " +
-      Teams::SingleAsTXT(team2) + STR(score2) + "\n";
+  if (score1 >= score2)
+    return Teams::SingleAsTXT(team1) + " " + STR(score1) + "  " +
+        Teams::SingleAsTXT(team2) + " " + STR(score2) + "\n";
+  else
+    return Teams::SingleAsTXT(team2) + " " + STR(score2) + "  " +
+        Teams::SingleAsTXT(team1) + " " + STR(score1) + "\n";
 }
 
 

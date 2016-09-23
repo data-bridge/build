@@ -51,11 +51,11 @@ enum TXTlabel
   TXT_VULNERABLE = 14,
   TXT_AUCTION = 15,
   TXT_CONTRACT = 16,
-  TXT_PLAY = 18,
-  TXT_RESULT = 19,
-  TXT_SCORE = 20,
-  TXT_SCORE_IMP = 21,
-  TXT_LABELS_SIZE = 22
+  TXT_PLAY = 17,
+  TXT_RESULT = 18,
+  TXT_SCORE = 19,
+  TXT_SCORE_IMP = 20,
+  TXT_LABELS_SIZE = 21
 };
 
 const string TXTname[] =
@@ -123,12 +123,12 @@ bool getTXTDeal(
 
 bool getTXTAuction(
   const vector<string>& canvas,
-  const unsigned offset,
+  unsigned& offset,
   vector<string>& chunk);
 
 bool getTXTPlay(
   const vector<string>& canvas,
-  const unsigned offset,
+  unsigned& offset,
   vector<string>& chunk);
 
 bool readTXTChunk(
@@ -183,9 +183,6 @@ bool readTXTCanvas(
   while (getline(fstr, line))
   {
     lno++;
-    if (line.at(0) == '%')
-      continue;
-
     if (line.empty())
     {
       if (! seenDeal)
@@ -194,12 +191,23 @@ bool readTXTCanvas(
       string& prevLine = canvas.back();
       string wd;
       if (ReadNextWord(prevLine, 0, wd) && (wd == "Down" || wd == "Made"))
-        break;
+      {
+        int seen = count(prevLine.begin(), prevLine.end(), ' ');
+        if (seen > 4)
+          // Team line still to come
+          continue;
+        else
+          break;
+      }
+      else
+        continue;
     }
+    else if (line.at(0) == '%')
+      continue;
 
     if (line.size() > 25)
     {
-      if (line.substr(0, 6) == "West")
+      if (line.substr(0, 4) == "West")
         seenDeal = true;
       else
       {
@@ -224,11 +232,8 @@ bool getTXTCanvasOffset(
   while (auctionLine < canvas.size())
   {
     if (canvas[auctionLine].size() > 12 &&
-        ReadNextWord(canvas[auctionLine], 0, wd))
-    {
-      if (wd == "West")
-        break;
-    }
+        canvas[auctionLine].substr(0, 4) == "West")
+      break;
     auctionLine++;
   }
 
@@ -247,22 +252,32 @@ bool getTXTFields(
   const unsigned aline,
   vector<string>& chunk)
 {
+  unsigned bline = 0;
+  if (canvas[0].size() < 19 || 
+     (canvas[0].substr(12, 7) != "  North" &&
+      canvas[1].substr(0, 4) != "West"))
+  {
+    chunk[TXT_TITLE] = canvas[0];
+    chunk[TXT_DATE] = canvas[1];
+    chunk[TXT_LOCATION] = canvas[2];
+    chunk[TXT_EVENT] = canvas[3];
+    chunk[TXT_SESSION] = canvas[4];
+    chunk[TXT_SCORING] = "IMPs"; // Maybe others possible
+    chunk[TXT_TEAMS] = canvas[5];
+    bline = 6;
+  }
+
   if (aline > 10)
   {
-    if (! ReadNextWord(canvas[1], 0, chunk[TXT_TITLE])) return false;
-    if (! ReadNextWord(canvas[3], 0, chunk[TXT_DATE])) return false;
-    if (! ReadNextWord(canvas[4], 0, chunk[TXT_LOCATION])) return false;
-    if (! ReadNextWord(canvas[5], 0, chunk[TXT_EVENT])) return false;
-    if (! ReadNextWord(canvas[6], 0, chunk[TXT_SESSION])) return false;
-    chunk[TXT_SCORING] = "IMPs"; // Maybe others possible
-    if (! ReadNextWord(canvas[7], 0, chunk[TXT_TEAMS])) return false;
-
-    if (! ReadNextWord(canvas[9], 0, chunk[TXT_BOARD])) return false;
+    if (! ReadNextWord(canvas[bline], 0, chunk[TXT_BOARD])) 
+      return false;
     chunk[TXT_BOARD].pop_back(); // Drop trailing point
 
-    if (! ReadNextWord(canvas[23], 0, chunk[TXT_VULNERABLE])) return false;
+    if (! ReadNextWord(canvas[bline+14], 0, chunk[TXT_VULNERABLE])) 
+      return false;
 
-    if (! getTXTDeal(canvas, 9, chunk)) return false;
+    if (! getTXTDeal(canvas, bline, chunk)) 
+      return false;
   }
 
   if (! ReadNextWord(canvas[aline], 0, chunk[TXT_WEST])) return false;
@@ -275,7 +290,6 @@ bool getTXTFields(
   if (! getTXTAuction(canvas, cline, chunk))
     return false;
 
-  cline++;
   chunk[TXT_CONTRACT] = canvas[cline++];
 
   if (canvas[cline].size() < 5)
@@ -321,33 +335,35 @@ bool getTXTDeal(
   if (! ReadNextSpacedWord(canvas[offset+9], 2, stc)) stc = "";
   d << sts << "." << sth <<  "." << std << "." << stc << " ";
 
-  if (! ReadNextSpacedWord(canvas[offset+1], 12, sts)) sts = "";
-  if (! ReadNextSpacedWord(canvas[offset+2], 12, sth)) sth = "";
-  if (! ReadNextSpacedWord(canvas[offset+3], 12, std)) std = "";
-  if (! ReadNextSpacedWord(canvas[offset+4], 12, stc)) stc = "";
+  if (! ReadNextSpacedWord(canvas[offset+1], 14, sts)) sts = "";
+  if (! ReadNextSpacedWord(canvas[offset+2], 14, sth)) sth = "";
+  if (! ReadNextSpacedWord(canvas[offset+3], 14, std)) std = "";
+  if (! ReadNextSpacedWord(canvas[offset+4], 14, stc)) stc = "";
   d << sts << "." << sth <<  "." << std << "." << stc << " ";
 
-  if (! ReadNextSpacedWord(canvas[offset+6], 24, sts)) sts = "";
-  if (! ReadNextSpacedWord(canvas[offset+7], 24, sth)) sth = "";
-  if (! ReadNextSpacedWord(canvas[offset+8], 24, std)) std = "";
-  if (! ReadNextSpacedWord(canvas[offset+9], 24, stc)) stc = "";
+  if (! ReadNextSpacedWord(canvas[offset+6], 26, sts)) sts = "";
+  if (! ReadNextSpacedWord(canvas[offset+7], 26, sth)) sth = "";
+  if (! ReadNextSpacedWord(canvas[offset+8], 26, std)) std = "";
+  if (! ReadNextSpacedWord(canvas[offset+9], 26, stc)) stc = "";
   d << sts << "." << sth <<  "." << std << "." << stc << " ";
 
-  if (! ReadNextSpacedWord(canvas[offset+11], 12, sts)) sts = "";
-  if (! ReadNextSpacedWord(canvas[offset+11], 12, sth)) sth = "";
-  if (! ReadNextSpacedWord(canvas[offset+11], 12, std)) std = "";
-  if (! ReadNextSpacedWord(canvas[offset+11], 12, stc)) stc = "";
+  if (! ReadNextSpacedWord(canvas[offset+11], 14, sts)) sts = "";
+  if (! ReadNextSpacedWord(canvas[offset+12], 14, sth)) sth = "";
+  if (! ReadNextSpacedWord(canvas[offset+13], 14, std)) std = "";
+  if (! ReadNextSpacedWord(canvas[offset+14], 14, stc)) stc = "";
   d << sts << "." << sth <<  "." << std << "." << stc;
 
 
-  chunk[TXT_DEAL] = d.str();
+  // Turn -- (void) into nothing.
+  regex re("--");
+  chunk[TXT_DEAL] = regex_replace(d.str(), re, "");
   return true;
 }
 
 
 bool getTXTAuction(
   const vector<string>& canvas,
-  const unsigned offset,
+  unsigned& offset,
   vector<string>& chunk)
 {
   stringstream d;
@@ -360,48 +376,83 @@ bool getTXTAuction(
   if (firstStart >= 48)
     return false;
 
+  chunk[TXT_DEALER] = PLAYER_NAMES_LONG[
+    ((firstStart/12) + BRIDGE_WEST) % 4];
+
   string wd;
   unsigned no = 0;
-  for (unsigned l = offset; l < canvas.size(); l++)
+  bool done = false;
+  unsigned l;
+  unsigned numPasses = 0;
+  for (l = offset; l < canvas.size(); l++)
   {
     for (unsigned beg = (l == offset ? firstStart : 0); beg < 48; beg += 12)
     {
       if (! ReadNextWord(canvas[l], beg, wd))
+      {
+        done = true;
         break;
+      }
 
       if (no > 0 && no % 4 == 0)
         d << ":";
 
       if (wd == "Dbl")
+      {
         d << "X";
+        numPasses = 0;
+      }
       else if (wd == "Rdbl")
+      {
         d << "R";
+        numPasses = 0;
+      }
       else if (wd.size() == 3 && wd.at(1) == 'N' && wd.at(2) == 'T')
       {
         wd.erase(2, 1);
         d << wd;
+        numPasses = 0;
       }
       else if (wd == "Pass")
+      {
         d << "P";
+        numPasses++;
+      }
       else if (wd == "All")
       {
         d << "A";
+        done = true;
         break;
       }
       else
+      {
         d << wd;
+        numPasses = 0;
+      }
       no++;
+
+      if (numPasses >= 3)
+      {
+        done = true;
+        break;
+      }
     }
+    if (done)
+      break;
   }
 
+  if (l == canvas.size())
+    return false;
+
   chunk[TXT_AUCTION] = d.str();
+  offset = l+1;
   return true;
 }
 
 
 bool getTXTPlay(
   const vector<string>& canvas,
-  const unsigned offset,
+  unsigned& offset,
   vector<string>& chunk)
 {
   stringstream d;
@@ -409,10 +460,23 @@ bool getTXTPlay(
 
   bool done = false;
   string wd;
-  for (unsigned l = offset; l < canvas.size(); l++)
+  unsigned l;
+  for (l = offset; l < canvas.size(); l++)
   {
-    for (unsigned p = 8; p < 40; p += 8)
+    if (canvas[l].substr(1, 2) != ". " && canvas[l].substr(2, 2) != ". ")
     {
+      l--;
+      break;
+    }
+
+    if (l != offset)
+      d << ":";
+
+    for (unsigned p = 8; p < 36; p += 8)
+    {
+      if (p > 20)
+        p--; // WTF?
+
       if (! ReadNextWord(canvas[l], p, wd))
       {
         done = true;
@@ -420,16 +484,18 @@ bool getTXTPlay(
       }
       if (wd == "10")
         d << "T";
-      else if (wd.size() == 3 && wd.substr(1, 2) == "NT")
-        d << wd.substr(0, 1) << "N";
+      else if (wd.size() == 3 && wd.substr(1, 2) == "10")
+        d << wd.substr(0, 1) << "T";
       else
         d << wd;
     }
     if (done)
       break;
-    d << ":";
   }
 
+  if (l == canvas.size())
+    return false;
+  offset = l;
   chunk[TXT_PLAY] = d.str();
   return true;
 }
@@ -576,12 +642,11 @@ bool writeTXT(
     Segment * segment = group.GetSegment(g);
 
     fstr << "\n" << segment->TitleAsString(f) << "\n";
-    fstr << segment->TitleAsString(f);
-    fstr << segment->DateAsString(f);
+    fstr << segment->DateAsString(f) << "\n";
     fstr << segment->LocationAsString(f);
     fstr << segment->EventAsString(f);
     fstr << segment->SessionAsString(f);
-    fstr << segment->TeamsAsString(f) << "\n";
+    fstr << segment->TeamsAsString(f) << "\n\n";
 
     unsigned score1 = 0, score2 = 0;
     const unsigned numBoards = segment->GetLength();
@@ -623,29 +688,31 @@ bool writeTXT(
           canvas.SetLine(bstr, 0, 0);
           canvas.SetLine(vstr, 14, 0);
           fstr << canvas.AsString() << "\n";
-
-          fstr << setw(12) << board->WestAsString(f) <<
-              setw(12) << board->NorthAsString(f) <<
-              setw(12) << board->EastAsString(f) <<
-              setw(12) << board->SouthAsString(f) << "\n";
         }
 
-        fstr << board->AuctionAsString(f) << "\n";
-        fstr << board->ContractAsString(f) << "\n";
-        fstr << board->PlayAsString(f) << "\n";
-        fstr << board->ResultAsString(f, false) << " -- ";
-        fstr << board->ScoreAsString(f, segment->ScoringIsIMPs()) << "\n";
+        fstr << setw(12) << left << board->WestAsString(f) <<
+            setw(12) << board->NorthAsString(f) <<
+            setw(12) << board->EastAsString(f) <<
+            board->SouthAsString(f) << "\n";
 
-        if (i == 1)
+        fstr << board->AuctionAsString(f) << "\n";
+        fstr << board->ContractAsString(f);
+        fstr << board->PlayAsString(f);
+
+        if (i == 0)
+          fstr << board->ResultAsString(f, false) << "\n";
+        else if (i == 1)
         {
+          fstr << board->ResultAsString(f, true) << "\n";
           int s = board->ScoreIMPAsInt();
           if (s > 0)
-            score1 += s;
-          else
             score2 += s;
+          else
+            score1 += -s;
 
           fstr << segment->TeamsAsString(score1, score2, f) << "\n";
-          fstr << TXTdashes;
+          if (b != numBoards-1)
+            fstr << TXTdashes << "\n\n";
         }
       }
     }

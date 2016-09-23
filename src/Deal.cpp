@@ -26,9 +26,15 @@ const string CARDS[BRIDGE_TRICKS] =
   "2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K", "A"
 };
 
+const string CARDS_TXT[BRIDGE_TRICKS] =
+{
+  "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"
+};
+
 
 bool setDealTables = false;
 string HOLDING_TO_SUIT[MAX_HOLDING+1];
+string HOLDING_TO_SUIT_TXT[MAX_HOLDING+1];
 map<string, unsigned> SUIT_TO_HOLDING;
 map<string, playerType> PLAYER_TO_DDS;
 
@@ -60,12 +66,17 @@ void Deal::SetTables()
   for (unsigned h = 0; h <= MAX_HOLDING; h++)
   {
     string suit("");
+    string suitTXT("");
     for (int bit = 12; bit >= 0; bit--)
     {
       if (h & (1 << bit))
+      {
         suit += CARDS[bit];
+        suitTXT += CARDS_TXT[bit] + " ";
+      }
     }
     HOLDING_TO_SUIT[h] = suit;
+    HOLDING_TO_SUIT_TXT[h] = suitTXT;
     SUIT_TO_HOLDING[suit] = h;
     reverse(suit.begin(), suit.end());
     SUIT_TO_HOLDING[suit] = h;
@@ -315,6 +326,7 @@ bool Deal::Set(
 
     case BRIDGE_FORMAT_PBN:
     case BRIDGE_FORMAT_EML:
+    case BRIDGE_FORMAT_TXT:
       return Deal::SetPBN(s);
 
     case BRIDGE_FORMAT_RBN:
@@ -497,44 +509,40 @@ string Deal::AsEML() const
 }
 
 
-string Deal::AsTXT(
-  const Players& players) const
+string Deal::AsTXT() const
 {
   stringstream t;
-
-  const string pn = players.PlayerAsString(BRIDGE_NORTH, BRIDGE_FORMAT_TXT);
-  const string pe = players.PlayerAsString(BRIDGE_EAST, BRIDGE_FORMAT_TXT);
-  const string ps = players.PlayerAsString(BRIDGE_SOUTH, BRIDGE_FORMAT_TXT);
-  const string pw = players.PlayerAsString(BRIDGE_WEST, BRIDGE_FORMAT_TXT);
-  if (pn != "")
-    t << setw(12) << "" << pn << "\n";
-
   stringstream u;
+
+  t << setw(14) << "" << "North\n";
+  u << setw(14) << "" << "South\n";
+
   for (unsigned s = 0; s < BRIDGE_SUITS; s++)
   {
     const string cn = (holding[BRIDGE_NORTH][s] == 0 ? 
-      "void" : cards[BRIDGE_NORTH][s]);
+      "--" : HOLDING_TO_SUIT_TXT[holding[BRIDGE_NORTH][s]]);
     const string cs = (holding[BRIDGE_SOUTH][s] == 0 ? 
-      "void" : cards[BRIDGE_SOUTH][s]);
-    t << setw(12) << "" << left << cn << "\n";
-    u << setw(12) << "" << left << cs << "\n";
+      "--" : HOLDING_TO_SUIT_TXT[holding[BRIDGE_SOUTH][s]]);
+    t << setw(12) << "" <<
+      DENOM_NAMES_SHORT_PBN[s] << " " << left << cn << "\n";
+    u << setw(12) << "" <<
+      DENOM_NAMES_SHORT_PBN[s] << " " << left << cs << "\n";
   }
 
-  if (pw != "" || pe != "")
-    t << setw(24) << pw << pe << "\n";
+  t << "  West" << setw(20) << "" << "East\n";
 
   for (unsigned s = 0; s < BRIDGE_SUITS; s++)
   {
     const string cw = (holding[BRIDGE_WEST][s] == 0 ? 
-      "void" : cards[BRIDGE_WEST][s]);
+      "--" : HOLDING_TO_SUIT_TXT[holding[BRIDGE_WEST][s]]);
     const string ce = (holding[BRIDGE_EAST][s] == 0 ? 
-      "void" : cards[BRIDGE_EAST][s]);
+      "--" : HOLDING_TO_SUIT_TXT[holding[BRIDGE_EAST][s]]);
 
-    t << setw(24) << cw << ce << "\n";
+    t << left << DENOM_NAMES_SHORT_PBN[s] << " " << 
+        setw(22) << left << cw <<
+        DENOM_NAMES_SHORT_PBN[s] << " " <<
+        left << ce << "\n";
   }
-
-  if (ps != "")
-    t << setw(12) << ps << "\n";
 
   return t.str() + u.str();
 }
@@ -564,39 +572,8 @@ string Deal::AsString(
     case BRIDGE_FORMAT_EML:
       return Deal::AsEML();
 
-    default:
-      LOG("Other plain deal formats not implemented");
-      return "";
-  }
-}
-
-
-string Deal::AsString(
-  const Players& players,
-  const formatType f) const
-{
-  if (! setFlag)
-  {
-    LOG("Not set");
-    return false;
-  }
-
-  switch(f)
-  {
-    case BRIDGE_FORMAT_LIN:
-      LOG("LIN player format not implemented");
-      return "";
-
-    case BRIDGE_FORMAT_PBN:
-      LOG("PBN player format not implemented");
-      return "";
-
-    case BRIDGE_FORMAT_RBN:
-      LOG("RBN player format not implemented");
-      return "";
-
     case BRIDGE_FORMAT_TXT:
-      return Deal::AsTXT(players);
+      return Deal::AsTXT();
 
     default:
       LOG("Other plain deal formats not implemented");

@@ -270,11 +270,42 @@ bool ReadNextSpacedWord(
 {
   stringstream t;
   unsigned l = s.length();
-  unsigned pos = startPos;
-  while (pos < l && s.at(pos) != ' ')
+  unsigned pos;
+  bool oneFlag = false; // Lot of ado to turn 10 into T
+  for (pos = startPos; pos < l; pos++)
   {
-    t << s.at(pos);
-    pos += 2;
+    const char c = s.at(pos);
+    if (pos > 0 && c == ' ' && s.at(pos-1) == ' ')
+      break;
+    else if (c == '1')
+    {
+      if (oneFlag)
+      {
+        // Wasn't 10 after all
+        t << "11";
+        oneFlag = false;
+      }
+      else
+        oneFlag = true;
+    }
+    else if (c == ' ')
+    {
+      if (oneFlag)
+      {
+        t << "1";
+        oneFlag = false;
+      }
+    }
+    else if (oneFlag)
+    {
+      if (c == '0')
+        t << "T";
+      else
+        t << "1" << c;
+      oneFlag = false;
+    }
+    else
+      t << c;
   }
 
   if (pos == startPos)

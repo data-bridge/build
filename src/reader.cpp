@@ -21,6 +21,7 @@ using namespace std;
 #include "fileRBN.h"
 #include "filePBN.h"
 #include "fileEML.h"
+#include "fileTXT.h"
 #include "portab.h"
 #include "bconst.h"
 #include "Debug.h"
@@ -39,6 +40,7 @@ int main(int argc, char * argv[])
   setRBNtables();
   setPBNtables();
   setEMLtables();
+  setTXTtables();
 
   /*
   if (! readRBN(group, "S10FA1.RBN"))
@@ -56,14 +58,19 @@ int main(int argc, char * argv[])
   }
   */
 
-  /* */
+  /*
   if (! readEML(group, "S10FA1.EML"))
   {
     debug.Print();
     assert(false);
   }
-  /* */
+  */
 
+  if (! readTXT(group, "S10FA1.TXT"))
+  {
+    debug.Print();
+    assert(false);
+  }
 
 
   if (! writeRBN(group, "out.rbn"))
@@ -79,6 +86,12 @@ int main(int argc, char * argv[])
   }
 
   if (! writeEML(group, "out.eml"))
+  {
+    debug.Print();
+    assert(false);
+  }
+
+  if (! writeTXT(group, "out.txt"))
   {
     debug.Print();
     assert(false);
