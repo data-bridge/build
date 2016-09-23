@@ -273,6 +273,8 @@ class Board
       const formatType f,
       const bool scoringIsIMPs) const;
 
+    int ScoreIMPAsInt() const;
+
     string LeadAsString(
       const formatType f) const;
 

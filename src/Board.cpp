@@ -636,6 +636,15 @@ string Board::ScoreAsString(
 }
 
 
+int Board::ScoreIMPAsInt() const
+{
+  if (numActive != 1 || ! contract[0].ResultIsSet())
+    return 0;
+  else
+    return contract[numActive].ScoreIMPAsInt(contract[0].GetScore());
+}
+
+
 string Board::LeadAsString(
   const formatType f) const
 {

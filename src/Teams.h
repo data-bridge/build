@@ -71,6 +71,9 @@ class Teams
     string AsPBN() const;
     string AsRBN() const;
     string AsTXT() const;
+    string AsTXT(
+      const unsigned score1,
+      const unsigned score2) const;
 
 
   public:
@@ -98,8 +101,14 @@ class Teams
     bool operator != (const Teams& t2) const;
 
     string AsString(const formatType f) const;
+    string AsString(
+      const formatType f,
+      const unsigned score1,
+      const unsigned score2) const;
+
     string FirstAsString(const formatType f) const;
     string SecondAsString(const formatType f) const;
+
 };
 
 #endif

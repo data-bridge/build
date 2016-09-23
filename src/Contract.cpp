@@ -1003,6 +1003,12 @@ string Contract::ScoreAsString(const formatType f) const
 }
 
 
+int Contract::ScoreIMPAsInt(const int refScore) const
+{
+  return Contract::ConvertDiffToIMPs(score - refScore);
+}
+
+
 string Contract::ScoreAsString(
   const formatType f,
   const int refScore) const

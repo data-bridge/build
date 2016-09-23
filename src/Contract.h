@@ -147,6 +147,8 @@ class Contract
 
     string ScoreAsString(const formatType f) const;
 
+    int ScoreIMPAsInt(const int refSCore) const;
+
     string ScoreAsString(
       const formatType f,
       const int refScore) const;

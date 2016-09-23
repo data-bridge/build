@@ -51,7 +51,6 @@ enum TXTlabel
   TXT_VULNERABLE = 14,
   TXT_AUCTION = 15,
   TXT_CONTRACT = 16,
-  TXT_LEAD = 17,
   TXT_PLAY = 18,
   TXT_RESULT = 19,
   TXT_SCORE = 20,
@@ -78,7 +77,6 @@ const string TXTname[] =
   "Vulnerable",
   "Auction",
   "Contract",
-  "Lead",
   "Play",
   "Result",
   "Score",
@@ -161,7 +159,6 @@ void setTXTtables()
   boardPtrTXT[TXT_VULNERABLE] = &Board::SetVul;
   boardPtrTXT[TXT_AUCTION] = &Board::SetAuction;
   boardPtrTXT[TXT_CONTRACT] = &Board::SetContract;
-  boardPtrTXT[TXT_LEAD] = &Board::SetLead;
   boardPtrTXT[TXT_PLAY] = &Board::SetPlays;
 
   boardPtrTXT[TXT_RESULT] = &Board::SetResult;
@@ -295,7 +292,7 @@ bool getTXTFields(
   {
     if (! ReadLastWord(canvas[cline], wd))
       return false;
-    chunk[TXT_LEAD] = wd;
+    chunk[TXT_PLAY] = wd;
   }
 
   cline++;
@@ -641,13 +638,13 @@ bool writeTXT(
 
         if (i == 1)
         {
-          unsigned s = board->ScoreAsIMPs();
+          int s = board->ScoreIMPAsInt();
           if (s > 0)
             score1 += s;
           else
             score2 += s;
 
-          fstr << segment->TeamsAsString(score1, score2) << "\n";
+          fstr << segment->TeamsAsString(score1, score2, f) << "\n";
           fstr << TXTdashes;
         }
       }

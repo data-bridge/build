@@ -178,6 +178,11 @@ class Segment
      string TeamsAsString(
       const formatType f) const;
 
+     string TeamsAsString(
+      const unsigned score1,
+      const unsigned score2,
+      const formatType f) const;
+
      string FirstTeamAsString(
       const formatType f) const;
 

@@ -587,6 +587,15 @@ string Segment::TeamsAsString(
 }
 
 
+string Segment::TeamsAsString(
+  const unsigned score1,
+  const unsigned score2,
+  const formatType f) const
+{
+  return seg.teams.AsString(f, score1, score2);
+}
+
+
 string Segment::FirstTeamAsString(
   const formatType f) const
 {

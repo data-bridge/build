@@ -395,6 +395,15 @@ string Teams::AsTXT() const
 }
 
 
+string Teams::AsTXT(
+  const unsigned score1,
+  const unsigned score2) const
+{
+  return Teams::SingleAsTXT(team1) + STR(score1) + "  " +
+      Teams::SingleAsTXT(team2) + STR(score2) + "\n";
+}
+
+
 string Teams::AsString(const formatType f) const
 {
   switch(f)
@@ -411,6 +420,30 @@ string Teams::AsString(const formatType f) const
     
     case BRIDGE_FORMAT_TXT:
       return Teams::AsTXT();
+    
+    default:
+      LOG("Invalid format " + STR(f));
+      return "";
+  }
+}
+
+
+string Teams::AsString(
+  const formatType f,
+  const unsigned score1,
+  const unsigned score2) const
+{
+  switch(f)
+  {
+    case BRIDGE_FORMAT_LIN:
+    case BRIDGE_FORMAT_PBN:
+    case BRIDGE_FORMAT_RBN:
+    case BRIDGE_FORMAT_EML:
+      LOG("AsString with score not implemented for this format");
+      return false;
+
+    case BRIDGE_FORMAT_TXT:
+      return Teams::AsTXT(score1, score2);
     
     default:
       LOG("Invalid format " + STR(f));
