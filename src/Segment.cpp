@@ -511,6 +511,10 @@ string Segment::TitleAsString(const formatType f) const
       st << "T " << seg.title << "\n";
       return st.str();
 
+    case BRIDGE_FORMAT_RBX:
+      st << "T{" << seg.title << "}";
+      return st.str();
+
     case BRIDGE_FORMAT_TXT:
       return seg.title + "\n";
 
@@ -552,6 +556,10 @@ string Segment::EventAsString(const formatType f) const
 
     case BRIDGE_FORMAT_RBN:
       st << "E " << seg.event << "\n";
+      return st.str();
+
+    case BRIDGE_FORMAT_RBX:
+      st << "E{" << seg.event << "}";
       return st.str();
 
     case BRIDGE_FORMAT_TXT:
@@ -629,6 +637,10 @@ string Segment::NumberAsString(
 
     case BRIDGE_FORMAT_RBN:
       st << "B " << extNo << "\n";
+      return st.str();
+
+    case BRIDGE_FORMAT_RBX:
+      st << "B{" << extNo << "}";
       return st.str();
 
     case BRIDGE_FORMAT_EML:

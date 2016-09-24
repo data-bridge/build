@@ -1113,10 +1113,10 @@ string Contract::ResultAsStringPBN() const
 }
 
 
-string Contract::ResultAsStringRBN() const
+string Contract::ResultAsStringRBNCore() const
 {
   stringstream s;
-  s << "R " << contract.level + 6 + tricksRelative;
+  s << contract.level + 6 + tricksRelative;
   if (score > 0)
     s << "+";
   s << score;
@@ -1124,18 +1124,42 @@ string Contract::ResultAsStringRBN() const
 }
 
 
-string Contract::ResultAsStringRBN(const int refScore) const
+string Contract::ResultAsStringRBN() const
+{
+  return "R " + Contract::ResultAsStringRBNCore();
+}
+
+
+string Contract::ResultAsStringRBX() const
+{
+  return "R{" + Contract::ResultAsStringRBNCore() + "\n";
+}
+
+
+string Contract::ResultAsStringRBNCore(const int refScore) const
 {
   stringstream s;
-  s << Contract::ResultAsStringRBN() << ":";
+  s << Contract::ResultAsStringRBNCore() << ":";
   int IMPs = Contract::ConvertDiffToIMPs(score - refScore);
   if (IMPs > 0)
-    s << "+" << IMPs << "\n";
+    s << "+" << IMPs;
   else if (IMPs == 0)
-    s << "=\n";
+    s << "=";
   else
-    s << IMPs << "\n";
+    s << IMPs;
   return s.str();
+}
+
+
+string Contract::ResultAsStringRBN(const int refScore) const
+{
+  return "R " + Contract::ResultAsStringRBNCore(refScore) + "\n";
+}
+
+
+string Contract::ResultAsStringRBX(const int refScore) const
+{
+  return "R{" + Contract::ResultAsStringRBNCore(refScore) + "}";
 }
 
 
@@ -1207,6 +1231,9 @@ string Contract::ResultAsString(const formatType f) const
     case BRIDGE_FORMAT_RBN:
       return Contract::ResultAsStringRBN() + "\n";
 
+    case BRIDGE_FORMAT_RBX:
+      return Contract::ResultAsStringRBX() + "\n";
+
     case BRIDGE_FORMAT_EML:
       return Contract::ResultAsStringEML();
 
@@ -1239,6 +1266,9 @@ string Contract::ResultAsString(
 
     case BRIDGE_FORMAT_RBN:
       return Contract::ResultAsStringRBN(refScore);
+
+    case BRIDGE_FORMAT_RBX:
+      return Contract::ResultAsStringRBX(refScore);
 
     case BRIDGE_FORMAT_TXT:
       // return Contract::ResultAsStringTXT(refScore);

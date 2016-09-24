@@ -69,7 +69,9 @@ class Teams
 
     string AsLIN() const;
     string AsPBN() const;
+    string AsRBNCore() const;
     string AsRBN() const;
+    string AsRBX() const;
     string AsTXT() const;
     string AsTXT(
       const unsigned score1,

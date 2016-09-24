@@ -51,7 +51,9 @@ class Session
 
     string AsLIN() const;
     string AsPBN() const;
+    string AsRBNCore() const;
     string AsRBN() const;
+    string AsRBX() const;
     string AsTXT() const;
 
 

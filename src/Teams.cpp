@@ -369,7 +369,7 @@ string Teams::AsLIN() const
 }
 
 
-string Teams::AsRBN() const
+string Teams::AsRBNCore() const
 {
   if (team1.name == "" && team2.name == "" &&
       team1.carry == BRIDGE_CARRY_NONE &&
@@ -377,15 +377,34 @@ string Teams::AsRBN() const
     return "";
 
   stringstream s;
-  s << "K " << team1.name << ":" << team2.name;
+  s << team1.name << ":" << team2.name;
   if (team1.carry == BRIDGE_CARRY_NONE &&
       team2.carry == BRIDGE_CARRY_NONE)
-    return s.str() + "\n";
+    return s.str();
 
   s << ":" << Teams::CarryAsString(team1) << 
-      ":" << Teams::CarryAsString(team2) << "\n";
+      ":" << Teams::CarryAsString(team2);
 
   return s.str();
+}
+
+string Teams::AsRBN() const
+{
+  const string c = Teams::AsRBNCore();
+  if (c == "")
+    return "";
+
+  return "K " + c + "\n";
+}
+
+
+string Teams::AsRBX() const
+{
+  const string c = Teams::AsRBNCore();
+  if (c == "")
+    return "";
+
+  return "K{" + c + "}";
 }
 
 
@@ -421,6 +440,9 @@ string Teams::AsString(const formatType f) const
     
     case BRIDGE_FORMAT_RBN:
       return Teams::AsRBN();
+    
+    case BRIDGE_FORMAT_RBX:
+      return Teams::AsRBX();
     
     case BRIDGE_FORMAT_TXT:
       return Teams::AsTXT();

@@ -197,6 +197,13 @@ string Scoring::AsRBN() const
   return "F " + SCORING_RBN[scoring] + "\n";
 }
 
+string Scoring::AsRBX() const
+{
+  if (scoring == BRIDGE_SCORING_UNDEFINED)
+    return "";
+  return "F{" + SCORING_RBN[scoring] + "}";
+}
+
 
 string Scoring::AsEML() const
 {
@@ -218,6 +225,9 @@ string Scoring::AsString(const formatType f) const
     
     case BRIDGE_FORMAT_RBN:
       return Scoring::AsRBN();
+    
+    case BRIDGE_FORMAT_RBX:
+      return Scoring::AsRBX();
     
     case BRIDGE_FORMAT_EML:
       return Scoring::AsEML();

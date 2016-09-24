@@ -55,7 +55,9 @@ class Deal
 
     string AsLIN(const playerType start) const;
     string AsPBN(const playerType start) const;
+    string AsRBNCore(const playerType start) const;
     string AsRBN(const playerType start) const;
+    string AsRBX(const playerType start) const;
     string AsEML() const;
     string AsTXT() const;
 

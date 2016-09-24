@@ -461,10 +461,10 @@ string Deal::AsPBN(const playerType start) const
 }
 
 
-string Deal::AsRBN(const playerType start) const
+string Deal::AsRBNCore(const playerType start) const
 {
   stringstream s;
-  s << "H " << PLAYER_NAMES_SHORT[start] << ":";
+  s << PLAYER_NAMES_SHORT[start] << ":";
 
   // Players start from here.
   for (unsigned pno = 0; pno <= 2; pno++)
@@ -475,7 +475,19 @@ string Deal::AsRBN(const playerType start) const
          cards[p][BRIDGE_DIAMONDS] << "." <<
          cards[p][BRIDGE_CLUBS] << ":";
   }
-  return s.str() + "\n";
+  return s.str();
+}
+
+
+string Deal::AsRBN(const playerType start) const
+{
+  return "H " + Deal::AsRBNCore(start) + "\n";
+}
+
+
+string Deal::AsRBX(const playerType start) const
+{
+  return "H{" + Deal::AsRBNCore(start) + "}";
 }
 
 
@@ -568,6 +580,9 @@ string Deal::AsString(
 
     case BRIDGE_FORMAT_RBN:
       return Deal::AsRBN(start);
+
+    case BRIDGE_FORMAT_RBX:
+      return Deal::AsRBX(start);
 
     case BRIDGE_FORMAT_EML:
       return Deal::AsEML();

@@ -21,6 +21,7 @@ SOURCE_FILES 	=		\
 	fileEML.cpp		\
 	filePBN.cpp		\
 	fileRBN.cpp		\
+	fileRBX.cpp		\
 	fileTXT.cpp		\
 	parse.cpp		\
 	reader.cpp
@@ -113,6 +114,9 @@ filePBN.obj: Valuation.h Auction.h Play.h parse.h portab.h debug.h Debug.h
 fileRBN.obj: fileRBN.h Group.h Segment.h Date.h bconst.h Location.h Session.h
 fileRBN.obj: Scoring.h Teams.h Board.h Deal.h Players.h Tableau.h Contract.h
 fileRBN.obj: Valuation.h Auction.h Play.h parse.h portab.h debug.h Debug.h
+fileRBX.obj: fileRBN.h Group.h Segment.h Date.h bconst.h Location.h Session.h
+fileRBX.obj: Scoring.h Teams.h Board.h Deal.h Players.h Tableau.h Contract.h
+fileRBX.obj: Valuation.h Auction.h Play.h parse.h portab.h debug.h Debug.h
 fileTXT.obj: Canvas.h fileTXT.h Group.h Segment.h Date.h bconst.h Location.h
 fileTXT.obj: Session.h Scoring.h Teams.h Board.h Deal.h Players.h Tableau.h
 fileTXT.obj: Contract.h Valuation.h Auction.h Play.h parse.h portab.h debug.h

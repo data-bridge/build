@@ -381,10 +381,9 @@ string Session::AsPBN() const
 }
 
 
-string Session::AsRBN() const
+string Session::AsRBNCore() const
 {
   stringstream s;
-  s << "S ";
   if (stage == BRIDGE_SESSION_UNDEFINED)
     s << general1;
   else if (stage != BRIDGE_SESSION_ROUND_OF)
@@ -397,7 +396,19 @@ string Session::AsRBN() const
   else if (general2 != "")
     s << ":" << general2;
 
-  return s.str() + "\n";
+  return s.str();
+}
+
+
+string Session::AsRBN() const
+{
+  return "S " + Session::AsRBNCore() + "\n";
+}
+
+
+string Session::AsRBX() const
+{
+  return "S{" + Session::AsRBNCore() + "}";
 }
 
 
@@ -432,6 +443,9 @@ string Session::AsString(const formatType f) const
 
     case BRIDGE_FORMAT_RBN:
       return Session::AsRBN();
+
+    case BRIDGE_FORMAT_RBX:
+      return Session::AsRBX();
 
     case BRIDGE_FORMAT_TXT:
       return Session::AsTXT();

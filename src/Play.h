@@ -78,7 +78,9 @@ class Play
 
     string AsLIN() const;
     string AsPBN() const;
+    string AsRBNCore() const;
     string AsRBN() const;
+    string AsRBX() const;
     string AsEML() const;
     string AsTXT() const;
 

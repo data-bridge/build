@@ -19,6 +19,7 @@ using namespace std;
 #include "Group.h"
 #include "UnitTest.h"
 #include "fileRBN.h"
+#include "fileRBX.h"
 #include "filePBN.h"
 #include "fileEML.h"
 #include "fileTXT.h"
@@ -41,6 +42,12 @@ int main(int argc, char * argv[])
   setPBNtables();
   setEMLtables();
   setTXTtables();
+
+  if (! readRBX(group, "S10FA1.RBX"))
+  {
+    debug.Print();
+    assert(false);
+  }
 
   /*
   if (! readRBN(group, "S10FA1.RBN"))
@@ -66,14 +73,22 @@ int main(int argc, char * argv[])
   }
   */
 
+  /*
   if (! readTXT(group, "S10FA1.TXT"))
   {
     debug.Print();
     assert(false);
   }
+  */
 
 
   if (! writeRBN(group, "out.rbn"))
+  {
+    debug.Print();
+    assert(false);
+  }
+
+  if (! writeRBX(group, "out.rbx"))
   {
     debug.Print();
     assert(false);

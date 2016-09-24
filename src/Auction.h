@@ -101,7 +101,9 @@ class Auction
 
     string AsLIN() const;
     string AsPBN() const;
+    string AsRBNCore(const bool RBNflag) const;
     string AsRBN() const;
+    string AsRBX() const;
     string AsEML() const;
     string AsTXT() const;
 

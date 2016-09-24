@@ -755,10 +755,9 @@ string Play::AsPBN() const
 }
 
 
-string Play::AsRBN() const
+string Play::AsRBNCore() const
 {
   stringstream s;
-  s << "P ";
   for (unsigned l = 0; l < len; l++)
   {
     if (l % 4 == 0)
@@ -772,9 +771,19 @@ string Play::AsRBN() const
     if (l % 4 == 3 && l != len-1)
       s << ":";
   }
-  s << "\n";
   return s.str();
+}
 
+
+string Play::AsRBN() const
+{
+  return "P " + Play::AsRBNCore() + "\n";
+}
+
+
+string Play::AsRBX() const
+{
+  return "P{" + Play::AsRBNCore() + "}";
 }
 
 
@@ -890,6 +899,9 @@ string Play::AsString(const formatType f) const
 
     case BRIDGE_FORMAT_RBN:
       return Play::AsRBN();
+
+    case BRIDGE_FORMAT_RBX:
+      return Play::AsRBX();
 
     case BRIDGE_FORMAT_EML:
       return Play::AsEML();

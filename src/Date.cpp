@@ -375,18 +375,27 @@ string Date::AsPBN() const
 }
 
 
-string Date::AsRBN() const
+string Date::AsRBNCore() const
 {
   if (date.month == 0 || date.year == 0)
-    return "D \n";
+    return "";
 
   stringstream s;
-  s << "D " <<
-    date.year <<
-    setfill('0') << setw(2) << date.month;
+  s << date.year << setfill('0') << setw(2) << date.month;
   if (date.day > 0)
     s << date.day;
-  return s.str() + "\n";
+  return s.str();
+}
+
+string Date::AsRBN() const
+{
+  return "D " + Date::AsRBNCore() + "\n";
+}
+
+
+string Date::AsRBX() const
+{
+  return "D{" + Date::AsRBNCore() + "}";
 }
 
 
@@ -415,6 +424,9 @@ string Date::AsString(const formatType f) const
     
     case BRIDGE_FORMAT_RBN:
       return Date::AsRBN();
+    
+    case BRIDGE_FORMAT_RBX:
+      return Date::AsRBX();
     
     case BRIDGE_FORMAT_TXT:
       return Date::AsTXT();

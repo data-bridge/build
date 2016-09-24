@@ -1156,15 +1156,13 @@ string Auction::AsPBN() const
 }
 
 
-string Auction::AsRBN() const
+string Auction::AsRBNCore(const bool RBNflag) const
 {
   if (len == 0)
     return "";
   
   stringstream s, alerts;
-  s << "A " << 
-    PLAYER_NAMES_SHORT[dealer] <<
-    VUL_NAMES_RBN[vul] << ":";
+  s << PLAYER_NAMES_SHORT[dealer] << VUL_NAMES_RBN[vul] << ":";
   
   if (Auction::IsPassedOut())
     return s.str();
@@ -1189,7 +1187,10 @@ string Auction::AsRBN() const
     else if (c.alert != "")
     {
       s << "^" << aNo;
-      alerts << aNo << " " << c.alert << "\n";
+      if (RBNflag)
+        alerts << aNo << " " << c.alert << "\n";
+      else
+        alerts << aNo << "{" << c.alert << "}";
       aNo++;
     }
     if (b != end && b % 4 == 3)
@@ -1207,7 +1208,30 @@ string Auction::AsRBN() const
     assert(false);
   }
 
-  return s.str() + "\n" + alerts.str();
+  if (RBNflag)
+    return s.str() + "\n" + alerts.str();
+  else
+    return s.str() + alerts.str();
+}
+
+
+string Auction::AsRBN() const
+{
+  const string s = Auction::AsRBNCore(true);
+  if (s == "")
+    return "";
+
+  return "A " + s + "\n";
+}
+
+
+string Auction::AsRBX() const
+{
+  const string s = Auction::AsRBNCore(false);
+  if (s == "")
+    return "";
+
+  return "A{" + s + "}";
 }
 
 
@@ -1316,6 +1340,9 @@ string Auction::AsString(
     
     case BRIDGE_FORMAT_RBN:
       return Auction::AsRBN();
+    
+    case BRIDGE_FORMAT_RBX:
+      return Auction::AsRBX();
     
     case BRIDGE_FORMAT_EML:
       return Auction::AsEML();

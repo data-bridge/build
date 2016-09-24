@@ -127,6 +127,12 @@ string Location::AsString(const formatType f) const
         s << ":" << location.specific;
       return s.str() + "\n";
     
+    case BRIDGE_FORMAT_RBX:
+      s << "L{" << location.general;
+      if (location.specific != "")
+        s << ":" << location.specific;
+      return s.str() + "}";
+    
     case BRIDGE_FORMAT_TXT:
       s << location.general;
       if (location.specific != "")

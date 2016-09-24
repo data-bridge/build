@@ -38,8 +38,9 @@ class Players
     bool SetPlayersRBN(const string& names);
 
     string AsLIN() const;
+    string AsRBNCore() const;
     string AsRBN() const;
-      
+    string AsRBX() const;
 
 
   public:
