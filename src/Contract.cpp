@@ -776,7 +776,7 @@ string Contract::AsPBN() const
 }
 
 
-string Contract::AsRBN() const
+string Contract::AsRBNCore() const
 {
   if (! setContractFlag)
     return "";
@@ -785,15 +785,32 @@ string Contract::AsRBN() const
     return "";
 
   stringstream s;
-  s << "C " <<
+  s << 
     contract.level <<
     DENOM_NAMES_SHORT[contract.denom] <<
     MULT_NUM_TO_RBN_TAG[contract.mult] << 
     ":" <<
-    PLAYER_NAMES_SHORT[contract.declarer] << 
-    "\n";
+    PLAYER_NAMES_SHORT[contract.declarer];
 
   return s.str();
+}
+
+
+string Contract::AsRBN() const
+{
+  const string s = Contract::AsRBNCore();
+  if (s == "")
+    return "";
+  return "C " + s + "\n";
+}
+
+
+string Contract::AsRBX() const
+{
+  const string s = Contract::AsRBNCore();
+  if (s == "")
+    return "";
+  return "C{" + s + "}";
 }
 
 
@@ -847,6 +864,9 @@ string Contract::AsString(const formatType f) const
 
     case BRIDGE_FORMAT_RBN:
       return Contract::AsRBN();
+
+    case BRIDGE_FORMAT_RBX:
+      return Contract::AsRBX();
 
     case BRIDGE_FORMAT_TXT:
       return Contract::AsTXT();
@@ -1132,7 +1152,7 @@ string Contract::ResultAsStringRBN() const
 
 string Contract::ResultAsStringRBX() const
 {
-  return "R{" + Contract::ResultAsStringRBNCore() + "\n";
+  return "R{" + Contract::ResultAsStringRBNCore() + "}";
 }
 
 
@@ -1232,7 +1252,7 @@ string Contract::ResultAsString(const formatType f) const
       return Contract::ResultAsStringRBN() + "\n";
 
     case BRIDGE_FORMAT_RBX:
-      return Contract::ResultAsStringRBX() + "\n";
+      return Contract::ResultAsStringRBX();
 
     case BRIDGE_FORMAT_EML:
       return Contract::ResultAsStringEML();

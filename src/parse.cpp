@@ -397,6 +397,6 @@ string GuessOriginalLine(
     base = base.substr(base.size()-6, base.size());
 
   return base.substr(0, 3) + ".RBN " + STR(count+1) + " records " + 
-    STR(count/2) + " deals\n";
+    STR(count/2) + " deals";
 }
 

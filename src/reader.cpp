@@ -39,6 +39,7 @@ int main(int argc, char * argv[])
 
   Group group;
   setRBNtables();
+  setRBXtables();
   setPBNtables();
   setEMLtables();
   setTXTtables();

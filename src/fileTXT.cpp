@@ -634,7 +634,7 @@ bool writeTXT(
   }
 
   fstr << "% TXT " << 
-    GuessOriginalLine(group.GetFileName(), group.GetCount());
+    GuessOriginalLine(group.GetFileName(), group.GetCount()) << "\n";
   fstr << "% www.rpbridge.net Richard Pavlicek\n";
 
   const formatType f = BRIDGE_FORMAT_TXT;

@@ -1209,7 +1209,12 @@ string Auction::AsRBNCore(const bool RBNflag) const
   }
 
   if (RBNflag)
-    return s.str() + "\n" + alerts.str();
+  {
+    if (alerts.str() == "")
+      return s.str();
+    else
+      return s.str() + "\n" + alerts.str();
+  }
   else
     return s.str() + alerts.str();
 }
