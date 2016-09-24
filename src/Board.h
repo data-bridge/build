@@ -310,6 +310,10 @@ class Board
       const formatType f,
       const bool scoringIsIMPs) const;
 
+    string ResultAsString(
+      const formatType f,
+      const string& team) const;
+
     string RoomAsString(
       const unsigned no,
       const formatType f) const;

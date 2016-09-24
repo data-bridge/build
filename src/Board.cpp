@@ -722,6 +722,19 @@ string Board::ResultAsString(
 }
 
 
+string Board::ResultAsString(
+  const formatType f,
+  const string& team) const
+{
+  if (numActive != 1 || 
+     ! contract[0].ResultIsSet())
+    return contract[numActive].ResultAsString(f);
+  else
+    return 
+      contract[numActive].ResultAsString(f, contract[0].GetScore(), team);
+}
+
+
 string Board::RoomAsString(
   const unsigned no,
   const formatType f) const

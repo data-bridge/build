@@ -56,11 +56,10 @@ void Date::Reset()
 
 void Date::StringToMonth(const string& m)
 {
-  string s;
+  string s = m;
+  s.at(0) = static_cast<char>(tolower(m.at(0)));
   // Can't get this to work with the Microsoft compiler.
   // transform(m.begin(), m.end(), s.begin(), (int (*)(int))tolower);
-  for (unsigned i = 0; i < m.length(); i++)
-    s[i] = static_cast<char>(tolower(m[i]));
 
   if (s == "january")
     date.month = 1;
@@ -400,7 +399,7 @@ string Date::AsTXT() const
   if (date.day > 0)
     s << date.day << " ";
   s << DATE_MONTHS[date.month] << " " << date.year << "\n";
-  return s.str() + "\n";
+  return s.str();
 }
 
 

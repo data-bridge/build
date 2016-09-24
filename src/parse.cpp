@@ -23,6 +23,7 @@
 #include "bconst.h"
 #include "parse.h"
 #include "portab.h"
+#include "debug.h"
 
 using namespace std;
 
@@ -379,5 +380,23 @@ void ConvertMultilineToVector(
     sout.push_back(sin.substr(p, found-p));
     p = found+1;
   }
+}
+
+
+string GuessOriginalLine(
+  const string& fname,
+  const unsigned count)
+{
+  regex re("(.*)\\....$");
+  smatch match;
+  if (! regex_search(fname, match, re) || match.size() == 0)
+    return "";
+  
+  string base = match.str(1);
+  if (base.size() > 6)
+    base = base.substr(base.size()-6, base.size());
+
+  return base.substr(0, 3) + ".RBN " + STR(count+1) + " records " + 
+    STR(count/2) + " deals\n";
 }
 

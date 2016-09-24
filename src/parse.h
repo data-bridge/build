@@ -75,4 +75,8 @@ void ConvertMultilineToVector(
   const string& sin,
   vector<string>& sout);
 
+string GuessOriginalLine(
+  const string& fname,
+  const unsigned count);
+
 #endif

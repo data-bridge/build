@@ -117,7 +117,7 @@ fileTXT.obj: Canvas.h fileTXT.h Group.h Segment.h Date.h bconst.h Location.h
 fileTXT.obj: Session.h Scoring.h Teams.h Board.h Deal.h Players.h Tableau.h
 fileTXT.obj: Contract.h Valuation.h Auction.h Play.h parse.h portab.h debug.h
 fileTXT.obj: Debug.h
-parse.obj: bconst.h parse.h portab.h
+parse.obj: bconst.h parse.h portab.h debug.h Debug.h
 reader.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 reader.obj: Teams.h Board.h Deal.h Players.h Tableau.h Contract.h Valuation.h
 reader.obj: Auction.h Play.h UnitTest.h fileRBN.h filePBN.h fileEML.h

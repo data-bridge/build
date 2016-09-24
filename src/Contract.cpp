@@ -1167,22 +1167,26 @@ string Contract::ResultAsStringTXT() const
 }
 
 
-string Contract::ResultAsStringTXT(const int refScore) const
+string Contract::ResultAsStringTXT(
+  const int refScore,
+  const string& team) const
 {
   stringstream s;
   s << Contract::ResultAsStringTXT();
 
   if (score == refScore)
-    s << " -- Tie\n";
+    s << " -- Tie";
   else
   {
     int IMPs = Contract::ConvertDiffToIMPs(score - refScore);
     if (IMPs > 0)
-      s << " -- TEAMo +" << IMPs << " IMPs\n";
+      s << " -- " << team << " +" << IMPs << " IMP";
     else
-      s << " -- TEAMc +" << -IMPs << " IMPs\n";
+      s << " -- " << team << " +" << -IMPs << " IMP";
+    if (IMPs != 1 && IMPs != -1)
+      s << "s";
   }
-  return s.str();
+  return s.str() + "\n";
 }
 
 
@@ -1237,7 +1241,35 @@ string Contract::ResultAsString(
       return Contract::ResultAsStringRBN(refScore);
 
     case BRIDGE_FORMAT_TXT:
-      return Contract::ResultAsStringTXT(refScore);
+      // return Contract::ResultAsStringTXT(refScore);
+      LOG("PBN score not implemented");
+      return "";
+
+    default:
+      LOG("Other score formats not implemented");
+      return "";
+  }
+}
+
+
+string Contract::ResultAsString(
+  const formatType f,
+  const int refScore,
+  const string& team) const
+{
+  if (! setResultFlag)
+    return "";
+
+  switch(f)
+  {
+    case BRIDGE_FORMAT_LIN:
+    case BRIDGE_FORMAT_PBN:
+    case BRIDGE_FORMAT_RBN:
+      LOG("LIN score not implemented");
+      return "";
+
+    case BRIDGE_FORMAT_TXT:
+      return Contract::ResultAsStringTXT(refScore, team);
 
     default:
       LOG("Other score formats not implemented");

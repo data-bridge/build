@@ -8,6 +8,7 @@
 
 
 #include "Group.h"
+#include "Board.h"
 #include "portab.h"
 #include "parse.h"
 #include "debug.h"
@@ -29,7 +30,14 @@ Group::~Group()
 void Group::Reset()
 {
   len = 0;
+  filename = "";
   segments.clear();
+}
+
+
+void Group::SetFileName(const string& fname)
+{
+  filename = fname;
 }
 
 
@@ -67,9 +75,26 @@ const Segment * Group::GetSegmentReadOnly(const unsigned extNo) const
 }
 
 
+string Group::GetFileName() const
+{
+  return filename;
+}
+
+
 unsigned Group::GetLength() const
 {
  return len;
+}
+
+
+unsigned Group::GetCount() 
+{
+  unsigned count = 0;
+  for (unsigned g = 0; g < len; g++)
+    for (unsigned b = 0; b < segments[g].segment.GetLength(); b++)
+      count += segments[g].segment.GetBoard(b)->GetLength();
+
+  return count;
 }
 
 

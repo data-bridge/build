@@ -29,6 +29,8 @@ class Group
 
     unsigned len;
 
+    string filename;
+
     vector<segmentPairType> segments;
 
     const Segment * GetSegmentReadOnly(const unsigned no) const;
@@ -42,9 +44,15 @@ class Group
 
     void Reset();
 
+    void SetFileName(const string& filename);
+
     bool MakeSegment(const unsigned no);
 
     Segment * GetSegment(const unsigned no);
+
+    string GetFileName() const;
+
+    unsigned GetCount();
 
     unsigned GetLength() const;
 

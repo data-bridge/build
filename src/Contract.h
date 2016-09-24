@@ -65,7 +65,9 @@ class Contract
     string ResultAsStringRBN(const int refScore) const;
     string ResultAsStringEML() const;
     string ResultAsStringTXT() const;
-    string ResultAsStringTXT(const int refScore) const;
+    string ResultAsStringTXT(
+      const int refScore,
+      const string& team) const;
 
     string AsLIN() const;
     string AsPBN() const;
@@ -161,6 +163,11 @@ class Contract
     string ResultAsString(
       const formatType f,
       const int refScore) const;
+
+    string ResultAsString(
+      const formatType f,
+      const int refScore,
+      const string& team) const;
 };
 
 #endif

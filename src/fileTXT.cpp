@@ -534,6 +534,8 @@ bool readTXT(
     return false;
   }
 
+  group.SetFileName(fname);
+
   const formatType f = BRIDGE_FORMAT_TXT;
 
   Segment * segment = nullptr;
@@ -631,7 +633,8 @@ bool writeTXT(
     return false;
   }
 
-  fstr << "% TXT\n";
+  fstr << "% TXT " << 
+    GuessOriginalLine(group.GetFileName(), group.GetCount());
   fstr << "% www.rpbridge.net Richard Pavlicek\n";
 
   const formatType f = BRIDGE_FORMAT_TXT;
@@ -642,7 +645,7 @@ bool writeTXT(
     Segment * segment = group.GetSegment(g);
 
     fstr << "\n" << segment->TitleAsString(f) << "\n";
-    fstr << segment->DateAsString(f) << "\n";
+    fstr << segment->DateAsString(f);
     fstr << segment->LocationAsString(f);
     fstr << segment->EventAsString(f);
     fstr << segment->SessionAsString(f);
@@ -703,13 +706,20 @@ bool writeTXT(
           fstr << board->ResultAsString(f, false) << "\n";
         else if (i == 1)
         {
-          fstr << board->ResultAsString(f, true) << "\n";
           int s = board->ScoreIMPAsInt();
+          string tWin;
           if (s > 0)
+          {
             score2 += s;
+            tWin = segment->SecondTeamAsString(f);
+          }
           else
+          {
             score1 += -s;
+            tWin = segment->FirstTeamAsString(f);
+          }
 
+          fstr << board->ResultAsString(f, tWin) << "\n";
           fstr << segment->TeamsAsString(score1, score2, f) << "\n";
           if (b != numBoards-1)
             fstr << TXTdashes << "\n\n";
