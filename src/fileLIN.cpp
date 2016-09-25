@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <regex>
 #include <map>
+#include <assert.h>
 
 #include "fileLIN.h"
 #include "parse.h"
@@ -39,10 +40,11 @@ enum LINlabel
   LIN_BOARD_NO = 6,
   LIN_PLAYERS_BOARD = 7,
   LIN_DEAL = 8,
-  LIN_AUCTION = 9,
-  LIN_PLAY = 10,
-  LIN_RESULT = 11,
-  LIN_LABELS_SIZE = 12
+  LIN_VULNERABLE = 9,
+  LIN_AUCTION = 10,
+  LIN_PLAY = 11,
+  LIN_RESULT = 12,
+  LIN_LABELS_SIZE = 13
 };
 
 const string LINname[] =
@@ -56,9 +58,10 @@ const string LINname[] =
   "board number",
   "players",
   "deal",
+  "vulnerable",
   "auction",
   "play",
-  "result",
+  "result"
 };
 
 
@@ -98,9 +101,14 @@ void setLINtables()
   LINmap["qx"] = LIN_BOARD_NO;
   LINmap["pn"] = LIN_PLAYERS_BOARD; // But may also occur in header
   LINmap["md"] = LIN_DEAL;
+  LINmap["sv"] = LIN_VULNERABLE;
   LINmap["mb"] = LIN_AUCTION;
   LINmap["pc"] = LIN_PLAY;
   LINmap["mc"] = LIN_RESULT;
+
+  // We ignore some labels.
+  LINmap["pf"] = LIN_LABELS_SIZE;
+  LINmap["pg"] = LIN_LABELS_SIZE;
 
   
   LABEL_TO_NEW_SEGMENT[LIN_TITLE] = true;
@@ -119,6 +127,7 @@ void setLINtables()
   segPtrLIN[LIN_PLAYERS_BOARD] = &Segment::SetPlayers;
   
   boardPtrLIN[LIN_DEAL] = &Board::SetDeal;
+  boardPtrLIN[LIN_VULNERABLE] = &Board::SetVul;
   boardPtrLIN[LIN_AUCTION] = &Board::SetAuction;
   boardPtrLIN[LIN_PLAY] = &Board::SetPlays;
   boardPtrLIN[LIN_RESULT] = &Board::SetResult;
@@ -138,11 +147,16 @@ bool readLINChunk(
 
   string oneLiner;
   bool qxSeen = false;
-  regex re("^(\\w\\w)|([^|]*)|");
+  regex re("^(\\w\\w)\\|([^|]*)\\|");
   smatch match;
 
-  while (getline(fstr, line))
+  bool doneFlag = false;
+  while (! doneFlag && getline(fstr, line))
   {
+    int i = fstr.peek();
+    if (i == EOF || qxSeen && i == 0x71) // q
+      doneFlag = true;
+
     lno++;
     if (line.empty())
       continue;
@@ -157,6 +171,8 @@ bool readLINChunk(
     {
       string label = match.str(1);
       const string value = match.str(2);
+
+      line = regex_replace(line, re, "");
 
       // Artificial label to disambiguate.
       if (label == "pn" && ! qxSeen)
@@ -174,22 +190,27 @@ bool readLINChunk(
       if (LABEL_TO_NEW_SEGMENT[labelNo])
         newSegFlag = true;
 
-      if (chunk[labelNo] != "")
+      // We ignore some labels.
+      if (labelNo == LIN_LABELS_SIZE)
+        continue;
+
+      if (chunk[labelNo] == "")
+        chunk[labelNo] = value;
+      else if (labelNo == LIN_PLAY)
+      {
+        if (value.size() > 2 || chunk[labelNo].size() % 8 == 0)
+          chunk[labelNo] += ":";
+        chunk[labelNo] += value;
+      }
+      else
       {
         LOG("Label already set in line '" + line + "'");
         return false;
       }
-
-      chunk[labelNo] = value;
     }
 
-    int i = fstr.peek();
-    if (i == EOF)
-      return qxSeen;
-    else if (qxSeen && i == 0x71) // q
-      return true;
   }
-  return false;
+  return qxSeen;
 }
 
 
@@ -254,15 +275,19 @@ bool readLIN(
 
     for (unsigned i = 0; i < LIN_LABELS_SIZE; i++)
     {
-      if (! tryLINMethod(chunk, segment, board, i, fstr, LINname[i]))
-        return false;
+if (chunk[i] != "")
+  cout << LINname[i] << ": " << chunk[i] << endl;
+      // if (! tryLINMethod(chunk, segment, board, i, fstr, LINname[i]))
+        // return false;
     }
+cout << endl;
 
     if (fstr.eof())
       break;
   }
 
   fstr.close();
+assert(false);
   return true;
 }
 
