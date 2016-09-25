@@ -97,6 +97,7 @@ class Auction
       int& no,
       string& alert) const;
 
+    bool AddAuctionLIN(const string& list);
     bool AddAuctionPBN(const vector<string>& list);
 
     string AsLIN() const;

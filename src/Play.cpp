@@ -455,7 +455,6 @@ bool Play::SetPlays(
 {
   switch(f)
   {
-    case BRIDGE_FORMAT_LIN:
       LOG("Currently unimplemented format " + STR(f));
       return false;
 
@@ -463,6 +462,7 @@ bool Play::SetPlays(
       LOG("Currently unimplemented format " + STR(f));
       return false;
 
+    case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_RBN:
     case BRIDGE_FORMAT_EML:
     case BRIDGE_FORMAT_TXT:

@@ -73,33 +73,40 @@ unsigned Segment::GetExtBoardNo(const unsigned no) const
 }
 
 
-Board * Segment::AcquireBoard(const unsigned no)
+Board * Segment::AcquireBoard(const unsigned intNo)
 {
   for (auto &p: boards)
   {
-    if (p.no == no)
+    if (p.no == intNo)
       return &p.board;
   }
 
   // Make a new board
   boards.resize(len+1);
-  boards[len].no = no;
+  boards[len].no = intNo;
   boards[len].extNo = 0;
   len++;
-  if (no < bmin)
-    bmin = no;
-  if (no > bmax)
-    bmax = no;
+  if (intNo < bmin)
+    bmin = intNo;
+  if (intNo > bmax)
+    bmax = intNo;
   activeBoard = &boards[len-1].board;
-  activeNo = no;
-
-  if (LINcount > 0)
-  {
-    Segment::SetNumber(LINdata[no].no, BRIDGE_FORMAT_LIN);
-    activeBoard->SetLINheader(LINdata[no]);
-  }
+  activeNo = intNo;
 
   return activeBoard;
+}
+
+
+void Segment::TransferHeader(const unsigned intNo)
+{
+  if (LINcount == 0)
+    return;
+
+  Board * board = Segment::AcquireBoard(intNo);
+  if (board == nullptr)
+    return;
+
+  board->SetLINheader(LINdata[intNo]);
 }
 
 
@@ -372,33 +379,25 @@ bool Segment::SetResultsList(
   if (f != BRIDGE_FORMAT_LIN)
     return false;
   
-  string t = s.substr(3);
-  t.pop_back();
-
-  size_t c = countDelimiters(t, ",");
+  size_t c = countDelimiters(s, ",");
   if (c > 100)
   {
     LOG("Too many fields");
     return false;
   }
 
-  if (c % 2)
-  {
-    LOG("Odd number of fields");
-    return false;
-  }
-
   vector<string> tokens(c+1);
   tokens.clear();
-  tokenize(t, tokens, ",");
+  tokenize(s, tokens, ",");
 
-  if (c > 2*LINcount)
+  // There may or may not be a trailing comma
+  if (c+1 > 2*LINcount)
   {
-    LINcount = c/2;
+    LINcount = (c+1)/2;
     LINdata.resize(LINcount);
   }
 
-  for (size_t b = 0, d = 0; b < c; b += 2, d++)
+  for (size_t b = 0, d = 0; b < c+1; b += 2, d++)
   {
     LINdata[d].contract[0] = tokens[b];
     LINdata[d].contract[1] = tokens[b+1];
@@ -414,40 +413,7 @@ bool Segment::SetPlayersList(
   if (f != BRIDGE_FORMAT_LIN)
     return false;
 
-  string t = s.substr(3);
-  t.pop_back();
-
-  size_t c = countDelimiters(t, ",");
-  if (c != 7)
-  {
-    LOG("Bad number of fields");
-    return false;
-  }
-
-  vector<string> tokens(8);
-  tokens.clear();
-  tokenize(t, tokens, ",");
-
-  for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
-  {
-    LINdata[0].players[0][i] = tokens[i];
-    LINdata[0].players[1][i] = tokens[i+3];
-  }
-  return true;
-}
-
-
-bool Segment::SetPlayersHeader(
-  const string& s,
-  const formatType f)
-{
-  if (f != BRIDGE_FORMAT_LIN)
-    return false;
-
-  string t = s.substr(3);
-  t.pop_back();
-
-  size_t c = countDelimiters(t, ",");
+  size_t c = countDelimiters(s, ",");
   if (c != 4*LINcount)
   {
     LOG("Wrong number of fields");
@@ -456,7 +422,7 @@ bool Segment::SetPlayersHeader(
 
   vector<string> tokens(c+1);
   tokens.clear();
-  tokenize(t, tokens, ",");
+  tokenize(s, tokens, ",");
 
   for (size_t b = 0; b < c; b += 8)
   {
@@ -470,6 +436,33 @@ bool Segment::SetPlayersHeader(
 }
 
 
+bool Segment::SetPlayersHeader(
+  const string& s,
+  const formatType f)
+{
+  if (f != BRIDGE_FORMAT_LIN)
+    return false;
+
+  size_t c = countDelimiters(s, ",");
+  if (c != 7)
+  {
+    LOG("Bad number of fields");
+    return false;
+  }
+
+  vector<string> tokens(8);
+  tokens.clear();
+  tokenize(s, tokens, ",");
+
+  for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
+  {
+    LINdata[0].players[0][i] = tokens[i];
+    LINdata[0].players[1][i] = tokens[i+3];
+  }
+  return true;
+}
+
+
 bool Segment::SetScoresList(
   const string& s,
   const formatType f)
@@ -477,10 +470,7 @@ bool Segment::SetScoresList(
   if (f != BRIDGE_FORMAT_LIN)
     return false;
 
-  string t = s.substr(3);
-  t.pop_back();
-
-  size_t c = countDelimiters(t, ",");
+  size_t c = countDelimiters(s, ",");
   if (c != 2*LINcount)
   {
     LOG("Wrong number of fields");
@@ -489,7 +479,7 @@ bool Segment::SetScoresList(
 
   vector<string> tokens(c+1);
   tokens.clear();
-  tokenize(t, tokens, ",");
+  tokenize(s, tokens, ",");
 
   for (size_t b = 0, d = 0; b < c; b += 2, d++)
   {
@@ -507,10 +497,7 @@ bool Segment::SetBoardsList(
   if (f != BRIDGE_FORMAT_LIN)
     return false;
   
-  string t = s.substr(3);
-  t.pop_back();
-
-  size_t c = countDelimiters(t, ",");
+  size_t c = countDelimiters(s, ",");
   if (c > 100)
   {
     LOG("Too many fields");
@@ -519,7 +506,7 @@ bool Segment::SetBoardsList(
 
   vector<string> tokens(c+1);
   tokens.clear();
-  tokenize(t, tokens, ",");
+  tokenize(s, tokens, ",");
 
   if (c != LINcount)
   {
@@ -528,7 +515,9 @@ bool Segment::SetBoardsList(
   }
 
   for (unsigned i = 0; i < c; i++)
+  {
     LINdata[i].no = tokens[i];
+  }
 
   return true;
 }
@@ -560,9 +549,15 @@ bool Segment::SetNumber(
   const string& s,
   const formatType f)
 {
-  UNUSED(f);
+  string t = s;
+  if (f == BRIDGE_FORMAT_LIN)
+  {
+    // Drop the open/closed indicator.
+    t = t.substr(1);
+  }
+
   unsigned extNo;
-  if (! StringToUnsigned(s, extNo))
+  if (! StringToUnsigned(t, extNo))
   {
     LOG("Board number is not numerical");
     return false;

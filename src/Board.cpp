@@ -183,8 +183,17 @@ bool Board::SetDeal(
     if (! deal.GetDDS(cards))
       return false;
 
-    return play[0].SetHoldingDDS(cards);
+    if (! play[0].SetHoldingDDS(cards))
+      return false;
   }
+
+  if (f == BRIDGE_FORMAT_LIN)
+  {
+    string d = s.substr(0, 1);
+    if (! auction[numActive].SetDealer(d, f))
+      return false;
+  }
+
   return true;
 }
 

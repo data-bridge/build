@@ -86,6 +86,8 @@ class Segment
 
     unsigned GetExtBoardNo(const unsigned no) const;
 
+    void TransferHeader(const unsigned no);
+
     unsigned GetLength() const;
 
     bool SetTitle(

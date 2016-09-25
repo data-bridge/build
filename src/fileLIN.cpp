@@ -119,7 +119,7 @@ void setLINtables()
 
   segPtrLIN[LIN_TITLE] = &Segment::SetTitle;
   segPtrLIN[LIN_RESULTS_LIST] = &Segment::SetResultsList;
-  segPtrLIN[LIN_PLAYERS_LIST] = &Segment::SetPlayersHeader;
+  segPtrLIN[LIN_PLAYERS_HEADER] = &Segment::SetPlayersHeader;
   segPtrLIN[LIN_SCORES_LIST] = &Segment::SetScoresList;
   segPtrLIN[LIN_BOARDS_LIST] = &Segment::SetBoardsList;
 
@@ -151,6 +151,7 @@ bool readLINChunk(
   smatch match;
 
   bool doneFlag = false;
+  unsigned cardCount = 0;
   while (! doneFlag && getline(fstr, line))
   {
     int i = fstr.peek();
@@ -194,14 +195,18 @@ bool readLINChunk(
       if (labelNo == LIN_LABELS_SIZE)
         continue;
 
-      if (chunk[labelNo] == "")
-        chunk[labelNo] = value;
-      else if (labelNo == LIN_PLAY)
+      if (labelNo == LIN_PLAY)
       {
-        if (value.size() > 2 || chunk[labelNo].size() % 8 == 0)
+        // This is not rigorously correct
+        if (cardCount > 0 && cardCount % 4 == 0)
           chunk[labelNo] += ":";
+
+        cardCount += (value.size() > 2 ? 4 : 1);
+
         chunk[labelNo] += value;
       }
+      else if (chunk[labelNo] == "")
+        chunk[labelNo] = value;
       else
       {
         LOG("Label already set in line '" + line + "'");
@@ -234,6 +239,7 @@ bool readLIN(
   Segment * segment = nullptr;
   unsigned segno = 0;
   bool newSegFlag = false;
+  bool newBoard;
 
   Board * board = nullptr;
   unsigned bno = 0;
@@ -256,10 +262,12 @@ bool readLIN(
       bno = 0;
     }
 
-    if (chunk[LIN_BOARD_NO] != "")
+    newBoard = false;
+    if (chunk[LIN_BOARD_NO] != "" && chunk[LIN_BOARD_NO].at(0) != 'c')
     {
       // New board
       board = segment->AcquireBoard(bno);
+      newBoard = true;
       bno++;
 
       if (board == nullptr)
@@ -275,19 +283,19 @@ bool readLIN(
 
     for (unsigned i = 0; i < LIN_LABELS_SIZE; i++)
     {
-if (chunk[i] != "")
-  cout << LINname[i] << ": " << chunk[i] << endl;
-      // if (! tryLINMethod(chunk, segment, board, i, fstr, LINname[i]))
-        // return false;
+      if (! tryLINMethod(chunk, segment, board, i, fstr, LINname[i]))
+        return false;
     }
-cout << endl;
+
+    // Have to wait until after the methods with this.
+    if (newBoard)
+      segment->TransferHeader(bno-1);
 
     if (fstr.eof())
       break;
   }
 
   fstr.close();
-assert(false);
   return true;
 }
 

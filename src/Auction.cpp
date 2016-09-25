@@ -189,13 +189,13 @@ bool Auction::SetVulLIN(
   const string& v,
   vulType& vOut) const
 {
-  if (v == "o")
+  if (v == "o" || v == "O" || v == "0") // Pavlicek uses 0 -- wrong?
     vOut = BRIDGE_VUL_NONE;
-  else if (v == "e")
+  else if (v == "e" || v == "E")
     vOut = BRIDGE_VUL_EAST_WEST;
-  else if (v == "n")
+  else if (v == "n" || v == "N")
     vOut = BRIDGE_VUL_NORTH_SOUTH;
-  else if (v == "b")
+  else if (v == "b" || v == "B")
     vOut = BRIDGE_VUL_BOTH;
   else
   {
@@ -714,6 +714,40 @@ bool Auction::GetRBNAlertNo(
 }
 
 
+bool Auction::AddAuctionLIN(const string& s)
+{
+  // This only occurs in RP-style LIN where alerts are not given.
+  const size_t l = s.length();
+  size_t pos = 0;
+
+  while (1)
+  {
+    if (pos >= l)
+      return true;
+
+    const char c = s.at(pos);
+    if (c == 'P' || c == 'D' || c == 'R')
+    {
+      Auction::AddCall(string(1, c), "");
+      pos++;
+    }
+    else if (pos == l-1)
+    {
+      LOG("Missing end of bid");
+      return false;
+    }
+    else
+    {
+      string t = s.substr(pos, 2);
+      pos += 2;
+      if (! Auction::AddCall(t, ""))
+        return false;
+    }
+  }
+  return true;
+}
+
+
 bool Auction::AddAuctionRBN(const string& s)
 {
   const size_t l = s.length();
@@ -835,8 +869,7 @@ bool Auction::AddAuction(
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
-      LOG("Auction LIN type not implemented");
-      return false;
+      return Auction::AddAuctionLIN(s);
     
     case BRIDGE_FORMAT_PBN:
       LOG("Auction PBN type not implemented");

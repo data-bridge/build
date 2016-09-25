@@ -178,7 +178,7 @@ bool Deal::SetLIN(const string& text)
   size_t c = countDelimiters(text, ",");
   if (c != 2 && c != 3)
   {
-    LOG("Not 2 or 3 periods");
+    LOG("Not 2 or 3 commas");
     return false;
   }
 
@@ -193,14 +193,15 @@ bool Deal::SetLIN(const string& text)
   for (unsigned plin = 0; plin <= 2; plin++)
   {
     playerType p = PLAYER_LIN_TO_DDS[plin];
-    c = countDelimiters(tokens[p], "SHDC");
+
+    c = countDelimiters(tokens[plin], "SHDC");
     if (c != 4)
     {
       LOG("Not 4 suits");
       return false;
     }
 
-    if (! Deal::SetHand(tokens[p], "SHDC", 1, holding[p]))
+    if (! Deal::SetHand(tokens[plin], "SHDC", 1, holding[p]))
       return false;
 
     for (unsigned s = 0; s < BRIDGE_SUITS; s++)
