@@ -23,6 +23,7 @@ using namespace std;
 #include "filePBN.h"
 #include "fileEML.h"
 #include "fileTXT.h"
+#include "fileLIN.h"
 #include "portab.h"
 #include "bconst.h"
 #include "Debug.h"
@@ -43,12 +44,15 @@ int main(int argc, char * argv[])
   setPBNtables();
   setEMLtables();
   setTXTtables();
+  setLINtables();
 
+  /*
   if (! readRBX(group, "S10FA1.RBX"))
   {
     debug.Print();
     assert(false);
   }
+  */
 
   /*
   if (! readRBN(group, "S10FA1.RBN"))
@@ -82,6 +86,12 @@ int main(int argc, char * argv[])
   }
   */
 
+  if (! readLIN(group, "S10FA1.LIN"))
+  {
+    debug.Print();
+    assert(false);
+  }
+
 
   if (! writeRBN(group, "out.rbn"))
   {
@@ -108,6 +118,12 @@ int main(int argc, char * argv[])
   }
 
   if (! writeTXT(group, "out.txt"))
+  {
+    debug.Print();
+    assert(false);
+  }
+
+  if (! writeLIN(group, "out.lin", BRIDGE_FORMAT_LIN_RP))
   {
     debug.Print();
     assert(false);

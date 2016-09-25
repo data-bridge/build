@@ -49,7 +49,6 @@ class Segment
       unsigned no; // Internal Segment number
       unsigned extNo; // Externally seen number
       Board board;
-      
     };
 
     sdata seg;
@@ -63,6 +62,10 @@ class Segment
 
     Board * activeBoard;
     unsigned activeNo;
+
+    vector<LINdataType> LINdata;
+    unsigned LINcount;
+
 
     bool SetTitleLIN(const string t);
 
@@ -141,6 +144,26 @@ class Segment
       const string& s,
       const formatType f);
 
+    bool SetResultsList(
+      const string& s,
+      const formatType f);
+
+    bool SetPlayersList(
+      const string& s,
+      const formatType f);
+
+    bool SetPlayersHeader(
+      const string& s,
+      const formatType f);
+
+    bool SetScoresList(
+      const string& s,
+      const formatType f);
+
+    bool SetBoardsList(
+      const string& s,
+      const formatType f);
+
     void CopyPlayers();
 
     bool SetRoom(
@@ -192,6 +215,18 @@ class Segment
      string NumberAsString(
       const formatType f,
       const unsigned intNo) const;
+
+     string ContractsAsString(
+      const formatType f);
+
+     string PlayersAsString(
+      const formatType f);
+
+     string ScoresAsString(
+      const formatType f) const;
+
+     string BoardsAsString(
+      const formatType f) const;
 };
 
 #endif

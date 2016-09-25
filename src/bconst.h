@@ -144,18 +144,30 @@ const string VUL_NAMES_TXT[BRIDGE_SUITS] =
 enum formatType
 {
   BRIDGE_FORMAT_LIN = 0,
-  BRIDGE_FORMAT_PBN = 1,
-  BRIDGE_FORMAT_RBN = 2,
-  BRIDGE_FORMAT_RBX = 3,
-  BRIDGE_FORMAT_TXT = 4,
-  BRIDGE_FORMAT_PAR = 5,
-  BRIDGE_FORMAT_EML = 6,
-  BRIDGE_FORMAT_SIZE = 7
+  BRIDGE_FORMAT_LIN_RP = 1, // A la Pavlicek
+  BRIDGE_FORMAT_LIN_VG = 2, // A la BBO Vugraph
+  BRIDGE_FORMAT_LIN_TRN = 3, // A la BBO tournament play
+  BRIDGE_FORMAT_PBN = 4,
+  BRIDGE_FORMAT_RBN = 5,
+  BRIDGE_FORMAT_RBX = 6,
+  BRIDGE_FORMAT_TXT = 7,
+  BRIDGE_FORMAT_EML = 8,
+  BRIDGE_FORMAT_PAR = 9, // Not a real file format -- eliminate?
+  BRIDGE_FORMAT_SIZE = 10
 };
 
 const string FORMAT_NAMES[BRIDGE_FORMAT_SIZE] =
 {
-  "LIN", "PBN", "RBN", "TXT", "PAR"
+  "LIN",
+  "LIN-RP",
+  "LIN-VG",
+  "LIN-TRN",
+  "PBN", 
+  "RBN", 
+  "RBX", 
+  "TXT", 
+  "EML",
+  "PAR"
 };
 
 #endif

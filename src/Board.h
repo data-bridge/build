@@ -27,6 +27,15 @@
 using namespace std;
 
 
+struct LINdataType
+{
+  string contract[2];
+  string players[2][4];
+  string mp[2];
+  string no;
+};
+
+
 class Board
 {
   private:
@@ -37,9 +46,12 @@ class Board
     vector<Auction> auction;
     vector<Contract> contract;
     vector<Play> play;
+    float givenScore;
 
     unsigned len;
     unsigned numActive;
+    LINdataType LINdata;
+    bool LINset;
 
 
   public:
@@ -58,6 +70,9 @@ class Board
     unsigned GetLength() const;
 
     unsigned GetInstance() const;
+
+    void SetLINheader(
+      const LINdataType& lin);
 
     bool SetDealerVul(
       const string& d,
@@ -272,6 +287,9 @@ class Board
     string ScoreAsString(
       const formatType f,
       const bool scoringIsIMPs) const;
+
+    string GivenScoreAsString(
+      const formatType f) const;
 
     int ScoreIMPAsInt() const;
 

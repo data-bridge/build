@@ -11,6 +11,7 @@
 #include "Board.h"
 #include "Debug.h"
 #include "portab.h"
+#include "parse.h"
 
 #include <map>
 #include <assert.h>
@@ -42,6 +43,8 @@ void Board::Reset()
   contract.clear();
   play.clear();
   numActive = 0;
+  givenScore = 0.0f;
+  LINset = false;
 }
 
 
@@ -58,6 +61,22 @@ unsigned Board::NewInstance()
     Board::SetRoom("Open", 0, BRIDGE_FORMAT_PBN);
   else if (numActive == 1)
     Board::SetRoom("Closed", 1, BRIDGE_FORMAT_PBN);
+
+  if (LINset)
+  {
+    if (LINdata.contract[numActive] != "")
+    {
+      // Just ignore errors.
+      Board::SetContract(LINdata.contract[numActive], BRIDGE_FORMAT_LIN);
+    }
+
+    string s = "pn|";
+    for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
+      s += LINdata.players[numActive][i];
+
+    if (s == "pn|")
+      Board::SetPlayers(s, BRIDGE_FORMAT_LIN);
+  }
 
   if (numActive > 0)
   {
@@ -89,6 +108,12 @@ bool Board::SetInstance(const unsigned no)
   }
 }
 
+
+void Board::SetLINheader(const LINdataType& lin)
+{
+  LINset = true;
+  LINdata = lin;
+}
 
 unsigned Board::GetLength() const
 {
@@ -332,9 +357,8 @@ bool Board::SetScoreIMP(
   const formatType f)
 {
   // We regenerate this ourselves, so ignore for now.
-  UNUSED(text);
   UNUSED(f);
-  return true;
+  return StringToFloat(text, givenScore);
 }
 
 
@@ -343,9 +367,8 @@ bool Board::SetScoreMP(
   const formatType f)
 {
   // We ignore this for now.
-  UNUSED(text);
   UNUSED(f);
-  return true;
+  return StringToFloat(text, givenScore);
 }
 
 
@@ -633,6 +656,21 @@ string Board::ScoreAsString(
     return contract[numActive].ScoreAsString(f);
   else
     return contract[numActive].ScoreAsString(f, contract[0].GetScore());
+}
+
+
+string Board::GivenScoreAsString(
+  const formatType f) const
+{
+  UNUSED(f);
+  stringstream s;
+  if (givenScore == 0.0f)
+    s << "--,--,";
+  else if (givenScore > 0.0f)
+    s << setprecision(2) << fixed << givenScore << ",,";
+  else
+    s << "," << setprecision(2) << fixed << -givenScore << ",";
+  return s.str();
 }
 
 
