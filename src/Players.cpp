@@ -271,7 +271,7 @@ string Players::AsLIN() const
     players[BRIDGE_NORTH] << "," <<
     players[BRIDGE_EAST];
 
-  return s.str() + "\n";
+  return s.str();
 }
 
 
@@ -308,8 +308,10 @@ string Players::AsString(const formatType f) const
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
-      LOG("No separate LIN players format");
-      return "";
+    case BRIDGE_FORMAT_LIN_RP:
+    case BRIDGE_FORMAT_LIN_VG:
+    case BRIDGE_FORMAT_LIN_TRN:
+      return Players::AsLIN();
     
     case BRIDGE_FORMAT_PBN:
       LOG("No separate PBN players format");
@@ -378,7 +380,10 @@ string Players::RoomAsString(
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
-      s << "qx|" << ROOM_LIN[room] << no;
+    case BRIDGE_FORMAT_LIN_RP:
+    case BRIDGE_FORMAT_LIN_VG:
+    case BRIDGE_FORMAT_LIN_TRN:
+      s << "qx|" << ROOM_LIN[room] << no << "|";
       return s.str();
     
     case BRIDGE_FORMAT_PBN:

@@ -605,7 +605,10 @@ claimStatus Play::Claim(const unsigned tricks)
   else if (playOverFlag)
   {
     if (tricksDecl == tricks)
+    {
+      claimMadeFlag = true;
       return PLAY_CLAIM_NO_ERROR;
+    }
     else
       return PLAY_CLAIM_PLAY_OVER;
   }
@@ -697,6 +700,28 @@ string Play::AsLIN() const
       s << "pg||";
   }
 
+  return s.str();
+}
+
+
+string Play::AsLIN_RP() const
+{
+  if (len == 0)
+    return "";
+
+  stringstream s;
+  for (unsigned t = 0; t <= ((len-1) >> 2); t++)
+  {
+    s << "pc|";
+    for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
+    {
+      unsigned pos = 4*t + p;
+      if (pos >= len)
+        break;
+      s << PLAY_NO_TO_CARD[sequence[pos]];
+    }
+    s << "|pg||\n";
+  }
   return s.str();
 }
 
@@ -892,7 +917,12 @@ string Play::AsString(const formatType f) const
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
+    case BRIDGE_FORMAT_LIN_VG:
+    case BRIDGE_FORMAT_LIN_TRN:
       return Play::AsLIN();
+
+    case BRIDGE_FORMAT_LIN_RP:
+      return Play::AsLIN_RP();
 
     case BRIDGE_FORMAT_PBN:
       return Play::AsPBN();
@@ -918,7 +948,7 @@ string Play::AsString(const formatType f) const
 
 string Play::ClaimAsLIN() const
 {
-  if (!claimMadeFlag)
+  if (! claimMadeFlag)
     return "";
 
   stringstream s;
@@ -967,7 +997,12 @@ string Play::ClaimAsString(const formatType f) const
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
-      return Play::ClaimAsLIN();
+    case BRIDGE_FORMAT_LIN_VG:
+    case BRIDGE_FORMAT_LIN_TRN:
+      return Play::ClaimAsLIN() + "\n";
+
+    case BRIDGE_FORMAT_LIN_RP:
+      return Play::ClaimAsLIN() + "pg||\n";;
 
     case BRIDGE_FORMAT_PBN:
       LOG("Currently unimplemented format " + STR(f));

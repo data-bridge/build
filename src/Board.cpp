@@ -111,8 +111,10 @@ bool Board::SetInstance(const unsigned no)
 
 void Board::SetLINheader(const LINdataType& lin)
 {
+  if (! LINset)
+    LINdata = lin;
   LINset = true;
-  LINdata = lin;
+
 }
 
 unsigned Board::GetLength() const
@@ -159,6 +161,12 @@ bool Board::CheckDealerVul(
   const formatType f) const
 {
   return auction[0].CheckDealerVul(d, v, f);
+}
+
+
+playerType Board::GetDealer() const
+{
+  return auction[0].GetDealer();
 }
 
 

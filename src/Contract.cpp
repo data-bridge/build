@@ -857,6 +857,9 @@ string Contract::AsString(const formatType f) const
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
+    case BRIDGE_FORMAT_LIN_RP:
+    case BRIDGE_FORMAT_LIN_VG:
+    case BRIDGE_FORMAT_LIN_TRN:
       return Contract::AsLIN();
 
     case BRIDGE_FORMAT_PBN:

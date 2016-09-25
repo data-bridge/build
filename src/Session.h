@@ -50,6 +50,7 @@ class Session
     void SetPart2(const string& t);
 
     string AsLIN() const;
+    string AsLIN_RP() const;
     string AsPBN() const;
     string AsRBNCore() const;
     string AsRBN() const;

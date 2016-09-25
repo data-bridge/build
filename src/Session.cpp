@@ -358,6 +358,25 @@ string Session::AsLIN() const
 }
 
 
+string Session::AsLIN_RP() const
+{
+  // This is a fudge.  We are putting RBN tags in the LIN header.
+  if (stage == BRIDGE_SESSION_UNDEFINED)
+    return ",";
+
+  stringstream s;
+  if (stage != BRIDGE_SESSION_ROUND_OF)
+    s << " " << STAGE_NAMES[stage] << ",";
+  else
+    s << " " << STAGE_NAMES[stage] << roundOf << ",";
+
+  if (sessionNo > 0)
+    s << "Segment " << sessionNo;
+
+  return s.str();
+}
+
+
 string Session::AsPBN() const
 {
   if (general1 == "" && stage == BRIDGE_SESSION_UNDEFINED)
@@ -437,6 +456,9 @@ string Session::AsString(const formatType f) const
   {
     case BRIDGE_FORMAT_LIN:
       return Session::AsLIN();
+
+    case BRIDGE_FORMAT_LIN_RP:
+      return Session::AsLIN_RP();
 
     case BRIDGE_FORMAT_PBN:
       return Session::AsPBN();

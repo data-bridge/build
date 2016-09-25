@@ -101,6 +101,7 @@ class Auction
     bool AddAuctionPBN(const vector<string>& list);
 
     string AsLIN() const;
+    string AsLIN_RP() const;
     string AsPBN() const;
     string AsRBNCore(const bool RBNflag) const;
     string AsRBN() const;
@@ -114,6 +115,7 @@ class Auction
     string DealerAsTXT() const;
 
     string VulAsLIN() const;
+    string VulAsLIN_RP() const;
     string VulAsPBN() const;
     string VulAsRBN() const;
     string VulAsEML() const;
@@ -135,6 +137,8 @@ class Auction
     bool SetDealer(
       const string& d,
       const formatType f);
+
+    playerType GetDealer() const;
 
     bool SetVul(
       const string& v,

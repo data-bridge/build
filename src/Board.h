@@ -92,6 +92,8 @@ class Board
       const string& v,
       const formatType f) const;
 
+    playerType GetDealer() const;
+
     // Deal
 
     bool SetDeal(

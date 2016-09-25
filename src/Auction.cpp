@@ -459,6 +459,12 @@ bool Auction::IsPassedOut() const
 }
 
 
+playerType Auction::GetDealer() const
+{
+  return dealer;
+}
+
+
 void Auction::AddCallNo(
   const unsigned no,
   const string& alert)
@@ -1140,6 +1146,23 @@ string Auction::AsLIN() const
 }
 
 
+string Auction::AsLIN_RP() const
+{
+  if (len == 0)
+    return "";
+
+  stringstream s;
+  s << "mb|";
+  for (unsigned b = 0; b < len; b++)
+  {
+    const Call& c = sequence[b];
+    s << AUCTION_NO_TO_CALL_LIN[c.no];
+  }
+  s << "|pg||\n";
+  return s.str();
+}
+
+
 string Auction::AsPBN() const
 {
   if (len == 0)
@@ -1371,7 +1394,12 @@ string Auction::AsString(
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
+    case BRIDGE_FORMAT_LIN_VG:
+    case BRIDGE_FORMAT_LIN_TRN:
       return Auction::AsLIN();
+
+    case BRIDGE_FORMAT_LIN_RP:
+      return Auction::AsLIN_RP();
     
     case BRIDGE_FORMAT_PBN:
       return Auction::AsPBN();
@@ -1424,6 +1452,12 @@ string Auction::DealerAsTXT() const
 string Auction::VulAsLIN() const
 {
   return VUL_NAMES_LIN[vul];
+}
+
+
+string Auction::VulAsLIN_RP() const
+{
+  return "sv|" + VUL_NAMES_LIN_RP[vul] + "|\npf|y|\n";
 }
 
 
@@ -1494,7 +1528,12 @@ string Auction::VulAsString(
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
+    case BRIDGE_FORMAT_LIN_VG:
+    case BRIDGE_FORMAT_LIN_TRN:
       return Auction::VulAsLIN();
+
+    case BRIDGE_FORMAT_LIN_RP:
+      return Auction::VulAsLIN_RP();
     
     case BRIDGE_FORMAT_PBN:
       return Auction::VulAsPBN();

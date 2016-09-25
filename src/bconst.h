@@ -127,6 +127,10 @@ const string VUL_NAMES_LIN[BRIDGE_SUITS] =
 {
   "o", "b", "n", "e"
 };
+const string VUL_NAMES_LIN_RP[BRIDGE_SUITS] =
+{
+  "0", "B", "N", "E"
+};
 const string VUL_NAMES_PBN[BRIDGE_SUITS] =
 {
   "None", "All", "NS", "EW"

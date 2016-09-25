@@ -56,7 +56,10 @@ Board * Segment::GetBoard(const unsigned no)
   for (auto &p: boards)
   {
     if (p.no == no)
+    {
+      activeBoard = &p.board;
       return &p.board;
+    }
   }
   return nullptr;
 }
@@ -110,8 +113,33 @@ void Segment::TransferHeader(const unsigned intNo)
 }
 
 
+void Segment::TransferPlayers(
+  const unsigned intNo,
+  const unsigned instNo)
+{
+  if (LINcount == 0)
+    return;
+
+  Board * board = Segment::AcquireBoard(intNo);
+  if (board == nullptr)
+    return;
+
+  if (! board->SetInstance(instNo))
+    return;
+
+  for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
+  {
+    if (LINdata[intNo].players[instNo][p] != "")
+      board->SetPlayer(LINdata[intNo].players[instNo][p],
+        static_cast<playerType>(p));
+  }
+}
+
+
 bool Segment::SetTitleLIN(const string t)
 {
+  // We figure out which of the LIN formats is used.
+  //
   // We cater to several uses of the first three fields:
   //
   //           own table   own MP    own tourney   Vugraph    RBN-generated
@@ -428,8 +456,8 @@ bool Segment::SetPlayersList(
   {
     for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
     {
-      LINdata[b >> 3].players[0][d] = tokens[b+d];
-      LINdata[b >> 3].players[1][d] = tokens[b+d+4];
+      LINdata[b >> 3].players[0][(d+2) % 4] = tokens[b+d];
+      LINdata[b >> 3].players[1][(d+2) % 4] = tokens[b+d+4];
     }
   }
   return true;
@@ -456,8 +484,8 @@ bool Segment::SetPlayersHeader(
 
   for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
   {
-    LINdata[0].players[0][i] = tokens[i];
-    LINdata[0].players[1][i] = tokens[i+3];
+    LINdata[0].players[0][(i+2) % 4] = tokens[i];
+    LINdata[0].players[1][(i+2) % 4] = tokens[i+4];
   }
   return true;
 }
@@ -554,6 +582,8 @@ bool Segment::SetNumber(
   {
     // Drop the open/closed indicator.
     t = t.substr(1);
+
+    Segment::SetRoom(s.substr(0, 1), f);
   }
 
   unsigned extNo;
@@ -616,39 +646,9 @@ bool Segment::operator != (const Segment& s2) const
 }
 
 
-string Segment::TitleAsLIN() const
+string Segment::TitleAsLINCommon() const
 {
-  // In LIN this is the entire vg field.
-  // We don't generate the specific "format" that Pavlicek uses
-  // in his LIN files.
-  
   stringstream s;
-  s << "vg|";
-
-  if (seg.title == "Bridge Base Online")
-  {
-    s << seg.title << ",IMPs,P,";
-  }
-  else if (seg.event == "Bridge Base Online")
-  {
-    s << seg.title << "," << 
-        seg.event << "," << 
-        seg.scoring.AsString(BRIDGE_FORMAT_LIN) << ",";
-  }
-  else
-  {
-    // Fudged extension of title format.
-    // We also output the RBN mixture format in this way
-    // (although we could recreate it with special scoring functions).
-
-    s << seg.title << "%" <<
-        seg.date.AsString(BRIDGE_FORMAT_LIN) << "%" <<
-        seg.location.AsString(BRIDGE_FORMAT_LIN) << "%" <<
-        seg.session.AsString(BRIDGE_FORMAT_LIN) << "," <<
-        seg.event << "," << 
-        seg.scoring.AsString(BRIDGE_FORMAT_LIN) << ",";
-  }
-
   if (bInmin == 0)
     s << ",";
   else
@@ -660,8 +660,62 @@ string Segment::TitleAsLIN() const
     s << bInmax << ",";
 
   s << seg.teams.AsString(BRIDGE_FORMAT_LIN) << "|";
-  
   return s.str();
+}
+
+
+string Segment::TitleAsLIN() const
+{
+  // BBO hands played at own table (not tournaments).
+  stringstream s;
+  s << seg.title << "%" <<
+      seg.date.AsString(BRIDGE_FORMAT_LIN) << "%" <<
+      seg.location.AsString(BRIDGE_FORMAT_LIN) << "%" <<
+      seg.session.AsString(BRIDGE_FORMAT_LIN) << "%" <<
+      seg.event << "%" <<
+      seg.scoring.AsString(BRIDGE_FORMAT_LIN) << 
+      ",IMPs,P,";
+  s << Segment::TitleAsLINCommon();
+  return s.str() + "\n";
+}
+
+
+string Segment::TitleAsLIN_RP() const
+{
+  // BBO hands from Pavlicek.
+  stringstream s;
+  s << "vg|" << seg.title << 
+      seg.session.AsString(BRIDGE_FORMAT_LIN_RP) << "," <<
+      seg.scoring.AsString(BRIDGE_FORMAT_LIN) << ",";
+  s << Segment::TitleAsLINCommon() << "pf|y|\n";
+  return s.str();
+}
+
+
+string Segment::TitleAsLIN_VG() const
+{
+  // BBO hands from Vugraph.
+  stringstream s;
+  s << "vg|" << seg.title << ",I,I,";
+
+  s << Segment::TitleAsLINCommon();
+  return s.str() + "\n";
+}
+
+
+string Segment::TitleAsLIN_TRN() const
+{
+  // BBO hands played in own tournaments.
+  stringstream s;
+  s << seg.title << "%" <<
+      seg.date.AsString(BRIDGE_FORMAT_LIN) << "%" <<
+      seg.location.AsString(BRIDGE_FORMAT_LIN) << "%" <<
+      seg.session.AsString(BRIDGE_FORMAT_LIN) << "%" <<
+      seg.event << "%" <<
+      seg.scoring.AsString(BRIDGE_FORMAT_LIN) << 
+      ",IMPs,P,";
+  s << Segment::TitleAsLINCommon();
+  return s.str() + "\n";
 }
 
 
@@ -676,6 +730,21 @@ string Segment::TitleAsString(const formatType f) const
       if (seg.title == "")
         return "";
       return Segment::TitleAsLIN();
+
+    case BRIDGE_FORMAT_LIN_RP:
+      if (seg.title == "")
+        return "";
+      return Segment::TitleAsLIN_RP();
+
+    case BRIDGE_FORMAT_LIN_VG:
+      if (seg.title == "")
+        return "";
+      return Segment::TitleAsLIN_VG();
+
+    case BRIDGE_FORMAT_LIN_TRN:
+      if (seg.title == "")
+        return "";
+      return Segment::TitleAsLIN_TRN();
 
     case BRIDGE_FORMAT_PBN:
       if (seg.title == "")
@@ -804,8 +873,11 @@ string Segment::NumberAsString(
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
-      LOG("Invalid format " + STR(f));
-      return false;
+    case BRIDGE_FORMAT_LIN_RP:
+    case BRIDGE_FORMAT_LIN_VG:
+    case BRIDGE_FORMAT_LIN_TRN:
+      st << activeBoard->RoomAsString(extNo, f);
+      return st.str();
 
     case BRIDGE_FORMAT_PBN:
       st << "[Board \"" << extNo << "\"]\n";
@@ -886,7 +958,7 @@ string Segment::PlayersAsString(const formatType f)
           s1 += st.substr(3);
         }
       }
-      return s1;
+      return s1 + "\n";
 
     case BRIDGE_FORMAT_LIN_RP:
     case BRIDGE_FORMAT_LIN_VG:
@@ -899,9 +971,8 @@ string Segment::PlayersAsString(const formatType f)
       s1 = board->PlayersAsString(f);
       board->SetInstance(1);
       s2 = board->PlayersAsString(f);
-      s1.pop_back(); // Remove trailing |
 
-      return s1 + s2.substr(3);
+      return "pn|" + s1 + "," + s2 + "|pg||\n";
 
     default:
       LOG("Invalid format " + STR(f));

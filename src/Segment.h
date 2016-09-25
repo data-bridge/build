@@ -69,7 +69,11 @@ class Segment
 
     bool SetTitleLIN(const string t);
 
+    string TitleAsLINCommon() const;
     string TitleAsLIN() const;
+    string TitleAsLIN_RP() const;
+    string TitleAsLIN_VG() const;
+    string TitleAsLIN_TRN() const;
 
 
   public:
@@ -87,6 +91,9 @@ class Segment
     unsigned GetExtBoardNo(const unsigned no) const;
 
     void TransferHeader(const unsigned no);
+    void TransferPlayers(
+      const unsigned intNo,
+      const unsigned instNo);
 
     unsigned GetLength() const;
 

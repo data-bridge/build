@@ -288,6 +288,9 @@ bool readLIN(
     }
 
     // Have to wait until after the methods with this.
+    if (! board->PlayersAreSet(board->GetInstance()))
+      segment->TransferPlayers(bno-1, board->GetInstance()); 
+
     if (newBoard)
       segment->TransferHeader(bno-1);
 
@@ -357,7 +360,7 @@ bool writeLIN(
 
     fstr << segment->TitleAsString(f);
     fstr << segment->ContractsAsString(f);
-    fstr << segment->PlayersAsString(f);
+    fstr << segment->PlayersAsString(f) << "\n";
     fstr << segment->ScoresAsString(f);
     fstr << segment->BoardsAsString(f);
 
@@ -382,14 +385,14 @@ bool writeLIN(
         }
 
         fstr << segment->NumberAsString(f, b);
-        fstr << board->DealAsString(BRIDGE_WEST, f);
+        fstr << board->DealAsString(board->GetDealer(), f);
         fstr << board->VulAsString(f);
 
         board->CalculateScore();
 
         fstr << board->AuctionAsString(f);
         fstr << board->PlayAsString(f);
-        fstr << board->ClaimAsString(f);
+        fstr << board->ClaimAsString(f) << "\n";
       }
     }
   }
