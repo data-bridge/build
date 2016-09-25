@@ -109,6 +109,10 @@ void setLINtables()
   // We ignore some labels.
   LINmap["pf"] = LIN_LABELS_SIZE;
   LINmap["pg"] = LIN_LABELS_SIZE;
+  LINmap["st"] = LIN_LABELS_SIZE;
+  LINmap["rh"] = LIN_LABELS_SIZE;
+  LINmap["ah"] = LIN_LABELS_SIZE;
+  LINmap["nt"] = LIN_LABELS_SIZE; // Chat
 
   
   LABEL_TO_NEW_SEGMENT[LIN_TITLE] = true;
@@ -182,6 +186,7 @@ bool readLINChunk(
       auto it = LINmap.find(label);
       if (it == LINmap.end())
       {
+cout << "LABEL " << label << endl;
         LOG("Illegal LIN label in line '" + line + "'");
         return false;
       }
@@ -209,6 +214,7 @@ bool readLINChunk(
         chunk[labelNo] = value;
       else
       {
+cout << "LABEL repeat " << label << endl;
         LOG("Label already set in line '" + line + "'");
         return false;
       }

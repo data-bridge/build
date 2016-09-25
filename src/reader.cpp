@@ -86,11 +86,16 @@ int main(int argc, char * argv[])
   }
   */
 
-  if (! readLIN(group, "S10FA1.LIN"))
+  /* */
+  // if (! readLIN(group, "S10FA1.LIN"))
+  // if (! readLIN(group, "02-20-12-1.lin"))
+  // if (! readLIN(group, "Tournament 5586 02-20-12.lin"))
+  if (! readLIN(group, "29123.lin"))
   {
     debug.Print();
     assert(false);
   }
+  /* */
 
 
   if (! writeRBN(group, "out.rbn"))
@@ -123,7 +128,8 @@ int main(int argc, char * argv[])
     assert(false);
   }
 
-  if (! writeLIN(group, "out.lin", BRIDGE_FORMAT_LIN_RP))
+  // if (! writeLIN(group, "out.lin", BRIDGE_FORMAT_LIN_RP))
+  if (! writeLIN(group, "out.lin", BRIDGE_FORMAT_LIN))
   {
     debug.Print();
     assert(false);

@@ -373,9 +373,11 @@ bool Board::SetScoreIMP(
   const string& text,
   const formatType f)
 {
-  // We regenerate this ourselves, so ignore for now.
-  UNUSED(f);
-  return StringToFloat(text, givenScore);
+  // We regenerate this ourselves, so mostly ignore for now.
+  if (f == BRIDGE_FORMAT_LIN)
+    return StringToFloat(text, givenScore);
+  else
+    return true;
 }
 
 

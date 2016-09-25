@@ -65,7 +65,9 @@ class Teams
     string SingleAsPBN(const teamType& tt) const;
     string SingleAsTXT(const teamType& tt) const;
 
-    string CarryAsString(const teamType& tt) const;
+    string CarryAsString(
+      const teamType& tt,
+      const bool forceFlag = false) const;
 
     string AsLIN() const;
     string AsPBN() const;

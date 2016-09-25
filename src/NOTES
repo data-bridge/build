@@ -1,3 +1,14 @@
+25.09.16
+--------
+Solve the alert and multiple-mb issue for LIN files.
+
+There is probably a fifth LIN output format with my %%%% headers.
+LIN_EXT or so.  In this case take advantage of file names too 
+(tournament name, date).
+
+Parse VG LIN headers for some recognizable format.
+
+
 Check that LOG is only set at the lowest level where error occurs.
 In read*, we should perhaps add the input file line number.
 

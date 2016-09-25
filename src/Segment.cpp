@@ -89,10 +89,6 @@ Board * Segment::AcquireBoard(const unsigned intNo)
   boards[len].no = intNo;
   boards[len].extNo = 0;
   len++;
-  if (intNo < bmin)
-    bmin = intNo;
-  if (intNo > bmax)
-    bmax = intNo;
   activeBoard = &boards[len-1].board;
   activeNo = intNo;
 
@@ -593,6 +589,11 @@ bool Segment::SetNumber(
     return false;
   }
 
+  if (extNo < bmin)
+    bmin = extNo;
+  if (extNo > bmax)
+    bmax = extNo;
+
   boards[activeNo].extNo = extNo;
   return true;
 }
@@ -649,15 +650,15 @@ bool Segment::operator != (const Segment& s2) const
 string Segment::TitleAsLINCommon() const
 {
   stringstream s;
-  if (bInmin == 0)
+  if (bmin == 0)
     s << ",";
   else
-    s << bInmin << ",";
+    s << bmin << ",";
 
-  if (bInmax == 0)
+  if (bmax == 0)
     s << ",";
   else
-    s << bInmax << ",";
+    s << bmax << ",";
 
   s << seg.teams.AsString(BRIDGE_FORMAT_LIN) << "|";
   return s.str();
@@ -732,8 +733,6 @@ string Segment::TitleAsString(const formatType f) const
       return Segment::TitleAsLIN();
 
     case BRIDGE_FORMAT_LIN_RP:
-      if (seg.title == "")
-        return "";
       return Segment::TitleAsLIN_RP();
 
     case BRIDGE_FORMAT_LIN_VG:

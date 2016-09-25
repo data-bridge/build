@@ -161,6 +161,15 @@ bool Teams::SetRBN(const string& t)
 
       team2 = tt2;
       team2.name = v[1];
+
+      if (team1.carry == BRIDGE_CARRY_INT && 
+          team2.carry == BRIDGE_CARRY_INT &&
+          team1.carryi == 0 &&
+          team2.carryi == 0)
+      {
+        team1.carry = BRIDGE_CARRY_NONE;
+        team2.carry = BRIDGE_CARRY_NONE;
+      }
       return true;
     }
     else
@@ -315,7 +324,7 @@ bool Teams::operator != (const Teams& t2) const
 
 string Teams::SingleAsLIN(const teamType& tt) const
 {
-  return tt.name + "," + CarryAsString(tt);
+  return tt.name + "," + Teams::CarryAsString(tt, true);
 }
 
 
@@ -339,14 +348,19 @@ string Teams::SingleAsTXT(const teamType& tt) const
 }
 
 
-string Teams::CarryAsString(const teamType& tt) const
+string Teams::CarryAsString(
+  const teamType& tt,
+  const bool forceFlag) const
 {
   stringstream s;
 
   switch(tt.carry)
   {
     case BRIDGE_CARRY_NONE:
-      return "";
+      if (forceFlag)
+        return "0";
+      else
+        return "";
 
     case BRIDGE_CARRY_INT:
       s << tt.carryi;
