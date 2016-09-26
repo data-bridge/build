@@ -24,6 +24,7 @@ using namespace std;
 #include "fileEML.h"
 #include "fileTXT.h"
 #include "fileLIN.h"
+#include "fileREC.h"
 #include "portab.h"
 #include "bconst.h"
 #include "Debug.h"
@@ -45,6 +46,7 @@ int main(int argc, char * argv[])
   setEMLtables();
   setTXTtables();
   setLINtables();
+  setRECtables();
 
   /*
   if (! readRBX(group, "S10FA1.RBX"))
@@ -86,7 +88,7 @@ int main(int argc, char * argv[])
   }
   */
 
-  /* */
+  /*
   // if (! readLIN(group, "S10FA1.LIN"))
   // if (! readLIN(group, "02-20-12-1.lin"))
   // if (! readLIN(group, "Tournament 5586 02-20-12.lin"))
@@ -95,7 +97,13 @@ int main(int argc, char * argv[])
     debug.Print();
     assert(false);
   }
-  /* */
+  */
+
+  if (! readREC(group, "S10FA1.REC"))
+  {
+    debug.Print();
+    assert(false);
+  }
 
 
   if (! writeRBN(group, "out.rbn"))
@@ -128,8 +136,8 @@ int main(int argc, char * argv[])
     assert(false);
   }
 
-  // if (! writeLIN(group, "out.lin", BRIDGE_FORMAT_LIN_RP))
-  if (! writeLIN(group, "out.lin", BRIDGE_FORMAT_LIN))
+  if (! writeLIN(group, "out.lin", BRIDGE_FORMAT_LIN_RP))
+  // if (! writeLIN(group, "out.lin", BRIDGE_FORMAT_LIN))
   {
     debug.Print();
     assert(false);

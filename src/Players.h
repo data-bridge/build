@@ -41,6 +41,7 @@ class Players
     string AsRBNCore() const;
     string AsRBN() const;
     string AsRBX() const;
+    string AsREC() const;
 
 
   public:

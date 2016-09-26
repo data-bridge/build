@@ -900,6 +900,10 @@ string Segment::NumberAsString(
       st << extNo << ".";
       return st.str();
 
+    case BRIDGE_FORMAT_REC:
+      st << "Board " << extNo;
+      return st.str();
+
     default:
       LOG("Invalid format " + STR(f));
       return false;

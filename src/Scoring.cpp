@@ -221,6 +221,7 @@ string Scoring::AsString(const formatType f) const
       return Scoring::AsLIN();
     
     case BRIDGE_FORMAT_PBN:
+    case BRIDGE_FORMAT_REC:
       return Scoring::AsPBN();
     
     case BRIDGE_FORMAT_RBN:

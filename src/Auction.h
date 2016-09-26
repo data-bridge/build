@@ -108,6 +108,7 @@ class Auction
     string AsRBX() const;
     string AsEML() const;
     string AsTXT() const;
+    string AsREC() const;
 
     string DealerAsLIN() const;
     string DealerAsPBN() const;

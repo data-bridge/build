@@ -562,6 +562,56 @@ string Deal::AsTXT() const
 }
 
 
+string Deal::AsRECDetail(
+  const playerType midPlayer,
+  const unsigned LRsuit,
+  const unsigned mSuit) const
+{
+  stringstream s;
+
+  s << DENOM_NAMES_SHORT[LRsuit] << " " << setw(10) << left <<
+      (holding[BRIDGE_WEST][LRsuit] == 0 ? "" : cards[BRIDGE_WEST][LRsuit]);
+
+  s << DENOM_NAMES_SHORT[mSuit] << " " << setw(10) << left <<
+      (holding[midPlayer][mSuit] == 0 ? "" : cards[midPlayer][mSuit]);
+
+  s << DENOM_NAMES_SHORT[LRsuit] << " " << setw(10) << left <<
+      (holding[BRIDGE_EAST][LRsuit] == 0 ? "" : cards[BRIDGE_EAST][LRsuit]);
+  
+  return s.str();
+}
+
+string Deal::AsREC() const
+{
+  stringstream t;
+  t <<  "\n";
+  for (unsigned s = 0; s < BRIDGE_SUITS-1; s++)
+  {
+    t << setw(12) << "" << DENOM_NAMES_SHORT[s] << " " <<
+      (holding[BRIDGE_NORTH][s] == 0 ? "" : cards[BRIDGE_NORTH][s]) << "\n";
+  }
+
+  t << Deal::AsRECDetail(BRIDGE_NORTH, BRIDGE_SPADES, BRIDGE_CLUBS) << "\n";
+
+
+  for (unsigned s = 1; s < BRIDGE_SUITS-1; s++)
+  {
+    t << setw(12) << "" << DENOM_NAMES_SHORT[s] << " " <<
+      (holding[BRIDGE_NORTH][s] == 0 ? "" : cards[BRIDGE_NORTH][s]) << "\n";
+  }
+
+  t << Deal::AsRECDetail(BRIDGE_SOUTH, BRIDGE_CLUBS, BRIDGE_SPADES) << "\n";
+
+  for (unsigned s = 1; s < BRIDGE_SUITS; s++)
+  {
+    t << setw(12) << "" << DENOM_NAMES_SHORT[s] << " " <<
+      (holding[BRIDGE_SOUTH][s] == 0 ? "" : cards[BRIDGE_SOUTH][s]) << "\n";
+  }
+
+  return t.str();
+}
+
+
 string Deal::AsString(
   const playerType start,
   const formatType f) const
@@ -596,6 +646,9 @@ string Deal::AsString(
 
     case BRIDGE_FORMAT_TXT:
       return Deal::AsTXT();
+
+    case BRIDGE_FORMAT_REC:
+      return Deal::AsREC();
 
     default:
       LOG("Other plain deal formats not implemented");

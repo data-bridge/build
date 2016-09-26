@@ -290,6 +290,10 @@ class Board
       const formatType f,
       const bool scoringIsIMPs) const;
 
+    string ScoreIMPAsString(
+      const formatType f,
+      const bool showFlag) const;
+
     string GivenScoreAsString(
       const formatType f) const;
 

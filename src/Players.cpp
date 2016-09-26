@@ -303,6 +303,23 @@ string Players::AsRBX() const
 }
 
 
+string Players::AsREC() const
+{
+  stringstream s;
+  s << players[BRIDGE_WEST].substr(0, 9) << " " <<
+      players[BRIDGE_NORTH].substr(0, 9) << " " <<
+      players[BRIDGE_EAST].substr(0, 9) << " " <<
+      players[BRIDGE_SOUTH].substr(0, 9);
+
+  s << setw(10) << left << "West" <<
+      setw(10) << left << "North" <<
+      setw(10) << left << "East" <<
+      "East\n";
+
+  return s.str();
+}
+
+
 string Players::AsString(const formatType f) const
 {
   switch(f)
@@ -326,6 +343,9 @@ string Players::AsString(const formatType f) const
     case BRIDGE_FORMAT_TXT:
       LOG("No separate TXT players format");
       return "";
+    
+    case BRIDGE_FORMAT_REC:
+      return Players::AsREC();
     
     default:
       LOG("Invalid format " + STR(f));
@@ -357,6 +377,9 @@ string Players::PlayerAsString(
     
     case BRIDGE_FORMAT_EML:
       return players[player].substr(0, 8);
+
+    case BRIDGE_FORMAT_REC:
+      return players[player].substr(0, 10);
 
     case BRIDGE_FORMAT_TXT:
       return players[player];

@@ -59,6 +59,7 @@ class Contract
     string ScoreAsEML() const;
     string ScoreAsEML(const int refScore) const;
     string ScoreAsTXT() const;
+    string ScoreAsREC() const;
 
     string ResultAsStringPBN() const;
     string ResultAsStringRBNCore() const;
@@ -72,6 +73,7 @@ class Contract
     string ResultAsStringTXT(
       const int refScore,
       const string& team) const;
+    string ResultAsStringREC() const;
 
     string AsLIN() const;
     string AsPBN() const;
@@ -80,6 +82,8 @@ class Contract
     string AsRBX() const;
     string AsTXT() const;
     string AsPar() const;
+
+    string ScoreIMPAsREC(const int refScore) const;
 
 
   public:
@@ -160,6 +164,10 @@ class Contract
     int ScoreIMPAsInt(const int refSCore) const;
 
     string ScoreAsString(
+      const formatType f,
+      const int refScore) const;
+
+    string ScoreIMPAsString(
       const formatType f,
       const int refScore) const;
 

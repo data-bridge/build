@@ -693,6 +693,20 @@ string Board::GivenScoreAsString(
 }
 
 
+string Board::ScoreIMPAsString(
+  const formatType f,
+  const bool showFlag) const
+{
+  if (f != BRIDGE_FORMAT_REC)
+    return "";
+
+  if (! showFlag)
+    return "Points:";
+
+  return contract[numActive].ScoreIMPAsString(f, contract[0].GetScore());
+}
+
+
 int Board::ScoreIMPAsInt() const
 {
   if (numActive != 1 || ! contract[0].ResultIsSet())

@@ -84,6 +84,7 @@ class Play
     string AsRBX() const;
     string AsEML() const;
     string AsTXT() const;
+    string AsREC() const;
 
     void SetTables();
 

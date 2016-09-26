@@ -1380,6 +1380,44 @@ string Auction::AsTXT() const
 }
 
 
+string Auction::AsREC() const
+{
+
+  if (len == 0)
+    return "";
+
+  stringstream s;
+  unsigned trailing = 0;
+  unsigned end = len-1;
+  while (sequence[end].no == 0 && sequence[end].alert == "")
+    trailing++, end--;
+    
+  const unsigned numSkips = static_cast<unsigned>
+    ((dealer + 4 - BRIDGE_WEST) % 4);
+  const unsigned wrap = 3 - numSkips;
+  for (unsigned i = 0; i < numSkips; i++)
+    s << setw(10) << "";
+  
+  for (unsigned b = 0; b <= end; b++)
+  {
+    const Call& c = sequence[b];
+    stringstream bid;
+    bid << AUCTION_NO_TO_CALL_TXT[c.no];
+    if (b % 4 == wrap)
+      s << bid.str() << "\n";
+    else
+      s << setw(10) << bid.str();
+  }
+
+  if (trailing == 3)
+    s << "All Pass\n";
+  else if (end % 4 != wrap)
+    s << "\n";
+
+  return s.str();
+}
+
+
 string Auction::AsString(
   const formatType f,
   const string& names) const
@@ -1415,6 +1453,9 @@ string Auction::AsString(
     
     case BRIDGE_FORMAT_TXT:
       return Auction::AsTXT();
+    
+    case BRIDGE_FORMAT_REC:
+      return Auction::AsREC();
     
     default:
       LOG("Invalid format " + STR(f));
@@ -1504,6 +1545,7 @@ string Auction::DealerAsString(
       return Auction::DealerAsPBN();
     
     case BRIDGE_FORMAT_EML:
+    case BRIDGE_FORMAT_REC:
       return Auction::DealerAsEML();
 
     case BRIDGE_FORMAT_TXT:
@@ -1542,6 +1584,7 @@ string Auction::VulAsString(
       return Auction::VulAsRBN();
     
     case BRIDGE_FORMAT_EML:
+    case BRIDGE_FORMAT_REC:
       return Auction::VulAsEML();
     
     case BRIDGE_FORMAT_TXT:

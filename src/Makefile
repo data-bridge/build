@@ -24,6 +24,7 @@ SOURCE_FILES 	=		\
 	fileRBX.cpp		\
 	fileTXT.cpp		\
 	fileLIN.cpp		\
+	fileREC.cpp		\
 	parse.cpp		\
 	reader.cpp
 
@@ -82,7 +83,7 @@ clean:
 
 Auction.obj: Auction.h bconst.h Contract.h Debug.h parse.h portab.h
 Board.obj: bconst.h Board.h Deal.h Players.h Tableau.h Contract.h Valuation.h
-Board.obj: Auction.h Play.h Debug.h portab.h
+Board.obj: Auction.h Play.h Debug.h portab.h parse.h
 Canvas.obj: Canvas.h
 Contract.obj: Contract.h bconst.h Debug.h parse.h portab.h
 Date.obj: Date.h bconst.h portab.h parse.h debug.h Debug.h
@@ -125,12 +126,16 @@ fileTXT.obj: Debug.h
 fileLIN.obj: fileLIN.h Group.h Segment.h Date.h bconst.h Location.h Session.h
 fileLIN.obj: Scoring.h Teams.h Board.h Deal.h Players.h Tableau.h Contract.h
 fileLIN.obj: Valuation.h Auction.h Play.h parse.h portab.h debug.h Debug.h
+fileREC.obj: Canvas.h fileREC.h Group.h Segment.h Date.h bconst.h Location.h
+fileREC.obj: Session.h Scoring.h Teams.h Board.h Deal.h Players.h Tableau.h
+fileREC.obj: Contract.h Valuation.h Auction.h Play.h parse.h portab.h debug.h
+fileREC.obj: Debug.h
 parse.obj: bconst.h parse.h portab.h debug.h Debug.h
 reader.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 reader.obj: Teams.h Board.h Deal.h Players.h Tableau.h Contract.h Valuation.h
 reader.obj: Auction.h Play.h UnitTest.h fileRBN.h fileRBX.h filePBN.h
-reader.obj: fileEML.h fileTXT.h fileLIN.h portab.h Debug.h
+reader.obj: fileEML.h fileTXT.h fileLIN.h fileREC.h portab.h Debug.h
 reader.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 reader.obj: Teams.h Board.h Deal.h Players.h Tableau.h Contract.h Valuation.h
 reader.obj: Auction.h Play.h UnitTest.h fileRBN.h fileRBX.h filePBN.h
-reader.obj: fileEML.h fileTXT.h fileLIN.h portab.h Debug.h
+reader.obj: fileEML.h fileTXT.h fileLIN.h fileREC.h portab.h Debug.h

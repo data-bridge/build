@@ -1052,6 +1052,14 @@ string Contract::ScoreAsEML(const int refScore) const
 }
 
 
+string Contract::ScoreAsREC() const
+{
+  stringstream s;
+  s << "Score: " << setw(13) << left << score;
+  return s.str();
+}
+
+
 string Contract::ScoreAsTXT() const
 {
   if (! setContractFlag || ! setResultFlag)
@@ -1083,6 +1091,35 @@ string Contract::ScoreAsString(const formatType f) const
 
     case BRIDGE_FORMAT_TXT:
       return Contract::ScoreAsTXT();
+
+    default:
+      LOG("Other score formats not implemented");
+      return "";
+  }
+}
+
+
+string Contract::ScoreIMPAsREC(const int refScore) const
+{
+  stringstream s;
+  s << "Points:";
+  int IMPs = Contract::ConvertDiffToIMPs(score - refScore);
+  if (IMPs == 0)
+    s << setw(7) << right << "=";
+  else
+    s << setw(7) << right << showpos << IMPs;
+  return s.str(); 
+}
+
+
+string Contract::ScoreIMPAsString(
+  const formatType f,
+  const int refScore) const
+{
+  switch(f)
+  {
+    case BRIDGE_FORMAT_REC:
+      return Contract::ScoreIMPAsREC(refScore);
 
     default:
       LOG("Other score formats not implemented");
@@ -1237,6 +1274,17 @@ string Contract::ResultAsStringTXT(
 }
 
 
+string Contract::ResultAsStringREC() const
+{
+  stringstream s;
+  if (tricksRelative < 0)
+    s << "Result: Down " << -tricksRelative;
+  else
+    s << "Result: Made " << contract.level + tricksRelative;
+  return s.str();
+}
+
+
 string Contract::ResultAsString(const formatType f) const
 {
   if (! setResultFlag)
@@ -1262,6 +1310,9 @@ string Contract::ResultAsString(const formatType f) const
 
     case BRIDGE_FORMAT_TXT:
       return Contract::ResultAsStringTXT() + "\n";
+
+    case BRIDGE_FORMAT_REC:
+      return Contract::ResultAsStringREC() + "\n";
 
     default:
       LOG("Other score formats not implemented");

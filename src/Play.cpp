@@ -912,6 +912,45 @@ string Play::AsTXT() const
 }
 
 
+string Play::AsREC() const
+{
+  if (len == 0)
+    return "";
+
+  stringstream s;
+
+  for (unsigned t = 0; t <= ((len-1) >> 2); t++)
+  {
+    s << setw(2) << right << t+1 << 
+        setw(6) << left << PLAYER_NAMES_LONG[leads[t].leader];
+
+    for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
+    {
+      unsigned pp = 4*t + p;
+      if (pp >= len)
+        break;
+
+      if (p == 0)
+        s << setw(3) << right << PLAY_NO_TO_CARD_TXT[sequence[pp]] << ",";
+      else if (PLAY_NO_TO_INFO[sequence[pp]].suit != 
+          static_cast<unsigned>(leads[t].suit))
+      {
+        s << setw(3) << right << PLAY_NO_TO_CARD_TXT[sequence[pp]];
+      }
+      else
+        s << setw(3) << right << 
+            PLAY_CARDS_TXT[PLAY_NO_TO_INFO[sequence[pp]].rank];
+
+      if (p != 3 && pp != len-1)
+        s << ",";
+    }
+    s << "\n";
+  }
+
+  return s.str();
+}
+
+
 string Play::AsString(const formatType f) const
 {
   switch(f)
@@ -938,6 +977,9 @@ string Play::AsString(const formatType f) const
 
     case BRIDGE_FORMAT_TXT:
       return Play::AsTXT();
+
+    case BRIDGE_FORMAT_REC:
+      return Play::AsREC();
 
     default:
       LOG("Invalid format " + STR(f));
@@ -976,6 +1018,7 @@ string Play::LeadAsString(const formatType f) const
       return "";
 
     case BRIDGE_FORMAT_EML:
+    case BRIDGE_FORMAT_REC:
       if (len == 0)
         return "Opening Lead:";
       else

@@ -60,6 +60,11 @@ class Deal
     string AsRBX(const playerType start) const;
     string AsEML() const;
     string AsTXT() const;
+    string AsRECDetail(
+      const playerType midPlayer,
+      const unsigned LRsuit,
+      const unsigned mSuit) const;
+    string AsREC() const;
 
 
   public:
