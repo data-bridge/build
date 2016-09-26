@@ -665,7 +665,7 @@ string Segment::TitleAsLINCommon() const
 }
 
 
-string Segment::TitleAsLIN() const
+string Segment::TitleAsLIN_EXT() const
 {
   // BBO hands played at own table (not tournaments).
   stringstream s;
@@ -728,10 +728,6 @@ string Segment::TitleAsString(const formatType f) const
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
-      if (seg.title == "")
-        return "";
-      return Segment::TitleAsLIN();
-
     case BRIDGE_FORMAT_LIN_RP:
       return Segment::TitleAsLIN_RP();
 
@@ -911,6 +907,23 @@ string Segment::NumberAsString(
 }
 
 
+string Segment::NumberAsBoardString(
+  const formatType f,
+  const unsigned intNo) const
+{
+  if (f != BRIDGE_FORMAT_LIN)
+    return "";
+
+  unsigned extNo = Segment::GetExtBoardNo(intNo);
+  if (extNo == 0)
+    return "";
+  
+  stringstream st;
+  st << "ah|Board " << extNo << "|";
+  return st.str();
+}
+
+
 string Segment::ContractsAsString(const formatType f) 
 {
   stringstream s;
@@ -925,11 +938,15 @@ string Segment::ContractsAsString(const formatType f)
       s << "rs|";
       for (auto &p: boards)
       {
-        for (unsigned i = 0; i < p.board.GetLength(); i++)
+        const unsigned l = p.board.GetLength();
+        for (unsigned i = 0; i < l; i++)
         {
           p.board.SetInstance(i);
           s << p.board.ContractAsString(f) << ",";
         }
+
+        if (l == 1)
+          s << ",";
       }
 
       st = s.str();
@@ -994,7 +1011,7 @@ string Segment::ScoresAsString(const formatType f) const
       s = "mp|";
       for (auto &p: boards)
         s += p.board.GivenScoreAsString(f);
-      return s;
+      return s + "|\n";
 
     case BRIDGE_FORMAT_LIN_RP:
     case BRIDGE_FORMAT_LIN_VG:
@@ -1022,7 +1039,7 @@ string Segment::BoardsAsString(const formatType f) const
 
       st = s.str();
       st.pop_back(); // Remove trailing comma
-      return st + "|\n";
+      return st + "|\npg||\n";
 
     case BRIDGE_FORMAT_LIN_RP:
     case BRIDGE_FORMAT_LIN_VG:

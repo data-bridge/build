@@ -74,6 +74,7 @@ class Segment
     string TitleAsLIN_RP() const;
     string TitleAsLIN_VG() const;
     string TitleAsLIN_TRN() const;
+    string TitleAsLIN_EXT() const;
 
 
   public:
@@ -222,6 +223,10 @@ class Segment
       const formatType f) const;
 
      string NumberAsString(
+      const formatType f,
+      const unsigned intNo) const;
+
+     string NumberAsBoardString(
       const formatType f,
       const unsigned intNo) const;
 

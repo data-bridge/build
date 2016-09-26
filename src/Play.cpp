@@ -1045,11 +1045,11 @@ string Play::ClaimAsString(const formatType f) const
 {
   switch(f)
   {
-    case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_LIN_VG:
     case BRIDGE_FORMAT_LIN_TRN:
       return Play::ClaimAsLIN() + "\n";
 
+    case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_LIN_RP:
       return Play::ClaimAsLIN() + "pg||\n";;
 

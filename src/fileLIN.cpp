@@ -404,14 +404,16 @@ bool writeLIN(
         }
 
         fstr << segment->NumberAsString(f, b);
+        fstr << board->PlayersAsString(f);
         fstr << board->DealAsString(board->GetDealer(), f);
+        fstr << segment->NumberAsBoardString(f, b);
         fstr << board->VulAsString(f);
 
         board->CalculateScore();
 
         fstr << board->AuctionAsString(f);
         fstr << board->PlayAsString(f);
-        fstr << board->ClaimAsString(f) << "\n";
+        fstr << board->ClaimAsString(f);
       }
     }
   }
