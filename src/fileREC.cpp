@@ -445,7 +445,6 @@ bool readREC(
   vector<string> chunk(REC_LABELS_SIZE);
   while (readRECChunk(fstr, lno, chunk))
   {
-cout << "Got chunk, lno " << lno << endl;
     if (chunk[REC_BOARD] != "" && chunk[REC_BOARD] != lastBoard)
     {
       // New board.
@@ -584,7 +583,7 @@ bool writeREC(
         canvas.SetLine(east, 3, 24);
         canvas.SetLine(south, 6, 12);
 
-        fstr << canvas.AsString() << "\n";
+        fstr << canvas.AsString(true) << "\n";
 
         fstr << board->PlayersAsString(f) << "\n";
         fstr << board->AuctionAsString(f) << "\n";

@@ -47,7 +47,7 @@ class Canvas
       const unsigned lineNo,
       const unsigned colNo);
 
-    string AsString() const;
+    string AsString(const bool specialFlag = false) const;
 };
 
 #endif

@@ -1056,7 +1056,7 @@ string Contract::ScoreAsEML(const int refScore) const
 string Contract::ScoreAsREC() const
 {
   stringstream s;
-  s << "Score: " << setw(13) << left << score;
+  s << "Score: " << setw(13) << left << showpos << score;
   return s.str();
 }
 
@@ -1092,6 +1092,9 @@ string Contract::ScoreAsString(const formatType f) const
 
     case BRIDGE_FORMAT_TXT:
       return Contract::ScoreAsTXT();
+
+    case BRIDGE_FORMAT_REC:
+      return Contract::ScoreAsREC();
 
     default:
       LOG("Other score formats not implemented");
@@ -1313,7 +1316,7 @@ string Contract::ResultAsString(const formatType f) const
       return Contract::ResultAsStringTXT() + "\n";
 
     case BRIDGE_FORMAT_REC:
-      return Contract::ResultAsStringREC() + "\n";
+      return Contract::ResultAsStringREC();
 
     default:
       LOG("Other score formats not implemented");

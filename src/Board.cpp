@@ -701,7 +701,7 @@ string Board::ScoreIMPAsString(
     return "";
 
   if (! showFlag)
-    return "Points:";
+    return "Points:       ";
 
   return contract[numActive].ScoreIMPAsString(f, contract[0].GetScore());
 }

@@ -306,15 +306,15 @@ string Players::AsRBX() const
 string Players::AsREC() const
 {
   stringstream s;
-  s << players[BRIDGE_WEST].substr(0, 9) << " " <<
-      players[BRIDGE_NORTH].substr(0, 9) << " " <<
-      players[BRIDGE_EAST].substr(0, 9) << " " <<
-      players[BRIDGE_SOUTH].substr(0, 9);
+  s << setw(9) << left << "West" <<
+      setw(9) << left << "North" <<
+      setw(9) << left << "East" <<
+      "South\n";
 
-  s << setw(10) << left << "West" <<
-      setw(10) << left << "North" <<
-      setw(10) << left << "East" <<
-      "East\n";
+  s << setw(8) << left << players[BRIDGE_WEST].substr(0, 8) << " " <<
+      setw(8) << left << players[BRIDGE_NORTH].substr(0, 8) << " " <<
+      setw(8) << left << players[BRIDGE_EAST].substr(0, 8) << " " <<
+      players[BRIDGE_SOUTH].substr(0, 8) << "\n";
 
   return s.str();
 }

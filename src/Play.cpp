@@ -922,7 +922,7 @@ string Play::AsREC() const
 
   for (unsigned t = 0; t <= ((len-1) >> 2); t++)
   {
-    s << setw(2) << right << t+1 << 
+    s << setw(2) << right << t+1 << "  " << 
         setw(6) << left << PLAYER_NAMES_LONG[leads[t].leader];
 
     for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
@@ -932,15 +932,15 @@ string Play::AsREC() const
         break;
 
       if (p == 0)
-        s << setw(3) << right << PLAY_NO_TO_CARD_TXT[sequence[pp]] << ",";
+        s << setw(3) << right << PLAY_NO_TO_CARD[sequence[pp]];
       else if (PLAY_NO_TO_INFO[sequence[pp]].suit != 
           static_cast<unsigned>(leads[t].suit))
       {
-        s << setw(3) << right << PLAY_NO_TO_CARD_TXT[sequence[pp]];
+        s << setw(3) << right << PLAY_NO_TO_CARD[sequence[pp]];
       }
       else
         s << setw(3) << right << 
-            PLAY_CARDS_TXT[PLAY_NO_TO_INFO[sequence[pp]].rank];
+            PLAY_CARDS[PLAY_NO_TO_INFO[sequence[pp]].rank];
 
       if (p != 3 && pp != len-1)
         s << ",";
@@ -1019,11 +1019,16 @@ string Play::LeadAsString(const formatType f) const
       return "";
 
     case BRIDGE_FORMAT_EML:
-    case BRIDGE_FORMAT_REC:
       if (len == 0)
         return "Opening Lead:";
       else
         return "Opening Lead: " + PLAY_NO_TO_CARD[sequence[0]];
+
+    case BRIDGE_FORMAT_REC:
+      if (len == 0)
+        return "Opening lead:";
+      else
+        return "Opening lead: " + PLAY_NO_TO_CARD[sequence[0]];
 
     case BRIDGE_FORMAT_TXT:
       LOG("Currently unimplemented format " + STR(f));

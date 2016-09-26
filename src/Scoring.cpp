@@ -214,6 +214,14 @@ string Scoring::AsEML() const
 }
 
 
+string Scoring::AsREC() const
+{
+  if (scoring == BRIDGE_SCORING_UNDEFINED)
+    return "";
+  return SCORING_PBN[scoring];
+}
+
+
 string Scoring::AsString(const formatType f) const
 {
   switch(f)
@@ -222,7 +230,6 @@ string Scoring::AsString(const formatType f) const
       return Scoring::AsLIN();
     
     case BRIDGE_FORMAT_PBN:
-    case BRIDGE_FORMAT_REC:
       return Scoring::AsPBN();
     
     case BRIDGE_FORMAT_RBN:
@@ -234,6 +241,9 @@ string Scoring::AsString(const formatType f) const
     case BRIDGE_FORMAT_EML:
       return Scoring::AsEML();
     
+    case BRIDGE_FORMAT_REC:
+      return Scoring::AsREC();
+
     default:
       LOG("Invalid format " + STR(f));
       return "";

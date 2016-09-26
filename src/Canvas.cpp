@@ -73,7 +73,7 @@ void Canvas::SetRectangle(
 }
 
 
-string Canvas::AsString() const
+string Canvas::AsString(const bool specialFlag) const
 {
   // Drop trailing spaces.
   stringstream s;
@@ -84,6 +84,9 @@ string Canvas::AsString() const
       p--;
     if (p < 0)
       s << "\n";
+    else if (specialFlag && (p == 12 || p == 24))
+      // Needed for REC annoyance in the deal diagram
+      s << canvas[i].substr(0, static_cast<unsigned>(p+2)) << "\n";
     else
       s << canvas[i].substr(0, static_cast<unsigned>(p+1)) << "\n";
   }

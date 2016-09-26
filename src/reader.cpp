@@ -48,13 +48,13 @@ int main(int argc, char * argv[])
   setLINtables();
   setRECtables();
 
-  /*
+  /* */
   if (! readRBX(group, "S10FA1.RBX"))
   {
     debug.Print();
     assert(false);
   }
-  */
+  /* */
 
   /*
   if (! readRBN(group, "S10FA1.RBN"))
@@ -89,21 +89,23 @@ int main(int argc, char * argv[])
   */
 
   /*
-  // if (! readLIN(group, "S10FA1.LIN"))
+  if (! readLIN(group, "S10FA1.LIN"))
   // if (! readLIN(group, "02-20-12-1.lin"))
   // if (! readLIN(group, "Tournament 5586 02-20-12.lin"))
-  if (! readLIN(group, "29123.lin"))
+  // if (! readLIN(group, "29123.lin"))
   {
     debug.Print();
     assert(false);
   }
   */
 
+  /*
   if (! readREC(group, "S10FA1.REC"))
   {
     debug.Print();
     assert(false);
   }
+  */
 
 
   if (! writeRBN(group, "out.rbn"))

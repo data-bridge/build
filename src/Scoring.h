@@ -46,6 +46,7 @@ class Scoring
     string AsRBN() const;
     string AsRBX() const;
     string AsEML() const;
+    string AsREC() const;
 
 
   public:

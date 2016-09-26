@@ -1399,7 +1399,7 @@ string Auction::AsREC() const
     ((dealer + 4 - BRIDGE_WEST) % 4);
   const unsigned wrap = 3 - numSkips;
   for (unsigned i = 0; i < numSkips; i++)
-    s << setw(10) << "";
+    s << setw(9) << "";
   
   for (unsigned b = 0; b <= end; b++)
   {
@@ -1409,7 +1409,7 @@ string Auction::AsREC() const
     if (b % 4 == wrap)
       s << bid.str() << "\n";
     else
-      s << setw(10) << bid.str();
+      s << setw(9) << left << bid.str();
   }
 
   if (trailing == 3)

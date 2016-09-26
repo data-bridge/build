@@ -597,8 +597,11 @@ string Deal::AsREC() const
 
   for (unsigned s = 1; s < BRIDGE_SUITS-1; s++)
   {
-    t << setw(12) << "" << DENOM_NAMES_SHORT[s] << " " <<
-      (holding[BRIDGE_NORTH][s] == 0 ? "" : cards[BRIDGE_NORTH][s]) << "\n";
+    t << DENOM_NAMES_SHORT[s] << " " << setw(22) << left <<
+        (holding[BRIDGE_WEST][s] == 0 ? "" : cards[BRIDGE_WEST][s]);
+
+    t << DENOM_NAMES_SHORT[s] << " " << setw(10) << left <<
+        (holding[BRIDGE_EAST][s] == 0 ? "" : cards[BRIDGE_EAST][s]) << "\n";
   }
 
   t << Deal::AsRECDetail(BRIDGE_SOUTH, BRIDGE_CLUBS, BRIDGE_SPADES) << "\n";
