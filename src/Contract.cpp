@@ -520,7 +520,8 @@ bool Contract::SetResult(
     else
       u = static_cast<unsigned>(i + static_cast<int>(contract.level + 6));
   }
-  else if (f == BRIDGE_FORMAT_TXT)
+  else if (f == BRIDGE_FORMAT_TXT ||
+      f == BRIDGE_FORMAT_REC)
   {
     // Ignore everything but the number of tricks.
     string wd1, wd2;

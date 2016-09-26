@@ -466,6 +466,7 @@ bool Play::SetPlays(
     case BRIDGE_FORMAT_RBN:
     case BRIDGE_FORMAT_EML:
     case BRIDGE_FORMAT_TXT:
+    case BRIDGE_FORMAT_REC:
       return Play::AddAllRBN(str);
 
     default:

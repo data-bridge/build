@@ -343,7 +343,7 @@ bool Auction::SetDealer(
       break;
     
     case BRIDGE_FORMAT_PBN:
-    case BRIDGE_FORMAT_RBN: // Same as PBN
+    case BRIDGE_FORMAT_RBN:
       if (! Auction::SetDealerPBN(d, dOut))
         return false;
       setDVFlag = true;
@@ -352,6 +352,7 @@ bool Auction::SetDealer(
     
     case BRIDGE_FORMAT_EML:
     case BRIDGE_FORMAT_TXT:
+    case BRIDGE_FORMAT_REC:
       if (! Auction::SetDealerTXT(d, dOut))
         return false;
       setDVFlag = true;
@@ -391,6 +392,7 @@ bool Auction::SetVul(
     
     case BRIDGE_FORMAT_EML:
     case BRIDGE_FORMAT_TXT:
+    case BRIDGE_FORMAT_REC:
       if (! Auction::SetVulTXT(v, vOut))
         return false;
       setDVFlag = true;
@@ -886,6 +888,7 @@ bool Auction::AddAuction(
 
     case BRIDGE_FORMAT_EML:
     case BRIDGE_FORMAT_TXT:
+    case BRIDGE_FORMAT_REC:
       return Auction::AddAuctionEML(s);
     
     default:

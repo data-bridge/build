@@ -46,9 +46,7 @@ enum REClabel
   REC_AUCTION = 9,
   REC_PLAY = 10,
   REC_RESULT = 11,
-  REC_SCORE = 12,
-  REC_SCORE_IMP = 13,
-  REC_LABELS_SIZE = 14
+  REC_LABELS_SIZE = 12
 };
 
 const string RECname[] =
@@ -64,9 +62,7 @@ const string RECname[] =
   "Vulnerable",
   "Auction",
   "Play",
-  "Result",
-  "Score",
-  "ScoreIMP"
+  "Result"
 };
 
 
@@ -136,8 +132,6 @@ void setRECtables()
   boardPtrREC[REC_PLAY] = &Board::SetPlays;
 
   boardPtrREC[REC_RESULT] = &Board::SetResult;
-  boardPtrREC[REC_SCORE] = &Board::SetScore;
-  boardPtrREC[REC_SCORE_IMP] = &Board::SetScoreIMP;
 }
 
 
@@ -153,7 +147,8 @@ bool readRECCanvas(
     if (line.empty())
     {
       if (prevLine.size() >= 8 && prevLine.at(1) != ' ' && 
-          prevLine.at(2) == ' ' && prevLine.at(3) == ' ')
+          prevLine.at(2) == ' ' && prevLine.at(3) == ' ' &&
+          prevLine.at(4) != ' ')
         return true;
       else
         continue;
@@ -164,7 +159,7 @@ bool readRECCanvas(
     canvas.push_back(line);
     prevLine = line;
   }
-  return true;
+  return (canvas.size() > 0);
 }
 
 
@@ -176,11 +171,11 @@ bool getRECCanvasOffset(
   for (playLine = 12; playLine < canvas.size(); playLine++)
   {
     const string& line = canvas[playLine];
-    if (line.size() < 8 || line.at(3) != ' ')
+    if (line.size() < 8 || line.at(3) != ' ' || line.at(4) == ' ')
       continue;
 
 
-    const unsigned st = (line.at(0) == ' ' ? 0u : 1u);
+    const unsigned st = (line.at(0) == ' ' ? 1u : 0u);
     if (! ReadNextWord(line, st, wd))
       continue;
 
@@ -209,14 +204,14 @@ bool getRECFields(
   }
 
   if (! ReadNextWord(canvas[0], 0, chunk[REC_SCORING])) return false;
-  if (! ReadNextWord(canvas[0], 30, chunk[REC_DEALER])) return false;
+  if (! ReadNextWord(canvas[0], 29, chunk[REC_DEALER])) return false;
   if (! ReadNextWord(canvas[1], 6, chunk[REC_BOARD])) return false;
-  if (! ReadNextWord(canvas[1], 30, chunk[REC_VULNERABLE])) return false;
+  if (! ReadNextWord(canvas[1], 29, chunk[REC_VULNERABLE])) return false;
 
   if (! ReadNextWord(canvas[3], 0, chunk[REC_WEST])) return false;
-  if (! ReadNextWord(canvas[0], 18, chunk[REC_NORTH])) return false;
-  if (! ReadNextWord(canvas[3], 30, chunk[REC_EAST])) return false;
-  if (! ReadNextWord(canvas[6], 18, chunk[REC_SOUTH])) return false;
+  if (! ReadNextWord(canvas[0], 12, chunk[REC_NORTH])) return false;
+  if (! ReadNextWord(canvas[3], 24, chunk[REC_EAST])) return false;
+  if (! ReadNextWord(canvas[6], 12, chunk[REC_SOUTH])) return false;
 
   if (! getRECDeal(canvas, chunk)) return false;
   if (! getRECAuction(canvas, chunk)) return false;
@@ -274,8 +269,9 @@ bool getRECAuction(
   stringstream d;
   d.clear();
 
+  const unsigned offset = 13;
   unsigned firstStart = 0;
-  while (firstStart < 32 && canvas[15].at(firstStart) == ' ')
+  while (firstStart < 32 && canvas[offset].at(firstStart) == ' ')
     firstStart += 9;
 
   if (firstStart >= 32)
@@ -286,9 +282,9 @@ bool getRECAuction(
   bool done = false;
   unsigned l;
   unsigned numPasses = 0;
-  for (l = 15; l < canvas.size(); l++)
+  for (l = offset; l < canvas.size(); l++)
   {
-    for (unsigned beg = (l == 15 ? firstStart : 0); beg < 32; beg += 9)
+    for (unsigned beg = (l == offset ? firstStart : 0); beg < 32; beg += 9)
     {
       if (! ReadNextWord(canvas[l], beg, wd))
       {
@@ -387,7 +383,8 @@ bool getRECPlay(
       d << words[i];
   }
 
-  chunk[REC_PLAY] = d.str();
+  regex re(" ");
+  chunk[REC_PLAY] = regex_replace(d.str(), re, "");
   return true;
 }
 
@@ -448,6 +445,7 @@ bool readREC(
   vector<string> chunk(REC_LABELS_SIZE);
   while (readRECChunk(fstr, lno, chunk))
   {
+cout << "Got chunk, lno " << lno << endl;
     if (chunk[REC_BOARD] != "" && chunk[REC_BOARD] != lastBoard)
     {
       // New board.

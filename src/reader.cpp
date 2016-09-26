@@ -142,6 +142,13 @@ int main(int argc, char * argv[])
     debug.Print();
     assert(false);
   }
+
+  if (! writeREC(group, "out.rec"))
+  {
+    debug.Print();
+    assert(false);
+  }
+
 }
 
 

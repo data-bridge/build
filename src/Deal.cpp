@@ -328,6 +328,7 @@ bool Deal::Set(
     case BRIDGE_FORMAT_PBN:
     case BRIDGE_FORMAT_EML:
     case BRIDGE_FORMAT_TXT:
+    case BRIDGE_FORMAT_REC:
       return Deal::SetPBN(s);
 
     case BRIDGE_FORMAT_RBN:

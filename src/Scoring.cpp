@@ -138,6 +138,7 @@ bool Scoring::Set(
     case BRIDGE_FORMAT_PBN:
     case BRIDGE_FORMAT_EML:
     case BRIDGE_FORMAT_TXT:
+    case BRIDGE_FORMAT_REC:
       return Scoring::SetPBN(t);
     
     case BRIDGE_FORMAT_RBN:
