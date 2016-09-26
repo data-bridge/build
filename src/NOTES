@@ -136,18 +136,11 @@ Write parser for RP's TXT
 Write TXT writer
 Test
 
-Extend to RBX (like RBN)
-
 Test on "real" PBN
 
 Test on my LIN
 
 Test on VG LIN
-
-Write EML
-Write REC
-Read EML
-Read REC
 
 Generate stats on all sizes needed for database, incl #cards per play
 

@@ -438,7 +438,7 @@ bool Segment::SetPlayersList(
     return false;
 
   size_t c = countDelimiters(s, ",");
-  if (c != 4*LINcount)
+  if (c+1 != 4*LINcount)
   {
     LOG("Wrong number of fields");
     return false;
@@ -495,7 +495,7 @@ bool Segment::SetScoresList(
     return false;
 
   size_t c = countDelimiters(s, ",");
-  if (c != 2*LINcount)
+  if (c+1 != 2*LINcount)
   {
     LOG("Wrong number of fields");
     return false;
@@ -532,7 +532,7 @@ bool Segment::SetBoardsList(
   tokens.clear();
   tokenize(s, tokens, ",");
 
-  if (c != LINcount)
+  if (c+1 != LINcount)
   {
     LOG("Odd number of boards");
     return false;

@@ -123,6 +123,7 @@ void setLINtables()
 
   segPtrLIN[LIN_TITLE] = &Segment::SetTitle;
   segPtrLIN[LIN_RESULTS_LIST] = &Segment::SetResultsList;
+  segPtrLIN[LIN_PLAYERS_LIST] = &Segment::SetPlayersList;
   segPtrLIN[LIN_PLAYERS_HEADER] = &Segment::SetPlayersHeader;
   segPtrLIN[LIN_SCORES_LIST] = &Segment::SetScoresList;
   segPtrLIN[LIN_BOARDS_LIST] = &Segment::SetBoardsList;
@@ -156,22 +157,24 @@ bool readLINChunk(
 
   bool doneFlag = false;
   unsigned cardCount = 0;
+  stringstream alerts;
+  unsigned aNo = 1;
   while (! doneFlag && getline(fstr, line))
   {
-    int i = fstr.peek();
-    if (i == EOF || qxSeen && i == 0x71) // q
-      doneFlag = true;
-
-    lno++;
-    if (line.empty())
-      continue;
-    
     const char c = line.at(0);
     if (c == '%')
       continue;
     else if (c == 'q')
       qxSeen = true;
 
+    int i = fstr.peek();
+    if (i == EOF || (qxSeen && i == 0x71)) // q
+      doneFlag = true;
+
+    lno++;
+    if (line.empty())
+      continue;
+    
     while (regex_search(line, match, re) && match.size() >= 2)
     {
       string label = match.str(1);
@@ -182,6 +185,14 @@ bool readLINChunk(
       // Artificial label to disambiguate.
       if (label == "pn" && ! qxSeen)
         label = "px";
+
+      if (label == "an")
+      {
+        alerts << aNo << " " << value << "\n";
+        chunk[LIN_AUCTION] += "^" + STR(aNo);
+        aNo++;
+        continue;
+      }
 
       auto it = LINmap.find(label);
       if (it == LINmap.end())
@@ -210,16 +221,27 @@ cout << "LABEL " << label << endl;
 
         chunk[labelNo] += value;
       }
+      else if (labelNo == LIN_AUCTION)
+        chunk[labelNo] += value;
       else if (chunk[labelNo] == "")
         chunk[labelNo] = value;
       else
       {
-cout << "LABEL repeat " << label << endl;
+cout << "LABEL repeat " << label << " in line " << lno << ", i " << i << endl;
+cout << "line '" << line << "'\n";
+cout << "doneFlag " << doneFlag << endl;
+cout << "value '" << value << "'" << endl;
+cout << "already '" << chunk[labelNo] << "'" << endl;
         LOG("Label already set in line '" + line + "'");
         return false;
       }
     }
+  }
 
+  if (alerts.str() != "")
+  {
+cout << "Alerts\n" << alerts.str();
+    chunk[LIN_AUCTION] += "\n" + alerts.str();
   }
   return qxSeen;
 }
@@ -319,7 +341,7 @@ bool tryLINMethod(
 {
   if (chunk[label] == "")
     return true;
-  else if (label <= LIN_BOARD_NO)
+  else if (label <= LIN_PLAYERS_BOARD)
   {
     if ((segment->*segPtrLIN[label])(chunk[label], BRIDGE_FORMAT_LIN))
       return true;
