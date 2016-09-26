@@ -356,13 +356,16 @@ playStatus Play::AddTrickPBN(const string& str)
 }
 
 
-bool Play::AddAllRBN(const string& str)
+bool Play::AddAllRBN(const string& sIn)
 {
+  string str = sIn;
   if (str.length() < 2)
   {
     LOG("String too short: " + str);
     return false;
   }
+
+  toUpper(str);
 
   int seen = count(str.begin(), str.end(), ':');
   if (seen > BRIDGE_TRICKS-1)
@@ -455,9 +458,6 @@ bool Play::SetPlays(
 {
   switch(f)
   {
-      LOG("Currently unimplemented format " + STR(f));
-      return false;
-
     case BRIDGE_FORMAT_PBN:
       LOG("Currently unimplemented format " + STR(f));
       return false;

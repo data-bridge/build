@@ -239,10 +239,7 @@ cout << "already '" << chunk[labelNo] << "'" << endl;
   }
 
   if (alerts.str() != "")
-  {
-cout << "Alerts\n" << alerts.str();
     chunk[LIN_AUCTION] += "\n" + alerts.str();
-  }
   return qxSeen;
 }
 
@@ -365,8 +362,7 @@ bool tryLINMethod(
 
 bool writeLIN(
   Group& group,
-  const string& fname,
-  const formatType f)
+  const string& fname)
 {
   ofstream fstr(fname.c_str());
   if (! fstr.is_open())
@@ -375,12 +371,72 @@ bool writeLIN(
     return false;
   }
 
-  if (f == BRIDGE_FORMAT_LIN_RP)
+  formatType f = BRIDGE_FORMAT_LIN;
+
+  for (unsigned g = 0; g < group.GetLength(); g++)
   {
-    fstr << "% LIN " <<
-      GuessOriginalLine(group.GetFileName(), group.GetCount()) << "\n";
-    fstr << "% www.rpbridge.net Richard Pavlicek\n";
+    Segment * segment = group.GetSegment(g);
+
+    fstr << segment->TitleAsString(f);
+    fstr << segment->ContractsAsString(f);
+    fstr << segment->PlayersAsString(f) << "\n";
+    fstr << segment->ScoresAsString(f);
+    fstr << segment->BoardsAsString(f);
+
+    for (unsigned b = 0; b < segment->GetLength(); b++)
+    {
+      Board * board = segment->GetBoard(b);
+      if (board == nullptr)
+      {
+        LOG("Invalid board");
+        fstr.close();
+        return false;
+      }
+
+      unsigned numInst = board->GetLength();
+      for (unsigned i = 0; i < numInst; i++)
+      {
+        if (! board->SetInstance(i))
+        {
+          LOG("Invalid instance");
+          fstr.close();
+          return false;
+        }
+
+        fstr << segment->NumberAsString(f, b);
+        fstr << board->DealAsString(board->GetDealer(), f);
+        fstr << board->VulAsString(f);
+
+        board->CalculateScore();
+
+        fstr << board->AuctionAsString(f);
+        fstr << board->PlayAsString(f);
+        fstr << board->ClaimAsString(f) << "\n";
+      }
+    }
   }
+
+  fstr.close();
+  return true;
+}
+
+
+bool writeLIN_RP(
+  Group& group,
+  const string& fname)
+{
+  ofstream fstr(fname.c_str());
+  if (! fstr.is_open())
+  {
+    LOG("No such LIN file");
+    return false;
+  }
+
+  formatType f = BRIDGE_FORMAT_LIN_RP;
+
+  fstr << "% LIN " <<
+    GuessOriginalLine(group.GetFileName(), group.GetCount()) << "\n";
+  fstr << "% www.rpbridge.net Richard Pavlicek\n";
 
   for (unsigned g = 0; g < group.GetLength(); g++)
   {

@@ -25,7 +25,10 @@ bool readLIN(
 
 bool writeLIN(
   Group& group,
-  const string& fname,
-  const formatType f);
+  const string& fname);
+
+bool writeLIN_RP(
+  Group& group,
+  const string& fname);
 
 #endif

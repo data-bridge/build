@@ -79,4 +79,7 @@ string GuessOriginalLine(
   const string& fname,
   const unsigned count);
 
+void toUpper(
+  string& s);
+
 #endif

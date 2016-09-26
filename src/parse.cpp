@@ -374,10 +374,10 @@ void ConvertMultilineToVector(
   while (p < l)
   {
     unsigned found = sin.find("\n", p);
+    sout.push_back(sin.substr(p, found-p));
     if (found == string::npos)
       return;
 
-    sout.push_back(sin.substr(p, found-p));
     p = found+1;
   }
 }
@@ -400,3 +400,10 @@ string GuessOriginalLine(
     STR(count/2) + " deals";
 }
 
+
+void toUpper(
+  string& s)
+{
+  for (unsigned i = 0; i < s.size(); i++)
+    s.at(i) = static_cast<char>(toupper(static_cast<int>(s.at(i))));
+}

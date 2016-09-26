@@ -92,6 +92,8 @@ class Auction
       unsigned& aNo,
       const bool extendedFlag) const;
 
+    bool AddAlertsRBN(const vector<string>& lines);
+
     bool IsPBNNote(
       const string& s,
       int& no,

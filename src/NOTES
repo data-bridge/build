@@ -83,24 +83,10 @@ Use ParsePlayer instead of e.g. Auction::ParseRBNDealer()
 
 
 Clean up code again in the end, delete unused functions etc.
+doxygen?
+Upper and lower case of function names and constants (camelCase?)
 
-
-Pavlicek notes
---------------
-What is the number of records.  It seems to be #hands * 2 + 1 -- why +1?
-PBN generation
-* Play: omitted card is -, not -- (PBN standard v2.1, section 3.6)
-* Play: "The play ends after 13 tricks, or with *."  So no asterisk.
-  Play.cpp around line 740, AsPBN()
-
-EML
-* Are you sure that -x refers to down and +x refers to 6 as basis?
-
-TXT
-* It is odd that some auctions end on "Pass Pass Pass", others
-  on "All Pass", even though the same auctions end on "A" in RBN.
-  Example S10FA1.RBN Board 4 (both auctions).  Others don't (Board 3,
-  for instance).  A bug?
+Read into BBO.exe
 
 
 grep TODO *.cpp *.h

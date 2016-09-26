@@ -568,7 +568,7 @@ bool Auction::AddAlert(
   const string& alert)
 {
   // We could keep track of alerts as they happen, including
-  // their bid number.  But that takes more storage and it only
+  // their bid number.  But as that takes more storage and it only
   // occurs in some formats, we do the inefficient search.
 
   const string lookFor = "[" + STR(alertNo) + "]";
@@ -582,6 +582,39 @@ bool Auction::AddAlert(
   }
   return false;
 }
+
+
+bool Auction::AddAlertsRBN(const vector<string>& lines)
+{
+  for (unsigned i = 1; i < lines.size(); i++)
+  {
+    string beg;
+    string line = lines[i];
+    if (! GetNextWord(line, beg))
+    {
+      LOG("Not a valid alert line");
+      return false;
+    }
+
+    unsigned u;
+    if (! StringToUnsigned(beg, u))
+    {
+      LOG("Not a valid alert number");
+      return false;
+    }
+
+    if (i != u)
+    {
+      LOG("Alert numbers not in strict sequence");
+      return false;
+    }
+
+    if (! Auction::AddAlert(i, line))
+      return false;
+  }
+  return true;
+}
+
 
 void Auction::AddPasses()
 {
@@ -791,10 +824,12 @@ bool Auction::AddAuctionRBN(const string& s)
 
 
 bool Auction::AddAuctionEML(
-  const string& s,
+  const string& t,
   const unsigned startPos)
 {
-  const size_t l = s.length();
+  const size_t l = t.length();
+  string s = t;
+  toUpper(s);
   size_t pos = startPos;
   unsigned aNo = 0;
   while (1)
@@ -844,12 +879,12 @@ bool Auction::AddAuctionEML(
       aNo = aNoNew;
       sequence[activeBNo].alert = "[" + STR(aNo) + "]";
     }
-    else if (c == '*') 
+    else if (c == '*' || c == '!') 
     {
       pos++;
       sequence[activeBNo].alert = '!';
     }
-    else if (c == 'P' || c == 'X' || c == 'R')
+    else if (c == 'P' || c == 'X' || c == 'D' || c == 'R')
     {
       Auction::AddCall(string(1, c), "");
       pos++;
@@ -861,9 +896,9 @@ bool Auction::AddAuctionEML(
     }
     else
     {
-      string t = s.substr(pos, 2);
+      string tt = s.substr(pos, 2);
       pos += 2;
-      if (! Auction::AddCall(t, ""))
+      if (! Auction::AddCall(tt, ""))
         return false;
     }
   }
@@ -877,7 +912,15 @@ bool Auction::AddAuction(
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
-      return Auction::AddAuctionLIN(s);
+      // return Auction::AddAuctionLIN(s);
+      {
+        vector<string> lines;
+        ConvertMultilineToVector(s, lines);
+        if (! Auction::AddAuctionEML(lines[0]))
+          return false;
+
+        return Auction::AddAlertsRBN(lines);
+      }
     
     case BRIDGE_FORMAT_PBN:
       LOG("Auction PBN type not implemented");
@@ -886,9 +929,9 @@ bool Auction::AddAuction(
     case BRIDGE_FORMAT_RBN:
       return Auction::AddAuctionRBN(s);
 
+    case BRIDGE_FORMAT_REC:
     case BRIDGE_FORMAT_EML:
     case BRIDGE_FORMAT_TXT:
-    case BRIDGE_FORMAT_REC:
       return Auction::AddAuctionEML(s);
     
     default:

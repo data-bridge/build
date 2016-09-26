@@ -138,8 +138,8 @@ int main(int argc, char * argv[])
     assert(false);
   }
 
-  if (! writeLIN(group, "out.lin", BRIDGE_FORMAT_LIN_RP))
-  // if (! writeLIN(group, "out.lin", BRIDGE_FORMAT_LIN))
+  if (! writeLIN(group, "out.lin"))
+  // if (! writeLIN_RP(group, "out.lin"))
   {
     debug.Print();
     assert(false);
