@@ -67,7 +67,7 @@ class Segment
     unsigned LINcount;
 
 
-    bool SetTitleLIN(const string t);
+    bool SetTitleLIN(const string& t);
 
     string TitleAsLINCommon() const;
     string TitleAsLIN() const;

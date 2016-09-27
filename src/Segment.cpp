@@ -135,7 +135,7 @@ void Segment::TransferHeader(
 }
 
 
-bool Segment::SetTitleLIN(const string t)
+bool Segment::SetTitleLIN(const string& t)
 {
   // We figure out which of the LIN formats is used.
   //
@@ -166,18 +166,20 @@ bool Segment::SetTitleLIN(const string t)
 
   // Try to pick out the RBN-generated line.
   bool eventFlag = true;
-  regex re("^(.+)\\s+(\\w+)$");
-  smatch match;
-  if (regex_search(v[0], match, re) && 
-      match.size() >= 2 &&
-      seg.session.IsRBNPart(match.str(2)))
+  regex re1("^(.+)\\s+(\\w+)$");
+  regex re2("^Segment\\s+\\d+$");
+  smatch match1, match2;
+  if (regex_search(v[0], match1, re1) && 
+      match1.size() >= 2 &&
+      seg.session.IsRBNPart(match1.str(2)) &&
+      regex_search(v[1], match2, re2))
   {
-    if (! Segment::SetTitle(match.str(1), BRIDGE_FORMAT_RBN))
+    if (! Segment::SetTitle(match1.str(1), BRIDGE_FORMAT_RBN))
       return false;
 
     // Make a synthetic RBN-like session line (a bit wasteful).
     stringstream s;
-    s << match.str(2) << ":" << v[1];
+    s << match1.str(2) << ":" << v[1];
     if (! Segment::SetSession(s.str(), BRIDGE_FORMAT_RBN))
       return false;
     seg.event = "";
@@ -746,15 +748,11 @@ string Segment::TitleAsString(const formatType f) const
   {
     case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_LIN_TRN:
+    case BRIDGE_FORMAT_LIN_VG:
       return Segment::TitleAsLIN();
 
     case BRIDGE_FORMAT_LIN_RP:
       return Segment::TitleAsLIN_RP();
-
-    case BRIDGE_FORMAT_LIN_VG:
-      if (seg.title == "")
-        return "";
-      return Segment::TitleAsLIN_VG();
 
     case BRIDGE_FORMAT_PBN:
       if (seg.title == "")
@@ -961,7 +959,13 @@ string Segment::ContractsAsString(const formatType f)
         }
 
         if (l == 1)
-          s << ",";
+        {
+          if (LINcount == 0)
+            s << ",";
+          else
+            // Occurs in Vugraph pairs tournaments.
+            s << LINdata[p.no].contract[1] << ",";
+        }
       }
 
       st = s.str();
@@ -999,8 +1003,32 @@ string Segment::PlayersAsString(const formatType f)
       s1.pop_back();
       return s1 + "|\n";
 
-    case BRIDGE_FORMAT_LIN_RP:
     case BRIDGE_FORMAT_LIN_VG:
+      board = Segment::GetBoard(0);
+      if (board == nullptr)
+        return "";
+
+      if (board->GetLength() == 1)
+      {
+        board->SetInstance(0);
+        s1 = board->PlayersAsString(f);
+        return "pn|" + s1 + ",South,West,North,East|pg||\n";
+      }
+
+      board->SetInstance(0);
+      s1 = board->PlayersAsString(f);
+      board->SetInstance(1);
+      s2 = board->PlayersAsString(f);
+
+      if (f == BRIDGE_FORMAT_LIN_TRN)
+      {
+        s1.pop_back(); // Trailing |, leading pn|,,,,
+        return s1 + "," + s2.substr(7) + "\npg||\n";
+      }
+      else
+        return "pn|" + s1 + "," + s2 + "|pg||\n";
+
+    case BRIDGE_FORMAT_LIN_RP:
     case BRIDGE_FORMAT_LIN_TRN:
       board = Segment::GetBoard(0);
       if (board == nullptr || board->GetLength() != 2)

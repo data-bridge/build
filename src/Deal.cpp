@@ -450,6 +450,28 @@ string Deal::AsLIN(
 }
 
 
+string Deal::AsLIN_VG(
+  const playerType start) const
+{
+  stringstream s;
+  s << "md|" << PLAYER_DDS_TO_LIN_DEALER[start];
+  
+  // Players are always in same order.
+  for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
+  {
+    unsigned pdds = (p+2) % 4;
+    s << "S" << cards[pdds][BRIDGE_SPADES] <<
+         "H" << cards[pdds][BRIDGE_HEARTS] <<
+         "D" << cards[pdds][BRIDGE_DIAMONDS] <<
+         "C" << cards[pdds][BRIDGE_CLUBS];
+    if (p < 3)
+      s << ",";
+  }
+    
+  return s.str() + "|";
+}
+
+
 string Deal::AsLIN_RP(
   const playerType start) const
 {
@@ -657,9 +679,11 @@ string Deal::AsString(
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
-    case BRIDGE_FORMAT_LIN_VG:
     case BRIDGE_FORMAT_LIN_TRN:
       return "st||" + Deal::AsLIN(start) + "rh||";
+
+    case BRIDGE_FORMAT_LIN_VG:
+      return "st||" + Deal::AsLIN_VG(start);
 
     case BRIDGE_FORMAT_LIN_RP:
       return Deal::AsLIN_RP(start);

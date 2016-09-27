@@ -718,6 +718,27 @@ string Play::AsLIN() const
 }
 
 
+string Play::AsLIN_VG() const
+{
+  if (len == 0)
+    return "";
+
+  stringstream s;
+  for (unsigned t = 0; t <= ((len-1) >> 2); t++)
+  {
+    for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
+    {
+      unsigned pos = 4*t + p;
+      if (pos >= len)
+        break;
+      s << "pc|" << PLAY_NO_TO_CARD[sequence[pos]] << "|";
+    }
+    s << "pg||\n";
+  }
+  return s.str();
+}
+
+
 string Play::AsLIN_TRN() const
 {
   stringstream s;
@@ -984,8 +1005,10 @@ string Play::AsString(const formatType f) const
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
-    case BRIDGE_FORMAT_LIN_VG:
       return Play::AsLIN();
+
+    case BRIDGE_FORMAT_LIN_VG:
+      return Play::AsLIN_VG();
 
     case BRIDGE_FORMAT_LIN_TRN:
       return Play::AsLIN_TRN();
@@ -1074,14 +1097,15 @@ string Play::ClaimAsString(const formatType f) const
 {
   switch(f)
   {
-    case BRIDGE_FORMAT_LIN_VG:
-      return Play::ClaimAsLIN() + "\n";
+    // case BRIDGE_FORMAT_LIN_VG:
+      // return Play::ClaimAsLIN() + "\n";
 
     case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_LIN_RP:
       return Play::ClaimAsLIN() + "pg||\n";;
 
     case BRIDGE_FORMAT_LIN_TRN:
+    case BRIDGE_FORMAT_LIN_VG:
       if (len == PLAY_NUM_CARDS)
         return "\n";
       else

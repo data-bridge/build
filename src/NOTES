@@ -1,6 +1,9 @@
-25.09.16
+27.09.16
 --------
-Solve the alert and multiple-mb issue for LIN files.
+Add options.cpp
+
+Add automated comparisons of results
+
 
 There is probably a fifth LIN output format with my %%%% headers.
 LIN_EXT or so.  In this case take advantage of file names too 
@@ -50,7 +53,6 @@ mutually exclusive
 -v verbose (1, 2, 4, 8?)
 
 
-Start by adding options.cpp
 Then write a script to set combinations
 Then work on combining formats
 
@@ -108,25 +110,7 @@ Add options.cpp to control reading and writing
 Test on all RBN files
 Maybe input list of files, output list of faulty unfixed files
 
-Write parser for RP's LIN
-Write LIN writer
-Test
-
-Write parser for RP's PBN
-Support ##
-Write PBN writer
-Support ##
-Test
-
-Write parser for RP's TXT
-Write TXT writer
-Test
-
-Test on "real" PBN
-
-Test on my LIN
-
-Test on VG LIN
+Support PBN ##
 
 Generate stats on all sizes needed for database, incl #cards per play
 

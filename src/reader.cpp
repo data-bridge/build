@@ -88,11 +88,16 @@ int main(int argc, char * argv[])
   }
   */
 
+  // 29123 is a pairs tournament.
+  // 34567 has a claim "error".
+  // 34999 is a team tournament.
   /* */
-  // if (! readLIN(group, "S10FA1.LIN"))
+  if (! readLIN(group, "S10FA1.LIN"))
   // if (! readLIN(group, "02-20-12-1.lin"))
-  if (! readLIN(group, "Tournament 5586 02-20-12.lin"))
+  // if (! readLIN(group, "Tournament 5586 02-20-12.lin"))
   // if (! readLIN(group, "29123.lin"))
+  // if (! readLIN(group, "34567.lin"))
+  // if (! readLIN(group, "34999.lin"))
   {
     debug.Print();
     assert(false);
@@ -139,8 +144,9 @@ int main(int argc, char * argv[])
   }
 
   // if (! writeLIN(group, "out.lin"))
-  // if (! writeLIN_RP(group, "out.lin"))
-  if (! writeLIN_TRN(group, "out.lin"))
+  if (! writeLIN_RP(group, "out.lin"))
+  // if (! writeLIN_TRN(group, "out.lin"))
+  // if (! writeLIN_VG(group, "out.lin"))
   {
     debug.Print();
     assert(false);

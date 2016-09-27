@@ -77,6 +77,7 @@ class Play
     bool AddAllPBN(const vector<string>& list);
 
     string AsLIN() const;
+    string AsLIN_VG() const;
     string AsLIN_TRN() const;
     string AsLIN_RP() const;
     string AsPBN() const;

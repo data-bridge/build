@@ -347,7 +347,7 @@ bool tryLINMethod(
       return true;
     else
     {
-      LOG("Cannot add " + info + " line " + chunk[label] + "'");
+      LOG("Cannot add " + info + " line '" + chunk[label] + "'");
       fstr.close();
       return false;
     }
@@ -356,7 +356,7 @@ bool tryLINMethod(
     return true;
   else
   {
-    LOG("Cannot add " + info + " line " + chunk[label] + "'");
+    LOG("Cannot add " + info + " line '" + chunk[label] + "'");
     fstr.close();
     return false;
   }
@@ -543,6 +543,65 @@ bool writeLIN_TRN(
         fstr << board->AuctionAsString(f);
         fstr << board->PlayAsString(f);
         fstr << board->ClaimAsString(f);
+      }
+    }
+  }
+
+  fstr.close();
+  return true;
+}
+
+
+bool writeLIN_VG(
+  Group& group,
+  const string& fname)
+{
+  ofstream fstr(fname.c_str());
+  if (! fstr.is_open())
+  {
+    LOG("No such LIN file");
+    return false;
+  }
+
+  formatType f = BRIDGE_FORMAT_LIN_VG;
+
+  for (unsigned g = 0; g < group.GetLength(); g++)
+  {
+    Segment * segment = group.GetSegment(g);
+
+    fstr << segment->TitleAsString(f);
+    fstr << segment->ContractsAsString(f);
+    fstr << segment->PlayersAsString(f);
+
+    for (unsigned b = 0; b < segment->GetLength(); b++)
+    {
+      Board * board = segment->GetBoard(b);
+      if (board == nullptr)
+      {
+        LOG("Invalid board");
+        fstr.close();
+        return false;
+      }
+
+      unsigned numInst = board->GetLength();
+      for (unsigned i = 0; i < numInst; i++)
+      {
+        if (! board->SetInstance(i))
+        {
+          LOG("Invalid instance");
+          fstr.close();
+          return false;
+        }
+
+        fstr << segment->NumberAsString(f, b);
+        fstr << board->DealAsString(board->GetDealer(), f);
+        fstr << board->VulAsString(f);
+
+        board->CalculateScore();
+
+        fstr << board->AuctionAsString(f) << "\n";
+        fstr << board->PlayAsString(f);
+        fstr << board->ClaimAsString(f) << "\n";
       }
     }
   }
