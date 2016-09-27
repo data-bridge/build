@@ -161,17 +161,21 @@ bool readLINChunk(
   unsigned aNo = 1;
   while (! doneFlag && getline(fstr, line))
   {
-    const char c = line.at(0);
-    if (c == '%')
-      continue;
-    else if (c == 'q')
-      qxSeen = true;
+    lno++;
+
+    if (! line.empty())
+    {
+      const char c = line.at(0);
+      if (c == '%')
+        continue;
+      else if (c == 'q')
+        qxSeen = true;
+    }
 
     int i = fstr.peek();
     if (i == EOF || (qxSeen && i == 0x71)) // q
       doneFlag = true;
 
-    lno++;
     if (line.empty())
       continue;
     

@@ -659,7 +659,7 @@ string Deal::AsString(
     case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_LIN_VG:
     case BRIDGE_FORMAT_LIN_TRN:
-      return Deal::AsLIN(start) + "rh||";
+      return "st||" + Deal::AsLIN(start) + "rh||";
 
     case BRIDGE_FORMAT_LIN_RP:
       return Deal::AsLIN_RP(start);

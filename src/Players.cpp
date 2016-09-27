@@ -346,7 +346,7 @@ string Players::AsString(const formatType f) const
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
-      return "pn|" + Players::AsLIN() + "|st||";
+      return "pn|" + Players::AsLIN() + "|";
 
     case BRIDGE_FORMAT_LIN_RP:
     case BRIDGE_FORMAT_LIN_VG:
@@ -471,7 +471,7 @@ string Players::RoomAsString(
     case BRIDGE_FORMAT_LIN_RP:
     case BRIDGE_FORMAT_LIN_VG:
     case BRIDGE_FORMAT_LIN_TRN:
-      s << "qx|" << ROOM_LIN[room] << no << "|st||";
+      s << "qx|" << ROOM_LIN[room] << no << "|";
       return s.str();
     
     case BRIDGE_FORMAT_PBN:
