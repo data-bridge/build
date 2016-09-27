@@ -115,6 +115,12 @@ void Board::SetLINheader(const LINdataType& lin)
     LINdata = lin;
   LINset = true;
 
+  if (LINdata.mp[0] != "")
+    Board::SetScoreIMP(LINdata.mp[0], BRIDGE_FORMAT_LIN);
+  else if (LINdata.mp[1] != "")
+    Board::SetScoreIMP("-" + LINdata.mp[1], BRIDGE_FORMAT_LIN);
+  else
+    Board::SetScoreIMP("0.0", BRIDGE_FORMAT_LIN);
 }
 
 unsigned Board::GetLength() const
@@ -686,9 +692,9 @@ string Board::GivenScoreAsString(
   if (givenScore == 0.0f)
     s << "--,--,";
   else if (givenScore > 0.0f)
-    s << setprecision(2) << fixed << givenScore << ",,";
+    s << setprecision(1) << fixed << givenScore << ",,";
   else
-    s << "," << setprecision(2) << fixed << -givenScore << ",";
+    s << "," << setprecision(1) << fixed << -givenScore << ",";
   return s.str();
 }
 
@@ -749,6 +755,17 @@ string Board::PlayersAsString(
   const formatType f) const
 {
   return players[numActive].AsString(f);
+}
+
+
+string Board::PlayersAsDeltaString(
+  Board * refBoard,
+  const formatType f) const
+{
+  if (refBoard == nullptr)
+    return players[numActive].AsBareString(f);
+  else
+    return players[numActive].AsDeltaString(refBoard->players[numActive], f);
 }
 
 

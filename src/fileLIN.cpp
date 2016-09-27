@@ -304,7 +304,6 @@ bool readLIN(
     }
 
     board->NewInstance();
-    segment->CopyPlayers();
 
     for (unsigned i = 0; i < LIN_LABELS_SIZE; i++)
     {
@@ -313,11 +312,11 @@ bool readLIN(
     }
 
     // Have to wait until after the methods with this.
-    if (! board->PlayersAreSet(board->GetInstance()))
-      segment->TransferPlayers(bno-1, board->GetInstance()); 
+    // if (! board->PlayersAreSet(board->GetInstance()))
+    segment->TransferHeader(bno-1, board->GetInstance()); 
 
-    if (newBoard)
-      segment->TransferHeader(bno-1);
+    // if (newBoard)
+      // segment->TransferHeader(bno-1);
 
     if (fstr.eof())
       break;
@@ -379,7 +378,7 @@ bool writeLIN(
 
     fstr << segment->TitleAsString(f);
     fstr << segment->ContractsAsString(f);
-    fstr << segment->PlayersAsString(f) << "\n";
+    fstr << segment->PlayersAsString(f);
     fstr << segment->ScoresAsString(f);
     fstr << segment->BoardsAsString(f);
 

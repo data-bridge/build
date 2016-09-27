@@ -109,7 +109,7 @@ void Segment::TransferHeader(const unsigned intNo)
 }
 
 
-void Segment::TransferPlayers(
+void Segment::TransferHeader(
   const unsigned intNo,
   const unsigned instNo)
 {
@@ -129,6 +129,9 @@ void Segment::TransferPlayers(
       board->SetPlayer(LINdata[intNo].players[instNo][p],
         static_cast<playerType>(p));
   }
+
+  if (instNo == 0)
+    board->SetLINheader(LINdata[intNo]);
 }
 
 
@@ -665,6 +668,17 @@ string Segment::TitleAsLINCommon() const
 }
 
 
+string Segment::TitleAsLIN() const
+{
+  stringstream s;
+  s << "vg|" << seg.title << "," << 
+      seg.event << "," <<
+      seg.scoring.AsString(BRIDGE_FORMAT_LIN) << ",";
+  s << Segment::TitleAsLINCommon() << "\n";
+  return s.str();
+}
+
+
 string Segment::TitleAsLIN_EXT() const
 {
   // BBO hands played at own table (not tournaments).
@@ -728,6 +742,8 @@ string Segment::TitleAsString(const formatType f) const
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
+      return Segment::TitleAsLIN();
+
     case BRIDGE_FORMAT_LIN_RP:
       return Segment::TitleAsLIN_RP();
 
@@ -950,7 +966,9 @@ string Segment::ContractsAsString(const formatType f)
       }
 
       st = s.str();
-      if (f == BRIDGE_FORMAT_LIN_RP || f == BRIDGE_FORMAT_LIN_VG)
+      if (f == BRIDGE_FORMAT_LIN ||
+          f == BRIDGE_FORMAT_LIN_RP || 
+          f == BRIDGE_FORMAT_LIN_VG)
         st.pop_back(); // Remove trailing comma
       return st + "|\n";
 
@@ -965,6 +983,7 @@ string Segment::PlayersAsString(const formatType f)
 {
   string s1, s2;
   Board * board;
+  Board * refBoard = nullptr;
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
@@ -974,11 +993,12 @@ string Segment::PlayersAsString(const formatType f)
         for (unsigned i = 0; i < p.board.GetLength(); i++)
         {
           p.board.SetInstance(i);
-          string st = p.board.PlayersAsString(f);
-          s1 += st.substr(3);
+          s1 += p.board.PlayersAsDeltaString(refBoard, f);
+          refBoard = &p.board;
         }
       }
-      return s1 + "\n";
+      s1.pop_back();
+      return s1 + "|\n";
 
     case BRIDGE_FORMAT_LIN_RP:
     case BRIDGE_FORMAT_LIN_VG:
@@ -1011,6 +1031,7 @@ string Segment::ScoresAsString(const formatType f) const
       s = "mp|";
       for (auto &p: boards)
         s += p.board.GivenScoreAsString(f);
+      s.pop_back(); // Remove trailing comma
       return s + "|\n";
 
     case BRIDGE_FORMAT_LIN_RP:

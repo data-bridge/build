@@ -315,6 +315,10 @@ class Board
     string PlayersAsString(
       const formatType f) const;
     
+    string PlayersAsDeltaString(
+      Board * refBoard,
+      const formatType f) const;
+    
     string WestAsString(
       const formatType f) const;
     

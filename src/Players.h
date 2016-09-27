@@ -35,6 +35,7 @@ class Players
       string& p1,
       string& p2);
     
+    bool SetPlayersLIN(const string& names);
     bool SetPlayersRBN(const string& names);
 
     string AsLIN() const;
@@ -76,6 +77,12 @@ class Players
     bool operator != (const Players& p2) const;
 
     string AsString(const formatType f) const;
+
+    string AsBareString(const formatType f) const;
+
+    string AsDeltaString(
+      const Players& refPlayers,
+      const formatType f) const;
 
     string PlayerAsString(
       const playerType player,

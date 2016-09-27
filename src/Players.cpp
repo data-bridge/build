@@ -121,6 +121,28 @@ bool Players::SetRBNSide(
 }
 
 
+bool Players::SetPlayersLIN(const string& names)
+{
+  int seen = count(names.begin(), names.end(), ',');
+
+  if (seen != 3)
+  {
+    LOG("Names are not in LIN format");
+    return false;
+  }
+
+  vector<string> v(4);
+  v.clear();
+  tokenize(names, v, ",");
+
+  players[BRIDGE_SOUTH] = v[0];
+  players[BRIDGE_WEST] = v[1];
+  players[BRIDGE_NORTH] = v[2];
+  players[BRIDGE_EAST] = v[3];
+  return true;
+}
+
+
 bool Players::SetPlayersRBN(const string& names)
 {
   if (names.length() <= 2)
@@ -166,8 +188,7 @@ bool Players::SetPlayers(
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
-      LOG("No overall LIN player format");
-      return "";
+      return Players::SetPlayersLIN(names);
     
     case BRIDGE_FORMAT_PBN:
       LOG("No overall PBN player format");
@@ -325,7 +346,7 @@ string Players::AsString(const formatType f) const
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
-      return "pn|" + Players::AsLIN() + "|";
+      return "pn|" + Players::AsLIN() + "|st||";
 
     case BRIDGE_FORMAT_LIN_RP:
     case BRIDGE_FORMAT_LIN_VG:
@@ -349,6 +370,45 @@ string Players::AsString(const formatType f) const
     case BRIDGE_FORMAT_REC:
       return Players::AsREC();
     
+    default:
+      LOG("Invalid format " + STR(f));
+      return "";
+  }
+}
+
+
+string Players::AsBareString(
+  const formatType f) const
+{
+  switch(f)
+  {
+    case BRIDGE_FORMAT_LIN:
+        return Players::AsLIN() + ",";
+
+    default:
+      LOG("Invalid format " + STR(f));
+      return "";
+  }
+}
+
+
+string Players::AsDeltaString(
+  const Players& refPlayers,
+  const formatType f) const
+{
+  string s;
+  switch(f)
+  {
+    case BRIDGE_FORMAT_LIN:
+      for (unsigned pp = 0; pp < BRIDGE_PLAYERS; pp++)
+      {
+        unsigned p = (pp+2) % 4; // BBO order, starting with South
+        if (players[p] != refPlayers.players[p])
+          s += players[p];
+        s += ",";
+      }
+      return s;
+
     default:
       LOG("Invalid format " + STR(f));
       return "";

@@ -92,7 +92,7 @@ class Segment
     unsigned GetExtBoardNo(const unsigned no) const;
 
     void TransferHeader(const unsigned no);
-    void TransferPlayers(
+    void TransferHeader(
       const unsigned intNo,
       const unsigned instNo);
 

@@ -54,6 +54,7 @@ class Deal
     bool SetTXT(const string cardsArg[][BRIDGE_SUITS]);
 
     string AsLIN(const playerType start) const;
+    string AsLIN_RP(const playerType start) const;
     string AsPBN(const playerType start) const;
     string AsRBNCore(const playerType start) const;
     string AsRBN(const playerType start) const;

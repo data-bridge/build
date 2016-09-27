@@ -424,7 +424,34 @@ bool Deal::operator != (const Deal& b2) const
 }
 
 
-string Deal::AsLIN(const playerType start) const
+string Deal::AsLIN(
+  const playerType start) const
+{
+  // This is an evil hack to get the cards printed in reverse order
+  // while leaving everything else in the correct order.
+  // Players are always in same order.
+
+  stringstream s;
+  s << ",";
+  for (unsigned p = 0; p <= 2; p++)
+  {
+    unsigned pdds = (4-p) % 4;
+    s << cards[pdds][BRIDGE_CLUBS] << "C" <<
+         cards[pdds][BRIDGE_DIAMONDS] << "D" <<
+         cards[pdds][BRIDGE_HEARTS] << "H" <<
+         cards[pdds][BRIDGE_SPADES] << "S";
+    if (p < 2)
+      s << ",";
+  }
+  s << PLAYER_DDS_TO_LIN_DEALER[start] << "|dm";
+
+  string st = s.str();
+  return string(st.rbegin(), st.rend()) + "|";
+}
+
+
+string Deal::AsLIN_RP(
+  const playerType start) const
 {
   stringstream s;
   s << "md|" << PLAYER_DDS_TO_LIN_DEALER[start];
@@ -440,6 +467,7 @@ string Deal::AsLIN(const playerType start) const
     if (p < 2)
       s << ",";
   }
+    
   return s.str() + "|";
 }
 
@@ -634,7 +662,7 @@ string Deal::AsString(
       return Deal::AsLIN(start) + "rh||";
 
     case BRIDGE_FORMAT_LIN_RP:
-      return Deal::AsLIN(start);
+      return Deal::AsLIN_RP(start);
 
     case BRIDGE_FORMAT_PBN:
       return Deal::AsPBN(start);

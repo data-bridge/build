@@ -324,7 +324,12 @@ bool Teams::operator != (const Teams& t2) const
 
 string Teams::SingleAsLIN(const teamType& tt) const
 {
-  return tt.name + "," + Teams::CarryAsString(tt, true);
+  if (tt.name == "" && 
+      (tt.carry == BRIDGE_CARRY_NONE || 
+        (tt.carry == BRIDGE_CARRY_INT && tt.carryi == 0)))
+    return ",";
+  else
+    return tt.name + "," + Teams::CarryAsString(tt, true);
 }
 
 

@@ -862,7 +862,7 @@ bool Auction::AddAuctionEML(
       if (pos >= l)
       {
         LOG("Missing end of alert");
-	return false;
+        return false;
       }
 
       if (! Auction::GetRBNAlertNo(s, pos, aNoNew, aNo > 9))
@@ -874,10 +874,10 @@ bool Auction::AddAuctionEML(
       if (aNoNew <= aNo)
       {
         LOG("Alerts not in ascending order");
-	return false;
+        return false;
       }
       aNo = aNoNew;
-      sequence[activeBNo].alert = "[" + STR(aNo) + "]";
+      sequence[len-1].alert = "[" + STR(aNo) + "]";
     }
     else if (c == '*' || c == '!') 
     {
@@ -1538,7 +1538,7 @@ string Auction::DealerAsTXT() const
 
 string Auction::VulAsLIN() const
 {
-  return VUL_NAMES_LIN[vul];
+  return "sv|" + VUL_NAMES_LIN[vul] + "|";
 }
 
 
