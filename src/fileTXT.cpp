@@ -20,6 +20,8 @@
 #include <assert.h>
 
 #include "Canvas.h"
+#include "Group.h"
+#include "Segment.h"
 #include "Debug.h"
 #include "fileTXT.h"
 #include "parse.h"
@@ -94,7 +96,7 @@ SegPtr segPtrTXT[TXT_LABELS_SIZE];
 BoardPtr boardPtrTXT[TXT_LABELS_SIZE];
 
 
-bool tryTXTMethod(
+static bool tryTXTMethod(
   const vector<string>& chunk,
   Segment * segment,
   Board * board,
@@ -102,36 +104,36 @@ bool tryTXTMethod(
   ifstream& fstr,
   const string& info);
 
-bool readTXTCanvas(
+static bool readTXTCanvas(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& canvas);
 
-bool getTXTCanvasOffset(
+static bool getTXTCanvasOffset(
   const vector<string>& canvas,
   unsigned& auctionLine);
 
-bool getTXTFields(
+static bool getTXTFields(
   const vector<string>& canvas,
   const unsigned auctionLine,
   vector<string>& chunk);
 
-bool getTXTDeal(
+static bool getTXTDeal(
   const vector<string>& canvas,
   const unsigned offset,
   vector<string>& chunk);
 
-bool getTXTAuction(
+static bool getTXTAuction(
   const vector<string>& canvas,
   unsigned& offset,
   vector<string>& chunk);
 
-bool getTXTPlay(
+static bool getTXTPlay(
   const vector<string>& canvas,
   unsigned& offset,
   vector<string>& chunk);
 
-bool readTXTChunk(
+static bool readTXTChunk(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& chunk);
@@ -173,7 +175,7 @@ void setTXTtables()
 }
 
 
-bool readTXTCanvas(
+static bool readTXTCanvas(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& canvas)
@@ -223,7 +225,7 @@ bool readTXTCanvas(
 }
 
 
-bool getTXTCanvasOffset(
+static bool getTXTCanvasOffset(
   const vector<string>& canvas,
   unsigned& auctionLine)
 {
@@ -247,7 +249,7 @@ bool getTXTCanvasOffset(
 }
 
 
-bool getTXTFields(
+static bool getTXTFields(
   const vector<string>& canvas,
   const unsigned aline,
   vector<string>& chunk)
@@ -319,7 +321,7 @@ bool getTXTFields(
 }
 
 
-bool getTXTDeal(
+static bool getTXTDeal(
   const vector<string>& canvas,
   const unsigned offset,
   vector<string>& chunk)
@@ -361,7 +363,7 @@ bool getTXTDeal(
 }
 
 
-bool getTXTAuction(
+static bool getTXTAuction(
   const vector<string>& canvas,
   unsigned& offset,
   vector<string>& chunk)
@@ -450,7 +452,7 @@ bool getTXTAuction(
 }
 
 
-bool getTXTPlay(
+static bool getTXTPlay(
   const vector<string>& canvas,
   unsigned& offset,
   vector<string>& chunk)
@@ -501,7 +503,7 @@ bool getTXTPlay(
 }
 
 
-bool readTXTChunk(
+static bool readTXTChunk(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& chunk)
@@ -590,7 +592,7 @@ bool readTXT(
 }
 
 
-bool tryTXTMethod(
+static bool tryTXTMethod(
   const vector<string>& chunk,
   Segment * segment,
   Board * board,

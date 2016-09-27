@@ -19,6 +19,8 @@
 #include <map>
 #include <assert.h>
 
+#include "Group.h"
+#include "Segment.h"
 #include "Debug.h"
 #include "filePBN.h"
 #include "parse.h"
@@ -108,13 +110,13 @@ struct chunkType
 };
 
 
-bool readPBNChunk(
+static bool readPBNChunk(
   ifstream& fstr,
   unsigned& lno,
   chunkType& chunk,
   bool& newSegFlag);
 
-bool tryPBNMethod(
+static bool tryPBNMethod(
   const chunkType& chunk,
   Segment * segment,
   Board * board,
@@ -157,7 +159,7 @@ void setPBNtables()
 }
 
 
-bool readPBNChunk(
+static bool readPBNChunk(
   ifstream& fstr,
   unsigned& lno,
   chunkType& chunk,
@@ -320,7 +322,7 @@ bool readPBN(
 }
 
 
-bool tryPBNMethod(
+static bool tryPBNMethod(
   const chunkType& chunk,
   Segment * segment,
   Board * board,

@@ -60,6 +60,8 @@ unsigned TRICK_RANKS[BRIDGE_DENOMS][BRIDGE_SUITS][PLAY_NUM_CARDS];
 
 bool setPlayTables = false;
 
+static bool BothAreSpaces(char lhs, char rhs);
+
 
 Play::Play()
 {
@@ -485,7 +487,7 @@ bool Play::SetPlays(
 }
 
 
-bool BothAreSpaces(char lhs, char rhs)
+static bool BothAreSpaces(char lhs, char rhs)
 {
   // stackoverflow.com/questions/8362094/
   // replace-multiple-spaces-with-one-space-in-a-string

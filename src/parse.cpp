@@ -20,10 +20,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "bconst.h"
+#include "Debug.h"
 #include "parse.h"
 #include "portab.h"
-#include "debug.h"
 
 using namespace std;
 

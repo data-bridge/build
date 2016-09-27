@@ -39,46 +39,46 @@ using namespace std;
 extern Debug debug;
 
 
-void TestAuctionCall(
+static void TestAuctionCall(
   Auction& auction,
   const string& call);
 
-void TestAuctionCallAlert(
+static void TestAuctionCallAlert(
   Auction& auction,
   const string& call,
   const string& alert);
 
-void TestAuctionOutput(Auction& auction);
+static void TestAuctionOutput(Auction& auction);
 
-void TestLocationCase(
+static void TestLocationCase(
   Location& location,
   const string& s,
   const formatType f); 
 
-void TestScoringCase(
+static void TestScoringCase(
   Scoring& scoring,
   const string& s,
   const formatType f);
 
-void TestSessionCase(
+static void TestSessionCase(
   Session& session,
   const string& s,
   const formatType f);
 
-void TestTeamsOut(const Teams& teams);
+static void TestTeamsOut(const Teams& teams);
 
-void TestTeamsCase(
+static void TestTeamsCase(
   Teams& teams,
   const string list[2],
   const formatType f);
 
-void TestSegmentCaseOutput(Segment& segment);
+static void TestSegmentCaseOutput(Segment& segment);
 
-void TestSegmentCaseLIN(
+static void TestSegmentCaseLIN(
   Segment& segment,
   const string& title);
 
-void TestSegmentCaseCommon(
+static void TestSegmentCaseCommon(
   Segment& segment,
   const string& title,
   const string& date,
@@ -88,7 +88,7 @@ void TestSegmentCaseCommon(
   const string& scoring,
   const formatType f);
 
-void TestSegmentCasePBN(
+static void TestSegmentCasePBN(
   Segment& segment,
   const string& title,
   const string& date,
@@ -100,7 +100,7 @@ void TestSegmentCasePBN(
   const string& team2,
   const formatType f);
 
-void TestSegmentCaseRBN(
+static void TestSegmentCaseRBN(
   Segment& segment,
   const string& title,
   const string& date,
@@ -171,7 +171,7 @@ void TestDeal()
 }
 
 
-void TestAuctionCall(
+static void TestAuctionCall(
   Auction& auction,
   const string& call)
 {
@@ -183,7 +183,7 @@ void TestAuctionCall(
 }
 
 
-void TestAuctionCallAlert(
+static void TestAuctionCallAlert(
   Auction& auction,
   const string& call,
   const string& alert)
@@ -195,7 +195,7 @@ void TestAuctionCallAlert(
   }
 }
 
-void TestAuctionOutput(
+static void TestAuctionOutput(
   Auction& auction,
   const string& names)
 {
@@ -493,7 +493,7 @@ void TestDate()
 }
 
 
-void TestLocationCase(
+static void TestLocationCase(
   Location& location,
   const string& s,
   const formatType f)
@@ -521,7 +521,7 @@ void TestLocation()
 }
 
 
-void TestScoringCase(
+static void TestScoringCase(
   Scoring& scoring,
   const string& s,
   const formatType f)
@@ -549,7 +549,7 @@ void TestScoring()
 }
 
 
-void TestTeamsOut(const Teams& teams)
+static void TestTeamsOut(const Teams& teams)
 {
   cout << "LIN: " << teams.AsString(BRIDGE_FORMAT_LIN) << "\n";
   cout << "PBN: " << teams.AsString(BRIDGE_FORMAT_PBN);
@@ -558,7 +558,7 @@ void TestTeamsOut(const Teams& teams)
 }
 
 
-void TestTeamsCase(
+static void TestTeamsCase(
   Teams& teams,
   const string s,
   const formatType f)
@@ -602,7 +602,7 @@ void TestTeams()
 }
 
 
-void TestSessionCase(
+static void TestSessionCase(
   Session& session,
   const string& s,
   const formatType f)
@@ -633,7 +633,7 @@ void TestSession()
 }
 
 
-void TestSegmentCaseOutput(Segment& segment)
+static void TestSegmentCaseOutput(Segment& segment)
 {
   for (unsigned f2 = 0; f2 <= BRIDGE_FORMAT_TXT; f2++)
   {
@@ -650,7 +650,7 @@ void TestSegmentCaseOutput(Segment& segment)
 }
 
 
-void TestSegmentCaseLIN(
+static void TestSegmentCaseLIN(
   Segment& segment,
   const string& title)
 {
@@ -664,7 +664,7 @@ void TestSegmentCaseLIN(
 }
 
 
-void TestSegmentCaseCommon(
+static void TestSegmentCaseCommon(
   Segment& segment,
   const string& title,
   const string& date,
@@ -712,7 +712,7 @@ void TestSegmentCaseCommon(
 }
 
 
-void TestSegmentCasePBN(
+static void TestSegmentCasePBN(
   Segment& segment,
   const string& title,
   const string& date,
@@ -743,7 +743,7 @@ void TestSegmentCasePBN(
 }
 
 
-void TestSegmentCaseRBN(
+static void TestSegmentCaseRBN(
   Segment& segment,
   const string& title,
   const string& date,

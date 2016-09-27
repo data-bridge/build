@@ -19,8 +19,6 @@
 
 using namespace std;
 
-class Players;
-
 
 class Deal
 {

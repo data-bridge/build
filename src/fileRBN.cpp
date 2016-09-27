@@ -17,6 +17,8 @@
 #include <algorithm>
 #include <regex>
 
+#include "Group.h"
+#include "Segment.h"
 #include "Debug.h"
 #include "fileRBN.h"
 #include "parse.h"
@@ -77,13 +79,13 @@ typedef bool (Board::*BoardPtr)(const string& s, const formatType f);
 SegPtr segPtrRBN[RBN_LABELS_SIZE];
 BoardPtr boardPtrRBN[RBN_LABELS_SIZE];
 
-bool readRBNChunk(
+static bool readRBNChunk(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& chunk,
   bool& newSegFlag);
 
-bool tryRBNMethod(
+static bool tryRBNMethod(
   const vector<string>& chunk,
   Segment * segment,
   Board * board,
@@ -150,7 +152,7 @@ void setRBNtables()
 }
 
 
-bool readRBNChunk(
+static bool readRBNChunk(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& chunk,
@@ -273,7 +275,7 @@ bool readRBN(
 }
 
 
-bool tryRBNMethod(
+static bool tryRBNMethod(
   const vector<string>& chunk,
   Segment * segment,
   Board * board,

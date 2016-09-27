@@ -7,7 +7,6 @@
 */
 
 
-#include "bconst.h"
 #include "Deal.h"
 #include "Debug.h"
 #include "parse.h"

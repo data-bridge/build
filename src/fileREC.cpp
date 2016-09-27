@@ -76,7 +76,7 @@ SegPtr segPtrREC[REC_LABELS_SIZE];
 BoardPtr boardPtrREC[REC_LABELS_SIZE];
 
 
-bool tryRECMethod(
+static bool tryRECMethod(
   const vector<string>& chunk,
   Segment * segment,
   Board * board,
@@ -84,34 +84,34 @@ bool tryRECMethod(
   ifstream& fstr,
   const string& info);
 
-bool readRECCanvas(
+static bool readRECCanvas(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& canvas);
 
-bool getRECCanvasOffset(
+static bool getRECCanvasOffset(
   const vector<string>& canvas,
   unsigned& playLine);
 
-bool getRECFields(
+static bool getRECFields(
   const vector<string>& canvas,
   const unsigned auctionLine,
   vector<string>& chunk);
 
-bool getRECDeal(
+static bool getRECDeal(
   const vector<string>& canvas,
   vector<string>& chunk);
 
-bool getRECAuction(
+static bool getRECAuction(
   const vector<string>& canvas,
   vector<string>& chunk);
 
-bool getRECPlay(
+static bool getRECPlay(
   const vector<string>& canvas,
   const unsigned& offset,
   vector<string>& chunk);
 
-bool readRECChunk(
+static bool readRECChunk(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& chunk);
@@ -138,7 +138,7 @@ void setRECtables()
 }
 
 
-bool readRECCanvas(
+static bool readRECCanvas(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& canvas)
@@ -166,7 +166,7 @@ bool readRECCanvas(
 }
 
 
-bool getRECCanvasOffset(
+static bool getRECCanvasOffset(
   const vector<string>& canvas,
   unsigned& playLine)
 {
@@ -191,7 +191,7 @@ bool getRECCanvasOffset(
 }
 
 
-bool getRECFields(
+static bool getRECFields(
   const vector<string>& canvas,
   const unsigned pline,
   vector<string>& chunk)
@@ -226,7 +226,7 @@ bool getRECFields(
 }
 
 
-bool getRECDeal(
+static bool getRECDeal(
   const vector<string>& canvas,
   vector<string>& chunk)
 {
@@ -265,7 +265,7 @@ bool getRECDeal(
 }
 
 
-bool getRECAuction(
+static bool getRECAuction(
   const vector<string>& canvas,
   vector<string>& chunk)
 {
@@ -350,7 +350,7 @@ bool getRECAuction(
 }
 
 
-bool getRECPlay(
+static bool getRECPlay(
   const vector<string>& canvas,
   const unsigned& offset,
   vector<string>& chunk)
@@ -392,7 +392,7 @@ bool getRECPlay(
 }
 
 
-bool readRECChunk(
+static bool readRECChunk(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& chunk)
@@ -481,7 +481,7 @@ bool readREC(
 }
 
 
-bool tryRECMethod(
+static bool tryRECMethod(
   const vector<string>& chunk,
   Segment * segment,
   Board * board,

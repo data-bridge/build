@@ -22,10 +22,10 @@
 #include "Board.h"
 #include "Group.h"
 #include "Segment.h"
+#include "Debug.h"
 #include "fileLIN.h"
 #include "parse.h"
 #include "portab.h"
-#include "debug.h"
 
 using namespace std;
 
@@ -78,13 +78,13 @@ typedef bool (Board::*BoardPtr)(const string& s, const formatType f);
 SegPtr segPtrLIN[LIN_LABELS_SIZE];
 BoardPtr boardPtrLIN[LIN_LABELS_SIZE];
 
-bool readLINChunk(
+static bool readLINChunk(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& chunk,
   bool& newSegFlag);
 
-bool tryLINMethod(
+static bool tryLINMethod(
   const vector<string>& chunk,
   Segment * segment,
   Board * board,
@@ -142,7 +142,7 @@ void setLINtables()
 }
 
 
-bool readLINChunk(
+static bool readLINChunk(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& chunk,
@@ -334,7 +334,7 @@ bool readLIN(
 }
 
 
-bool tryLINMethod(
+static bool tryLINMethod(
   const vector<string>& chunk,
   Segment * segment,
   Board * board,

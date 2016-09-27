@@ -86,7 +86,7 @@ SegPtr segPtrEML[EML_LABELS_SIZE];
 BoardPtr boardPtrEML[EML_LABELS_SIZE];
 
 
-bool tryEMLMethod(
+static bool tryEMLMethod(
   const vector<string>& chunk,
   Segment * segment,
   Board * board,
@@ -94,41 +94,41 @@ bool tryEMLMethod(
   ifstream& fstr,
   const string& info);
 
-bool readEMLCanvas(
+static bool readEMLCanvas(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& canvas);
 
-bool getEMLCanvasWest(
+static bool getEMLCanvasWest(
   const vector<string>& canvas,
   const unsigned pos,
   const unsigned openingLine,
   unsigned& westLine,
   unsigned& cardStart);
 
-bool getEMLCanvasOffset(
+static bool getEMLCanvasOffset(
   const vector<string>& canvas,
   unsigned& openingLine,
   unsigned& westLine);
 
-bool getEMLSimpleFields(
+static bool getEMLSimpleFields(
   const vector<string>& canvas,
   const unsigned openingLine,
   vector<string>& chunk);
 
-bool getEMLAuction(
+static bool getEMLAuction(
   const vector<string>& canvas,
   const unsigned openingLine,
   vector<string>& chunk);
 
-bool getEMLPlay(
+static bool getEMLPlay(
   const vector<string>& canvas,
   const unsigned openingLine,
   const unsigned westLine,
   const unsigned cardStart,
   vector<string>& chunk);
 
-bool readEMLChunk(
+static bool readEMLChunk(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& chunk);
@@ -169,7 +169,7 @@ void setEMLtables()
 }
 
 
-bool readEMLCanvas(
+static bool readEMLCanvas(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& canvas)
@@ -194,7 +194,7 @@ bool readEMLCanvas(
 }
 
 
-bool getEMLCanvasWest(
+static bool getEMLCanvasWest(
   const vector<string>& canvas,
   const unsigned pos,
   const unsigned openingLine,
@@ -220,7 +220,7 @@ bool getEMLCanvasWest(
 }
 
 
-bool getEMLCanvasOffset(
+static bool getEMLCanvasOffset(
   const vector<string>& canvas,
   unsigned& openingLine,
   unsigned& westLine,
@@ -247,7 +247,7 @@ bool getEMLCanvasOffset(
 }
 
 
-bool getEMLSimpleFields(
+static bool getEMLSimpleFields(
   const vector<string>& canvas,
   const unsigned openingLine,
   vector<string>& chunk)
@@ -287,7 +287,7 @@ bool getEMLSimpleFields(
 }
 
 
-bool getEMLDeal(
+static bool getEMLDeal(
   const vector<string>& canvas,
   vector<string>& chunk)
 {
@@ -326,7 +326,7 @@ bool getEMLDeal(
 }
 
 
-bool getEMLAuction(
+static bool getEMLAuction(
   const vector<string>& canvas,
   const unsigned openingLine,
   vector<string>& chunk)
@@ -382,7 +382,7 @@ bool getEMLAuction(
 }
 
 
-bool getEMLPlay(
+static bool getEMLPlay(
   const vector<string>& canvas,
   const unsigned openingLine,
   const unsigned westLine,
@@ -467,7 +467,7 @@ bool getEMLPlay(
 }
 
 
-bool readEMLChunk(
+static bool readEMLChunk(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& chunk)
@@ -571,7 +571,7 @@ bool readEML(
 }
 
 
-bool tryEMLMethod(
+static bool tryEMLMethod(
   const vector<string>& chunk,
   Segment * segment,
   Board * board,

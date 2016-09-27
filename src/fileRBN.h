@@ -11,9 +11,10 @@
 
 #include <string>
 #include <vector>
-#include "Group.h"
 
 using namespace std;
+
+class Group;
 
 
 void setRBNtables();

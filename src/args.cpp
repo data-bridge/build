@@ -46,17 +46,17 @@ const optEntry optList[BRIDGE_NUM_OPTIONS] =
 
 string shortOptsAll, shortOptsWithArg;
 
-int GetNextArgToken(
+static int GetNextArgToken(
   int argc,
   char * argv[]);
 
-void SetDefaults();
+static void SetDefaults();
 
-void PrintFileOption(
+static void PrintFileOption(
   const FileOptionType& fopt,
   const string& text);
 
-void CheckArgs();
+static void CheckArgs();
 
 
 void Usage(
@@ -93,7 +93,7 @@ void Usage(
 int nextToken = 1;
 char * optarg;
 
-int GetNextArgToken(
+static int GetNextArgToken(
   int argc,
   char * argv[])
 {
@@ -140,7 +140,7 @@ int GetNextArgToken(
 }
 
 
-void SetDefaults()
+static void SetDefaults()
 {
   options.fileInput = {false, ""};
   options.fileInput = {false, ""};
@@ -155,7 +155,7 @@ void SetDefaults()
 }
 
 
-void PrintFileOption(
+static void PrintFileOption(
   const FileOptionType& fopt,
   const string& text)
 {
@@ -191,7 +191,7 @@ void PrintOptions()
 }
 
 
-void CheckArgs()
+static void CheckArgs()
 {
   if (options.fileInput.setFlag && options.dirInput.setFlag)
   {
@@ -336,5 +336,7 @@ void ReadArgs(
     cout << "Invoke the program without arguments for help" << endl;
     exit(0);
   }
+
+  CheckArgs();
 }
 

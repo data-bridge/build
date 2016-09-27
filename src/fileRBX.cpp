@@ -17,6 +17,8 @@
 #include <algorithm>
 #include <regex>
 
+#include "Group.h"
+#include "Segment.h"
 #include "Debug.h"
 #include "fileRBX.h"
 #include "parse.h"
@@ -77,13 +79,13 @@ typedef bool (Board::*BoardPtr)(const string& s, const formatType f);
 SegPtr segPtrRBX[RBN_LABELS_SIZE];
 BoardPtr boardPtrRBX[RBN_LABELS_SIZE];
 
-bool readRBXChunk(
+static bool readRBXChunk(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& chunk,
   bool& newSegFlag);
 
-bool tryRBXMethod(
+static bool tryRBXMethod(
   const vector<string>& chunk,
   Segment * segment,
   Board * board,
@@ -150,7 +152,7 @@ void setRBXtables()
 }
 
 
-bool readRBXChunk(
+static bool readRBXChunk(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& chunk,
@@ -276,7 +278,7 @@ bool readRBX(
 }
 
 
-bool tryRBXMethod(
+static bool tryRBXMethod(
   const vector<string>& chunk,
   Segment * segment,
   Board * board,

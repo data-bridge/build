@@ -34,7 +34,7 @@ Debug debug;
 OptionsType options;
 
 
-void Test();
+static void Test();
 
 
 int main(int argc, char * argv[])
@@ -49,6 +49,8 @@ int main(int argc, char * argv[])
   setTXTtables();
   setLINtables();
   setRECtables();
+
+  Test();
 
   /*
   if (! readRBX(group, "S10FA1.RBX"))
@@ -163,7 +165,7 @@ int main(int argc, char * argv[])
 }
 
 
-void Test()
+static void Test()
 {
   // TestTableau();
   // TestDeal();
