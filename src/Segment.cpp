@@ -773,7 +773,7 @@ string Segment::TitleAsString(const formatType f) const
 
     default:
       LOG("Invalid format " + STR(f));
-      return false;
+      return "";
   }
 }
 
@@ -820,7 +820,7 @@ string Segment::EventAsString(const formatType f) const
 
     default:
       LOG("Invalid format " + STR(f));
-      return false;
+      return "";
   }
 }
 
@@ -915,7 +915,7 @@ string Segment::NumberAsString(
 
     default:
       LOG("Invalid format " + STR(f));
-      return false;
+      return "";
   }
 }
 
@@ -977,7 +977,7 @@ string Segment::ContractsAsString(const formatType f)
 
     default:
       LOG("Invalid format " + STR(f));
-      return false;
+      return "";
   }
 }
 
@@ -1049,7 +1049,7 @@ string Segment::PlayersAsString(const formatType f)
 
     default:
       LOG("Invalid format " + STR(f));
-      return false;
+      return "";
   }
 }
 
@@ -1074,7 +1074,7 @@ string Segment::ScoresAsString(const formatType f) const
 
     default:
       LOG("Invalid format " + STR(f));
-      return false;
+      return "";
   }
 }
 
@@ -1102,7 +1102,7 @@ string Segment::BoardsAsString(const formatType f) const
 
     default:
       LOG("Invalid format " + STR(f));
-      return false;
+      return "";
   }
 }
 

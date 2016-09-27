@@ -455,7 +455,7 @@ string Teams::AsString(const formatType f) const
 
     case BRIDGE_FORMAT_PBN:
       LOG("AsString not implemented for PBN");
-      return false;
+      return "";
     
     case BRIDGE_FORMAT_RBN:
       return Teams::AsRBN();
@@ -485,7 +485,7 @@ string Teams::AsString(
     case BRIDGE_FORMAT_RBN:
     case BRIDGE_FORMAT_EML:
       LOG("AsString with score not implemented for this format");
-      return false;
+      return "";
 
     case BRIDGE_FORMAT_TXT:
       return Teams::AsTXT(score1, score2);
@@ -504,7 +504,7 @@ string Teams::FirstAsString(const formatType f) const
     case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_RBN:
       LOG("FirstAsString not implemented");
-      return false;
+      return "";
 
     case BRIDGE_FORMAT_PBN:
       if (team1.name == "" && team1.carry == BRIDGE_CARRY_NONE)
@@ -530,7 +530,7 @@ string Teams::SecondAsString(const formatType f) const
     case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_RBN:
       LOG("FirstAsString not implemented");
-      return false;
+      return "";
 
     case BRIDGE_FORMAT_PBN:
       if (team2.name == "" && team2.carry == BRIDGE_CARRY_NONE)

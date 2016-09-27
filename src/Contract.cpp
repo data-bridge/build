@@ -937,7 +937,7 @@ string Contract::VulAsString(const formatType f) const
   if (! setVulFlag)
   {
     LOG("Vulnerability not yet");
-    return false;
+    return "";
   }
 
   switch(f)

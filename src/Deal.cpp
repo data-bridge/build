@@ -672,7 +672,7 @@ string Deal::AsString(
   if (! setFlag)
   {
     LOG("Not set");
-    return false;
+    return "";
   }
 
   switch(f)
