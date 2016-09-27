@@ -17,10 +17,10 @@
 #include <algorithm>
 #include <regex>
 
+#include "Debug.h"
 #include "fileRBN.h"
 #include "parse.h"
 #include "portab.h"
-#include "debug.h"
 
 using namespace std;
 

@@ -11,9 +11,9 @@
 #include <algorithm>
 #include <regex>
 #include "Session.h"
+#include "Debug.h"
 #include "portab.h"
 #include "parse.h"
-#include "debug.h"
 
 extern Debug debug;
 

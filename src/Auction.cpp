@@ -8,6 +8,7 @@
 
 
 #include "Auction.h"
+#include "Contract.h"
 #include "Debug.h"
 #include <map>
 #include <regex>

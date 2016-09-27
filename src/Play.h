@@ -11,12 +11,12 @@
 #define BRIDGE_PLAY_H
 
 #include "bconst.h"
-#include "Contract.h"
-#include "Deal.h"
 #include <iostream>
 #include <string>
 
 using namespace std;
+
+class Contract;
 
 
 enum playStatus

@@ -11,6 +11,7 @@
 #define BRIDGE_CONSTANTS_H
 
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -87,17 +88,23 @@ struct OptionsType
 };
 
 
-struct FileTaskType
+struct FileOutputTaskType
 {
-  string fileInput;
-  formatType formatInput;
-
   string fileOutput;
   formatType formatOutput;
   bool removeOutputFlag;
 
   bool refFlag;
   string fileRef;
+};
+
+
+struct FileTaskType
+{
+  string fileInput;
+  formatType formatInput;
+
+  vector<FileOutputTaskType> taskList;
 };
 
 

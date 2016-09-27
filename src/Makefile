@@ -19,6 +19,7 @@ SOURCE_FILES 	=		\
 	Tableau.cpp		\
         Teams.cpp               \
 	UnitTest.cpp		\
+	Valuation.cpp		\
 	args.cpp		\
 	fileEML.cpp		\
 	filePBN.cpp		\

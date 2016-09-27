@@ -10,6 +10,7 @@
 #include "bconst.h"
 #include "Board.h"
 #include "Debug.h"
+#include "Valuation.h"
 #include "portab.h"
 #include "parse.h"
 

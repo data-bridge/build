@@ -8,7 +8,6 @@
 
 
 #include <vector>
-#include "bconst.h"
 #include "Players.h"
 #include "portab.h"
 #include "parse.h"

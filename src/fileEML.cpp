@@ -19,11 +19,15 @@
 #include <map>
 #include <assert.h>
 
+#include "Board.h"
 #include "Canvas.h"
+#include "Debug.h"
+#include "Group.h"
+#include "Segment.h"
 #include "fileEML.h"
+#include "bconst.h"
 #include "parse.h"
 #include "portab.h"
-#include "debug.h"
 
 using namespace std;
 

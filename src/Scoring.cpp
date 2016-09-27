@@ -9,7 +9,7 @@
 
 #include "Scoring.h"
 #include "portab.h"
-#include "debug.h"
+#include "Debug.h"
 
 extern Debug debug;
 

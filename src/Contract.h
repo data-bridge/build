@@ -19,7 +19,6 @@
 using namespace std;
 
 #include "bconst.h"
-#include "Contract.h"
 
 
 struct contractType

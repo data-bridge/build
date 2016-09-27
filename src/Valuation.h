@@ -11,9 +11,20 @@
 #define BRIDGE_VALUATION_H
 
 
-struct Valuation
+class Valuation
 {
-  unsigned tmp;
+  private:
+
+    unsigned tmp;
+
+  public:
+
+    Valuation();
+
+    ~Valuation();
+
+    void Reset();
+
 };
 
 #endif

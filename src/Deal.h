@@ -10,16 +10,16 @@
 #ifndef BRIDGE_DEAL_H
 #define BRIDGE_DEAL_H
 
-#include "Deal.h"
-#include "Players.h"
-
 #include <iostream>
 #include <iomanip>
 #include <string>
 #include <sstream>
 #include <vector>
+#include "bconst.h"
 
 using namespace std;
+
+class Players;
 
 
 class Deal

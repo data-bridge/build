@@ -11,7 +11,6 @@
 #define BRIDGE_GROUP_H
 
 #include "Segment.h"
-#include "bconst.h"
 #include <string>
 
 using namespace std;

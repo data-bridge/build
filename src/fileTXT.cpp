@@ -20,10 +20,10 @@
 #include <assert.h>
 
 #include "Canvas.h"
+#include "Debug.h"
 #include "fileTXT.h"
 #include "parse.h"
 #include "portab.h"
-#include "debug.h"
 
 using namespace std;
 

@@ -7,7 +7,6 @@
 */
 
 
-#include "bconst.h"
 #include "Files.h"
 #include "Debug.h"
 #include "portab.h"

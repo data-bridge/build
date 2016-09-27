@@ -11,12 +11,13 @@
 #define BRIDGE_AUCTION_H
 
 #include "bconst.h"
-#include "Contract.h"
 #include <iostream>
 #include <string>
 #include <vector>
 
 using namespace std;
+
+class Contract;
 
 
 class Auction

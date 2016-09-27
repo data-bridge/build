@@ -12,7 +12,6 @@
 
 #include "Deal.h"
 #include "Tableau.h"
-#include "Valuation.h"
 #include "Players.h"
 #include "Auction.h"
 #include "Contract.h"
@@ -25,6 +24,8 @@
 #include <vector>
 
 using namespace std;
+
+class Valuation;
 
 
 struct LINdataType

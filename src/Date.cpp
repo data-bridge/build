@@ -12,7 +12,7 @@
 #include "Date.h"
 #include "portab.h"
 #include "parse.h"
-#include "debug.h"
+#include "Debug.h"
 
 extern Debug debug;
 

@@ -15,11 +15,12 @@
 #include <string>
 #include <sstream>
 #include <list>
+#include "bconst.h"
 
 using namespace std;
 
-#include "bconst.h"
-#include "Contract.h"
+
+class Contract;
 
 
 class Tableau

@@ -7,11 +7,13 @@
 */
 
 
+#include <vector>
+
 #include "Tableau.h"
+#include "Contract.h"
 #include "Debug.h"
 #include "parse.h"
 
-#include <vector>
 
 extern Debug debug;
 

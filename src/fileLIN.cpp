@@ -19,6 +19,9 @@
 #include <map>
 #include <assert.h>
 
+#include "Board.h"
+#include "Group.h"
+#include "Segment.h"
 #include "fileLIN.h"
 #include "parse.h"
 #include "portab.h"

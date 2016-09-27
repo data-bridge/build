@@ -19,10 +19,10 @@
 #include <map>
 #include <assert.h>
 
+#include "Debug.h"
 #include "filePBN.h"
 #include "parse.h"
 #include "portab.h"
-#include "debug.h"
 
 using namespace std;
 

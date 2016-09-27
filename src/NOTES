@@ -1,6 +1,9 @@
 27.09.16
 --------
-Add options.cpp
+Can we get rid of static data as much as possible?
+cppclean
+doxygen including dot
+include-what-you-use
 
 Add automated comparisons of results
 

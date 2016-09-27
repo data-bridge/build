@@ -7,11 +7,13 @@
 */
 
 
-#include "Play.h"
-#include "Debug.h"
 #include <map>
 #include <algorithm>
 #include <assert.h>
+
+#include "Play.h"
+#include "Contract.h"
+#include "Debug.h"
 #include "parse.h"
 #include "portab.h"
 

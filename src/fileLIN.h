@@ -11,10 +11,10 @@
 
 #include <string>
 #include <vector>
-#include "Group.h"
-#include "bconst.h"
 
 using namespace std;
+
+class Group;
 
 
 void setLINtables();
