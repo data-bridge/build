@@ -18,6 +18,7 @@ using namespace std;
 
 #include "Group.h"
 #include "UnitTest.h"
+#include "args.h"
 #include "fileRBN.h"
 #include "fileRBX.h"
 #include "filePBN.h"
@@ -30,14 +31,15 @@ using namespace std;
 #include "Debug.h"
 
 Debug debug;
+OptionsType options;
+
 
 void Test();
 
 
 int main(int argc, char * argv[])
 {
-  UNUSED(argc);
-  UNUSED(argv);
+  ReadArgs(argc, argv);
 
   Group group;
   setRBNtables();

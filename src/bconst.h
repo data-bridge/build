@@ -26,6 +26,81 @@ using namespace std;
 #define Min(x, y) (((x) <= (y)) ? (x) : (y))
 
 
+// Bridge file formats.
+
+enum formatType
+{
+  BRIDGE_FORMAT_LIN = 0,
+  BRIDGE_FORMAT_LIN_RP = 1, // A la Pavlicek
+  BRIDGE_FORMAT_LIN_VG = 2, // A la BBO Vugraph
+  BRIDGE_FORMAT_LIN_TRN = 3, // A la BBO tournament play
+  BRIDGE_FORMAT_LIN_EXT = 4, // Extended
+  BRIDGE_FORMAT_PBN = 5,
+  BRIDGE_FORMAT_RBN = 6,
+  BRIDGE_FORMAT_RBX = 7,
+  BRIDGE_FORMAT_TXT = 8,
+  BRIDGE_FORMAT_EML = 9,
+  BRIDGE_FORMAT_REC = 10,
+  BRIDGE_FORMAT_PAR = 11, // Not a real file format -- eliminate?
+  BRIDGE_FORMAT_SIZE = 12
+};
+
+const string FORMAT_NAMES[BRIDGE_FORMAT_SIZE] =
+{
+  "LIN",
+  "LIN-RP",
+  "LIN-VG",
+  "LIN-TRN",
+  "LIN-EXT",
+  "PBN", 
+  "RBN", 
+  "RBX", 
+  "TXT", 
+  "EML",
+  "REC",
+  "PAR"
+};
+
+// Input options.
+
+struct FileOptionType
+{
+  bool setFlag;
+  string name;
+};
+
+struct OptionsType
+{
+  FileOptionType fileInput; // -i, --infile
+  FileOptionType dirInput; // -I, --indir
+
+  FileOptionType fileOutput; // -o, --outfile
+  FileOptionType dirOutput; // -O, --outdir
+
+  FileOptionType fileRef; // -r, --reffile
+  FileOptionType dirRef; // -R, --refdir
+
+  FileOptionType fileLog; // -l, --logfile
+
+  bool formatSetFlag; // -f, --format
+  formatType format;
+};
+
+
+struct FileTaskType
+{
+  string fileInput;
+  formatType formatInput;
+
+  string fileOutput;
+  formatType formatOutput;
+  bool removeOutputFlag;
+
+  bool refFlag;
+  string fileRef;
+};
+
+
 // This is the same encoding as in DDS.
 
 enum vulType
@@ -143,37 +218,6 @@ const string VUL_NAMES_RBN[BRIDGE_SUITS] =
 const string VUL_NAMES_TXT[BRIDGE_SUITS] =
 {
   "None", "Both", "N-S", "E-W"
-};
-
-enum formatType
-{
-  BRIDGE_FORMAT_LIN = 0,
-  BRIDGE_FORMAT_LIN_RP = 1, // A la Pavlicek
-  BRIDGE_FORMAT_LIN_VG = 2, // A la BBO Vugraph
-  BRIDGE_FORMAT_LIN_TRN = 3, // A la BBO tournament play
-  BRIDGE_FORMAT_LIN_EXT = 4, // Extended
-  BRIDGE_FORMAT_PBN = 5,
-  BRIDGE_FORMAT_RBN = 6,
-  BRIDGE_FORMAT_RBX = 7,
-  BRIDGE_FORMAT_TXT = 8,
-  BRIDGE_FORMAT_EML = 9,
-  BRIDGE_FORMAT_REC = 10,
-  BRIDGE_FORMAT_PAR = 11, // Not a real file format -- eliminate?
-  BRIDGE_FORMAT_SIZE = 12
-};
-
-const string FORMAT_NAMES[BRIDGE_FORMAT_SIZE] =
-{
-  "LIN",
-  "LIN-RP",
-  "LIN-VG",
-  "LIN-TRN",
-  "PBN", 
-  "RBN", 
-  "RBX", 
-  "TXT", 
-  "EML",
-  "PAR"
 };
 
 #endif

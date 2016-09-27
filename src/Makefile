@@ -8,6 +8,7 @@ SOURCE_FILES 	=		\
 	Date.cpp		\
 	Deal.cpp		\
 	Debug.cpp		\
+	Files.cpp		\
 	Group.cpp		\
         Location.cpp            \
 	Play.cpp		\
@@ -18,6 +19,7 @@ SOURCE_FILES 	=		\
 	Tableau.cpp		\
         Teams.cpp               \
 	UnitTest.cpp		\
+	args.cpp		\
 	fileEML.cpp		\
 	filePBN.cpp		\
 	fileRBN.cpp		\
@@ -89,6 +91,7 @@ Contract.obj: Contract.h bconst.h Debug.h parse.h portab.h
 Date.obj: Date.h bconst.h portab.h parse.h debug.h Debug.h
 Deal.obj: bconst.h Deal.h Players.h Debug.h parse.h
 Debug.obj: Debug.h
+Files.obj: bconst.h Files.h Debug.h portab.h
 Group.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 Group.obj: Teams.h Board.h Deal.h Players.h Tableau.h Contract.h Valuation.h
 Group.obj: Auction.h Play.h portab.h parse.h debug.h Debug.h
@@ -106,6 +109,7 @@ Teams.obj: Teams.h bconst.h portab.h parse.h Debug.h
 UnitTest.obj: portab.h bconst.h UnitTest.h Tableau.h Contract.h Deal.h
 UnitTest.obj: Players.h Auction.h Play.h Date.h Location.h Scoring.h Teams.h
 UnitTest.obj: Session.h Segment.h Board.h Valuation.h Debug.h
+args.obj: bconst.h args.h
 fileEML.obj: Canvas.h fileEML.h Group.h Segment.h Date.h bconst.h Location.h
 fileEML.obj: Session.h Scoring.h Teams.h Board.h Deal.h Players.h Tableau.h
 fileEML.obj: Contract.h Valuation.h Auction.h Play.h parse.h portab.h debug.h
@@ -133,9 +137,9 @@ fileREC.obj: Debug.h
 parse.obj: bconst.h parse.h portab.h debug.h Debug.h
 reader.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 reader.obj: Teams.h Board.h Deal.h Players.h Tableau.h Contract.h Valuation.h
-reader.obj: Auction.h Play.h UnitTest.h fileRBN.h fileRBX.h filePBN.h
+reader.obj: Auction.h Play.h UnitTest.h args.h fileRBN.h fileRBX.h filePBN.h
 reader.obj: fileEML.h fileTXT.h fileLIN.h fileREC.h portab.h Debug.h
 reader.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 reader.obj: Teams.h Board.h Deal.h Players.h Tableau.h Contract.h Valuation.h
-reader.obj: Auction.h Play.h UnitTest.h fileRBN.h fileRBX.h filePBN.h
+reader.obj: Auction.h Play.h UnitTest.h args.h fileRBN.h fileRBX.h filePBN.h
 reader.obj: fileEML.h fileTXT.h fileLIN.h fileREC.h portab.h Debug.h
