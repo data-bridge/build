@@ -410,7 +410,13 @@ bool Board::SetPlays(
   const string& str,
   const formatType f)
 {
-  return play[numActive].SetPlays(str, f);
+  if (! play[numActive].SetPlays(str, f))
+    return false;
+
+  if (play[numActive].PlayIsOver())
+    return contract[numActive].SetTricks( play[numActive].GetTricks() );
+
+  return true;
 }
 
 
@@ -754,7 +760,7 @@ string Board::PlayerAsString(
 string Board::PlayersAsString(
   const formatType f) const
 {
-  return players[numActive].AsString(f);
+  return players[numActive].AsString(f, numActive == 1);
 }
 
 

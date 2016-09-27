@@ -77,6 +77,7 @@ class Play
     bool AddAllPBN(const vector<string>& list);
 
     string AsLIN() const;
+    string AsLIN_TRN() const;
     string AsLIN_RP() const;
     string AsPBN() const;
     string AsRBNCore() const;
@@ -140,6 +141,8 @@ class Play
       const unsigned tricks);
     
     bool ClaimIsMade() const;
+
+    unsigned GetTricks() const;
 
     bool operator == (const Play& p2) const;
 

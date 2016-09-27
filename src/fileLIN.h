@@ -31,4 +31,12 @@ bool writeLIN_RP(
   Group& group,
   const string& fname);
 
+bool writeLIN_VG(
+  Group& group,
+  const string& fname);
+
+bool writeLIN_TRN(
+  Group& group,
+  const string& fname);
+
 #endif

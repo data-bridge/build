@@ -420,6 +420,13 @@ bool Play::AddAllRBN(const string& sIn)
     }
   }
 
+  if (playOverFlag)
+  {
+    if (Play::Claim(tricksDecl) != PLAY_CLAIM_NO_ERROR)
+      return false;
+  }
+
+
   return true;
 }
 
@@ -628,6 +635,12 @@ bool Play::ClaimIsMade() const
 }
 
 
+unsigned Play::GetTricks() const
+{
+  return tricksDecl;
+}
+
+
 bool Play::operator == (const Play& p2) const
 {
   // We don't require the holdings to be identical.
@@ -698,6 +711,20 @@ string Play::AsLIN() const
   {
     s << "pc|" << PLAY_NO_TO_CARD[sequence[l]] << "|";
     if (l % 4 == 3)
+      s << "pg||";
+  }
+
+  return s.str();
+}
+
+
+string Play::AsLIN_TRN() const
+{
+  stringstream s;
+  for (unsigned l = 0; l < len; l++)
+  {
+    s << "pc|" << PLAY_NO_TO_CARD[sequence[l]] << "|";
+    if (l % 4 == 3 && (l != len-1 || len == PLAY_NUM_CARDS))
       s << "pg||";
   }
 
@@ -958,8 +985,10 @@ string Play::AsString(const formatType f) const
   {
     case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_LIN_VG:
-    case BRIDGE_FORMAT_LIN_TRN:
       return Play::AsLIN();
+
+    case BRIDGE_FORMAT_LIN_TRN:
+      return Play::AsLIN_TRN();
 
     case BRIDGE_FORMAT_LIN_RP:
       return Play::AsLIN_RP();
@@ -1046,12 +1075,17 @@ string Play::ClaimAsString(const formatType f) const
   switch(f)
   {
     case BRIDGE_FORMAT_LIN_VG:
-    case BRIDGE_FORMAT_LIN_TRN:
       return Play::ClaimAsLIN() + "\n";
 
     case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_LIN_RP:
       return Play::ClaimAsLIN() + "pg||\n";;
+
+    case BRIDGE_FORMAT_LIN_TRN:
+      if (len == PLAY_NUM_CARDS)
+        return "\n";
+      else
+        return Play::ClaimAsLIN() + "pg||\n";;
 
     case BRIDGE_FORMAT_PBN:
       LOG("Currently unimplemented format " + STR(f));

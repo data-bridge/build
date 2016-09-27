@@ -407,9 +407,9 @@ bool Segment::SetResultsList(
     return false;
   
   size_t c = countDelimiters(s, ",");
-  if (c > 100)
+  if (c == 0 || c > 100)
   {
-    LOG("Too many fields");
+    LOG("Bad number of fields");
     return false;
   }
 
@@ -418,6 +418,9 @@ bool Segment::SetResultsList(
   tokenize(s, tokens, ",");
 
   // There may or may not be a trailing comma
+  if (c % 2 == 0)
+    c--;
+
   if (c+1 > 2*LINcount)
   {
     LINcount = (c+1)/2;
@@ -742,6 +745,7 @@ string Segment::TitleAsString(const formatType f) const
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
+    case BRIDGE_FORMAT_LIN_TRN:
       return Segment::TitleAsLIN();
 
     case BRIDGE_FORMAT_LIN_RP:
@@ -751,11 +755,6 @@ string Segment::TitleAsString(const formatType f) const
       if (seg.title == "")
         return "";
       return Segment::TitleAsLIN_VG();
-
-    case BRIDGE_FORMAT_LIN_TRN:
-      if (seg.title == "")
-        return "";
-      return Segment::TitleAsLIN_TRN();
 
     case BRIDGE_FORMAT_PBN:
       if (seg.title == "")
@@ -927,7 +926,7 @@ string Segment::NumberAsBoardString(
   const formatType f,
   const unsigned intNo) const
 {
-  if (f != BRIDGE_FORMAT_LIN)
+  if (f != BRIDGE_FORMAT_LIN && f != BRIDGE_FORMAT_LIN_TRN)
     return "";
 
   unsigned extNo = Segment::GetExtBoardNo(intNo);
@@ -1012,7 +1011,13 @@ string Segment::PlayersAsString(const formatType f)
       board->SetInstance(1);
       s2 = board->PlayersAsString(f);
 
-      return "pn|" + s1 + "," + s2 + "|pg||\n";
+      if (f == BRIDGE_FORMAT_LIN_TRN)
+      {
+        s1.pop_back(); // Trailing |, leading pn|,,,,
+        return s1 + "," + s2.substr(7) + "\npg||\n";
+      }
+      else
+        return "pn|" + s1 + "," + s2 + "|pg||\n";
 
     default:
       LOG("Invalid format " + STR(f));

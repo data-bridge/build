@@ -125,20 +125,21 @@ bool Players::SetPlayersLIN(const string& names)
 {
   int seen = count(names.begin(), names.end(), ',');
 
-  if (seen != 3)
+  if (seen != 3 && seen != 7)
   {
     LOG("Names are not in LIN format");
     return false;
   }
 
-  vector<string> v(4);
+  vector<string> v(static_cast<unsigned>(seen+1));
   v.clear();
   tokenize(names, v, ",");
 
-  players[BRIDGE_SOUTH] = v[0];
-  players[BRIDGE_WEST] = v[1];
-  players[BRIDGE_NORTH] = v[2];
-  players[BRIDGE_EAST] = v[3];
+  unsigned start = (seen == 7 ? 4u : 0u);
+  players[BRIDGE_SOUTH] = v[start];
+  players[BRIDGE_WEST] = v[start+1];
+  players[BRIDGE_NORTH] = v[start+2];
+  players[BRIDGE_EAST] = v[start+3];
   return true;
 }
 
@@ -341,16 +342,23 @@ string Players::AsREC() const
 }
 
 
-string Players::AsString(const formatType f) const
+string Players::AsString(
+  const formatType f,
+  const bool closedFlag) const
 {
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
       return "pn|" + Players::AsLIN() + "|";
 
+    case BRIDGE_FORMAT_LIN_TRN:
+      if (closedFlag)
+        return "pn|,,,," + Players::AsLIN() + "|";
+      else
+        return "pn|" + Players::AsLIN() + "|";
+
     case BRIDGE_FORMAT_LIN_RP:
     case BRIDGE_FORMAT_LIN_VG:
-    case BRIDGE_FORMAT_LIN_TRN:
       return Players::AsLIN();
     
     case BRIDGE_FORMAT_PBN:

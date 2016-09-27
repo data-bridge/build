@@ -76,7 +76,9 @@ class Players
 
     bool operator != (const Players& p2) const;
 
-    string AsString(const formatType f) const;
+    string AsString(
+      const formatType f,
+      const bool closedFlag = false) const;
 
     string AsBareString(const formatType f) const;
 
