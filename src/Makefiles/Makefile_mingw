@@ -34,6 +34,7 @@ WARN_FLAGS	= 		\
 	-Wno-unused 		\
 	-Wno-unknown-pragmas 	\
 	-Wno-long-long		\
+	-Wno-maybe-uninitialized	\
 	-Wno-format
 
 # Here you can turn on warnings.
@@ -95,7 +96,7 @@ DOBJ_FILES 	= $(subst .cpp,.o,$(DRIVER_FILES))
 
 
 reader:	$(VOBJ_FILES)
-	$(CC) $(CC_FULL_FLAGS) $(VOBJ_FILES) -o valet.exe
+	$(CC) $(CC_FULL_FLAGS) $(VOBJ_FILES) -o reader.exe
 
 %.o:	%.cpp
 	$(CC) $(CC_FULL_FLAGS) -c $<
@@ -108,19 +109,56 @@ clean:
 
 # DO NOT DELETE
 
-args.obj: args.h cst.h
-files.obj: files.h Pairs.h cst.h Hand.h parse.h valet.h
-Hand.obj: valet.h Pairs.h cst.h Hand.h scoring.h
-misc.obj: Pairs.h cst.h misc.h
-Pairs.obj: Pairs.h cst.h
-parse.obj: Pairs.h cst.h parse.h valet.h
-Scores.obj: Scores.h cst.h Pairs.h
-scoring.obj: valet.h cst.h scoring.h
-valet.obj: cst.h args.h files.h scoring.h misc.h Pairs.h Hand.h Scores.h
-Hand.obj: valet.h Pairs.h cst.h Hand.h scoring.h
-Pairs.obj: Pairs.h cst.h
-parse.obj: Pairs.h cst.h parse.h valet.h
-scoring.obj: valet.h cst.h scoring.h
-vlib.obj: valet.h parse.h cst.h scoring.h Pairs.h Hand.h
-driver.obj: valet.h dsupport.h
-dsupport.obj: valet.h dsupport.h
+Auction.obj: Auction.h bconst.h Contract.h Debug.h parse.h portab.h
+Board.obj: bconst.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
+Board.obj: Play.h Debug.h Valuation.h portab.h parse.h
+Canvas.obj: Canvas.h
+Contract.obj: Contract.h bconst.h Debug.h parse.h portab.h
+Date.obj: Date.h bconst.h portab.h parse.h Debug.h
+Deal.obj: Deal.h bconst.h Debug.h parse.h
+Debug.obj: Debug.h
+Files.obj: Files.h bconst.h Debug.h portab.h
+Group.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
+Group.obj: Teams.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
+Group.obj: Play.h portab.h parse.h Debug.h
+Location.obj: Location.h bconst.h portab.h Debug.h
+Play.obj: Play.h bconst.h Contract.h Debug.h parse.h portab.h
+Players.obj: Players.h bconst.h portab.h parse.h Debug.h
+Scoring.obj: Scoring.h bconst.h portab.h Debug.h
+Segment.obj: Segment.h Date.h bconst.h Location.h Session.h Scoring.h Teams.h
+Segment.obj: Board.h Deal.h Tableau.h Players.h Auction.h Contract.h Play.h
+Segment.obj: portab.h parse.h Debug.h
+Session.obj: Session.h bconst.h Debug.h portab.h parse.h
+Tableau.obj: Tableau.h bconst.h Contract.h Debug.h parse.h
+Teams.obj: Teams.h bconst.h portab.h parse.h Debug.h
+UnitTest.obj: portab.h bconst.h UnitTest.h Tableau.h Contract.h Deal.h
+UnitTest.obj: Auction.h Play.h Date.h Location.h Scoring.h Teams.h Session.h
+UnitTest.obj: Segment.h Board.h Players.h Debug.h
+Valuation.obj: Valuation.h
+args.obj: bconst.h args.h
+fileEML.obj: Board.h Deal.h bconst.h Tableau.h Players.h Auction.h Contract.h
+fileEML.obj: Play.h Canvas.h Debug.h Group.h Segment.h Date.h Location.h
+fileEML.obj: Session.h Scoring.h Teams.h fileEML.h parse.h portab.h
+filePBN.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
+filePBN.obj: Teams.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
+filePBN.obj: Play.h Debug.h filePBN.h parse.h portab.h
+fileRBN.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
+fileRBN.obj: Teams.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
+fileRBN.obj: Play.h Debug.h fileRBN.h parse.h portab.h
+fileRBX.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
+fileRBX.obj: Teams.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
+fileRBX.obj: Play.h Debug.h fileRBX.h parse.h portab.h
+fileTXT.obj: Canvas.h Group.h Segment.h Date.h bconst.h Location.h Session.h
+fileTXT.obj: Scoring.h Teams.h Board.h Deal.h Tableau.h Players.h Auction.h
+fileTXT.obj: Contract.h Play.h Debug.h fileTXT.h parse.h portab.h
+fileLIN.obj: Board.h Deal.h bconst.h Tableau.h Players.h Auction.h Contract.h
+fileLIN.obj: Play.h Group.h Segment.h Date.h Location.h Session.h Scoring.h
+fileLIN.obj: Teams.h Debug.h fileLIN.h parse.h portab.h
+fileREC.obj: Board.h Deal.h bconst.h Tableau.h Players.h Auction.h Contract.h
+fileREC.obj: Play.h Canvas.h Group.h Segment.h Date.h Location.h Session.h
+fileREC.obj: Scoring.h Teams.h Debug.h fileREC.h parse.h portab.h
+parse.obj: Debug.h parse.h bconst.h portab.h
+reader.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
+reader.obj: Teams.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
+reader.obj: Play.h UnitTest.h args.h fileRBN.h fileRBX.h filePBN.h fileEML.h
+reader.obj: fileTXT.h fileLIN.h fileREC.h portab.h Debug.h
