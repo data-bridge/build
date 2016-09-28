@@ -6,7 +6,8 @@
 # If your compiler name is not given here, change it.
 CC		= g++
 
-CC_FLAGS	= -O3 -flto -mtune=generic -fno-use-linker-plugin -std=c++11
+CC_FLAGS	= -O3 -flto -mtune=generic -fno-use-linker-plugin \
+		-std=c++11 -ffunction-sections -fdata-sections
 
 LD_FLAGS        =               \
         -Wl,--subsystem,windows \
@@ -14,7 +15,8 @@ LD_FLAGS        =               \
         -Wl,--dynamicbase       \
         -Wl,--nxcompat          \
         -Wl,--no-seh            \
-        -Wl,--enable-stdcall-fixup
+        -Wl,--enable-stdcall-fixup \
+	-Wl,--gc-sections,--print-gc-sections
 
 # These flags are not turned on be default, but Valet should pass them.
 # Turn them on below.

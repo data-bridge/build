@@ -1,53 +1,6 @@
-# This is the Valet Makefile for Cygwin under Windows and the 
-# GNU g++ compiler.  It does assume a Unix-like setup for some 
-# commands, but if you only want to call "make" with the default 
-# target, you should be OK.
+EXPORTER	= Exports.def
 
-# If your compiler name is not given here, change it.
-CC		= g++
-
-CC_FLAGS	= -O3 -flto -mtune=generic -fno-use-linker-plugin -std=c++11
-
-LD_FLAGS        =               \
-        -Wl,--subsystem,windows \
-        -Wl,--output-def,$(DLLBASE).def \
-        -Wl,--dynamicbase       \
-        -Wl,--nxcompat          \
-        -Wl,--no-seh            \
-        -Wl,--enable-stdcall-fixup
-
-# These flags are not turned on be default, but Valet should pass them.
-# Turn them on below.
-WARN_FLAGS	= 		\
-	-Wshadow 		\
-	-Wsign-conversion 	\
-	-pedantic -Wall -Wextra  \
-	-Wcast-align -Wcast-qual \
-	-Wctor-dtor-privacy 	\
-	-Wdisabled-optimization \
-	-Wformat=2 		\
-	-Winit-self 		\
-	-Wlogical-op 		\
-	-Wmissing-declarations 	\
-	-Wmissing-include-dirs 	\
-	-Wnoexcept 		\
-	-Wold-style-cast 	\
-	-Woverloaded-virtual 	\
-	-Wredundant-decls 	\
-	-Wsign-promo 		\
-	-Wstrict-null-sentinel 	\
-	-Wstrict-overflow=1 	\
-	-Wswitch-default -Wundef \
-	-Werror 		\
-	-Wno-unused 		\
-	-Wno-unknown-pragmas 	\
-	-Wno-long-long
-
-# Here you can turn on warnings.
-# CC_FULL_FLAGS	= $(CC_FLAGS)
-CC_FULL_FLAGS	= $(CC_FLAGS) $(WARN_FLAGS)
-
-BUILD_FILES	=		\
+SOURCE_FILES 	=		\
 	Auction.cpp		\
         Board.cpp               \
 	Canvas.cpp		\
@@ -78,73 +31,116 @@ BUILD_FILES	=		\
 	parse.cpp		\
 	reader.cpp
 
-VOBJ_FILES 	= $(subst .cpp,.o,$(BUILD_FILES)) 
+TEST		= reader
 
-valet:	$(VOBJ_FILES)
-	$(CC) $(CC_FULL_FLAGS) $(VOBJ_FILES) $(LD_FLAGS) -o reader
+CC_VS     	= cl
 
-%.o:	%.cpp
-	$(CC) $(CC_FULL_FLAGS) -c $<
+WARN_FLAGS      =               \
+        /Wall                   \
+        /wd4061                 \
+        /wd4127                 \
+        /wd4350                 \
+        /wd4514                 \
+        /wd4555                 \
+        /wd4668                 \
+        /wd4701                 \
+        /wd4710                 \
+        /wd4711                 \
+        /wd4820                 \
+        /wd4986                 \
+        /wd4987                 \
+        /wd4996                 \
+        /WX
+
+CC_FLAGS_VS     = /O2 /Oi /Ot /Oy /GL /Zi /EHsc
+CC_FLAGS_DEBUG  = /DEBUG
+
+
+LD_FLAGS_VS	= /INCREMENTAL:NO /DEBUG /OPT:REF /OPT:ICF
+
+WINDRES_FLAG	= -F pe-i386
+
+CC		= $(CC_VS)
+CC_FLAGS	= $(CC_FLAGS_VS) $(WARN_FLAGS)
+LD_FLAGS	= $(LD_FLAGS_VS)
+
+OBJ_FILES 	= $(subst .cpp,.obj,$(SOURCE_FILES))
+
+# Linking directly.
+
+reader:	$(OBJ_FILES)
+	link /LTCG $(LD_FLAGS) $(OBJ_FILES) /out:$(TEST).exe
+
+%.obj:	%.cpp
+	$(CC) $(CC_FLAGS) /c /EHsc $<
+
 
 depend:
-	makedepend -Y -- $(CC_FLAGS) -- $(BUILD_FILES)
+	makedepend -Y -o.obj -- $(CC_FLAGS) -- $(SOURCE_FILES) $(TEST).cpp
 
 clean:
-	rm -f $(VOBJ_FILES) $(LOBJ_FILES) $(DOBJ_VILES) reader.exe
+	rm -f $(OBJ_FILES) $(TEST_OBJ_FILES) $(TEST).obj $(TEST).exe 
 
 
 # DO NOT DELETE
 
-Auction.o: Auction.h bconst.h Contract.h Debug.h parse.h portab.h
-Board.o: bconst.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
-Board.o: Play.h Debug.h Valuation.h portab.h parse.h
-Canvas.o: Canvas.h
-Contract.o: Contract.h bconst.h Debug.h parse.h portab.h
-Date.o: Date.h bconst.h portab.h parse.h Debug.h
-Deal.o: Deal.h bconst.h Debug.h parse.h
-Debug.o: Debug.h
-Files.o: Files.h bconst.h Debug.h portab.h
-Group.o: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
-Group.o: Teams.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
-Group.o: Play.h portab.h parse.h Debug.h
-Location.o: Location.h bconst.h portab.h Debug.h
-Play.o: Play.h bconst.h Contract.h Debug.h parse.h portab.h
-Players.o: Players.h bconst.h portab.h parse.h Debug.h
-Scoring.o: Scoring.h bconst.h portab.h Debug.h
-Segment.o: Segment.h Date.h bconst.h Location.h Session.h Scoring.h Teams.h
-Segment.o: Board.h Deal.h Tableau.h Players.h Auction.h Contract.h Play.h
-Segment.o: portab.h parse.h Debug.h
-Session.o: Session.h bconst.h Debug.h portab.h parse.h
-Tableau.o: Tableau.h bconst.h Contract.h Debug.h parse.h
-Teams.o: Teams.h bconst.h portab.h parse.h Debug.h
-UnitTest.o: portab.h bconst.h UnitTest.h Tableau.h Contract.h Deal.h
-UnitTest.o: Auction.h Play.h Date.h Location.h Scoring.h Teams.h Session.h
-UnitTest.o: Segment.h Board.h Players.h Debug.h
-Valuation.o: Valuation.h
-args.o: bconst.h args.h
-fileEML.o: Board.h Deal.h bconst.h Tableau.h Players.h Auction.h Contract.h
-fileEML.o: Play.h Canvas.h Debug.h Group.h Segment.h Date.h Location.h
-fileEML.o: Session.h Scoring.h Teams.h fileEML.h parse.h portab.h
-filePBN.o: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
-filePBN.o: Teams.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
-filePBN.o: Play.h Debug.h filePBN.h parse.h portab.h
-fileRBN.o: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
-fileRBN.o: Teams.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
-fileRBN.o: Play.h Debug.h fileRBN.h parse.h portab.h
-fileRBX.o: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
-fileRBX.o: Teams.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
-fileRBX.o: Play.h Debug.h fileRBX.h parse.h portab.h
-fileTXT.o: Canvas.h Group.h Segment.h Date.h bconst.h Location.h Session.h
-fileTXT.o: Scoring.h Teams.h Board.h Deal.h Tableau.h Players.h Auction.h
-fileTXT.o: Contract.h Play.h Debug.h fileTXT.h parse.h portab.h
-fileLIN.o: Board.h Deal.h bconst.h Tableau.h Players.h Auction.h Contract.h
-fileLIN.o: Play.h Group.h Segment.h Date.h Location.h Session.h Scoring.h
-fileLIN.o: Teams.h Debug.h fileLIN.h parse.h portab.h
-fileREC.o: Board.h Deal.h bconst.h Tableau.h Players.h Auction.h Contract.h
-fileREC.o: Play.h Canvas.h Group.h Segment.h Date.h Location.h Session.h
-fileREC.o: Scoring.h Teams.h Debug.h fileREC.h parse.h portab.h
-parse.o: Debug.h parse.h bconst.h portab.h
-reader.o: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
-reader.o: Teams.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
-reader.o: Play.h UnitTest.h args.h fileRBN.h fileRBX.h filePBN.h fileEML.h
-reader.o: fileTXT.h fileLIN.h fileREC.h portab.h Debug.h
+Auction.obj: Auction.h bconst.h Contract.h Debug.h parse.h portab.h
+Board.obj: bconst.h Board.h Deal.h Players.h Tableau.h Contract.h Valuation.h
+Board.obj: Auction.h Play.h Debug.h portab.h parse.h
+Canvas.obj: Canvas.h
+Contract.obj: Contract.h bconst.h Debug.h parse.h portab.h
+Date.obj: Date.h bconst.h portab.h parse.h debug.h Debug.h
+Deal.obj: bconst.h Deal.h Players.h Debug.h parse.h
+Debug.obj: Debug.h
+Files.obj: bconst.h Files.h Debug.h portab.h
+Group.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
+Group.obj: Teams.h Board.h Deal.h Players.h Tableau.h Contract.h Valuation.h
+Group.obj: Auction.h Play.h portab.h parse.h debug.h Debug.h
+Location.obj: Location.h bconst.h portab.h debug.h Debug.h
+Play.obj: Play.h bconst.h Contract.h Deal.h Players.h Debug.h parse.h
+Play.obj: portab.h
+Players.obj: bconst.h Players.h portab.h parse.h Debug.h
+Scoring.obj: Scoring.h bconst.h portab.h debug.h Debug.h
+Segment.obj: Segment.h Date.h bconst.h Location.h Session.h Scoring.h Teams.h
+Segment.obj: Board.h Deal.h Players.h Tableau.h Contract.h Valuation.h
+Segment.obj: Auction.h Play.h portab.h parse.h debug.h Debug.h
+Session.obj: Session.h bconst.h portab.h parse.h debug.h Debug.h
+Tableau.obj: Tableau.h bconst.h Contract.h Debug.h parse.h
+Teams.obj: Teams.h bconst.h portab.h parse.h Debug.h
+UnitTest.obj: portab.h bconst.h UnitTest.h Tableau.h Contract.h Deal.h
+UnitTest.obj: Players.h Auction.h Play.h Date.h Location.h Scoring.h Teams.h
+UnitTest.obj: Session.h Segment.h Board.h Valuation.h Debug.h
+args.obj: bconst.h args.h
+fileEML.obj: Canvas.h fileEML.h Group.h Segment.h Date.h bconst.h Location.h
+fileEML.obj: Session.h Scoring.h Teams.h Board.h Deal.h Players.h Tableau.h
+fileEML.obj: Contract.h Valuation.h Auction.h Play.h parse.h portab.h debug.h
+fileEML.obj: Debug.h
+filePBN.obj: filePBN.h Group.h Segment.h Date.h bconst.h Location.h Session.h
+filePBN.obj: Scoring.h Teams.h Board.h Deal.h Players.h Tableau.h Contract.h
+filePBN.obj: Valuation.h Auction.h Play.h parse.h portab.h debug.h Debug.h
+fileRBN.obj: fileRBN.h Group.h Segment.h Date.h bconst.h Location.h Session.h
+fileRBN.obj: Scoring.h Teams.h Board.h Deal.h Players.h Tableau.h Contract.h
+fileRBN.obj: Valuation.h Auction.h Play.h parse.h portab.h debug.h Debug.h
+fileRBX.obj: fileRBX.h Group.h Segment.h Date.h bconst.h Location.h Session.h
+fileRBX.obj: Scoring.h Teams.h Board.h Deal.h Players.h Tableau.h Contract.h
+fileRBX.obj: Valuation.h Auction.h Play.h parse.h portab.h debug.h Debug.h
+fileTXT.obj: Canvas.h fileTXT.h Group.h Segment.h Date.h bconst.h Location.h
+fileTXT.obj: Session.h Scoring.h Teams.h Board.h Deal.h Players.h Tableau.h
+fileTXT.obj: Contract.h Valuation.h Auction.h Play.h parse.h portab.h debug.h
+fileTXT.obj: Debug.h
+fileLIN.obj: fileLIN.h Group.h Segment.h Date.h bconst.h Location.h Session.h
+fileLIN.obj: Scoring.h Teams.h Board.h Deal.h Players.h Tableau.h Contract.h
+fileLIN.obj: Valuation.h Auction.h Play.h parse.h portab.h debug.h Debug.h
+fileREC.obj: Canvas.h fileREC.h Group.h Segment.h Date.h bconst.h Location.h
+fileREC.obj: Session.h Scoring.h Teams.h Board.h Deal.h Players.h Tableau.h
+fileREC.obj: Contract.h Valuation.h Auction.h Play.h parse.h portab.h debug.h
+fileREC.obj: Debug.h
+parse.obj: bconst.h parse.h portab.h debug.h Debug.h
+reader.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
+reader.obj: Teams.h Board.h Deal.h Players.h Tableau.h Contract.h Valuation.h
+reader.obj: Auction.h Play.h UnitTest.h args.h fileRBN.h fileRBX.h filePBN.h
+reader.obj: fileEML.h fileTXT.h fileLIN.h fileREC.h portab.h Debug.h
+reader.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
+reader.obj: Teams.h Board.h Deal.h Players.h Tableau.h Contract.h Valuation.h
+reader.obj: Auction.h Play.h UnitTest.h args.h fileRBN.h fileRBX.h filePBN.h
+reader.obj: fileEML.h fileTXT.h fileLIN.h fileREC.h portab.h Debug.h
