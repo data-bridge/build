@@ -317,6 +317,7 @@ bool Contract::SetContract(
 
   setVulFlag = true;
   vul = vulIn;
+  return true;
 }
 
 
@@ -456,7 +457,8 @@ bool Contract::SetTricks(
 unsigned Contract::GetTricks() const
 {
   // No checking.
-  return tricksRelative + contract.level + 6;
+  return static_cast<unsigned>
+    (tricksRelative + static_cast<int>(contract.level) + 6);
 }
 
 
@@ -970,7 +972,7 @@ string Contract::TricksAsPBN() const
     return "";
 
   stringstream s;
-  s << "[Result \"" << contract.level + 6 + tricksRelative << "\"]\n";
+  s << "[Result \"" << Contract::GetTricks() << "\"]\n";
   
   return s.str();
 }
@@ -1172,7 +1174,7 @@ string Contract::ScoreAsString(
 string Contract::ResultAsStringPBN() const
 {
   stringstream s;
-  s << "[Result \"" << contract.level + 6 + tricksRelative << "\"]\n";
+  s << "[Result \"" << Contract::GetTricks() << "\"]\n";
   return s.str();
 }
 
@@ -1180,7 +1182,7 @@ string Contract::ResultAsStringPBN() const
 string Contract::ResultAsStringRBNCore() const
 {
   stringstream s;
-  s << contract.level + 6 + tricksRelative;
+  s << Contract::GetTricks();
   if (score > 0)
     s << "+";
   s << score;
@@ -1234,7 +1236,8 @@ string Contract::ResultAsStringEML() const
   if (tricksRelative < 0)
     s << "Result: " << tricksRelative;
   else
-    s << "Result: +" << contract.level + tricksRelative;
+    s << "Result: +" << 
+      static_cast<int>(contract.level) + tricksRelative;
   return s.str();
 }
 
@@ -1245,7 +1248,8 @@ string Contract::ResultAsStringTXT() const
   if (tricksRelative < 0)
     s << "Down " << -tricksRelative << " -- ";
   else
-    s << "Made " << contract.level + tricksRelative << " -- ";
+    s << "Made " << 
+      static_cast<int>(contract.level) + tricksRelative << " -- ";
 
   if (score > 0)
     s << "NS +" << score;
@@ -1284,7 +1288,8 @@ string Contract::ResultAsStringREC() const
   if (tricksRelative < 0)
     s << "Result: Down " << -tricksRelative;
   else
-    s << "Result: Made " << contract.level + tricksRelative;
+    s << "Result: Made " << 
+      static_cast<int>(contract.level) + tricksRelative;
   return s.str();
 }
 

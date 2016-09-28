@@ -1134,7 +1134,7 @@ bool Auction::ExtractContract(Contract& contract) const
     unsigned denom = (activeCNo - 5*level + 2);
 
     // Find the declaring side's earliest bid in denom.
-    unsigned p;
+    unsigned p = 0;
     for (unsigned b = activeBNo % 2; b <= activeBNo; b += 2)
     {
       if (sequence[b].no > 2 && (sequence[b].no + 2) % 5 == denom)
@@ -1144,7 +1144,7 @@ bool Auction::ExtractContract(Contract& contract) const
       }
     }
     const playerType declarer = static_cast<playerType>
-      ((dealer + p) % 4);
+      ((static_cast<unsigned>(dealer) + p) % 4);
 
     // Switch to DDS encoding.
     if (denom != 4)

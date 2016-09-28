@@ -7,11 +7,14 @@
 */
 
 
+#include <algorithm>
+#include <map>
+#include <stdio.h>
+#include <string.h>
+
 #include "Deal.h"
 #include "Debug.h"
 #include "parse.h"
-
-#include <map>
 
 extern Debug debug;
 
@@ -68,7 +71,7 @@ void Deal::SetTables()
     string suitTXT("");
     for (int bit = 12; bit >= 0; bit--)
     {
-      if (h & (1 << bit))
+      if (h & static_cast<unsigned>(1 << bit))
       {
         suit += CARDS[bit];
         suitTXT += CARDS_TXT[bit] + " ";
@@ -129,11 +132,11 @@ bool Deal::SetHand(
   const unsigned offset,
   unsigned pholding[])
 {
-  unsigned seen = 0;
+  int seen = 0;
   for (unsigned i = 0; i < delimiters.length(); i++)
     seen += count(hand.begin(), hand.end(), delimiters.at(i));
 
-  if (seen != 3+offset)
+  if (seen != 3 + static_cast<int>(offset))
   {
     LOG("Not the right number of delimiters");
     return false;
@@ -501,7 +504,7 @@ string Deal::AsPBN(const playerType start) const
   // Players start from dealer.
   for (unsigned pno = 0; pno < BRIDGE_PLAYERS; pno++)
   {
-    unsigned p = (start + pno) % 4;
+    unsigned p = (static_cast<unsigned>(start) + pno) % 4;
     s << cards[p][BRIDGE_SPADES] << "." <<
          cards[p][BRIDGE_HEARTS] << "." <<
          cards[p][BRIDGE_DIAMONDS] << "." <<
@@ -521,7 +524,7 @@ string Deal::AsRBNCore(const playerType start) const
   // Players start from here.
   for (unsigned pno = 0; pno <= 2; pno++)
   {
-    unsigned p = (start + pno) % 4;
+    unsigned p = (static_cast<unsigned>(start) + pno) % 4;
     s << cards[p][BRIDGE_SPADES] << "." <<
          cards[p][BRIDGE_HEARTS] << "." <<
          cards[p][BRIDGE_DIAMONDS] << "." <<

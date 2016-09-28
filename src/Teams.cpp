@@ -294,13 +294,14 @@ bool Teams::TeamIsEqual(
     return false;
   }
   else if (ta.carry == BRIDGE_CARRY_FLOAT &&
-      abs(ta.carryf - tb.carryf) > 0.001f)
+      (ta.carryf - tb.carryf > 0.001f ||
+      ta.carryf - tb.carryf < -0.001f))
   {
     LOG("Different team integer float value");
     return false;
   }
-  else
-    return true;
+
+  return true;
 }
 
 

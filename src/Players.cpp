@@ -7,6 +7,7 @@
 */
 
 
+#include <algorithm>
 #include <vector>
 #include "Players.h"
 #include "portab.h"

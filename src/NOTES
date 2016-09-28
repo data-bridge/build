@@ -1,9 +1,13 @@
 27.09.16
 --------
-Can we get rid of static data as much as possible?
+reduce or eliminate global variables? (STATIC.txt)
 cppclean
 doxygen including dot
 include-what-you-use
+clang static analyzer
+
+Add g++ makefile for Ubuntu
+Try the g++ trick to get unused methods
 
 Add automated comparisons of results
 

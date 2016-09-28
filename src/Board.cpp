@@ -499,7 +499,7 @@ unsigned Board::GetTableauEntry(
   const playerType p,
   const denomType d) const
 {
-  tableau.GetEntry(p, d);
+  return tableau.GetEntry(p, d);
 }
 
 

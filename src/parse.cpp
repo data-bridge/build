@@ -62,10 +62,10 @@ unsigned countDelimiters(
   const string& str,
   const string& delimiters)
 {
-  unsigned c = 0;
+  int c = 0;
   for (unsigned i = 0; i < delimiters.length(); i++)
     c += count(str.begin(), str.end(), delimiters.at(i));
-  return c;
+  return static_cast<unsigned>(c);
 }
 
 

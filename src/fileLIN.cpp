@@ -224,7 +224,7 @@ cout << "LABEL " << label << endl;
         if (cardCount > 0 && cardCount % 4 == 0)
           chunk[labelNo] += ":";
 
-        cardCount += (value.size() > 2 ? 4 : 1);
+        cardCount += (value.size() > 2 ? 4u : 1u);
 
         chunk[labelNo] += value;
       }

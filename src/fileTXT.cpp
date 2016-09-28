@@ -712,12 +712,12 @@ bool writeTXT(
           string tWin;
           if (s > 0)
           {
-            score2 += s;
+            score2 += static_cast<unsigned>(s);
             tWin = segment->SecondTeamAsString(f);
           }
           else
           {
-            score1 += -s;
+            score1 += static_cast<unsigned>(-s);
             tWin = segment->FirstTeamAsString(f);
           }
 

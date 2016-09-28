@@ -226,7 +226,7 @@ playStatus Play::AddPlay(const string& str)
     return PLAY_HOLDING_NOT_SET;
   }
 
-  map<string, cardInfoType>::iterator it = PLAY_CARD_TO_INFO.find(str);
+  auto it = PLAY_CARD_TO_INFO.find(str);
   if (it == PLAY_CARD_TO_INFO.end())
   {
     LOG("Invalid card " + str);
@@ -235,7 +235,8 @@ playStatus Play::AddPlay(const string& str)
   const cardInfoType& INFO = PLAY_CARD_TO_INFO[str];
 
   playerType leader = leads[trickToPlay].leader;
-  playerType player = static_cast<playerType>((leader + cardToPlay) % 4);
+  playerType player = static_cast<playerType>
+    ((static_cast<unsigned>(leader) + cardToPlay) % 4);
 
   if ((holding[player][INFO.suit] & INFO.bitValue) == 0)
   {
@@ -273,7 +274,8 @@ playStatus Play::AddPlay(const string& str)
   {
     // Trick over.
     unsigned relWinner = Play::TrickWinnerRelative();
-    unsigned absWinner = (leads[trickToPlay].leader + relWinner) % 4;
+    unsigned absWinner = 
+      (static_cast<unsigned>(leads[trickToPlay].leader) + relWinner) % 4;
 
     cardToPlay = 0;
     trickToPlay++;
@@ -288,7 +290,7 @@ playStatus Play::AddPlay(const string& str)
       leads[trickToPlay].leader = static_cast<playerType>(absWinner);
     }
 
-    if ((declarer + absWinner) % 2 == 0)
+    if ((static_cast<unsigned>(declarer) + absWinner) % 2 == 0)
     {
       tricksDecl++;
       leads[trickToPlay-1].wonByDeclarer = true;
@@ -592,7 +594,7 @@ bool Play::UndoPlay()
   string str = PLAY_NO_TO_CARD[cardUndone];
   cardInfoType& info = PLAY_CARD_TO_INFO[str];
   playerType pUndone = static_cast<playerType>
-    ((leads[trickToPlay].leader + cardToPlay) % 4);
+    ((static_cast<unsigned>(leads[trickToPlay].leader) + cardToPlay) % 4);
   holding[pUndone][info.suit] ^= info.bitValue;
 
   return true;
@@ -792,7 +794,8 @@ string Play::AsPBN() const
     unsigned offset = t << 2;
     for (unsigned c = 0; c < 4; c++)
     {
-      unsigned p = offset + (openingLeader + 4 - leads[t].leader + c) % 4;
+      unsigned p = offset + (static_cast<unsigned>(openingLeader) + 4u - 
+        static_cast<unsigned>(leads[t].leader) + c) % 4;
       if (c > 0)
         s << " ";
       s << PLAY_NO_TO_CARD[sequence[p]];
@@ -807,7 +810,8 @@ string Play::AsPBN() const
     for (unsigned c = 0; c < 4; c++)
     {
       unsigned p = 
-        offset + (openingLeader + 4 - leads[trickToPlay].leader + c) % 4;
+        offset + (static_cast<unsigned>(openingLeader) + 4u - 
+          static_cast<unsigned>(leads[trickToPlay].leader) + c) % 4;
       if (c > 0)
         s << " ";
       if (p < len)
@@ -880,7 +884,7 @@ string Play::AsEML() const
   for (unsigned l = 0; l < len; l++)
   {
     unsigned t = l >> 2;
-    unsigned pEML = (leads[t].leader + 1 + l) % 4;
+    unsigned pEML = (static_cast<unsigned>(leads[t].leader) + 1u + l) % 4;
     if (t > 0 && l % 4 == 0)
       ps[pEML] << "-";
     else

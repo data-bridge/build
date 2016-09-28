@@ -7,6 +7,7 @@
 */
 
 
+#include <algorithm>
 #include <vector>
 
 #include "Tableau.h"
@@ -886,7 +887,8 @@ bool Tableau::AddSacrifices(
 
     if (eno != dno)
     {
-      unsigned noSac = sacrList[eno].no + 5 * bestDown;
+      unsigned noSac = 
+        sacrList[eno].no + 5 * static_cast<unsigned>(bestDown);
       if (! Tableau::AddContract(v, other, noSac, 
           static_cast<denomType>(eno), -static_cast<int>(bestDown), 
 	  clist))
@@ -1002,7 +1004,8 @@ bool Tableau::AddSpecialSac(
   if (! contract.SetContract(v, sacker, level, denom, mult))
     return false;
 
-  if (! contract.SetTricks(level + delta))
+  if (! contract.SetTricks(
+      static_cast<unsigned>(static_cast<int>(level) + delta)))
     return false;
   
   clist.push_back(contract);

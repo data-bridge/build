@@ -179,16 +179,16 @@ static bool readRBNChunk(
     if (c == '%')
       continue;
 
-    if (CHAR_TO_LABEL_NO[c] == RBN_LABELS_SIZE)
+    if (CHAR_TO_LABEL_NO[static_cast<int>(c)] == RBN_LABELS_SIZE)
     {
       LOG("Illegal RBN label in line '" + line + "'");
       return false;
     }
 
-    if (CHAR_TO_NEW_SEGMENT[c])
+    if (CHAR_TO_NEW_SEGMENT[static_cast<int>(c)])
       newSegFlag = true;
 
-    const RBNlabel labelNo = CHAR_TO_LABEL_NO[c];
+    const RBNlabel labelNo = CHAR_TO_LABEL_NO[static_cast<int>(c)];
     if (chunk[labelNo] != "")
     {
       LOG("Label already set in line '" + line + "'");
