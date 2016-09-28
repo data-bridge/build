@@ -721,7 +721,7 @@ bool Auction::ParseRBNVul(const char c)
 
 bool Auction::GetRBNAlertNo(
   const string& s,
-  unsigned& pos,
+  size_t& pos,
   unsigned& aNo,
   const bool extendedFlag) const
 {

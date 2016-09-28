@@ -368,11 +368,11 @@ void ConvertMultilineToVector(
   const string& sin,
   vector<string>& sout)
 {
-  unsigned l = sin.size();
-  unsigned p = 0;
+  size_t l = sin.size();
+  size_t p = 0;
   while (p < l)
   {
-    unsigned found = sin.find("\n", p);
+    size_t found = sin.find("\n", p);
     sout.push_back(sin.substr(p, found-p));
     if (found == string::npos)
       return;

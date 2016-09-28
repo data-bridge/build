@@ -89,7 +89,7 @@ class Auction
 
     bool GetRBNAlertNo(
       const string& s,
-      unsigned& pos,
+      size_t& pos,
       unsigned& aNo,
       const bool extendedFlag) const;
 
