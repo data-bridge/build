@@ -69,7 +69,7 @@ const string RBNname[] =
 };
 
 
-RBNlabel CHAR_TO_LABEL_NO[128];
+formatLabelType CHAR_TO_LABEL_NO[128];
 bool CHAR_TO_NEW_SEGMENT[128];
 
 
@@ -78,12 +78,6 @@ typedef bool (Board::*BoardPtr)(const string& s, const formatType f);
 
 SegPtr segPtrRBN[RBN_LABELS_SIZE];
 BoardPtr boardPtrRBN[RBN_LABELS_SIZE];
-
-static bool readRBNChunk(
-  ifstream& fstr,
-  unsigned& lno,
-  vector<string>& chunk,
-  bool& newSegFlag);
 
 static bool tryRBNMethod(
   const vector<string>& chunk,
@@ -98,30 +92,30 @@ void setRBNtables()
 {
   for (unsigned char c = 0; c < 128; c++)
   {
-    CHAR_TO_LABEL_NO[c] = RBN_LABELS_SIZE;
+    CHAR_TO_LABEL_NO[c] = BRIDGE_FORMAT_LABELS_SIZE;
     CHAR_TO_NEW_SEGMENT[c] = false;
   }
 
   // Segment-level
-  CHAR_TO_LABEL_NO['T'] = RBN_TITLE_AND_AUTHOR;
-  CHAR_TO_LABEL_NO['D'] = RBN_DATE_AND_TIME;
-  CHAR_TO_LABEL_NO['L'] = RBN_LOCATION;
-  CHAR_TO_LABEL_NO['E'] = RBN_EVENT;
-  CHAR_TO_LABEL_NO['S'] = RBN_SESSION;
-  CHAR_TO_LABEL_NO['F'] = RBN_SCORING;
-  CHAR_TO_LABEL_NO['K'] = RBN_TEAMS;
+  CHAR_TO_LABEL_NO['T'] = BRIDGE_FORMAT_TITLE;
+  CHAR_TO_LABEL_NO['D'] = BRIDGE_FORMAT_DATE;
+  CHAR_TO_LABEL_NO['L'] = BRIDGE_FORMAT_LOCATION;
+  CHAR_TO_LABEL_NO['E'] = BRIDGE_FORMAT_EVENT;
+  CHAR_TO_LABEL_NO['S'] = BRIDGE_FORMAT_SESSION;
+  CHAR_TO_LABEL_NO['F'] = BRIDGE_FORMAT_SCORING;
+  CHAR_TO_LABEL_NO['K'] = BRIDGE_FORMAT_TEAMS;
 
   // Board-level but relevant in Segment
-  CHAR_TO_LABEL_NO['N'] = RBN_PLAYERS;
-  CHAR_TO_LABEL_NO['B'] = RBN_BOARD_NO;
+  CHAR_TO_LABEL_NO['N'] = BRIDGE_FORMAT_PLAYERS_BOARD;
+  CHAR_TO_LABEL_NO['B'] = BRIDGE_FORMAT_BOARD_NO;
 
   // Purely Board-level
-  CHAR_TO_LABEL_NO['H'] = RBN_DEAL;
-  CHAR_TO_LABEL_NO['A'] = RBN_AUCTION;
-  CHAR_TO_LABEL_NO['C'] = RBN_CONTRACT;
-  CHAR_TO_LABEL_NO['P'] = RBN_PLAY;
-  CHAR_TO_LABEL_NO['R'] = RBN_RESULT;
-  CHAR_TO_LABEL_NO['M'] = RBN_DOUBLE_DUMMY;
+  CHAR_TO_LABEL_NO['H'] = BRIDGE_FORMAT_DEAL;
+  CHAR_TO_LABEL_NO['A'] = BRIDGE_FORMAT_AUCTION;
+  CHAR_TO_LABEL_NO['C'] = BRIDGE_FORMAT_CONTRACT;
+  CHAR_TO_LABEL_NO['P'] = BRIDGE_FORMAT_PLAY;
+  CHAR_TO_LABEL_NO['R'] = BRIDGE_FORMAT_RESULT;
+  CHAR_TO_LABEL_NO['M'] = BRIDGE_FORMAT_DOUBLE_DUMMY;
 
   CHAR_TO_NEW_SEGMENT['T'] = true;
   CHAR_TO_NEW_SEGMENT['D'] = true;
@@ -152,7 +146,7 @@ void setRBNtables()
 }
 
 
-static bool readRBNChunk(
+bool readRBNChunk(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& chunk,
@@ -160,7 +154,7 @@ static bool readRBNChunk(
 {
   string line;
   newSegFlag = false;
-  for (unsigned i = 0; i < RBN_LABELS_SIZE; i++)
+  for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
     chunk[i] = "";
 
   while (getline(fstr, line))
@@ -188,7 +182,7 @@ static bool readRBNChunk(
     if (CHAR_TO_NEW_SEGMENT[static_cast<int>(c)])
       newSegFlag = true;
 
-    const RBNlabel labelNo = CHAR_TO_LABEL_NO[static_cast<int>(c)];
+    const formatLabelType labelNo = CHAR_TO_LABEL_NO[static_cast<int>(c)];
     if (chunk[labelNo] != "")
     {
       LOG("Label already set in line '" + line + "'");

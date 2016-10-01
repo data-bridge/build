@@ -23,6 +23,12 @@ bool readEML(
   Group& group,
   const string& fname);
 
+bool readEMLChunk(
+  ifstream& fstr,
+  unsigned& lno,
+  vector<string>& chunk,
+  bool& newSegFlag);
+
 bool writeEML(
   Group& group,
   const string& fname);

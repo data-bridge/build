@@ -23,6 +23,12 @@ bool readRBN(
   Group& group,
   const string& fname);
 
+bool readRBNChunk(
+  ifstream& fstr,
+  unsigned& lno,
+  vector<string>& chunk,
+  bool& newSegFlag);
+
 bool writeRBN(
   Group& group,
   const string& fname);

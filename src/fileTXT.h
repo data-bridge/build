@@ -23,6 +23,12 @@ bool readTXT(
   Group& group,
   const string& fname);
 
+bool readTXTChunk(
+  ifstream& fstr,
+  unsigned& lno,
+  vector<string>& chunk,
+  bool& newSegFlag);
+
 bool writeTXT(
   Group& group,
   const string& fname);

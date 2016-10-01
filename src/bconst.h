@@ -62,6 +62,88 @@ const string FORMAT_NAMES[BRIDGE_FORMAT_SIZE] =
   "PAR"
 };
 
+// Bridge format labels.
+
+enum formatLabelType
+{
+  BRIDGE_FORMAT_TITLE = 0,
+  BRIDGE_FORMAT_DATE = 1,
+  BRIDGE_FORMAT_LOCATION = 2,
+  BRIDGE_FORMAT_EVENT = 3,
+  BRIDGE_FORMAT_SESSION = 4,
+  BRIDGE_FORMAT_SCORING = 5,
+  BRIDGE_FORMAT_TEAMS = 6,
+  BRIDGE_FORMAT_HOMETEAM = 7,
+  BRIDGE_FORMAT_VISITTEAM = 8,
+
+  BRIDGE_FORMAT_RESULTS_LIST = 9,
+  BRIDGE_FORMAT_PLAYERS_LIST = 10,
+  BRIDGE_FORMAT_PLAYERS_HEADER = 11,
+  BRIDGE_FORMAT_WEST = 12,
+  BRIDGE_FORMAT_NORTH = 13,
+  BRIDGE_FORMAT_EAST = 14,
+  BRIDGE_FORMAT_SOUTH = 15,
+  BRIDGE_FORMAT_SCORES_LIST = 16,
+  BRIDGE_FORMAT_BOARDS_LIST = 17,
+
+  BRIDGE_FORMAT_BOARD_NO = 18,
+  BRIDGE_FORMAT_PLAYERS_BOARD = 19,
+  BRIDGE_FORMAT_ROOM = 20,
+  BRIDGE_FORMAT_DEAL = 21,
+  BRIDGE_FORMAT_DEALER = 22,
+  BRIDGE_FORMAT_VULNERABLE = 23,
+  BRIDGE_FORMAT_AUCTION = 24,
+  BRIDGE_FORMAT_DECLARER = 25,
+  BRIDGE_FORMAT_CONTRACT = 26,
+  BRIDGE_FORMAT_PLAY = 27,
+  BRIDGE_FORMAT_RESULT = 28,
+  BRIDGE_FORMAT_SCORE = 29,
+  BRIDGE_FORMAT_SCORE_IMP = 30,
+  BRIDGE_FORMAT_SCORE_MP = 31,
+
+  BRIDGE_FORMAT_DOUBLE_DUMMY = 32,
+  BRIDGE_FORMAT_LABELS_SIZE = 33
+};
+
+const string formatLabelNames[] =
+{
+  "Title",
+  "Date",
+  "Location",
+  "Event",
+  "Session",
+  "Scoring",
+  "Teams",
+  "Home team",
+  "Visit team",
+  
+  "Results list",
+  "Players list",
+  "Players header",
+  "West",
+  "North",
+  "East",
+  "South",
+  "Scores list",
+  "Boards list",
+
+  "Board number",
+  "Players",
+  "Room",
+  "Deal",
+  "Dealer",
+  "Vulnerable",
+  "Auction",
+  "Declarer",
+  "Contract",
+  "Play",
+  "Result",
+  "Score",
+  "Score IMP",
+  "Score MP"
+};
+
+
 // Input options.
 
 struct FileOptionType

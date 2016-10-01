@@ -111,11 +111,6 @@ static bool getRECPlay(
   const unsigned& offset,
   vector<string>& chunk);
 
-static bool readRECChunk(
-  ifstream& fstr,
-  unsigned& lno,
-  vector<string>& chunk);
-
 
 void setRECtables()
 {
@@ -392,10 +387,11 @@ static bool getRECPlay(
 }
 
 
-static bool readRECChunk(
+bool readRECChunk(
   ifstream& fstr,
   unsigned& lno,
-  vector<string>& chunk)
+  vector<string>& chunk,
+  bool& newSegFlag)
 {
   // First get all the lines of a hand.
   vector<string> canvas;
@@ -410,6 +406,7 @@ static bool readRECChunk(
   if (! getRECCanvasOffset(canvas, playLine))
     return false;
 
+  newSegFlag = true;
   return getRECFields(canvas, playLine, chunk);
 }
 
@@ -418,6 +415,8 @@ bool readREC(
   Group& group,
   const string& fname)
 {
+  bool newSegFlag = true;
+
   ifstream fstr(fname.c_str());
   if (! fstr.is_open())
   {
@@ -446,7 +445,7 @@ bool readREC(
   string lastBoard = "";
 
   vector<string> chunk(REC_LABELS_SIZE);
-  while (readRECChunk(fstr, lno, chunk))
+  while (readRECChunk(fstr, lno, chunk, newSegFlag))
   {
     if (chunk[REC_BOARD] != "" && chunk[REC_BOARD] != lastBoard)
     {

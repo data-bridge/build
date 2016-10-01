@@ -78,12 +78,6 @@ typedef bool (Board::*BoardPtr)(const string& s, const formatType f);
 SegPtr segPtrLIN[LIN_LABELS_SIZE];
 BoardPtr boardPtrLIN[LIN_LABELS_SIZE];
 
-static bool readLINChunk(
-  ifstream& fstr,
-  unsigned& lno,
-  vector<string>& chunk,
-  bool& newSegFlag);
-
 static bool tryLINMethod(
   const vector<string>& chunk,
   Segment * segment,
@@ -142,7 +136,7 @@ void setLINtables()
 }
 
 
-static bool readLINChunk(
+bool readLINChunk(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& chunk,

@@ -46,20 +46,20 @@ const optEntry optList[BRIDGE_NUM_OPTIONS] =
 
 string shortOptsAll, shortOptsWithArg;
 
-static int GetNextArgToken(
+static int getNextArgToken(
   int argc,
   char * argv[]);
 
-static void SetDefaults();
+static void setDefaults();
 
-static void PrintFileOption(
+static void printFileOption(
   const FileOptionType& fopt,
   const string& text);
 
-static void CheckArgs();
+static void checkArgs();
 
 
-void Usage(
+void usage(
   const char base[])
 {
   string basename(base);
@@ -93,7 +93,7 @@ void Usage(
 int nextToken = 1;
 char * optarg;
 
-static int GetNextArgToken(
+static int getNextArgToken(
   int argc,
   char * argv[])
 {
@@ -140,7 +140,7 @@ static int GetNextArgToken(
 }
 
 
-static void SetDefaults()
+static void setDefaults()
 {
   options.fileInput = {false, ""};
   options.fileInput = {false, ""};
@@ -155,7 +155,7 @@ static void SetDefaults()
 }
 
 
-static void PrintFileOption(
+static void printFileOption(
   const FileOptionType& fopt,
   const string& text)
 {
@@ -167,19 +167,19 @@ static void PrintFileOption(
 }
 
 
-void PrintOptions()
+void printOptions()
 {
   cout << left;
-  PrintFileOption(options.fileInput, "infile");
-  PrintFileOption(options.dirInput, "indir");
+  printFileOption(options.fileInput, "infile");
+  printFileOption(options.dirInput, "indir");
 
-  PrintFileOption(options.fileOutput, "infile");
-  PrintFileOption(options.dirOutput, "indir");
+  printFileOption(options.fileOutput, "infile");
+  printFileOption(options.dirOutput, "indir");
 
-  PrintFileOption(options.fileRef, "reffile");
-  PrintFileOption(options.dirRef, "refdir");
+  printFileOption(options.fileRef, "reffile");
+  printFileOption(options.dirRef, "refdir");
 
-  PrintFileOption(options.fileLog, "logfile");
+  printFileOption(options.fileLog, "logfile");
 
   if (options.formatSetFlag)
   {
@@ -191,7 +191,7 @@ void PrintOptions()
 }
 
 
-static void CheckArgs()
+static void checkArgs()
 {
   if (options.fileInput.setFlag && options.dirInput.setFlag)
   {
@@ -245,7 +245,7 @@ static void CheckArgs()
 }
 
 
-void ReadArgs(
+void readArgs(
   int argc,
   char * argv[])
 {
@@ -258,17 +258,17 @@ void ReadArgs(
 
   if (argc == 1)
   {
-    Usage(argv[0]);
+    usage(argv[0]);
     exit(0);
   }
 
-  SetDefaults();
+  setDefaults();
 
   int c;
   bool errFlag = false, matchFlag;
   string stmp;
 
-  while ((c = GetNextArgToken(argc, argv)) > 0)
+  while ((c = getNextArgToken(argc, argv)) > 0)
   {
     switch(c)
     {
@@ -337,6 +337,6 @@ void ReadArgs(
     exit(0);
   }
 
-  CheckArgs();
+  checkArgs();
 }
 

@@ -23,6 +23,12 @@ bool readREC(
   Group& group,
   const string& fname);
 
+bool readRECChunk(
+  ifstream& fstr,
+  unsigned& lno,
+  vector<string>& chunk,
+  bool& newSegFlag);
+
 bool writeREC(
   Group& group,
   const string& fname);

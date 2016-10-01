@@ -79,12 +79,6 @@ typedef bool (Board::*BoardPtr)(const string& s, const formatType f);
 SegPtr segPtrRBX[RBN_LABELS_SIZE];
 BoardPtr boardPtrRBX[RBN_LABELS_SIZE];
 
-static bool readRBXChunk(
-  ifstream& fstr,
-  unsigned& lno,
-  vector<string>& chunk,
-  bool& newSegFlag);
-
 static bool tryRBXMethod(
   const vector<string>& chunk,
   Segment * segment,
@@ -152,7 +146,7 @@ void setRBXtables()
 }
 
 
-static bool readRBXChunk(
+bool readRBXChunk(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& chunk,

@@ -23,6 +23,12 @@ bool readRBX(
   Group& group,
   const string& fname);
 
+bool readRBXChunk(
+  ifstream& fstr,
+  unsigned& lno,
+  vector<string>& chunk,
+  bool& newSegFlag);
+
 bool writeRBX(
   Group& group,
   const string& fname);

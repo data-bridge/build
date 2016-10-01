@@ -27,6 +27,12 @@ bool writeLIN(
   Group& group,
   const string& fname);
 
+bool readLINChunk(
+  ifstream& fstr,
+  unsigned& lno,
+  vector<string>& chunk,
+  bool& newSegFlag);
+
 bool writeLIN_RP(
   Group& group,
   const string& fname);

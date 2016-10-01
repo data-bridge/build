@@ -133,11 +133,6 @@ static bool getTXTPlay(
   unsigned& offset,
   vector<string>& chunk);
 
-static bool readTXTChunk(
-  ifstream& fstr,
-  unsigned& lno,
-  vector<string>& chunk);
-
 
 void setTXTtables()
 {
@@ -503,10 +498,11 @@ static bool getTXTPlay(
 }
 
 
-static bool readTXTChunk(
+bool readTXTChunk(
   ifstream& fstr,
   unsigned& lno,
-  vector<string>& chunk)
+  vector<string>& chunk,
+  bool& newSegFlag)
 {
   // First get all the lines of a hand.
   vector<string> canvas;
@@ -521,6 +517,7 @@ static bool readTXTChunk(
   if (! getTXTCanvasOffset(canvas, auctionLine))
     return false;
 
+  newSegFlag = true;
   return getTXTFields(canvas, auctionLine, chunk);
 }
 
@@ -529,6 +526,8 @@ bool readTXT(
   Group& group,
   const string& fname)
 {
+  bool newSegFlag = true;
+
   ifstream fstr(fname.c_str());
   if (! fstr.is_open())
   {
@@ -557,7 +556,7 @@ bool readTXT(
   string lastBoard = "";
 
   vector<string> chunk(TXT_LABELS_SIZE);
-  while (readTXTChunk(fstr, lno, chunk))
+  while (readTXTChunk(fstr, lno, chunk, newSegFlag))
   {
     if (chunk[TXT_BOARD] != "" && chunk[TXT_BOARD] != lastBoard)
     {

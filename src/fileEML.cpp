@@ -128,11 +128,6 @@ static bool getEMLPlay(
   const unsigned cardStart,
   vector<string>& chunk);
 
-static bool readEMLChunk(
-  ifstream& fstr,
-  unsigned& lno,
-  vector<string>& chunk);
-
 
 void setEMLtables()
 {
@@ -467,11 +462,14 @@ static bool getEMLPlay(
 }
 
 
-static bool readEMLChunk(
+bool readEMLChunk(
   ifstream& fstr,
   unsigned& lno,
-  vector<string>& chunk)
+  vector<string>& chunk,
+  bool& newSegFlag)
 {
+  newSegFlag = true;
+
   // First get all the lines of a hand.
   vector<string> canvas;
   if (! readEMLCanvas(fstr, lno, canvas))
@@ -510,6 +508,8 @@ bool readEML(
   Group& group,
   const string& fname)
 {
+  bool newSegFlag = true;
+
   ifstream fstr(fname.c_str());
   if (! fstr.is_open())
   {
@@ -536,7 +536,7 @@ bool readEML(
   string lastBoard = "";
 
   vector<string> chunk(EML_LABELS_SIZE);
-  while (readEMLChunk(fstr, lno, chunk))
+  while (readEMLChunk(fstr, lno, chunk, newSegFlag))
   {
     if (chunk[EML_BOARD] != "" && chunk[EML_BOARD] != lastBoard)
     {

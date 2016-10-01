@@ -25,7 +25,7 @@ static const int numThreads = 1;
 
 int main(int argc, char * argv[])
 {
-  ReadArgs(argc, argv);
+  readArgs(argc, argv);
 
   setTables();
 

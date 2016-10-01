@@ -9,12 +9,12 @@
 #ifndef BRIDGE_ARGS_H
 #define BRIDGE_ARGS_H
 
-void Usage(
+void usage(
  const char base[]);
 
-void PrintOptions();
+void printOptions();
 
-void ReadArgs(
+void readArgs(
   int argc,
   char * argv[]);
 
