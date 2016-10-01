@@ -41,6 +41,7 @@
 
 #include "bconst.h"
 #include "debug.h"
+#include "Bexcept.h"
 #include "portab.h"
 
 extern Debug debug;
@@ -220,27 +221,18 @@ void dispatch(
 
   Group group;
 
-  if (task.formatInput == BRIDGE_FORMAT_RBN)
+  if (task.formatInput == BRIDGE_FORMAT_RBN ||
+      task.formatInput == BRIDGE_FORMAT_RBX ||
+      task.formatInput == BRIDGE_FORMAT_LIN)
   {
-    if (! readFormattedFile(task.fileInput, task.formatInput, group))
+    try
     {
-      debug.Print();
-      assert(false);
+      if (! readFormattedFile(task.fileInput, task.formatInput, group))
+        THROW("something blew up");
     }
-  }
-  else if (task.formatInput == BRIDGE_FORMAT_RBX)
-  {
-    if (! readFormattedFile(task.fileInput, task.formatInput, group))
+    catch(Bexcept& bex)
     {
-      debug.Print();
-      assert(false);
-    }
-  }
-  else if (task.formatInput == BRIDGE_FORMAT_LIN)
-  {
-    if (! readFormattedFile(task.fileInput, task.formatInput, group))
-    {
-      debug.Print();
+      bex.Print();
       assert(false);
     }
   }

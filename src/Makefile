@@ -2,6 +2,7 @@ EXPORTER	= Exports.def
 
 SOURCE_FILES 	=		\
 	Auction.cpp		\
+        Bexcept.cpp             \
         Board.cpp               \
 	Canvas.cpp		\
 	Contract.cpp		\
