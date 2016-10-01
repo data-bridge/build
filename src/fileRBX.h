@@ -19,10 +19,6 @@ class Group;
 
 void setRBXTables();
 
-bool readRBX(
-  Group& group,
-  const string& fname);
-
 bool readRBXChunk(
   ifstream& fstr,
   unsigned& lno,

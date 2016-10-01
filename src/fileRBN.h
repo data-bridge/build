@@ -12,18 +12,12 @@
 #include <string>
 #include <vector>
 
-#include "Group.h"
-
 using namespace std;
 
 class Group;
 
 
 void setRBNTables();
-
-bool readRBN(
-  Group& group,
-  const string& fname);
 
 bool readRBNChunk(
   ifstream& fstr,

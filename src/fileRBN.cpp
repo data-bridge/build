@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 
+#include "Group.h"
 #include "Segment.h"
 #include "fileRBN.h"
 #include "Debug.h"

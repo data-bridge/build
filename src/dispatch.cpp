@@ -143,7 +143,7 @@ void setTables()
   formatFncs[BRIDGE_FORMAT_RBN].readChunk = &readRBNChunk;
 
   formatFncs[BRIDGE_FORMAT_RBX].set = &setRBXTables;
-  formatFncs[BRIDGE_FORMAT_RBX].read = &readRBX;
+  formatFncs[BRIDGE_FORMAT_RBX].read = &readPBN; // For now, TODO
   formatFncs[BRIDGE_FORMAT_RBX].write = &writeRBX;
   formatFncs[BRIDGE_FORMAT_RBX].readChunk = &readRBXChunk;
 
