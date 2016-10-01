@@ -83,4 +83,6 @@ string GuessOriginalLine(
 void toUpper(
   string& s);
 
+formatType ExtToFormat(const string& s);
+
 #endif

@@ -30,6 +30,8 @@ using namespace std;
 #include "bconst.h"
 #include "Debug.h"
 
+#include "Files.h"
+
 Debug debug;
 OptionsType options;
 
@@ -51,6 +53,13 @@ int main(int argc, char * argv[])
   setRECtables();
 
   Test();
+
+  Files files;
+
+  files.Set(options);
+  files.PrintTasks();
+  exit(0);
+
 
   /*
   if (! readRBX(group, "S10FA1.RBX"))

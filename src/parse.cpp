@@ -406,3 +406,28 @@ void toUpper(
   for (unsigned i = 0; i < s.size(); i++)
     s.at(i) = static_cast<char>(toupper(static_cast<int>(s.at(i))));
 }
+
+
+formatType ExtToFormat(const string& s)
+{
+  string t = s;
+  toUpper(t);
+
+  if (t == "LIN")
+    return BRIDGE_FORMAT_LIN;
+  else if (t == "PBN")
+    return BRIDGE_FORMAT_PBN;
+  else if (t == "RBN")
+    return BRIDGE_FORMAT_RBN;
+  else if (t == "RBX")
+    return BRIDGE_FORMAT_RBX;
+  else if (s == "TXT") // Lower-case txt is usually something else
+    return BRIDGE_FORMAT_TXT;
+  else if (t == "EML")
+    return BRIDGE_FORMAT_EML;
+  else if (t == "REC")
+    return BRIDGE_FORMAT_REC;
+  else
+    return BRIDGE_FORMAT_SIZE;
+}
+

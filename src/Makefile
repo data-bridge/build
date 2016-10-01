@@ -39,6 +39,7 @@ WARN_FLAGS      =               \
         /Wall                   \
         /wd4061                 \
         /wd4127                 \
+        /wd4265                 \
         /wd4350                 \
         /wd4514                 \
         /wd4555                 \

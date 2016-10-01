@@ -17,8 +17,17 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <map>
 
 using namespace std;
+
+
+struct FileEntryType
+{
+  string fullName;
+  string base;
+  formatType format;
+};
 
 
 class Files
@@ -27,6 +36,28 @@ class Files
 
     vector<FileTaskType> fileTasks;
     unsigned len;
+    unsigned nextNo;
+
+    bool FillEntry(
+      const string& s,
+      FileEntryType& entry) const;
+
+    void ListToMap(
+      const vector<FileEntryType>& fileList,
+      map<string, vector<FileEntryType>>& refMap);
+
+    void BuildFileList(
+      const string& dirName,
+      vector<FileEntryType>& fileList,
+      const formatType formatOnly = BRIDGE_FORMAT_SIZE);
+
+    formatType GuessLINFormat(const string& base) const;
+
+    void ExtendTaskList(
+      const FileEntryType& in,
+      const vector<FileEntryType>& out,
+      const bool keepFlag,
+      const map<string, vector<FileEntryType>>& refMap);
 
 
   public:
@@ -39,7 +70,9 @@ class Files
 
     void Set(const OptionsType& options);
 
-    bool GetNextTask(FileTaskType& ftask) const;
+    bool GetNextTask(FileTaskType& ftask);
+
+    void PrintTasks() const;
 
 };
 
