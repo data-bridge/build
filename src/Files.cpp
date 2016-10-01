@@ -146,12 +146,12 @@ void Files::ExtendTaskList(
 
   t.fileInput = in.fullName;
   t.formatInput = in.format;
+  t.removeOutputFlag = ! keepFlag;
 
   for (auto &e: out)
   {
     FileOutputTaskType o;
     o.fileOutput = e.fullName;
-    o.removeOutputFlag = ! keepFlag;
 
     if (e.format == BRIDGE_FORMAT_LIN)
       o.formatOutput = Files::GuessLINFormat(in.base);
@@ -274,15 +274,15 @@ void Files::PrintTasks() const
 {
   for (auto &i: fileTasks)
   {
-    cout << "fileInput   " << i.fileInput << endl;
-    cout << "formatInput " << FORMAT_NAMES[i.formatInput] << endl;
+    cout << "fileInput    " << i.fileInput << endl;
+    cout << "formatInput  " << FORMAT_NAMES[i.formatInput] << endl;
+    cout << "removeOutput " << (i.removeOutputFlag ? "true" : "false")
+        << endl;
     
     for (auto &t: i.taskList)
     {
       cout << "  fileOutput   " << t.fileOutput << endl;
       cout << "  formatOutput " << FORMAT_NAMES[t.formatOutput] << endl;
-      cout << "  removeOutput " << (t.removeOutputFlag ? "true" : "false")
-        << endl;
       if (t.refFlag)
         cout << "  fileRef      " << t.fileRef << endl;
       else

@@ -20,6 +20,7 @@ SOURCE_FILES 	=		\
         Teams.cpp               \
 	Valuation.cpp		\
 	args.cpp		\
+	dispatch.cpp		\
 	fileEML.cpp		\
 	filePBN.cpp		\
 	fileRBN.cpp		\

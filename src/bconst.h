@@ -92,7 +92,6 @@ struct FileOutputTaskType
 {
   string fileOutput;
   formatType formatOutput;
-  bool removeOutputFlag;
 
   bool refFlag;
   string fileRef;
@@ -103,6 +102,7 @@ struct FileTaskType
 {
   string fileInput;
   formatType formatInput;
+  bool removeOutputFlag;
 
   vector<FileOutputTaskType> taskList;
 };
