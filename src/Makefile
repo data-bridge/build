@@ -18,7 +18,6 @@ SOURCE_FILES 	=		\
         Session.cpp             \
 	Tableau.cpp		\
         Teams.cpp               \
-	UnitTest.cpp		\
 	Valuation.cpp		\
 	args.cpp		\
 	fileEML.cpp		\
@@ -108,9 +107,6 @@ Segment.obj: Auction.h Play.h portab.h parse.h debug.h Debug.h
 Session.obj: Session.h bconst.h portab.h parse.h debug.h Debug.h
 Tableau.obj: Tableau.h bconst.h Contract.h Debug.h parse.h
 Teams.obj: Teams.h bconst.h portab.h parse.h Debug.h
-UnitTest.obj: portab.h bconst.h UnitTest.h Tableau.h Contract.h Deal.h
-UnitTest.obj: Players.h Auction.h Play.h Date.h Location.h Scoring.h Teams.h
-UnitTest.obj: Session.h Segment.h Board.h Valuation.h Debug.h
 args.obj: bconst.h args.h
 fileEML.obj: Canvas.h fileEML.h Group.h Segment.h Date.h bconst.h Location.h
 fileEML.obj: Session.h Scoring.h Teams.h Board.h Deal.h Players.h Tableau.h
@@ -139,9 +135,9 @@ fileREC.obj: Debug.h
 parse.obj: bconst.h parse.h portab.h debug.h Debug.h
 reader.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 reader.obj: Teams.h Board.h Deal.h Players.h Tableau.h Contract.h Valuation.h
-reader.obj: Auction.h Play.h UnitTest.h args.h fileRBN.h fileRBX.h filePBN.h
+reader.obj: Auction.h Play.h args.h fileRBN.h fileRBX.h filePBN.h
 reader.obj: fileEML.h fileTXT.h fileLIN.h fileREC.h portab.h Debug.h
 reader.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 reader.obj: Teams.h Board.h Deal.h Players.h Tableau.h Contract.h Valuation.h
-reader.obj: Auction.h Play.h UnitTest.h args.h fileRBN.h fileRBX.h filePBN.h
+reader.obj: Auction.h Play.h args.h fileRBN.h fileRBX.h filePBN.h
 reader.obj: fileEML.h fileTXT.h fileLIN.h fileREC.h portab.h Debug.h

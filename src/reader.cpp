@@ -17,7 +17,6 @@ using namespace std;
 #include <assert.h>
 
 #include "Group.h"
-#include "UnitTest.h"
 #include "args.h"
 #include "fileRBN.h"
 #include "fileRBX.h"
@@ -36,8 +35,6 @@ Debug debug;
 OptionsType options;
 
 
-static void Test();
-
 
 int main(int argc, char * argv[])
 {
@@ -51,8 +48,6 @@ int main(int argc, char * argv[])
   setTXTtables();
   setLINtables();
   setRECtables();
-
-  Test();
 
   Files files;
 
@@ -171,21 +166,5 @@ int main(int argc, char * argv[])
     assert(false);
   }
 
-}
-
-
-static void Test()
-{
-  // TestTableau();
-  // TestDeal();
-  // TestAuction();
-  // TestPlay();
-  // TestDate();
-  // TestLocation();
-  // TestScoring();
-  // TestTeams();
-  // TestSession();
-  // TestSegment();
-  // TestPlayers();
 }
 
