@@ -31,7 +31,6 @@ int main(int argc, char * argv[])
 
   Files files;
   files.Set(options);
-  files.PrintTasks();
 
   thread thr[numThreads];
   for (int i = 0; i < numThreads; i++)
