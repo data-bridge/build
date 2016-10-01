@@ -9,23 +9,17 @@
 
 #include <iostream>
 #include <fstream>
-#include <iomanip>
-// #include <sstream>
 #include <string>
 #include <vector>
-// #include <iterator>
-// #include <algorithm>
 #include <regex>
 #include <map>
-// #include <assert.h>
 
 #include "Group.h"
 #include "Segment.h"
 #include "Board.h"
-#include "Debug.h"
 #include "fileLIN.h"
 #include "parse.h"
-// #include "portab.h"
+#include "Debug.h"
 
 using namespace std;
 
@@ -45,7 +39,7 @@ void setLINTables()
   LINmap["mp"] = BRIDGE_FORMAT_SCORES_LIST;
   LINmap["bn"] = BRIDGE_FORMAT_BOARDS_LIST;
   LINmap["qx"] = BRIDGE_FORMAT_BOARD_NO;
-  LINmap["pn"] = BRIDGE_FORMAT_PLAYERS_BOARD; // But may also occur in header
+  LINmap["pn"] = BRIDGE_FORMAT_PLAYERS_BOARD; // May also occur in header
   LINmap["md"] = BRIDGE_FORMAT_DEAL;
   LINmap["sv"] = BRIDGE_FORMAT_VULNERABLE;
   LINmap["mb"] = BRIDGE_FORMAT_AUCTION;
@@ -79,7 +73,6 @@ bool readLINChunk(
   for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
     chunk[i] = "";
 
-  string oneLiner;
   bool qxSeen = false;
   regex re("^(\\w\\w)\\|([^|]*)\\|");
   smatch match;
@@ -130,7 +123,6 @@ bool readLINChunk(
       auto it = LINmap.find(label);
       if (it == LINmap.end())
       {
-cout << "LABEL " << label << endl;
         LOG("Illegal LIN label in line '" + line + "'");
         return false;
       }
@@ -160,11 +152,6 @@ cout << "LABEL " << label << endl;
         chunk[labelNo] = value;
       else
       {
-cout << "LABEL repeat " << label << " in line " << lno << ", i " << i << endl;
-cout << "line '" << line << "'\n";
-cout << "doneFlag " << doneFlag << endl;
-cout << "value '" << value << "'" << endl;
-cout << "already '" << chunk[labelNo] << "'" << endl;
         LOG("Label already set in line '" + line + "'");
         return false;
       }
