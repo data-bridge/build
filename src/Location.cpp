@@ -46,6 +46,7 @@ bool Location::Set(
     
     case BRIDGE_FORMAT_PBN:
     case BRIDGE_FORMAT_RBN:
+    case BRIDGE_FORMAT_RBX:
       if ((pos = t.find(":", 0)) == string::npos)
         location.general = t;
       else if (t.length() < pos+2)

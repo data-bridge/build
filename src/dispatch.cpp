@@ -142,7 +142,7 @@ void setTables()
   formatFncs[BRIDGE_FORMAT_RBN].write = &writeRBN;
   formatFncs[BRIDGE_FORMAT_RBN].readChunk = &readRBNChunk;
 
-  formatFncs[BRIDGE_FORMAT_RBX].set = &setRBXtables;
+  formatFncs[BRIDGE_FORMAT_RBX].set = &setRBXTables;
   formatFncs[BRIDGE_FORMAT_RBX].read = &readRBX;
   formatFncs[BRIDGE_FORMAT_RBX].write = &writeRBX;
   formatFncs[BRIDGE_FORMAT_RBX].readChunk = &readRBXChunk;
@@ -221,6 +221,14 @@ void dispatch(
   Group group;
 
   if (task.formatInput == BRIDGE_FORMAT_RBN)
+  {
+    if (! readFormattedFile(task.fileInput, task.formatInput, group))
+    {
+      debug.Print();
+      assert(false);
+    }
+  }
+  else if (task.formatInput == BRIDGE_FORMAT_RBX)
   {
     if (! readFormattedFile(task.fileInput, task.formatInput, group))
     {

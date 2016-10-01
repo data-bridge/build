@@ -196,6 +196,7 @@ bool Players::SetPlayers(
       return "";
     
     case BRIDGE_FORMAT_RBN:
+    case BRIDGE_FORMAT_RBX:
       return Players::SetPlayersRBN(names);
     
     case BRIDGE_FORMAT_TXT:
@@ -235,6 +236,7 @@ bool Players::SetRoom(
       return true;
     
     case BRIDGE_FORMAT_RBN:
+    case BRIDGE_FORMAT_RBX:
       if (rm == "O")
         room = BRIDGE_ROOM_OPEN;
       else if (rm == "C")

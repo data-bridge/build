@@ -277,6 +277,7 @@ bool Segment::SetTitle(
       return true;
 
     case BRIDGE_FORMAT_RBN:
+    case BRIDGE_FORMAT_RBX:
       seg.title = t;
       return true;
 

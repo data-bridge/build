@@ -242,6 +242,7 @@ bool Session::Set(
     
     case BRIDGE_FORMAT_PBN:
     case BRIDGE_FORMAT_RBN:
+    case BRIDGE_FORMAT_RBX:
       if ((pos = t.find(":", 0)) == string::npos || t.length() < pos+2)
       {
         general1 = t;

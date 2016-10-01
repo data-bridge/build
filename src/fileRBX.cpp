@@ -69,7 +69,7 @@ const string RBNname[] =
 };
 
 
-RBXlabel CHAR_TO_LABEL_NO_RBX[128];
+formatLabelType CHAR_TO_LABEL_NO_RBX[128];
 bool CHAR_TO_NEW_SEGMENT_RBX[128];
 
 
@@ -88,34 +88,52 @@ static bool tryRBXMethod(
   const string& info);
 
 
-void setRBXtables()
+void setRBXTables()
 {
   for (unsigned char c = 0; c < 128; c++)
   {
-    CHAR_TO_LABEL_NO_RBX[c] = RBN_LABELS_SIZE;
+    CHAR_TO_LABEL_NO_RBX[c] = BRIDGE_FORMAT_LABELS_SIZE;
     CHAR_TO_NEW_SEGMENT_RBX[c] = false;
   }
 
   // Segment-level
-  CHAR_TO_LABEL_NO_RBX['T'] = RBN_TITLE_AND_AUTHOR;
-  CHAR_TO_LABEL_NO_RBX['D'] = RBN_DATE_AND_TIME;
-  CHAR_TO_LABEL_NO_RBX['L'] = RBN_LOCATION;
-  CHAR_TO_LABEL_NO_RBX['E'] = RBN_EVENT;
-  CHAR_TO_LABEL_NO_RBX['S'] = RBN_SESSION;
-  CHAR_TO_LABEL_NO_RBX['F'] = RBN_SCORING;
-  CHAR_TO_LABEL_NO_RBX['K'] = RBN_TEAMS;
+  // CHAR_TO_LABEL_NO_RBX['T'] = RBN_TITLE_AND_AUTHOR;
+  // CHAR_TO_LABEL_NO_RBX['D'] = RBN_DATE_AND_TIME;
+  // CHAR_TO_LABEL_NO_RBX['L'] = RBN_LOCATION;
+  // CHAR_TO_LABEL_NO_RBX['E'] = RBN_EVENT;
+  // CHAR_TO_LABEL_NO_RBX['S'] = RBN_SESSION;
+  // CHAR_TO_LABEL_NO_RBX['F'] = RBN_SCORING;
+  // CHAR_TO_LABEL_NO_RBX['K'] = RBN_TEAMS;
+
+  CHAR_TO_LABEL_NO_RBX['T'] = BRIDGE_FORMAT_TITLE;
+  CHAR_TO_LABEL_NO_RBX['D'] = BRIDGE_FORMAT_DATE;
+  CHAR_TO_LABEL_NO_RBX['L'] = BRIDGE_FORMAT_LOCATION;
+  CHAR_TO_LABEL_NO_RBX['E'] = BRIDGE_FORMAT_EVENT;
+  CHAR_TO_LABEL_NO_RBX['S'] = BRIDGE_FORMAT_SESSION;
+  CHAR_TO_LABEL_NO_RBX['F'] = BRIDGE_FORMAT_SCORING;
+  CHAR_TO_LABEL_NO_RBX['K'] = BRIDGE_FORMAT_TEAMS;
 
   // Board-level but relevant in Segment
-  CHAR_TO_LABEL_NO_RBX['N'] = RBN_PLAYERS;
-  CHAR_TO_LABEL_NO_RBX['B'] = RBN_BOARD_NO;
+  // CHAR_TO_LABEL_NO_RBX['N'] = RBN_PLAYERS;
+  // CHAR_TO_LABEL_NO_RBX['B'] = RBN_BOARD_NO;
+
+  CHAR_TO_LABEL_NO_RBX['N'] = BRIDGE_FORMAT_PLAYERS_BOARD;
+  CHAR_TO_LABEL_NO_RBX['B'] = BRIDGE_FORMAT_BOARD_NO;
 
   // Purely Board-level
-  CHAR_TO_LABEL_NO_RBX['H'] = RBN_DEAL;
-  CHAR_TO_LABEL_NO_RBX['A'] = RBN_AUCTION;
-  CHAR_TO_LABEL_NO_RBX['C'] = RBN_CONTRACT;
-  CHAR_TO_LABEL_NO_RBX['P'] = RBN_PLAY;
-  CHAR_TO_LABEL_NO_RBX['R'] = RBN_RESULT;
-  CHAR_TO_LABEL_NO_RBX['M'] = RBN_DOUBLE_DUMMY;
+  // CHAR_TO_LABEL_NO_RBX['H'] = RBN_DEAL;
+  // CHAR_TO_LABEL_NO_RBX['A'] = RBN_AUCTION;
+  // CHAR_TO_LABEL_NO_RBX['C'] = RBN_CONTRACT;
+  // CHAR_TO_LABEL_NO_RBX['P'] = RBN_PLAY;
+  // CHAR_TO_LABEL_NO_RBX['R'] = RBN_RESULT;
+  // CHAR_TO_LABEL_NO_RBX['M'] = RBN_DOUBLE_DUMMY;
+
+  CHAR_TO_LABEL_NO_RBX['H'] = BRIDGE_FORMAT_DEAL;
+  CHAR_TO_LABEL_NO_RBX['A'] = BRIDGE_FORMAT_AUCTION;
+  CHAR_TO_LABEL_NO_RBX['C'] = BRIDGE_FORMAT_CONTRACT;
+  CHAR_TO_LABEL_NO_RBX['P'] = BRIDGE_FORMAT_PLAY;
+  CHAR_TO_LABEL_NO_RBX['R'] = BRIDGE_FORMAT_RESULT;
+  CHAR_TO_LABEL_NO_RBX['M'] = BRIDGE_FORMAT_DOUBLE_DUMMY;
 
   CHAR_TO_NEW_SEGMENT_RBX['T'] = true;
   CHAR_TO_NEW_SEGMENT_RBX['D'] = true;
@@ -124,6 +142,14 @@ void setRBXtables()
   CHAR_TO_NEW_SEGMENT_RBX['S'] = true;
   CHAR_TO_NEW_SEGMENT_RBX['F'] = true;
   CHAR_TO_NEW_SEGMENT_RBX['K'] = true;
+
+  // CHAR_TO_NEW_SEGMENT_RBX['T'] = true;
+  // CHAR_TO_NEW_SEGMENT_RBX['D'] = true;
+  // CHAR_TO_NEW_SEGMENT_RBX['L'] = true;
+  // CHAR_TO_NEW_SEGMENT_RBX['E'] = true;
+  // CHAR_TO_NEW_SEGMENT_RBX['S'] = true;
+  // CHAR_TO_NEW_SEGMENT_RBX['F'] = true;
+  // CHAR_TO_NEW_SEGMENT_RBX['K'] = true;
 
   segPtrRBX[RBN_TITLE_AND_AUTHOR] = &Segment::SetTitle;
   segPtrRBX[RBN_DATE_AND_TIME] = &Segment::SetDate;
@@ -154,7 +180,7 @@ bool readRBXChunk(
 {
   string line;
   newSegFlag = false;
-  for (unsigned i = 0; i < RBN_LABELS_SIZE; i++)
+  for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
     chunk[i] = "";
 
   if (! getline(fstr, line))
@@ -174,16 +200,16 @@ bool readRBXChunk(
       continue;
 
     const int ci = static_cast<int>(c);
-    if (CHAR_TO_LABEL_NO_RBX[ci] == RBN_LABELS_SIZE)
+    if (CHAR_TO_LABEL_NO_RBX[ci] == BRIDGE_FORMAT_LABELS_SIZE)
     {
-      LOG("Illegal RBN label in line '" + line + "'");
+      LOG("Illegal RBX label in line '" + line + "'");
       return false;
     }
 
     if (CHAR_TO_NEW_SEGMENT_RBX[ci])
       newSegFlag = true;
 
-    const RBXlabel labelNo = CHAR_TO_LABEL_NO_RBX[ci];
+    const formatLabelType labelNo = CHAR_TO_LABEL_NO_RBX[ci];
     if (chunk[labelNo] != "")
     {
       LOG("Label already set in line '" + line + "'");
@@ -214,7 +240,7 @@ bool readRBX(
 
   const formatType f = BRIDGE_FORMAT_RBN;
 
-  vector<string> chunk(RBN_LABELS_SIZE);
+  vector<string> chunk(BRIDGE_FORMAT_LABELS_SIZE);
 
   Segment * segment = nullptr;
   unsigned segno = 0;
@@ -241,7 +267,7 @@ bool readRBX(
       bno = 0;
     }
 
-    if (chunk[RBN_BOARD_NO] != "")
+    if (chunk[BRIDGE_FORMAT_BOARD_NO] != "")
     {
       // New board
       board = segment->AcquireBoard(bno);
@@ -258,7 +284,7 @@ bool readRBX(
     board->NewInstance();
     segment->CopyPlayers();
 
-    for (unsigned i = 0; i < RBN_LABELS_SIZE; i++)
+    for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
     {
       if (! tryRBXMethod(chunk, segment, board, i, fstr, RBNname[i]))
         return false;

@@ -17,7 +17,7 @@ using namespace std;
 class Group;
 
 
-void setRBXtables();
+void setRBXTables();
 
 bool readRBX(
   Group& group,

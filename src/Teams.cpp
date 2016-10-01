@@ -212,6 +212,7 @@ bool Teams::Set(
   {
     case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_RBN:
+    case BRIDGE_FORMAT_RBX:
       return Teams::SetRBN(s);
     
     case BRIDGE_FORMAT_PBN:

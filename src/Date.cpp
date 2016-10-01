@@ -298,6 +298,7 @@ bool Date::Set(
       return Date::SetPBN(t);
     
     case BRIDGE_FORMAT_RBN:
+    case BRIDGE_FORMAT_RBX:
       return Date::SetRBN(t);
     
     case BRIDGE_FORMAT_TXT:

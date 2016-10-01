@@ -451,6 +451,7 @@ playStatus Play::SetPlay(
       return Play::AddTrickPBN(str);
 
     case BRIDGE_FORMAT_RBN:
+    case BRIDGE_FORMAT_RBX:
       LOG("Currently unimplemented format " + STR(f));
       return PLAY_INVALID_FORMAT;
 
@@ -477,6 +478,7 @@ bool Play::SetPlays(
 
     case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_RBN:
+    case BRIDGE_FORMAT_RBX:
     case BRIDGE_FORMAT_EML:
     case BRIDGE_FORMAT_TXT:
     case BRIDGE_FORMAT_REC:
@@ -547,6 +549,7 @@ bool Play::SetPlays(
       return Play::AddAllPBN(list);
 
     case BRIDGE_FORMAT_RBN:
+    case BRIDGE_FORMAT_RBX:
       LOG("Currently unimplemented format " + STR(f));
       return false;
 

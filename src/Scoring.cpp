@@ -142,6 +142,7 @@ bool Scoring::Set(
       return Scoring::SetPBN(t);
     
     case BRIDGE_FORMAT_RBN:
+    case BRIDGE_FORMAT_RBX:
       return Scoring::SetRBN(t);
     
     default:

@@ -284,7 +284,8 @@ bool Auction::ParseDealerVul(
       break;
     
     case BRIDGE_FORMAT_PBN:
-    case BRIDGE_FORMAT_RBN: // Same as PBN
+    case BRIDGE_FORMAT_RBN:
+    case BRIDGE_FORMAT_RBX:
       if (! Auction::SetDealerPBN(d, dOut))
         return false;
       if (! Auction::SetVulPBN(v, vOut))
@@ -345,6 +346,7 @@ bool Auction::SetDealer(
     
     case BRIDGE_FORMAT_PBN:
     case BRIDGE_FORMAT_RBN:
+    case BRIDGE_FORMAT_RBX:
       if (! Auction::SetDealerPBN(d, dOut))
         return false;
       setDVFlag = true;
@@ -384,7 +386,8 @@ bool Auction::SetVul(
       break;
     
     case BRIDGE_FORMAT_PBN:
-    case BRIDGE_FORMAT_RBN: // Same as PBN
+    case BRIDGE_FORMAT_RBN:
+    case BRIDGE_FORMAT_RBX:
       if (! Auction::SetVulPBN(v, vOut))
         return false;
       setDVFlag = true;
@@ -928,6 +931,7 @@ bool Auction::AddAuction(
       return false;
     
     case BRIDGE_FORMAT_RBN:
+    case BRIDGE_FORMAT_RBX:
       return Auction::AddAuctionRBN(s);
 
     case BRIDGE_FORMAT_REC:
@@ -1061,6 +1065,7 @@ bool Auction::AddAuction(
       return Auction::AddAuctionPBN(list);
     
     case BRIDGE_FORMAT_RBN:
+    case BRIDGE_FORMAT_RBX:
       LOG("Auction RBN type not implemented");
       return false;
     
