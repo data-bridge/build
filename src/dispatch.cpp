@@ -139,155 +139,19 @@ void dispatch(
     return;
 
   Group group;
-  switch(task.formatInput)
+
+  if (! (* formatFncs[task.formatInput].read)(group, task.fileInput))
   {
-    case BRIDGE_FORMAT_LIN:
-      if (! readLIN(group, task.fileInput))
-      {
-        debug.Print();
-        assert(false);
-      }
-      break;
-
-    case BRIDGE_FORMAT_PBN:
-      if (! readPBN(group, task.fileInput))
-      {
-        debug.Print();
-        assert(false);
-      }
-      break;
-
-    case BRIDGE_FORMAT_RBN:
-      if (! readRBN(group, task.fileInput))
-      {
-        debug.Print();
-        assert(false);
-      }
-      break;
-
-    case BRIDGE_FORMAT_RBX:
-      if (! readRBX(group, task.fileInput))
-      {
-        debug.Print();
-        assert(false);
-      }
-      break;
-
-    case BRIDGE_FORMAT_EML:
-      if (! readEML(group, task.fileInput))
-      {
-        debug.Print();
-        assert(false);
-      }
-      break;
-
-    case BRIDGE_FORMAT_TXT:
-      if (! readTXT(group, task.fileInput))
-      {
-        debug.Print();
-        assert(false);
-      }
-      break;
-
-    case BRIDGE_FORMAT_REC:
-      if (! readREC(group, task.fileInput))
-      {
-        debug.Print();
-        assert(false);
-      }
-      break;
-
-    default:
-      cout << "Unknown input format" << endl;
-      exit(0);
+    debug.Print();
+    assert(false);
   }
 
   for (auto &t: task.taskList)
   {
-    switch(t.formatOutput)
+    if (! (* formatFncs[t.formatOutput].write)(group, t.fileOutput))
     {
-      case BRIDGE_FORMAT_LIN:
-        if (! writeLIN(group, t.fileOutput))
-        {
-          debug.Print();
-          assert(false);
-        }
-        break;
-
-      case BRIDGE_FORMAT_LIN_VG:
-        if (! writeLIN_VG(group, t.fileOutput))
-        {
-          debug.Print();
-          assert(false);
-        }
-        break;
-
-      case BRIDGE_FORMAT_LIN_RP:
-        if (! writeLIN_RP(group, t.fileOutput))
-        {
-          debug.Print();
-          assert(false);
-        }
-        break;
-
-      case BRIDGE_FORMAT_LIN_TRN:
-        if (! writeLIN_TRN(group, t.fileOutput))
-        {
-          debug.Print();
-          assert(false);
-        }
-        break;
-
-      case BRIDGE_FORMAT_PBN:
-        if (! writePBN(group, t.fileOutput))
-        {
-          debug.Print();
-          assert(false);
-        }
-        break;
-
-      case BRIDGE_FORMAT_RBN:
-        if (! writeRBN(group, t.fileOutput))
-        {
-          debug.Print();
-          assert(false);
-        }
-        break;
-
-      case BRIDGE_FORMAT_RBX:
-        if (! writeRBX(group, t.fileOutput))
-        {
-          debug.Print();
-          assert(false);
-        }
-        break;
-
-      case BRIDGE_FORMAT_EML:
-        if (! writeEML(group, t.fileOutput))
-        {
-          debug.Print();
-          assert(false);
-        }
-        break;
-
-      case BRIDGE_FORMAT_TXT:
-        if (! writeTXT(group, t.fileOutput))
-        {
-          debug.Print();
-          assert(false);
-        }
-        break;
-
-      case BRIDGE_FORMAT_REC:
-        if (! writeREC(group, t.fileOutput))
-        {
-          debug.Print();
-          assert(false);
-        }
-        break;
-
-      default:
-        cout << "Unknown output format" << endl;
+      debug.Print();
+      assert(false);
     }
 
     if (t.refFlag)
