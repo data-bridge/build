@@ -17,11 +17,7 @@ using namespace std;
 class Group;
 
 
-void setLINtables();
-
-bool readLIN(
-  Group& group,
-  const string& fname);
+void setLINTables();
 
 bool writeLIN(
   Group& group,

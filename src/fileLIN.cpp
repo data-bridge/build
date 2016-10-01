@@ -10,102 +10,34 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-#include <sstream>
+// #include <sstream>
 #include <string>
 #include <vector>
-#include <iterator>
-#include <algorithm>
+// #include <iterator>
+// #include <algorithm>
 #include <regex>
 #include <map>
-#include <assert.h>
+// #include <assert.h>
 
-#include "Board.h"
 #include "Group.h"
 #include "Segment.h"
+#include "Board.h"
 #include "Debug.h"
 #include "fileLIN.h"
 #include "parse.h"
-#include "portab.h"
+// #include "portab.h"
 
 using namespace std;
 
 extern Debug debug;
 
 
-enum LINlabel
-{
-  LIN_TITLE = 0,
-  LIN_RESULTS_LIST = 1,
-  LIN_PLAYERS_LIST = 2,
-  LIN_PLAYERS_HEADER = 3,
-  LIN_SCORES_LIST = 4,
-  LIN_BOARDS_LIST = 5,
-  LIN_BOARD_NO = 6,
-  LIN_PLAYERS_BOARD = 7,
-  LIN_DEAL = 8,
-  LIN_VULNERABLE = 9,
-  LIN_AUCTION = 10,
-  LIN_PLAY = 11,
-  LIN_RESULT = 12,
-  LIN_LABELS_SIZE = 13
-};
-
-const string LINname[] =
-{
-  "title",
-  "result list",
-  "player list",
-  "player header",
-  "score list",
-  "board list",
-  "board number",
-  "players",
-  "deal",
-  "vulnerable",
-  "auction",
-  "play",
-  "result"
-};
-
-
-// map<string, LINlabel> LINmap;
-// bool LABEL_TO_NEW_SEGMENT[LIN_LABELS_SIZE];
-
 map<string, formatLabelType> LINmap;
 bool LABEL_TO_NEW_SEGMENT[BRIDGE_FORMAT_LABELS_SIZE];
 
 
-typedef bool (Segment::*SegPtr)(const string& s, const formatType f);
-typedef bool (Board::*BoardPtr)(const string& s, const formatType f);
-
-SegPtr segPtrLIN[LIN_LABELS_SIZE];
-BoardPtr boardPtrLIN[LIN_LABELS_SIZE];
-
-static bool tryLINMethod(
-  const vector<string>& chunk,
-  Segment * segment,
-  Board * board,
-  const unsigned label,
-  ifstream& fstr,
-  const string& info);
-
-
-void setLINtables()
+void setLINTables()
 {
-  // LINmap["vg"] = LIN_TITLE;
-  // LINmap["rs"] = LIN_RESULTS_LIST;
-  // LINmap["pw"] = LIN_PLAYERS_LIST;
-  // LINmap["px"] = LIN_PLAYERS_HEADER;
-  // LINmap["mp"] = LIN_SCORES_LIST;
-  // LINmap["bn"] = LIN_BOARDS_LIST;
-  // LINmap["qx"] = LIN_BOARD_NO;
-  // LINmap["pn"] = LIN_PLAYERS_BOARD; // But may also occur in header
-  // LINmap["md"] = LIN_DEAL;
-  // LINmap["sv"] = LIN_VULNERABLE;
-  // LINmap["mb"] = LIN_AUCTION;
-  // LINmap["pc"] = LIN_PLAY;
-  // LINmap["mc"] = LIN_RESULT;
-
   LINmap["vg"] = BRIDGE_FORMAT_TITLE;
   LINmap["rs"] = BRIDGE_FORMAT_RESULTS_LIST;
   LINmap["pw"] = BRIDGE_FORMAT_PLAYERS_LIST;
@@ -121,13 +53,6 @@ void setLINtables()
   LINmap["mc"] = BRIDGE_FORMAT_RESULT;
 
   // We ignore some labels.
-  // LINmap["pf"] = LIN_LABELS_SIZE;
-  // LINmap["pg"] = LIN_LABELS_SIZE;
-  // LINmap["st"] = LIN_LABELS_SIZE;
-  // LINmap["rh"] = LIN_LABELS_SIZE;
-  // LINmap["ah"] = LIN_LABELS_SIZE;
-  // LINmap["nt"] = LIN_LABELS_SIZE; // Chat
-
   LINmap["pf"] = BRIDGE_FORMAT_LABELS_SIZE;
   LINmap["pg"] = BRIDGE_FORMAT_LABELS_SIZE;
   LINmap["st"] = BRIDGE_FORMAT_LABELS_SIZE;
@@ -135,34 +60,11 @@ void setLINtables()
   LINmap["ah"] = BRIDGE_FORMAT_LABELS_SIZE;
   LINmap["nt"] = BRIDGE_FORMAT_LABELS_SIZE; // Chat
 
-  
-  // LABEL_TO_NEW_SEGMENT[LIN_TITLE] = true;
-  // LABEL_TO_NEW_SEGMENT[LIN_RESULTS_LIST] = true;
-  // LABEL_TO_NEW_SEGMENT[LIN_PLAYERS_LIST] = true;
-  // LABEL_TO_NEW_SEGMENT[LIN_SCORES_LIST] = true;
-  // LABEL_TO_NEW_SEGMENT[LIN_BOARDS_LIST] = true;
-
   LABEL_TO_NEW_SEGMENT[BRIDGE_FORMAT_TITLE] = true;
   LABEL_TO_NEW_SEGMENT[BRIDGE_FORMAT_RESULTS_LIST] = true;
   LABEL_TO_NEW_SEGMENT[BRIDGE_FORMAT_PLAYERS_LIST] = true;
   LABEL_TO_NEW_SEGMENT[BRIDGE_FORMAT_SCORES_LIST] = true;
   LABEL_TO_NEW_SEGMENT[BRIDGE_FORMAT_BOARDS_LIST] = true;
-
-  segPtrLIN[LIN_TITLE] = &Segment::SetTitle;
-  segPtrLIN[LIN_RESULTS_LIST] = &Segment::SetResultsList;
-  segPtrLIN[LIN_PLAYERS_LIST] = &Segment::SetPlayersList;
-  segPtrLIN[LIN_PLAYERS_HEADER] = &Segment::SetPlayersHeader;
-  segPtrLIN[LIN_SCORES_LIST] = &Segment::SetScoresList;
-  segPtrLIN[LIN_BOARDS_LIST] = &Segment::SetBoardsList;
-
-  segPtrLIN[LIN_BOARD_NO] = &Segment::SetNumber;
-  segPtrLIN[LIN_PLAYERS_BOARD] = &Segment::SetPlayers;
-  
-  boardPtrLIN[LIN_DEAL] = &Board::SetDeal;
-  boardPtrLIN[LIN_VULNERABLE] = &Board::SetVul;
-  boardPtrLIN[LIN_AUCTION] = &Board::SetAuction;
-  boardPtrLIN[LIN_PLAY] = &Board::SetPlays;
-  boardPtrLIN[LIN_RESULT] = &Board::SetResult;
 }
 
 
@@ -272,116 +174,6 @@ cout << "already '" << chunk[labelNo] << "'" << endl;
   if (alerts.str() != "")
     chunk[BRIDGE_FORMAT_AUCTION] += "\n" + alerts.str();
   return qxSeen;
-}
-
-
-bool readLIN(
-  Group& group,
-  const string& fname)
-{
-assert(false);
-  ifstream fstr(fname.c_str());
-  if (! fstr.is_open())
-  {
-    LOG("No such LIN file");
-    return false;
-  }
-
-  group.SetFileName(fname);
-
-  const formatType f = BRIDGE_FORMAT_LIN;
-
-  vector<string> chunk(LIN_LABELS_SIZE);
-
-  Segment * segment = nullptr;
-  unsigned segno = 0;
-  bool newSegFlag = false;
-
-  Board * board = nullptr;
-  unsigned bno = 0;
-
-  unsigned lno = 0;
-
-  while (readLINChunk(fstr, lno, chunk, newSegFlag))
-  {
-    if (newSegFlag)
-    {
-      if (! group.MakeSegment(segno))
-      {
-        LOG("Cannot make segment " + STR(segno));
-        fstr.close();
-        return false;
-      }
-
-      segment = group.GetSegment(segno);
-      segno++;
-      bno = 0;
-    }
-
-    if (chunk[LIN_BOARD_NO] != "" && chunk[LIN_BOARD_NO].at(0) != 'c')
-    {
-      // New board
-      board = segment->AcquireBoard(bno);
-      bno++;
-
-      if (board == nullptr)
-      {
-        LOG("Unknown error");
-        fstr.close();
-        return false;
-      }
-    }
-
-    board->NewInstance();
-
-    for (unsigned i = 0; i < LIN_LABELS_SIZE; i++)
-    {
-      if (! tryLINMethod(chunk, segment, board, i, fstr, LINname[i]))
-        return false;
-    }
-
-    // Have to wait until after the methods with this.
-    segment->TransferHeader(bno-1, board->GetInstance()); 
-
-    if (fstr.eof())
-      break;
-  }
-
-  fstr.close();
-  return true;
-}
-
-
-static bool tryLINMethod(
-  const vector<string>& chunk,
-  Segment * segment,
-  Board * board,
-  const unsigned label,
-  ifstream& fstr,
-  const string& info)
-{
-assert(false);
-  if (chunk[label] == "")
-    return true;
-  else if (label <= LIN_PLAYERS_BOARD)
-  {
-    if ((segment->*segPtrLIN[label])(chunk[label], BRIDGE_FORMAT_LIN))
-      return true;
-    else
-    {
-      LOG("Cannot add " + info + " line '" + chunk[label] + "'");
-      fstr.close();
-      return false;
-    }
-  }
-  else  if ((board->*boardPtrLIN[label])(chunk[label], BRIDGE_FORMAT_LIN))
-    return true;
-  else
-  {
-    LOG("Cannot add " + info + " line '" + chunk[label] + "'");
-    fstr.close();
-    return false;
-  }
 }
 
 

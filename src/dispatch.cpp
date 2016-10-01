@@ -107,28 +107,28 @@ static bool dummyWrite(
 
 void setTables()
 {
-  formatFncs[BRIDGE_FORMAT_LIN].set = &setLINtables;
-  formatFncs[BRIDGE_FORMAT_LIN].read = &readLIN;
+  formatFncs[BRIDGE_FORMAT_LIN].set = &setLINTables;
+  formatFncs[BRIDGE_FORMAT_LIN].read = &readPBN; // For now, TODO
   formatFncs[BRIDGE_FORMAT_LIN].write = &writeLIN;
   formatFncs[BRIDGE_FORMAT_LIN].readChunk = &readLINChunk;
 
   formatFncs[BRIDGE_FORMAT_LIN_RP].set = &dummySet;
-  formatFncs[BRIDGE_FORMAT_LIN_RP].read = &readLIN;
+  formatFncs[BRIDGE_FORMAT_LIN_RP].read = &readPBN; // For now, TODO
   formatFncs[BRIDGE_FORMAT_LIN_RP].write = &writeLIN_RP;
   formatFncs[BRIDGE_FORMAT_LIN_RP].readChunk = &readLINChunk;
 
   formatFncs[BRIDGE_FORMAT_LIN_VG].set = &dummySet;
-  formatFncs[BRIDGE_FORMAT_LIN_VG].read = &readLIN;
+  formatFncs[BRIDGE_FORMAT_LIN_VG].read = &readPBN; // For now, TODO
   formatFncs[BRIDGE_FORMAT_LIN_VG].write = &writeLIN_VG;
   formatFncs[BRIDGE_FORMAT_LIN_VG].readChunk = &readLINChunk;
 
   formatFncs[BRIDGE_FORMAT_LIN_TRN].set = &dummySet;
-  formatFncs[BRIDGE_FORMAT_LIN_TRN].read = &readLIN;
+  formatFncs[BRIDGE_FORMAT_LIN_TRN].read = &readPBN; // For now, TODO
   formatFncs[BRIDGE_FORMAT_LIN_TRN].write = &writeLIN_TRN;
   formatFncs[BRIDGE_FORMAT_LIN_TRN].readChunk = &readLINChunk;
 
   formatFncs[BRIDGE_FORMAT_LIN_EXT].set = &dummySet;
-  formatFncs[BRIDGE_FORMAT_LIN_EXT].read = &readLIN;
+  formatFncs[BRIDGE_FORMAT_LIN_EXT].read = &readPBN; // For now, TODO
   formatFncs[BRIDGE_FORMAT_LIN_EXT].write = &dummyWrite;
   formatFncs[BRIDGE_FORMAT_LIN_EXT].readChunk = &readLINChunk;
 
@@ -138,7 +138,7 @@ void setTables()
   formatFncs[BRIDGE_FORMAT_PBN].readChunk = &readLINChunk; // For now, TODO
 
   formatFncs[BRIDGE_FORMAT_RBN].set = &setRBNTables;
-  formatFncs[BRIDGE_FORMAT_RBN].read = &readLIN; // For now, TODO
+  formatFncs[BRIDGE_FORMAT_RBN].read = &readPBN; // For now, TODO
   formatFncs[BRIDGE_FORMAT_RBN].write = &writeRBN;
   formatFncs[BRIDGE_FORMAT_RBN].readChunk = &readRBNChunk;
 
