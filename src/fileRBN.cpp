@@ -9,86 +9,24 @@
 
 #include <iostream>
 #include <fstream>
-#include <iomanip>
 #include <sstream>
 #include <string>
 #include <vector>
-#include <iterator>
-#include <algorithm>
-#include <regex>
 
-#include "Group.h"
 #include "Segment.h"
-#include "Debug.h"
 #include "fileRBN.h"
-#include "parse.h"
-#include "portab.h"
+#include "Debug.h"
 
 using namespace std;
 
 extern Debug debug;
 
 
-enum RBNlabel
-{
-  RBN_TITLE_AND_AUTHOR = 0,
-  RBN_DATE_AND_TIME = 1,
-  RBN_LOCATION = 2,
-  RBN_EVENT = 3,
-  RBN_SESSION = 4,
-  RBN_SCORING = 5,
-  RBN_TEAMS = 6,
-  RBN_PLAYERS = 7,
-  RBN_BOARD_NO = 8,
-  RBN_DEAL = 9,
-  RBN_AUCTION = 10,
-  RBN_CONTRACT = 11,
-  RBN_PLAY = 12,
-  RBN_RESULT = 13,
-  RBN_DOUBLE_DUMMY = 14,
-  RBN_LABELS_SIZE = 15 // Item list is not implemented
-};
-
-const string RBNname[] =
-{
-  "title",
-  "date",
-  "location",
-  "event",
-  "session",
-  "scoring",
-  "teams",
-  "players",
-  "board number",
-  "deal",
-  "auction",
-  "contract",
-  "play",
-  "result",
-  "tableau"
-};
-
-
 formatLabelType CHAR_TO_LABEL_NO[128];
 bool CHAR_TO_NEW_SEGMENT[128];
 
 
-typedef bool (Segment::*SegPtr)(const string& s, const formatType f);
-typedef bool (Board::*BoardPtr)(const string& s, const formatType f);
-
-SegPtr segPtrRBN[RBN_LABELS_SIZE];
-BoardPtr boardPtrRBN[RBN_LABELS_SIZE];
-
-static bool tryRBNMethod(
-  const vector<string>& chunk,
-  Segment * segment,
-  Board * board,
-  const unsigned label,
-  ifstream& fstr,
-  const string& info);
-
-
-void setRBNtables()
+void setRBNTables()
 {
   for (unsigned char c = 0; c < 128; c++)
   {
@@ -124,25 +62,6 @@ void setRBNtables()
   CHAR_TO_NEW_SEGMENT['S'] = true;
   CHAR_TO_NEW_SEGMENT['F'] = true;
   CHAR_TO_NEW_SEGMENT['K'] = true;
-
-  segPtrRBN[RBN_TITLE_AND_AUTHOR] = &Segment::SetTitle;
-  segPtrRBN[RBN_DATE_AND_TIME] = &Segment::SetDate;
-  segPtrRBN[RBN_LOCATION] = &Segment::SetLocation;
-  segPtrRBN[RBN_EVENT] = &Segment::SetEvent;
-  segPtrRBN[RBN_SESSION] = &Segment::SetSession;
-  segPtrRBN[RBN_SCORING] = &Segment::SetScoring;
-  segPtrRBN[RBN_TEAMS] = &Segment::SetTeams;
-
-  segPtrRBN[RBN_PLAYERS] = &Segment::SetPlayers;
-  segPtrRBN[RBN_BOARD_NO] = &Segment::SetNumber;
-  
-  boardPtrRBN[RBN_DEAL] = &Board::SetDeal;
-  boardPtrRBN[RBN_AUCTION] = &Board::SetAuction;
-  boardPtrRBN[RBN_CONTRACT] = &Board::SetContract;
-  boardPtrRBN[RBN_PLAY] = &Board::SetPlays;
-  boardPtrRBN[RBN_RESULT] = &Board::SetResult;
-  boardPtrRBN[RBN_DOUBLE_DUMMY] = &Board::SetTableau;
-
 }
 
 
@@ -173,7 +92,7 @@ bool readRBNChunk(
     if (c == '%')
       continue;
 
-    if (CHAR_TO_LABEL_NO[static_cast<int>(c)] == RBN_LABELS_SIZE)
+    if (CHAR_TO_LABEL_NO[static_cast<int>(c)] == BRIDGE_FORMAT_LABELS_SIZE)
     {
       LOG("Illegal RBN label in line '" + line + "'");
       return false;

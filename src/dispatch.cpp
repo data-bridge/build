@@ -137,7 +137,7 @@ void setTables()
   formatFncs[BRIDGE_FORMAT_PBN].write = &writePBN;
   formatFncs[BRIDGE_FORMAT_PBN].readChunk = &readLINChunk; // For now, TODO
 
-  formatFncs[BRIDGE_FORMAT_RBN].set = &setRBNtables;
+  formatFncs[BRIDGE_FORMAT_RBN].set = &setRBNTables;
   formatFncs[BRIDGE_FORMAT_RBN].read = &readLIN; // For now, TODO
   formatFncs[BRIDGE_FORMAT_RBN].write = &writeRBN;
   formatFncs[BRIDGE_FORMAT_RBN].readChunk = &readRBNChunk;
