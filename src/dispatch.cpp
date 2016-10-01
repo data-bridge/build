@@ -228,6 +228,14 @@ void dispatch(
       assert(false);
     }
   }
+  else if (task.formatInput == BRIDGE_FORMAT_LIN)
+  {
+    if (! readFormattedFile(task.fileInput, task.formatInput, group))
+    {
+      debug.Print();
+      assert(false);
+    }
+  }
   else
   {
   if (! (* formatFncs[task.formatInput].read)(group, task.fileInput))
@@ -270,6 +278,8 @@ bool readFormattedFile(
     return false;
   }
 
+  group.SetFileName(fname);
+
   vector<string> chunk(BRIDGE_FORMAT_LABELS_SIZE);
 
   Segment * segment = nullptr;
@@ -297,9 +307,10 @@ bool readFormattedFile(
       bno = 0;
     }
 
-    if (chunk[BRIDGE_FORMAT_BOARD_NO] != "")
+    if (chunk[BRIDGE_FORMAT_BOARD_NO] != "" &&
+        chunk[BRIDGE_FORMAT_BOARD_NO].at(0) != 'c')
     {
-      // New board
+      // New board.  Latter condition is only relevant for LIN.
       board = segment->AcquireBoard(bno);
       bno++;
 
@@ -320,6 +331,10 @@ bool readFormattedFile(
           ! tryFormatMethod(f, chunk[i], segment, board, i, fstr))
         return false;
     }
+
+    // Have to wait until after the methods with this.
+    // Only applies to LIN.
+    segment->TransferHeader(bno-1, board->GetInstance());
 
     if (fstr.eof())
       break;

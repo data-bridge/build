@@ -68,8 +68,11 @@ const string LINname[] =
 };
 
 
-map<string, LINlabel> LINmap;
-bool LABEL_TO_NEW_SEGMENT[LIN_LABELS_SIZE];
+// map<string, LINlabel> LINmap;
+// bool LABEL_TO_NEW_SEGMENT[LIN_LABELS_SIZE];
+
+map<string, formatLabelType> LINmap;
+bool LABEL_TO_NEW_SEGMENT[BRIDGE_FORMAT_LABELS_SIZE];
 
 
 typedef bool (Segment::*SegPtr)(const string& s, const formatType f);
@@ -89,34 +92,61 @@ static bool tryLINMethod(
 
 void setLINtables()
 {
-  LINmap["vg"] = LIN_TITLE;
-  LINmap["rs"] = LIN_RESULTS_LIST;
-  LINmap["pw"] = LIN_PLAYERS_LIST;
-  LINmap["px"] = LIN_PLAYERS_HEADER;
-  LINmap["mp"] = LIN_SCORES_LIST;
-  LINmap["bn"] = LIN_BOARDS_LIST;
-  LINmap["qx"] = LIN_BOARD_NO;
-  LINmap["pn"] = LIN_PLAYERS_BOARD; // But may also occur in header
-  LINmap["md"] = LIN_DEAL;
-  LINmap["sv"] = LIN_VULNERABLE;
-  LINmap["mb"] = LIN_AUCTION;
-  LINmap["pc"] = LIN_PLAY;
-  LINmap["mc"] = LIN_RESULT;
+  // LINmap["vg"] = LIN_TITLE;
+  // LINmap["rs"] = LIN_RESULTS_LIST;
+  // LINmap["pw"] = LIN_PLAYERS_LIST;
+  // LINmap["px"] = LIN_PLAYERS_HEADER;
+  // LINmap["mp"] = LIN_SCORES_LIST;
+  // LINmap["bn"] = LIN_BOARDS_LIST;
+  // LINmap["qx"] = LIN_BOARD_NO;
+  // LINmap["pn"] = LIN_PLAYERS_BOARD; // But may also occur in header
+  // LINmap["md"] = LIN_DEAL;
+  // LINmap["sv"] = LIN_VULNERABLE;
+  // LINmap["mb"] = LIN_AUCTION;
+  // LINmap["pc"] = LIN_PLAY;
+  // LINmap["mc"] = LIN_RESULT;
+
+  LINmap["vg"] = BRIDGE_FORMAT_TITLE;
+  LINmap["rs"] = BRIDGE_FORMAT_RESULTS_LIST;
+  LINmap["pw"] = BRIDGE_FORMAT_PLAYERS_LIST;
+  LINmap["px"] = BRIDGE_FORMAT_PLAYERS_HEADER;
+  LINmap["mp"] = BRIDGE_FORMAT_SCORES_LIST;
+  LINmap["bn"] = BRIDGE_FORMAT_BOARDS_LIST;
+  LINmap["qx"] = BRIDGE_FORMAT_BOARD_NO;
+  LINmap["pn"] = BRIDGE_FORMAT_PLAYERS_BOARD; // But may also occur in header
+  LINmap["md"] = BRIDGE_FORMAT_DEAL;
+  LINmap["sv"] = BRIDGE_FORMAT_VULNERABLE;
+  LINmap["mb"] = BRIDGE_FORMAT_AUCTION;
+  LINmap["pc"] = BRIDGE_FORMAT_PLAY;
+  LINmap["mc"] = BRIDGE_FORMAT_RESULT;
 
   // We ignore some labels.
-  LINmap["pf"] = LIN_LABELS_SIZE;
-  LINmap["pg"] = LIN_LABELS_SIZE;
-  LINmap["st"] = LIN_LABELS_SIZE;
-  LINmap["rh"] = LIN_LABELS_SIZE;
-  LINmap["ah"] = LIN_LABELS_SIZE;
-  LINmap["nt"] = LIN_LABELS_SIZE; // Chat
+  // LINmap["pf"] = LIN_LABELS_SIZE;
+  // LINmap["pg"] = LIN_LABELS_SIZE;
+  // LINmap["st"] = LIN_LABELS_SIZE;
+  // LINmap["rh"] = LIN_LABELS_SIZE;
+  // LINmap["ah"] = LIN_LABELS_SIZE;
+  // LINmap["nt"] = LIN_LABELS_SIZE; // Chat
+
+  LINmap["pf"] = BRIDGE_FORMAT_LABELS_SIZE;
+  LINmap["pg"] = BRIDGE_FORMAT_LABELS_SIZE;
+  LINmap["st"] = BRIDGE_FORMAT_LABELS_SIZE;
+  LINmap["rh"] = BRIDGE_FORMAT_LABELS_SIZE;
+  LINmap["ah"] = BRIDGE_FORMAT_LABELS_SIZE;
+  LINmap["nt"] = BRIDGE_FORMAT_LABELS_SIZE; // Chat
 
   
-  LABEL_TO_NEW_SEGMENT[LIN_TITLE] = true;
-  LABEL_TO_NEW_SEGMENT[LIN_RESULTS_LIST] = true;
-  LABEL_TO_NEW_SEGMENT[LIN_PLAYERS_LIST] = true;
-  LABEL_TO_NEW_SEGMENT[LIN_SCORES_LIST] = true;
-  LABEL_TO_NEW_SEGMENT[LIN_BOARDS_LIST] = true;
+  // LABEL_TO_NEW_SEGMENT[LIN_TITLE] = true;
+  // LABEL_TO_NEW_SEGMENT[LIN_RESULTS_LIST] = true;
+  // LABEL_TO_NEW_SEGMENT[LIN_PLAYERS_LIST] = true;
+  // LABEL_TO_NEW_SEGMENT[LIN_SCORES_LIST] = true;
+  // LABEL_TO_NEW_SEGMENT[LIN_BOARDS_LIST] = true;
+
+  LABEL_TO_NEW_SEGMENT[BRIDGE_FORMAT_TITLE] = true;
+  LABEL_TO_NEW_SEGMENT[BRIDGE_FORMAT_RESULTS_LIST] = true;
+  LABEL_TO_NEW_SEGMENT[BRIDGE_FORMAT_PLAYERS_LIST] = true;
+  LABEL_TO_NEW_SEGMENT[BRIDGE_FORMAT_SCORES_LIST] = true;
+  LABEL_TO_NEW_SEGMENT[BRIDGE_FORMAT_BOARDS_LIST] = true;
 
   segPtrLIN[LIN_TITLE] = &Segment::SetTitle;
   segPtrLIN[LIN_RESULTS_LIST] = &Segment::SetResultsList;
@@ -144,7 +174,7 @@ bool readLINChunk(
 {
   string line;
   newSegFlag = false;
-  for (unsigned i = 0; i < LIN_LABELS_SIZE; i++)
+  for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
     chunk[i] = "";
 
   string oneLiner;
@@ -190,7 +220,7 @@ bool readLINChunk(
       if (label == "an")
       {
         alerts << aNo << " " << value << "\n";
-        chunk[LIN_AUCTION] += "^" + STR(aNo);
+        chunk[BRIDGE_FORMAT_AUCTION] += "^" + STR(aNo);
         aNo++;
         continue;
       }
@@ -209,10 +239,10 @@ cout << "LABEL " << label << endl;
         newSegFlag = true;
 
       // We ignore some labels.
-      if (labelNo == LIN_LABELS_SIZE)
+      if (labelNo == BRIDGE_FORMAT_LABELS_SIZE)
         continue;
 
-      if (labelNo == LIN_PLAY)
+      if (labelNo == BRIDGE_FORMAT_PLAY)
       {
         // This is not rigorously correct
         if (cardCount > 0 && cardCount % 4 == 0)
@@ -222,7 +252,7 @@ cout << "LABEL " << label << endl;
 
         chunk[labelNo] += value;
       }
-      else if (labelNo == LIN_AUCTION)
+      else if (labelNo == BRIDGE_FORMAT_AUCTION)
         chunk[labelNo] += value;
       else if (chunk[labelNo] == "")
         chunk[labelNo] = value;
@@ -240,7 +270,7 @@ cout << "already '" << chunk[labelNo] << "'" << endl;
   }
 
   if (alerts.str() != "")
-    chunk[LIN_AUCTION] += "\n" + alerts.str();
+    chunk[BRIDGE_FORMAT_AUCTION] += "\n" + alerts.str();
   return qxSeen;
 }
 
@@ -249,6 +279,7 @@ bool readLIN(
   Group& group,
   const string& fname)
 {
+assert(false);
   ifstream fstr(fname.c_str());
   if (! fstr.is_open())
   {
@@ -265,7 +296,6 @@ bool readLIN(
   Segment * segment = nullptr;
   unsigned segno = 0;
   bool newSegFlag = false;
-  bool newBoard;
 
   Board * board = nullptr;
   unsigned bno = 0;
@@ -288,12 +318,10 @@ bool readLIN(
       bno = 0;
     }
 
-    newBoard = false;
     if (chunk[LIN_BOARD_NO] != "" && chunk[LIN_BOARD_NO].at(0) != 'c')
     {
       // New board
       board = segment->AcquireBoard(bno);
-      newBoard = true;
       bno++;
 
       if (board == nullptr)
@@ -313,11 +341,7 @@ bool readLIN(
     }
 
     // Have to wait until after the methods with this.
-    // if (! board->PlayersAreSet(board->GetInstance()))
     segment->TransferHeader(bno-1, board->GetInstance()); 
-
-    // if (newBoard)
-      // segment->TransferHeader(bno-1);
 
     if (fstr.eof())
       break;
@@ -336,6 +360,7 @@ static bool tryLINMethod(
   ifstream& fstr,
   const string& info)
 {
+assert(false);
   if (chunk[label] == "")
     return true;
   else if (label <= LIN_PLAYERS_BOARD)
