@@ -224,7 +224,8 @@ void dispatch(
   if (task.formatInput == BRIDGE_FORMAT_RBN ||
       task.formatInput == BRIDGE_FORMAT_RBX ||
       task.formatInput == BRIDGE_FORMAT_LIN ||
-      task.formatInput == BRIDGE_FORMAT_PBN)
+      task.formatInput == BRIDGE_FORMAT_PBN ||
+      task.formatInput == BRIDGE_FORMAT_EML)
   {
     try
     {
@@ -295,7 +296,7 @@ bool readFormattedFile(
 
   while ((* formatFncs[f].readChunk)(fstr, lno, chunk, newSegFlag))
   {
-    if (newSegFlag || segment->GetLength() == 0)
+    if (newSegFlag || segment == nullptr)
     {
       if (! group.MakeSegment(segno))
       {

@@ -247,35 +247,35 @@ static bool getEMLSimpleFields(
   const unsigned openingLine,
   vector<string>& chunk)
 {
-  if (! ReadNextWord(canvas[0], 0, chunk[EML_SCORING]))
+  if (! ReadNextWord(canvas[0], 0, chunk[BRIDGE_FORMAT_SCORING]))
     return false;
 
-  if (! ReadNextWord(canvas[1], 16, chunk[EML_NORTH]))
+  if (! ReadNextWord(canvas[1], 16, chunk[BRIDGE_FORMAT_NORTH]))
     return false;
-  if (! ReadNextWord(canvas[7], 4, chunk[EML_WEST]))
+  if (! ReadNextWord(canvas[7], 4, chunk[BRIDGE_FORMAT_WEST]))
     return false;
-  if (! ReadNextWord(canvas[7], 27, chunk[EML_EAST]))
+  if (! ReadNextWord(canvas[7], 27, chunk[BRIDGE_FORMAT_EAST]))
     return false;
-  if (! ReadNextWord(canvas[13], 16, chunk[EML_SOUTH]))
-    return false;
-
-  if (! ReadNextWord(canvas[0], 54, chunk[EML_BOARD]))
-    return false;
-  if (! ReadNextWord(canvas[1], 5, chunk[EML_DEALER]))
-    return false;
-  if (! ReadNextWord(canvas[2], 5, chunk[EML_VULNERABLE]))
+  if (! ReadNextWord(canvas[13], 16, chunk[BRIDGE_FORMAT_SOUTH]))
     return false;
 
-  if (! ReadNextWord(canvas[openingLine+1], 50, chunk[EML_RESULT]))
+  if (! ReadNextWord(canvas[0], 54, chunk[BRIDGE_FORMAT_BOARD_NO]))
+    return false;
+  if (! ReadNextWord(canvas[1], 5, chunk[BRIDGE_FORMAT_DEALER]))
+    return false;
+  if (! ReadNextWord(canvas[2], 5, chunk[BRIDGE_FORMAT_VULNERABLE]))
     return false;
 
-  if (! ReadNextWord(canvas[openingLine+2], 49, chunk[EML_SCORE]))
+  if (! ReadNextWord(canvas[openingLine+1], 50, chunk[BRIDGE_FORMAT_RESULT]))
     return false;
-  chunk[EML_SCORE].pop_back(); // Drop trailing comma
+
+  if (! ReadNextWord(canvas[openingLine+2], 49, chunk[BRIDGE_FORMAT_SCORE]))
+    return false;
+  chunk[BRIDGE_FORMAT_SCORE].pop_back(); // Drop trailing comma
 
   if (canvas[openingLine+2].back() != ':')
   {
-    if (! ReadLastWord(canvas[openingLine+2], chunk[EML_SCORE_IMP]))
+    if (! ReadLastWord(canvas[openingLine+2], chunk[BRIDGE_FORMAT_SCORE_IMP]))
       return false;
   }
   return true;
@@ -316,7 +316,7 @@ static bool getEMLDeal(
   d << sts << "." << sth <<  "." << std << "." << stc;
 
 
-  chunk[EML_DEAL] = d.str();
+  chunk[BRIDGE_FORMAT_DEAL] = d.str();
   return true;
 }
 
@@ -372,7 +372,7 @@ static bool getEMLAuction(
     }
   }
 
-  chunk[EML_AUCTION] = d.str();
+  chunk[BRIDGE_FORMAT_AUCTION] = d.str();
   return true;
 }
 
@@ -457,7 +457,7 @@ static bool getEMLPlay(
     pos0 += 3;
   }
       
-  chunk[EML_PLAY] = d.str();
+  chunk[BRIDGE_FORMAT_PLAY] = d.str();
   return true;
 }
 
@@ -468,7 +468,7 @@ bool readEMLChunk(
   vector<string>& chunk,
   bool& newSegFlag)
 {
-  newSegFlag = true;
+  newSegFlag = false;
 
   // First get all the lines of a hand.
   vector<string> canvas;
@@ -476,7 +476,7 @@ bool readEMLChunk(
     return false;
   
   // Then parse them into the chunk structure.
-  for (unsigned i = 0; i < EML_LABELS_SIZE; i++)
+  for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
     chunk[i] = "";
 
   unsigned openingLine = 0;
@@ -508,6 +508,7 @@ bool readEML(
   Group& group,
   const string& fname)
 {
+assert(false);
   bool newSegFlag = true;
 
   ifstream fstr(fname.c_str());
