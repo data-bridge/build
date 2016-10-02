@@ -16,11 +16,8 @@
 #include "Canvas.h"
 #include "fileEML.h"
 #include "parse.h"
-#include "Debug.h"
 
 using namespace std;
-
-extern Debug debug;
 
 
 enum EMLlabel

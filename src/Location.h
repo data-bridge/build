@@ -20,13 +20,15 @@ class Location
 {
   private:
 
-    struct locationType
+    struct LocationType
     {
       string general;
       string specific;
     };
 
-    locationType location;
+    LocationType location;
+
+    string asRBN() const;
 
 
 
@@ -36,9 +38,9 @@ class Location
 
     ~Location();
 
-    void Reset();
+    void reset();
 
-    bool Set(
+    void set(
       const string& t,
       const formatType f);
 
@@ -46,7 +48,7 @@ class Location
 
     bool operator != (const Location& l2) const;
 
-    string AsString(const formatType f) const;
+    string asString(const formatType f) const;
 };
 
 #endif

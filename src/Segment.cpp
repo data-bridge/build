@@ -43,7 +43,7 @@ void Segment::Reset()
 
   seg.title = ""; 
   seg.date.reset();
-  seg.location.Reset();
+  seg.location.reset();
   seg.event = ""; 
   seg.session.reset(); 
   seg.scoring.Reset();
@@ -305,7 +305,8 @@ bool Segment::SetLocation(
   const string& t,
   const formatType f)
 {
-  return seg.location.Set(t, f);
+  seg.location.set(t, f);
+  return true;
 }
 
 
@@ -693,7 +694,7 @@ string Segment::TitleAsLIN_EXT() const
   stringstream s;
   s << seg.title << "%" <<
       seg.date.asString(BRIDGE_FORMAT_LIN) << "%" <<
-      seg.location.AsString(BRIDGE_FORMAT_LIN) << "%" <<
+      seg.location.asString(BRIDGE_FORMAT_LIN) << "%" <<
       seg.session.asString(BRIDGE_FORMAT_LIN) << "%" <<
       seg.event << "%" <<
       seg.scoring.AsString(BRIDGE_FORMAT_LIN) << 
@@ -732,7 +733,7 @@ string Segment::TitleAsLIN_TRN() const
   stringstream s;
   s << seg.title << "%" <<
       seg.date.asString(BRIDGE_FORMAT_LIN) << "%" <<
-      seg.location.AsString(BRIDGE_FORMAT_LIN) << "%" <<
+      seg.location.asString(BRIDGE_FORMAT_LIN) << "%" <<
       seg.session.asString(BRIDGE_FORMAT_LIN) << "%" <<
       seg.event << "%" <<
       seg.scoring.AsString(BRIDGE_FORMAT_LIN) << 
@@ -789,7 +790,7 @@ string Segment::DateAsString(const formatType f) const
 
 string Segment::LocationAsString(const formatType f) const
 {
-  return seg.location.AsString(f);
+  return seg.location.asString(f);
 }
 
 

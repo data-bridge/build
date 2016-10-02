@@ -7,16 +7,17 @@
 */
 
 
-#include "Location.h"
-#include "portab.h"
-#include "Debug.h"
+#include <iomanip>
+#include <sstream>
 
-extern Debug debug;
+#include "Location.h"
+#include "Bdiff.h"
+#include "Bexcept.h"
 
 
 Location::Location()
 {
-  Location::Reset();
+  Location::reset();
 }
 
 
@@ -25,14 +26,14 @@ Location::~Location()
 }
 
 
-void Location::Reset()
+void Location::reset()
 {
   location.general = "";
   location.specific = "";
 }
 
 
-bool Location::Set(
+void Location::set(
   const string& t,
   const formatType f)
 {
@@ -41,8 +42,7 @@ bool Location::Set(
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
-      LOG("No LIN location format");
-      return false;
+      THROW("No LIN location format");
     
     case BRIDGE_FORMAT_PBN:
     case BRIDGE_FORMAT_RBN:
@@ -56,7 +56,7 @@ bool Location::Set(
         location.general = t.substr(0, pos);
         location.specific = t.substr(pos+1, string::npos);
       }
-      return true;
+      return;
     
     case BRIDGE_FORMAT_TXT:
       if ((pos = t.find(", ", 0)) == string::npos)
@@ -71,11 +71,10 @@ bool Location::Set(
           location.specific = t.substr(pos+2, string::npos);
         }
       }
-      return true;
+      return;
     
     default:
-      LOG("Invalid format " + STR(f));
-      return false;
+      THROW("Invalid format: " + STR(f));
   }
 }
 
@@ -83,17 +82,12 @@ bool Location::Set(
 bool Location::operator == (const Location& l2) const
 {
   if (location.general != l2.location.general)
-  {
-    LOG("General location differs");
-    return false;
-  }
-  else if (location.specific != l2.location.specific)
-  {
-    LOG("Specific location differs");
-    return false;
-  }
-  else
-    return true;
+    DIFF("General location differs");
+
+  if (location.specific != l2.location.specific)
+    DIFF("Specific location differs");
+
+  return true;
 }
 
 
@@ -103,46 +97,40 @@ bool Location::operator != (const Location& l2) const
 }
 
 
-string Location::AsString(const formatType f) const
+string Location::asRBN() const
+{
+  stringstream s;
+  s << location.general;
+  if (location.specific != "")
+    s << ":" << location.specific;
+  return s.str();
+}
+
+
+string Location::asString(const formatType f) const
 {
   stringstream s;
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
-      s << location.general;
-      if (location.specific != "")
-        s << ":" << location.specific;
-      return s.str();
+      return Location::asRBN();
     
     case BRIDGE_FORMAT_PBN:
       if (location.specific == "")
         return "";
-      s << "[Site \"" << location.general;
-      if (location.specific != "")
-        s << ":" << location.specific;
-      return s.str() + "\"]\n";
+      return "[Site \"" + Location::asRBN() + "\"]\n";
     
     case BRIDGE_FORMAT_RBN:
-      s << "L " << location.general;
-      if (location.specific != "")
-        s << ":" << location.specific;
-      return s.str() + "\n";
+      return "L " + Location::asRBN() + "\n";
     
     case BRIDGE_FORMAT_RBX:
-      s << "L{" << location.general;
-      if (location.specific != "")
-        s << ":" << location.specific;
-      return s.str() + "}";
+      return "L{" + Location::asRBN() + "}";
     
     case BRIDGE_FORMAT_TXT:
-      s << location.general;
-      if (location.specific != "")
-        s << ", " << location.specific;
-      return s.str() + "\n";
+      return Location::asRBN() + "\n";
     
     default:
-      LOG("Invalid format " + STR(f));
-      return "";
+      THROW("Invalid format: " + STR(f));
   }
 }
 

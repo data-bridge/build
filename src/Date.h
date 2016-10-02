@@ -20,14 +20,14 @@ class Date
 {
   private:
 
-    struct dateType
+    struct DateType
     {
       unsigned year;
       unsigned month;
       unsigned day;
     };
 
-    dateType date;
+    DateType date;
 
     void checkDate() const;
 

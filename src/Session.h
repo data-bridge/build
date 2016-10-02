@@ -18,7 +18,7 @@ using namespace std;
 
 // Private to Session, but needs to be here...
 
-enum stageType
+enum StageType
 {
   BRIDGE_SESSION_FINAL = 0,
   BRIDGE_SESSION_PLAYOFF = 1,
@@ -35,14 +35,14 @@ class Session
   private:
 
     string general1;
-    stageType stage;
+    StageType stage;
     unsigned roundOf;
     string general2;
     unsigned sessionNo;
 
-    stageType charToType(const char c) const;
+    StageType charToType(const char c) const;
 
-    stageType stringToType(
+    StageType stringToType(
       const string& t,
       unsigned& rOf) const;
 

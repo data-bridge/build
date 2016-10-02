@@ -61,7 +61,7 @@ void Session::reset()
 }
 
 
-stageType Session::charToType(const char c) const
+StageType Session::charToType(const char c) const
 {
   switch(c)
   {
@@ -91,7 +91,7 @@ stageType Session::charToType(const char c) const
 }
 
 
-stageType Session::stringToType(
+StageType Session::stringToType(
   const string& t,
   unsigned& rOf) const
 {
@@ -134,7 +134,7 @@ stageType Session::stringToType(
 
 void Session::setPart1(const string& t)
 {
-  stageType r;
+  StageType r;
   unsigned u;
   size_t l = t.length();
 
