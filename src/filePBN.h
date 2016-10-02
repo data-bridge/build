@@ -25,10 +25,6 @@ bool readPBNChunk(
   vector<string>& chunk,
   bool& newSegFlag);
 
-bool readPBN(
-  Group& group,
-  const string& fname);
-
 bool writePBN(
   Group& group,
   const string& fname);

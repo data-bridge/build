@@ -109,42 +109,42 @@ static bool dummyWrite(
 void setTables()
 {
   formatFncs[BRIDGE_FORMAT_LIN].set = &setLINTables;
-  formatFncs[BRIDGE_FORMAT_LIN].read = &readPBN; // For now, TODO
+  formatFncs[BRIDGE_FORMAT_LIN].read = &readTXT; // For now, TODO
   formatFncs[BRIDGE_FORMAT_LIN].write = &writeLIN;
   formatFncs[BRIDGE_FORMAT_LIN].readChunk = &readLINChunk;
 
   formatFncs[BRIDGE_FORMAT_LIN_RP].set = &dummySet;
-  formatFncs[BRIDGE_FORMAT_LIN_RP].read = &readPBN; // For now, TODO
+  formatFncs[BRIDGE_FORMAT_LIN_RP].read = &readTXT; // For now, TODO
   formatFncs[BRIDGE_FORMAT_LIN_RP].write = &writeLIN_RP;
   formatFncs[BRIDGE_FORMAT_LIN_RP].readChunk = &readLINChunk;
 
   formatFncs[BRIDGE_FORMAT_LIN_VG].set = &dummySet;
-  formatFncs[BRIDGE_FORMAT_LIN_VG].read = &readPBN; // For now, TODO
+  formatFncs[BRIDGE_FORMAT_LIN_VG].read = &readTXT; // For now, TODO
   formatFncs[BRIDGE_FORMAT_LIN_VG].write = &writeLIN_VG;
   formatFncs[BRIDGE_FORMAT_LIN_VG].readChunk = &readLINChunk;
 
   formatFncs[BRIDGE_FORMAT_LIN_TRN].set = &dummySet;
-  formatFncs[BRIDGE_FORMAT_LIN_TRN].read = &readPBN; // For now, TODO
+  formatFncs[BRIDGE_FORMAT_LIN_TRN].read = &readTXT; // For now, TODO
   formatFncs[BRIDGE_FORMAT_LIN_TRN].write = &writeLIN_TRN;
   formatFncs[BRIDGE_FORMAT_LIN_TRN].readChunk = &readLINChunk;
 
   formatFncs[BRIDGE_FORMAT_LIN_EXT].set = &dummySet;
-  formatFncs[BRIDGE_FORMAT_LIN_EXT].read = &readPBN; // For now, TODO
+  formatFncs[BRIDGE_FORMAT_LIN_EXT].read = &readTXT; // For now, TODO
   formatFncs[BRIDGE_FORMAT_LIN_EXT].write = &dummyWrite;
   formatFncs[BRIDGE_FORMAT_LIN_EXT].readChunk = &readLINChunk;
 
   formatFncs[BRIDGE_FORMAT_PBN].set = &setPBNTables;
-  formatFncs[BRIDGE_FORMAT_PBN].read = &readPBN;
+  formatFncs[BRIDGE_FORMAT_PBN].read = &readTXT; // For now, TODO
   formatFncs[BRIDGE_FORMAT_PBN].write = &writePBN;
   formatFncs[BRIDGE_FORMAT_PBN].readChunk = &readPBNChunk;
 
   formatFncs[BRIDGE_FORMAT_RBN].set = &setRBNTables;
-  formatFncs[BRIDGE_FORMAT_RBN].read = &readPBN; // For now, TODO
+  formatFncs[BRIDGE_FORMAT_RBN].read = &readTXT; // For now, TODO
   formatFncs[BRIDGE_FORMAT_RBN].write = &writeRBN;
   formatFncs[BRIDGE_FORMAT_RBN].readChunk = &readRBNChunk;
 
   formatFncs[BRIDGE_FORMAT_RBX].set = &setRBXTables;
-  formatFncs[BRIDGE_FORMAT_RBX].read = &readPBN; // For now, TODO
+  formatFncs[BRIDGE_FORMAT_RBX].read = &readTXT; // For now, TODO
   formatFncs[BRIDGE_FORMAT_RBX].write = &writeRBX;
   formatFncs[BRIDGE_FORMAT_RBX].readChunk = &readRBXChunk;
 
