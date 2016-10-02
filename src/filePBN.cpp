@@ -170,7 +170,7 @@ void writePBNBoardLevel(
   ofstream& fstr,
   Segment * segment,
   Board * board,
-  const writeInfoType& writeInfo,
+  writeInfoType& writeInfo,
   const formatType f)
 {
   board->CalculateScore();

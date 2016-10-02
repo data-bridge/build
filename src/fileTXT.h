@@ -29,5 +29,16 @@ bool writeTXT(
   Group& group,
   const string& fname);
 
+void writeTXTSegmentLevel(
+  ofstream& fstr,
+  Segment * segment,
+  const formatType f);
+
+void writeTXTBoardLevel(
+  ofstream& fstr,
+  Segment * segment,
+  Board * board,
+  writeInfoType& writeInfo,
+  const formatType f);
 
 #endif

@@ -419,113 +419,79 @@ bool readTXTChunk(
 }
 
 
-bool writeTXT(
-  Group& group,
-  const string& fname)
+void writeTXTSegmentLevel(
+  ofstream& fstr,
+  Segment * segment,
+  const formatType f)
 {
-  ofstream fstr(fname.c_str());
-  if (! fstr.is_open())
-  {
-    LOG("No such TXT file");
-    return false;
-  }
+  fstr << "\n" << segment->TitleAsString(f) << "\n";
+  fstr << segment->DateAsString(f);
+  fstr << segment->LocationAsString(f);
+  fstr << segment->EventAsString(f);
+  fstr << segment->SessionAsString(f);
+  fstr << segment->TeamsAsString(f) << "\n\n";
+}
 
-  fstr << "% TXT " << 
-    GuessOriginalLine(group.GetFileName(), group.GetCount()) << "\n";
-  fstr << "% www.rpbridge.net Richard Pavlicek\n";
 
-  const formatType f = BRIDGE_FORMAT_TXT;
+void writeTXTBoardLevel(
+  ofstream& fstr,
+  Segment * segment,
+  Board * board,
+  writeInfoType& writeInfo,
+  const formatType f)
+{
   Canvas canvas;
 
-  for (unsigned g = 0; g < group.GetLength(); g++)
+  board->CalculateScore();
+
+  if (writeInfo.ino == 0)
   {
-    Segment * segment = group.GetSegment(g);
+    const string dstr = board->DealAsString(BRIDGE_WEST, f);
+    const string bstr = segment->NumberAsString(f, writeInfo.bno);
+    const string vstr = board->VulAsString(f);
 
-    fstr << "\n" << segment->TitleAsString(f) << "\n";
-    fstr << segment->DateAsString(f);
-    fstr << segment->LocationAsString(f);
-    fstr << segment->EventAsString(f);
-    fstr << segment->SessionAsString(f);
-    fstr << segment->TeamsAsString(f) << "\n\n";
+    // Convert deal, auction and play from \n to vectors.
+    vector<string> deal;
+    ConvertMultilineToVector(dstr, deal);
 
-    unsigned score1 = 0, score2 = 0;
-    const unsigned numBoards = segment->GetLength();
-    for (unsigned b = 0; b < numBoards; b++)
-    {
-      Board * board = segment->GetBoard(b);
-      if (board == nullptr)
-      {
-        LOG("Invalid board");
-        fstr.close();
-        return false;
-      }
-
-      const unsigned numInstances = board->GetLength();
-      for (unsigned i = 0; i < numInstances; i++)
-      {
-        if (! board->SetInstance(i))
-        {
-          LOG("Invalid instance");
-          fstr.close();
-          return false;
-        }
-
-        board->CalculateScore();
-
-
-        if (i == 0)
-        {
-          const string dstr = board->DealAsString(BRIDGE_WEST, f);
-          const string bstr = segment->NumberAsString(f, b);
-          const string vstr = board->VulAsString(f);
-
-          // Convert deal, auction and play from \n to vectors.
-          vector<string> deal;
-          ConvertMultilineToVector(dstr, deal);
-
-          canvas.SetDimensions(15, 80);
-          canvas.SetRectangle(deal, 0, 0);
-          canvas.SetLine(bstr, 0, 0);
-          canvas.SetLine(vstr, 14, 0);
-          fstr << canvas.AsString() << "\n";
-        }
-
-        fstr << setw(12) << left << board->WestAsString(f) <<
-            setw(12) << board->NorthAsString(f) <<
-            setw(12) << board->EastAsString(f) <<
-            board->SouthAsString(f) << "\n";
-
-        fstr << board->AuctionAsString(f) << "\n";
-        fstr << board->ContractAsString(f);
-        fstr << board->PlayAsString(f);
-
-        if (i == 0)
-          fstr << board->ResultAsString(f, false) << "\n";
-        else if (i == 1)
-        {
-          int s = board->ScoreIMPAsInt();
-          string tWin;
-          if (s > 0)
-          {
-            score2 += static_cast<unsigned>(s);
-            tWin = segment->SecondTeamAsString(f);
-          }
-          else
-          {
-            score1 += static_cast<unsigned>(-s);
-            tWin = segment->FirstTeamAsString(f);
-          }
-
-          fstr << board->ResultAsString(f, tWin) << "\n";
-          fstr << segment->TeamsAsString(score1, score2, f) << "\n";
-          if (b != numBoards-1)
-            fstr << TXTdashes << "\n\n";
-        }
-      }
-    }
+    canvas.SetDimensions(15, 80);
+    canvas.SetRectangle(deal, 0, 0);
+    canvas.SetLine(bstr, 0, 0);
+    canvas.SetLine(vstr, 14, 0);
+    fstr << canvas.AsString() << "\n";
   }
 
-  fstr.close();
-  return true;
+  fstr << setw(12) << left << board->WestAsString(f) <<
+      setw(12) << board->NorthAsString(f) <<
+      setw(12) << board->EastAsString(f) <<
+      board->SouthAsString(f) << "\n";
+
+  fstr << board->AuctionAsString(f) << "\n";
+  fstr << board->ContractAsString(f);
+  fstr << board->PlayAsString(f);
+
+  if (writeInfo.ino == 0)
+    fstr << board->ResultAsString(f, false) << "\n";
+  else if (writeInfo.ino == 1)
+  {
+    int s = board->ScoreIMPAsInt();
+    string tWin;
+    if (s > 0)
+    {
+      writeInfo.score2 += static_cast<unsigned>(s);
+      tWin = segment->SecondTeamAsString(f);
+    }
+    else
+    {
+      writeInfo.score1 += static_cast<unsigned>(-s);
+      tWin = segment->FirstTeamAsString(f);
+    }
+
+    fstr << board->ResultAsString(f, tWin) << "\n";
+    fstr << 
+      segment->TeamsAsString(writeInfo.score1, writeInfo.score2, f) << "\n";
+    if (writeInfo.bno != writeInfo.numBoards-1)
+      fstr << TXTdashes << "\n\n";
+  }
 }
 

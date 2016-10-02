@@ -9,11 +9,7 @@
 
 #include <iostream>
 #include <fstream>
-// #include <string>
-// #include <vector>
 #include <regex>
-
-// #include <assert.h>
 
 #include "Group.h"
 #include "Segment.h"
@@ -346,7 +342,7 @@ void writeRECBoardLevel(
   ofstream& fstr,
   Segment * segment,
   Board * board,
-  const writeInfoType& writeInfo,
+  writeInfoType& writeInfo,
   const formatType f)
 {
   Canvas canvas;

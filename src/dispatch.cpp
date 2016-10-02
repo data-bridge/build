@@ -27,14 +27,6 @@
 #include "filePBN.h"
 #include "fileRBN.h"
 #include "fileRBX.h"
-#include "fileEML.h"
-#include "fileTXT.h"
-#include "fileREC.h"
-
-#include "fileLIN.h"
-#include "filePBN.h"
-#include "fileRBN.h"
-#include "fileRBX.h"
 #include "fileTXT.h"
 #include "fileEML.h"
 #include "fileREC.h"
@@ -48,7 +40,6 @@
 extern Debug debug;
 
 
-
 using namespace std;
 
 struct FormatFunctionsType
@@ -56,7 +47,7 @@ struct FormatFunctionsType
   bool (* write)(Group&, const string&);
   void (* writeSeg)(ofstream&, Segment *, formatType);
   void (* writeBoard)(ofstream&, Segment *, Board *, 
-    const writeInfoType&, const formatType);
+    writeInfoType&, const formatType);
   bool (* readChunk)(ifstream&, unsigned&, vector<string>&, bool&);
 };
 
@@ -91,6 +82,7 @@ static bool writeFormattedFile(
   Group& group,
   const string& fname,
   const formatType f);
+
 
 static bool dummyWrite(
   Group& group,
@@ -150,10 +142,9 @@ void setTables()
   formatFncs[BRIDGE_FORMAT_RBX].writeSeg = &writeLINSegmentLevel; // TODO
   formatFncs[BRIDGE_FORMAT_RBX].writeBoard = &writeLINBoardLevel; // TODO
 
-  formatFncs[BRIDGE_FORMAT_TXT].write = &writeTXT;
   formatFncs[BRIDGE_FORMAT_TXT].readChunk = &readTXTChunk;
-  formatFncs[BRIDGE_FORMAT_TXT].writeSeg = &writeLINSegmentLevel; // TODO
-  formatFncs[BRIDGE_FORMAT_TXT].writeBoard = &writeLINBoardLevel; // TODO
+  formatFncs[BRIDGE_FORMAT_TXT].writeSeg = &writeTXTSegmentLevel;
+  formatFncs[BRIDGE_FORMAT_TXT].writeBoard = &writeTXTBoardLevel;
 
   formatFncs[BRIDGE_FORMAT_EML].readChunk = &readEMLChunk;
   formatFncs[BRIDGE_FORMAT_EML].writeSeg = &writeDummySegmentLevel;
@@ -242,7 +233,8 @@ void dispatch(
         t.formatOutput == BRIDGE_FORMAT_LIN_TRN ||
         t.formatOutput == BRIDGE_FORMAT_PBN ||
         t.formatOutput == BRIDGE_FORMAT_EML ||
-        t.formatOutput == BRIDGE_FORMAT_REC)
+        t.formatOutput == BRIDGE_FORMAT_REC ||
+        t.formatOutput == BRIDGE_FORMAT_TXT)
     {
       if (! writeFormattedFile(group, t.fileOutput, t.formatOutput))
       {
@@ -412,6 +404,8 @@ static bool writeFormattedFile(
   }
 
   writeInfoType writeInfo;
+  writeInfo.score1 = 0;
+  writeInfo.score2 = 0;
   writeHeader(fstr, group, f);
 
   for (unsigned g = 0; g < group.GetLength(); g++)

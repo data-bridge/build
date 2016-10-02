@@ -34,7 +34,7 @@ void writeLINBoardLevel(
   ofstream& fstr,
   Segment * segment,
   Board * board,
-  const writeInfoType& writeInfo,
+  writeInfoType& writeInfo,
   const formatType f);
 
 #endif
