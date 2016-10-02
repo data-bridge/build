@@ -27,5 +27,11 @@ bool writeREC(
   Group& group,
   const string& fname);
 
+void writeRECBoardLevel(
+  ofstream& fstr,
+  Segment * segment,
+  Board * board,
+  const writeInfoType& writeInfo,
+  const formatType f);
 
 #endif

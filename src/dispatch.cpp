@@ -156,13 +156,12 @@ void setTables()
   formatFncs[BRIDGE_FORMAT_TXT].writeBoard = &writeLINBoardLevel; // TODO
 
   formatFncs[BRIDGE_FORMAT_EML].readChunk = &readEMLChunk;
-  formatFncs[BRIDGE_FORMAT_EML].writeSeg = &writeDummySegmentLevel; // TODO
-  formatFncs[BRIDGE_FORMAT_EML].writeBoard = &writeEMLBoardLevel; // TODO
+  formatFncs[BRIDGE_FORMAT_EML].writeSeg = &writeDummySegmentLevel;
+  formatFncs[BRIDGE_FORMAT_EML].writeBoard = &writeEMLBoardLevel;
 
-  formatFncs[BRIDGE_FORMAT_REC].write = &writeREC;
   formatFncs[BRIDGE_FORMAT_REC].readChunk = &readRECChunk;
-  formatFncs[BRIDGE_FORMAT_REC].writeSeg = &writeLINSegmentLevel; // TODO
-  formatFncs[BRIDGE_FORMAT_REC].writeBoard = &writeLINBoardLevel; // TODO
+  formatFncs[BRIDGE_FORMAT_REC].writeSeg = &writeDummySegmentLevel;
+  formatFncs[BRIDGE_FORMAT_REC].writeBoard = &writeRECBoardLevel;
 
   formatFncs[BRIDGE_FORMAT_PAR].write = &dummyWrite;
 
@@ -242,7 +241,8 @@ void dispatch(
         t.formatOutput == BRIDGE_FORMAT_LIN_VG ||
         t.formatOutput == BRIDGE_FORMAT_LIN_TRN ||
         t.formatOutput == BRIDGE_FORMAT_PBN ||
-        t.formatOutput == BRIDGE_FORMAT_EML)
+        t.formatOutput == BRIDGE_FORMAT_EML ||
+        t.formatOutput == BRIDGE_FORMAT_REC)
     {
       if (! writeFormattedFile(group, t.fileOutput, t.formatOutput))
       {

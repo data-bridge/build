@@ -9,9 +9,11 @@
 
 #include <iostream>
 #include <fstream>
-#include <string>
-#include <vector>
+// #include <string>
+// #include <vector>
 #include <regex>
+
+// #include <assert.h>
 
 #include "Group.h"
 #include "Segment.h"
@@ -340,95 +342,55 @@ bool readRECChunk(
 }
 
 
-bool writeREC(
-  Group& group,
-  const string& fname)
+void writeRECBoardLevel(
+  ofstream& fstr,
+  Segment * segment,
+  Board * board,
+  const writeInfoType& writeInfo,
+  const formatType f)
 {
-  ofstream fstr(fname.c_str());
-  if (! fstr.is_open())
-  {
-    LOG("No such REC file");
-    return false;
-  }
-
-  fstr << "% REC " << 
-    GuessOriginalLine(group.GetFileName(), group.GetCount()) << "\n";
-  fstr << "% www.rpbridge.net Richard Pavlicek\n";
-
-  const formatType f = BRIDGE_FORMAT_REC;
   Canvas canvas;
 
-  for (unsigned g = 0; g < group.GetLength(); g++)
-  {
-    Segment * segment = group.GetSegment(g);
+  board->CalculateScore();
 
-    const unsigned numBoards = segment->GetLength();
-    for (unsigned b = 0; b < numBoards; b++)
-    {
-      Board * board = segment->GetBoard(b);
-      if (board == nullptr)
-      {
-        LOG("Invalid board");
-        fstr.close();
-        return false;
-      }
+  const string dstr = board->DealAsString(BRIDGE_WEST, f);
+  const string sstr = segment->ScoringAsString(f);
+  const string estr = board->DealerAsString(f);
+  const string bstr = segment->NumberAsString(f, writeInfo.bno);
+  const string vstr = board->VulAsString(f);
 
-      const unsigned numInstances = board->GetLength();
-      for (unsigned i = 0; i < numInstances; i++)
-      {
-        if (! board->SetInstance(i))
-        {
-          LOG("Invalid instance");
-          fstr.close();
-          return false;
-        }
+  const string west = board->WestAsString(f);
+  const string north = board->NorthAsString(f);
+  const string east = board->EastAsString(f);
+  const string south = board->SouthAsString(f);
 
-        board->CalculateScore();
+  // Convert deal, auction and play from \n to vectors.
+  vector<string> deal;
+  ConvertMultilineToVector(dstr, deal);
 
-        const string dstr = board->DealAsString(BRIDGE_WEST, f);
-        const string sstr = segment->ScoringAsString(f);
-        const string estr = board->DealerAsString(f);
-        const string bstr = segment->NumberAsString(f, b);
-        const string vstr = board->VulAsString(f);
+  canvas.SetDimensions(11, 80);
+  canvas.SetRectangle(deal, 0, 0);
 
-        const string west = board->WestAsString(f);
-        const string north = board->NorthAsString(f);
-        const string east = board->EastAsString(f);
-        const string south = board->SouthAsString(f);
+  canvas.SetLine(sstr, 0, 0);
+  canvas.SetLine(estr, 0, 24);
+  canvas.SetLine(bstr, 1, 0);
+  canvas.SetLine(vstr, 1, 24);
 
-        // Convert deal, auction and play from \n to vectors.
-        vector<string> deal;
-        ConvertMultilineToVector(dstr, deal);
+  canvas.SetLine(north, 0, 12);
+  canvas.SetLine(west, 3, 0);
+  canvas.SetLine(east, 3, 24);
+  canvas.SetLine(south, 6, 12);
 
-        canvas.SetDimensions(11, 80);
-        canvas.SetRectangle(deal, 0, 0);
+  fstr << canvas.AsString(true) << "\n";
 
-        canvas.SetLine(sstr, 0, 0);
-        canvas.SetLine(estr, 0, 24);
-        canvas.SetLine(bstr, 1, 0);
-        canvas.SetLine(vstr, 1, 24);
+  fstr << board->PlayersAsString(f) << "\n";
+  fstr << board->AuctionAsString(f) << "\n";
 
-        canvas.SetLine(north, 0, 12);
-        canvas.SetLine(west, 3, 0);
-        canvas.SetLine(east, 3, 24);
-        canvas.SetLine(south, 6, 12);
+  fstr << board->LeadAsString(f) << "    ";
+  fstr << board->ResultAsString(f, false) << "\n";
+  fstr << board->ScoreAsString(f, false);
+  fstr << board->ScoreIMPAsString(f, writeInfo.ino == 1) << "\n\n";
 
-        fstr << canvas.AsString(true) << "\n";
-
-        fstr << board->PlayersAsString(f) << "\n";
-        fstr << board->AuctionAsString(f) << "\n";
-
-        fstr << board->LeadAsString(f) << "    ";
-        fstr << board->ResultAsString(f, false) << "\n";
-        fstr << board->ScoreAsString(f, false);
-        fstr << board->ScoreIMPAsString(f, i == 1) << "\n\n";
-
-        fstr << board->PlayAsString(f) << "\n";
-      }
-    }
-  }
-
-  fstr.close();
-  return true;
+  fstr << board->PlayAsString(f) << "\n";
 }
 
