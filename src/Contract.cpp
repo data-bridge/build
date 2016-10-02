@@ -531,7 +531,7 @@ bool Contract::SetResult(
     if (! ReadNextWord(text, 5, wd2))
       return false;
 
-    if (! StringToUnsigned(wd2, u))
+    if (! StringToNonzeroUnsigned(wd2, u))
       return false;
 
     if (wd1 == "Down")
@@ -542,12 +542,13 @@ bool Contract::SetResult(
       return false;
       
   }
-  else if (f == BRIDGE_FORMAT_RBN && text.substr(0, 2) == "P:")
+  else if (f == BRIDGE_FORMAT_RBN && 
+      (text == "P" || text.substr(0, 2) == "P:"))
   {
     return Contract::IsPassedOut();
   }
   else if (! StringToUnsigned(text, u))
-    THROW("Not an unsigned result");
+    THROW("Not an unsigned result: " + text);
 
   return Contract::SetTricks(u);
 }

@@ -9,9 +9,11 @@
 
 #include <algorithm>
 #include <vector>
+
 #include "Players.h"
 #include "portab.h"
 #include "parse.h"
+#include "Bexcept.h"
 #include "Debug.h"
 
 
@@ -99,17 +101,17 @@ bool Players::SetWest(const string& name)
 }
 
 
-bool Players::SetRBNSide(
+void Players::SetRBNSide(
   const string& side,
   string& p1,
   string& p2)
 {
+  if (side == "")
+    return;
+
   int seen = count(side.begin(), side.end(), '+');
   if (seen != 1)
-  {
-    LOG("RBN side does not have exactly one plus");
-    return false;
-  }
+    THROW("RBN side does not have exactly one plus");
 
   vector<string> v(2);
   v.clear();
@@ -117,7 +119,6 @@ bool Players::SetRBNSide(
 
   p1 = v[0];
   p2 = v[1];
-  return true;
 }
 
 
@@ -147,30 +148,19 @@ bool Players::SetPlayersLIN(const string& names)
 bool Players::SetPlayersRBN(const string& names)
 {
   if (names.length() <= 2)
-  {
-    LOG("Names are not in RBN format");
-    return false;
-  }
+    THROW("Names are not in RBN format");
 
   int seen = count(names.begin(), names.end(), ':');
 
   if (seen == 0 || seen > 2)
-  {
-    LOG("Names are not in RBN format");
-    return false;
-  }
+    THROW("Names are not in RBN format");
 
   vector<string> v(3);
   v.clear();
   tokenize(names, v, ":");
 
-  if (! Players::SetRBNSide(v[0], 
-      players[BRIDGE_NORTH], players[BRIDGE_SOUTH]))
-    return false;
-
-  if (! Players::SetRBNSide(v[1], 
-      players[BRIDGE_WEST], players[BRIDGE_EAST]))
-    return false;
+  Players::SetRBNSide(v[0], players[BRIDGE_NORTH], players[BRIDGE_SOUTH]);
+  Players::SetRBNSide(v[1], players[BRIDGE_WEST], players[BRIDGE_EAST]);
 
   if (seen == 2)
   {

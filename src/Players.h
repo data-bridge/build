@@ -30,7 +30,7 @@ class Players
     string players[BRIDGE_PLAYERS];
     roomType room;
 
-    bool SetRBNSide(
+    void SetRBNSide(
       const string& side,
       string& p1,
       string& p2);

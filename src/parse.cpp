@@ -120,6 +120,31 @@ bool StringToUnsigned(
     return false;
   }
 
+  res = u;
+  return true;
+}
+
+
+bool StringToNonzeroUnsigned(
+  const string& s,
+  unsigned& res)
+{
+  unsigned u;
+  try
+  {
+    u = stoul(s, nullptr, 0);
+  }
+  catch (const invalid_argument& ia)
+  {
+    UNUSED(ia);
+    return false;
+  }
+  catch (const out_of_range& ia)
+  {
+    UNUSED(ia);
+    return false;
+  }
+
   if (u < 1)
     return false;
 

@@ -223,7 +223,7 @@ cout << "Input " << task.fileInput << endl;
     catch (Bexcept& bex)
     {
       bex.Print();
-      assert(false);
+      break;
     }
 
     for (auto &t: task.taskList)
@@ -237,7 +237,7 @@ cout << "Output " << t.fileOutput << endl;
       catch (Bexcept& bex)
       {
         bex.Print();
-        assert(false);
+        continue;
       }
 
       if (t.refFlag)
@@ -336,7 +336,7 @@ static bool readFormattedFile(
 // cout << "fname " << fname << endl;
       for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
       {
-// if (bno == 3 && i == 28)
+// if (bno == 1 && i == 19)
 // {
   // cout << "HERE" << endl;
 // }
@@ -475,6 +475,7 @@ static bool writeFormattedFile(
         }
 
         writeInfo.ino = i;
+// cout << "b " << b << " i " << i << endl;
         (* formatFncs[f].writeBoard)(fstr, segment, board, writeInfo, f);
       }
     }

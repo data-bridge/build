@@ -225,7 +225,7 @@ bool Segment::SetTitleLIN(const string& t)
     
   if (v[3] == "")
     bInmin = 0;
-  else if (! StringToUnsigned(v[3], bInmin))
+  else if (! StringToNonzeroUnsigned(v[3], bInmin))
   {
     LOG("Not a board number");
     return false;
@@ -233,7 +233,7 @@ bool Segment::SetTitleLIN(const string& t)
 
   if (v[4] == "")
     bInmax = 0;
-  else if (! StringToUnsigned(v[4], bInmax))
+  else if (! StringToNonzeroUnsigned(v[4], bInmax))
   {
     LOG("Not a board number");
     return false;
@@ -592,7 +592,7 @@ bool Segment::SetNumber(
   }
 
   unsigned extNo;
-  if (! StringToUnsigned(t, extNo))
+  if (! StringToNonzeroUnsigned(t, extNo))
   {
     LOG("Board number is not numerical");
     return false;

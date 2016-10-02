@@ -143,11 +143,11 @@ bool Date::SetLIN(const string& t)
     smatch match;
     if (regex_search(t, match, re) && match.size() >= 3)
     {
-      (void) StringToUnsigned(match.str(1), date.month);
+      (void) StringToNonzeroUnsigned(match.str(1), date.month);
 
-      (void) StringToUnsigned(match.str(2), date.day);
+      (void) StringToNonzeroUnsigned(match.str(2), date.day);
 
-      (void) StringToUnsigned(match.str(3), date.year);
+      (void) StringToNonzeroUnsigned(match.str(3), date.year);
       if (date.year > 20)
         date.year = 1900 + date.year;
       else
@@ -181,17 +181,17 @@ bool Date::SetPBN(const string& t)
     {
       if (match.str(1) == "????")
         date.year = 0;
-      else if (! StringToUnsigned(match.str(1), date.year))
+      else if (! StringToNonzeroUnsigned(match.str(1), date.year))
         return false;
 
       if (match.str(2) == "??")
         date.month = 0;
-      else if (! StringToUnsigned(match.str(2), date.month))
+      else if (! StringToNonzeroUnsigned(match.str(2), date.month))
         return false;
 
       if (match.str(3) == "??")
         date.day = 0;
-      else if (! StringToUnsigned(match.str(3), date.day))
+      else if (! StringToNonzeroUnsigned(match.str(3), date.day))
         return false;
     }
     else
@@ -218,8 +218,8 @@ bool Date::SetRBN(const string& t)
       smatch match;
       if (regex_search(t, match, re) && match.size() >= 2)
       {
-        (void) StringToUnsigned(match.str(1), date.year);
-        (void) StringToUnsigned(match.str(2), date.month);
+        (void) StringToNonzeroUnsigned(match.str(1), date.year);
+        (void) StringToNonzeroUnsigned(match.str(2), date.month);
       }
       else
       {
@@ -240,9 +240,9 @@ bool Date::SetRBN(const string& t)
       smatch match;
       if (regex_search(t, match, re) && match.size() >= 3)
       {
-        (void) StringToUnsigned(match.str(1), date.year);
-        (void) StringToUnsigned(match.str(2), date.month);
-        (void) StringToUnsigned(match.str(3), date.day);
+        (void) StringToNonzeroUnsigned(match.str(1), date.year);
+        (void) StringToNonzeroUnsigned(match.str(2), date.month);
+        (void) StringToNonzeroUnsigned(match.str(3), date.day);
       }
       else
       {
@@ -267,7 +267,7 @@ bool Date::SetTXT(const string& t)
     smatch match;
     if (regex_search(t, match, re) && match.size() >= 2)
     {
-      (void) StringToUnsigned(match.str(2), date.year);
+      (void) StringToNonzeroUnsigned(match.str(2), date.year);
       string m = match.str(1);
       Date::StringToMonth(m); // sets date.month
     }

@@ -121,7 +121,7 @@ stageType Session::StringToType(
     smatch match;
     if (regex_search(s, match, re) && match.size() >= 1)
     {
-      if (! StringToUnsigned(match.str(1), rOf))
+      if (! StringToNonzeroUnsigned(match.str(1), rOf))
         return BRIDGE_SESSION_UNDEFINED;
       else
         return BRIDGE_SESSION_ROUND_OF;
@@ -133,7 +133,7 @@ stageType Session::StringToType(
   }
 
   const string rest = s.substr(1, string::npos);
-  if (! StringToUnsigned(rest, rOf))
+  if (! StringToNonzeroUnsigned(rest, rOf))
     return BRIDGE_SESSION_UNDEFINED;
 
   if (rOf > 1024)
@@ -181,7 +181,7 @@ void Session::SetPart2(const string& t)
   unsigned u;
   if (t.length() <= 7)
   {
-    if (! StringToUnsigned(t, u))
+    if (! StringToNonzeroUnsigned(t, u))
     {
       general2 = t;
       sessionNo = 0;
@@ -200,7 +200,7 @@ void Session::SetPart2(const string& t)
       smatch match;
       if (regex_search(t, match, re) && match.size() >= 1)
       {
-        if (! StringToUnsigned(match.str(1), u))
+        if (! StringToNonzeroUnsigned(match.str(1), u))
         {
           general2 = t;
           sessionNo = 0;

@@ -129,7 +129,7 @@ bool Auction::SetDealerLIN(
   playerType& p) const
 {
   unsigned u;
-  if (! StringToUnsigned(d, u))
+  if (! StringToNonzeroUnsigned(d, u))
   {
     LOG("Not a LIN dealer");
     return false;
@@ -606,7 +606,7 @@ bool Auction::AddAlertsRBN(const vector<string>& lines)
     }
 
     unsigned u;
-    if (! StringToUnsigned(beg, u))
+    if (! StringToNonzeroUnsigned(beg, u))
     {
       LOG("Not a valid alert number");
       return false;
@@ -1009,7 +1009,7 @@ bool Auction::AddAuctionPBN(const vector<string>& list)
     {
       unsigned ano;
       words[i+1].erase(0, 1);
-      if (! StringToUnsigned(words[i+1], ano))
+      if (! StringToNonzeroUnsigned(words[i+1], ano))
       {
         LOG("Not an alert number");
         return false;
@@ -1240,7 +1240,15 @@ string Auction::AsPBN() const
   }
   else if (trailing > 0)
   {
-    assert(false);
+    // Incomplete bidding
+    for (unsigned t = 0; t < trailing; t++)
+    {
+      if ((end+t) % 4 == 3)
+        s << "\n";
+      else
+        s << " ";
+      s << "P";
+    }
   }
 
   return s.str() + alerts.str();
@@ -1296,7 +1304,13 @@ string Auction::AsRBNCore(const bool RBNflag) const
   }
   else if (trailing > 0)
   {
-    assert(false);
+    // Incomplete bidding
+    for (unsigned t = 0; t < trailing; t++)
+    {
+      if ((end+t) % 4 == 3)
+        s << ":";
+      s << "P";
+    }
   }
 
   if (RBNflag)

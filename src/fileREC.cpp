@@ -105,7 +105,7 @@ static bool getRECCanvasOffset(
       continue;
 
     unsigned u;
-    if (StringToUnsigned(wd, u))
+    if (StringToNonzeroUnsigned(wd, u))
       break;
   }
 
