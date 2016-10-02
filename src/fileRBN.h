@@ -29,5 +29,16 @@ bool writeRBN(
   Group& group,
   const string& fname);
 
+void writeRBNSegmentLevel(
+  ofstream& fstr,
+  Segment * segment,
+  const formatType f);
+
+void writeRBNBoardLevel(
+  ofstream& fstr,
+  Segment * segment,
+  Board * board,
+  writeInfoType& writeInfo,
+  const formatType f);
 
 #endif

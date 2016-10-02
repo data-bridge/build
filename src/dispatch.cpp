@@ -11,11 +11,6 @@
 
 #include <iostream>
 #include <fstream>
-#include <sstream>
-#include <iomanip>
-#include <string>
-#include <vector>
-#include <iterator>
 #include <assert.h>
 
 #include "Group.h"
@@ -31,11 +26,10 @@
 #include "fileEML.h"
 #include "fileREC.h"
 
-#include "bconst.h"
 #include "parse.h"
-#include "debug.h"
-#include "Bexcept.h"
 #include "portab.h"
+#include "Bexcept.h"
+#include "Debug.h"
 
 extern Debug debug;
 
@@ -44,11 +38,10 @@ using namespace std;
 
 struct FormatFunctionsType
 {
-  bool (* write)(Group&, const string&);
+  bool (* readChunk)(ifstream&, unsigned&, vector<string>&, bool&);
   void (* writeSeg)(ofstream&, Segment *, formatType);
   void (* writeBoard)(ofstream&, Segment *, Board *, 
     writeInfoType&, const formatType);
-  bool (* readChunk)(ifstream&, unsigned&, vector<string>&, bool&);
 };
 
 FormatFunctionsType formatFncs[BRIDGE_FORMAT_SIZE];
@@ -83,15 +76,11 @@ static bool writeFormattedFile(
   const string& fname,
   const formatType f);
 
+static void setFormatTables();
 
-static bool dummyWrite(
-  Group& group,
-  const string& fname)
-{
-  UNUSED(group);
-  UNUSED(fname);
-  return true;
-}
+static void SetIO();
+
+static void SetInterface();
 
 
 void writeDummySegmentLevel(
@@ -105,7 +94,18 @@ void writeDummySegmentLevel(
 }
 
 
-void setTables()
+static void setFormatTables()
+{
+  setLINTables();
+  setPBNTables();
+  setRBNTables();
+  setRBXTables();
+  setTXTTables();
+  setEMLTables();
+}
+
+
+static void setIO()
 {
   formatFncs[BRIDGE_FORMAT_LIN].readChunk = &readLINChunk;
   formatFncs[BRIDGE_FORMAT_LIN].writeSeg = &writeLINSegmentLevel;
@@ -123,7 +123,6 @@ void setTables()
   formatFncs[BRIDGE_FORMAT_LIN_TRN].writeSeg = &writeLINSegmentLevel;
   formatFncs[BRIDGE_FORMAT_LIN_TRN].writeBoard = &writeLINBoardLevel;
 
-  formatFncs[BRIDGE_FORMAT_LIN_EXT].write = &dummyWrite;
   formatFncs[BRIDGE_FORMAT_LIN_EXT].readChunk = &readLINChunk;
   formatFncs[BRIDGE_FORMAT_LIN_EXT].writeSeg = &writeLINSegmentLevel;
   formatFncs[BRIDGE_FORMAT_LIN_EXT].writeBoard = &writeLINBoardLevel;
@@ -132,15 +131,13 @@ void setTables()
   formatFncs[BRIDGE_FORMAT_PBN].writeSeg = &writeDummySegmentLevel;
   formatFncs[BRIDGE_FORMAT_PBN].writeBoard = &writePBNBoardLevel;
 
-  formatFncs[BRIDGE_FORMAT_RBN].write = &writeRBN;
   formatFncs[BRIDGE_FORMAT_RBN].readChunk = &readRBNChunk;
-  formatFncs[BRIDGE_FORMAT_RBN].writeSeg = &writeLINSegmentLevel; // TODO
-  formatFncs[BRIDGE_FORMAT_RBN].writeBoard = &writeLINBoardLevel; // TODO
+  formatFncs[BRIDGE_FORMAT_RBN].writeSeg = &writeRBNSegmentLevel;
+  formatFncs[BRIDGE_FORMAT_RBN].writeBoard = &writeRBNBoardLevel;
 
-  formatFncs[BRIDGE_FORMAT_RBX].write = &writeRBX;
   formatFncs[BRIDGE_FORMAT_RBX].readChunk = &readRBXChunk;
-  formatFncs[BRIDGE_FORMAT_RBX].writeSeg = &writeLINSegmentLevel; // TODO
-  formatFncs[BRIDGE_FORMAT_RBX].writeBoard = &writeLINBoardLevel; // TODO
+  formatFncs[BRIDGE_FORMAT_RBX].writeSeg = &writeRBNSegmentLevel;
+  formatFncs[BRIDGE_FORMAT_RBX].writeBoard = &writeRBNBoardLevel;
 
   formatFncs[BRIDGE_FORMAT_TXT].readChunk = &readTXTChunk;
   formatFncs[BRIDGE_FORMAT_TXT].writeSeg = &writeTXTSegmentLevel;
@@ -153,16 +150,11 @@ void setTables()
   formatFncs[BRIDGE_FORMAT_REC].readChunk = &readRECChunk;
   formatFncs[BRIDGE_FORMAT_REC].writeSeg = &writeDummySegmentLevel;
   formatFncs[BRIDGE_FORMAT_REC].writeBoard = &writeRECBoardLevel;
+}
 
-  formatFncs[BRIDGE_FORMAT_PAR].write = &dummyWrite;
 
-  setLINTables();
-  setPBNTables();
-  setRBNTables();
-  setRBXTables();
-  setTXTTables();
-  setEMLTables();
-
+static void setInterface()
+{
   segPtr[BRIDGE_FORMAT_TITLE] = &Segment::SetTitle;
   segPtr[BRIDGE_FORMAT_DATE] = &Segment::SetDate;
   segPtr[BRIDGE_FORMAT_LOCATION] = &Segment::SetLocation;
@@ -202,6 +194,14 @@ void setTables()
 }
 
 
+void setTables()
+{
+  setFormatTables();
+  setIO();
+  setInterface();
+}
+
+
 void dispatch(
   const int thrNo,
   Files& files)
@@ -227,28 +227,15 @@ void dispatch(
 
   for (auto &t: task.taskList)
   {
-    if (t.formatOutput == BRIDGE_FORMAT_LIN ||
-        t.formatOutput == BRIDGE_FORMAT_LIN_RP ||
-        t.formatOutput == BRIDGE_FORMAT_LIN_VG ||
-        t.formatOutput == BRIDGE_FORMAT_LIN_TRN ||
-        t.formatOutput == BRIDGE_FORMAT_PBN ||
-        t.formatOutput == BRIDGE_FORMAT_EML ||
-        t.formatOutput == BRIDGE_FORMAT_REC ||
-        t.formatOutput == BRIDGE_FORMAT_TXT)
+    try
     {
       if (! writeFormattedFile(group, t.fileOutput, t.formatOutput))
-      {
-        debug.Print();
-        assert(false);
-      }
+      THROW("something blew up");
     }
-    else
+    catch(Bexcept& bex)
     {
-    if (! (* formatFncs[t.formatOutput].write)(group, t.fileOutput))
-    {
-      debug.Print();
+      bex.Print();
       assert(false);
-    }
     }
 
     if (t.refFlag)
@@ -386,8 +373,16 @@ static void writeHeader(
   if (g == "")
     return;
 
-  fstr << "% " << FORMAT_EXTENSIONS[f] << " " << g << "\n";
-  fstr << "% www.rpbridge.net Richard Pavlicek\n";
+  if (f == BRIDGE_FORMAT_RBX)
+  {
+    fstr << "%{RBX " << g << "}";
+    fstr << "%{www.rpbridge.net Richard Pavlicek}";
+  }
+  else
+  {
+    fstr << "% " << FORMAT_EXTENSIONS[f] << " " << g << "\n";
+    fstr << "% www.rpbridge.net Richard Pavlicek\n";
+  }
 }
 
 
@@ -404,8 +399,11 @@ static bool writeFormattedFile(
   }
 
   writeInfoType writeInfo;
+  writeInfo.namesOld[0] = "";
+  writeInfo.namesOld[1] = "";
   writeInfo.score1 = 0;
   writeInfo.score2 = 0;
+
   writeHeader(fstr, group, f);
 
   for (unsigned g = 0; g < group.GetLength(); g++)

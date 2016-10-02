@@ -9,16 +9,17 @@
 
 #include <iostream>
 #include <fstream>
-#include <sstream>
-#include <string>
-#include <vector>
+// #include <sstream>
+// #include <string>
+// #include <vector>
 #include <regex>
+#include <assert.h>
 
 #include "Group.h"
 #include "Segment.h"
-#include "Debug.h"
 #include "fileRBX.h"
 #include "parse.h"
+#include "Debug.h"
 
 using namespace std;
 
@@ -119,10 +120,56 @@ bool readRBXChunk(
 }
 
 
+void writeRBXSegmentLevel(
+  ofstream& fstr,
+  Segment * segment,
+  const formatType f)
+{
+  fstr << segment->TitleAsString(f);
+  fstr << segment->DateAsString(f);
+  fstr << segment->LocationAsString(f);
+  fstr << segment->EventAsString(f);
+  fstr << segment->SessionAsString(f);
+  fstr << segment->ScoringAsString(f);
+  fstr << segment->TeamsAsString(f);
+}
+
+
+void writeRBXBoardLevel(
+  ofstream& fstr,
+  Segment * segment,
+  Board * board,
+  writeInfoType& writeInfo,
+  const formatType f)
+{
+  string names = board->PlayersAsString(f);
+  if (names != writeInfo.namesOld[writeInfo.ino])
+  {
+    fstr << names;
+    writeInfo.namesOld[writeInfo.ino] = names;
+  }
+        
+  if (writeInfo.ino == 0)
+  {
+    fstr << segment->NumberAsString(f, writeInfo.bno);
+    fstr << board->DealAsString(BRIDGE_WEST, f);
+  }
+
+  board->CalculateScore();
+
+  fstr << board->AuctionAsString(f);
+  fstr << board->ContractAsString(f);
+  fstr << board->PlayAsString(f);
+  fstr << board->ResultAsString(f, segment->ScoringIsIMPs());
+  fstr << "\n";
+}
+
+
 bool writeRBX(
   Group& group,
   const string& fname)
 {
+assert(false);
   ofstream fstr(fname.c_str());
   if (! fstr.is_open())
   {

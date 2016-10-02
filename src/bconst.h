@@ -169,8 +169,7 @@ struct writeInfoType
   unsigned numBoards;
   unsigned numInst;
 
-  string names;
-  string namesOld;
+  string namesOld[2];
 
   unsigned score1;
   unsigned score2;

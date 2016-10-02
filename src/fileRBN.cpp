@@ -9,9 +9,6 @@
 
 #include <iostream>
 #include <fstream>
-#include <sstream>
-#include <string>
-#include <vector>
 
 #include "Group.h"
 #include "Segment.h"
@@ -103,92 +100,47 @@ bool readRBNChunk(
 }
 
 
-bool writeRBN(
-  Group& group,
-  const string& fname)
+void writeRBNSegmentLevel(
+  ofstream& fstr,
+  Segment * segment,
+  const formatType f)
 {
-  ofstream fstr(fname.c_str());
-  if (! fstr.is_open())
+  fstr << segment->TitleAsString(f);
+  fstr << segment->DateAsString(f);
+  fstr << segment->LocationAsString(f);
+  fstr << segment->EventAsString(f);
+  fstr << segment->SessionAsString(f);
+  fstr << segment->ScoringAsString(f);
+  fstr << segment->TeamsAsString(f);
+}
+
+
+void writeRBNBoardLevel(
+  ofstream& fstr,
+  Segment * segment,
+  Board * board,
+  writeInfoType& writeInfo,
+  const formatType f)
+{
+  string names = board->PlayersAsString(f);
+  if (names != writeInfo.namesOld[writeInfo.ino])
   {
-    LOG("No such RBN file");
-    return false;
+    fstr << names;
+    writeInfo.namesOld[writeInfo.ino] = names;
   }
-
-  fstr << "% RBN\n";
-  fstr << "% www.rpbridge.net Richard Pavlicek\n";
-
-  const formatType f = BRIDGE_FORMAT_RBN;
-  unsigned numOld = 2;
-  vector<string> oldPlayers(numOld);
-  oldPlayers[0] = "";
-  oldPlayers[1] = "";
-
-  for (unsigned g = 0; g < group.GetLength(); g++)
-  {
-    Segment * segment = group.GetSegment(g);
-
-    fstr << segment->TitleAsString(f);
-    fstr << segment->DateAsString(f);
-    fstr << segment->LocationAsString(f);
-    fstr << segment->EventAsString(f);
-    fstr << segment->SessionAsString(f);
-    fstr << segment->ScoringAsString(f);
-    fstr << segment->TeamsAsString(f);
-
-    for (unsigned b = 0; b < segment->GetLength(); b++)
-    {
-      Board * board = segment->GetBoard(b);
-      if (board == nullptr)
-      {
-        LOG("Invalid board");
-        fstr.close();
-        return false;
-      }
-
-      unsigned numInst = board->GetLength();
-      if (numInst > numOld)
-      {
-        oldPlayers.resize(numInst);
-        for (unsigned j = numOld; j < numInst; j++)
-          oldPlayers[j] = "";
-        numOld = numInst;
-      }
-
-      for (unsigned i = 0; i < board->GetLength(); i++)
-      {
-        if (! board->SetInstance(i))
-        {
-          LOG("Invalid instance");
-          fstr.close();
-          return false;
-        }
-
-        string names = board->PlayersAsString(f);
-        if (names != oldPlayers[i])
-        {
-          fstr << names;
-          oldPlayers[i] = names;
-        }
         
-        if (i == 0)
-        {
-          fstr << segment->NumberAsString(f, b);
-          fstr << board->DealAsString(BRIDGE_WEST, f);
-        }
-
-        board->CalculateScore();
-
-        fstr << board->AuctionAsString(f);
-        fstr << board->ContractAsString(f);
-        fstr << board->PlayAsString(f);
-        fstr << board->ResultAsString(f, segment->ScoringIsIMPs());
-        fstr << "\n";
-      }
-    }
+  if (writeInfo.ino == 0)
+  {
+    fstr << segment->NumberAsString(f, writeInfo.bno);
+    fstr << board->DealAsString(BRIDGE_WEST, f);
   }
 
+  board->CalculateScore();
 
-  fstr.close();
-  return true;
+  fstr << board->AuctionAsString(f);
+  fstr << board->ContractAsString(f);
+  fstr << board->PlayAsString(f);
+  fstr << board->ResultAsString(f, segment->ScoringIsIMPs());
+  fstr << "\n";
 }
 
