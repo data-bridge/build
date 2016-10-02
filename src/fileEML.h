@@ -17,11 +17,7 @@ using namespace std;
 class Group;
 
 
-void setEMLtables();
-
-bool readEML(
-  Group& group,
-  const string& fname);
+void setEMLTables();
 
 bool readEMLChunk(
   ifstream& fstr,

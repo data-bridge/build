@@ -9,32 +9,21 @@
 
 #include <iostream>
 #include <fstream>
-#include <iomanip>
-#include <sstream>
 #include <string>
 #include <vector>
-#include <iterator>
-#include <algorithm>
-#include <regex>
-#include <map>
-#include <assert.h>
 
-#include "Board.h"
-#include "Canvas.h"
-#include "Debug.h"
 #include "Group.h"
 #include "Segment.h"
+#include "Board.h"
+#include "Canvas.h"
 #include "fileEML.h"
-#include "bconst.h"
 #include "parse.h"
-#include "portab.h"
+#include "Debug.h"
 
 using namespace std;
 
 extern Debug debug;
 
-
-const unsigned EMLlineLength = 80;
 
 enum EMLlabel
 {
@@ -56,43 +45,9 @@ enum EMLlabel
   EML_LABELS_SIZE = 15
 };
 
-const string EMLname[] =
-{
-  "Scoring",
-  "West",
-  "North",
-  "East",
-  "South",
-  "Board",
-  "Deal",
-  "Dealer",
-  "Vulnerable",
-  "Auction",
-  "Lead",
-  "Play",
-  "Result",
-  "Score",
-  "ScoreIMP"
-};
-
 string EMLdashes, EMLequals;
 string EMLshortDashes, EMLshortEquals;
 
-
-typedef bool (Segment::*SegPtr)(const string& s, const formatType f);
-typedef bool (Board::*BoardPtr)(const string& s, const formatType f);
-
-SegPtr segPtrEML[EML_LABELS_SIZE];
-BoardPtr boardPtrEML[EML_LABELS_SIZE];
-
-
-static bool tryEMLMethod(
-  const vector<string>& chunk,
-  Segment * segment,
-  Board * board,
-  const unsigned label,
-  ifstream& fstr,
-  const string& info);
 
 static bool readEMLCanvas(
   ifstream& fstr,
@@ -129,26 +84,8 @@ static bool getEMLPlay(
   vector<string>& chunk);
 
 
-void setEMLtables()
+void setEMLTables()
 {
-  segPtrEML[EML_SCORING] = &Segment::SetScoring;
-  segPtrEML[EML_WEST] = &Segment::SetWest;
-  segPtrEML[EML_NORTH] = &Segment::SetNorth;
-  segPtrEML[EML_EAST] = &Segment::SetEast;
-  segPtrEML[EML_SOUTH] = &Segment::SetSouth;
-
-  segPtrEML[EML_BOARD] = &Segment::SetNumber;
-
-  boardPtrEML[EML_DEAL] = &Board::SetDeal;
-  boardPtrEML[EML_DEALER] = &Board::SetDealer;
-  boardPtrEML[EML_VULNERABLE] = &Board::SetVul;
-  boardPtrEML[EML_AUCTION] = &Board::SetAuction;
-  boardPtrEML[EML_PLAY] = &Board::SetPlays;
-
-  boardPtrEML[EML_RESULT] = &Board::SetResult;
-  boardPtrEML[EML_SCORE] = &Board::SetScore;
-  boardPtrEML[EML_SCORE_IMP] = &Board::SetScoreIMP;
-
   EMLdashes.resize(0);
   EMLdashes.insert(0, 12, ' ');
   EMLdashes.insert(12, 43, '-');
@@ -501,106 +438,6 @@ bool readEMLChunk(
     return false;
 
   return true;
-}
-
-
-bool readEML(
-  Group& group,
-  const string& fname)
-{
-assert(false);
-  bool newSegFlag = true;
-
-  ifstream fstr(fname.c_str());
-  if (! fstr.is_open())
-  {
-    LOG("No such EML file");
-    return false;
-  }
-
-  const formatType f = BRIDGE_FORMAT_EML;
-
-  Segment * segment = nullptr;
-  Board * board = nullptr;
-  unsigned bno = 0;
-  unsigned lno = 0;
-
-  // Always one segment.
-  if (! group.MakeSegment(0))
-  {
-    LOG("Cannot make segment " + STR(0));
-    fstr.close();
-    return false;
-  }
-  segment = group.GetSegment(0);
-
-  string lastBoard = "";
-
-  vector<string> chunk(EML_LABELS_SIZE);
-  while (readEMLChunk(fstr, lno, chunk, newSegFlag))
-  {
-    if (chunk[EML_BOARD] != "" && chunk[EML_BOARD] != lastBoard)
-    {
-      // New board.
-      lastBoard = chunk[EML_BOARD];
-      board = segment->AcquireBoard(bno);
-      bno++;
-
-      if (board == nullptr)
-      {
-        LOG("Unknown error");
-        fstr.close();
-        return false;
-      }
-    }
-
-    board->NewInstance();
-    segment->CopyPlayers();
-
-    for (unsigned i = 0; i < EML_LABELS_SIZE; i++)
-    {
-      if (! tryEMLMethod(chunk, segment, board, i, fstr, EMLname[i]))
-        return false;
-    }
-
-    if (fstr.eof())
-      break;
-  }
-
-  fstr.close();
-  return true;
-}
-
-
-static bool tryEMLMethod(
-  const vector<string>& chunk,
-  Segment * segment,
-  Board * board,
-  const unsigned label,
-  ifstream& fstr,
-  const string& info)
-{
-  if (chunk[label] == "")
-    return true;
-  else if (label <= EML_BOARD)
-  {
-    if ((segment->*segPtrEML[label])(chunk[label], BRIDGE_FORMAT_EML))
-      return true;
-    else
-    {
-      LOG("Cannot add " + info + " line '" + chunk[label] + "'");
-      fstr.close();
-      return false;
-    }
-  }
-  else if ((board->*boardPtrEML[label])(chunk[label], BRIDGE_FORMAT_EML))
-    return true;
-  else
-  {
-    LOG("Cannot add " + info + " line '" + chunk[label] + "'");
-    fstr.close();
-    return false;
-  }
 }
 
 
