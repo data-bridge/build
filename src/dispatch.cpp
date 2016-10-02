@@ -133,10 +133,10 @@ void setTables()
   formatFncs[BRIDGE_FORMAT_LIN_EXT].write = &dummyWrite;
   formatFncs[BRIDGE_FORMAT_LIN_EXT].readChunk = &readLINChunk;
 
-  formatFncs[BRIDGE_FORMAT_PBN].set = &setPBNtables;
+  formatFncs[BRIDGE_FORMAT_PBN].set = &setPBNTables;
   formatFncs[BRIDGE_FORMAT_PBN].read = &readPBN;
   formatFncs[BRIDGE_FORMAT_PBN].write = &writePBN;
-  formatFncs[BRIDGE_FORMAT_PBN].readChunk = &readLINChunk; // For now, TODO
+  formatFncs[BRIDGE_FORMAT_PBN].readChunk = &readPBNChunk;
 
   formatFncs[BRIDGE_FORMAT_RBN].set = &setRBNTables;
   formatFncs[BRIDGE_FORMAT_RBN].read = &readPBN; // For now, TODO
@@ -223,7 +223,8 @@ void dispatch(
 
   if (task.formatInput == BRIDGE_FORMAT_RBN ||
       task.formatInput == BRIDGE_FORMAT_RBX ||
-      task.formatInput == BRIDGE_FORMAT_LIN)
+      task.formatInput == BRIDGE_FORMAT_LIN ||
+      task.formatInput == BRIDGE_FORMAT_PBN)
   {
     try
     {

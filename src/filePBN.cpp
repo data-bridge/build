@@ -33,18 +33,6 @@ extern Debug debug;
 
 enum PBNlabel
 {
-  PBN_DESCRIPTION = 0,
-  PBN_DATE = 1,
-  PBN_SITE = 2,
-  PBN_EVENT = 3,
-  PBN_STAGE = 4,
-  PBN_SCORING = 5,
-  PBN_HOMETEAM = 6,
-  PBN_VISITTEAM = 7,
-  PBN_WEST = 8,
-  PBN_NORTH = 9,
-  PBN_EAST = 10,
-  PBN_SOUTH = 11,
   PBN_BOARD = 12,
   PBN_ROOM = 13,
   PBN_DEAL = 14,
@@ -64,36 +52,11 @@ enum PBNlabel
 
 const string PBNname[] =
 {
-  "Description",
-  "Date",
-  "Site",
-  "Event",
-  "Stage",
-  "Scoring",
-  "HomeTeam",
-  "VisitTeam",
-  "West",
-  "North",
-  "East",
-  "South",
-  "Board",
-  "Room",
-  "Deal",
-  "Dealer",
-  "Vulnerable",
-  "Auction",
-  "Declarer",
-  "Contract",
-  "Play",
-  "Result",
-  "Score",
-  "ScoreIMP",
-  "ScoreMP",
   "OptimumResultTable"
 };
 
 
-map<string, PBNlabel> LABEL_TO_LABEL_NO;
+map<string, formatLabelType> PBNmap;
 
 
 typedef bool (Segment::*SegPtr)(const string& s, const formatType f);
@@ -102,12 +65,6 @@ typedef bool (Board::*BoardPtr)(const string& s, const formatType f);
 SegPtr segPtrPBN[PBN_LABELS_SIZE];
 BoardPtr boardPtrPBN[PBN_LABELS_SIZE];
 
-
-static bool readPBNChunk(
-  ifstream& fstr,
-  unsigned& lno,
-  vector<string>& chunk,
-  bool& newSegFlag);
 
 static bool tryPBNMethod(
   const vector<string>& chunk,
@@ -118,41 +75,40 @@ static bool tryPBNMethod(
   const string& info);
 
 
-void setPBNtables()
+void setPBNTables()
 {
-  for (unsigned i = 0; i < PBN_LABELS_SIZE; i++)
-    LABEL_TO_LABEL_NO[PBNname[i]] = static_cast<PBNlabel>(i);
+  PBNmap["Description"] = BRIDGE_FORMAT_TITLE;
+  PBNmap["Date"] = BRIDGE_FORMAT_DATE;
+  PBNmap["Site"] = BRIDGE_FORMAT_LOCATION;
+  PBNmap["Event"] = BRIDGE_FORMAT_EVENT;
+  PBNmap["Stage"] = BRIDGE_FORMAT_SESSION;
+  PBNmap["Scoring"] = BRIDGE_FORMAT_SCORING;
 
-  segPtrPBN[PBN_DESCRIPTION] = &Segment::SetTitle;
-  segPtrPBN[PBN_DATE] = &Segment::SetDate;
-  segPtrPBN[PBN_SITE] = &Segment::SetLocation;
-  segPtrPBN[PBN_EVENT] = &Segment::SetEvent;
-  segPtrPBN[PBN_STAGE] = &Segment::SetSession;
-  segPtrPBN[PBN_SCORING] = &Segment::SetScoring;
-  segPtrPBN[PBN_HOMETEAM] = &Segment::SetFirstTeam;
-  segPtrPBN[PBN_VISITTEAM] = &Segment::SetSecondTeam;
+  PBNmap["HomeTeam"] = BRIDGE_FORMAT_HOMETEAM;
+  PBNmap["VisitTeam"] = BRIDGE_FORMAT_VISITTEAM;
+  PBNmap["West"] = BRIDGE_FORMAT_WEST;
+  PBNmap["North"] = BRIDGE_FORMAT_NORTH;
+  PBNmap["East"] = BRIDGE_FORMAT_EAST;
+  PBNmap["South"] = BRIDGE_FORMAT_SOUTH;
 
-  segPtrPBN[PBN_WEST] = &Segment::SetWest;
-  segPtrPBN[PBN_NORTH] = &Segment::SetNorth;
-  segPtrPBN[PBN_EAST] = &Segment::SetEast;
-  segPtrPBN[PBN_SOUTH] = &Segment::SetSouth;
-  segPtrPBN[PBN_BOARD] = &Segment::SetNumber;
-  segPtrPBN[PBN_ROOM] = &Segment::SetRoom;
-
-  boardPtrPBN[PBN_DEAL] = &Board::SetDeal;
-  boardPtrPBN[PBN_DEALER] = &Board::SetDealer;
-  boardPtrPBN[PBN_VULNERABLE] = &Board::SetVul;
-  boardPtrPBN[PBN_DECLARER] = &Board::SetDeclarer;
-  boardPtrPBN[PBN_CONTRACT] = &Board::SetContract;
-  boardPtrPBN[PBN_RESULT] = &Board::SetResult;
-  boardPtrPBN[PBN_SCORE] = &Board::SetScore;
-  boardPtrPBN[PBN_SCORE_IMP] = &Board::SetScoreIMP;
-  boardPtrPBN[PBN_SCORE_MP] = &Board::SetScoreMP;
-  boardPtrPBN[PBN_OPTIMUM_RESULT_TABLE] = &Board::SetTableau;
+  PBNmap["Board"] = BRIDGE_FORMAT_BOARD_NO;
+  PBNmap["Room"] = BRIDGE_FORMAT_ROOM;
+  PBNmap["Deal"] = BRIDGE_FORMAT_DEAL;
+  PBNmap["Dealer"] = BRIDGE_FORMAT_DEALER;
+  PBNmap["Vulnerable"] = BRIDGE_FORMAT_VULNERABLE;
+  PBNmap["Auction"] = BRIDGE_FORMAT_AUCTION;
+  PBNmap["Declarer"] = BRIDGE_FORMAT_DECLARER;
+  PBNmap["Contract"] = BRIDGE_FORMAT_CONTRACT;
+  PBNmap["Play"] = BRIDGE_FORMAT_PLAY;
+  PBNmap["Result"] = BRIDGE_FORMAT_RESULT;
+  PBNmap["Score"] = BRIDGE_FORMAT_SCORE;
+  PBNmap["ScoreIMP"] = BRIDGE_FORMAT_SCORE_IMP;
+  PBNmap["ScoreMP"] = BRIDGE_FORMAT_SCORE_MP;
+  PBNmap["OptimumResultTable"] = BRIDGE_FORMAT_DOUBLE_DUMMY;
 }
 
 
-static bool readPBNChunk(
+bool readPBNChunk(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& chunk,
@@ -180,7 +136,7 @@ static bool readPBNChunk(
         inAuction = false;
       else
       {
-        chunk[PBN_AUCTION] += line + "\n";
+        chunk[BRIDGE_FORMAT_AUCTION] += line + "\n";
         continue;
       }
     }
@@ -190,7 +146,7 @@ static bool readPBNChunk(
         inPlay = false;
       else
       {
-        chunk[PBN_PLAY] += line + "\n";
+        chunk[BRIDGE_FORMAT_PLAY] += line + "\n";
         continue;
       }
     }
@@ -203,8 +159,8 @@ static bool readPBNChunk(
       return false;
     }
 
-    auto it = LABEL_TO_LABEL_NO.find(match.str(1));
-    if (it == LABEL_TO_LABEL_NO.end())
+    auto it = PBNmap.find(match.str(1));
+    if (it == PBNmap.end())
     {
       LOG("PBN label is illegal or not implemented: '" + line + "'");
       return false;
@@ -217,22 +173,28 @@ static bool readPBNChunk(
       return false;
     }
 
-    if (labelNo == PBN_AUCTION)
+    if (labelNo == BRIDGE_FORMAT_CONTRACT)
+    {
+      // Kludge to get declarer onto contract.  According to the PBN
+      // standard, declarer should always come before contract.
+      chunk[labelNo] = match.str(2) + chunk[BRIDGE_FORMAT_DECLARER];
+    }
+    else if (labelNo == BRIDGE_FORMAT_AUCTION)
     {
       // Multi-line.
-      chunk[PBN_AUCTION] += match.str(2) + "\n";
+      chunk[BRIDGE_FORMAT_AUCTION] += match.str(2) + "\n";
       inAuction = true;
     }
-    else if (labelNo == PBN_PLAY)
+    else if (labelNo == BRIDGE_FORMAT_PLAY)
     {
       // Multi-line.
-      chunk[PBN_PLAY] += match.str(2) + "\n";
+      chunk[BRIDGE_FORMAT_PLAY] += match.str(2) + "\n";
       inPlay = true;
     }
     else if (match.str(2) != "#")
     {
       chunk[labelNo] = match.str(2);
-      if (labelNo <= PBN_VISITTEAM)
+      if (labelNo <= BRIDGE_FORMAT_VISITTEAM)
         newSegFlag = true;
 
     }

@@ -17,7 +17,13 @@ using namespace std;
 class Group;
 
 
-void setPBNtables();
+void setPBNTables();
+
+bool readPBNChunk(
+  ifstream& fstr,
+  unsigned& lno,
+  vector<string>& chunk,
+  bool& newSegFlag);
 
 bool readPBN(
   Group& group,
