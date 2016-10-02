@@ -8,9 +8,10 @@
 
 
 #include "Contract.h"
-#include "Debug.h"
 #include "parse.h"
 #include "portab.h"
+#include "Bexcept.h"
+#include "Debug.h"
 #include <map>
 
 extern Debug debug;
@@ -290,10 +291,7 @@ bool Contract::SetContract(
 	contract.mult == mult);
   }
   else if (level == 0)
-  {
-    LOG("level must be > 0");
-    return false;
-  }
+    THROW("level must be > 0");
   else
   {
     setContractFlag = true;
@@ -544,11 +542,12 @@ bool Contract::SetResult(
       return false;
       
   }
-  else if (! StringToUnsigned(text, u))
+  else if (f == BRIDGE_FORMAT_RBN && text.substr(0, 2) == "P:")
   {
-    LOG("Not an unsigned result");
-    return false;
+    return Contract::IsPassedOut();
   }
+  else if (! StringToUnsigned(text, u))
+    THROW("Not an unsigned result");
 
   return Contract::SetTricks(u);
 }
@@ -889,8 +888,10 @@ string Contract::AsString(const formatType f) const
 
 string Contract::DeclarerAsPBN() const
 {
-  if (! setResultFlag || contract.level == 0)
+  if (! setResultFlag)
     return "";
+  else if (contract.level == 0)
+    return "[Declarer \"\"]\n";
 
   stringstream s;
   s << 
@@ -1174,7 +1175,11 @@ string Contract::ScoreAsString(
 string Contract::ResultAsStringPBN() const
 {
   stringstream s;
-  s << "[Result \"" << Contract::GetTricks() << "\"]\n";
+  if (Contract::IsPassedOut())
+    s << "[Result \"\"]\n";
+  else
+    s << "[Result \"" << Contract::GetTricks() << "\"]\n";
+
   return s.str();
 }
 

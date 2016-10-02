@@ -264,7 +264,7 @@ void Files::Set(const OptionsType& options)
 
 bool Files::GetNextTask(FileTaskType& ftask) 
 {
-  if (nextNo >= len)
+  if (nextNo >= fileTasks.size())
     return false;
 
   mtx.lock();

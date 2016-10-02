@@ -154,7 +154,7 @@ void Play::SetTables()
 bool Play::SetContract(const Contract& contract)
 {
   if (! contract.ContractIsSet() || contract.IsPassedOut())
-    return false;
+    return true;
 
   return Play::SetDeclAndDenom(contract.GetDeclarer(), contract.GetDenom());
 }

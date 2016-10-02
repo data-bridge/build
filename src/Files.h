@@ -35,7 +35,6 @@ class Files
   private:
 
     vector<FileTaskType> fileTasks;
-    unsigned len;
     unsigned nextNo;
 
     bool FillEntry(

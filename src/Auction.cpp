@@ -7,14 +7,16 @@
 */
 
 
-#include "Auction.h"
-#include "Contract.h"
-#include "Debug.h"
 #include <map>
 #include <regex>
 #include <assert.h>
+
+#include "Auction.h"
+#include "Contract.h"
 #include "parse.h"
 #include "portab.h"
+#include "Bexcept.h"
+#include "Debug.h"
 
 extern Debug debug;
 
@@ -545,6 +547,9 @@ bool Auction::AddCall(
       LOG("Illegal redouble");
       return false;
     }
+
+    multiplier = BRIDGE_MULT_REDOUBLED;
+    numPasses = 0;
   }
   else if (n <= activeCNo)
   {
@@ -796,29 +801,17 @@ bool Auction::AddAuctionLIN(const string& s)
 bool Auction::AddAuctionRBN(const string& s)
 {
   const size_t l = s.length();
-  if (l < 5)
-  {
-    LOG("String too short: " + s);
-    return false;
-  }
+  if (l < 4)
+    THROW("String too short: " + s);
 
   if (s.at(2) != ':')
-  {
-    LOG("Must start with 'xy:'");
-    return false;
-  }
+    THROW("Must start with 'xy:'");
 
   if (! Auction::ParseRBNDealer(s.at(0)))
-  {
-    LOG("Bad dealer " + STR(s.at(0)));
-    return false;
-  }
+    THROW("Bad dealer " + STR(s.at(0)));
 
   if (! Auction::ParseRBNVul(s.at(1)))
-  {
-    LOG("Bad vulnerability " + STR(s.at(1)));
-    return false;
-  }
+    THROW("Bad vulnerability " + STR(s.at(1)));
 
   setDVFlag = true;
 
@@ -848,10 +841,7 @@ bool Auction::AddAuctionEML(
       if (pos == l-1)
         return true;
       else
-      {
-        LOG("Characters trailing all-pass");
-	return false;
-      }
+        THROW("Characters trailing all-pass");
     }
     else if (c == ':')
     {
@@ -864,22 +854,14 @@ bool Auction::AddAuctionEML(
       unsigned aNoNew;
       pos++;
       if (pos >= l)
-      {
-        LOG("Missing end of alert");
-        return false;
-      }
+        THROW("Missing end of alert");
 
       if (! Auction::GetRBNAlertNo(s, pos, aNoNew, aNo > 9))
-      {
-        LOG("Bad alert number");
-	return false;
-      }
+        THROW("Bad alert number");
 
       if (aNoNew <= aNo)
-      {
-        LOG("Alerts not in ascending order");
-        return false;
-      }
+        THROW("Alerts not in ascending order");
+
       aNo = aNoNew;
       sequence[len-1].alert = "[" + STR(aNo) + "]";
     }
@@ -894,10 +876,7 @@ bool Auction::AddAuctionEML(
       pos++;
     }
     else if (pos == l-1)
-    {
-      LOG("Missing end of bid");
-      return false;
-    }
+      THROW("Missing end of bid");
     else
     {
       string tt = s.substr(pos, 2);
@@ -1130,12 +1109,7 @@ bool Auction::ExtractContract(Contract& contract) const
   }
 
   if (activeCNo == 0)
-    contract.SetContract(
-      vul, 
-      BRIDGE_NORTH, 
-      0, 
-      BRIDGE_NOTRUMP,
-      BRIDGE_MULT_UNDOUBLED);
+    contract.SetPassedOut();
   else
   {
     const unsigned level = (activeCNo + 2) / 5;
@@ -1224,13 +1198,19 @@ string Auction::AsPBN() const
     return "";
   
   stringstream s, alerts;
+  if (Auction::IsPassedOut())
+  {
+    s << "[Auction \"" << PLAYER_NAMES_SHORT[dealer] << "\"]\nAP\n";
+    return s.str();
+  }
+
   s << "[Auction \"" << PLAYER_NAMES_SHORT[dealer] << "\"]\n";
   
   unsigned trailing = 0;
   unsigned end = len-1;
   while (sequence[end].no == 0 && sequence[end].alert == "")
     trailing++, end--;
-    
+
   unsigned aNo = 1;
   for (unsigned b = 0; b <= end; b++)
   {
@@ -1362,17 +1342,23 @@ string Auction::AsEML() const
   if (len == 0)
     return s.str();
 
-  unsigned trailing = 0;
-  unsigned end = len-1;
-  while (sequence[end].no == 0 && sequence[end].alert == "")
-    trailing++, end--;
-    
   const unsigned numSkips = static_cast<unsigned>
     ((dealer + 4 - BRIDGE_WEST) % 4);
   const unsigned wrap = 3 - numSkips;
   for (unsigned i = 0; i < numSkips; i++)
     s << setw(9) << "";
   
+  if (Auction::IsPassedOut())
+  {
+    s << "(all pass)\n";
+    return s.str();
+  }
+
+  unsigned trailing = 0;
+  unsigned end = len-1;
+  while (sequence[end].no == 0 && sequence[end].alert == "")
+    trailing++, end--;
+    
   for (unsigned b = 0; b <= end; b++)
   {
     const Call& c = sequence[b];
@@ -1404,17 +1390,24 @@ string Auction::AsTXT() const
   if (len == 0)
     return s.str();
 
-  unsigned trailing = 0;
-  unsigned end = len-1;
-  while (sequence[end].no == 0 && sequence[end].alert == "")
-    trailing++, end--;
-    
+
   const unsigned numSkips = static_cast<unsigned>
     ((dealer + 4 - BRIDGE_WEST) % 4);
   const unsigned wrap = 3 - numSkips;
   for (unsigned i = 0; i < numSkips; i++)
     s << setw(12) << "";
   
+  if (Auction::IsPassedOut())
+  {
+    s << "All Pass\n";
+    return s.str();
+  }
+
+  unsigned trailing = 0;
+  unsigned end = len-1;
+  while (sequence[end].no == 0 && sequence[end].alert == "")
+    trailing++, end--;
+    
   for (unsigned b = 0; b <= end; b++)
   {
     const Call& c = sequence[b];
@@ -1442,17 +1435,23 @@ string Auction::AsREC() const
     return "";
 
   stringstream s;
-  unsigned trailing = 0;
-  unsigned end = len-1;
-  while (sequence[end].no == 0 && sequence[end].alert == "")
-    trailing++, end--;
-    
   const unsigned numSkips = static_cast<unsigned>
     ((dealer + 4 - BRIDGE_WEST) % 4);
   const unsigned wrap = 3 - numSkips;
   for (unsigned i = 0; i < numSkips; i++)
     s << setw(9) << "";
   
+  if (Auction::IsPassedOut())
+  {
+    s << "All Pass\n";
+    return s.str();
+  }
+
+  unsigned trailing = 0;
+  unsigned end = len-1;
+  while (sequence[end].no == 0 && sequence[end].alert == "")
+    trailing++, end--;
+    
   for (unsigned b = 0; b <= end; b++)
   {
     const Call& c = sequence[b];

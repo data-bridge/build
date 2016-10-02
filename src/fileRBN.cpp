@@ -13,6 +13,7 @@
 
 #include "Group.h"
 #include "Segment.h"
+#include "Bexcept.h"
 #include "fileRBN.h"
 #include "Debug.h"
 
@@ -70,10 +71,7 @@ bool readRBNChunk(
       return true;
     
     if (line.at(1) != ' ')
-    {
-      LOG("Need RBN space as second character in line '" + line + "'");
-      return false;
-    }
+      THROW("Need RBN space as second character in line:\n" + line);
 
     const char c = line.at(0);
     if (c == '%')
@@ -81,21 +79,15 @@ bool readRBNChunk(
 
     const formatLabelType labelNo = RBNmap[static_cast<int>(c)];
     if (labelNo == BRIDGE_FORMAT_LABELS_SIZE)
-    {
-      LOG("Illegal RBN label in line '" + line + "'");
-      return false;
-    }
+      THROW("Illegal RBN label in line:\n" + line);
 
     if (labelNo <= BRIDGE_FORMAT_VISITTEAM)
       newSegFlag = true;
 
     if (chunk[labelNo] != "")
-    {
-      LOG("Label already set in line '" + line + "'");
-      return false;
-    }
+      LOG("RBN label already set in line:\n" + line);
 
-    chunk[labelNo] = line.substr(2, string::npos);
+    chunk[labelNo] = line.substr(2);
   }
   return false;
 }
@@ -130,19 +122,13 @@ bool readRBXChunk(
 
     const formatLabelType labelNo = RBNmap[static_cast<int>(c)];
     if (labelNo == BRIDGE_FORMAT_LABELS_SIZE)
-    {
-      LOG("Illegal RBX label in line '" + line + "'");
-      return false;
-    }
+      THROW("Illegal RBX label in line:\n" + line);
 
     if (labelNo <= BRIDGE_FORMAT_VISITTEAM)
       newSegFlag = true;
 
     if (chunk[labelNo] != "")
-    {
-      LOG("Label already set in line '" + line + "'");
-      return false;
-    }
+      THROW("RBN label already set in line:\n" + line);
 
     chunk[labelNo] = value;
   }

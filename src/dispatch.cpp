@@ -207,46 +207,50 @@ void dispatch(
   UNUSED(thrNo);
 
   FileTaskType task;
-  if (! files.GetNextTask(task))
-    return;
-
-  Group group;
-
-  try
+  while (files.GetNextTask(task))
   {
-    if (! readFormattedFile(task.fileInput, task.formatInput, group))
-      THROW("something blew up");
-  }
-  catch(Bexcept& bex)
-  {
-    bex.Print();
-    assert(false);
-  }
+    Group group;
 
-  for (auto &t: task.taskList)
-  {
+cout << "Input " << task.fileInput << endl;
     try
     {
-      if (! writeFormattedFile(group, t.fileOutput, t.formatOutput))
-      THROW("something blew up");
+      if (! readFormattedFile(task.fileInput, task.formatInput, group))
+      {
+        debug.Print();
+        THROW("something blew up");
+      }
     }
-    catch(Bexcept& bex)
+    catch (Bexcept& bex)
     {
       bex.Print();
       assert(false);
     }
 
-    if (t.refFlag)
+    for (auto &t: task.taskList)
     {
-      // Compare magic on t.fileOutput and t.fileRef: TODO
-    }
+cout << "Output " << t.fileOutput << endl;
+      try
+      {
+        if (! writeFormattedFile(group, t.fileOutput, t.formatOutput))
+        THROW("something blew up");
+      }
+      catch (Bexcept& bex)
+      {
+        bex.Print();
+        assert(false);
+      }
 
-    if (task.removeOutputFlag)
-    {
-      // delete t.fileOutput: TODO
+      if (t.refFlag)
+      {
+        // Compare magic on t.fileOutput and t.fileRef: TODO
+      }
+
+      if (task.removeOutputFlag)
+      {
+        // delete t.fileOutput: TODO
+      }
     }
   }
-
 }
 
 static bool readFormattedFile(
@@ -275,9 +279,24 @@ static bool readFormattedFile(
   string lastBoard = "";
 
   unsigned lno = 0;
+  unsigned lnoOld;
 
-  while ((* formatFncs[f].readChunk)(fstr, lno, chunk, newSegFlag))
+  while (true)
   {
+    lnoOld = lno;
+    try
+    {
+      if (! (* formatFncs[f].readChunk)(fstr, lno, chunk, newSegFlag))
+        break;
+    }
+    catch (Bexcept& bex)
+    {
+      cout << "In input file " << fname << ", line number " << lno << endl;
+      bex.Print();
+      fstr.close();
+      assert(false);
+    }
+
     if (newSegFlag || segment == nullptr)
     {
       if (! group.MakeSegment(segno))
@@ -312,12 +331,34 @@ static bool readFormattedFile(
     board->NewInstance();
     segment->CopyPlayers();
 
-    for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
+    try
     {
-      if (chunk[i] != "" &&
-          ! tryFormatMethod(f, chunk[i], segment, board, i, fstr))
-        return false;
+// cout << "fname " << fname << endl;
+      for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
+      {
+// if (bno == 3 && i == 28)
+// {
+  // cout << "HERE" << endl;
+// }
+// cout << "bno " << bno << " i " << i << " chunk " << chunk[i] << endl;
+        if (chunk[i] != "")
+        {
+          if (! tryFormatMethod(f, chunk[i], segment, board, i, fstr))
+          {
+            THROW("b " + STR(bno) + " i " + STR(i) + ", line '" + chunk[i] + "'");
+          }
+        }
+      }
     }
+    catch (Bexcept& bex)
+    {
+      cout << "In file " << fname << ", lines " <<
+          lnoOld+1 << "-" << lno-1 << ":" << endl;
+      bex.Print();
+      fstr.close();
+      assert(false);
+    }
+
 
     // Have to wait until after the methods with this.
     // Only applies to LIN.

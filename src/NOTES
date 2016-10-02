@@ -1,13 +1,20 @@
-27.09.16
+02.10.16
 --------
-reduce or eliminate global variables? (STATIC.txt)
-cppclean
-doxygen including dot
-include-what-you-use
-clang static analyzer
+Code cleanup
+- camelCase
+- no globals
+- throws
+- no dead code
+
+Tools
+- cppclean
+- doxygen including dot
+- include-what-you-use
+- clang static analyzer
 
 Add g++ makefile for Ubuntu
 Try the g++ trick to get unused methods
+Update makefiles (file lists)
 
 Add automated comparisons of results
 
@@ -52,24 +59,6 @@ options
 
 
 Then write a script to set combinations
-Then work on combining formats
-
-Thoughts on combining the formats
----------------------------------
-RBN, PBN, LIN, PBX
-sequential formats
-* Have an overall read function, 
-* Pass in the name of the readChunk function,
-* Pass in array of function pointers,
-* Pass in length of array (or it's a vector<>),
-* TryMethod is also generic?
-* Pass in the dividing line between segment and board functions
-
-TXT, REC, PBN
-* Canvas formats
-* Open and closed may be different
-* 
-
 
 Auction:
 If we SetScore, then must check against CalculateScore (order?).
@@ -81,18 +70,10 @@ Write AddAllPBN(list).
 
 Use ParsePlayer instead of e.g. Auction::ParseRBNDealer()
 
-
-Clean up code again in the end, delete unused functions etc.
-doxygen?
-Upper and lower case of function names and constants (camelCase?)
-
 Read into BBO.exe
-
 
 grep TODO *.cpp *.h
 grep assert
-
-Contract: There are too many Set functions, probably some unused
 
 make Board checks
 
@@ -100,7 +81,6 @@ Test on concatenated RBN file
 come up with format for accompanying fixes, .fix files
 Read these in, apply before crying wolf
 
-Add options.cpp to control reading and writing
 Test on all RBN files
 Maybe input list of files, output list of faulty unfixed files
 
