@@ -927,8 +927,11 @@ bool Auction::AddAuction(
       }
     
     case BRIDGE_FORMAT_PBN:
-      LOG("Auction PBN type not implemented");
-      return false;
+      {
+        vector<string> lines;
+        ConvertMultilineToVector(s, lines);
+        return Auction::AddAuctionPBN(lines);
+      }
     
     case BRIDGE_FORMAT_RBN:
     case BRIDGE_FORMAT_RBX:

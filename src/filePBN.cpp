@@ -102,22 +102,15 @@ typedef bool (Board::*BoardPtr)(const string& s, const formatType f);
 SegPtr segPtrPBN[PBN_LABELS_SIZE];
 BoardPtr boardPtrPBN[PBN_LABELS_SIZE];
 
-struct chunkType
-{
-  string single[PBN_LABELS_SIZE];
-  vector<string> auctionList;
-  vector<string> playList;
-};
-
 
 static bool readPBNChunk(
   ifstream& fstr,
   unsigned& lno,
-  chunkType& chunk,
+  vector<string>& chunk,
   bool& newSegFlag);
 
 static bool tryPBNMethod(
-  const chunkType& chunk,
+  const vector<string>& chunk,
   Segment * segment,
   Board * board,
   const unsigned label,
@@ -162,16 +155,14 @@ void setPBNtables()
 static bool readPBNChunk(
   ifstream& fstr,
   unsigned& lno,
-  chunkType& chunk,
+  vector<string>& chunk,
   bool& newSegFlag)
 {
   string line;
   newSegFlag = false;
-  for (unsigned i = 0; i < PBN_LABELS_SIZE; i++)
-    chunk.single[i] = "";
+  for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
+    chunk[i] = "";
 
-  chunk.auctionList.resize(0);
-  chunk.playList.resize(0);
   bool inAuction = false;
   bool inPlay = false;
 
@@ -189,7 +180,7 @@ static bool readPBNChunk(
         inAuction = false;
       else
       {
-        chunk.auctionList.push_back(line);
+        chunk[PBN_AUCTION] += line + "\n";
         continue;
       }
     }
@@ -199,7 +190,7 @@ static bool readPBNChunk(
         inPlay = false;
       else
       {
-        chunk.playList.push_back(line);
+        chunk[PBN_PLAY] += line + "\n";
         continue;
       }
     }
@@ -219,8 +210,8 @@ static bool readPBNChunk(
       return false;
     }
 
-    const int labelNo = static_cast<int>(it->second);
-    if (chunk.single[labelNo] != "")
+    const unsigned labelNo = static_cast<unsigned>(it->second);
+    if (chunk[labelNo] != "")
     {
       LOG("Label already set in line '" + line + "'");
       return false;
@@ -229,18 +220,18 @@ static bool readPBNChunk(
     if (labelNo == PBN_AUCTION)
     {
       // Multi-line.
-      chunk.auctionList.push_back(match.str(2));
+      chunk[PBN_AUCTION] += match.str(2) + "\n";
       inAuction = true;
     }
     else if (labelNo == PBN_PLAY)
     {
       // Multi-line.
-      chunk.playList.push_back(match.str(2));
+      chunk[PBN_PLAY] += match.str(2) + "\n";
       inPlay = true;
     }
     else if (match.str(2) != "#")
     {
-      chunk.single[labelNo] = match.str(2);
+      chunk[labelNo] = match.str(2);
       if (labelNo <= PBN_VISITTEAM)
         newSegFlag = true;
 
@@ -263,7 +254,7 @@ bool readPBN(
 
   const formatType f = BRIDGE_FORMAT_PBN;
 
-  chunkType chunk;
+  vector<string> chunk(BRIDGE_FORMAT_LABELS_SIZE);
 
   Segment * segment = nullptr;
   unsigned segno = 0;
@@ -290,7 +281,7 @@ bool readPBN(
       bno = 0;
     }
 
-    if (chunk.single[PBN_BOARD] != "")
+    if (chunk[PBN_BOARD] != "")
     {
       // Might be a new board
       board = segment->AcquireBoard(bno);
@@ -323,7 +314,7 @@ bool readPBN(
 
 
 static bool tryPBNMethod(
-  const chunkType& chunk,
+  const vector<string>& chunk,
   Segment * segment,
   Board * board,
   const unsigned label,
@@ -332,46 +323,44 @@ static bool tryPBNMethod(
 {
   if (label <= PBN_ROOM)
   {
-    if (chunk.single[label] == "")
+    if (chunk[label] == "")
       return true;
-    if ((segment->*segPtrPBN[label])
-        (chunk.single[label], BRIDGE_FORMAT_PBN))
+    if ((segment->*segPtrPBN[label]) (chunk[label], BRIDGE_FORMAT_PBN))
       return true;
     else
     {
-      LOG("Cannot add " + info + " line " + chunk.single[label] + "'");
+      LOG("Cannot add " + info + " line " + chunk[label] + "'");
       fstr.close();
       return false;
     }
   }
   else if (label == PBN_AUCTION)
   {
-    if (chunk.auctionList.size() == 0)
+    if (chunk[label] == "")
       return true;
 
-    return board->SetAuction(chunk.auctionList, BRIDGE_FORMAT_PBN);
+    return board->SetAuction(chunk[label], BRIDGE_FORMAT_PBN);
   }
   else if (label == PBN_PLAY)
   {
-    if (chunk.playList.size() == 0)
+    if (chunk[label] == "")
       return true;
 
-    return board->SetPlays(chunk.playList, BRIDGE_FORMAT_PBN);
+    return board->SetPlays(chunk[label], BRIDGE_FORMAT_PBN);
   }
   else if (label == PBN_CONTRACT)
   {
     // Easiest way to get declarer into Contract.
-    const string s = chunk.single[label] + chunk.single[PBN_DECLARER];
+    const string s = chunk[label] + chunk[PBN_DECLARER];
     return board->SetContract(s, BRIDGE_FORMAT_PBN);
   }
-  else if (chunk.single[label] == "")
+  else if (chunk[label] == "")
     return true;
-  else if ((board->*boardPtrPBN[label])
-      (chunk.single[label], BRIDGE_FORMAT_PBN))
+  else if ((board->*boardPtrPBN[label]) (chunk[label], BRIDGE_FORMAT_PBN))
     return true;
   else
   {
-    LOG("Cannot add " + info + " line " + chunk.single[label] + "'");
+    LOG("Cannot add " + info + " line " + chunk[label] + "'");
     fstr.close();
     return false;
   }

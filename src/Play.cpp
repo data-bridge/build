@@ -473,8 +473,11 @@ bool Play::SetPlays(
   switch(f)
   {
     case BRIDGE_FORMAT_PBN:
-      LOG("Currently unimplemented format " + STR(f));
-      return false;
+      {
+        vector<string> lines;
+        ConvertMultilineToVector(str, lines);
+        return Play::AddAllPBN(lines);
+      }
 
     case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_RBN:
@@ -539,6 +542,7 @@ bool Play::SetPlays(
   const vector<string>& list,
   const formatType f)
 {
+assert(false);
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:

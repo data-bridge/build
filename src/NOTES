@@ -28,15 +28,6 @@ Actually a lot of the pointed-to functions are the same.  Maybe unify?
 
 options
 -------
--i file, single input file
--I dir, all files with readable endings in dir
-mutually exclusive
-
--o file, single output file, goes with -i
--O dir, same as input format if no -f
-
--f output format (controls -O, -b, -c)
-
 -b "binary compare", write to temp file, read back in, check ==
 -c compare, write to temp file, do a diff either with self or with
  other file already present with appropriate name
@@ -102,10 +93,6 @@ grep TODO *.cpp *.h
 grep assert
 
 Contract: There are too many Set functions, probably some unused
-
-Unit test:
-Think of having expected result
-Count pass/fail
 
 make Board checks
 
