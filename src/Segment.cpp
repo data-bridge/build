@@ -45,7 +45,7 @@ void Segment::Reset()
   seg.date.reset();
   seg.location.Reset();
   seg.event = ""; 
-  seg.session.Reset(); 
+  seg.session.reset(); 
   seg.scoring.Reset();
   seg.teams.Reset();
 }
@@ -171,7 +171,7 @@ bool Segment::SetTitleLIN(const string& t)
   smatch match1, match2;
   if (regex_search(v[0], match1, re1) && 
       match1.size() >= 2 &&
-      seg.session.IsRBNPart(match1.str(2)) &&
+      seg.session.isRBNPart(match1.str(2)) &&
       regex_search(v[1], match2, re2))
   {
     if (! Segment::SetTitle(match1.str(1), BRIDGE_FORMAT_RBN))
@@ -296,7 +296,8 @@ bool Segment::SetDate(
   const string& t,
   const formatType f)
 {
-  return seg.date.set(t, f);
+  seg.date.set(t, f);
+  return true;
 }
 
 
@@ -322,7 +323,8 @@ bool Segment::SetSession(
   const string& t,
   const formatType f)
 {
-  return seg.session.Set(t, f);
+  seg.session.set(t, f);
+  return true;
 }
 
 
@@ -692,7 +694,7 @@ string Segment::TitleAsLIN_EXT() const
   s << seg.title << "%" <<
       seg.date.asString(BRIDGE_FORMAT_LIN) << "%" <<
       seg.location.AsString(BRIDGE_FORMAT_LIN) << "%" <<
-      seg.session.AsString(BRIDGE_FORMAT_LIN) << "%" <<
+      seg.session.asString(BRIDGE_FORMAT_LIN) << "%" <<
       seg.event << "%" <<
       seg.scoring.AsString(BRIDGE_FORMAT_LIN) << 
       ",IMPs,P,";
@@ -706,7 +708,7 @@ string Segment::TitleAsLIN_RP() const
   // BBO hands from Pavlicek.
   stringstream s;
   s << "vg|" << seg.title << 
-      seg.session.AsString(BRIDGE_FORMAT_LIN_RP) << "," <<
+      seg.session.asString(BRIDGE_FORMAT_LIN_RP) << "," <<
       seg.scoring.AsString(BRIDGE_FORMAT_LIN) << ",";
   s << Segment::TitleAsLINCommon() << "pf|y|\n";
   return s.str();
@@ -731,7 +733,7 @@ string Segment::TitleAsLIN_TRN() const
   s << seg.title << "%" <<
       seg.date.asString(BRIDGE_FORMAT_LIN) << "%" <<
       seg.location.AsString(BRIDGE_FORMAT_LIN) << "%" <<
-      seg.session.AsString(BRIDGE_FORMAT_LIN) << "%" <<
+      seg.session.asString(BRIDGE_FORMAT_LIN) << "%" <<
       seg.event << "%" <<
       seg.scoring.AsString(BRIDGE_FORMAT_LIN) << 
       ",IMPs,P,";
@@ -829,7 +831,7 @@ string Segment::EventAsString(const formatType f) const
 string Segment::SessionAsString(
   const formatType f) const
 {
-  return seg.session.AsString(f);
+  return seg.session.asString(f);
 }
 
 

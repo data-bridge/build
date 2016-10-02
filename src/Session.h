@@ -10,8 +10,8 @@
 #ifndef BRIDGE_SESSION_H
 #define BRIDGE_SESSION_H
 
-#include "bconst.h"
 #include <string>
+#include "bconst.h"
 
 using namespace std;
 
@@ -40,22 +40,22 @@ class Session
     string general2;
     unsigned sessionNo;
 
-    stageType CharToType(const char c) const;
+    stageType charToType(const char c) const;
 
-    stageType StringToType(
+    stageType stringToType(
       const string& t,
       unsigned& rOf) const;
 
-    void SetPart1(const string& t);
-    void SetPart2(const string& t);
+    void setPart1(const string& t);
+    void setPart2(const string& t);
 
-    string AsLIN() const;
-    string AsLIN_RP() const;
-    string AsPBN() const;
-    string AsRBNCore() const;
-    string AsRBN() const;
-    string AsRBX() const;
-    string AsTXT() const;
+    string asLIN() const;
+    string asLIN_RP() const;
+    string asPBN() const;
+    string asRBNCore() const;
+    string asRBN() const;
+    string asRBX() const;
+    string asTXT() const;
 
 
   public:
@@ -64,19 +64,19 @@ class Session
 
     ~Session();
 
-    void Reset();
+    void reset();
 
-    bool Set(
+    void set(
       const string& t,
       const formatType f);
 
-    bool IsRBNPart(const string& t) const;
+    bool isRBNPart(const string& t) const;
 
     bool operator == (const Session& s2) const;
 
     bool operator != (const Session& s2) const;
 
-    string AsString(const formatType f) const;
+    string asString(const formatType f) const;
 };
 
 #endif

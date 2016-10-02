@@ -29,12 +29,12 @@ class Date
 
     dateType date;
 
-    bool checkDate() const;
+    void checkDate() const;
 
-    bool setLIN(const string& t);
-    bool setPBN(const string& t);
-    bool setRBN(const string& t);
-    bool setTXT(const string& t);
+    void setLIN(const string& t);
+    void setPBN(const string& t);
+    void setRBN(const string& t);
+    void setTXT(const string& t);
 
     string asLIN() const;
     string asPBN() const;
@@ -52,7 +52,7 @@ class Date
 
     void reset();
 
-    bool set(
+    void set(
       const string& t,
       const formatType f);
 

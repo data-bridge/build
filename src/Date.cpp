@@ -36,7 +36,7 @@ void Date::reset()
 }
 
 
-bool Date::checkDate() const
+void Date::checkDate() const
 {
   if (date.year > 2100)
     THROW("Year is mighty large");
@@ -51,192 +51,133 @@ bool Date::checkDate() const
     THROW("Don't want day in unknown month");
 
   if (date.month == 0 || date.day == 0)
-    return true;
+    return;
 
-  if (date.month == 2)
-    return (date.day < 30); // Yeah yeah, leap years
-  else if (date.month == 4 || 
+  if (date.month == 2 && date.day >= 30)
+    THROW("February day is too large"); // Yeah yeah, leap years
+
+  if ((date.month == 4 || 
       date.month == 6 || 
       date.month == 9 ||
-      date.month == 11)
-    return (date.day < 31);
-  else
-    return true;
+      date.month == 11) &&
+      date.day >= 31)
+    THROW("Short month is too long");
 }
 
 
-bool Date::setLIN(const string& t)
+void Date::setLIN(const string& t)
 {
   // Note that this parses the date in the *file name*, not a real
   // date field.
 
-  // try
-  // {
-    // mm-dd-yy
-    regex re("(\\d\\d)-(\\d\\d)-(\\d\\d)");
-    smatch match;
-    if (regex_search(t, match, re) && match.size() >= 3)
-    {
-      (void) StringToNonzeroUnsigned(match.str(1), date.month);
+  regex re("(\\d\\d)-(\\d\\d)-(\\d\\d)");
+  smatch match;
+  if (! regex_search(t, match, re) || match.size() < 3)
+    THROW("Bad LIN date");
 
-      (void) StringToNonzeroUnsigned(match.str(2), date.day);
+  (void) StringToNonzeroUnsigned(match.str(1), date.month);
+  (void) StringToNonzeroUnsigned(match.str(2), date.day);
+  (void) StringToNonzeroUnsigned(match.str(3), date.year);
 
-      (void) StringToNonzeroUnsigned(match.str(3), date.year);
-      if (date.year > 20)
-        date.year = 1900 + date.year;
-      else
-        date.year = 2000 + date.year;
+  if (date.year > 20)
+    date.year = 1900 + date.year;
+  else
+    date.year = 2000 + date.year;
 
-    }
-    else
-    {
-      return false;
-    }
-  // }
-  // catch (regex_error& e)
-  // {
-    // UNUSED(e);
-    // LOG("Bad date");
-    // return false;
-  // }
-
-  return Date::checkDate();
+  Date::checkDate();
 }
 
 
-bool Date::setPBN(const string& t)
+void Date::setPBN(const string& t)
 {
-  // try
-  // {
-    // regex re("(\\d\\d\\d\\d).(\\d\\d)");
-    regex re("(....).(..).(..)");
-    smatch match;
-    if (regex_search(t, match, re) && match.size() >= 3)
-    {
-      if (match.str(1) == "????")
-        date.year = 0;
-      else if (! StringToNonzeroUnsigned(match.str(1), date.year))
-        return false;
+  regex re("(....).(..).(..)");
+  smatch match;
+  if (! regex_search(t, match, re) || match.size() < 3)
+    THROW("Bad PBN date");
 
-      if (match.str(2) == "??")
-        date.month = 0;
-      else if (! StringToNonzeroUnsigned(match.str(2), date.month))
-        return false;
+  if (match.str(1) == "????")
+    date.year = 0;
+  else if (! StringToNonzeroUnsigned(match.str(1), date.year))
+    THROW("Bad PBN year");
 
-      if (match.str(3) == "??")
-        date.day = 0;
-      else if (! StringToNonzeroUnsigned(match.str(3), date.day))
-        return false;
-    }
-    else
-    {
-      return false;
-    }
-  // }
-  // catch (regex_error& e)
-  // {
-    // UNUSED(e);
-    // return false;
-  // }
-  return Date::checkDate();
+  if (match.str(2) == "??")
+    date.month = 0;
+  else if (! StringToNonzeroUnsigned(match.str(2), date.month))
+    THROW("Bad PBN month number");
+
+  if (match.str(3) == "??")
+    date.day = 0;
+  else if (! StringToNonzeroUnsigned(match.str(3), date.day))
+    THROW("Bad PBN day");
+
+  Date::checkDate();
 }
 
 
-bool Date::setRBN(const string& t)
+void Date::setRBN(const string& t)
 {
   if (t.length() == 6)
   {
-    // try
-    // {
-      regex re("(\\d\\d\\d\\d)(\\d\\d)");
-      smatch match;
-      if (regex_search(t, match, re) && match.size() >= 2)
-      {
-        (void) StringToNonzeroUnsigned(match.str(1), date.year);
-        (void) StringToNonzeroUnsigned(match.str(2), date.month);
-      }
-      else
-      {
-        return false;
-      }
-    // }
-    // catch (regex_error& e)
-    // {
-      // UNUSED(e);
-      // return false;
-    // }
+    regex re("(\\d\\d\\d\\d)(\\d\\d)");
+    smatch match;
+    if (! regex_search(t, match, re) || match.size() < 2)
+      THROW("Bad RBN date");
+
+    (void) StringToNonzeroUnsigned(match.str(1), date.year);
+    (void) StringToNonzeroUnsigned(match.str(2), date.month);
   }
   else
   {
-    // try
-    // {
-      regex re("(\\d\\d\\d\\d)(\\d\\d)(\\d\\d)");
-      smatch match;
-      if (regex_search(t, match, re) && match.size() >= 3)
-      {
-        (void) StringToNonzeroUnsigned(match.str(1), date.year);
-        (void) StringToNonzeroUnsigned(match.str(2), date.month);
-        (void) StringToNonzeroUnsigned(match.str(3), date.day);
-      }
-      else
-      {
-        return false;
-      }
-    // }
-    // catch (regex_error& e)
-    // {
-      // UNUSED(e);
-      // return false;
-    // }
-  }
-  return Date::checkDate();
-}
-
-
-bool Date::setTXT(const string& t)
-{
-  // try
-  // {
-    regex re("(\\w+) (\\d\\d\\d\\d)");
+    regex re("(\\d\\d\\d\\d)(\\d\\d)(\\d\\d)");
     smatch match;
-    if (regex_search(t, match, re) && match.size() >= 2)
-    {
-      (void) StringToNonzeroUnsigned(match.str(2), date.year);
-      string m = match.str(1);
-      date.month = StringToMonth(m);
-    }
-    else
-    {
-      return false;
-    }
-  // }
-  // catch (regex_error& e)
-  // {
-    // UNUSED(e);
-    // return false;
-  // }
-  return Date::checkDate();
+    if (! regex_search(t, match, re) || match.size() < 3)
+      THROW("Bad RBN date");
+
+    (void) StringToNonzeroUnsigned(match.str(1), date.year);
+    (void) StringToNonzeroUnsigned(match.str(2), date.month);
+    (void) StringToNonzeroUnsigned(match.str(3), date.day);
+  }
+
+  Date::checkDate();
 }
 
 
-bool Date::set(
+void Date::setTXT(const string& t)
+{
+  regex re("(\\w+) (\\d\\d\\d\\d)");
+  smatch match;
+  if (! regex_search(t, match, re) || match.size() < 2)
+    THROW("Bad TXT date");
+
+  (void) StringToNonzeroUnsigned(match.str(2), date.year);
+  date.month = StringToMonth(match.str(1));
+
+  Date::checkDate();
+}
+
+
+void Date::set(
   const string& t,
   const formatType f)
 {
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
-      return Date::setLIN(t);
+      Date::setLIN(t);
+      return;
     
     case BRIDGE_FORMAT_PBN:
-      return Date::setPBN(t);
+      Date::setPBN(t);
+      return;
     
     case BRIDGE_FORMAT_RBN:
     case BRIDGE_FORMAT_RBX:
-      return Date::setRBN(t);
+      Date::setRBN(t);
+      return;
     
     case BRIDGE_FORMAT_TXT:
-      return Date::setTXT(t);
+      Date::setTXT(t);
+      return;
     
     default:
       THROW("Invalid format: " + STR(f));
