@@ -134,7 +134,7 @@ static bool getTXTPlay(
   vector<string>& chunk);
 
 
-void setTXTtables()
+void setTXTTables()
 {
   segPtrTXT[TXT_TITLE] = &Segment::SetTitle;
   segPtrTXT[TXT_DATE] = &Segment::SetDate;
@@ -254,40 +254,40 @@ static bool getTXTFields(
      (canvas[0].substr(12, 7) != "  North" &&
       canvas[1].substr(0, 4) != "West"))
   {
-    chunk[TXT_TITLE] = canvas[0];
-    chunk[TXT_DATE] = canvas[1];
-    chunk[TXT_LOCATION] = canvas[2];
-    chunk[TXT_EVENT] = canvas[3];
-    chunk[TXT_SESSION] = canvas[4];
-    chunk[TXT_SCORING] = "IMPs"; // Maybe others possible
-    chunk[TXT_TEAMS] = canvas[5];
+    chunk[BRIDGE_FORMAT_TITLE] = canvas[0];
+    chunk[BRIDGE_FORMAT_DATE] = canvas[1];
+    chunk[BRIDGE_FORMAT_LOCATION] = canvas[2];
+    chunk[BRIDGE_FORMAT_EVENT] = canvas[3];
+    chunk[BRIDGE_FORMAT_SESSION] = canvas[4];
+    chunk[BRIDGE_FORMAT_SCORING] = "IMPs"; // Maybe others possible
+    chunk[BRIDGE_FORMAT_TEAMS] = canvas[5];
     bline = 6;
   }
 
   if (aline > 10)
   {
-    if (! ReadNextWord(canvas[bline], 0, chunk[TXT_BOARD])) 
+    if (! ReadNextWord(canvas[bline], 0, chunk[BRIDGE_FORMAT_BOARD_NO])) 
       return false;
-    chunk[TXT_BOARD].pop_back(); // Drop trailing point
+    chunk[BRIDGE_FORMAT_BOARD_NO].pop_back(); // Drop trailing point
 
-    if (! ReadNextWord(canvas[bline+14], 0, chunk[TXT_VULNERABLE])) 
+    if (! ReadNextWord(canvas[bline+14], 0, chunk[BRIDGE_FORMAT_VULNERABLE])) 
       return false;
 
     if (! getTXTDeal(canvas, bline, chunk)) 
       return false;
   }
 
-  if (! ReadNextWord(canvas[aline], 0, chunk[TXT_WEST])) return false;
-  if (! ReadNextWord(canvas[aline], 12, chunk[TXT_NORTH])) return false;
-  if (! ReadNextWord(canvas[aline], 24, chunk[TXT_EAST])) return false;
-  if (! ReadNextWord(canvas[aline], 36, chunk[TXT_SOUTH])) return false;
+  if (! ReadNextWord(canvas[aline], 0, chunk[BRIDGE_FORMAT_WEST])) return false;
+  if (! ReadNextWord(canvas[aline], 12, chunk[BRIDGE_FORMAT_NORTH])) return false;
+  if (! ReadNextWord(canvas[aline], 24, chunk[BRIDGE_FORMAT_EAST])) return false;
+  if (! ReadNextWord(canvas[aline], 36, chunk[BRIDGE_FORMAT_SOUTH])) return false;
 
 
   unsigned cline = aline+2;
   if (! getTXTAuction(canvas, cline, chunk))
     return false;
 
-  chunk[TXT_CONTRACT] = canvas[cline++];
+  chunk[BRIDGE_FORMAT_CONTRACT] = canvas[cline++];
 
   if (canvas[cline].size() < 5)
     return false;
@@ -303,13 +303,13 @@ static bool getTXTFields(
   {
     if (! ReadLastWord(canvas[cline], wd))
       return false;
-    chunk[TXT_PLAY] = wd;
+    chunk[BRIDGE_FORMAT_PLAY] = wd;
   }
 
   cline++;
   if (canvas[cline].size() < 5)
     return false;
-  chunk[TXT_RESULT] = canvas[cline];
+  chunk[BRIDGE_FORMAT_RESULT] = canvas[cline];
 
   // Ignore running IMP score, as we regenerate this.
   return true;
@@ -353,7 +353,7 @@ static bool getTXTDeal(
 
   // Turn -- (void) into nothing.
   regex re("--");
-  chunk[TXT_DEAL] = regex_replace(d.str(), re, "");
+  chunk[BRIDGE_FORMAT_DEAL] = regex_replace(d.str(), re, "");
   return true;
 }
 
@@ -373,7 +373,7 @@ static bool getTXTAuction(
   if (firstStart >= 48)
     return false;
 
-  chunk[TXT_DEALER] = PLAYER_NAMES_LONG[
+  chunk[BRIDGE_FORMAT_DEALER] = PLAYER_NAMES_LONG[
     ((firstStart/12) + BRIDGE_WEST) % 4];
 
   string wd;
@@ -441,7 +441,7 @@ static bool getTXTAuction(
   if (l == canvas.size())
     return false;
 
-  chunk[TXT_AUCTION] = d.str();
+  chunk[BRIDGE_FORMAT_AUCTION] = d.str();
   offset = l+1;
   return true;
 }
@@ -493,7 +493,7 @@ static bool getTXTPlay(
   if (l == canvas.size())
     return false;
   offset = l;
-  chunk[TXT_PLAY] = d.str();
+  chunk[BRIDGE_FORMAT_PLAY] = d.str();
   return true;
 }
 
@@ -510,14 +510,14 @@ bool readTXTChunk(
     return false;
   
   // Then parse them into the chunk structure.
-  for (unsigned i = 0; i < TXT_LABELS_SIZE; i++)
+  for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
     chunk[i] = "";
 
   unsigned auctionLine = 0;
   if (! getTXTCanvasOffset(canvas, auctionLine))
     return false;
 
-  newSegFlag = true;
+  newSegFlag = false;
   return getTXTFields(canvas, auctionLine, chunk);
 }
 

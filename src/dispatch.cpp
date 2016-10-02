@@ -148,7 +148,7 @@ void setTables()
   formatFncs[BRIDGE_FORMAT_RBX].write = &writeRBX;
   formatFncs[BRIDGE_FORMAT_RBX].readChunk = &readRBXChunk;
 
-  formatFncs[BRIDGE_FORMAT_TXT].set = &setTXTtables;
+  formatFncs[BRIDGE_FORMAT_TXT].set = &setTXTTables;
   formatFncs[BRIDGE_FORMAT_TXT].read = &readTXT;
   formatFncs[BRIDGE_FORMAT_TXT].write = &writeTXT;
   formatFncs[BRIDGE_FORMAT_TXT].readChunk = &readTXTChunk;
@@ -226,7 +226,8 @@ void dispatch(
       task.formatInput == BRIDGE_FORMAT_LIN ||
       task.formatInput == BRIDGE_FORMAT_PBN ||
       task.formatInput == BRIDGE_FORMAT_EML ||
-      task.formatInput == BRIDGE_FORMAT_REC)
+      task.formatInput == BRIDGE_FORMAT_REC ||
+      task.formatInput == BRIDGE_FORMAT_TXT)
   {
     try
     {

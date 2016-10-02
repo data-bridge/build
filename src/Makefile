@@ -134,9 +134,9 @@ fileTXT.obj: Contract.h Play.h Debug.h fileTXT.h parse.h portab.h
 fileLIN.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 fileLIN.obj: Teams.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
 fileLIN.obj: Play.h fileLIN.h parse.h Debug.h
-fileREC.obj: Board.h Deal.h bconst.h Tableau.h Players.h Auction.h Contract.h
-fileREC.obj: Play.h Canvas.h Group.h Segment.h Date.h Location.h Session.h
-fileREC.obj: Scoring.h Teams.h Debug.h fileREC.h parse.h portab.h
+fileREC.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
+fileREC.obj: Teams.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
+fileREC.obj: Play.h Canvas.h fileREC.h parse.h Debug.h
 parse.obj: Debug.h parse.h bconst.h portab.h
 reader.obj: args.h dispatch.h Files.h bconst.h Debug.h
 reader.obj: args.h dispatch.h Files.h bconst.h Debug.h

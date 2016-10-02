@@ -17,7 +17,7 @@ using namespace std;
 class Group;
 
 
-void setTXTtables();
+void setTXTTables();
 
 bool readTXT(
   Group& group,
