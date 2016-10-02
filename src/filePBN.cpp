@@ -9,18 +9,13 @@
 
 #include <iostream>
 #include <fstream>
-#include <string>
-#include <vector>
 #include <regex>
 #include <map>
-
-#include <assert.h>
 
 #include "Group.h"
 #include "Segment.h"
 #include "Board.h"
 #include "filePBN.h"
-#include "parse.h"
 #include "portab.h"
 #include "Debug.h"
 
@@ -238,64 +233,5 @@ void writePBNBoardLevel(
   fstr << board->TableauAsString(f);
 
   fstr << "\n";
-}
-
-
-bool writePBN(
-  Group& group,
-  const string& fname)
-{
-assert(false);
-  ofstream fstr(fname.c_str());
-  if (! fstr.is_open())
-  {
-    LOG("No such PBN file");
-    return false;
-  }
-
-  writeInfoType writeInfo;
-
-  fstr << "% PBN\n";
-  fstr << "% www.rpbridge.net Richard Pavlicek\n";
-
-  const formatType f = BRIDGE_FORMAT_PBN;
-
-  for (unsigned g = 0; g < group.GetLength(); g++)
-  {
-    Segment * segment = group.GetSegment(g);
-
-    writePBNSegmentLevel(fstr, segment, f);
-
-    writeInfo.numBoards = segment->GetLength();
-    for (unsigned b = 0; b < writeInfo.numBoards; b++)
-    {
-      Board * board = segment->GetBoard(b);
-      if (board == nullptr)
-      {
-        LOG("Invalid board");
-        fstr.close();
-        return false;
-      }
-
-      writeInfo.bno = b;
-      writeInfo.numInst = board->GetLength();
-
-      for (unsigned i = 0; i < writeInfo.numInst; i++)
-      {
-        if (! board->SetInstance(i))
-        {
-          LOG("Invalid instance");
-          fstr.close();
-          return false;
-        }
-
-        writeInfo.ino = i;
-        writePBNBoardLevel(fstr, segment, board, writeInfo, f);
-      }
-    }
-  }
-
-  fstr.close();
-  return true;
 }
 

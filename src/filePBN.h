@@ -25,10 +25,6 @@ bool readPBNChunk(
   vector<string>& chunk,
   bool& newSegFlag);
 
-bool writePBN(
-  Group& group,
-  const string& fname);
-
 void writePBNSegmentLevel(
   ofstream& fstr,
   Segment * segment,

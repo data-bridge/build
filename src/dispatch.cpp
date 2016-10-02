@@ -104,22 +104,18 @@ static bool dummyWrite(
 
 void setTables()
 {
-  formatFncs[BRIDGE_FORMAT_LIN].write = &writePBN; // TODO
   formatFncs[BRIDGE_FORMAT_LIN].readChunk = &readLINChunk;
   formatFncs[BRIDGE_FORMAT_LIN].writeSeg = &writeLINSegmentLevel;
   formatFncs[BRIDGE_FORMAT_LIN].writeBoard = &writeLINBoardLevel;
 
-  formatFncs[BRIDGE_FORMAT_LIN_RP].write = &writePBN; // TODO
   formatFncs[BRIDGE_FORMAT_LIN_RP].readChunk = &readLINChunk;
   formatFncs[BRIDGE_FORMAT_LIN_RP].writeSeg = &writeLINSegmentLevel;
   formatFncs[BRIDGE_FORMAT_LIN_RP].writeBoard = &writeLINBoardLevel;
 
-  formatFncs[BRIDGE_FORMAT_LIN_VG].write = &writePBN; // TODO
   formatFncs[BRIDGE_FORMAT_LIN_VG].readChunk = &readLINChunk;
   formatFncs[BRIDGE_FORMAT_LIN_VG].writeSeg = &writeLINSegmentLevel;
   formatFncs[BRIDGE_FORMAT_LIN_VG].writeBoard = &writeLINBoardLevel;
 
-  formatFncs[BRIDGE_FORMAT_LIN_TRN].write = &writePBN; // TODO
   formatFncs[BRIDGE_FORMAT_LIN_TRN].readChunk = &readLINChunk;
   formatFncs[BRIDGE_FORMAT_LIN_TRN].writeSeg = &writeLINSegmentLevel;
   formatFncs[BRIDGE_FORMAT_LIN_TRN].writeBoard = &writeLINBoardLevel;
@@ -129,10 +125,9 @@ void setTables()
   formatFncs[BRIDGE_FORMAT_LIN_EXT].writeSeg = &writeLINSegmentLevel;
   formatFncs[BRIDGE_FORMAT_LIN_EXT].writeBoard = &writeLINBoardLevel;
 
-  formatFncs[BRIDGE_FORMAT_PBN].write = &writePBN;
   formatFncs[BRIDGE_FORMAT_PBN].readChunk = &readPBNChunk;
-  formatFncs[BRIDGE_FORMAT_PBN].writeSeg = &writePBNSegmentLevel; // TODO
-  formatFncs[BRIDGE_FORMAT_PBN].writeBoard = &writePBNBoardLevel; // TODO
+  formatFncs[BRIDGE_FORMAT_PBN].writeSeg = &writePBNSegmentLevel;
+  formatFncs[BRIDGE_FORMAT_PBN].writeBoard = &writePBNBoardLevel;
 
   formatFncs[BRIDGE_FORMAT_RBN].write = &writeRBN;
   formatFncs[BRIDGE_FORMAT_RBN].readChunk = &readRBNChunk;
