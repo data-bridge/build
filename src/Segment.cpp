@@ -1046,7 +1046,7 @@ string Segment::PlayersAsString(const formatType f)
         return s1 + "," + s2.substr(7) + "\npg||\n";
       }
       else
-        return "pn|" + s1 + "," + s2 + "|pg||\n";
+        return "pn|" + s1 + "," + s2 + "|pg||\n\n";
 
     default:
       LOG("Invalid format " + STR(f));

@@ -1487,9 +1487,11 @@ string Auction::AsString(
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
-    case BRIDGE_FORMAT_LIN_VG:
     case BRIDGE_FORMAT_LIN_TRN:
       return Auction::AsLIN();
+
+    case BRIDGE_FORMAT_LIN_VG:
+      return Auction::AsLIN() + "\n";
 
     case BRIDGE_FORMAT_LIN_RP:
       return Auction::AsLIN_RP();

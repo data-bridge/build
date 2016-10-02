@@ -1116,15 +1116,22 @@ string Play::ClaimAsString(const formatType f) const
       // return Play::ClaimAsLIN() + "\n";
 
     case BRIDGE_FORMAT_LIN:
+      return Play::ClaimAsLIN() + "pg||\n";
+
     case BRIDGE_FORMAT_LIN_RP:
-      return Play::ClaimAsLIN() + "pg||\n";;
+      return Play::ClaimAsLIN() + "pg||\n\n";
+
+    case BRIDGE_FORMAT_LIN_VG:
+      if (len == PLAY_NUM_CARDS)
+        return "\n\n";
+      else
+        return Play::ClaimAsLIN() + "pg||\n\n";
 
     case BRIDGE_FORMAT_LIN_TRN:
-    case BRIDGE_FORMAT_LIN_VG:
       if (len == PLAY_NUM_CARDS)
         return "\n";
       else
-        return Play::ClaimAsLIN() + "pg||\n";;
+        return Play::ClaimAsLIN() + "pg||\n";
 
     case BRIDGE_FORMAT_PBN:
       LOG("Currently unimplemented format " + STR(f));

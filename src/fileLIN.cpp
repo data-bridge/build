@@ -191,106 +191,50 @@ void writeLINSegmentLevel(
   Segment * segment,
   const formatType f)
 {
-  switch(f)
-  {
-    case BRIDGE_FORMAT_LIN:
-      fstr << segment->TitleAsString(f);
-      fstr << segment->ContractsAsString(f);
-      fstr << segment->PlayersAsString(f);
-      fstr << segment->ScoresAsString(f);
-      fstr << segment->BoardsAsString(f);
-      break;
-    
-    case BRIDGE_FORMAT_LIN_RP:
-      fstr << segment->TitleAsString(f);
-      fstr << segment->ContractsAsString(f);
-      fstr << segment->PlayersAsString(f) << "\n";
-      fstr << segment->ScoresAsString(f);
-      fstr << segment->BoardsAsString(f);
-      break;
-
-    case BRIDGE_FORMAT_LIN_VG:
-      fstr << segment->TitleAsString(f);
-      fstr << segment->ContractsAsString(f);
-      fstr << segment->PlayersAsString(f);
-      break;
-
-    case BRIDGE_FORMAT_LIN_TRN:
-      fstr << segment->TitleAsString(f);
-      fstr << segment->ContractsAsString(f);
-      fstr << segment->PlayersAsString(f);
-      break;
-
-    default:
-      break;
-  }
+  fstr << segment->TitleAsString(f);
+  fstr << segment->ContractsAsString(f);
+  fstr << segment->PlayersAsString(f);
+  fstr << segment->ScoresAsString(f);
+  fstr << segment->BoardsAsString(f);
 }
+
+
+struct writeInfoType
+{
+  unsigned bno;
+  unsigned ino;
+  unsigned numBoards;
+  unsigned numInst;
+
+  string names;
+  string namesOld;
+
+  unsigned score1;
+  unsigned score2;
+};
 
 
 void writeLINBoardLevel(
   ofstream& fstr,
   Segment * segment,
   Board * board,
-  const unsigned bno,
+  const writeInfoType& writeInfo,
   const formatType f)
 {
-  switch(f)
-  {
-    case BRIDGE_FORMAT_LIN:
-      fstr << segment->NumberAsString(f, bno);
-      fstr << board->PlayersAsString(f);
-      fstr << board->DealAsString(board->GetDealer(), f);
-      fstr << segment->NumberAsBoardString(f, bno);
-      fstr << board->VulAsString(f);
+  fstr << segment->NumberAsString(f, writeInfo.bno);
 
-      board->CalculateScore();
+  if (f == BRIDGE_FORMAT_LIN || f == BRIDGE_FORMAT_LIN_TRN)
+    fstr << board->PlayersAsString(f);
 
-      fstr << board->AuctionAsString(f);
-      fstr << board->PlayAsString(f);
-      fstr << board->ClaimAsString(f);
-      break;
-    
-    case BRIDGE_FORMAT_LIN_RP:
-      fstr << segment->NumberAsString(f, bno);
-      fstr << board->DealAsString(board->GetDealer(), f);
-      fstr << board->VulAsString(f);
+  fstr << board->DealAsString(board->GetDealer(), f);
+  fstr << segment->NumberAsBoardString(f, writeInfo.bno);
+  fstr << board->VulAsString(f);
 
-      board->CalculateScore();
+  board->CalculateScore();
 
-      fstr << board->AuctionAsString(f);
-      fstr << board->PlayAsString(f);
-      fstr << board->ClaimAsString(f) << "\n";
-      break;
-
-    case BRIDGE_FORMAT_LIN_VG:
-      fstr << segment->NumberAsString(f, bno);
-      fstr << board->DealAsString(board->GetDealer(), f);
-      fstr << board->VulAsString(f);
-
-      board->CalculateScore();
-
-      fstr << board->AuctionAsString(f) << "\n";
-      fstr << board->PlayAsString(f);
-      fstr << board->ClaimAsString(f) << "\n";
-      break;
-
-    case BRIDGE_FORMAT_LIN_TRN:
-      fstr << segment->NumberAsString(f, bno);
-      fstr << board->PlayersAsString(f);
-      fstr << board->DealAsString(board->GetDealer(), f);
-      fstr << segment->NumberAsBoardString(f, bno);
-      fstr << board->VulAsString(f);
-
-      board->CalculateScore();
-
-      fstr << board->AuctionAsString(f);
-      fstr << board->PlayAsString(f);
-      fstr << board->ClaimAsString(f);
-      break;
-
-    default:
-      break;
-  }
+  fstr << board->AuctionAsString(f);
+  fstr << board->PlayAsString(f);
+  fstr << board->ClaimAsString(f);
 }
 
 
@@ -306,6 +250,7 @@ bool writeLIN(
     return false;
   }
 
+  writeInfoType writeInfo;
   writeHeader(fstr, group, f);
 
   for (unsigned g = 0; g < group.GetLength(); g++)
@@ -334,7 +279,8 @@ bool writeLIN(
           return false;
         }
 
-        writeLINBoardLevel(fstr, segment, board, b, f);
+        writeInfo.bno = b;
+        writeLINBoardLevel(fstr, segment, board, writeInfo, f);
       }
     }
   }
