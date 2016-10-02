@@ -225,7 +225,8 @@ void dispatch(
       task.formatInput == BRIDGE_FORMAT_RBX ||
       task.formatInput == BRIDGE_FORMAT_LIN ||
       task.formatInput == BRIDGE_FORMAT_PBN ||
-      task.formatInput == BRIDGE_FORMAT_EML)
+      task.formatInput == BRIDGE_FORMAT_EML ||
+      task.formatInput == BRIDGE_FORMAT_REC)
   {
     try
     {

@@ -201,21 +201,21 @@ static bool getRECFields(
     return false;
   }
 
-  if (! ReadNextWord(canvas[0], 0, chunk[REC_SCORING])) return false;
-  if (! ReadNextWord(canvas[0], 29, chunk[REC_DEALER])) return false;
-  if (! ReadNextWord(canvas[1], 6, chunk[REC_BOARD])) return false;
-  if (! ReadNextWord(canvas[1], 29, chunk[REC_VULNERABLE])) return false;
+  if (! ReadNextWord(canvas[0], 0, chunk[BRIDGE_FORMAT_SCORING])) return false;
+  if (! ReadNextWord(canvas[0], 29, chunk[BRIDGE_FORMAT_DEALER])) return false;
+  if (! ReadNextWord(canvas[1], 6, chunk[BRIDGE_FORMAT_BOARD_NO])) return false;
+  if (! ReadNextWord(canvas[1], 29, chunk[BRIDGE_FORMAT_VULNERABLE])) return false;
 
-  if (! ReadNextWord(canvas[3], 0, chunk[REC_WEST])) return false;
-  if (! ReadNextWord(canvas[0], 12, chunk[REC_NORTH])) return false;
-  if (! ReadNextWord(canvas[3], 24, chunk[REC_EAST])) return false;
-  if (! ReadNextWord(canvas[6], 12, chunk[REC_SOUTH])) return false;
+  if (! ReadNextWord(canvas[3], 0, chunk[BRIDGE_FORMAT_WEST])) return false;
+  if (! ReadNextWord(canvas[0], 12, chunk[BRIDGE_FORMAT_NORTH])) return false;
+  if (! ReadNextWord(canvas[3], 24, chunk[BRIDGE_FORMAT_EAST])) return false;
+  if (! ReadNextWord(canvas[6], 12, chunk[BRIDGE_FORMAT_SOUTH])) return false;
 
   if (! getRECDeal(canvas, chunk)) return false;
   if (! getRECAuction(canvas, chunk)) return false;
   if (! getRECPlay(canvas, pline, chunk)) return false;
 
-  chunk[REC_RESULT] = canvas[pline-2].substr(28);
+  chunk[BRIDGE_FORMAT_RESULT] = canvas[pline-2].substr(28);
 
   return true;
 }
@@ -255,7 +255,7 @@ static bool getRECDeal(
   d << sts << "." << sth <<  "." << std << "." << stc;
 
   // Void is shown as empty in REC.
-  chunk[REC_DEAL] = d.str();
+  chunk[BRIDGE_FORMAT_DEAL] = d.str();
   return true;
 }
 
@@ -340,7 +340,7 @@ static bool getRECAuction(
   if (l == canvas.size())
     return false;
 
-  chunk[REC_AUCTION] = d.str();
+  chunk[BRIDGE_FORMAT_AUCTION] = d.str();
   return true;
 }
 
@@ -382,7 +382,7 @@ static bool getRECPlay(
   }
 
   regex re(" ");
-  chunk[REC_PLAY] = regex_replace(d.str(), re, "");
+  chunk[BRIDGE_FORMAT_PLAY] = regex_replace(d.str(), re, "");
   return true;
 }
 
@@ -399,14 +399,14 @@ bool readRECChunk(
     return false;
   
   // Then parse them into the chunk structure.
-  for (unsigned i = 0; i < REC_LABELS_SIZE; i++)
+  for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
     chunk[i] = "";
 
   unsigned playLine = 0;
   if (! getRECCanvasOffset(canvas, playLine))
     return false;
 
-  newSegFlag = true;
+  newSegFlag = false;
   return getRECFields(canvas, playLine, chunk);
 }
 
