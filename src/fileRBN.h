@@ -25,6 +25,12 @@ bool readRBNChunk(
   vector<string>& chunk,
   bool& newSegFlag);
 
+bool readRBXChunk(
+  ifstream& fstr,
+  unsigned& lno,
+  vector<string>& chunk,
+  bool& newSegFlag);
+
 bool writeRBN(
   Group& group,
   const string& fname);

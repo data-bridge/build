@@ -25,7 +25,6 @@ SOURCE_FILES 	=		\
 	fileEML.cpp		\
 	filePBN.cpp		\
 	fileRBN.cpp		\
-	fileRBX.cpp		\
 	fileTXT.cpp		\
 	fileLIN.cpp		\
 	fileREC.cpp		\
@@ -114,26 +113,23 @@ args.obj: bconst.h args.h
 dispatch.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h
 dispatch.obj: Scoring.h Teams.h Board.h Deal.h Tableau.h Players.h Auction.h
 dispatch.obj: Contract.h Play.h dispatch.h Files.h fileLIN.h filePBN.h
-dispatch.obj: fileRBN.h fileRBX.h fileEML.h fileTXT.h fileREC.h debug.h
-dispatch.obj: Bexcept.h portab.h
+dispatch.obj: fileRBN.h fileTXT.h fileEML.h fileREC.h parse.h portab.h
+dispatch.obj: Bexcept.h Debug.h
 fileEML.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 fileEML.obj: Teams.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
 fileEML.obj: Play.h Canvas.h fileEML.h parse.h Debug.h
 filePBN.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 filePBN.obj: Teams.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
-filePBN.obj: Play.h filePBN.h parse.h Debug.h
+filePBN.obj: Play.h filePBN.h portab.h Debug.h
 fileRBN.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 fileRBN.obj: Teams.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
 fileRBN.obj: Play.h fileRBN.h Debug.h
-fileRBX.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
-fileRBX.obj: Teams.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
-fileRBX.obj: Play.h Debug.h fileRBX.h parse.h
-fileTXT.obj: Canvas.h Group.h Segment.h Date.h bconst.h Location.h Session.h
-fileTXT.obj: Scoring.h Teams.h Board.h Deal.h Tableau.h Players.h Auction.h
-fileTXT.obj: Contract.h Play.h Debug.h fileTXT.h parse.h portab.h
+fileTXT.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
+fileTXT.obj: Teams.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
+fileTXT.obj: Play.h Canvas.h fileTXT.h parse.h Debug.h
 fileLIN.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 fileLIN.obj: Teams.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
-fileLIN.obj: Play.h fileLIN.h parse.h Debug.h
+fileLIN.obj: Play.h fileLIN.h Debug.h
 fileREC.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 fileREC.obj: Teams.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
 fileREC.obj: Play.h Canvas.h fileREC.h parse.h Debug.h

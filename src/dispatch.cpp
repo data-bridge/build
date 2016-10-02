@@ -21,7 +21,6 @@
 #include "fileLIN.h"
 #include "filePBN.h"
 #include "fileRBN.h"
-#include "fileRBX.h"
 #include "fileTXT.h"
 #include "fileEML.h"
 #include "fileREC.h"
@@ -99,7 +98,6 @@ static void setFormatTables()
   setLINTables();
   setPBNTables();
   setRBNTables();
-  setRBXTables();
   setTXTTables();
   setEMLTables();
 }

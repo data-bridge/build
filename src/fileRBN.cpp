@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <regex>
 
 #include "Group.h"
 #include "Segment.h"
@@ -97,6 +98,56 @@ bool readRBNChunk(
     chunk[labelNo] = line.substr(2, string::npos);
   }
   return false;
+}
+
+
+bool readRBXChunk(
+  ifstream& fstr,
+  unsigned& lno,
+  vector<string>& chunk,
+  bool& newSegFlag)
+{
+  string line;
+  newSegFlag = false;
+  for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
+    chunk[i] = "";
+
+  if (! getline(fstr, line))
+    return false;
+
+  lno++;
+  regex re("^(.)\\{([^\\}]*)\\}");
+  smatch match;
+  while (regex_search(line, match, re) && match.size() >= 2)
+  {
+    const char c = match.str(1).at(0);
+    const string value = match.str(2);
+
+    line = regex_replace(line, re, "");
+
+    if (c == '%')
+      continue;
+
+    const formatLabelType labelNo = RBNmap[static_cast<int>(c)];
+    if (labelNo == BRIDGE_FORMAT_LABELS_SIZE)
+    {
+      LOG("Illegal RBX label in line '" + line + "'");
+      return false;
+    }
+
+    if (labelNo <= BRIDGE_FORMAT_VISITTEAM)
+      newSegFlag = true;
+
+    if (chunk[labelNo] != "")
+    {
+      LOG("Label already set in line '" + line + "'");
+      return false;
+    }
+
+    chunk[labelNo] = value;
+  }
+
+  return (line.size() == 0);
 }
 
 
