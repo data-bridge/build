@@ -9,18 +9,13 @@
 
 #include <iostream>
 #include <fstream>
-#include <string>
-#include <vector>
 #include <regex>
 #include <map>
-
-#include <assert.h>
 
 #include "Group.h"
 #include "Segment.h"
 #include "Board.h"
 #include "fileLIN.h"
-#include "parse.h"
 #include "Debug.h"
 
 using namespace std;
@@ -158,34 +153,6 @@ bool readLINChunk(
 }
 
 
-void writeHeader(
-  ofstream& fstr,
-  Group& group,
-  const formatType f)
-{
-  switch(f)
-  {
-    case BRIDGE_FORMAT_LIN:
-      break;
-    
-    case BRIDGE_FORMAT_LIN_RP:
-      fstr << "% " << FORMAT_EXTENSIONS[group.GetInputFormat()] << " " <<
-        GuessOriginalLine(group.GetFileName(), group.GetCount()) << "\n";
-      fstr << "% www.rpbridge.net Richard Pavlicek\n";
-      break;
-
-    case BRIDGE_FORMAT_LIN_VG:
-      break;
-
-    case BRIDGE_FORMAT_LIN_TRN:
-      break;
-
-    default:
-      break;
-  }
-}
-
-
 void writeLINSegmentLevel(
   ofstream& fstr,
   Segment * segment,
@@ -197,21 +164,6 @@ void writeLINSegmentLevel(
   fstr << segment->ScoresAsString(f);
   fstr << segment->BoardsAsString(f);
 }
-
-
-struct writeInfoType
-{
-  unsigned bno;
-  unsigned ino;
-  unsigned numBoards;
-  unsigned numInst;
-
-  string names;
-  string namesOld;
-
-  unsigned score1;
-  unsigned score2;
-};
 
 
 void writeLINBoardLevel(
@@ -235,57 +187,5 @@ void writeLINBoardLevel(
   fstr << board->AuctionAsString(f);
   fstr << board->PlayAsString(f);
   fstr << board->ClaimAsString(f);
-}
-
-
-bool writeLIN(
-  Group& group,
-  const string& fname,
-  const formatType f)
-{
-  ofstream fstr(fname.c_str());
-  if (! fstr.is_open())
-  {
-    LOG("No such LIN file");
-    return false;
-  }
-
-  writeInfoType writeInfo;
-  writeHeader(fstr, group, f);
-
-  for (unsigned g = 0; g < group.GetLength(); g++)
-  {
-    Segment * segment = group.GetSegment(g);
-
-    writeLINSegmentLevel(fstr, segment, f);
-
-    for (unsigned b = 0; b < segment->GetLength(); b++)
-    {
-      Board * board = segment->GetBoard(b);
-      if (board == nullptr)
-      {
-        LOG("Invalid board");
-        fstr.close();
-        return false;
-      }
-
-      unsigned numInst = board->GetLength();
-      for (unsigned i = 0; i < numInst; i++)
-      {
-        if (! board->SetInstance(i))
-        {
-          LOG("Invalid instance");
-          fstr.close();
-          return false;
-        }
-
-        writeInfo.bno = b;
-        writeLINBoardLevel(fstr, segment, board, writeInfo, f);
-      }
-    }
-  }
-
-  fstr.close();
-  return true;
 }
 

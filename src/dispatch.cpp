@@ -40,6 +40,7 @@
 #include "fileREC.h"
 
 #include "bconst.h"
+#include "parse.h"
 #include "debug.h"
 #include "Bexcept.h"
 #include "portab.h"
@@ -53,7 +54,9 @@ using namespace std;
 struct FormatFunctionsType
 {
   bool (* write)(Group&, const string&);
-  bool (* writeGen)(Group&, const string&, const formatType);
+  void (* writeSeg)(ofstream&, Segment *, formatType);
+  void (* writeBoard)(ofstream&, Segment *, Board *, 
+    const writeInfoType&, const formatType);
   bool (* readChunk)(ifstream&, unsigned&, vector<string>&, bool&);
 };
 
@@ -79,6 +82,15 @@ static bool tryFormatMethod(
   const unsigned label,
   ifstream& fstr);
 
+static void writeHeader(
+  ofstream& fstr,
+  Group& group,
+  const formatType f);
+
+static bool writeFormattedFile(
+  Group& group,
+  const string& fname,
+  const formatType f);
 
 static bool dummyWrite(
   Group& group,
@@ -93,41 +105,59 @@ static bool dummyWrite(
 void setTables()
 {
   formatFncs[BRIDGE_FORMAT_LIN].write = &writePBN; // TODO
-  formatFncs[BRIDGE_FORMAT_LIN].writeGen = &writeLIN;
   formatFncs[BRIDGE_FORMAT_LIN].readChunk = &readLINChunk;
+  formatFncs[BRIDGE_FORMAT_LIN].writeSeg = &writeLINSegmentLevel;
+  formatFncs[BRIDGE_FORMAT_LIN].writeBoard = &writeLINBoardLevel;
 
   formatFncs[BRIDGE_FORMAT_LIN_RP].write = &writePBN; // TODO
-  formatFncs[BRIDGE_FORMAT_LIN_RP].writeGen = &writeLIN;
   formatFncs[BRIDGE_FORMAT_LIN_RP].readChunk = &readLINChunk;
+  formatFncs[BRIDGE_FORMAT_LIN_RP].writeSeg = &writeLINSegmentLevel;
+  formatFncs[BRIDGE_FORMAT_LIN_RP].writeBoard = &writeLINBoardLevel;
 
   formatFncs[BRIDGE_FORMAT_LIN_VG].write = &writePBN; // TODO
-  formatFncs[BRIDGE_FORMAT_LIN_VG].writeGen = &writeLIN;
   formatFncs[BRIDGE_FORMAT_LIN_VG].readChunk = &readLINChunk;
+  formatFncs[BRIDGE_FORMAT_LIN_VG].writeSeg = &writeLINSegmentLevel;
+  formatFncs[BRIDGE_FORMAT_LIN_VG].writeBoard = &writeLINBoardLevel;
 
   formatFncs[BRIDGE_FORMAT_LIN_TRN].write = &writePBN; // TODO
-  formatFncs[BRIDGE_FORMAT_LIN_TRN].writeGen = &writeLIN;
   formatFncs[BRIDGE_FORMAT_LIN_TRN].readChunk = &readLINChunk;
+  formatFncs[BRIDGE_FORMAT_LIN_TRN].writeSeg = &writeLINSegmentLevel;
+  formatFncs[BRIDGE_FORMAT_LIN_TRN].writeBoard = &writeLINBoardLevel;
 
   formatFncs[BRIDGE_FORMAT_LIN_EXT].write = &dummyWrite;
   formatFncs[BRIDGE_FORMAT_LIN_EXT].readChunk = &readLINChunk;
+  formatFncs[BRIDGE_FORMAT_LIN_EXT].writeSeg = &writeLINSegmentLevel;
+  formatFncs[BRIDGE_FORMAT_LIN_EXT].writeBoard = &writeLINBoardLevel;
 
   formatFncs[BRIDGE_FORMAT_PBN].write = &writePBN;
   formatFncs[BRIDGE_FORMAT_PBN].readChunk = &readPBNChunk;
+  formatFncs[BRIDGE_FORMAT_PBN].writeSeg = &writeLINSegmentLevel; // TODO
+  formatFncs[BRIDGE_FORMAT_PBN].writeBoard = &writeLINBoardLevel; // TODO
 
   formatFncs[BRIDGE_FORMAT_RBN].write = &writeRBN;
   formatFncs[BRIDGE_FORMAT_RBN].readChunk = &readRBNChunk;
+  formatFncs[BRIDGE_FORMAT_RBN].writeSeg = &writeLINSegmentLevel; // TODO
+  formatFncs[BRIDGE_FORMAT_RBN].writeBoard = &writeLINBoardLevel; // TODO
 
   formatFncs[BRIDGE_FORMAT_RBX].write = &writeRBX;
   formatFncs[BRIDGE_FORMAT_RBX].readChunk = &readRBXChunk;
+  formatFncs[BRIDGE_FORMAT_RBX].writeSeg = &writeLINSegmentLevel; // TODO
+  formatFncs[BRIDGE_FORMAT_RBX].writeBoard = &writeLINBoardLevel; // TODO
 
   formatFncs[BRIDGE_FORMAT_TXT].write = &writeTXT;
   formatFncs[BRIDGE_FORMAT_TXT].readChunk = &readTXTChunk;
+  formatFncs[BRIDGE_FORMAT_TXT].writeSeg = &writeLINSegmentLevel; // TODO
+  formatFncs[BRIDGE_FORMAT_TXT].writeBoard = &writeLINBoardLevel; // TODO
 
   formatFncs[BRIDGE_FORMAT_EML].write = &writeEML;
   formatFncs[BRIDGE_FORMAT_EML].readChunk = &readEMLChunk;
+  formatFncs[BRIDGE_FORMAT_EML].writeSeg = &writeLINSegmentLevel; // TODO
+  formatFncs[BRIDGE_FORMAT_EML].writeBoard = &writeLINBoardLevel; // TODO
 
   formatFncs[BRIDGE_FORMAT_REC].write = &writeREC;
   formatFncs[BRIDGE_FORMAT_REC].readChunk = &readRECChunk;
+  formatFncs[BRIDGE_FORMAT_REC].writeSeg = &writeLINSegmentLevel; // TODO
+  formatFncs[BRIDGE_FORMAT_REC].writeBoard = &writeLINBoardLevel; // TODO
 
   formatFncs[BRIDGE_FORMAT_PAR].write = &dummyWrite;
 
@@ -207,8 +237,7 @@ void dispatch(
         t.formatOutput == BRIDGE_FORMAT_LIN_VG ||
         t.formatOutput == BRIDGE_FORMAT_LIN_TRN)
     {
-      if (! (* formatFncs[t.formatOutput].writeGen)
-        (group, t.fileOutput, t.formatOutput))
+      if (! writeFormattedFile(group, t.fileOutput, t.formatOutput))
       {
         debug.Print();
         assert(false);
@@ -236,7 +265,7 @@ void dispatch(
 
 }
 
-bool readFormattedFile(
+static bool readFormattedFile(
   const string& fname,
   const formatType f,
   Group& group)
@@ -346,5 +375,71 @@ static bool tryFormatMethod(
     fstr.close();
     return false;
   }
+}
+
+
+static void writeHeader(
+  ofstream& fstr,
+  Group& group,
+  const formatType f)
+{
+  const string g = GuessOriginalLine(group.GetFileName(), group.GetCount());
+  if (g == "")
+    return;
+
+  fstr << "% " << FORMAT_EXTENSIONS[f] << " " << g << "\n";
+  fstr << "% www.rpbridge.net Richard Pavlicek\n";
+}
+
+
+static bool writeFormattedFile(
+  Group& group,
+  const string& fname,
+  const formatType f)
+{
+  ofstream fstr(fname.c_str());
+  if (! fstr.is_open())
+  {
+    LOG("Cannot write to: " + fname);
+    return false;
+  }
+
+  writeInfoType writeInfo;
+  writeHeader(fstr, group, f);
+
+  for (unsigned g = 0; g < group.GetLength(); g++)
+  {
+    Segment * segment = group.GetSegment(g);
+
+    (* formatFncs[f].writeSeg)(fstr, segment, f);
+
+    for (unsigned b = 0; b < segment->GetLength(); b++)
+    {
+      Board * board = segment->GetBoard(b);
+      if (board == nullptr)
+      {
+        LOG("Invalid board");
+        fstr.close();
+        return false;
+      }
+
+      unsigned numInst = board->GetLength();
+      for (unsigned i = 0; i < numInst; i++)
+      {
+        if (! board->SetInstance(i))
+        {
+          LOG("Invalid instance");
+          fstr.close();
+          return false;
+        }
+
+        writeInfo.bno = b;
+        (* formatFncs[f].writeBoard)(fstr, segment, board, writeInfo, f);
+      }
+    }
+  }
+
+  fstr.close();
+  return true;
 }
 

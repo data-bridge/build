@@ -160,6 +160,23 @@ const string formatLabelNames[] =
 };
 
 
+// Useful for write functions.
+
+struct writeInfoType
+{
+  unsigned bno;
+  unsigned ino;
+  unsigned numBoards;
+  unsigned numInst;
+
+  string names;
+  string namesOld;
+
+  unsigned score1;
+  unsigned score2;
+};
+
+
 // Input options.
 
 struct FileOptionType

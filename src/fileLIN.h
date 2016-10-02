@@ -25,9 +25,16 @@ bool readLINChunk(
   vector<string>& chunk,
   bool& newSegFlag);
 
-bool writeLIN(
-  Group& group,
-  const string& fname,
+void writeLINSegmentLevel(
+  ofstream& fstr,
+  Segment * segment,
+  const formatType f);
+
+void writeLINBoardLevel(
+  ofstream& fstr,
+  Segment * segment,
+  Board * board,
+  const writeInfoType& writeInfo,
   const formatType f);
 
 #endif
