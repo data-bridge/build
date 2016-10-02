@@ -27,7 +27,6 @@ extern Debug debug;
 
 
 map<string, formatLabelType> LINmap;
-bool LABEL_TO_NEW_SEGMENT[BRIDGE_FORMAT_LABELS_SIZE];
 
 
 void setLINTables()
@@ -53,12 +52,6 @@ void setLINTables()
   LINmap["rh"] = BRIDGE_FORMAT_LABELS_SIZE;
   LINmap["ah"] = BRIDGE_FORMAT_LABELS_SIZE;
   LINmap["nt"] = BRIDGE_FORMAT_LABELS_SIZE; // Chat
-
-  LABEL_TO_NEW_SEGMENT[BRIDGE_FORMAT_TITLE] = true;
-  LABEL_TO_NEW_SEGMENT[BRIDGE_FORMAT_RESULTS_LIST] = true;
-  LABEL_TO_NEW_SEGMENT[BRIDGE_FORMAT_PLAYERS_LIST] = true;
-  LABEL_TO_NEW_SEGMENT[BRIDGE_FORMAT_SCORES_LIST] = true;
-  LABEL_TO_NEW_SEGMENT[BRIDGE_FORMAT_BOARDS_LIST] = true;
 }
 
 
@@ -128,8 +121,7 @@ bool readLINChunk(
       }
 
       const unsigned labelNo = it->second;
-
-      if (LABEL_TO_NEW_SEGMENT[labelNo])
+      if (labelNo <= BRIDGE_FORMAT_VISITTEAM)
         newSegFlag = true;
 
       // We ignore some labels.

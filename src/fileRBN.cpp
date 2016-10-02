@@ -23,46 +23,34 @@ using namespace std;
 extern Debug debug;
 
 
-formatLabelType CHAR_TO_LABEL_NO[128];
-bool CHAR_TO_NEW_SEGMENT[128];
+formatLabelType RBNmap[128];
 
 
 void setRBNTables()
 {
   for (unsigned char c = 0; c < 128; c++)
-  {
-    CHAR_TO_LABEL_NO[c] = BRIDGE_FORMAT_LABELS_SIZE;
-    CHAR_TO_NEW_SEGMENT[c] = false;
-  }
+    RBNmap[c] = BRIDGE_FORMAT_LABELS_SIZE;
 
   // Segment-level
-  CHAR_TO_LABEL_NO['T'] = BRIDGE_FORMAT_TITLE;
-  CHAR_TO_LABEL_NO['D'] = BRIDGE_FORMAT_DATE;
-  CHAR_TO_LABEL_NO['L'] = BRIDGE_FORMAT_LOCATION;
-  CHAR_TO_LABEL_NO['E'] = BRIDGE_FORMAT_EVENT;
-  CHAR_TO_LABEL_NO['S'] = BRIDGE_FORMAT_SESSION;
-  CHAR_TO_LABEL_NO['F'] = BRIDGE_FORMAT_SCORING;
-  CHAR_TO_LABEL_NO['K'] = BRIDGE_FORMAT_TEAMS;
+  RBNmap['T'] = BRIDGE_FORMAT_TITLE;
+  RBNmap['D'] = BRIDGE_FORMAT_DATE;
+  RBNmap['L'] = BRIDGE_FORMAT_LOCATION;
+  RBNmap['E'] = BRIDGE_FORMAT_EVENT;
+  RBNmap['S'] = BRIDGE_FORMAT_SESSION;
+  RBNmap['F'] = BRIDGE_FORMAT_SCORING;
+  RBNmap['K'] = BRIDGE_FORMAT_TEAMS;
 
   // Board-level but relevant in Segment
-  CHAR_TO_LABEL_NO['N'] = BRIDGE_FORMAT_PLAYERS_BOARD;
-  CHAR_TO_LABEL_NO['B'] = BRIDGE_FORMAT_BOARD_NO;
+  RBNmap['N'] = BRIDGE_FORMAT_PLAYERS_BOARD;
+  RBNmap['B'] = BRIDGE_FORMAT_BOARD_NO;
 
   // Purely Board-level
-  CHAR_TO_LABEL_NO['H'] = BRIDGE_FORMAT_DEAL;
-  CHAR_TO_LABEL_NO['A'] = BRIDGE_FORMAT_AUCTION;
-  CHAR_TO_LABEL_NO['C'] = BRIDGE_FORMAT_CONTRACT;
-  CHAR_TO_LABEL_NO['P'] = BRIDGE_FORMAT_PLAY;
-  CHAR_TO_LABEL_NO['R'] = BRIDGE_FORMAT_RESULT;
-  CHAR_TO_LABEL_NO['M'] = BRIDGE_FORMAT_DOUBLE_DUMMY;
-
-  CHAR_TO_NEW_SEGMENT['T'] = true;
-  CHAR_TO_NEW_SEGMENT['D'] = true;
-  CHAR_TO_NEW_SEGMENT['L'] = true;
-  CHAR_TO_NEW_SEGMENT['E'] = true;
-  CHAR_TO_NEW_SEGMENT['S'] = true;
-  CHAR_TO_NEW_SEGMENT['F'] = true;
-  CHAR_TO_NEW_SEGMENT['K'] = true;
+  RBNmap['H'] = BRIDGE_FORMAT_DEAL;
+  RBNmap['A'] = BRIDGE_FORMAT_AUCTION;
+  RBNmap['C'] = BRIDGE_FORMAT_CONTRACT;
+  RBNmap['P'] = BRIDGE_FORMAT_PLAY;
+  RBNmap['R'] = BRIDGE_FORMAT_RESULT;
+  RBNmap['M'] = BRIDGE_FORMAT_DOUBLE_DUMMY;
 }
 
 
@@ -93,16 +81,16 @@ bool readRBNChunk(
     if (c == '%')
       continue;
 
-    if (CHAR_TO_LABEL_NO[static_cast<int>(c)] == BRIDGE_FORMAT_LABELS_SIZE)
+    const formatLabelType labelNo = RBNmap[static_cast<int>(c)];
+    if (labelNo == BRIDGE_FORMAT_LABELS_SIZE)
     {
       LOG("Illegal RBN label in line '" + line + "'");
       return false;
     }
 
-    if (CHAR_TO_NEW_SEGMENT[static_cast<int>(c)])
+    if (labelNo <= BRIDGE_FORMAT_VISITTEAM)
       newSegFlag = true;
 
-    const formatLabelType labelNo = CHAR_TO_LABEL_NO[static_cast<int>(c)];
     if (chunk[labelNo] != "")
     {
       LOG("Label already set in line '" + line + "'");
