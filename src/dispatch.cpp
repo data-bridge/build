@@ -53,6 +53,7 @@ using namespace std;
 struct FormatFunctionsType
 {
   bool (* write)(Group&, const string&);
+  bool (* writeGen)(Group&, const string&, const formatType);
   bool (* readChunk)(ifstream&, unsigned&, vector<string>&, bool&);
 };
 
@@ -91,16 +92,20 @@ static bool dummyWrite(
 
 void setTables()
 {
-  formatFncs[BRIDGE_FORMAT_LIN].write = &writeLIN;
+  formatFncs[BRIDGE_FORMAT_LIN].write = &writePBN; // TODO
+  formatFncs[BRIDGE_FORMAT_LIN].writeGen = &writeLIN;
   formatFncs[BRIDGE_FORMAT_LIN].readChunk = &readLINChunk;
 
-  formatFncs[BRIDGE_FORMAT_LIN_RP].write = &writeLIN_RP;
+  formatFncs[BRIDGE_FORMAT_LIN_RP].write = &writePBN; // TODO
+  formatFncs[BRIDGE_FORMAT_LIN_RP].writeGen = &writeLIN;
   formatFncs[BRIDGE_FORMAT_LIN_RP].readChunk = &readLINChunk;
 
-  formatFncs[BRIDGE_FORMAT_LIN_VG].write = &writeLIN_VG;
+  formatFncs[BRIDGE_FORMAT_LIN_VG].write = &writePBN; // TODO
+  formatFncs[BRIDGE_FORMAT_LIN_VG].writeGen = &writeLIN;
   formatFncs[BRIDGE_FORMAT_LIN_VG].readChunk = &readLINChunk;
 
-  formatFncs[BRIDGE_FORMAT_LIN_TRN].write = &writeLIN_TRN;
+  formatFncs[BRIDGE_FORMAT_LIN_TRN].write = &writePBN; // TODO
+  formatFncs[BRIDGE_FORMAT_LIN_TRN].writeGen = &writeLIN;
   formatFncs[BRIDGE_FORMAT_LIN_TRN].readChunk = &readLINChunk;
 
   formatFncs[BRIDGE_FORMAT_LIN_EXT].write = &dummyWrite;
@@ -132,7 +137,6 @@ void setTables()
   setRBXTables();
   setTXTTables();
   setEMLTables();
-
 
   segPtr[BRIDGE_FORMAT_TITLE] = &Segment::SetTitle;
   segPtr[BRIDGE_FORMAT_DATE] = &Segment::SetDate;
@@ -198,10 +202,25 @@ void dispatch(
 
   for (auto &t: task.taskList)
   {
+    if (t.formatOutput == BRIDGE_FORMAT_LIN ||
+        t.formatOutput == BRIDGE_FORMAT_LIN_RP ||
+        t.formatOutput == BRIDGE_FORMAT_LIN_VG ||
+        t.formatOutput == BRIDGE_FORMAT_LIN_TRN)
+    {
+      if (! (* formatFncs[t.formatOutput].writeGen)
+        (group, t.fileOutput, t.formatOutput))
+      {
+        debug.Print();
+        assert(false);
+      }
+    }
+    else
+    {
     if (! (* formatFncs[t.formatOutput].write)(group, t.fileOutput))
     {
       debug.Print();
       assert(false);
+    }
     }
 
     if (t.refFlag)
@@ -230,6 +249,7 @@ bool readFormattedFile(
   }
 
   group.SetFileName(fname);
+  group.SetInputFormat(f);
 
   vector<string> chunk(BRIDGE_FORMAT_LABELS_SIZE);
 
@@ -260,7 +280,8 @@ bool readFormattedFile(
     }
 
     if (chunk[BRIDGE_FORMAT_BOARD_NO] != "" &&
-        chunk[BRIDGE_FORMAT_BOARD_NO] != lastBoard)
+        chunk[BRIDGE_FORMAT_BOARD_NO] != lastBoard &&
+        chunk[BRIDGE_FORMAT_BOARD_NO].at(0) != 'c')
     {
       // New board.
       lastBoard = chunk[BRIDGE_FORMAT_BOARD_NO];

@@ -7,6 +7,8 @@
 */
 
 
+#include <assert.h>
+
 #include "Group.h"
 #include "Board.h"
 #include "portab.h"
@@ -30,14 +32,21 @@ Group::~Group()
 void Group::Reset()
 {
   len = 0;
-  filename = "";
+  fileName = "";
+  formatOrigin = BRIDGE_FORMAT_SIZE;
   segments.clear();
 }
 
 
 void Group::SetFileName(const string& fname)
 {
-  filename = fname;
+  fileName = fname;
+}
+
+
+void Group::SetInputFormat(const formatType f)
+{
+  formatOrigin = f;
 }
 
 
@@ -75,9 +84,16 @@ const Segment * Group::GetSegmentReadOnly(const unsigned extNo) const
 }
 
 
+formatType Group::GetInputFormat() const
+{
+  assert(formatOrigin != BRIDGE_FORMAT_SIZE);
+  return formatOrigin;
+}
+
+
 string Group::GetFileName() const
 {
-  return filename;
+  return fileName;
 }
 
 

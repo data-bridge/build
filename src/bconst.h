@@ -62,6 +62,22 @@ const string FORMAT_NAMES[BRIDGE_FORMAT_SIZE] =
   "PAR"
 };
 
+const string FORMAT_EXTENSIONS[BRIDGE_FORMAT_SIZE] =
+{
+  "LIN",
+  "LIN",
+  "LIN",
+  "LIN",
+  "LIN",
+  "PBN", 
+  "RBN", 
+  "RBX", 
+  "TXT", 
+  "EML",
+  "REC",
+  "PAR"
+};
+
 // Bridge format labels.
 
 enum formatLabelType

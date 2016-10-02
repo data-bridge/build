@@ -28,7 +28,9 @@ class Group
 
     unsigned len;
 
-    string filename;
+    string fileName;
+
+    formatType formatOrigin;
 
     vector<segmentPairType> segments;
 
@@ -43,13 +45,17 @@ class Group
 
     void Reset();
 
-    void SetFileName(const string& filename);
+    void SetFileName(const string& fname);
+
+    void SetInputFormat(const formatType f);
 
     bool MakeSegment(const unsigned no);
 
     Segment * GetSegment(const unsigned no);
 
     string GetFileName() const;
+
+    formatType GetInputFormat() const;
 
     unsigned GetCount();
 

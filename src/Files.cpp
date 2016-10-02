@@ -221,6 +221,10 @@ void Files::Set(const OptionsType& options)
 
     outputList.push_back(oe);
     flist.push_back(oe.format);
+
+    // Only one entry in the inputList.
+    for (auto &i: inputList)
+      Files::ExtendTaskList(i, outputList, keepFlag, refMap);
   }
   else
   {
@@ -239,21 +243,21 @@ void Files::Set(const OptionsType& options)
       flist.push_back(BRIDGE_FORMAT_EML);
       flist.push_back(BRIDGE_FORMAT_REC);
     }
-  }
 
-  // Connect the dots
-  for (auto &i: inputList)
-  {
-    outputList.clear();
-
-    for (auto &f: flist)
+    // Connect the dots
+    for (auto &i: inputList)
     {
-      string oname = prefix + i.base + "." + FORMAT_NAMES[f];
-      Files::FillEntry(oname, oe);
-      outputList.push_back(oe);
-    }
+      outputList.clear();
 
-    Files::ExtendTaskList(i, outputList, keepFlag, refMap);
+      for (auto &f: flist)
+      {
+        string oname = prefix + i.base + "." + FORMAT_NAMES[f];
+        Files::FillEntry(oname, oe);
+        outputList.push_back(oe);
+      }
+
+      Files::ExtendTaskList(i, outputList, keepFlag, refMap);
+    }
   }
 }
 

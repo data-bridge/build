@@ -173,8 +173,8 @@ void printOptions()
   printFileOption(options.fileInput, "infile");
   printFileOption(options.dirInput, "indir");
 
-  printFileOption(options.fileOutput, "infile");
-  printFileOption(options.dirOutput, "indir");
+  printFileOption(options.fileOutput, "outfile");
+  printFileOption(options.dirOutput, "outdir");
 
   printFileOption(options.fileRef, "reffile");
   printFileOption(options.dirRef, "refdir");

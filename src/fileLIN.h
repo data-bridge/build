@@ -19,26 +19,15 @@ class Group;
 
 void setLINTables();
 
-bool writeLIN(
-  Group& group,
-  const string& fname);
-
 bool readLINChunk(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& chunk,
   bool& newSegFlag);
 
-bool writeLIN_RP(
+bool writeLIN(
   Group& group,
-  const string& fname);
-
-bool writeLIN_VG(
-  Group& group,
-  const string& fname);
-
-bool writeLIN_TRN(
-  Group& group,
-  const string& fname);
+  const string& fname,
+  const formatType f);
 
 #endif

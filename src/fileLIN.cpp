@@ -14,6 +14,8 @@
 #include <regex>
 #include <map>
 
+#include <assert.h>
+
 #include "Group.h"
 #include "Segment.h"
 #include "Board.h"
@@ -156,9 +158,146 @@ bool readLINChunk(
 }
 
 
+void writeHeader(
+  ofstream& fstr,
+  Group& group,
+  const formatType f)
+{
+  switch(f)
+  {
+    case BRIDGE_FORMAT_LIN:
+      break;
+    
+    case BRIDGE_FORMAT_LIN_RP:
+      fstr << "% " << FORMAT_EXTENSIONS[group.GetInputFormat()] << " " <<
+        GuessOriginalLine(group.GetFileName(), group.GetCount()) << "\n";
+      fstr << "% www.rpbridge.net Richard Pavlicek\n";
+      break;
+
+    case BRIDGE_FORMAT_LIN_VG:
+      break;
+
+    case BRIDGE_FORMAT_LIN_TRN:
+      break;
+
+    default:
+      break;
+  }
+}
+
+
+void writeLINSegmentLevel(
+  ofstream& fstr,
+  Segment * segment,
+  const formatType f)
+{
+  switch(f)
+  {
+    case BRIDGE_FORMAT_LIN:
+      fstr << segment->TitleAsString(f);
+      fstr << segment->ContractsAsString(f);
+      fstr << segment->PlayersAsString(f);
+      fstr << segment->ScoresAsString(f);
+      fstr << segment->BoardsAsString(f);
+      break;
+    
+    case BRIDGE_FORMAT_LIN_RP:
+      fstr << segment->TitleAsString(f);
+      fstr << segment->ContractsAsString(f);
+      fstr << segment->PlayersAsString(f) << "\n";
+      fstr << segment->ScoresAsString(f);
+      fstr << segment->BoardsAsString(f);
+      break;
+
+    case BRIDGE_FORMAT_LIN_VG:
+      fstr << segment->TitleAsString(f);
+      fstr << segment->ContractsAsString(f);
+      fstr << segment->PlayersAsString(f);
+      break;
+
+    case BRIDGE_FORMAT_LIN_TRN:
+      fstr << segment->TitleAsString(f);
+      fstr << segment->ContractsAsString(f);
+      fstr << segment->PlayersAsString(f);
+      break;
+
+    default:
+      break;
+  }
+}
+
+
+void writeLINBoardLevel(
+  ofstream& fstr,
+  Segment * segment,
+  Board * board,
+  const unsigned bno,
+  const formatType f)
+{
+  switch(f)
+  {
+    case BRIDGE_FORMAT_LIN:
+      fstr << segment->NumberAsString(f, bno);
+      fstr << board->PlayersAsString(f);
+      fstr << board->DealAsString(board->GetDealer(), f);
+      fstr << segment->NumberAsBoardString(f, bno);
+      fstr << board->VulAsString(f);
+
+      board->CalculateScore();
+
+      fstr << board->AuctionAsString(f);
+      fstr << board->PlayAsString(f);
+      fstr << board->ClaimAsString(f);
+      break;
+    
+    case BRIDGE_FORMAT_LIN_RP:
+      fstr << segment->NumberAsString(f, bno);
+      fstr << board->DealAsString(board->GetDealer(), f);
+      fstr << board->VulAsString(f);
+
+      board->CalculateScore();
+
+      fstr << board->AuctionAsString(f);
+      fstr << board->PlayAsString(f);
+      fstr << board->ClaimAsString(f) << "\n";
+      break;
+
+    case BRIDGE_FORMAT_LIN_VG:
+      fstr << segment->NumberAsString(f, bno);
+      fstr << board->DealAsString(board->GetDealer(), f);
+      fstr << board->VulAsString(f);
+
+      board->CalculateScore();
+
+      fstr << board->AuctionAsString(f) << "\n";
+      fstr << board->PlayAsString(f);
+      fstr << board->ClaimAsString(f) << "\n";
+      break;
+
+    case BRIDGE_FORMAT_LIN_TRN:
+      fstr << segment->NumberAsString(f, bno);
+      fstr << board->PlayersAsString(f);
+      fstr << board->DealAsString(board->GetDealer(), f);
+      fstr << segment->NumberAsBoardString(f, bno);
+      fstr << board->VulAsString(f);
+
+      board->CalculateScore();
+
+      fstr << board->AuctionAsString(f);
+      fstr << board->PlayAsString(f);
+      fstr << board->ClaimAsString(f);
+      break;
+
+    default:
+      break;
+  }
+}
+
+
 bool writeLIN(
   Group& group,
-  const string& fname)
+  const string& fname,
+  const formatType f)
 {
   ofstream fstr(fname.c_str());
   if (! fstr.is_open())
@@ -167,17 +306,13 @@ bool writeLIN(
     return false;
   }
 
-  formatType f = BRIDGE_FORMAT_LIN;
+  writeHeader(fstr, group, f);
 
   for (unsigned g = 0; g < group.GetLength(); g++)
   {
     Segment * segment = group.GetSegment(g);
 
-    fstr << segment->TitleAsString(f);
-    fstr << segment->ContractsAsString(f);
-    fstr << segment->PlayersAsString(f);
-    fstr << segment->ScoresAsString(f);
-    fstr << segment->BoardsAsString(f);
+    writeLINSegmentLevel(fstr, segment, f);
 
     for (unsigned b = 0; b < segment->GetLength(); b++)
     {
@@ -199,17 +334,7 @@ bool writeLIN(
           return false;
         }
 
-        fstr << segment->NumberAsString(f, b);
-        fstr << board->PlayersAsString(f);
-        fstr << board->DealAsString(board->GetDealer(), f);
-        fstr << segment->NumberAsBoardString(f, b);
-        fstr << board->VulAsString(f);
-
-        board->CalculateScore();
-
-        fstr << board->AuctionAsString(f);
-        fstr << board->PlayAsString(f);
-        fstr << board->ClaimAsString(f);
+        writeLINBoardLevel(fstr, segment, board, b, f);
       }
     }
   }
@@ -217,190 +342,4 @@ bool writeLIN(
   fstr.close();
   return true;
 }
-
-
-bool writeLIN_RP(
-  Group& group,
-  const string& fname)
-{
-  ofstream fstr(fname.c_str());
-  if (! fstr.is_open())
-  {
-    LOG("No such LIN file");
-    return false;
-  }
-
-  formatType f = BRIDGE_FORMAT_LIN_RP;
-
-  fstr << "% LIN " <<
-    GuessOriginalLine(group.GetFileName(), group.GetCount()) << "\n";
-  fstr << "% www.rpbridge.net Richard Pavlicek\n";
-
-  for (unsigned g = 0; g < group.GetLength(); g++)
-  {
-    Segment * segment = group.GetSegment(g);
-
-    fstr << segment->TitleAsString(f);
-    fstr << segment->ContractsAsString(f);
-    fstr << segment->PlayersAsString(f) << "\n";
-    fstr << segment->ScoresAsString(f);
-    fstr << segment->BoardsAsString(f);
-
-    for (unsigned b = 0; b < segment->GetLength(); b++)
-    {
-      Board * board = segment->GetBoard(b);
-      if (board == nullptr)
-      {
-        LOG("Invalid board");
-        fstr.close();
-        return false;
-      }
-
-      unsigned numInst = board->GetLength();
-      for (unsigned i = 0; i < numInst; i++)
-      {
-        if (! board->SetInstance(i))
-        {
-          LOG("Invalid instance");
-          fstr.close();
-          return false;
-        }
-
-        fstr << segment->NumberAsString(f, b);
-        fstr << board->DealAsString(board->GetDealer(), f);
-        fstr << board->VulAsString(f);
-
-        board->CalculateScore();
-
-        fstr << board->AuctionAsString(f);
-        fstr << board->PlayAsString(f);
-        fstr << board->ClaimAsString(f) << "\n";
-      }
-    }
-  }
-
-  fstr.close();
-  return true;
-}
-
-
-bool writeLIN_TRN(
-  Group& group,
-  const string& fname)
-{
-  ofstream fstr(fname.c_str());
-  if (! fstr.is_open())
-  {
-    LOG("No such LIN file");
-    return false;
-  }
-
-  formatType f = BRIDGE_FORMAT_LIN_TRN;
-
-  for (unsigned g = 0; g < group.GetLength(); g++)
-  {
-    Segment * segment = group.GetSegment(g);
-
-    fstr << segment->TitleAsString(f);
-    fstr << segment->ContractsAsString(f);
-    fstr << segment->PlayersAsString(f);
-
-    for (unsigned b = 0; b < segment->GetLength(); b++)
-    {
-      Board * board = segment->GetBoard(b);
-      if (board == nullptr)
-      {
-        LOG("Invalid board");
-        fstr.close();
-        return false;
-      }
-
-      unsigned numInst = board->GetLength();
-      for (unsigned i = 0; i < numInst; i++)
-      {
-        if (! board->SetInstance(i))
-        {
-          LOG("Invalid instance");
-          fstr.close();
-          return false;
-        }
-
-        fstr << segment->NumberAsString(f, b);
-        fstr << board->PlayersAsString(f);
-        fstr << board->DealAsString(board->GetDealer(), f);
-        fstr << segment->NumberAsBoardString(f, b);
-        fstr << board->VulAsString(f);
-
-        board->CalculateScore();
-
-        fstr << board->AuctionAsString(f);
-        fstr << board->PlayAsString(f);
-        fstr << board->ClaimAsString(f);
-      }
-    }
-  }
-
-  fstr.close();
-  return true;
-}
-
-
-bool writeLIN_VG(
-  Group& group,
-  const string& fname)
-{
-  ofstream fstr(fname.c_str());
-  if (! fstr.is_open())
-  {
-    LOG("No such LIN file");
-    return false;
-  }
-
-  formatType f = BRIDGE_FORMAT_LIN_VG;
-
-  for (unsigned g = 0; g < group.GetLength(); g++)
-  {
-    Segment * segment = group.GetSegment(g);
-
-    fstr << segment->TitleAsString(f);
-    fstr << segment->ContractsAsString(f);
-    fstr << segment->PlayersAsString(f);
-
-    for (unsigned b = 0; b < segment->GetLength(); b++)
-    {
-      Board * board = segment->GetBoard(b);
-      if (board == nullptr)
-      {
-        LOG("Invalid board");
-        fstr.close();
-        return false;
-      }
-
-      unsigned numInst = board->GetLength();
-      for (unsigned i = 0; i < numInst; i++)
-      {
-        if (! board->SetInstance(i))
-        {
-          LOG("Invalid instance");
-          fstr.close();
-          return false;
-        }
-
-        fstr << segment->NumberAsString(f, b);
-        fstr << board->DealAsString(board->GetDealer(), f);
-        fstr << board->VulAsString(f);
-
-        board->CalculateScore();
-
-        fstr << board->AuctionAsString(f) << "\n";
-        fstr << board->PlayAsString(f);
-        fstr << board->ClaimAsString(f) << "\n";
-      }
-    }
-  }
-
-  fstr.close();
-  return true;
-}
-
 
