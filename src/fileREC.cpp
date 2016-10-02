@@ -9,71 +9,21 @@
 
 #include <iostream>
 #include <fstream>
-#include <iomanip>
-#include <sstream>
 #include <string>
 #include <vector>
-#include <iterator>
-#include <algorithm>
 #include <regex>
-#include <map>
-#include <assert.h>
 
-#include "Board.h"
-#include "Canvas.h"
 #include "Group.h"
 #include "Segment.h"
-#include "Debug.h"
+#include "Board.h"
+#include "Canvas.h"
 #include "fileREC.h"
 #include "parse.h"
-#include "portab.h"
+#include "Debug.h"
 
 using namespace std;
 
 extern Debug debug;
-
-
-const unsigned REClineLength = 80;
-
-enum REClabel
-{
-  REC_SCORING = 0,
-  REC_WEST = 1,
-  REC_NORTH = 2,
-  REC_EAST = 3,
-  REC_SOUTH = 4,
-  REC_BOARD = 5,
-  REC_DEAL = 6,
-  REC_DEALER = 7,
-  REC_VULNERABLE = 8,
-  REC_AUCTION = 9,
-  REC_PLAY = 10,
-  REC_RESULT = 11,
-  REC_LABELS_SIZE = 12
-};
-
-const string RECname[] =
-{
-  "Scoring",
-  "West",
-  "North",
-  "East",
-  "South",
-  "Board",
-  "Deal",
-  "Dealer",
-  "Vulnerable",
-  "Auction",
-  "Play",
-  "Result"
-};
-
-
-typedef bool (Segment::*SegPtr)(const string& s, const formatType f);
-typedef bool (Board::*BoardPtr)(const string& s, const formatType f);
-
-SegPtr segPtrREC[REC_LABELS_SIZE];
-BoardPtr boardPtrREC[REC_LABELS_SIZE];
 
 
 static bool tryRECMethod(
@@ -112,24 +62,8 @@ static bool getRECPlay(
   vector<string>& chunk);
 
 
-void setRECtables()
+void setRECTables()
 {
-  segPtrREC[REC_SCORING] = &Segment::SetScoring;
-
-  segPtrREC[REC_WEST] = &Segment::SetWest;
-  segPtrREC[REC_NORTH] = &Segment::SetNorth;
-  segPtrREC[REC_EAST] = &Segment::SetEast;
-  segPtrREC[REC_SOUTH] = &Segment::SetSouth;
-
-  segPtrREC[REC_BOARD] = &Segment::SetNumber;
-
-  boardPtrREC[REC_DEAL] = &Board::SetDeal;
-  boardPtrREC[REC_DEALER] = &Board::SetDealer;
-  boardPtrREC[REC_VULNERABLE] = &Board::SetVul;
-  boardPtrREC[REC_AUCTION] = &Board::SetAuction;
-  boardPtrREC[REC_PLAY] = &Board::SetPlays;
-
-  boardPtrREC[REC_RESULT] = &Board::SetResult;
 }
 
 
@@ -408,107 +342,6 @@ bool readRECChunk(
 
   newSegFlag = false;
   return getRECFields(canvas, playLine, chunk);
-}
-
-
-bool readREC(
-  Group& group,
-  const string& fname)
-{
-  bool newSegFlag = true;
-
-  ifstream fstr(fname.c_str());
-  if (! fstr.is_open())
-  {
-    LOG("No such REC file");
-    return false;
-  }
-
-  group.SetFileName(fname);
-
-  const formatType f = BRIDGE_FORMAT_REC;
-
-  Segment * segment = nullptr;
-  Board * board = nullptr;
-  unsigned bno = 0;
-  unsigned lno = 0;
-
-  // Always one segment.
-  if (! group.MakeSegment(0))
-  {
-    LOG("Cannot make segment " + STR(0));
-    fstr.close();
-    return false;
-  }
-  segment = group.GetSegment(0);
-
-  string lastBoard = "";
-
-  vector<string> chunk(REC_LABELS_SIZE);
-  while (readRECChunk(fstr, lno, chunk, newSegFlag))
-  {
-    if (chunk[REC_BOARD] != "" && chunk[REC_BOARD] != lastBoard)
-    {
-      // New board.
-      lastBoard = chunk[REC_BOARD];
-      board = segment->AcquireBoard(bno);
-      bno++;
-
-      if (board == nullptr)
-      {
-        LOG("Unknown error");
-        fstr.close();
-        return false;
-      }
-    }
-
-    board->NewInstance();
-    segment->CopyPlayers();
-
-    for (unsigned i = 0; i < REC_LABELS_SIZE; i++)
-    {
-      if (! tryRECMethod(chunk, segment, board, i, fstr, RECname[i]))
-        return false;
-    }
-
-    if (fstr.eof())
-      break;
-  }
-
-  fstr.close();
-  return true;
-}
-
-
-static bool tryRECMethod(
-  const vector<string>& chunk,
-  Segment * segment,
-  Board * board,
-  const unsigned label,
-  ifstream& fstr,
-  const string& info)
-{
-  if (chunk[label] == "")
-    return true;
-  else if (label <= REC_BOARD)
-  {
-    if ((segment->*segPtrREC[label])(chunk[label], BRIDGE_FORMAT_REC))
-      return true;
-    else
-    {
-      LOG("Cannot add " + info + " line '" + chunk[label] + "'");
-      fstr.close();
-      return false;
-    }
-  }
-  else if ((board->*boardPtrREC[label])(chunk[label], BRIDGE_FORMAT_REC))
-    return true;
-  else
-  {
-    LOG("Cannot add " + info + " line '" + chunk[label] + "'");
-    fstr.close();
-    return false;
-  }
 }
 
 

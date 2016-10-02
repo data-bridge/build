@@ -158,8 +158,8 @@ void setTables()
   formatFncs[BRIDGE_FORMAT_EML].write = &writeEML;
   formatFncs[BRIDGE_FORMAT_EML].readChunk = &readEMLChunk;
 
-  formatFncs[BRIDGE_FORMAT_REC].set = &setRECtables;
-  formatFncs[BRIDGE_FORMAT_REC].read = &readREC;
+  formatFncs[BRIDGE_FORMAT_REC].set = &setRECTables;
+  formatFncs[BRIDGE_FORMAT_REC].read = &readTXT; // For now, TODO
   formatFncs[BRIDGE_FORMAT_REC].write = &writeREC;
   formatFncs[BRIDGE_FORMAT_REC].readChunk = &readRECChunk;
 

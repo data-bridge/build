@@ -17,11 +17,7 @@ using namespace std;
 class Group;
 
 
-void setRECtables();
-
-bool readREC(
-  Group& group,
-  const string& fname);
+void setRECTables();
 
 bool readRECChunk(
   ifstream& fstr,
