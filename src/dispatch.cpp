@@ -289,12 +289,13 @@ bool readFormattedFile(
 
   Board * board = nullptr;
   unsigned bno = 0;
+  string lastBoard = "";
 
   unsigned lno = 0;
 
   while ((* formatFncs[f].readChunk)(fstr, lno, chunk, newSegFlag))
   {
-    if (newSegFlag)
+    if (newSegFlag || segment->GetLength() == 0)
     {
       if (! group.MakeSegment(segno))
       {
@@ -309,9 +310,10 @@ bool readFormattedFile(
     }
 
     if (chunk[BRIDGE_FORMAT_BOARD_NO] != "" &&
-        chunk[BRIDGE_FORMAT_BOARD_NO].at(0) != 'c')
+        chunk[BRIDGE_FORMAT_BOARD_NO] != lastBoard)
     {
-      // New board.  Latter condition is only relevant for LIN.
+      // New board.
+      lastBoard = chunk[BRIDGE_FORMAT_BOARD_NO];
       board = segment->AcquireBoard(bno);
       bno++;
 

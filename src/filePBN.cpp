@@ -9,22 +9,17 @@
 
 #include <iostream>
 #include <fstream>
-#include <iomanip>
-#include <sstream>
 #include <string>
 #include <vector>
-#include <iterator>
-#include <algorithm>
 #include <regex>
 #include <map>
-#include <assert.h>
 
 #include "Group.h"
 #include "Segment.h"
-#include "Debug.h"
+#include "Board.h"
 #include "filePBN.h"
 #include "parse.h"
-#include "portab.h"
+#include "Debug.h"
 
 using namespace std;
 
