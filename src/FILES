@@ -1,11 +1,11 @@
-                        camelCase       noglobals       throws  deadcode?
+clean?                  camelCase       noglobals       throws  deadcode?
    342 args.cpp
   1650 Auction.cpp
     33 Bexcept.cpp
    839 Board.cpp
     96 Canvas.cpp
   1392 Contract.cpp
-   440 Date.cpp
+n  440 Date.cpp         y               y               y       open
    717 Deal.cpp
     43 Debug.cpp
    376 dispatch.cpp

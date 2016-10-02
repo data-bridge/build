@@ -9,10 +9,10 @@
 
 #include <iostream>
 
-#include "Bexcept.h"
+#include "Bdiff.h"
 
 
-Bexcept::Bexcept(
+Bdiff::Bdiff(
   const char fileArg[],
   const int lineArg,
   const char functionArg[],
@@ -25,7 +25,7 @@ Bexcept::Bexcept(
 }
 
 
-void Bexcept::Print() const
+void Bdiff::Print() const
 {
   cout << "[File " << file << "]\n";
   cout << "[Line " << line << "]\n";

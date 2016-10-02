@@ -210,6 +210,40 @@ bool StringToFloat(
 }
 
 
+unsigned StringToMonth(const string& m)
+{
+  string s = m;
+  toUpper(s);
+
+  if (s == "JANUARY")
+    return 1;
+  else if (s == "FEBRUARY")
+    return 2;
+  else if (s == "MARCH")
+    return 3;
+  else if (s == "APRIL")
+    return 4;
+  else if (s == "MAY")
+    return 5;
+  else if (s == "JUNE")
+    return 6;
+  else if (s == "JULY")
+    return 7;
+  else if (s == "AUGUST")
+    return 8;
+  else if (s == "SEPTEMBER")
+    return 9;
+  else if (s == "OCTOBER")
+    return 10;
+  else if (s == "NOVEMBER")
+    return 11;
+  else if (s == "DECEMBER")
+    return 12;
+  else
+    return 0;
+}
+
+
 bool GetNextWord(
   string& s,
   string& word)

@@ -7,18 +7,18 @@
 */
 
 
-#ifndef BRIDGE_EXCEPT_H
-#define BRIDGE_EXCEPT_H
+#ifndef BRIDGE_BDIFF_H
+#define BRIDGE_BDIFF_H
 
 #include <string>
 
 using namespace std;
 
 
-#define THROW(msg) throw Bexcept(__FILE__, __LINE__, __FUNCTION__, msg)
+#define DIFF(msg) throw Bdiff(__FILE__, __LINE__, __FUNCTION__, msg)
 
 
-class Bexcept: public exception
+class Bdiff: public exception
 {
   private:
 
@@ -30,7 +30,7 @@ class Bexcept: public exception
 
   public:
 
-    Bexcept(
+    Bdiff(
       const char fileArg[],
       const int lineArg,
       const char functionArg[],

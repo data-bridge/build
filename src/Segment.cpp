@@ -42,7 +42,7 @@ void Segment::Reset()
   bmax = 0;
 
   seg.title = ""; 
-  seg.date.Reset();
+  seg.date.reset();
   seg.location.Reset();
   seg.event = ""; 
   seg.session.Reset(); 
@@ -296,7 +296,7 @@ bool Segment::SetDate(
   const string& t,
   const formatType f)
 {
-  return seg.date.Set(t, f);
+  return seg.date.set(t, f);
 }
 
 
@@ -690,7 +690,7 @@ string Segment::TitleAsLIN_EXT() const
   // BBO hands played at own table (not tournaments).
   stringstream s;
   s << seg.title << "%" <<
-      seg.date.AsString(BRIDGE_FORMAT_LIN) << "%" <<
+      seg.date.asString(BRIDGE_FORMAT_LIN) << "%" <<
       seg.location.AsString(BRIDGE_FORMAT_LIN) << "%" <<
       seg.session.AsString(BRIDGE_FORMAT_LIN) << "%" <<
       seg.event << "%" <<
@@ -729,7 +729,7 @@ string Segment::TitleAsLIN_TRN() const
   // BBO hands played in own tournaments.
   stringstream s;
   s << seg.title << "%" <<
-      seg.date.AsString(BRIDGE_FORMAT_LIN) << "%" <<
+      seg.date.asString(BRIDGE_FORMAT_LIN) << "%" <<
       seg.location.AsString(BRIDGE_FORMAT_LIN) << "%" <<
       seg.session.AsString(BRIDGE_FORMAT_LIN) << "%" <<
       seg.event << "%" <<
@@ -781,7 +781,7 @@ string Segment::TitleAsString(const formatType f) const
 
 string Segment::DateAsString(const formatType f) const
 {
-  return seg.date.AsString(f);
+  return seg.date.asString(f);
 }
 
 

@@ -29,21 +29,19 @@ class Date
 
     dateType date;
 
-    void StringToMonth(const string& m);
+    bool checkDate() const;
 
-    bool CheckDate() const;
+    bool setLIN(const string& t);
+    bool setPBN(const string& t);
+    bool setRBN(const string& t);
+    bool setTXT(const string& t);
 
-    bool SetLIN(const string& t);
-    bool SetPBN(const string& t);
-    bool SetRBN(const string& t);
-    bool SetTXT(const string& t);
-
-    string AsLIN() const;
-    string AsPBN() const;
-    string AsRBNCore() const;
-    string AsRBN() const;
-    string AsRBX() const;
-    string AsTXT() const;
+    string asLIN() const;
+    string asPBN() const;
+    string asRBNCore() const;
+    string asRBN() const;
+    string asRBX() const;
+    string asTXT() const;
 
 
   public:
@@ -52,9 +50,9 @@ class Date
 
     ~Date();
 
-    void Reset();
+    void reset();
 
-    bool Set(
+    bool set(
       const string& t,
       const formatType f);
 
@@ -62,7 +60,7 @@ class Date
 
     bool operator != (const Date& d2) const;
 
-    string AsString(const formatType f) const;
+    string asString(const formatType f) const;
 };
 
 #endif

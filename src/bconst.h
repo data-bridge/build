@@ -222,6 +222,10 @@ struct FileTaskType
 };
 
 
+#define STR(x) \
+        static_cast<ostringstream*>(&(ostringstream() << x))->str()
+
+
 // This is the same encoding as in DDS.
 
 enum vulType
@@ -339,6 +343,24 @@ const string VUL_NAMES_RBN[BRIDGE_SUITS] =
 const string VUL_NAMES_TXT[BRIDGE_SUITS] =
 {
   "None", "Both", "N-S", "E-W"
+};
+
+
+const string DATE_MONTHS[] =
+{
+  "None",
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December"
 };
 
 #endif

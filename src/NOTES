@@ -18,6 +18,8 @@ Update makefiles (file lists)
 
 Add automated comparisons of results
 
+Use raw strings for regexes?
+
 
 There is probably a fifth LIN output format with my %%%% headers.
 LIN_EXT or so.  In this case take advantage of file names too 

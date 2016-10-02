@@ -22,11 +22,11 @@ using namespace std;
 
 #ifdef BRIDGE_DEBUG
   #define LOG(msg) debug.Set(__FILE__, __LINE__, __FUNCTION__, msg)
-  #define STR(x) \
-    static_cast<ostringstream*>(&(ostringstream() << x))->str()
+  // #define STR(x) \
+    // static_cast<ostringstream*>(&(ostringstream() << x))->str()
 #else
   #define LOG(msg)
-  #define STR(x)
+  // #define STR(x)
 #endif
 
 

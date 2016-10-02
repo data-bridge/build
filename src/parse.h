@@ -48,6 +48,8 @@ bool StringToFloat(
   const string& s,
   float& res);
 
+unsigned StringToMonth(const string& m);
+
 bool GetNextWord(
   string& s,
   string& word);
