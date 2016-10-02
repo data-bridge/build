@@ -14,11 +14,14 @@
 #include <regex>
 #include <map>
 
+#include <assert.h>
+
 #include "Group.h"
 #include "Segment.h"
 #include "Board.h"
 #include "filePBN.h"
 #include "parse.h"
+#include "portab.h"
 #include "Debug.h"
 
 using namespace std;
@@ -157,16 +160,100 @@ bool readPBNChunk(
 }
 
 
+void writePBNSegmentLevel(
+  ofstream& fstr,
+  Segment * segment,
+  const formatType f)
+{
+  UNUSED(fstr);
+  UNUSED(segment);
+  UNUSED(f);
+}
+
+
+void writePBNBoardLevel(
+  ofstream& fstr,
+  Segment * segment,
+  Board * board,
+  const writeInfoType& writeInfo,
+  const formatType f)
+{
+  board->CalculateScore();
+
+  if (writeInfo.bno == 0 && writeInfo.ino == 0)
+  {
+    fstr << segment->EventAsString(f);
+    fstr << segment->LocationAsString(f);
+    fstr << segment->DateAsString(f);
+  }
+  else
+  {
+    fstr << "[Event \"#\"]\n";
+    fstr << "[Site \"#\"]\n";
+    fstr << "[Date \"#\"]\n";
+  }
+
+  if (writeInfo.ino == 0)
+    fstr << segment->NumberAsString(f, writeInfo.bno);
+  else
+    fstr << "[Board \"#\"]\n";
+
+  fstr << board->PlayerAsString(BRIDGE_WEST, f);
+  fstr << board->PlayerAsString(BRIDGE_NORTH, f);
+  fstr << board->PlayerAsString(BRIDGE_EAST, f);
+  fstr << board->PlayerAsString(BRIDGE_SOUTH, f);
+
+  fstr << board->DealerAsString(f);
+  fstr << board->VulAsString(f);
+  fstr << board->DealAsString(BRIDGE_WEST, f);
+
+  if (writeInfo.bno == 0 && writeInfo.ino == 0)
+    fstr << segment->ScoringAsString(f);
+  else
+    fstr << "[Scoring \"#\"]\n";
+
+  fstr << board->DeclarerAsString(f);
+  fstr << board->ContractAsString(f);
+  fstr << board->ResultAsString(f, false);
+  fstr << board->AuctionAsString(f);
+  fstr << board->PlayAsString(f);
+
+  if (writeInfo.bno == 0 && writeInfo.ino == 0)
+  {
+    fstr << segment->TitleAsString(f);
+    fstr << segment->SessionAsString(f);
+    fstr << segment->FirstTeamAsString(f);
+    fstr << segment->SecondTeamAsString(f);
+  }
+  else
+  {
+    fstr << "[Description \"#\"]\n";
+    fstr << "[Stage \"#\"]\n";
+    fstr << "[HomeTeam \"#\"]\n";
+    fstr << "[VisitTeam \"#\"]\n";
+  }
+
+  fstr << board->RoomAsString(0, f);
+  fstr << board->ScoreAsString(f, segment->ScoringIsIMPs());
+  fstr << board->TableauAsString(f);
+
+  fstr << "\n";
+}
+
+
 bool writePBN(
   Group& group,
   const string& fname)
 {
+assert(false);
   ofstream fstr(fname.c_str());
   if (! fstr.is_open())
   {
     LOG("No such PBN file");
     return false;
   }
+
+  writeInfoType writeInfo;
 
   fstr << "% PBN\n";
   fstr << "% www.rpbridge.net Richard Pavlicek\n";
@@ -176,7 +263,11 @@ bool writePBN(
   for (unsigned g = 0; g < group.GetLength(); g++)
   {
     Segment * segment = group.GetSegment(g);
-    for (unsigned b = 0; b < segment->GetLength(); b++)
+
+    writePBNSegmentLevel(fstr, segment, f);
+
+    writeInfo.numBoards = segment->GetLength();
+    for (unsigned b = 0; b < writeInfo.numBoards; b++)
     {
       Board * board = segment->GetBoard(b);
       if (board == nullptr)
@@ -186,7 +277,10 @@ bool writePBN(
         return false;
       }
 
-      for (unsigned i = 0; i < board->GetLength(); i++)
+      writeInfo.bno = b;
+      writeInfo.numInst = board->GetLength();
+
+      for (unsigned i = 0; i < writeInfo.numInst; i++)
       {
         if (! board->SetInstance(i))
         {
@@ -195,66 +289,8 @@ bool writePBN(
           return false;
         }
 
-        board->CalculateScore();
-
-        if (b == 0 && i == 0)
-        {
-          fstr << segment->EventAsString(f);
-          fstr << segment->LocationAsString(f);
-          fstr << segment->DateAsString(f);
-        }
-        else
-        {
-          fstr << "[Event \"#\"]\n";
-          fstr << "[Site \"#\"]\n";
-          fstr << "[Date \"#\"]\n";
-        }
-
-        if (i == 0)
-          fstr << segment->NumberAsString(f, b);
-        else
-          fstr << "[Board \"#\"]\n";
-
-        fstr << board->PlayerAsString(BRIDGE_WEST, f);
-        fstr << board->PlayerAsString(BRIDGE_NORTH, f);
-        fstr << board->PlayerAsString(BRIDGE_EAST, f);
-        fstr << board->PlayerAsString(BRIDGE_SOUTH, f);
-
-        fstr << board->DealerAsString(f);
-        fstr << board->VulAsString(f);
-        fstr << board->DealAsString(BRIDGE_WEST, f);
-
-        if (b == 0 && i == 0)
-          fstr << segment->ScoringAsString(f);
-        else
-          fstr << "[Scoring \"#\"]\n";
-
-        fstr << board->DeclarerAsString(f);
-        fstr << board->ContractAsString(f);
-        fstr << board->ResultAsString(f, false);
-        fstr << board->AuctionAsString(f);
-        fstr << board->PlayAsString(f);
-
-        if (b == 0 && i == 0)
-        {
-          fstr << segment->TitleAsString(f);
-          fstr << segment->SessionAsString(f);
-          fstr << segment->FirstTeamAsString(f);
-          fstr << segment->SecondTeamAsString(f);
-        }
-        else
-        {
-          fstr << "[Description \"#\"]\n";
-          fstr << "[Stage \"#\"]\n";
-          fstr << "[HomeTeam \"#\"]\n";
-          fstr << "[VisitTeam \"#\"]\n";
-        }
-
-        fstr << board->RoomAsString(0, f);
-        fstr << board->ScoreAsString(f, segment->ScoringIsIMPs());
-        fstr << board->TableauAsString(f);
-
-        fstr << "\n";
+        writeInfo.ino = i;
+        writePBNBoardLevel(fstr, segment, board, writeInfo, f);
       }
     }
   }

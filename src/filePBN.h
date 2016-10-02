@@ -29,5 +29,16 @@ bool writePBN(
   Group& group,
   const string& fname);
 
+void writePBNSegmentLevel(
+  ofstream& fstr,
+  Segment * segment,
+  const formatType f);
+
+void writePBNBoardLevel(
+  ofstream& fstr,
+  Segment * segment,
+  Board * board,
+  const writeInfoType& writeInfo,
+  const formatType f);
 
 #endif

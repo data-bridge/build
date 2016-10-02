@@ -131,8 +131,8 @@ void setTables()
 
   formatFncs[BRIDGE_FORMAT_PBN].write = &writePBN;
   formatFncs[BRIDGE_FORMAT_PBN].readChunk = &readPBNChunk;
-  formatFncs[BRIDGE_FORMAT_PBN].writeSeg = &writeLINSegmentLevel; // TODO
-  formatFncs[BRIDGE_FORMAT_PBN].writeBoard = &writeLINBoardLevel; // TODO
+  formatFncs[BRIDGE_FORMAT_PBN].writeSeg = &writePBNSegmentLevel; // TODO
+  formatFncs[BRIDGE_FORMAT_PBN].writeBoard = &writePBNBoardLevel; // TODO
 
   formatFncs[BRIDGE_FORMAT_RBN].write = &writeRBN;
   formatFncs[BRIDGE_FORMAT_RBN].readChunk = &readRBNChunk;
@@ -235,7 +235,8 @@ void dispatch(
     if (t.formatOutput == BRIDGE_FORMAT_LIN ||
         t.formatOutput == BRIDGE_FORMAT_LIN_RP ||
         t.formatOutput == BRIDGE_FORMAT_LIN_VG ||
-        t.formatOutput == BRIDGE_FORMAT_LIN_TRN)
+        t.formatOutput == BRIDGE_FORMAT_LIN_TRN ||
+        t.formatOutput == BRIDGE_FORMAT_PBN)
     {
       if (! writeFormattedFile(group, t.fileOutput, t.formatOutput))
       {
@@ -413,7 +414,8 @@ static bool writeFormattedFile(
 
     (* formatFncs[f].writeSeg)(fstr, segment, f);
 
-    for (unsigned b = 0; b < segment->GetLength(); b++)
+    writeInfo.numBoards = segment->GetLength();
+    for (unsigned b = 0; b < writeInfo.numBoards; b++)
     {
       Board * board = segment->GetBoard(b);
       if (board == nullptr)
@@ -423,8 +425,10 @@ static bool writeFormattedFile(
         return false;
       }
 
-      unsigned numInst = board->GetLength();
-      for (unsigned i = 0; i < numInst; i++)
+      writeInfo.bno = b;
+      writeInfo.numInst = board->GetLength();
+
+      for (unsigned i = 0; i < writeInfo.numInst; i++)
       {
         if (! board->SetInstance(i))
         {
@@ -433,7 +437,7 @@ static bool writeFormattedFile(
           return false;
         }
 
-        writeInfo.bno = b;
+        writeInfo.ino = i;
         (* formatFncs[f].writeBoard)(fstr, segment, board, writeInfo, f);
       }
     }
