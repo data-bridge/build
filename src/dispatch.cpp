@@ -102,6 +102,17 @@ static bool dummyWrite(
 }
 
 
+void writeDummySegmentLevel(
+  ofstream& fstr,
+  Segment * segment,
+  const formatType f)
+{
+  UNUSED(fstr);
+  UNUSED(segment);
+  UNUSED(f);
+}
+
+
 void setTables()
 {
   formatFncs[BRIDGE_FORMAT_LIN].readChunk = &readLINChunk;
@@ -126,7 +137,7 @@ void setTables()
   formatFncs[BRIDGE_FORMAT_LIN_EXT].writeBoard = &writeLINBoardLevel;
 
   formatFncs[BRIDGE_FORMAT_PBN].readChunk = &readPBNChunk;
-  formatFncs[BRIDGE_FORMAT_PBN].writeSeg = &writePBNSegmentLevel;
+  formatFncs[BRIDGE_FORMAT_PBN].writeSeg = &writeDummySegmentLevel;
   formatFncs[BRIDGE_FORMAT_PBN].writeBoard = &writePBNBoardLevel;
 
   formatFncs[BRIDGE_FORMAT_RBN].write = &writeRBN;
@@ -144,10 +155,9 @@ void setTables()
   formatFncs[BRIDGE_FORMAT_TXT].writeSeg = &writeLINSegmentLevel; // TODO
   formatFncs[BRIDGE_FORMAT_TXT].writeBoard = &writeLINBoardLevel; // TODO
 
-  formatFncs[BRIDGE_FORMAT_EML].write = &writeEML;
   formatFncs[BRIDGE_FORMAT_EML].readChunk = &readEMLChunk;
-  formatFncs[BRIDGE_FORMAT_EML].writeSeg = &writeLINSegmentLevel; // TODO
-  formatFncs[BRIDGE_FORMAT_EML].writeBoard = &writeLINBoardLevel; // TODO
+  formatFncs[BRIDGE_FORMAT_EML].writeSeg = &writeDummySegmentLevel; // TODO
+  formatFncs[BRIDGE_FORMAT_EML].writeBoard = &writeEMLBoardLevel; // TODO
 
   formatFncs[BRIDGE_FORMAT_REC].write = &writeREC;
   formatFncs[BRIDGE_FORMAT_REC].readChunk = &readRECChunk;
@@ -231,7 +241,8 @@ void dispatch(
         t.formatOutput == BRIDGE_FORMAT_LIN_RP ||
         t.formatOutput == BRIDGE_FORMAT_LIN_VG ||
         t.formatOutput == BRIDGE_FORMAT_LIN_TRN ||
-        t.formatOutput == BRIDGE_FORMAT_PBN)
+        t.formatOutput == BRIDGE_FORMAT_PBN ||
+        t.formatOutput == BRIDGE_FORMAT_EML)
     {
       if (! writeFormattedFile(group, t.fileOutput, t.formatOutput))
       {

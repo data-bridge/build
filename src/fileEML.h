@@ -29,5 +29,11 @@ bool writeEML(
   Group& group,
   const string& fname);
 
+void writeEMLBoardLevel(
+  ofstream& fstr,
+  Segment * segment,
+  Board * board,
+  const writeInfoType& writeInfo,
+  const formatType f);
 
 #endif

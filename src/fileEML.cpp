@@ -9,8 +9,6 @@
 
 #include <iostream>
 #include <fstream>
-#include <string>
-#include <vector>
 
 #include "Group.h"
 #include "Segment.h"
@@ -441,114 +439,75 @@ bool readEMLChunk(
 }
 
 
-bool writeEML(
-  Group& group,
-  const string& fname)
+void writeEMLBoardLevel(
+  ofstream& fstr,
+  Segment * segment,
+  Board * board,
+  const writeInfoType& writeInfo,
+  const formatType f)
 {
-  ofstream fstr(fname.c_str());
-  if (! fstr.is_open())
-  {
-    LOG("No such EML file");
-    return false;
-  }
-
-  fstr << "% EML\n";
-  fstr << "% www.rpbridge.net Richard Pavlicek\n";
-
-  const formatType f = BRIDGE_FORMAT_EML;
   string chunk[EML_LABELS_SIZE];
   Canvas canvas;
 
-  for (unsigned g = 0; g < group.GetLength(); g++)
-  {
-    Segment * segment = group.GetSegment(g);
-    const unsigned numBoards = segment->GetLength();
-    for (unsigned b = 0; b < numBoards; b++)
-    {
-      Board * board = segment->GetBoard(b);
-      if (board == nullptr)
-      {
-        LOG("Invalid board");
-        fstr.close();
-        return false;
-      }
+  board->CalculateScore();
 
-      const unsigned numInstances = board->GetLength();
-      for (unsigned i = 0; i < numInstances; i++)
-      {
-        if (! board->SetInstance(i))
-        {
-          LOG("Invalid instance");
-          fstr.close();
-          return false;
-        }
+  chunk[EML_SCORING] = segment->ScoringAsString(f);
+  chunk[EML_BOARD] = segment->NumberAsString(f, writeInfo.bno);
 
-        board->CalculateScore();
+  chunk[EML_WEST] = board->WestAsString(f);
+  chunk[EML_NORTH] = board->NorthAsString(f);
+  chunk[EML_EAST] = board->EastAsString(f);
+  chunk[EML_SOUTH] = board->SouthAsString(f);
 
-        chunk[EML_SCORING] = segment->ScoringAsString(f);
-        chunk[EML_BOARD] = segment->NumberAsString(f, b);
+  chunk[EML_DEAL] = board->DealAsString(BRIDGE_WEST, f);
+  chunk[EML_DEALER] = board->DealerAsString(f);
+  chunk[EML_VULNERABLE] = board->VulAsString(f);
+  chunk[EML_AUCTION] = board->AuctionAsString(f);
+  chunk[EML_LEAD] = board->LeadAsString(f);
+  chunk[EML_PLAY] = board->PlayAsString(f);
+  chunk[EML_RESULT] = board->ResultAsString(f, false);
+  chunk[EML_SCORE] = board->ScoreAsString(f, segment->ScoringIsIMPs());
 
-        chunk[EML_WEST] = board->WestAsString(f);
-        chunk[EML_NORTH] = board->NorthAsString(f);
-        chunk[EML_EAST] = board->EastAsString(f);
-        chunk[EML_SOUTH] = board->SouthAsString(f);
+  // Convert deal, auction and play from \n to vectors.
+  vector<string> deal, auction, play;
+  ConvertMultilineToVector(chunk[EML_DEAL], deal);
+  ConvertMultilineToVector(chunk[EML_AUCTION], auction);
+  ConvertMultilineToVector(chunk[EML_PLAY], play);
 
-        chunk[EML_DEAL] = board->DealAsString(BRIDGE_WEST, f);
-        chunk[EML_DEALER] = board->DealerAsString(f);
-        chunk[EML_VULNERABLE] = board->VulAsString(f);
-        chunk[EML_AUCTION] = board->AuctionAsString(f);
-        chunk[EML_LEAD] = board->LeadAsString(f);
-        chunk[EML_PLAY] = board->PlayAsString(f);
-        chunk[EML_RESULT] = board->ResultAsString(f, false);
-        chunk[EML_SCORE] = board->ScoreAsString(f, 
-          segment->ScoringIsIMPs());
+  // Height of auction determines dimensions.
+  const unsigned a = auction.size();
+  const unsigned alstart = (a <= 6 ? 14 : a+8);
+  const unsigned clen = alstart + 5;
+  const unsigned acstart = (play[0].length() > 38 ? 39u : 42u);
 
-        // Convert deal, auction and play from \n to vectors.
-        vector<string> deal, auction, play;
-        ConvertMultilineToVector(chunk[EML_DEAL], deal);
-        ConvertMultilineToVector(chunk[EML_AUCTION], auction);
-        ConvertMultilineToVector(chunk[EML_PLAY], play);
+  canvas.SetDimensions(clen, 80);
 
-        // Height of auction determines dimensions.
-        const unsigned a = auction.size();
-        const unsigned alstart = (a <= 6 ? 14 : a+8);
-        const unsigned clen = alstart + 5;
-        const unsigned acstart = (play[0].length() > 38 ? 39u : 42u);
+  canvas.SetRectangle(deal, 0, 4);
+  canvas.SetRectangle(auction, 2, 42);
+  canvas.SetRectangle(play, alstart, acstart);
 
-        canvas.SetDimensions(clen, 80);
+  canvas.SetLine(chunk[EML_SCORING], 0, 0);
+  canvas.SetLine(chunk[EML_WEST], 7, 4);
+  canvas.SetLine(chunk[EML_NORTH], 1, 16);
+  canvas.SetLine(chunk[EML_EAST], 7, 27);
+  canvas.SetLine(chunk[EML_SOUTH], 13, 16);
+  canvas.SetLine(chunk[EML_WEST], 3, 42);
+  canvas.SetLine(chunk[EML_NORTH], 3, 51);
+  canvas.SetLine(chunk[EML_EAST], 3, 60);
+  canvas.SetLine(chunk[EML_SOUTH], 3, 69);
+  canvas.SetLine(chunk[EML_BOARD], 0, 42);
 
-        canvas.SetRectangle(deal, 0, 4);
-        canvas.SetRectangle(auction, 2, 42);
-        canvas.SetRectangle(play, alstart, acstart);
+  canvas.SetLine(chunk[EML_DEALER], 1, 0);
+  canvas.SetLine(chunk[EML_VULNERABLE], 2, 0);
+  canvas.SetLine(chunk[EML_LEAD], a+3, 42);
+  canvas.SetLine(chunk[EML_RESULT], a+4, 42);
+  canvas.SetLine(chunk[EML_SCORE], a+5, 42);
 
-        canvas.SetLine(chunk[EML_SCORING], 0, 0);
-        canvas.SetLine(chunk[EML_WEST], 7, 4);
-        canvas.SetLine(chunk[EML_NORTH], 1, 16);
-        canvas.SetLine(chunk[EML_EAST], 7, 27);
-        canvas.SetLine(chunk[EML_SOUTH], 13, 16);
-        canvas.SetLine(chunk[EML_WEST], 3, 42);
-        canvas.SetLine(chunk[EML_NORTH], 3, 51);
-        canvas.SetLine(chunk[EML_EAST], 3, 60);
-        canvas.SetLine(chunk[EML_SOUTH], 3, 69);
-        canvas.SetLine(chunk[EML_BOARD], 0, 42);
+  fstr << canvas.AsString() << "\n";
 
-        canvas.SetLine(chunk[EML_DEALER], 1, 0);
-        canvas.SetLine(chunk[EML_VULNERABLE], 2, 0);
-        canvas.SetLine(chunk[EML_LEAD], a+3, 42);
-        canvas.SetLine(chunk[EML_RESULT], a+4, 42);
-        canvas.SetLine(chunk[EML_SCORE], a+5, 42);
-
-        fstr << canvas.AsString() << "\n";
-
-        if (i < numInstances-1)
-          fstr << EMLdashes << "\n\n";
-        else if (b < numBoards-1)
-          fstr << EMLequals << "\n\n";
-      }
-    }
-  }
-
-  fstr.close();
-  return true;
+  if (writeInfo.ino < writeInfo.numInst-1)
+    fstr << EMLdashes << "\n\n";
+  else if (writeInfo.bno < writeInfo.numBoards-1)
+    fstr << EMLequals << "\n\n";
 }
 
