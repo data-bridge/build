@@ -9,100 +9,23 @@
 
 #include <iostream>
 #include <fstream>
-#include <iomanip>
-#include <sstream>
-#include <string>
-#include <vector>
-#include <iterator>
-#include <algorithm>
 #include <regex>
-#include <map>
-#include <assert.h>
 
-#include "Canvas.h"
 #include "Group.h"
 #include "Segment.h"
-#include "Debug.h"
+#include "Canvas.h"
 #include "fileTXT.h"
 #include "parse.h"
-#include "portab.h"
+#include "Debug.h"
 
 using namespace std;
 
 extern Debug debug;
 
 
-const unsigned TXTlineLength = 80;
-
-enum TXTlabel
-{
-  TXT_TITLE = 0,
-  TXT_DATE = 1,
-  TXT_LOCATION = 2,
-  TXT_EVENT = 3,
-  TXT_SESSION = 4,
-  TXT_SCORING = 5,
-  TXT_TEAMS = 6,
-  TXT_WEST = 7,
-  TXT_NORTH = 8,
-  TXT_EAST = 9,
-  TXT_SOUTH = 10,
-  TXT_BOARD = 11,
-  TXT_DEAL = 12,
-  TXT_DEALER = 13,
-  TXT_VULNERABLE = 14,
-  TXT_AUCTION = 15,
-  TXT_CONTRACT = 16,
-  TXT_PLAY = 17,
-  TXT_RESULT = 18,
-  TXT_SCORE = 19,
-  TXT_SCORE_IMP = 20,
-  TXT_LABELS_SIZE = 21
-};
-
-const string TXTname[] =
-{
-  "Title",
-  "Date",
-  "Location",
-  "Event",
-  "Session",
-  "Scoring",
-  "Teams",
-  "West",
-  "North",
-  "East",
-  "South",
-  "Board",
-  "Deal",
-  "Dealer",
-  "Vulnerable",
-  "Auction",
-  "Contract",
-  "Play",
-  "Result",
-  "Score",
-  "ScoreIMP"
-};
-
 string TXTdashes;
 string TXTshortDashes;
 
-
-typedef bool (Segment::*SegPtr)(const string& s, const formatType f);
-typedef bool (Board::*BoardPtr)(const string& s, const formatType f);
-
-SegPtr segPtrTXT[TXT_LABELS_SIZE];
-BoardPtr boardPtrTXT[TXT_LABELS_SIZE];
-
-
-static bool tryTXTMethod(
-  const vector<string>& chunk,
-  Segment * segment,
-  Board * board,
-  const unsigned label,
-  ifstream& fstr,
-  const string& info);
 
 static bool readTXTCanvas(
   ifstream& fstr,
@@ -136,32 +59,6 @@ static bool getTXTPlay(
 
 void setTXTTables()
 {
-  segPtrTXT[TXT_TITLE] = &Segment::SetTitle;
-  segPtrTXT[TXT_DATE] = &Segment::SetDate;
-  segPtrTXT[TXT_LOCATION] = &Segment::SetLocation;
-  segPtrTXT[TXT_EVENT] = &Segment::SetEvent;
-  segPtrTXT[TXT_SESSION] = &Segment::SetSession;
-  segPtrTXT[TXT_SCORING] = &Segment::SetScoring;
-  segPtrTXT[TXT_TEAMS] = &Segment::SetTeams;
-
-  segPtrTXT[TXT_WEST] = &Segment::SetWest;
-  segPtrTXT[TXT_NORTH] = &Segment::SetNorth;
-  segPtrTXT[TXT_EAST] = &Segment::SetEast;
-  segPtrTXT[TXT_SOUTH] = &Segment::SetSouth;
-
-  segPtrTXT[TXT_BOARD] = &Segment::SetNumber;
-
-  boardPtrTXT[TXT_DEAL] = &Board::SetDeal;
-  boardPtrTXT[TXT_DEALER] = &Board::SetDealer;
-  boardPtrTXT[TXT_VULNERABLE] = &Board::SetVul;
-  boardPtrTXT[TXT_AUCTION] = &Board::SetAuction;
-  boardPtrTXT[TXT_CONTRACT] = &Board::SetContract;
-  boardPtrTXT[TXT_PLAY] = &Board::SetPlays;
-
-  boardPtrTXT[TXT_RESULT] = &Board::SetResult;
-  boardPtrTXT[TXT_SCORE] = &Board::SetScore;
-  boardPtrTXT[TXT_SCORE_IMP] = &Board::SetScoreIMP;
-
   TXTdashes.resize(0);
   TXTdashes.insert(0, 41, '-');
 
@@ -519,107 +416,6 @@ bool readTXTChunk(
 
   newSegFlag = false;
   return getTXTFields(canvas, auctionLine, chunk);
-}
-
-
-bool readTXT(
-  Group& group,
-  const string& fname)
-{
-  bool newSegFlag = true;
-
-  ifstream fstr(fname.c_str());
-  if (! fstr.is_open())
-  {
-    LOG("No such TXT file");
-    return false;
-  }
-
-  group.SetFileName(fname);
-
-  const formatType f = BRIDGE_FORMAT_TXT;
-
-  Segment * segment = nullptr;
-  Board * board = nullptr;
-  unsigned bno = 0;
-  unsigned lno = 0;
-
-  // Always one segment.
-  if (! group.MakeSegment(0))
-  {
-    LOG("Cannot make segment " + STR(0));
-    fstr.close();
-    return false;
-  }
-  segment = group.GetSegment(0);
-
-  string lastBoard = "";
-
-  vector<string> chunk(TXT_LABELS_SIZE);
-  while (readTXTChunk(fstr, lno, chunk, newSegFlag))
-  {
-    if (chunk[TXT_BOARD] != "" && chunk[TXT_BOARD] != lastBoard)
-    {
-      // New board.
-      lastBoard = chunk[TXT_BOARD];
-      board = segment->AcquireBoard(bno);
-      bno++;
-
-      if (board == nullptr)
-      {
-        LOG("Unknown error");
-        fstr.close();
-        return false;
-      }
-    }
-
-    board->NewInstance();
-    segment->CopyPlayers();
-
-    for (unsigned i = 0; i < TXT_LABELS_SIZE; i++)
-    {
-      if (! tryTXTMethod(chunk, segment, board, i, fstr, TXTname[i]))
-        return false;
-    }
-
-    if (fstr.eof())
-      break;
-  }
-
-  fstr.close();
-  return true;
-}
-
-
-static bool tryTXTMethod(
-  const vector<string>& chunk,
-  Segment * segment,
-  Board * board,
-  const unsigned label,
-  ifstream& fstr,
-  const string& info)
-{
-  if (chunk[label] == "")
-    return true;
-  else if (label <= TXT_BOARD)
-  {
-    if ((segment->*segPtrTXT[label])(chunk[label], BRIDGE_FORMAT_TXT))
-      return true;
-    else
-    {
-      LOG("Cannot add " + info + " line '" + chunk[label] + "'");
-      fstr.close();
-      return false;
-    }
-  }
-  else if ((board->*boardPtrTXT[label])(chunk[label], BRIDGE_FORMAT_TXT))
-    return true;
-  else
-  {
-    LOG("Cannot add " + info + " line '" + chunk[label] + "'");
-    fstr.close();
-    return false;
-  }
 }
 
 

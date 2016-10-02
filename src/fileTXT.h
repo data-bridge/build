@@ -19,10 +19,6 @@ class Group;
 
 void setTXTTables();
 
-bool readTXT(
-  Group& group,
-  const string& fname);
-
 bool readTXTChunk(
   ifstream& fstr,
   unsigned& lno,

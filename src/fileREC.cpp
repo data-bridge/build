@@ -62,11 +62,6 @@ static bool getRECPlay(
   vector<string>& chunk);
 
 
-void setRECTables()
-{
-}
-
-
 static bool readRECCanvas(
   ifstream& fstr,
   unsigned& lno,

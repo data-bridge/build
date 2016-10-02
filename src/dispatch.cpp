@@ -52,8 +52,6 @@ using namespace std;
 
 struct FormatFunctionsType
 {
-  void (* set)();
-  bool (* read)(Group&, const string&);
   bool (* write)(Group&, const string&);
   bool (* readChunk)(ifstream&, unsigned&, vector<string>&, bool&);
 };
@@ -81,21 +79,6 @@ static bool tryFormatMethod(
   ifstream& fstr);
 
 
-static void dummySet()
-{
-}
-
-
-static bool dummyRead(
-  Group& group,
-  const string& fname)
-{
-  UNUSED(group);
-  UNUSED(fname);
-  return true;
-}
-
-
 static bool dummyWrite(
   Group& group,
   const string& fname)
@@ -108,67 +91,48 @@ static bool dummyWrite(
 
 void setTables()
 {
-  formatFncs[BRIDGE_FORMAT_LIN].set = &setLINTables;
-  formatFncs[BRIDGE_FORMAT_LIN].read = &readTXT; // For now, TODO
   formatFncs[BRIDGE_FORMAT_LIN].write = &writeLIN;
   formatFncs[BRIDGE_FORMAT_LIN].readChunk = &readLINChunk;
 
-  formatFncs[BRIDGE_FORMAT_LIN_RP].set = &dummySet;
-  formatFncs[BRIDGE_FORMAT_LIN_RP].read = &readTXT; // For now, TODO
   formatFncs[BRIDGE_FORMAT_LIN_RP].write = &writeLIN_RP;
   formatFncs[BRIDGE_FORMAT_LIN_RP].readChunk = &readLINChunk;
 
-  formatFncs[BRIDGE_FORMAT_LIN_VG].set = &dummySet;
-  formatFncs[BRIDGE_FORMAT_LIN_VG].read = &readTXT; // For now, TODO
   formatFncs[BRIDGE_FORMAT_LIN_VG].write = &writeLIN_VG;
   formatFncs[BRIDGE_FORMAT_LIN_VG].readChunk = &readLINChunk;
 
-  formatFncs[BRIDGE_FORMAT_LIN_TRN].set = &dummySet;
-  formatFncs[BRIDGE_FORMAT_LIN_TRN].read = &readTXT; // For now, TODO
   formatFncs[BRIDGE_FORMAT_LIN_TRN].write = &writeLIN_TRN;
   formatFncs[BRIDGE_FORMAT_LIN_TRN].readChunk = &readLINChunk;
 
-  formatFncs[BRIDGE_FORMAT_LIN_EXT].set = &dummySet;
-  formatFncs[BRIDGE_FORMAT_LIN_EXT].read = &readTXT; // For now, TODO
   formatFncs[BRIDGE_FORMAT_LIN_EXT].write = &dummyWrite;
   formatFncs[BRIDGE_FORMAT_LIN_EXT].readChunk = &readLINChunk;
 
-  formatFncs[BRIDGE_FORMAT_PBN].set = &setPBNTables;
-  formatFncs[BRIDGE_FORMAT_PBN].read = &readTXT; // For now, TODO
   formatFncs[BRIDGE_FORMAT_PBN].write = &writePBN;
   formatFncs[BRIDGE_FORMAT_PBN].readChunk = &readPBNChunk;
 
-  formatFncs[BRIDGE_FORMAT_RBN].set = &setRBNTables;
-  formatFncs[BRIDGE_FORMAT_RBN].read = &readTXT; // For now, TODO
   formatFncs[BRIDGE_FORMAT_RBN].write = &writeRBN;
   formatFncs[BRIDGE_FORMAT_RBN].readChunk = &readRBNChunk;
 
-  formatFncs[BRIDGE_FORMAT_RBX].set = &setRBXTables;
-  formatFncs[BRIDGE_FORMAT_RBX].read = &readTXT; // For now, TODO
   formatFncs[BRIDGE_FORMAT_RBX].write = &writeRBX;
   formatFncs[BRIDGE_FORMAT_RBX].readChunk = &readRBXChunk;
 
-  formatFncs[BRIDGE_FORMAT_TXT].set = &setTXTTables;
-  formatFncs[BRIDGE_FORMAT_TXT].read = &readTXT;
   formatFncs[BRIDGE_FORMAT_TXT].write = &writeTXT;
   formatFncs[BRIDGE_FORMAT_TXT].readChunk = &readTXTChunk;
 
-  formatFncs[BRIDGE_FORMAT_EML].set = &setEMLTables;
-  formatFncs[BRIDGE_FORMAT_EML].read = &readTXT; // For now, TODO
   formatFncs[BRIDGE_FORMAT_EML].write = &writeEML;
   formatFncs[BRIDGE_FORMAT_EML].readChunk = &readEMLChunk;
 
-  formatFncs[BRIDGE_FORMAT_REC].set = &setRECTables;
-  formatFncs[BRIDGE_FORMAT_REC].read = &readTXT; // For now, TODO
   formatFncs[BRIDGE_FORMAT_REC].write = &writeREC;
   formatFncs[BRIDGE_FORMAT_REC].readChunk = &readRECChunk;
 
-  formatFncs[BRIDGE_FORMAT_PAR].set = &dummySet;
-  formatFncs[BRIDGE_FORMAT_PAR].read = &dummyRead;
   formatFncs[BRIDGE_FORMAT_PAR].write = &dummyWrite;
 
-  for (unsigned f = 0; f< BRIDGE_FORMAT_SIZE; f++)
-    (* formatFncs[f].set)();
+  setLINTables();
+  setPBNTables();
+  setRBNTables();
+  setRBXTables();
+  setTXTTables();
+  setEMLTables();
+
 
   segPtr[BRIDGE_FORMAT_TITLE] = &Segment::SetTitle;
   segPtr[BRIDGE_FORMAT_DATE] = &Segment::SetDate;
@@ -221,32 +185,15 @@ void dispatch(
 
   Group group;
 
-  if (task.formatInput == BRIDGE_FORMAT_RBN ||
-      task.formatInput == BRIDGE_FORMAT_RBX ||
-      task.formatInput == BRIDGE_FORMAT_LIN ||
-      task.formatInput == BRIDGE_FORMAT_PBN ||
-      task.formatInput == BRIDGE_FORMAT_EML ||
-      task.formatInput == BRIDGE_FORMAT_REC ||
-      task.formatInput == BRIDGE_FORMAT_TXT)
+  try
   {
-    try
-    {
-      if (! readFormattedFile(task.fileInput, task.formatInput, group))
-        THROW("something blew up");
-    }
-    catch(Bexcept& bex)
-    {
-      bex.Print();
-      assert(false);
-    }
+    if (! readFormattedFile(task.fileInput, task.formatInput, group))
+      THROW("something blew up");
   }
-  else
+  catch(Bexcept& bex)
   {
-  if (! (* formatFncs[task.formatInput].read)(group, task.fileInput))
-  {
-    debug.Print();
+    bex.Print();
     assert(false);
-  }
   }
 
   for (auto &t: task.taskList)

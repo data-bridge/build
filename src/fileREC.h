@@ -17,8 +17,6 @@ using namespace std;
 class Group;
 
 
-void setRECTables();
-
 bool readRECChunk(
   ifstream& fstr,
   unsigned& lno,
