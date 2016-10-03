@@ -30,7 +30,8 @@ SOURCE_FILES 	=		\
 	fileLIN.cpp		\
 	fileREC.cpp		\
 	parse.cpp		\
-	reader.cpp
+	reader.cpp		\
+	validate.cpp
 
 TEST		= reader
 
@@ -86,27 +87,28 @@ clean:
 
 # DO NOT DELETE
 
-Auction.obj: Auction.h bconst.h Contract.h Debug.h parse.h portab.h
+Auction.obj: Auction.h bconst.h Contract.h parse.h portab.h Bexcept.h Debug.h
 Bexcept.obj: Bexcept.h
+Bdiff.obj: Bdiff.h
 Board.obj: bconst.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
 Board.obj: Play.h Debug.h Valuation.h portab.h parse.h
 Canvas.obj: Canvas.h
-Contract.obj: Contract.h bconst.h Debug.h parse.h portab.h
-Date.obj: Date.h bconst.h portab.h parse.h Debug.h
+Contract.obj: Contract.h bconst.h parse.h portab.h Bexcept.h Debug.h
+Date.obj: Date.h bconst.h parse.h Bexcept.h Bdiff.h
 Deal.obj: Deal.h bconst.h Debug.h parse.h
 Debug.obj: Debug.h
 Files.obj: dirent.h Files.h bconst.h Debug.h portab.h parse.h
 Group.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 Group.obj: Teams.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
 Group.obj: Play.h portab.h parse.h Debug.h
-Location.obj: Location.h bconst.h portab.h Debug.h
+Location.obj: Location.h bconst.h Bdiff.h Bexcept.h
 Play.obj: Play.h bconst.h Contract.h Debug.h parse.h portab.h
-Players.obj: Players.h bconst.h portab.h parse.h Debug.h
+Players.obj: Players.h bconst.h portab.h parse.h Bexcept.h Debug.h
 Scoring.obj: Scoring.h bconst.h portab.h Debug.h
 Segment.obj: Segment.h Date.h bconst.h Location.h Session.h Scoring.h Teams.h
 Segment.obj: Board.h Deal.h Tableau.h Players.h Auction.h Contract.h Play.h
 Segment.obj: portab.h parse.h Debug.h
-Session.obj: Session.h bconst.h Debug.h portab.h parse.h
+Session.obj: Session.h bconst.h parse.h Bdiff.h Bexcept.h
 Tableau.obj: Tableau.h bconst.h Contract.h Debug.h parse.h
 Teams.obj: Teams.h bconst.h portab.h parse.h Debug.h
 Valuation.obj: Valuation.h
@@ -118,13 +120,13 @@ dispatch.obj: fileRBN.h fileTXT.h fileEML.h fileREC.h parse.h portab.h
 dispatch.obj: Bexcept.h Debug.h
 fileEML.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 fileEML.obj: Teams.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
-fileEML.obj: Play.h Canvas.h fileEML.h parse.h Debug.h
+fileEML.obj: Play.h Canvas.h fileEML.h parse.h
 filePBN.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 filePBN.obj: Teams.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
 filePBN.obj: Play.h filePBN.h portab.h Debug.h
 fileRBN.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 fileRBN.obj: Teams.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
-fileRBN.obj: Play.h fileRBN.h Debug.h
+fileRBN.obj: Play.h Bexcept.h fileRBN.h parse.h Debug.h
 fileTXT.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 fileTXT.obj: Teams.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
 fileTXT.obj: Play.h Canvas.h fileTXT.h parse.h Debug.h
@@ -136,4 +138,5 @@ fileREC.obj: Teams.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
 fileREC.obj: Play.h Canvas.h fileREC.h parse.h Debug.h
 parse.obj: Debug.h parse.h bconst.h portab.h
 reader.obj: args.h dispatch.h Files.h bconst.h Debug.h
+validate.obj: validate.h bconst.h parse.h
 reader.obj: args.h dispatch.h Files.h bconst.h Debug.h
