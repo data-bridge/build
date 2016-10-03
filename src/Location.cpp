@@ -97,40 +97,36 @@ bool Location::operator != (const Location& l2) const
 }
 
 
-string Location::asRBN() const
+string Location::asRBN(const string& sep) const
 {
   stringstream s;
   s << location.general;
   if (location.specific != "")
-    s << ":" << location.specific;
+    s << sep << location.specific;
   return s.str();
 }
 
 
 string Location::asString(const formatType f) const
 {
-  stringstream s;
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
-      return Location::asRBN();
+      return Location::asRBN(":");
     
     case BRIDGE_FORMAT_PBN:
-      if (location.specific == "")
+      if (location.general == "")
         return "";
-      return "[Site \"" + Location::asRBN() + "\"]\n";
+      return "[Site \"" + Location::asRBN(":") + "\"]\n";
     
     case BRIDGE_FORMAT_RBN:
-      return "L " + Location::asRBN() + "\n";
+      return "L " + Location::asRBN(":") + "\n";
     
     case BRIDGE_FORMAT_RBX:
-      return "L{" + Location::asRBN() + "}";
+      return "L{" + Location::asRBN(":") + "}";
     
     case BRIDGE_FORMAT_TXT:
-      s << location.general;
-      if (location.specific != "")
-        s << ", " << location.specific << "\n";
-      return s.str();
+      return Location::asRBN(", ") + "\n";
     
     default:
       THROW("Invalid format: " + STR(f));

@@ -132,7 +132,7 @@ bool StringToNonzeroUnsigned(
   unsigned u;
   try
   {
-    u = stoul(s, nullptr, 0);
+    u = stoul(s, nullptr, 10);
   }
   catch (const invalid_argument& ia)
   {

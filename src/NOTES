@@ -20,6 +20,8 @@ Add automated comparisons of results
 
 Use raw strings for regexes?
 
+In diff, regex out the % numbers and then compare the whole remaining line
+
 
 There is probably a fifth LIN output format with my %%%% headers.
 LIN_EXT or so.  In this case take advantage of file names too 

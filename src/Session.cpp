@@ -35,8 +35,19 @@ const string STAGE_NAMES[] =
   "Semifinal", 
   "Quarterfinal",
   "Round of ", 
-  "Initial", 
+  "Qualifying", 
   "Undefined"
+};
+
+const string SESSION_NAMES[] =
+{
+  "Segment",
+  "Segment",
+  "Segment",
+  "Segment",
+  "Segment",
+  "Round",
+  "Undefined",
 };
 
 
@@ -335,7 +346,7 @@ string Session::asLIN_RP() const
     s << " " << STAGE_NAMES[stage] << roundOf << ",";
 
   if (sessionNo > 0)
-    s << "Segment " << sessionNo;
+    s << SESSION_NAMES[stage] << " " << sessionNo;
 
   return s.str();
 }
@@ -407,7 +418,7 @@ string Session::asTXT() const
     s << STAGE_NAMES[stage] << roundOf;
 
   if (sessionNo > 0)
-    s << ", Segment " << sessionNo;
+    s << ", " << SESSION_NAMES[stage] << " " << sessionNo;
   else if (general2 != "")
     s << ", " << general2;
 

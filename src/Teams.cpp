@@ -306,6 +306,11 @@ bool Teams::TeamIsEqual(
 }
 
 
+bool Teams::CarryExists() const
+{
+  return (team1.carry || team2.carry);
+}
+
 
 bool Teams::operator == (const Teams& t2) const
 {
@@ -439,12 +444,44 @@ string Teams::AsTXT(
   const unsigned score1,
   const unsigned score2) const
 {
-  if (score1 >= score2)
-    return Teams::SingleAsTXT(team1) + " " + STR(score1) + "  " +
-        Teams::SingleAsTXT(team2) + " " + STR(score2) + "\n";
+  stringstream s1, s2;
+  bool order12Flag = true;
+
+  s1 << team1.name << " ";
+  s2 << team2.name << " ";
+
+  switch(team1.carry)
+  {
+    case BRIDGE_CARRY_NONE:
+      if (score1 < score2)
+        order12Flag = false;
+      s1 << score1;
+      s2 << score2;
+      break;
+
+    case BRIDGE_CARRY_INT:
+      if (score1 + team1.carryi < score2 + team2.carryi)
+        order12Flag = false;
+      s1 << score1 + team1.carryi;
+      s2 << score2 + team2.carryi;
+      break;
+          team1.name + " " + STR(score1 + team1.carryi) + "\n";
+
+    case BRIDGE_CARRY_FLOAT:
+      if (score1 + team1.carryf < score2 + team2.carryf)
+        order12Flag = false;
+      s1 << fixed << setprecision(2) << score1 + team1.carryf;
+      s2 << fixed << setprecision(2) << score1 + team2.carryf;
+
+    default:
+      LOG("Unknown carry");
+      return "";
+  }
+
+  if (order12Flag)
+    return s1.str() + "  " + s2.str() + "\n";
   else
-    return Teams::SingleAsTXT(team2) + " " + STR(score2) + "  " +
-        Teams::SingleAsTXT(team1) + " " + STR(score1) + "\n";
+    return s2.str() + "  " + s1.str() + "\n";
 }
 
 

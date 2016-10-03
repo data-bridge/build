@@ -1264,7 +1264,7 @@ string Auction::AsRBNCore(const bool RBNflag) const
   s << PLAYER_NAMES_SHORT[dealer] << VUL_NAMES_RBN[vul] << ":";
   
   if (Auction::IsPassedOut())
-    return s.str();
+    return s.str() + "A";
 
   unsigned trailing = 0;
   unsigned end = len-1;
@@ -1356,18 +1356,18 @@ string Auction::AsEML() const
   if (len == 0)
     return s.str();
 
+  if (Auction::IsPassedOut())
+  {
+    s << "Passed out\n";
+    return s.str();
+  }
+
   const unsigned numSkips = static_cast<unsigned>
     ((dealer + 4 - BRIDGE_WEST) % 4);
   const unsigned wrap = 3 - numSkips;
   for (unsigned i = 0; i < numSkips; i++)
     s << setw(9) << "";
   
-  if (Auction::IsPassedOut())
-  {
-    s << "(all pass)\n";
-    return s.str();
-  }
-
   unsigned trailing = 0;
   unsigned end = len-1;
   while (sequence[end].no == 0 && sequence[end].alert == "")

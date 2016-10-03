@@ -424,6 +424,12 @@ void writeTXTSegmentLevel(
   Segment * segment,
   const formatType f)
 {
+  if (segment->CarryExists())
+  {
+    // Pavlicek bug.
+      fstr << TXTdashes << "\n";
+  }
+
   fstr << "\n" << segment->TitleAsString(f) << "\n";
   fstr << segment->DateAsString(f);
   fstr << segment->LocationAsString(f);

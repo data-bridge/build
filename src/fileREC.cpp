@@ -387,6 +387,6 @@ void writeRECBoardLevel(
   fstr << board->ScoreAsString(f, false);
   fstr << board->ScoreIMPAsString(f, writeInfo.ino == 1) << "\n\n";
 
-  fstr << board->PlayAsString(f) << "\n";
+  fstr << board->PlayAsString(f);
 }
 

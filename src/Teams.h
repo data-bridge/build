@@ -99,6 +99,8 @@ class Teams
     bool SetSecond(
       const string& s,
       const formatType f);
+
+    bool CarryExists() const;
       
     bool operator == (const Teams& t2) const;
 

@@ -186,6 +186,8 @@ class Segment
 
     bool ScoringIsIMPs() const;
 
+    bool CarryExists() const;
+
     bool operator == (const Segment& s2) const;
 
     bool operator != (const Segment& s2) const;

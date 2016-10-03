@@ -617,6 +617,12 @@ bool Segment::ScoringIsIMPs() const
 }
 
 
+bool Segment::CarryExists() const
+{
+  return seg.teams.CarryExists();
+}
+
+
 bool Segment::operator == (const Segment& s2) const
 {
   if (seg.title != s2.seg.title)

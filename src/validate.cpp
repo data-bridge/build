@@ -36,16 +36,17 @@ enum ValDiffs
   BRIDGE_VAL_TEAMS = 6,
 
   BRIDGE_VAL_NAMES8 = 7,
-  BRIDGE_VAL_ALL_PASS = 8,
+  BRIDGE_VAL_TXT_ALL_PASS = 8,
   BRIDGE_VAL_LIN_EXCLAIM = 9,
-  BRIDGE_VAL_PLAY_SHORT = 10,
-  BRIDGE_VAL_VG_CHAT = 11,
-  BRIDGE_VAL_RECORD_NUMBER = 12,
+  BRIDGE_VAL_LIN_PLAY_NL = 10,
+  BRIDGE_VAL_REC_PLAY_SHORT = 11,
+  BRIDGE_VAL_VG_CHAT = 12,
+  BRIDGE_VAL_RECORD_NUMBER = 13,
 
-  BRIDGE_VAL_ERROR = 13,
-  BRIDGE_VAL_OUT_SHORT = 14,
-  BRIDGE_VAL_REF_SHORT = 15,
-  BRIDGE_VAL_SIZE = 16
+  BRIDGE_VAL_ERROR = 14,
+  BRIDGE_VAL_OUT_SHORT = 15,
+  BRIDGE_VAL_REF_SHORT = 16,
+  BRIDGE_VAL_SIZE = 17
 };
 
 const string valNames[] =
@@ -61,6 +62,7 @@ const string valNames[] =
   "Names8",
   "All-pass",
   "Lin-!",
+  "Play-newline",
   "Play-short",
   "VG-chat",
   "Rec-comment",
@@ -115,7 +117,13 @@ static bool isRECPlay(const string& line);
 
 static bool isTXTAllPass(
   const string& lineOut,
-  const string& lineRef);
+  const string& lineRef,
+  string& expectLine);
+
+static bool isLINLongLine(
+  const string& lineOut, 
+  const string& lineRef, 
+  string& expectLine);
 
 static bool isRecordComment(
   const string& lineOut,
@@ -207,7 +215,8 @@ static bool isRECPlay(const string& line)
 
 static bool isTXTAllPass(
   const string& lineOut,
-  const string& lineRef)
+  const string& lineRef,
+  string& expectLine)
 {
   vector<string> wordsRef;
   splitIntoWords(lineRef, wordsRef);
@@ -218,8 +227,15 @@ static bool isTXTAllPass(
   vector<string> wordsOut;
   splitIntoWords(lineOut, wordsOut);
   unsigned lOut = wordsOut.size();
-  if (lOut < 2 || lOut+1 != lRef)
+  if (lOut < 2 || lOut+1 < lRef)
     return false;
+
+  unsigned expectPasses = lOut + 1 - lRef;
+  unsigned pos = 0;
+  while (pos < lineRef.length() && lineRef.at(pos) == ' ')
+    pos++;
+  if (pos > 0 && lineOut.at(pos) == 'A')
+    expectPasses++;
 
   if (wordsOut[lOut-2] != "All" || wordsOut[lOut-1] != "Pass")
     return false;
@@ -232,6 +248,35 @@ static bool isTXTAllPass(
     if (wordsRef[i] != wordsOut[i])
       return false;
 
+  expectLine = "";
+  for (unsigned i = 0; i < expectPasses; i++)
+  {
+    expectLine += "Pass";
+    if (i != expectPasses-1)
+      expectLine += "        ";
+  }
+  return true;
+}
+
+
+static bool isLINLongLine(
+  const string& lineOut, 
+  const string& lineRef, 
+  string& expectLine)
+{
+  if (lineOut.substr(0,3) != "mb|" || lineRef.substr(0,3) != "mb|")
+    return false;
+
+  unsigned pos = 0;
+  const unsigned lOut = lineOut.length();
+  const unsigned lRef = lineRef.length();
+  while (pos < Min(lOut, lRef) && lineOut.at(pos) == lineRef.at(pos))
+    pos++;
+
+  if (pos >= Min(lOut, lRef))
+    return false;
+
+  expectLine = lineRef.substr(pos);
   return true;
 }
 
@@ -317,35 +362,66 @@ void validate(
     }
 // printExample(running);
 
-    if (formatRef == BRIDGE_FORMAT_REC)
+    if (formatRef == BRIDGE_FORMAT_LIN_RP)
     {
-      if (running.lineRef == "")
+      string expectLine;
+      if (isLINLongLine(running.lineOut, running.lineRef, expectLine))
       {
-        if (isRECPlay(running.lineOut))
+        if (! getline(fostr, running.lineOut))
         {
-          // Extra play line (Pavlicek error).
-          if (stats.examples[BRIDGE_VAL_PLAY_SHORT].lineOut == "")
-            stats.examples[BRIDGE_VAL_PLAY_SHORT] = running;
-          stats.counts[BRIDGE_VAL_PLAY_SHORT]++;
+          stats.counts[BRIDGE_VAL_OUT_SHORT]++;
+          break;
+        }
 
-          keepLineRef = true;
+        if (running.lineOut == expectLine)
+        {
+          // No newline when no play (Pavlicek error).
+          if (stats.examples[BRIDGE_VAL_LIN_PLAY_NL].lineOut == "")
+            stats.examples[BRIDGE_VAL_LIN_PLAY_NL] = running;
+          stats.counts[BRIDGE_VAL_LIN_PLAY_NL]++;
           continue;
         }
       }
     }
     else if (formatRef == BRIDGE_FORMAT_TXT)
     {
-      if (isTXTAllPass(running.lineOut, running.lineRef))
+      string expectLine;
+      if (isTXTAllPass(running.lineOut, running.lineRef, expectLine))
       {
         // Reference does not have "All Pass" (Pavlicek error).
-        if (stats.examples[BRIDGE_VAL_ALL_PASS].lineOut == "")
-          stats.examples[BRIDGE_VAL_ALL_PASS] = running;
-        stats.counts[BRIDGE_VAL_ALL_PASS]++;
-        continue;
+        if (expectLine != "" && ! getline(frstr, running.lineRef))
+        {
+          stats.counts[BRIDGE_VAL_OUT_SHORT]++;
+          break;
+        }
+
+        if (expectLine == "" || running.lineRef == expectLine)
+        {
+          if (stats.examples[BRIDGE_VAL_TXT_ALL_PASS].lineOut == "")
+            stats.examples[BRIDGE_VAL_TXT_ALL_PASS] = running;
+          stats.counts[BRIDGE_VAL_TXT_ALL_PASS]++;
+          continue;
+        }
+      }
+    }
+    else if (formatRef == BRIDGE_FORMAT_REC)
+    {
+      if (running.lineRef == "")
+      {
+        if (isRECPlay(running.lineOut))
+        {
+          // Extra play line (Pavlicek error).
+          if (stats.examples[BRIDGE_VAL_REC_PLAY_SHORT].lineOut == "")
+            stats.examples[BRIDGE_VAL_REC_PLAY_SHORT] = running;
+          stats.counts[BRIDGE_VAL_REC_PLAY_SHORT]++;
+
+          keepLineRef = true;
+          continue;
+        }
       }
     }
 
-    // General: Pavlicek bug in % line.
+    // General: % line numbers (Pavlicek error).
     if (isRecordComment(running.lineOut, running.lineRef))
     {
       if (stats.examples[BRIDGE_VAL_RECORD_NUMBER].lineOut == "")
@@ -481,24 +557,24 @@ static string posOrDash(const unsigned u)
 void printOverallStats(
   ValStatType vstats[][BRIDGE_FORMAT_LABELS_SIZE])
 {
-  cout << setw(7) << "";
+  cout << setw(6) << "";
   for (auto &f: formatActive)
     cout << setw(7) << right << FORMAT_NAMES[f];
   cout << "\n\n";
 
   for (auto &f: formatActive)
   {
-    cout << setw(7) << left << FORMAT_NAMES[f];
+    cout << setw(6) << left << FORMAT_NAMES[f];
     for (auto &g: formatActive)
       cout << setw(7) << right << posOrDash(vstats[f][g].numFiles);
     cout << "\n";
 
-    cout << setw(7) << left << "";
+    cout << setw(6) << left << "";
     for (auto &g: formatActive)
       cout << setw(7) << right << posOrDash(vstats[f][g].numExpectedDiffs);
     cout << "\n";
 
-    cout << setw(7) << left << "";
+    cout << setw(6) << left << "";
     for (auto &g: formatActive)
       cout << setw(7) << right << posOrDash(vstats[f][g].numErrors);
     cout << "\n\n";

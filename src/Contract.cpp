@@ -591,7 +591,7 @@ void Contract::CalculateScore()
   else if (tricksRelative <= -3 || vulSide)
   {
     adder = 100 + 300 * tricksRelative;
-    if (vulSide)
+    if (! vulSide)
       adder += 300;
     adder *= contract.mult;
   }
@@ -766,13 +766,13 @@ string Contract::AsPBN() const
     return "";
   
   if (contract.level == 0)
-    return "[Contract \"P\"]\n";
+    return "[Contract \"Pass\"]\n";
 
   stringstream s;
   s << "[Contract \"" <<
     contract.level <<
     DENOM_NAMES_SHORT_PBN[contract.denom] <<
-    MULT_NUM_TO_LIN_TAG[contract.mult] <<
+    MULT_NUM_TO_PBN_TAG[contract.mult] <<
     "\"]\n";
 
   return s.str();
@@ -823,11 +823,12 @@ string Contract::AsTXT() const
     return "";
   
   if (contract.level == 0)
-    return "Passed Out";
+    return "";
 
   stringstream s;
   s << contract.level << 
-    DENOM_NAMES_SHORT_PBN[contract.denom] << " " <<
+    DENOM_NAMES_SHORT_PBN[contract.denom] << 
+    MULT_NUM_TO_LIN_TAG[contract.mult] << " " <<
     PLAYER_NAMES_LONG[contract.declarer] << "\n";
 
   return s.str();
@@ -1008,11 +1009,11 @@ string Contract::TricksAsString(const formatType f) const
 
 string Contract::ScoreAsPBN() const
 {
-  if (! setResultFlag)
+  if (! setResultFlag || score == 0)
     return "";
 
   stringstream s;
-  if (score >= 0)
+  if (score > 0)
     s << "[Score \"NS " << score << "\"]\n";
   else
     s << "[Score \"EW " << -score << "\"]\n";
@@ -1250,6 +1251,9 @@ string Contract::ResultAsStringEML() const
 
 string Contract::ResultAsStringTXT() const
 {
+  if (contract.level == 0)
+    return "Passed out";
+
   stringstream s;
   if (tricksRelative < 0)
     s << "Down " << -tricksRelative << " -- ";
@@ -1272,18 +1276,16 @@ string Contract::ResultAsStringTXT(
   stringstream s;
   s << Contract::ResultAsStringTXT();
 
-  if (score == refScore)
+  int IMPs = Contract::ConvertDiffToIMPs(score - refScore);
+  if (IMPs == 0)
     s << " -- Tie";
+  else if (IMPs > 0)
+    s << " -- " << team << " +" << IMPs << " IMP";
   else
-  {
-    int IMPs = Contract::ConvertDiffToIMPs(score - refScore);
-    if (IMPs > 0)
-      s << " -- " << team << " +" << IMPs << " IMP";
-    else
-      s << " -- " << team << " +" << -IMPs << " IMP";
-    if (IMPs != 1 && IMPs != -1)
-      s << "s";
-  }
+    s << " -- " << team << " +" << -IMPs << " IMP";
+
+  if (IMPs != 0 && IMPs != 1 && IMPs != -1)
+    s << "s";
   return s.str() + "\n";
 }
 

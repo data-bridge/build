@@ -866,13 +866,19 @@ string Play::AsRBNCore() const
 
 string Play::AsRBN() const
 {
-  return "P " + Play::AsRBNCore() + "\n";
+  if (len == 0)
+    return "";
+  else
+    return "P " + Play::AsRBNCore() + "\n";
 }
 
 
 string Play::AsRBX() const
 {
-  return "P{" + Play::AsRBNCore() + "}";
+  if (len == 0)
+    return "";
+  else
+    return "P{" + Play::AsRBNCore() + "}";
 }
 
 
@@ -1011,7 +1017,7 @@ string Play::AsREC() const
     s << "\n";
   }
 
-  return s.str();
+  return s.str() + "\n";
 }
 
 
@@ -1093,7 +1099,7 @@ string Play::LeadAsString(const formatType f) const
 
     case BRIDGE_FORMAT_REC:
       if (len == 0)
-        return "Opening lead:";
+        return "Opening lead:   ";
       else
         return "Opening lead: " + PLAY_NO_TO_CARD[sequence[0]];
 

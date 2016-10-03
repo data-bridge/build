@@ -128,7 +128,7 @@ formatType Files::GuessLINFormat(const string& base) const
 
   regex re1("^(\\d+)$");
   regex re2("^(Tournament)");
-  regex re3("^([SUVW]\\d\\d\\w\\w\\d)$");
+  regex re3("^([SUVW]\\d\\d\\w\\w\\w)$");
   smatch match;
 
   if (regex_search(base, match, re1))

@@ -472,16 +472,18 @@ void writeEMLBoardLevel(
   ConvertMultilineToVector(chunk[EML_PLAY], play);
 
   // Height of auction determines dimensions.
+  const bool playFlag = (play[0].size() > 2 ? true : false);
   const unsigned a = auction.size();
   const unsigned alstart = (a <= 6 ? 14 : a+8);
-  const unsigned clen = alstart + 5;
+  const unsigned clen = (playFlag ? alstart + 5 : 18);
   const unsigned acstart = (play[0].length() > 38 ? 39u : 42u);
 
   canvas.SetDimensions(clen, 80);
 
   canvas.SetRectangle(deal, 0, 4);
   canvas.SetRectangle(auction, 2, 42);
-  canvas.SetRectangle(play, alstart, acstart);
+  if (playFlag)
+    canvas.SetRectangle(play, alstart, acstart);
 
   canvas.SetLine(chunk[EML_SCORING], 0, 0);
   canvas.SetLine(chunk[EML_WEST], 7, 4);
@@ -496,9 +498,17 @@ void writeEMLBoardLevel(
 
   canvas.SetLine(chunk[EML_DEALER], 1, 0);
   canvas.SetLine(chunk[EML_VULNERABLE], 2, 0);
-  canvas.SetLine(chunk[EML_LEAD], a+3, 42);
-  canvas.SetLine(chunk[EML_RESULT], a+4, 42);
-  canvas.SetLine(chunk[EML_SCORE], a+5, 42);
+  if (chunk[EML_LEAD] == "Opening Lead:")
+  {
+    canvas.SetLine(chunk[EML_RESULT], a+3, 42);
+    canvas.SetLine(chunk[EML_SCORE], a+4, 42);
+  }
+  else
+  {
+    canvas.SetLine(chunk[EML_LEAD], a+3, 42);
+    canvas.SetLine(chunk[EML_RESULT], a+4, 42);
+    canvas.SetLine(chunk[EML_SCORE], a+5, 42);
+  }
 
   fstr << canvas.AsString() << "\n";
 

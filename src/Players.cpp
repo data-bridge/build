@@ -441,7 +441,7 @@ string Players::PlayerAsString(
       return players[player].substr(0, 8);
 
     case BRIDGE_FORMAT_REC:
-      return players[player].substr(0, 10);
+      return players[player].substr(0, 11);
 
     case BRIDGE_FORMAT_TXT:
       return players[player];

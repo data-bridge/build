@@ -28,7 +28,7 @@ class Location
 
     LocationType location;
 
-    string asRBN() const;
+    string asRBN(const string& sep) const;
 
 
 
