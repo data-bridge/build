@@ -127,7 +127,10 @@ string Location::asString(const formatType f) const
       return "L{" + Location::asRBN() + "}";
     
     case BRIDGE_FORMAT_TXT:
-      return Location::asRBN() + "\n";
+      s << location.general;
+      if (location.specific != "")
+        s << ", " << location.specific << "\n";
+      return s.str();
     
     default:
       THROW("Invalid format: " + STR(f));

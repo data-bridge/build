@@ -102,6 +102,16 @@ struct ValFileStats
 
 static void resetStats(ValFileStats& stats);
 
+static void splitIntoWords(
+  const string& line,
+  vector<string>& words);
+
+static bool isRECPlay(const string& line);
+
+static bool isTXTAllPass(
+  const string& lineOut,
+  const string& lineRef);
+
 static void statsToVstat(
   const ValFileStats& stats,
   ValStatType& vstat);
@@ -123,11 +133,11 @@ static void resetStats(ValFileStats& stats)
 }
 
 
-static bool isRECPlay(const string& line)
+static void splitIntoWords(
+  const string& line,
+  vector<string>& words)
 {
   // Split into words (split on \s+, effectively).
-
-  vector<string> words;
   unsigned pos = 0;
   unsigned startPos = 0;
   bool isSpace = true;
@@ -153,6 +163,13 @@ static bool isRECPlay(const string& line)
 
   if (! isSpace)
     words.push_back(line.substr(startPos, pos-startPos));
+}
+
+
+static bool isRECPlay(const string& line)
+{
+  vector<string> words;
+  splitIntoWords(line, words);
 
   if (words.size() < 3 || words.size() > 6)
     return false;
@@ -173,6 +190,38 @@ static bool isRECPlay(const string& line)
 
   return true;
 }
+
+
+static bool isTXTAllPass(
+  const string& lineOut,
+  const string& lineRef)
+{
+  vector<string> wordsRef;
+  splitIntoWords(lineRef, wordsRef);
+  unsigned lRef = wordsRef.size();
+  if (lRef > 4)
+    return false;
+
+  vector<string> wordsOut;
+  splitIntoWords(lineOut, wordsOut);
+  unsigned lOut = wordsOut.size();
+  if (lOut < 2 || lOut+1 != lRef)
+    return false;
+
+  if (wordsOut[lOut-2] != "All" || wordsOut[lOut-1] != "Pass")
+    return false;
+
+  for (unsigned i = lOut-2; i < lRef; i++)
+    if (wordsRef[i] != "Pass")
+      return false;
+
+  for (unsigned i = 0; i < lOut-2; i++)
+    if (wordsRef[i] != wordsOut[i])
+      return false;
+
+  return true;
+}
+
 
 void validate(
   const string& fileOut,
@@ -220,9 +269,9 @@ void validate(
     }
 // printExample(running);
 
-    if (running.lineRef == "")
+    if (formatRef == BRIDGE_FORMAT_REC)
     {
-      if (formatRef == BRIDGE_FORMAT_REC)
+      if (running.lineRef == "")
       {
         if (isRECPlay(running.lineOut))
         {
@@ -236,7 +285,19 @@ void validate(
         }
       }
     }
+    else if (formatRef == BRIDGE_FORMAT_TXT)
+    {
+      if (isTXTAllPass(running.lineOut, running.lineRef))
+      {
+        // Reference does not have "All Pass" (Pavlicek error).
+        if (stats.examples[BRIDGE_VAL_ALL_PASS].lineOut == "")
+          stats.examples[BRIDGE_VAL_ALL_PASS] = running;
+        stats.counts[BRIDGE_VAL_ALL_PASS]++;
+        continue;
+      }
+    }
 
+// printExample(running);
     stats.counts[BRIDGE_VAL_ERROR]++;
     if (stats.examples[BRIDGE_VAL_ERROR].lineOut == "")
       stats.examples[BRIDGE_VAL_ERROR] = running;

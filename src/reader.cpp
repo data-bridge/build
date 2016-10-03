@@ -27,10 +27,10 @@ static const int numThreads = 1;
 int main(int argc, char * argv[])
 {
   ValStatType vstats[BRIDGE_FORMAT_LABELS_SIZE][BRIDGE_FORMAT_LABELS_SIZE];
-  // validate("tmp/S10FA1.TXT", "S10FA1.TXT",
-    // BRIDGE_FORMAT_RBN, BRIDGE_FORMAT_TXT,
-  validate("tmp/S10FA1.REC", "S10FA1.REC",
-    BRIDGE_FORMAT_RBN, BRIDGE_FORMAT_REC,
+  validate("tmp/S10FA1.TXT", "S10FA1.TXT",
+    BRIDGE_FORMAT_RBN, BRIDGE_FORMAT_TXT,
+  // validate("tmp/S10FA1.REC", "S10FA1.REC",
+    // BRIDGE_FORMAT_RBN, BRIDGE_FORMAT_REC,
     vstats);
   exit(0);
 
