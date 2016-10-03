@@ -47,6 +47,12 @@ void Files::Reset()
 }
 
 
+void Files::Rewind()
+{
+  nextNo = 0;
+}
+
+
 bool Files::FillEntry(
   const string& s,
   FileEntryType& entry) const

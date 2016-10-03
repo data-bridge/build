@@ -15,6 +15,7 @@ using namespace std;
 #include "args.h"
 #include "dispatch.h"
 #include "validate.h"
+#include "Bexcept.h"
 #include "Debug.h"
 
 
@@ -27,16 +28,16 @@ static const int numThreads = 1;
 int main(int argc, char * argv[])
 {
   ValStatType vstats[BRIDGE_FORMAT_LABELS_SIZE][BRIDGE_FORMAT_LABELS_SIZE];
+
+  /*
   validate("tmp/S10FA1.TXT", "S10FA1.TXT",
     BRIDGE_FORMAT_RBN, BRIDGE_FORMAT_TXT,
-  // validate("tmp/S10FA1.REC", "S10FA1.REC",
-    // BRIDGE_FORMAT_RBN, BRIDGE_FORMAT_REC,
     vstats);
   exit(0);
 
   cout << "OVerall stats:\n";
   printOverallStats(vstats);
-
+  */
 
   readArgs(argc, argv);
 
@@ -51,5 +52,27 @@ int main(int argc, char * argv[])
 
   for (int i = 0; i < numThreads; i++)
     thr[i].join();
+  
+  files.Rewind();
+  FileTaskType task;
+  while (files.GetNextTask(task))
+  {
+    for (auto &t: task.taskList)
+    {
+      try
+      {
+        validate(t.fileOutput, t.fileRef,
+          task.formatInput, t.formatOutput, vstats);
+      }
+      catch(Bexcept& bex)
+      {
+        bex.Print();
+        exit(0);
+      }
+    }
+  }
+
+  cout << "Overall stats:\n";
+  printOverallStats(vstats);
 }
 

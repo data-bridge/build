@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <sstream>
 #include <fstream>
 #include <regex>
 
@@ -39,11 +40,12 @@ enum ValDiffs
   BRIDGE_VAL_LIN_EXCLAIM = 9,
   BRIDGE_VAL_PLAY_SHORT = 10,
   BRIDGE_VAL_VG_CHAT = 11,
+  BRIDGE_VAL_RECORD_NUMBER = 12,
 
-  BRIDGE_VAL_ERROR = 12,
-  BRIDGE_VAL_OUT_SHORT = 13,
-  BRIDGE_VAL_REF_SHORT = 14,
-  BRIDGE_VAL_SIZE = 15
+  BRIDGE_VAL_ERROR = 13,
+  BRIDGE_VAL_OUT_SHORT = 14,
+  BRIDGE_VAL_REF_SHORT = 15,
+  BRIDGE_VAL_SIZE = 16
 };
 
 const string valNames[] =
@@ -55,11 +57,14 @@ const string valNames[] =
   "Session",
   "Scoring",
   "Teams",
+
   "Names8",
   "All-pass",
   "Lin-!",
   "Play-short",
   "VG-chat",
+  "Rec-comment",
+
   "Error",
   "Out-short",
   "Ref-short"
@@ -112,13 +117,21 @@ static bool isTXTAllPass(
   const string& lineOut,
   const string& lineRef);
 
+static bool isRecordComment(
+  const string& lineOut,
+  const string& lineRef);
+
 static void statsToVstat(
   const ValFileStats& stats,
   ValStatType& vstat);
 
 static void printExample(const ValExample& ex);
 
-static void printFileStats(ValFileStats& stats);
+static string posOrDash(const unsigned u);
+
+static void printFileStats(
+  ValFileStats& stats,
+  const string& fname);
 
 
 
@@ -223,6 +236,41 @@ static bool isTXTAllPass(
 }
 
 
+static bool isRecordComment(
+  const string& lineOut,
+  const string& lineRef)
+{
+  // Detect Pavlicek bug with wrong record numbers.
+
+  if (lineOut == "" || lineRef == "")
+    return false;
+
+  if (lineOut.at(0) != '%' || lineRef.at(0) != '%')
+    return false;
+  
+  regex re("(\\d+) records (\\d+) deals");
+  smatch match;
+  unsigned r1, d1, r2, d2;
+
+  if (! regex_search(lineOut, match, re))
+    return false;
+
+  if (! StringToUnsigned(match.str(1), r1)) return false;
+  if (! StringToUnsigned(match.str(2), d1)) return false;
+
+  if (! regex_search(lineRef, match, re))
+    return false;
+
+  if (! StringToUnsigned(match.str(1), r2)) return false;
+  if (! StringToUnsigned(match.str(2), d2)) return false;
+
+  if (r2 <= r1 || d2 <= d1)
+    return false;
+
+  return true;
+}
+
+
 void validate(
   const string& fileOut,
   const string& fileRef,
@@ -297,6 +345,16 @@ void validate(
       }
     }
 
+    // General: Pavlicek bug in % line.
+    if (isRecordComment(running.lineOut, running.lineRef))
+    {
+      if (stats.examples[BRIDGE_VAL_RECORD_NUMBER].lineOut == "")
+        stats.examples[BRIDGE_VAL_RECORD_NUMBER] = running;
+      stats.counts[BRIDGE_VAL_RECORD_NUMBER]++;
+      continue;
+    }
+
+
 // printExample(running);
     stats.counts[BRIDGE_VAL_ERROR]++;
     if (stats.examples[BRIDGE_VAL_ERROR].lineOut == "")
@@ -307,10 +365,12 @@ void validate(
   }
 
   if (getline(fostr, running.lineOut))
+  {
+    stats.examples[BRIDGE_VAL_REF_SHORT] = running;
     stats.counts[BRIDGE_VAL_REF_SHORT]++;
+  }
 
-  cout << "File stats:\n";
-  printFileStats(stats);
+  printFileStats(stats, fileOut);
 
   statsToVstat(stats, vstats[formatOrig][formatRef]);
 
@@ -365,10 +425,13 @@ static void printExample(const ValExample& ex)
 }
 
 
-static void printFileStats(ValFileStats& stats)
+static void printFileStats(
+  ValFileStats& stats,
+  const string& fname)
 {
   bool showFlag = false;
-  for (unsigned v = 0; v < BRIDGE_VAL_SIZE; v++)
+  // for (unsigned v = 0; v < BRIDGE_VAL_SIZE; v++)
+  for (unsigned v = BRIDGE_VAL_ERROR; v < BRIDGE_VAL_SIZE; v++)
   {
     if (stats.counts[v])
     {
@@ -380,7 +443,9 @@ static void printFileStats(ValFileStats& stats)
   if (! showFlag)
     return;
   
-  for (unsigned v = 0; v < BRIDGE_VAL_SIZE; v++)
+  cout << "File stats: " << fname << "\n";
+  // for (unsigned v = 0; v < BRIDGE_VAL_SIZE; v++)
+  for (unsigned v = BRIDGE_VAL_ERROR; v < BRIDGE_VAL_SIZE; v++)
   {
     if (stats.counts[v] == 0)
       continue;
@@ -390,7 +455,8 @@ static void printFileStats(ValFileStats& stats)
   }
   cout << "\n";
 
-  for (unsigned v = 0; v < BRIDGE_VAL_SIZE; v++)
+  // for (unsigned v = 0; v < BRIDGE_VAL_SIZE; v++)
+  for (unsigned v = BRIDGE_VAL_ERROR; v < BRIDGE_VAL_SIZE; v++)
   {
     if (stats.counts[v] == 0)
       continue;
@@ -400,6 +466,15 @@ static void printFileStats(ValFileStats& stats)
     cout << "\n";
   }
   cout << "\n";
+}
+
+
+static string posOrDash(const unsigned u)
+{
+  if (u == 0)
+    return "-";
+  else
+    return STR(u);
 }
 
 
@@ -415,17 +490,17 @@ void printOverallStats(
   {
     cout << setw(7) << left << FORMAT_NAMES[f];
     for (auto &g: formatActive)
-      cout << setw(7) << right << vstats[f][g].numFiles;
+      cout << setw(7) << right << posOrDash(vstats[f][g].numFiles);
     cout << "\n";
 
     cout << setw(7) << left << "";
     for (auto &g: formatActive)
-      cout << setw(7) << right << vstats[f][g].numExpectedDiffs;
+      cout << setw(7) << right << posOrDash(vstats[f][g].numExpectedDiffs);
     cout << "\n";
 
     cout << setw(7) << left << "";
     for (auto &g: formatActive)
-      cout << setw(7) << right << vstats[f][g].numErrors;
+      cout << setw(7) << right << posOrDash(vstats[f][g].numErrors);
     cout << "\n\n";
   }
 }

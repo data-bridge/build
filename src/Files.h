@@ -67,6 +67,8 @@ class Files
 
     void Reset();
 
+    void Rewind();
+
     void Set(const OptionsType& options);
 
     bool GetNextTask(FileTaskType& ftask);
