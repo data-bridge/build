@@ -391,7 +391,13 @@ string Teams::CarryAsString(
 
 string Teams::AsLIN() const
 {
-  return Teams::SingleAsLIN(team1) + "," + Teams::SingleAsLIN(team2);
+  // Pavlicek bug!  Should always be in order 1-2
+  // if (team1.carry == BRIDGE_CARRY_NONE ||
+     // (team1.carry == BRIDGE_CARRY_INT && team1.carryi >= team2.carryi) ||
+     // (team1.carry == BRIDGE_CARRY_FLOAT && team1.carryf >= team2.carryf))
+    return Teams::SingleAsLIN(team1) + "," + Teams::SingleAsLIN(team2);
+  // else
+    // return Teams::SingleAsLIN(team2) + "," + Teams::SingleAsLIN(team1);
 }
 
 
