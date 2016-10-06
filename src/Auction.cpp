@@ -449,6 +449,12 @@ bool Auction::IsOver() const
 }
 
 
+bool Auction::IsEmpty() const
+{
+  return (len == 0);
+}
+
+
 bool Auction::DVIsSet() const
 {
   return setDVFlag;
@@ -1457,7 +1463,7 @@ string Auction::AsREC() const
   
   if (Auction::IsPassedOut())
   {
-    s << "All Pass\n";
+    s << "All Pass\n\n";
     return s.str();
   }
 
@@ -1482,7 +1488,7 @@ string Auction::AsREC() const
   else if (end % 4 != wrap)
     s << "\n";
 
-  return s.str();
+  return s.str() + "\n";
 }
 
 
@@ -1556,7 +1562,7 @@ string Auction::DealerAsEML() const
 
 string Auction::DealerAsTXT() const
 {
-  return PLAYER_NAMES_LONG[dealer];
+  return PLAYER_NAMES_LONG[dealer] + " Dlr";
 }
 
 

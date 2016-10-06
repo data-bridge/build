@@ -211,7 +211,7 @@ void dispatch(
   {
     Group group;
 
-cout << "Input " << task.fileInput << endl;
+// cout << "Input " << task.fileInput << endl;
     try
     {
       if (! readFormattedFile(task.fileInput, task.formatInput, group))
@@ -228,7 +228,7 @@ cout << "Input " << task.fileInput << endl;
 
     for (auto &t: task.taskList)
     {
-cout << "Output " << t.fileOutput << endl;
+// cout << "Output " << t.fileOutput << endl;
       try
       {
         if (! writeFormattedFile(group, t.fileOutput, t.formatOutput))

@@ -157,6 +157,8 @@ class Auction
 
     bool IsOver() const;
 
+    bool IsEmpty() const;
+
     bool IsPassedOut() const;
 
     bool DVIsSet() const;

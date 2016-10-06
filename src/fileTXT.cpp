@@ -455,6 +455,8 @@ void writeTXTBoardLevel(
     const string dstr = board->DealAsString(BRIDGE_WEST, f);
     const string bstr = segment->NumberAsString(f, writeInfo.bno);
     const string vstr = board->VulAsString(f);
+    const string lstr = (board->AuctionIsEmpty() ?
+      board->DealerAsString(f) : "");
 
     // Convert deal, auction and play from \n to vectors.
     vector<string> deal;
@@ -463,6 +465,7 @@ void writeTXTBoardLevel(
     canvas.SetDimensions(15, 80);
     canvas.SetRectangle(deal, 0, 0);
     canvas.SetLine(bstr, 0, 0);
+    canvas.SetLine(lstr, 13, 0);
     canvas.SetLine(vstr, 14, 0);
     fstr << canvas.AsString() << "\n";
   }

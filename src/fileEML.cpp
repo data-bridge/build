@@ -472,9 +472,10 @@ void writeEMLBoardLevel(
   ConvertMultilineToVector(chunk[EML_PLAY], play);
 
   // Height of auction determines dimensions.
-  const bool playFlag = (play[0].size() > 2 ? true : false);
-  const unsigned a = auction.size();
+  // It seems we leave out the play if that makes the canvas too large.
+  const unsigned a = Max(4, auction.size());
   const unsigned alstart = (a <= 6 ? 14 : a+8);
+  bool const playFlag = (play[0].size() > 2 && alstart < 19 ? true : false);
   const unsigned clen = (playFlag ? alstart + 5 : 18);
   const unsigned acstart = (play[0].length() > 38 ? 39u : 42u);
 

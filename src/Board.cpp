@@ -158,7 +158,11 @@ bool Board::SetVul(
   const string& v,
   const formatType f)
 {
-  return auction[0].SetVul(v, f);
+  if (! auction[0].SetVul(v, f))
+    return false;
+  if (! contract[numActive].SetVul(auction[0].GetVul()))
+    return false;
+  return true;
 }
 
 
@@ -306,6 +310,12 @@ bool Board::SetAuction(
 bool Board::AuctionIsOver() const
 {
   return auction[numActive].IsOver();
+}
+
+
+bool Board::AuctionIsEmpty() const
+{
+  return auction[numActive].IsEmpty();
 }
 
 
@@ -463,7 +473,9 @@ bool Board::SetResult(
   if (! contract[numActive].SetResult(text, f))
     return false;
 
-  if (play[numActive].Claim(contract[numActive].GetTricks()) ==
+  if (contract[numActive].IsPassedOut())
+    return true;
+  else if (play[numActive].Claim(contract[numActive].GetTricks()) ==
       PLAY_CLAIM_NO_ERROR)
     return true;
   else

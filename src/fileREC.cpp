@@ -380,7 +380,7 @@ void writeRECBoardLevel(
   fstr << canvas.AsString(true) << "\n";
 
   fstr << board->PlayersAsString(f) << "\n";
-  fstr << board->AuctionAsString(f) << "\n";
+  fstr << board->AuctionAsString(f);
 
   fstr << board->LeadAsString(f) << "    ";
   fstr << board->ResultAsString(f, false) << "\n";

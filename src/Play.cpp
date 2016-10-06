@@ -1128,7 +1128,7 @@ string Play::ClaimAsString(const formatType f) const
       if (claimMadeFlag)
         return Play::ClaimAsLIN() + "pg||\n\n";
       else
-        return "";
+        return "\n";
 
     case BRIDGE_FORMAT_LIN_VG:
       if (len == PLAY_NUM_CARDS)

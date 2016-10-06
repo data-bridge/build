@@ -132,6 +132,8 @@ class Board
       const vector<string>& s,
       const formatType f);
 
+    bool AuctionIsEmpty() const;
+
     bool AuctionIsOver() const;
 
     bool IsPassedOut() const;
