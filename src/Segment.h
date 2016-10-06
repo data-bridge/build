@@ -69,7 +69,7 @@ class Segment
 
     bool SetTitleLIN(const string& t);
 
-    string TitleAsLINCommon() const;
+    string TitleAsLINCommon(const bool swapFlag = false) const;
     string TitleAsLIN() const;
     string TitleAsLIN_RP() const;
     string TitleAsLIN_VG() const;
@@ -214,8 +214,8 @@ class Segment
       const formatType f) const;
 
      string TeamsAsString(
-      const unsigned score1,
-      const unsigned score2,
+      const int score1,
+      const int score2,
       const formatType f) const;
 
      string FirstTeamAsString(
@@ -231,6 +231,9 @@ class Segment
      string NumberAsBoardString(
       const formatType f,
       const unsigned intNo) const;
+
+     string ContractsAsLIN(
+      const formatType f);
 
      string ContractsAsString(
       const formatType f);

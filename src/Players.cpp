@@ -249,6 +249,12 @@ bool Players::PlayersAreSet() const
 }
 
 
+roomType Players::GetRoom() const
+{
+  return room;
+}
+
+
 bool Players::operator == (const Players& p2) const
 {
   for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
@@ -441,7 +447,10 @@ string Players::PlayerAsString(
       return players[player].substr(0, 8);
 
     case BRIDGE_FORMAT_REC:
-      return players[player].substr(0, 11);
+      if (players[player] == "")
+        return PLAYER_NAMES_LONG[player];
+      else
+        return players[player].substr(0, 11);
 
     case BRIDGE_FORMAT_TXT:
       return players[player];

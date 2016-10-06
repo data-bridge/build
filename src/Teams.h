@@ -69,15 +69,15 @@ class Teams
       const teamType& tt,
       const bool forceFlag = false) const;
 
-    string AsLIN() const;
+    string AsLIN(const bool swapFlag) const;
     string AsPBN() const;
     string AsRBNCore() const;
     string AsRBN() const;
     string AsRBX() const;
     string AsTXT() const;
     string AsTXT(
-      const unsigned score1,
-      const unsigned score2) const;
+      const int score1,
+      const int score2) const;
 
 
   public:
@@ -106,11 +106,14 @@ class Teams
 
     bool operator != (const Teams& t2) const;
 
-    string AsString(const formatType f) const;
     string AsString(
       const formatType f,
-      const unsigned score1,
-      const unsigned score2) const;
+      const bool swapFlag = false) const;
+
+    string AsString(
+      const formatType f,
+      const int score1,
+      const int score2) const;
 
     string FirstAsString(const formatType f) const;
     string SecondAsString(const formatType f) const;

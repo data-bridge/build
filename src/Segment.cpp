@@ -590,7 +590,6 @@ bool Segment::SetNumber(
   {
     // Drop the open/closed indicator.
     t = t.substr(1);
-
     Segment::SetRoom(s.substr(0, 1), f);
   }
 
@@ -665,7 +664,7 @@ bool Segment::operator != (const Segment& s2) const
 }
 
 
-string Segment::TitleAsLINCommon() const
+string Segment::TitleAsLINCommon(const bool swapFlag) const
 {
   stringstream s;
   if (bmin == 0)
@@ -678,7 +677,7 @@ string Segment::TitleAsLINCommon() const
   else
     s << bmax << ",";
 
-  s << seg.teams.AsString(BRIDGE_FORMAT_LIN) << "|";
+  s << seg.teams.AsString(BRIDGE_FORMAT_LIN, swapFlag) << "|";
   return s.str();
 }
 
@@ -713,11 +712,17 @@ string Segment::TitleAsLIN_EXT() const
 string Segment::TitleAsLIN_RP() const
 {
   // BBO hands from Pavlicek.
+
+  bool swapFlag = false;
+  if (activeBoard->SetInstance(0) && 
+      activeBoard->GetRoom() == BRIDGE_ROOM_CLOSED)
+    swapFlag = true;
+
   stringstream s;
   s << "vg|" << seg.title << 
       seg.session.asString(BRIDGE_FORMAT_LIN_RP) << "," <<
       seg.scoring.AsString(BRIDGE_FORMAT_LIN) << ",";
-  s << Segment::TitleAsLINCommon() << "pf|y|\n";
+  s << Segment::TitleAsLINCommon(swapFlag) << "pf|y|\n";
   return s.str();
 }
 
@@ -857,8 +862,8 @@ string Segment::TeamsAsString(
 
 
 string Segment::TeamsAsString(
-  const unsigned score1,
-  const unsigned score2,
+  const int score1,
+  const int score2,
   const formatType f) const
 {
   return seg.teams.AsString(f, score1, score2);
@@ -947,43 +952,59 @@ string Segment::NumberAsBoardString(
 }
 
 
-string Segment::ContractsAsString(const formatType f) 
+string Segment::ContractsAsLIN(const formatType f)
 {
   stringstream s;
-  string st;
+  s << "rs|";
+  for (auto &p: boards)
+  {
+    const unsigned l = p.board.GetLength();
+    if (l == 2 && 
+        activeBoard->SetInstance(0) && 
+        activeBoard->GetRoom() == BRIDGE_ROOM_CLOSED)
+    {
+      p.board.SetInstance(1);
+      s << p.board.ContractAsString(f) << ",";
+      p.board.SetInstance(0);
+      s << p.board.ContractAsString(f) << ",";
+    }
+    else
+    {
+      for (unsigned i = 0; i < l; i++)
+      {
+        p.board.SetInstance(i);
+        s << p.board.ContractAsString(f) << ",";
+      }
+    }
 
+    if (l == 1)
+    {
+      if (LINcount == 0)
+        s << ",";
+      else
+        // Occurs in Vugraph pairs tournaments.
+        s << LINdata[p.no].contract[1] << ",";
+    }
+  }
+
+  string st = s.str();
+  if (f == BRIDGE_FORMAT_LIN ||
+      f == BRIDGE_FORMAT_LIN_RP || 
+      f == BRIDGE_FORMAT_LIN_VG)
+    st.pop_back(); // Remove trailing comma
+  return st + "|\n";
+}
+
+
+string Segment::ContractsAsString(const formatType f) 
+{
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_LIN_RP:
     case BRIDGE_FORMAT_LIN_VG:
     case BRIDGE_FORMAT_LIN_TRN:
-      s << "rs|";
-      for (auto &p: boards)
-      {
-        const unsigned l = p.board.GetLength();
-        for (unsigned i = 0; i < l; i++)
-        {
-          p.board.SetInstance(i);
-          s << p.board.ContractAsString(f) << ",";
-        }
-
-        if (l == 1)
-        {
-          if (LINcount == 0)
-            s << ",";
-          else
-            // Occurs in Vugraph pairs tournaments.
-            s << LINdata[p.no].contract[1] << ",";
-        }
-      }
-
-      st = s.str();
-      if (f == BRIDGE_FORMAT_LIN ||
-          f == BRIDGE_FORMAT_LIN_RP || 
-          f == BRIDGE_FORMAT_LIN_VG)
-        st.pop_back(); // Remove trailing comma
-      return st + "|\n";
+      return Segment::ContractsAsLIN(f);
 
     default:
       LOG("Invalid format " + STR(f));
@@ -1044,10 +1065,21 @@ string Segment::PlayersAsString(const formatType f)
       if (board == nullptr || board->GetLength() != 2)
         return "";
 
-      board->SetInstance(0);
-      s1 = board->PlayersAsString(f);
-      board->SetInstance(1);
-      s2 = board->PlayersAsString(f);
+      if (activeBoard->SetInstance(0) && 
+          activeBoard->GetRoom() == BRIDGE_ROOM_CLOSED)
+      {
+        board->SetInstance(1);
+        s1 = board->PlayersAsString(f);
+        board->SetInstance(0);
+        s2 = board->PlayersAsString(f);
+      }
+      else
+      {
+        board->SetInstance(0);
+        s1 = board->PlayersAsString(f);
+        board->SetInstance(1);
+        s2 = board->PlayersAsString(f);
+      }
 
       if (f == BRIDGE_FORMAT_LIN_TRN)
       {

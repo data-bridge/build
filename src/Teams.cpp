@@ -389,15 +389,12 @@ string Teams::CarryAsString(
 }
 
 
-string Teams::AsLIN() const
+string Teams::AsLIN(const bool swapFlag) const
 {
-  // Pavlicek bug!  Should always be in order 1-2
-  // if (team1.carry == BRIDGE_CARRY_NONE ||
-     // (team1.carry == BRIDGE_CARRY_INT && team1.carryi >= team2.carryi) ||
-     // (team1.carry == BRIDGE_CARRY_FLOAT && team1.carryf >= team2.carryf))
+  if (swapFlag)
+    return Teams::SingleAsLIN(team2) + "," + Teams::SingleAsLIN(team1);
+  else
     return Teams::SingleAsLIN(team1) + "," + Teams::SingleAsLIN(team2);
-  // else
-    // return Teams::SingleAsLIN(team2) + "," + Teams::SingleAsLIN(team1);
 }
 
 
@@ -447,8 +444,8 @@ string Teams::AsTXT() const
 
 
 string Teams::AsTXT(
-  const unsigned score1,
-  const unsigned score2) const
+  const int score1,
+  const int score2) const
 {
   stringstream s1, s2;
   bool order12Flag = true;
@@ -491,12 +488,14 @@ string Teams::AsTXT(
 }
 
 
-string Teams::AsString(const formatType f) const
+string Teams::AsString(
+  const formatType f,
+  const bool swapFlag) const
 {
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
-      return Teams::AsLIN();
+      return Teams::AsLIN(swapFlag);
 
     case BRIDGE_FORMAT_PBN:
       LOG("AsString not implemented for PBN");
@@ -520,8 +519,8 @@ string Teams::AsString(const formatType f) const
 
 string Teams::AsString(
   const formatType f,
-  const unsigned score1,
-  const unsigned score2) const
+  const int score1,
+  const int score2) const
 {
   switch(f)
   {

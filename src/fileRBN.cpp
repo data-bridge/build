@@ -125,9 +125,6 @@ bool readRBNChunk(
       return true;
     }
     
-    if (line.at(1) != ' ')
-      THROW("Need RBN space as second character in line:\n" + line);
-
     const char c = line.at(0);
     if (c == '%')
       continue;
@@ -142,7 +139,12 @@ bool readRBNChunk(
     if (chunk[labelNo] != "")
       LOG("RBN label already set in line:\n" + line);
 
-    chunk[labelNo] = line.substr(2);
+    if (line.length() < 2)
+      chunk[labelNo] = "";
+    else if (line.at(1) != ' ')
+      THROW("Need RBN space as second character in line:\n" + line);
+    else
+      chunk[labelNo] = line.substr(2);
   }
   return false;
 }

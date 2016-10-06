@@ -171,8 +171,8 @@ struct writeInfoType
 
   string namesOld[2];
 
-  unsigned score1;
-  unsigned score2;
+  int score1;
+  int score2;
 };
 
 
@@ -343,6 +343,13 @@ const string VUL_NAMES_RBN[BRIDGE_SUITS] =
 const string VUL_NAMES_TXT[BRIDGE_SUITS] =
 {
   "None", "Both", "N-S", "E-W"
+};
+
+enum roomType
+{
+  BRIDGE_ROOM_OPEN = 0,
+  BRIDGE_ROOM_CLOSED = 1,
+  BRIDGE_ROOM_UNDEFINED = 2
 };
 
 

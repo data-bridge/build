@@ -20,13 +20,6 @@ class Players
 {
   private:
 
-    enum roomType
-    {
-      BRIDGE_ROOM_OPEN = 0,
-      BRIDGE_ROOM_CLOSED = 1,
-      BRIDGE_ROOM_UNDEFINED = 2
-    };
-
     string players[BRIDGE_PLAYERS];
     roomType room;
 
@@ -71,6 +64,8 @@ class Players
       const formatType f);
 
     bool PlayersAreSet() const;
+
+    roomType GetRoom() const;
 
     bool operator == (const Players& p2) const;
 

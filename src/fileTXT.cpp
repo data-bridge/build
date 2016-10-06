@@ -484,12 +484,12 @@ void writeTXTBoardLevel(
     string tWin;
     if (s > 0)
     {
-      writeInfo.score2 += static_cast<unsigned>(s);
+      writeInfo.score2 += s;
       tWin = segment->SecondTeamAsString(f);
     }
     else
     {
-      writeInfo.score1 += static_cast<unsigned>(-s);
+      writeInfo.score1 += -s;
       tWin = segment->FirstTeamAsString(f);
     }
 

@@ -30,13 +30,14 @@ int main(int argc, char * argv[])
   ValStatType vstats[BRIDGE_FORMAT_LABELS_SIZE][BRIDGE_FORMAT_LABELS_SIZE];
 
   /*
-  validate("tmp/S10FA1.TXT", "S10FA1.TXT",
+  validate("tmp/W96FA5.TXT", "W96FA5.TXT",
     BRIDGE_FORMAT_RBN, BRIDGE_FORMAT_TXT,
     vstats);
   exit(0);
 
   cout << "OVerall stats:\n";
   printOverallStats(vstats);
+  exit(0);
   */
 
   readArgs(argc, argv);

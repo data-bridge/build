@@ -257,6 +257,8 @@ class Board
 
     bool CheckBoard() const;
 
+    roomType GetRoom() const;
+
     bool operator == (const Board& b2) const;
 
     bool operator != (const Board& b2) const;

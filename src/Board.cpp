@@ -585,6 +585,12 @@ bool Board::CheckBoard() const
 }
 
 
+roomType Board::GetRoom() const
+{
+  return players[numActive].GetRoom();
+}
+
+
 bool Board::operator == (const Board& b2) const
 {
   if (len != b2.len)
