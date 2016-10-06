@@ -33,6 +33,40 @@
 extern Debug debug;
 
 
+// Modulo 4, so West for Board "0" (4, 8, ...) etc.
+//
+const playerType BOARD_TO_DEALER[4] = 
+{
+  BRIDGE_WEST, BRIDGE_NORTH, BRIDGE_EAST, BRIDGE_SOUTH
+};
+
+// Modulo 16, so EW for Board "0" (16, 32, ...) etc.
+
+const vulType BOARD_TO_VUL[16] =
+{
+  BRIDGE_VUL_EAST_WEST, 
+  BRIDGE_VUL_NONE, 
+  BRIDGE_VUL_NORTH_SOUTH, 
+  BRIDGE_VUL_EAST_WEST,
+
+  BRIDGE_VUL_BOTH,
+  BRIDGE_VUL_NORTH_SOUTH,
+  BRIDGE_VUL_EAST_WEST,
+  BRIDGE_VUL_BOTH,
+
+  BRIDGE_VUL_NONE, 
+  BRIDGE_VUL_EAST_WEST,
+  BRIDGE_VUL_BOTH,
+  BRIDGE_VUL_NONE, 
+
+  BRIDGE_VUL_NORTH_SOUTH,
+  BRIDGE_VUL_BOTH,
+  BRIDGE_VUL_NONE, 
+  BRIDGE_VUL_NORTH_SOUTH
+};
+
+
+
 using namespace std;
 
 struct FormatFunctionsType
@@ -253,6 +287,36 @@ void dispatch(
   }
 }
 
+
+void GuessDealerAndVul(
+  vector<string>& chunk, 
+  const unsigned b,
+  const formatType f)
+{
+  // This is not quite fool-proof, as there are LIN files where
+  // the board numbers don't match...
+
+  if (f == BRIDGE_FORMAT_RBN)
+  {
+    chunk[BRIDGE_FORMAT_DEALER] = PLAYER_NAMES_SHORT[BOARD_TO_DEALER[b % 4]];
+    chunk[BRIDGE_FORMAT_VULNERABLE] = VUL_NAMES_PBN[BOARD_TO_VUL[b % 16]];
+  }
+}
+
+
+void GuessDealerAndVul(
+  vector<string>& chunk, 
+  const string& s,
+  const formatType f)
+{
+  unsigned u;
+  if (! StringToNonzeroUnsigned(s, u))
+    return;
+
+  GuessDealerAndVul(chunk, u, f);
+}
+
+
 static bool readFormattedFile(
   const string& fname,
   const formatType f,
@@ -330,6 +394,15 @@ static bool readFormattedFile(
 
     board->NewInstance();
     segment->CopyPlayers();
+
+    if (chunk[BRIDGE_FORMAT_AUCTION] == "")
+    {
+      // Guess dealer and vul from the board number.
+      if (chunk[BRIDGE_FORMAT_BOARD_NO] == "")
+        GuessDealerAndVul(chunk, segment->GetActiveExtBoardNo(), f);
+      else
+        GuessDealerAndVul(chunk, chunk[BRIDGE_FORMAT_BOARD_NO], f);
+    }
 
     try
     {

@@ -91,6 +91,8 @@ class Segment
 
     unsigned GetExtBoardNo(const unsigned no) const;
 
+    unsigned GetActiveExtBoardNo() const;
+
     void TransferHeader(const unsigned no);
     void TransferHeader(
       const unsigned intNo,

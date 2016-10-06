@@ -23,39 +23,6 @@ using namespace std;
 extern Debug debug;
 
 
-// Modulo 4, so West for Board "0" (4, 8, ...) etc.
-//
-const playerType BOARD_TO_DEALER[4] = 
-{
-  BRIDGE_WEST, BRIDGE_NORTH, BRIDGE_EAST, BRIDGE_SOUTH
-};
-
-// Modulo 16, so EW for Board "0" (16, 32, ...) etc.
-
-const vulType BOARD_TO_VUL[16] =
-{
-  BRIDGE_VUL_EAST_WEST, 
-  BRIDGE_VUL_NONE, 
-  BRIDGE_VUL_NORTH_SOUTH, 
-  BRIDGE_VUL_EAST_WEST,
-
-  BRIDGE_VUL_BOTH,
-  BRIDGE_VUL_NORTH_SOUTH,
-  BRIDGE_VUL_EAST_WEST,
-  BRIDGE_VUL_BOTH,
-
-  BRIDGE_VUL_NONE, 
-  BRIDGE_VUL_EAST_WEST,
-  BRIDGE_VUL_BOTH,
-  BRIDGE_VUL_NONE, 
-
-  BRIDGE_VUL_NORTH_SOUTH,
-  BRIDGE_VUL_BOTH,
-  BRIDGE_VUL_NONE, 
-  BRIDGE_VUL_NORTH_SOUTH
-};
-
-
 formatLabelType RBNmap[128];
 
 
@@ -87,19 +54,6 @@ void setRBNTables()
 }
 
 
-void GuessDealerAndVul(vector<string>& chunk)
-{
-  unsigned u;
-  if (! StringToNonzeroUnsigned(chunk[BRIDGE_FORMAT_BOARD_NO], u))
-    return;
-
-  // This is not quite fool-proof, as there are LIN files where
-  // the board numbers don't match...
-  chunk[BRIDGE_FORMAT_DEALER] = PLAYER_NAMES_SHORT[BOARD_TO_DEALER[u % 4]];
-  chunk[BRIDGE_FORMAT_VULNERABLE] = VUL_NAMES_PBN[BOARD_TO_VUL[u % 16]];
-}
-
-
 bool readRBNChunk(
   ifstream& fstr,
   unsigned& lno,
@@ -115,15 +69,7 @@ bool readRBNChunk(
   {
     lno++;
     if (line.empty())
-    {
-      if (chunk[BRIDGE_FORMAT_AUCTION] == "" &&
-          chunk[BRIDGE_FORMAT_BOARD_NO] != "")
-      {
-        // Guess dealer and vul from the board number.
-        GuessDealerAndVul(chunk);
-      }
       return true;
-    }
     
     const char c = line.at(0);
     if (c == '%')

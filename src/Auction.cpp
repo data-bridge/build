@@ -1187,7 +1187,7 @@ string Auction::AsLIN_RP() const
     return "";
 
   stringstream s;
-  s << "mb|";
+  s << "\nmb|";
   for (unsigned b = 0; b < len; b++)
   {
     const Call& c = sequence[b];
@@ -1574,7 +1574,7 @@ string Auction::VulAsLIN() const
 
 string Auction::VulAsLIN_RP() const
 {
-  return "sv|" + VUL_NAMES_LIN_RP[vul] + "|\npf|y|\n";
+  return "sv|" + VUL_NAMES_LIN_RP[vul] + "|\npf|y|";
 }
 
 

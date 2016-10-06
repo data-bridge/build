@@ -76,6 +76,12 @@ unsigned Segment::GetExtBoardNo(const unsigned no) const
 }
 
 
+unsigned Segment::GetActiveExtBoardNo() const
+{
+  return Segment::GetExtBoardNo(activeNo);
+}
+
+
 Board * Segment::AcquireBoard(const unsigned intNo)
 {
   for (auto &p: boards)
