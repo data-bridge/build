@@ -340,13 +340,16 @@ string Session::asLIN_RP() const
     return ",";
 
   stringstream s;
-  if (stage != BRIDGE_SESSION_ROUND_OF)
-    s << " " << STAGE_NAMES[stage] << ",";
+  // For some reason Pavlicek doesn't do this for Rxy.
+  if (stage == BRIDGE_SESSION_ROUND_OF)
+    s << ",R" << roundOf;
   else
-    s << " " << STAGE_NAMES[stage] << roundOf << ",";
+  {
+    s << " " << STAGE_NAMES[stage] << ",";
+    if (sessionNo > 0)
+      s << SESSION_NAMES[stage] << " " << sessionNo;
+  }
 
-  if (sessionNo > 0)
-    s << SESSION_NAMES[stage] << " " << sessionNo;
 
   return s.str();
 }
