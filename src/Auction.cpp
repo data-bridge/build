@@ -1466,11 +1466,25 @@ string Auction::AsTXT(const unsigned lengths[]) const
   }
 
   if (trailing == 3)
+  {
     s << "All Pass\n";
-  else if (end % 4 != wrap)
-    s << "\n";
+    return s.str();
+  }
 
-  return s.str();
+  string st = s.str();
+  if (trailing > 0)
+  {
+    // TODO: General function to trim trailing spaces
+    int pos = static_cast<int>(st.length()) - 1;
+    while (pos >= 0 && st.at(static_cast<unsigned>(pos)) == ' ')
+      pos--;
+    st = st.substr(0, static_cast<unsigned>(pos)+1);
+  }
+
+  if (end % 4 != wrap)
+    st += "\n";
+
+  return st;
 }
 
 

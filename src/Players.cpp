@@ -304,11 +304,15 @@ string Players::AsRBNCore() const
   if (players[BRIDGE_WEST] != "" || players[BRIDGE_EAST] != "")
     s << players[BRIDGE_WEST] << "+" << players[BRIDGE_EAST];
 
+  string st = s.str();
+  if (st == ":")
+    return "";
+
   if (room == BRIDGE_ROOM_OPEN)
-    s << ":O";
+    st += ":O";
   else if (room == BRIDGE_ROOM_CLOSED)
-    s << ":C";
-  return s.str();
+    st += ":C";
+  return st;
 }
 
 

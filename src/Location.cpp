@@ -109,18 +109,23 @@ string Location::asRBN(const string& sep) const
 
 string Location::asString(const formatType f) const
 {
+  string s;
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
       return Location::asRBN(":");
     
     case BRIDGE_FORMAT_PBN:
-      if (location.general == "")
-        return "";
+      // if (location.general == "")
+        // return "";
       return "[Site \"" + Location::asRBN(":") + "\"]\n";
     
     case BRIDGE_FORMAT_RBN:
-      return "L " + Location::asRBN(":") + "\n";
+      s = Location::asRBN(":");
+      if (s == "")
+        return "L\n";
+      else
+        return "L " + s + "\n";
     
     case BRIDGE_FORMAT_RBX:
       return "L{" + Location::asRBN(":") + "}";

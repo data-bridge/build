@@ -184,7 +184,10 @@ void writePBNBoardLevel(
   else
   {
     fstr << "[Event \"#\"]\n";
-    fstr << "[Site \"#\"]\n";
+    if (segment->LocationAsString(f) == "[Site \"\"]\n")
+      fstr << "[Site \"\"]\n";
+    else
+      fstr << "[Site \"#\"]\n";
     fstr << "[Date \"#\"]\n";
   }
 
