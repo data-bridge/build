@@ -1241,14 +1241,26 @@ string Auction::AsPBN() const
     if (b % 4 == 3)
       s << "\n";
   }
+
+  string st = s.str();
   if (trailing == 3)
   {
     if (end % 4 != 3)
-      s << " ";
-    s << "AP\n";
+      st += " ";
+    st += "AP\n";
+  }
+  else
+  {
+    // TODO: General function to trim trailing spaces
+    int pos = static_cast<int>(st.length()) - 1;
+    while (pos >= 0 && st.at(static_cast<unsigned>(pos)) == ' ')
+      pos--;
+    st = st.substr(0, static_cast<unsigned>(pos)+1);
+    if (end % 4 != 3)
+      st += "\n";
   }
 
-  return s.str() + alerts.str();
+  return st + alerts.str();
 }
 
 
@@ -1306,7 +1318,7 @@ string Auction::AsRBNCore(const bool RBNflag) const
     {
       if ((end+t) % 4 == 3)
         s << ":";
-      s << "Pass";
+      s << "P";
     }
   }
 
@@ -1370,6 +1382,9 @@ string Auction::AsEML() const
   while (sequence[end].no == 0 && sequence[end].alert == "")
     trailing++, end--;
     
+  if (trailing > 0 && trailing < 3)
+    end = len-1;
+    
   for (unsigned b = 0; b <= end; b++)
   {
     const Call& c = sequence[b];
@@ -1381,11 +1396,25 @@ string Auction::AsEML() const
   }
 
   if (trailing == 3)
+  {
     s << "(all pass)\n";
-  else if (end % 4 != wrap)
-    s << "\n";
+    return s.str();
+  }
 
-  return s.str();
+  string st = s.str();
+  if (trailing > 0)
+  {
+    // TODO: General function to trim trailing spaces
+    int pos = static_cast<int>(st.length()) - 1;
+    while (pos >= 0 && st.at(static_cast<unsigned>(pos)) == ' ')
+      pos--;
+    st = st.substr(0, static_cast<unsigned>(pos)+1);
+  }
+
+  if (end % 4 != wrap)
+    st += "\n";
+
+  return st;
 }
 
 
@@ -1469,6 +1498,9 @@ string Auction::AsREC() const
   while (sequence[end].no == 0 && sequence[end].alert == "")
     trailing++, end--;
     
+  if (trailing > 0 && trailing < 3)
+    end = len-1;
+    
   for (unsigned b = 0; b <= end; b++)
   {
     const Call& c = sequence[b];
@@ -1481,11 +1513,25 @@ string Auction::AsREC() const
   }
 
   if (trailing == 3)
+  {
     s << "All Pass\n";
-  else if (end % 4 != wrap)
-    s << "\n";
+    return s.str() + "\n";
+  }
 
-  return s.str() + "\n";
+  string st = s.str();
+  if (st.at(st.length()-1) == ' ')
+  {
+    // TODO: General function to trim trailing spaces
+    int pos = static_cast<int>(st.length()) - 1;
+    while (pos >= 0 && st.at(static_cast<unsigned>(pos)) == ' ')
+      pos--;
+    st = st.substr(0, static_cast<unsigned>(pos)+1);
+  }
+
+  if (end % 4 != wrap)
+    st += "\n";
+
+  return st + "\n";
 }
 
 
