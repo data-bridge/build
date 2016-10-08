@@ -36,6 +36,7 @@ class Players
     string AsRBN() const;
     string AsRBX() const;
     string AsREC() const;
+    string AsTXT() const;
 
 
   public:

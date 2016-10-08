@@ -470,11 +470,7 @@ void writeTXTBoardLevel(
     fstr << canvas.AsString() << "\n";
   }
 
-  fstr << setw(12) << left << board->WestAsString(f) <<
-      setw(12) << board->NorthAsString(f) <<
-      setw(12) << board->EastAsString(f) <<
-      board->SouthAsString(f) << "\n";
-
+  fstr << board->PlayersAsString(f);
   fstr << board->AuctionAsString(f) << "\n";
   fstr << board->ContractAsString(f);
   fstr << board->PlayAsString(f);

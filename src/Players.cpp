@@ -298,11 +298,11 @@ string Players::AsLIN() const
 string Players::AsRBNCore() const
 {
   stringstream s;
-  s << 
-    players[BRIDGE_NORTH] << "+" <<
-    players[BRIDGE_SOUTH] << ":" <<
-    players[BRIDGE_WEST] << "+" <<
-    players[BRIDGE_EAST];
+  if (players[BRIDGE_NORTH] != "" || players[BRIDGE_SOUTH] != "")
+    s << players[BRIDGE_NORTH] << "+" << players[BRIDGE_SOUTH];
+  s << ":";
+  if (players[BRIDGE_WEST] != "" || players[BRIDGE_EAST] != "")
+    s << players[BRIDGE_WEST] << "+" << players[BRIDGE_EAST];
 
   if (room == BRIDGE_ROOM_OPEN)
     s << ":O";
@@ -340,6 +340,23 @@ string Players::AsREC() const
 }
 
 
+string Players::AsTXT() const
+{
+  stringstream s;
+  unsigned l;
+  for (unsigned p = 0; p <= 2; p++)
+  {
+    unsigned pp = (p+3) % 4;
+    l = players[pp].length();
+    l = Max(12, l+1);
+    s << setw(l) << left << players[pp];
+  }
+
+  s << players[BRIDGE_SOUTH] << "\n";
+  return s.str();
+}
+
+
 string Players::AsString(
   const formatType f,
   const bool closedFlag) const
@@ -370,8 +387,7 @@ string Players::AsString(
       return Players::AsRBX();
     
     case BRIDGE_FORMAT_TXT:
-      LOG("No separate TXT players format");
-      return "";
+      return Players::AsTXT();
     
     case BRIDGE_FORMAT_REC:
       return Players::AsREC();

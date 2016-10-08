@@ -110,7 +110,7 @@ class Auction
     string AsRBN() const;
     string AsRBX() const;
     string AsEML() const;
-    string AsTXT() const;
+    string AsTXT(const unsigned lengths[BRIDGE_PLAYERS]) const;
     string AsREC() const;
 
     string DealerAsLIN() const;
@@ -203,6 +203,10 @@ class Auction
     string AsString(
       const formatType f,
       const string& names = "") const;
+    
+    string AsString(
+      const formatType f,
+      const unsigned lengths[BRIDGE_PLAYERS]) const;
     
     string DealerAsString(const formatType f) const;
 

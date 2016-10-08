@@ -1398,24 +1398,27 @@ string Auction::AsEML() const
 }
 
 
-string Auction::AsTXT() const
+string Auction::AsTXT(const unsigned lengths[]) const
 {
+  unsigned adjLen[BRIDGE_PLAYERS];
+  for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
+    adjLen[p] = Max(12, lengths[p]+1);
+
   stringstream s;
   s << left <<
-       setw(12) << "West" << 
-       setw(12) << "North" << 
-       setw(12) << "East" << 
+       setw(adjLen[0]) << "West" << 
+       setw(adjLen[1]) << "North" << 
+       setw(adjLen[2]) << "East" << 
        "South" << "\n";
 
   if (len == 0)
     return s.str();
 
-
   const unsigned numSkips = static_cast<unsigned>
     ((dealer + 4 - BRIDGE_WEST) % 4);
   const unsigned wrap = 3 - numSkips;
   for (unsigned i = 0; i < numSkips; i++)
-    s << setw(12) << "";
+    s << setw(adjLen[i]) << "";
   
   if (Auction::IsPassedOut())
   {
@@ -1436,7 +1439,7 @@ string Auction::AsTXT() const
     if (b % 4 == wrap)
       s << bid.str() << "\n";
     else
-      s << setw(12) << bid.str();
+      s << setw(adjLen[(b+numSkips) % 4]) << bid.str();
   }
 
   if (trailing == 3)
@@ -1528,10 +1531,33 @@ string Auction::AsString(
       return Auction::AsEML();
     
     case BRIDGE_FORMAT_TXT:
-      return Auction::AsTXT();
+      LOG("TXT needs lengths");
+      return "";
     
     case BRIDGE_FORMAT_REC:
       return Auction::AsREC();
+    
+    default:
+      LOG("Invalid format " + STR(f));
+      return "";
+  }
+}
+
+
+string Auction::AsString(
+  const formatType f,
+  const unsigned lengths[BRIDGE_PLAYERS]) const
+{
+  if (! setDVFlag)
+  {
+    LOG("Dealer/vul not set");
+    return "";
+  }
+
+  switch(f)
+  {
+    case BRIDGE_FORMAT_TXT:
+      return Auction::AsTXT(lengths);
     
     default:
       LOG("Invalid format " + STR(f));

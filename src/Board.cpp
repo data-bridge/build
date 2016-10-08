@@ -671,7 +671,18 @@ string Board::AuctionAsString(
   const formatType f,
   const string& names) const
 {
-  return auction[numActive].AsString(f, names);
+  if (f == BRIDGE_FORMAT_TXT)
+  {
+    unsigned lengths[BRIDGE_PLAYERS];
+    for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
+    {
+      playerType pp = static_cast<playerType>((p+3) % 4);
+      lengths[p] = players[numActive].PlayerAsString(pp, f).length();
+    }
+    return auction[numActive].AsString(f, lengths);
+  }
+  else
+    return auction[numActive].AsString(f, names);
 }
 
 
