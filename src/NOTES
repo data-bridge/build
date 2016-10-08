@@ -1,15 +1,8 @@
-03.10.16
+08.10.16
 --------
-To do in RBN/1997 among other things
+Implement .fix format and reader
+Move increasingly to .fix and away from validate "fixes"
 
-- LIN output:  If boards are in order closed-open, then
-  - swap team names and carries
-  - swap contracts to be in o-c order (rs)
-  - ditto for pn header
-  - leave boards in c-o order
-
-S97FA2.PBN first board has EW score of -1 (comes from CalculateScore,
-line 561?)
 
 
 02.10.16

@@ -46,6 +46,9 @@ enum formatType
   BRIDGE_FORMAT_SIZE = 12
 };
 
+typedef formatType Format;
+
+
 const string FORMAT_NAMES[BRIDGE_FORMAT_SIZE] =
 {
   "LIN",
@@ -257,6 +260,9 @@ enum playerType
   BRIDGE_PLAYER_NONE = 6,
   BRIDGE_PLAYER_SIZE = 7
 };
+
+typedef playerType Player;
+
 
 const string PLAYER_NAMES_LONG[BRIDGE_PLAYER_SIZE] =
 {

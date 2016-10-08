@@ -131,6 +131,8 @@ string Location::asString(const formatType f) const
       return "L{" + Location::asRBN(":") + "}";
     
     case BRIDGE_FORMAT_TXT:
+       if (location.general == "")
+         return "";
       return Location::asRBN(", ") + "\n";
     
     default:

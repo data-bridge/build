@@ -244,17 +244,8 @@ static bool isTXTAllPass(
   vector<string> wordsOut;
   splitIntoWords(lineOut, wordsOut);
   unsigned lOut = wordsOut.size();
-  if (lOut < 2 || lOut+1 < lRef || lOut > lRef+1)
+  if (lOut < 2 || lOut+2 < lRef || lOut > lRef+1)
     return false;
-
-  unsigned expectPasses = lOut + 1 - lRef;
-  unsigned pos = 0;
-  while (pos < lineOut.length() && lineOut.at(pos) == ' ')
-    pos++;
-  if (pos == lineOut.length())
-    return false;
-  if (pos > 0 && lineOut.at(pos) == 'A')
-    expectPasses++;
 
   if (wordsOut[lOut-2] != "All" || wordsOut[lOut-1] != "Pass")
     return false;
@@ -268,6 +259,19 @@ static bool isTXTAllPass(
     if (wordsRef[i] != wordsOut[i])
       return false;
   }
+
+  if (lOut == 2 && lRef == 4)
+    return true;
+
+  unsigned pos = 0;
+  while (pos < lineOut.length() && lineOut.at(pos) == ' ')
+    pos++;
+  if (pos == lineOut.length())
+    return false;
+
+  unsigned expectPasses = lOut + 1 - lRef;
+  if (pos > 0 && lineOut.at(pos) == 'A')
+    expectPasses++;
 
   expectLine = "";
   for (unsigned i = 0; i < expectPasses; i++)
