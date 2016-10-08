@@ -1189,6 +1189,9 @@ string Contract::ResultAsStringPBN() const
 string Contract::ResultAsStringRBNCore() const
 {
   stringstream s;
+  if (Contract::IsPassedOut())
+    return "P";
+
   s << Contract::GetTricks();
   if (score > 0)
     s << "+";
