@@ -344,7 +344,7 @@ string Players::AsTXT() const
 {
   stringstream s;
   unsigned l;
-  for (unsigned p = 0; p <= 2; p++)
+  for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
   {
     unsigned pp = (p+3) % 4;
     l = players[pp].length();
@@ -352,8 +352,12 @@ string Players::AsTXT() const
     s << setw(l) << left << players[pp];
   }
 
-  s << players[BRIDGE_SOUTH] << "\n";
-  return s.str();
+  string st = s.str();
+  int p = static_cast<int>(st.length()) - 1;
+  while (p >= 0 && st.at(static_cast<unsigned>(p)) == ' ')
+    p--;
+
+  return st.substr(0, static_cast<unsigned>(p)+1) + "\n";
 }
 
 

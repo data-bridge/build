@@ -666,24 +666,24 @@ static string posOrDash(const unsigned u)
 void printOverallStats(
   ValStatType vstats[][BRIDGE_FORMAT_LABELS_SIZE])
 {
-  cout << setw(6) << "";
+  cout << setw(7) << "";
   for (auto &f: formatActive)
     cout << setw(7) << right << FORMAT_NAMES[f];
   cout << "\n\n";
 
   for (auto &f: formatActive)
   {
-    cout << setw(6) << left << FORMAT_NAMES[f];
+    cout << setw(7) << left << FORMAT_NAMES[f];
     for (auto &g: formatActive)
       cout << setw(7) << right << posOrDash(vstats[f][g].numFiles);
     cout << "\n";
 
-    cout << setw(6) << left << "";
+    cout << setw(7) << left << "";
     for (auto &g: formatActive)
       cout << setw(7) << right << posOrDash(vstats[f][g].numExpectedDiffs);
     cout << "\n";
 
-    cout << setw(6) << left << "";
+    cout << setw(7) << left << "";
     for (auto &g: formatActive)
       cout << setw(7) << right << posOrDash(vstats[f][g].numErrors);
     cout << "\n\n";

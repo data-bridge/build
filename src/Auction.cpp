@@ -1217,6 +1217,9 @@ string Auction::AsPBN() const
   while (sequence[end].no == 0 && sequence[end].alert == "")
     trailing++, end--;
 
+  if (trailing > 0 && trailing < 3)
+    end = len-1;
+    
   unsigned aNo = 1;
   for (unsigned b = 0; b <= end; b++)
   {
@@ -1243,18 +1246,6 @@ string Auction::AsPBN() const
     if (end % 4 != 3)
       s << " ";
     s << "AP\n";
-  }
-  else if (trailing > 0)
-  {
-    // Incomplete bidding
-    for (unsigned t = 0; t < trailing; t++)
-    {
-      if ((end+t) % 4 == 3)
-        s << "\n";
-      else
-        s << " ";
-      s << "P";
-    }
   }
 
   return s.str() + alerts.str();
@@ -1315,7 +1306,7 @@ string Auction::AsRBNCore(const bool RBNflag) const
     {
       if ((end+t) % 4 == 3)
         s << ":";
-      s << "P";
+      s << "Pass";
     }
   }
 
@@ -1430,6 +1421,9 @@ string Auction::AsTXT(const unsigned lengths[]) const
   unsigned end = len-1;
   while (sequence[end].no == 0 && sequence[end].alert == "")
     trailing++, end--;
+
+  if (trailing > 0 && trailing < 3)
+    end = len-1;
     
   for (unsigned b = 0; b <= end; b++)
   {
