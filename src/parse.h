@@ -36,6 +36,10 @@ bool StringToNonzeroUnsigned(
   const string& s,
   unsigned& res);
 
+bool str2upos(
+  const string& s,
+  unsigned& res);
+
 bool StringToUnsigned(
   const string& s,
   unsigned& res);
@@ -49,6 +53,8 @@ bool StringToFloat(
   float& res);
 
 unsigned StringToMonth(const string& m);
+
+unsigned str2month(const string& m);
 
 bool GetNextWord(
   string& s,

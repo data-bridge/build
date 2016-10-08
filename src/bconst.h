@@ -159,7 +159,9 @@ const string formatLabelNames[] =
   "Result",
   "Score",
   "Score IMP",
-  "Score MP"
+  "Score MP",
+  "Double dummy",
+  "New segment"
 };
 
 

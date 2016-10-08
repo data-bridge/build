@@ -10,7 +10,9 @@
 
 
 #include <iostream>
+#include <iomanip>
 #include <fstream>
+#include <regex>
 #include <assert.h>
 
 #include "Group.h"
@@ -317,6 +319,86 @@ void GuessDealerAndVul(
 }
 
 
+struct Fix
+{
+  unsigned no;
+  formatLabelType field;
+  string value;
+};
+
+
+static void readFix(
+  const string& fname,
+  vector<Fix>& fix)
+{
+  regex re("\\.\\w+$");
+  string fixName = regex_replace(fname, re, ".fix");
+  
+  // There might not be a fix file (not an error).
+  ifstream fixstr(fixName.c_str());
+  if (! fixstr.is_open())
+    return;
+
+  string line;
+  regex rep("^(\\d+)\\s+\"([^\"]*)\"\\s+\"([^\"]*)\"\\s*$");
+  smatch match;
+  Fix newFix;
+  while (getline(fixstr, line))
+  {
+    if (line.empty() || line.at(0) == '%')
+      continue;
+
+    if (! regex_search(line, match, rep) || match.size() < 3)
+      THROW("Fix file " + fixName + ": Syntax error in '" + line + "'");
+
+    if (! StringToUnsigned(match.str(1), newFix.no))
+      THROW("Fix file " + fixName + ": Bad number in '" + line + "'");
+
+    bool found = false;
+    unsigned i;
+    for (i = 0; i <= BRIDGE_FORMAT_LABELS_SIZE; i++)
+    {
+      if (formatLabelNames[i] == match.str(2))
+      {
+        found = true;
+        break;
+      }
+    }
+
+    if (! found)
+      THROW("Fix file " + fixName + ": Unknown label in '" + line + "'");
+
+    newFix.field = static_cast<formatLabelType>(i);
+    newFix.value = match.str(3);
+
+    fix.push_back(newFix);
+  }
+
+  fixstr.close();
+}
+
+
+static void fixChunk(
+  vector<string>& chunk,
+  bool& newSegFlag,
+  vector<Fix>& fix)
+{
+  if (fix[0].field == BRIDGE_FORMAT_LABELS_SIZE)
+  {
+// cout << "Fixing segment flag to " << fix[0].value << endl;
+    // Special case: segment flag.
+    newSegFlag = (fix[0].value != "0");
+  }
+  else
+  {
+// cout << "Fixing " << formatLabelNames[fix[0].field] << " to " <<
+  fix[0].value << "\n";
+    chunk[fix[0].field] = fix[0].value;
+  }
+  fix.erase(fix.begin());
+}
+
+
 static bool readFormattedFile(
   const string& fname,
   const formatType f,
@@ -328,6 +410,9 @@ static bool readFormattedFile(
     LOG("No such file: " + fname);
     return false;
   }
+
+  vector<Fix> fix;
+  readFix(fname, fix);
 
   group.SetFileName(fname);
   group.SetInputFormat(f);
@@ -341,9 +426,12 @@ static bool readFormattedFile(
   Board * board = nullptr;
   unsigned bno = 0;
   string lastBoard = "";
+  unsigned chunkNo = 0;
 
   unsigned lno = 0;
   unsigned lnoOld;
+
+// cout << "Fix length " << fix.size() << endl;
 
   while (true)
   {
@@ -360,6 +448,11 @@ static bool readFormattedFile(
       fstr.close();
       assert(false);
     }
+
+    while (fix.size() > 0 && fix[0].no == chunkNo)
+      fixChunk(chunk, newSegFlag, fix);
+
+    chunkNo++;
 
     if (newSegFlag || segment == nullptr)
     {

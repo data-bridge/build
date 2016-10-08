@@ -30,37 +30,37 @@ Date::~Date()
 
 void Date::reset()
 {
-  date.year = 0;
-  date.month = 0;
-  date.day = 0;
+  year = 0;
+  month = 0;
+  day = 0;
 }
 
 
-void Date::checkDate() const
+void Date::check() const
 {
-  if (date.year > 2100)
+  if (year > 2100)
     THROW("Year is mighty large");
 
-  if (date.month > 12)
+  if (month > 12)
     THROW("Month is too large");
 
-  if (date.day > 31)
+  if (day > 31)
     THROW("Month is too large");
 
-  if (date.month == 0 && date.day > 0)
+  if (month == 0 && day > 0)
     THROW("Don't want day in unknown month");
 
-  if (date.month == 0 || date.day == 0)
+  if (month == 0 || day == 0)
     return;
 
-  if (date.month == 2 && date.day >= 30)
+  if (month == 2 && day >= 30)
     THROW("February day is too large"); // Yeah yeah, leap years
 
-  if ((date.month == 4 || 
-      date.month == 6 || 
-      date.month == 9 ||
-      date.month == 11) &&
-      date.day >= 31)
+  if ((month == 4 || 
+      month == 6 || 
+      month == 9 ||
+      month == 11) &&
+      day >= 31)
     THROW("Short month is too long");
 }
 
@@ -75,16 +75,16 @@ void Date::setLIN(const string& t)
   if (! regex_search(t, match, re) || match.size() < 3)
     THROW("Bad LIN date");
 
-  (void) StringToNonzeroUnsigned(match.str(1), date.month);
-  (void) StringToNonzeroUnsigned(match.str(2), date.day);
-  (void) StringToNonzeroUnsigned(match.str(3), date.year);
+  (void) str2upos(match.str(1), month);
+  (void) str2upos(match.str(2), day);
+  (void) str2upos(match.str(3), year);
 
-  if (date.year > 20)
-    date.year = 1900 + date.year;
+  if (year > 20)
+    year = 1900 + year;
   else
-    date.year = 2000 + date.year;
+    year = 2000 + year;
 
-  Date::checkDate();
+  Date::check();
 }
 
 
@@ -96,21 +96,21 @@ void Date::setPBN(const string& t)
     THROW("Bad PBN date");
 
   if (match.str(1) == "????")
-    date.year = 0;
-  else if (! StringToNonzeroUnsigned(match.str(1), date.year))
+    year = 0;
+  else if (! str2upos(match.str(1), year))
     THROW("Bad PBN year");
 
   if (match.str(2) == "??")
-    date.month = 0;
-  else if (! StringToNonzeroUnsigned(match.str(2), date.month))
+    month = 0;
+  else if (! str2upos(match.str(2), month))
     THROW("Bad PBN month number");
 
   if (match.str(3) == "??")
-    date.day = 0;
-  else if (! StringToNonzeroUnsigned(match.str(3), date.day))
+    day = 0;
+  else if (! str2upos(match.str(3), day))
     THROW("Bad PBN day");
 
-  Date::checkDate();
+  Date::check();
 }
 
 
@@ -123,8 +123,8 @@ void Date::setRBN(const string& t)
     if (! regex_search(t, match, re) || match.size() < 2)
       THROW("Bad RBN date");
 
-    (void) StringToNonzeroUnsigned(match.str(1), date.year);
-    (void) StringToNonzeroUnsigned(match.str(2), date.month);
+    (void) str2upos(match.str(1), year);
+    (void) str2upos(match.str(2), month);
   }
   else
   {
@@ -133,12 +133,12 @@ void Date::setRBN(const string& t)
     if (! regex_search(t, match, re) || match.size() < 3)
       THROW("Bad RBN date");
 
-    (void) StringToNonzeroUnsigned(match.str(1), date.year);
-    (void) StringToNonzeroUnsigned(match.str(2), date.month);
-    (void) StringToNonzeroUnsigned(match.str(3), date.day);
+    (void) str2upos(match.str(1), year);
+    (void) str2upos(match.str(2), month);
+    (void) str2upos(match.str(3), day);
   }
 
-  Date::checkDate();
+  Date::check();
 }
 
 
@@ -149,16 +149,16 @@ void Date::setTXT(const string& t)
   if (! regex_search(t, match, re) || match.size() < 2)
     THROW("Bad TXT date");
 
-  (void) StringToNonzeroUnsigned(match.str(2), date.year);
-  date.month = StringToMonth(match.str(1));
+  (void) str2upos(match.str(2), year);
+  month = str2month(match.str(1));
 
-  Date::checkDate();
+  Date::check();
 }
 
 
 void Date::set(
   const string& t,
-  const formatType f)
+  const Format f)
 {
   switch(f)
   {
@@ -185,62 +185,62 @@ void Date::set(
 }
 
 
-bool Date::operator == (const Date& d2) const
+bool Date::operator == (const Date& date2) const
 {
-  if (date.year != d2.date.year)
+  if (year != date2.year)
     DIFF("Different years");
 
-  if (date.month != d2.date.month)
+  if (month != date2.month)
     DIFF("Different months");
 
-  if (date.day != d2.date.day)
+  if (day != date2.day)
     DIFF("Different days");
 
   return true;
 }
 
 
-bool Date::operator != (const Date& d2) const
+bool Date::operator != (const Date& date2) const
 {
-  return ! (* this == d2);
+  return ! (* this == date2);
 }
 
 
 string Date::asLIN() const
 {
-  if (date.day == 0 || date.month == 0 || date.year == 0)
+  if (day == 0 || month == 0 || year == 0)
     return "";
 
   stringstream s;
   s <<  
-    setfill('0') << setw(2) << date.month << "-" <<
-    setfill('0') << setw(2) << date.day << "-" <<
-    setfill('0') << setw(2) << (date.year % 100);
+    setfill('0') << setw(2) << month << "-" <<
+    setfill('0') << setw(2) << day << "-" <<
+    setfill('0') << setw(2) << (year % 100);
   return s.str();
 }
 
 
 string Date::asPBN() const
 {
-  if (date.day == 0 && date.month == 0 && date.year == 0)
+  if (day == 0 && month == 0 && year == 0)
     return "";
 
   stringstream s;
   s << "[Date \"";
-  if (date.year == 0)
+  if (year == 0)
     s << "????.";
   else
-    s << setfill('0') << setw(4) << date.year << ".";
+    s << setfill('0') << setw(4) << year << ".";
 
-  if (date.month == 0)
+  if (month == 0)
     s << "??.";
   else
-    s << setfill('0') << setw(2) << date.month << ".";
+    s << setfill('0') << setw(2) << month << ".";
 
-  if (date.day == 0)
+  if (day == 0)
     s << "??\"]\n";
   else
-    s << setfill('0') << setw(2) << date.day << "\"]\n";
+    s << setfill('0') << setw(2) << day << "\"]\n";
 
   return s.str();
 }
@@ -248,13 +248,13 @@ string Date::asPBN() const
 
 string Date::asRBNCore() const
 {
-  if (date.month == 0 || date.year == 0)
+  if (month == 0 || year == 0)
     return "";
 
   stringstream s;
-  s << date.year << setfill('0') << setw(2) << date.month;
-  if (date.day > 0)
-    s << date.day;
+  s << year << setfill('0') << setw(2) << month;
+  if (day > 0)
+    s << day;
   return s.str();
 }
 
@@ -272,18 +272,18 @@ string Date::asRBX() const
 
 string Date::asTXT() const
 {
-  if (date.month == 0 || date.year == 0)
+  if (month == 0 || year == 0)
     return "";
 
   stringstream s;
-  if (date.day > 0)
-    s << date.day << " ";
-  s << DATE_MONTHS[date.month] << " " << date.year << "\n";
+  if (day > 0)
+    s << day << " ";
+  s << DATE_MONTHS[month] << " " << year << "\n";
   return s.str();
 }
 
 
-string Date::asString(const formatType f) const
+string Date::asString(const Format f) const
 {
   switch(f)
   {

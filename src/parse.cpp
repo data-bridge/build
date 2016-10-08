@@ -153,6 +153,14 @@ bool StringToNonzeroUnsigned(
 }
 
 
+bool str2upos(
+  const string& s,
+  unsigned& res)
+{
+  return StringToNonzeroUnsigned(s, res);
+}
+
+
 bool StringToInt(
   const string& s,
   int& res)
@@ -241,6 +249,12 @@ unsigned StringToMonth(const string& m)
     return 12;
   else
     return 0;
+}
+
+
+unsigned str2month(const string& m)
+{
+  return StringToMonth(m);
 }
 
 

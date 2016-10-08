@@ -20,21 +20,16 @@ class Date
 {
   private:
 
-    struct DateType
-    {
-      unsigned year;
-      unsigned month;
-      unsigned day;
-    };
+    unsigned year;
+    unsigned month;
+    unsigned day;
 
-    DateType date;
+    void check() const;
 
-    void checkDate() const;
-
-    void setLIN(const string& t);
-    void setPBN(const string& t);
-    void setRBN(const string& t);
-    void setTXT(const string& t);
+    void setLIN(const string& text);
+    void setPBN(const string& text);
+    void setRBN(const string& text);
+    void setTXT(const string& text);
 
     string asLIN() const;
     string asPBN() const;
@@ -54,13 +49,13 @@ class Date
 
     void set(
       const string& t,
-      const formatType f);
+      const Format f);
 
-    bool operator == (const Date& d2) const;
+    bool operator == (const Date& date2) const;
 
-    bool operator != (const Date& d2) const;
+    bool operator != (const Date& date2) const;
 
-    string asString(const formatType f) const;
+    string asString(const Format f) const;
 };
 
 #endif
