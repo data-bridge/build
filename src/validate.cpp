@@ -40,13 +40,14 @@ enum ValDiffs
   BRIDGE_VAL_LIN_EXCLAIM = 9,
   BRIDGE_VAL_LIN_PLAY_NL = 10,
   BRIDGE_VAL_REC_PLAY_SHORT = 11,
-  BRIDGE_VAL_VG_CHAT = 12,
-  BRIDGE_VAL_RECORD_NUMBER = 13,
+  BRIDGE_VAL_REC_MADE_32 = 12,
+  BRIDGE_VAL_VG_CHAT = 13,
+  BRIDGE_VAL_RECORD_NUMBER = 14,
 
-  BRIDGE_VAL_ERROR = 14,
-  BRIDGE_VAL_OUT_SHORT = 15,
-  BRIDGE_VAL_REF_SHORT = 16,
-  BRIDGE_VAL_SIZE = 17
+  BRIDGE_VAL_ERROR = 15,
+  BRIDGE_VAL_OUT_SHORT = 16,
+  BRIDGE_VAL_REF_SHORT = 17,
+  BRIDGE_VAL_SIZE = 18
 };
 
 const string valNames[] =
@@ -212,6 +213,22 @@ static bool isRECPlay(const string& line)
   return true;
 }
 
+static bool isRECJustMade(
+  const string &lineOut, 
+  const string &lineRef)
+{
+  unsigned lOut = lineOut.length();
+  unsigned lRef = lineRef.length();
+
+  if (lOut < 32 || lRef != lOut)
+    return false;
+
+  if (lineOut.substr(28) == "Made 0" && lineRef.substr(28) == "Won 32")
+    return true;
+  else
+    return false;
+}
+
 
 static bool isTXTAllPass(
   const string& lineOut,
@@ -263,25 +280,77 @@ static bool isTXTAllPass(
 }
 
 
-static bool isLINLongLine(
+static bool isLINLongRefLine(
   const string& lineOut, 
   const string& lineRef, 
   string& expectLine)
 {
-  if (lineOut.substr(0,3) != "mb|" || lineRef.substr(0,3) != "mb|")
-    return false;
-
-  unsigned pos = 0;
   const unsigned lOut = lineOut.length();
   const unsigned lRef = lineRef.length();
-  while (pos < Min(lOut, lRef) && lineOut.at(pos) == lineRef.at(pos))
-    pos++;
 
-  if (pos >= Min(lOut, lRef))
+  if (lOut >= lRef)
     return false;
 
-  expectLine = lineRef.substr(pos);
-  return true;
+  const string sOut = lineOut.substr(0, 3);
+  const string sRef = lineRef.substr(0, 3);
+
+  if ((sOut != "mb|" && sOut != "pf|") || sOut != sRef)
+    return false;
+
+  if (lineRef.substr(0, lOut) == lineOut)
+  {
+    expectLine = lineRef.substr(lOut);
+    return true;
+  }
+
+  // Can lop off "pg||" at end of lineOut and try again.
+  if (lineOut.substr(lOut-4) != "pg||")
+    return false;
+
+  if (lineOut.substr(0, lOut-4) == lineRef.substr(0, lOut-4))
+  {
+    expectLine = lineRef.substr(lOut-4);
+    return true;
+  }
+  else
+    return false;
+}
+
+
+static bool isLINLongOutLine(
+  const string& lineOut, 
+  const string& lineRef, 
+  string& expectLine)
+{
+  const unsigned lOut = lineOut.length();
+  const unsigned lRef = lineRef.length();
+
+  if (lRef >= lOut)
+    return false;
+
+  const string sOut = lineOut.substr(0, 3);
+  const string sRef = lineRef.substr(0, 3);
+
+  if ((sOut != "mb|" && sOut != "pf|") || sOut != sRef)
+    return false;
+
+  if (lineOut.substr(0, lRef) == lineRef)
+  {
+    expectLine = lineOut.substr(lRef);
+    return true;
+  }
+
+  // Can lop off "pg||" at end of lineRef and try again.
+  if (lineRef.substr(lRef-4) != "pg||")
+    return false;
+
+  if (lineRef.substr(0, lRef-4) == lineOut.substr(0, lRef-4))
+  {
+    expectLine = lineOut.substr(lRef-4);
+    return true;
+  }
+  else
+    return false;
 }
 
 
@@ -369,7 +438,7 @@ void validate(
     if (formatRef == BRIDGE_FORMAT_LIN_RP)
     {
       string expectLine;
-      if (isLINLongLine(running.lineOut, running.lineRef, expectLine))
+      if (isLINLongRefLine(running.lineOut, running.lineRef, expectLine))
       {
         if (! getline(fostr, running.lineOut))
         {
@@ -377,7 +446,29 @@ void validate(
           break;
         }
 
+        running.lnoOut++;
+
         if (running.lineOut == expectLine)
+        {
+          // No newline when no play (Pavlicek error).
+          if (stats.examples[BRIDGE_VAL_LIN_PLAY_NL].lineOut == "")
+            stats.examples[BRIDGE_VAL_LIN_PLAY_NL] = running;
+          stats.counts[BRIDGE_VAL_LIN_PLAY_NL]++;
+          continue;
+        }
+      }
+      else if (isLINLongOutLine(running.lineOut, running.lineRef, 
+          expectLine))
+      {
+        if (! getline(frstr, running.lineRef))
+        {
+          stats.counts[BRIDGE_VAL_REF_SHORT]++;
+          break;
+        }
+
+        running.lnoRef++;
+
+        if (running.lineRef == expectLine)
         {
           // No newline when no play (Pavlicek error).
           if (stats.examples[BRIDGE_VAL_LIN_PLAY_NL].lineOut == "")
@@ -422,6 +513,20 @@ void validate(
           keepLineRef = true;
           continue;
         }
+      }
+      else if (isRECJustMade(running.lineOut, running.lineRef))
+      {
+        // "Won 32" (Pavlicek error, should be "Made 0" or so.
+        if (stats.examples[BRIDGE_VAL_REC_MADE_32].lineOut == "")
+          stats.examples[BRIDGE_VAL_REC_MADE_32] = running;
+        stats.counts[BRIDGE_VAL_REC_MADE_32]++;
+
+        // The next line (Score, Points) is then also different.
+        getline(fostr, running.lineOut);
+        getline(frstr, running.lineRef);
+        running.lnoOut++;
+        running.lnoRef++;
+        continue;
       }
     }
 
