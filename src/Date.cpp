@@ -39,7 +39,7 @@ void Date::reset()
 void Date::check() const
 {
   if (year > 2100)
-    THROW("Year is mighty large");
+    THROW("Year is too large");
 
   if (month > 12)
     THROW("Month is too large");

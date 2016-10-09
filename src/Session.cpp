@@ -71,6 +71,7 @@ void Session::reset()
 
   general2 = "";
   sessionNo = 0;
+  sessExt = "";
 }
 
 
@@ -219,29 +220,49 @@ void Session::setPart2(const string& t)
       general2 = "";
       sessionNo = u;
     }
+    return;
   }
-  else
+
+  if (StringToNonzeroUnsigned(t, u))
   {
-    regex re("^Segment (.+)");
-    smatch match;
-    if (regex_search(t, match, re) && match.size() >= 1)
-    {
-      if (! StringToNonzeroUnsigned(match.str(1), u))
-      {
-        general2 = t;
-        sessionNo = 0;
-      }
-      else
-      {
-        general2 = "";
-        sessionNo = u;
-      }
-    }
-    else
+    // Could be "5 (overtime)", for example.
+    general2 = "";
+    sessionNo = u;
+
+    unsigned pos = 0;
+    while (pos < t.length() && t.at(pos) != ' ')
+      pos++;
+    if (pos == t.length())
+      return;
+
+    while (pos < t.length() && t.at(pos) == ' ')
+      pos++;
+    if (pos == t.length())
+      return;
+
+    sessExt = t.substr(pos);
+    return;
+  }
+
+  regex re("^Segment (.+)");
+  smatch match;
+  if (regex_search(t, match, re) && match.size() >= 1)
+  {
+    if (! StringToNonzeroUnsigned(match.str(1), u))
     {
       general2 = t;
       sessionNo = 0;
     }
+    else
+    {
+      general2 = "";
+      sessionNo = u;
+    }
+  }
+  else
+  {
+    general2 = t;
+    sessionNo = 0;
   }
 }
 
@@ -383,7 +404,13 @@ string Session::asLIN_RP() const
     // For some reason Pavlicek doesn't do this for Rxy.
     s << " " << STAGE_NAMES[stage] << extension << ",";
     if (sessionNo > 0)
+    {
       s << SESSION_NAMES[stage] << " " << sessionNo;
+      if (sessExt != "")
+        s << " " << sessExt;
+    }
+    else
+      s << general2;
   }
 
   return s.str();
@@ -405,7 +432,11 @@ string Session::asPBN() const
     s << STAGE_NAMES_SHORT[stage] << roundOf << extension;
 
   if (sessionNo > 0)
+  {
     s << ":" << sessionNo;
+    if (sessExt != "")
+      s << " " << sessExt;
+  }
   else if (general2 != "")
     s << ":" << general2;
 
@@ -425,7 +456,11 @@ string Session::asRBNCore() const
     s << STAGE_NAMES_SHORT[stage] << roundOf << extension;
 
   if (sessionNo > 0)
+  {
     s << ":" << sessionNo;
+    if (sessExt != "")
+      s << " " << sessExt;
+  }
   else if (general2 != "")
     s << ":" << general2;
 
@@ -460,7 +495,13 @@ string Session::asTXT() const
     s << STAGE_NAMES[stage] << roundOf << extension;
 
   if (sessionNo > 0)
-    s << ", " << SESSION_NAMES[stage] << " " << sessionNo;
+  {
+    if (sessExt == "")
+      s << ", " << SESSION_NAMES[stage] << " " << sessionNo;
+    else
+      // Pavlicek bug?
+      s << ", " << sessionNo << " " << sessExt;
+  }
   else if (general2 != "")
     s << ", " << general2;
 

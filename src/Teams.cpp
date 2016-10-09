@@ -308,7 +308,22 @@ bool Teams::TeamIsEqual(
 
 bool Teams::CarryExists() const
 {
-  return (team1.carry || team2.carry);
+  // return (team1.carry || team2.carry);
+  if (team1.carry == BRIDGE_CARRY_NONE || 
+      team2.carry == BRIDGE_CARRY_NONE)
+    return false;
+
+  // Odd (Pavlicek).
+  if (team1.carry == BRIDGE_CARRY_INT && team1.carryi <= 0)
+    return false;
+  if (team2.carry == BRIDGE_CARRY_INT && team2.carryi <= 0)
+    return false;
+  if (team1.carry == BRIDGE_CARRY_FLOAT && team1.carryf <= 0.f)
+    return false;
+  if (team2.carry == BRIDGE_CARRY_FLOAT && team2.carryf <= 0.f)
+    return false;
+
+  return true;
 }
 
 

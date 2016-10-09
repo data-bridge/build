@@ -65,6 +65,7 @@ const string valNames[] =
   "Lin-!",
   "Play-newline",
   "Play-short",
+  "Made-32",
   "VG-chat",
   "Rec-comment",
 
@@ -283,39 +284,6 @@ static bool isTXTAllPass(
   if (pos > 0 && lineOut.at(pos) == 'A')
     expectPasses++;
 
-  // Kludge: Passes need to be spaced as in the auction.
-  // This only seems to show up in practice for expectPasses == 2.
-
-  /*
-  expectLine = "";
-  if (expectPasses == 0)
-    return true;
-  else if (expectPasses == 1)
-  {
-    expectLine = "Pass";
-    return true;
-  }
-  else if (expectPasses == 2)
-  {
-    expectLine = "Pass";
-    pos = 4;
-    while (lineRef.at(pos) == ' ')
-    {
-      pos++;
-      expectLine += " ";
-    }
-    expectLine += "Pass";
-  }
-  else
-  {
-    for (unsigned i = 0; i < expectPasses; i++)
-    {
-      expectLine += "Pass";
-      if (i != expectPasses-1)
-        expectLine += "        ";
-    }
-  }
-  */
   return true;
 }
 
@@ -572,14 +540,6 @@ void validate(
   vector<RefFix> refFix;
   readRefFix(fileRef.c_str(), refFix);
 
-/*
-if (refFix.size() == 0)
-  cout << "Did not read\n";
-else
-  cout << "Read " << refFix[0].lno << " " << refFix[0].type <<
-    " " << refFix[0].value << "\n";
-*/
-
   ValFileStats stats;
   resetStats(stats);
 
@@ -603,7 +563,20 @@ else
     {
       if (refFix[0].type == BRIDGE_REF_INSERT)
       {
-        THROW("Can't delete yet");
+        if (refFix[0].value != running.out.line)
+        {
+          // This will mess up everything that follows...
+          logError(stats, running, BRIDGE_VAL_ERROR);
+          if (! progress(fostr, running.out))
+            THROW("Next line is not there");
+          keepLineRef = false;
+          keepLineOut = false;
+          continue;
+        }
+
+        // Get the next out line to compare with the ref line.
+        if (! progress(fostr, running.out))
+          THROW("Next line is not there");
       }
       else if (refFix[0].type == BRIDGE_REF_REPLACE)
       {

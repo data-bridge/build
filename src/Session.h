@@ -41,6 +41,7 @@ class Session
 
     string general2;
     unsigned sessionNo;
+    string sessExt;
 
     StageType charToType(const char c) const;
 
