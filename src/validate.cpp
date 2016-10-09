@@ -268,7 +268,10 @@ static bool isTXTAllPass(
   }
 
   if (lOut == 2 && lRef == 4)
+  {
+    expectPasses = 0;
     return true;
+  }
 
   unsigned pos = 0;
   while (pos < lineOut.length() && lineOut.at(pos) == ' ')
