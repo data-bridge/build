@@ -17,6 +17,7 @@
 #include "Board.h"
 #include "filePBN.h"
 #include "portab.h"
+#include "Bexcept.h"
 #include "Debug.h"
 
 using namespace std;
@@ -103,25 +104,25 @@ bool readPBNChunk(
       }
     }
 
-    regex re("^\\[(\\w+)\\s+\"(.+)\"\\]$");
+    regex re("^\\[(\\w+)\\s+\"(.*)\"\\]$");
     smatch match;
     if (! regex_search(line, match, re) || match.size() < 2)
     {
-      LOG("PBN line does not parse: '" + line + "'");
+      THROW("PBN line does not parse: '" + line + "'");
       return false;
     }
 
     auto it = PBNmap.find(match.str(1));
     if (it == PBNmap.end())
     {
-      LOG("PBN label is illegal or not implemented: '" + line + "'");
+      THROW("PBN label is illegal or not implemented: '" + line + "'");
       return false;
     }
 
     const unsigned labelNo = static_cast<unsigned>(it->second);
     if (chunk[labelNo] != "")
     {
-      LOG("Label already set in line '" + line + "'");
+      THROW("Label already set in line '" + line + "'");
       return false;
     }
 
@@ -147,8 +148,11 @@ bool readPBNChunk(
     {
       chunk[labelNo] = match.str(2);
       if (labelNo <= BRIDGE_FORMAT_VISITTEAM)
-        newSegFlag = true;
-
+      {
+        // Kludge to avoid new segment on [Site ""].
+        if (labelNo != BRIDGE_FORMAT_LOCATION || chunk[labelNo] != "")
+          newSegFlag = true;
+      }
     }
   }
   return false;

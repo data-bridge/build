@@ -321,7 +321,7 @@ bool Contract::SetContract(
 
 bool Contract::SetContract(const string& text)
 {
-  if (text == "P")
+  if (text == "P" || text == "Pass")
     return Contract::SetPassedOut();
 
   auto it = CONTRACT_STRING_TO_PARTS.find(text);

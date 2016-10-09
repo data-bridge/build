@@ -1,8 +1,10 @@
 08.10.16
 --------
-Implement .fix format and reader
 Move increasingly to .fix and away from validate "fixes"
 
+Check that there is never > 1 segment.
+
+For no segfaults, have to check everywhere that * activeBoard exists etc.
 
 
 02.10.16
