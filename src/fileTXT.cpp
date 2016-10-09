@@ -469,17 +469,27 @@ void writeTXTBoardLevel(
     canvas.SetLine(lstr, 13, 0);
     canvas.SetLine(vstr, 14, 0);
     fstr << canvas.AsString() << "\n";
-  }
 
-  fstr << board->PlayersAsString(f);
-  fstr << board->AuctionAsString(f) << "\n";
-  fstr << board->ContractAsString(f);
-  fstr << board->PlayAsString(f);
+    fstr << board->PlayersAsString(f);
+    fstr << board->AuctionAsString(f) << "\n";
+    fstr << board->ContractAsString(f);
+    fstr << board->PlayAsString(f);
 
-  if (writeInfo.ino == 0)
     fstr << board->ResultAsString(f, false) << "\n";
-  else if (writeInfo.ino == 1)
+  }
+  else
   {
+    const string p = board->PlayersAsString(f);
+    // Pavlicek bug?
+    if (p == "")
+      fstr << "\n";
+    else
+      fstr << board->PlayersAsString(f);
+
+    fstr << board->AuctionAsString(f) << "\n";
+    fstr << board->ContractAsString(f);
+    fstr << board->PlayAsString(f);
+
     int s = board->ScoreIMPAsInt();
     string tWin;
     if (s > 0)

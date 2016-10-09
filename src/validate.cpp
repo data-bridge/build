@@ -240,7 +240,7 @@ static bool isRECJustMade(
 static bool isTXTAllPass(
   const string& lineOut,
   const string& lineRef,
-  string& expectLine)
+  unsigned& expectPasses)
 {
   vector<string> wordsRef;
   splitIntoWords(lineRef, wordsRef);
@@ -276,16 +276,60 @@ static bool isTXTAllPass(
   if (pos == lineOut.length())
     return false;
 
-  unsigned expectPasses = lOut + 1 - lRef;
+  expectPasses = lOut + 1 - lRef;
   if (pos > 0 && lineOut.at(pos) == 'A')
     expectPasses++;
 
+  // Kludge: Passes need to be spaced as in the auction.
+  // This only seems to show up in practice for expectPasses == 2.
+
+  /*
   expectLine = "";
+  if (expectPasses == 0)
+    return true;
+  else if (expectPasses == 1)
+  {
+    expectLine = "Pass";
+    return true;
+  }
+  else if (expectPasses == 2)
+  {
+    expectLine = "Pass";
+    pos = 4;
+    while (lineRef.at(pos) == ' ')
+    {
+      pos++;
+      expectLine += " ";
+    }
+    expectLine += "Pass";
+  }
+  else
+  {
+    for (unsigned i = 0; i < expectPasses; i++)
+    {
+      expectLine += "Pass";
+      if (i != expectPasses-1)
+        expectLine += "        ";
+    }
+  }
+  */
+  return true;
+}
+
+
+static bool isTXTPasses(
+  const string& lineOut,
+  const unsigned expectPasses)
+{
+  vector<string> wordsOut;
+  splitIntoWords(lineOut, wordsOut);
+  if (wordsOut.size() != expectPasses)
+    return false;
+
   for (unsigned i = 0; i < expectPasses; i++)
   {
-    expectLine += "Pass";
-    if (i != expectPasses-1)
-      expectLine += "        ";
+    if (wordsOut[i] != "Pass")
+      return false;
   }
   return true;
 }
@@ -619,17 +663,17 @@ else
     }
     else if (formatRef == BRIDGE_FORMAT_TXT)
     {
-      string expectLine;
-      if (isTXTAllPass(running.out.line, running.ref.line, expectLine))
+      unsigned expectPasses;
+      if (isTXTAllPass(running.out.line, running.ref.line, expectPasses))
       {
         // Reference does not have "All Pass" (Pavlicek error).
-        if (expectLine != "" && ! progress(frstr, running.ref))
+        if (expectPasses > 0 && ! progress(frstr, running.ref))
         {
           stats.counts[BRIDGE_VAL_OUT_SHORT]++;
           break;
         }
 
-        if (expectLine == "" || running.ref.line == expectLine)
+        if (expectPasses == 0 || isTXTPasses(running.ref.line, expectPasses))
         {
           logError(stats, running, BRIDGE_VAL_TXT_ALL_PASS);
           continue;

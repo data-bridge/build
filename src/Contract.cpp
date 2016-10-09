@@ -1366,7 +1366,7 @@ string Contract::ResultAsString(
 
     case BRIDGE_FORMAT_TXT:
       // return Contract::ResultAsStringTXT(refScore);
-      LOG("PBN score not implemented");
+      LOG("TXT score not implemented");
       return "";
 
     default:
