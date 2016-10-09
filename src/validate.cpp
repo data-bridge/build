@@ -412,6 +412,7 @@ struct RefFix
   unsigned lno; // First line is 1
   refFixType type;
   string value;
+  unsigned count;
 };
 
 
@@ -465,7 +466,12 @@ static void readRefFix(
     {
       rf.type = BRIDGE_REF_DELETE;
       if (GetNextWord(line, s))
-        THROW("Ref file " + refName + ": Syntax error in '" + line + "'");
+      {
+        if (! StringToUnsigned(s, rf.count))
+          THROW("Ref file " + refName + ": Bad number in '" + line + "'");
+      }
+      else
+        rf.count = 1;
     }
     else
       THROW("Ref file " + refName + ": Syntax error in '" + line + "'");
@@ -558,8 +564,11 @@ else
       }
       else
       {
-        if (! progress(frstr, running.ref))
-          THROW("Replacement line is not there");
+        for (unsigned i = 0; i < refFix[0].count; i++)
+        {
+          if (! progress(frstr, running.ref))
+            THROW("Skip line is not there");
+        }
       }
 
       refFix.erase(refFix.begin());
@@ -744,7 +753,10 @@ static void printFileStats(
   }
 
   if (! showFlag)
+  {
+    cout.flush();
     return;
+  }
   
   cout << "File stats: " << fname << "\n";
   // for (unsigned v = 0; v < BRIDGE_VAL_SIZE; v++)

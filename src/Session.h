@@ -37,6 +37,8 @@ class Session
     string general1;
     StageType stage;
     unsigned roundOf;
+    string extension;
+
     string general2;
     unsigned sessionNo;
 

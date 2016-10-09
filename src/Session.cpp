@@ -67,6 +67,8 @@ void Session::reset()
   general1 = "";
   stage = BRIDGE_SESSION_UNDEFINED;
   roundOf = 0;
+  extension = "";
+
   general2 = "";
   sessionNo = 0;
 }
@@ -151,7 +153,7 @@ void Session::setPart1(const string& t)
 
   if (l == 0)
     return;
-  else if (l == 1)
+  else if (l == 1 || l == 2)
   {
     if ((r = Session::charToType(t.at(0))) == BRIDGE_SESSION_UNDEFINED)
     {
@@ -159,20 +161,46 @@ void Session::setPart1(const string& t)
       stage = BRIDGE_SESSION_UNDEFINED;
     }
     else
+    {
       stage = r;
+      extension = t.substr(1);
+    }
+    return;
   }
-  else if ((r = Session::stringToType(t, u)) == BRIDGE_SESSION_UNDEFINED)
+
+  string ext = "";
+  string s = t;
+  if (s.at(l-1) != ' ' && s.at(l-2) == ' ')
   {
-    general1 = t;
+    // Might be Semifinal B, R64 B, Round of 32 B etc.
+    // Undocumented Pavlicek extension!
+    ext = s.substr(l-2);
+    s = s.substr(0, l-2);
+  }
+  else if (s.at(0) == 'R' && s.at(l-1) != ' ' && 
+      s.at(l-2) >= '0' && s.at(l-2) <= '9')
+  {
+    // Might be R32B.  Undocumented Pavlicek extension!
+    ext = s.substr(l-1);
+    s = s.substr(0, l-1);
+  }
+
+  if ((r = Session::stringToType(s, u)) == BRIDGE_SESSION_UNDEFINED)
+  {
+    general1 = s + ext;
     stage = BRIDGE_SESSION_UNDEFINED;
   }
   else if (r == BRIDGE_SESSION_ROUND_OF)
   {
     stage = r;
     roundOf = u;
+    extension = ext;
   }
   else
+  {
     stage = r;
+    extension = ext;
+  }
 }
 
 
@@ -340,16 +368,23 @@ string Session::asLIN_RP() const
     return ",";
 
   stringstream s;
-  // For some reason Pavlicek doesn't do this for Rxy.
-  if (stage == BRIDGE_SESSION_ROUND_OF)
-    s << ",R" << roundOf;
+
+  // This is an odd Pavlicek choice.
+  if (stage != BRIDGE_SESSION_ROUND_OF && extension != "")
+  {
+    s << "," << STAGE_NAMES_SHORT[stage] << extension;
+  }
+  else if (stage == BRIDGE_SESSION_ROUND_OF)
+  {
+    s << ",R" << roundOf << extension;
+  }
   else
   {
-    s << " " << STAGE_NAMES[stage] << ",";
+    // For some reason Pavlicek doesn't do this for Rxy.
+    s << " " << STAGE_NAMES[stage] << extension << ",";
     if (sessionNo > 0)
       s << SESSION_NAMES[stage] << " " << sessionNo;
   }
-
 
   return s.str();
 }
@@ -365,9 +400,9 @@ string Session::asPBN() const
   if (stage == BRIDGE_SESSION_UNDEFINED)
     s << general1;
   else if (stage != BRIDGE_SESSION_ROUND_OF)
-    s << STAGE_NAMES_SHORT[stage];
+    s << STAGE_NAMES_SHORT[stage] << extension;
   else
-    s << STAGE_NAMES_SHORT[stage] << roundOf;
+    s << STAGE_NAMES_SHORT[stage] << roundOf << extension;
 
   if (sessionNo > 0)
     s << ":" << sessionNo;
@@ -385,9 +420,9 @@ string Session::asRBNCore() const
   if (stage == BRIDGE_SESSION_UNDEFINED)
     s << general1;
   else if (stage != BRIDGE_SESSION_ROUND_OF)
-    s << STAGE_NAMES_SHORT[stage];
+    s << STAGE_NAMES_SHORT[stage] << extension;
   else
-    s << STAGE_NAMES_SHORT[stage] << roundOf;
+    s << STAGE_NAMES_SHORT[stage] << roundOf << extension;
 
   if (sessionNo > 0)
     s << ":" << sessionNo;
@@ -416,9 +451,13 @@ string Session::asTXT() const
   if (stage == BRIDGE_SESSION_UNDEFINED)
     s << general1;
   else if (stage != BRIDGE_SESSION_ROUND_OF)
+  {
     s << STAGE_NAMES[stage];
+    if (extension != "")
+      s << " " << extension;
+  }
   else
-    s << STAGE_NAMES[stage] << roundOf;
+    s << STAGE_NAMES[stage] << roundOf << extension;
 
   if (sessionNo > 0)
     s << ", " << SESSION_NAMES[stage] << " " << sessionNo;
