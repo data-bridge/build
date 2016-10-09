@@ -519,6 +519,14 @@ void validate(
   vector<RefFix> refFix;
   readRefFix(fileRef.c_str(), refFix);
 
+/*
+if (refFix.size() == 0)
+  cout << "Did not read\n";
+else
+  cout << "Read " << refFix[0].lno << " " << refFix[0].type <<
+    " " << refFix[0].value << "\n";
+*/
+
   ValFileStats stats;
   resetStats(stats);
 
@@ -536,6 +544,25 @@ void validate(
     {
       stats.counts[BRIDGE_VAL_OUT_SHORT]++;
       break;
+    }
+
+    if (refFix.size() > 0 && refFix[0].lno == running.ref.lno)
+    {
+      if (refFix[0].type == BRIDGE_REF_INSERT)
+      {
+        THROW("Can't delete yet");
+      }
+      else if (refFix[0].type == BRIDGE_REF_REPLACE)
+      {
+        running.ref.line = refFix[0].value;
+      }
+      else
+      {
+        if (! progress(frstr, running.ref))
+          THROW("Replacement line is not there");
+      }
+
+      refFix.erase(refFix.begin());
     }
 
     if (running.ref.line == running.out.line)
