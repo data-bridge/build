@@ -392,7 +392,7 @@ static void fixChunk(
   else
   {
 // cout << "Fixing " << formatLabelNames[fix[0].field] << " to " <<
-  fix[0].value << "\n";
+  // fix[0].value << "\n";
     chunk[fix[0].field] = fix[0].value;
   }
   fix.erase(fix.begin());

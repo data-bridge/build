@@ -90,13 +90,16 @@ const vector<formatType> formatActive =
 
 // A single example of a difference of any kind.
 
+struct valSide
+{
+  string line;
+  unsigned lno;
+};
+
 struct ValExample
 {
-  string lineOut;
-  string lineRef;
-
-  unsigned lnoOut;
-  unsigned lnoRef;
+  valSide out;
+  valSide ref;
 };
 
 // Counts of differences between two files, with the first examples.
@@ -149,8 +152,8 @@ static void resetStats(ValFileStats& stats)
   for (unsigned v = 0; v < BRIDGE_VAL_SIZE; v++)
   {
     stats.counts[v] = 0;
-    stats.examples[v].lineOut = "";
-    stats.examples[v].lineRef = "";
+    stats.examples[v].out.line = "";
+    stats.examples[v].ref.line = "";
   }
 }
 
@@ -393,6 +396,82 @@ static bool isRecordComment(
 }
 
 
+enum refFixType
+{
+  BRIDGE_REF_INSERT = 0,
+  BRIDGE_REF_REPLACE = 1,
+  BRIDGE_REF_DELETE = 2
+};
+
+struct RefFix
+{
+  unsigned lno; // First line is 1
+  refFixType type;
+  string value;
+};
+
+
+static void readRefFix(
+  const string& fname,
+  vector<RefFix>& refFix)
+{
+  regex re("\\.\\w+$");
+  string refName = regex_replace(fname, re, ".ref");
+
+  // There might not be a .ref file (not an error).
+  ifstream refstr(refName.c_str());
+  if (! refstr.is_open())
+    return;
+
+  string line, s;
+  RefFix rf;
+  regex rer("^\\s*\"([^\"]*)\"\\s*$");
+  smatch match;
+  while (getline(refstr, line))
+  {
+    if (line.empty() || line.at(0) == '%')
+      continue;
+
+    if (! GetNextWord(line, s))
+      THROW("Ref file " + refName + ": Syntax error in '" + line + "'");
+
+    if (! StringToUnsigned(s, rf.lno))
+      THROW("Ref file " + refName + ": Bad number in '" + line + "'");
+      
+    if (! GetNextWord(line, s))
+      THROW("Ref file " + refName + ": Syntax error in '" + line + "'");
+
+    if (s == "insert")
+    {
+      rf.type = BRIDGE_REF_INSERT;
+      if (! regex_search(line, match, rer) || match.size() < 1)
+        THROW("Ref file " + refName + ": Syntax error in '" + line + "'");
+
+      rf.value = match.str(1);
+    }
+    else if (s == "replace")
+    {
+      rf.type = BRIDGE_REF_REPLACE;
+      if (! regex_search(line, match, rer) || match.size() < 1)
+        THROW("Ref file " + refName + ": Syntax error in '" + line + "'");
+
+      rf.value = match.str(1);
+    }
+    else if (s == "delete")
+    {
+      rf.type = BRIDGE_REF_DELETE;
+      if (GetNextWord(line, s))
+        THROW("Ref file " + refName + ": Syntax error in '" + line + "'");
+    }
+    else
+      THROW("Ref file " + refName + ": Syntax error in '" + line + "'");
+
+    refFix.push_back(rf);
+  }
+  refstr.close();
+}
+
+
 void validate(
   const string& fileOut,
   const string& fileRef,
@@ -408,30 +487,33 @@ void validate(
   if (! frstr.is_open())
     THROW("Cannot read from: " + fileRef);
 
+  vector<RefFix> refFix;
+  readRefFix(fileRef.c_str(), refFix);
+
   ValFileStats stats;
   resetStats(stats);
 
   ValExample running;
-  running.lineOut = "";
-  running.lineRef = "";
-  running.lnoOut = 0;
-  running.lnoRef = 0;
+  running.out.line = "";
+  running.ref.line = "";
+  running.out.lno = 0;
+  running.ref.lno = 0;
   bool keepLineOut = false;
   bool keepLineRef = false;
 
-  while (keepLineRef || getline(frstr, running.lineRef))
+  while (keepLineRef || getline(frstr, running.ref.line))
   {
     if (! keepLineRef)
-      running.lnoRef++;
-    if (! keepLineOut && ! getline(fostr, running.lineOut))
+      running.ref.lno++;
+    if (! keepLineOut && ! getline(fostr, running.out.line))
     {
       stats.counts[BRIDGE_VAL_OUT_SHORT]++;
       break;
     }
     if (! keepLineOut)
-      running.lnoOut++;
+      running.out.lno++;
 
-    if (running.lineRef == running.lineOut)
+    if (running.ref.line == running.out.line)
     {
       keepLineRef = false;
       keepLineOut = false;
@@ -442,40 +524,40 @@ void validate(
     if (formatRef == BRIDGE_FORMAT_LIN_RP)
     {
       string expectLine;
-      if (isLINLongRefLine(running.lineOut, running.lineRef, expectLine))
+      if (isLINLongRefLine(running.out.line, running.ref.line, expectLine))
       {
-        if (! getline(fostr, running.lineOut))
+        if (! getline(fostr, running.out.line))
         {
           stats.counts[BRIDGE_VAL_OUT_SHORT]++;
           break;
         }
 
-        running.lnoOut++;
+        running.out.lno++;
 
-        if (running.lineOut == expectLine)
+        if (running.out.line == expectLine)
         {
           // No newline when no play (Pavlicek error).
-          if (stats.examples[BRIDGE_VAL_LIN_PLAY_NL].lineOut == "")
+          if (stats.examples[BRIDGE_VAL_LIN_PLAY_NL].out.line == "")
             stats.examples[BRIDGE_VAL_LIN_PLAY_NL] = running;
           stats.counts[BRIDGE_VAL_LIN_PLAY_NL]++;
           continue;
         }
       }
-      else if (isLINLongOutLine(running.lineOut, running.lineRef, 
+      else if (isLINLongOutLine(running.out.line, running.ref.line, 
           expectLine))
       {
-        if (! getline(frstr, running.lineRef))
+        if (! getline(frstr, running.ref.line))
         {
           stats.counts[BRIDGE_VAL_REF_SHORT]++;
           break;
         }
 
-        running.lnoRef++;
+        running.ref.lno++;
 
-        if (running.lineRef == expectLine)
+        if (running.ref.line == expectLine)
         {
           // No newline when no play (Pavlicek error).
-          if (stats.examples[BRIDGE_VAL_LIN_PLAY_NL].lineOut == "")
+          if (stats.examples[BRIDGE_VAL_LIN_PLAY_NL].out.line == "")
             stats.examples[BRIDGE_VAL_LIN_PLAY_NL] = running;
           stats.counts[BRIDGE_VAL_LIN_PLAY_NL]++;
           continue;
@@ -485,18 +567,18 @@ void validate(
     else if (formatRef == BRIDGE_FORMAT_TXT)
     {
       string expectLine;
-      if (isTXTAllPass(running.lineOut, running.lineRef, expectLine))
+      if (isTXTAllPass(running.out.line, running.ref.line, expectLine))
       {
         // Reference does not have "All Pass" (Pavlicek error).
-        if (expectLine != "" && ! getline(frstr, running.lineRef))
+        if (expectLine != "" && ! getline(frstr, running.ref.line))
         {
           stats.counts[BRIDGE_VAL_OUT_SHORT]++;
           break;
         }
 
-        if (expectLine == "" || running.lineRef == expectLine)
+        if (expectLine == "" || running.ref.line == expectLine)
         {
-          if (stats.examples[BRIDGE_VAL_TXT_ALL_PASS].lineOut == "")
+          if (stats.examples[BRIDGE_VAL_TXT_ALL_PASS].out.line == "")
             stats.examples[BRIDGE_VAL_TXT_ALL_PASS] = running;
           stats.counts[BRIDGE_VAL_TXT_ALL_PASS]++;
           continue;
@@ -505,12 +587,12 @@ void validate(
     }
     else if (formatRef == BRIDGE_FORMAT_REC)
     {
-      if (running.lineRef == "")
+      if (running.ref.line == "")
       {
-        if (isRECPlay(running.lineOut))
+        if (isRECPlay(running.out.line))
         {
           // Extra play line (Pavlicek error).
-          if (stats.examples[BRIDGE_VAL_REC_PLAY_SHORT].lineOut == "")
+          if (stats.examples[BRIDGE_VAL_REC_PLAY_SHORT].out.line == "")
             stats.examples[BRIDGE_VAL_REC_PLAY_SHORT] = running;
           stats.counts[BRIDGE_VAL_REC_PLAY_SHORT]++;
 
@@ -518,26 +600,26 @@ void validate(
           continue;
         }
       }
-      else if (isRECJustMade(running.lineOut, running.lineRef))
+      else if (isRECJustMade(running.out.line, running.ref.line))
       {
         // "Won 32" (Pavlicek error, should be "Made 0" or so.
-        if (stats.examples[BRIDGE_VAL_REC_MADE_32].lineOut == "")
+        if (stats.examples[BRIDGE_VAL_REC_MADE_32].out.line == "")
           stats.examples[BRIDGE_VAL_REC_MADE_32] = running;
         stats.counts[BRIDGE_VAL_REC_MADE_32]++;
 
         // The next line (Score, Points) is then also different.
-        getline(fostr, running.lineOut);
-        getline(frstr, running.lineRef);
-        running.lnoOut++;
-        running.lnoRef++;
+        getline(fostr, running.out.line);
+        getline(frstr, running.ref.line);
+        running.out.lno++;
+        running.ref.lno++;
         continue;
       }
     }
 
     // General: % line numbers (Pavlicek error).
-    if (isRecordComment(running.lineOut, running.lineRef))
+    if (isRecordComment(running.out.line, running.ref.line))
     {
-      if (stats.examples[BRIDGE_VAL_RECORD_NUMBER].lineOut == "")
+      if (stats.examples[BRIDGE_VAL_RECORD_NUMBER].out.line == "")
         stats.examples[BRIDGE_VAL_RECORD_NUMBER] = running;
       stats.counts[BRIDGE_VAL_RECORD_NUMBER]++;
       continue;
@@ -546,14 +628,14 @@ void validate(
 
 // printExample(running);
     stats.counts[BRIDGE_VAL_ERROR]++;
-    if (stats.examples[BRIDGE_VAL_ERROR].lineOut == "")
+    if (stats.examples[BRIDGE_VAL_ERROR].out.line == "")
       stats.examples[BRIDGE_VAL_ERROR] = running;
 
     keepLineOut = false;
     keepLineRef = false;
   }
 
-  if (getline(fostr, running.lineOut))
+  if (getline(fostr, running.out.line))
   {
     stats.examples[BRIDGE_VAL_REF_SHORT] = running;
     stats.counts[BRIDGE_VAL_REF_SHORT]++;
@@ -609,8 +691,8 @@ static void statsToVstat(
 
 static void printExample(const ValExample& ex)
 {
-  cout << "Out (" << setw(4) << ex.lnoOut << "): " << ex.lineOut << "\n";
-  cout << "Ref (" << setw(4) << ex.lnoRef << "): " << ex.lineRef << "\n";
+  cout << "Out (" << setw(4) << ex.out.lno << "): " << ex.out.line << "\n";
+  cout << "Ref (" << setw(4) << ex.ref.lno << "): " << ex.ref.line << "\n";
 }
 
 
