@@ -424,7 +424,8 @@ void writeTXTSegmentLevel(
   Segment * segment,
   const formatType f)
 {
-  if (segment->CarryExists())
+  // if (segment->CarryExists())
+  if (segment->GetExtBoardNo(0) != 1 || segment->CarryExists())
   {
     // Pavlicek bug.
       fstr << TXTdashes << "\n";

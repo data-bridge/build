@@ -430,7 +430,7 @@ static void readRefFix(
 
   string line, s;
   RefFix rf;
-  regex rer("^\\s*\"([^\"]*)\"\\s*$");
+  regex rer("^\\s*\"(.*)\"\\s*$");
   smatch match;
   while (getline(refstr, line))
   {

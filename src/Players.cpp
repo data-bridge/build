@@ -305,8 +305,8 @@ string Players::AsRBNCore() const
     s << players[BRIDGE_WEST] << "+" << players[BRIDGE_EAST];
 
   string st = s.str();
-  if (st == ":")
-    return "";
+  // if (st == ":")
+    // return "";
 
   if (room == BRIDGE_ROOM_OPEN)
     st += ":O";
@@ -356,12 +356,16 @@ string Players::AsTXT() const
     s << setw(l) << left << players[pp];
   }
 
+  // TODO: Central function to trim trailing spaces.
   string st = s.str();
   int p = static_cast<int>(st.length()) - 1;
   while (p >= 0 && st.at(static_cast<unsigned>(p)) == ' ')
     p--;
 
-  return st.substr(0, static_cast<unsigned>(p)+1) + "\n";
+  if (p < 0)
+    return "";
+  else
+    return st.substr(0, static_cast<unsigned>(p)+1) + "\n";
 }
 
 
