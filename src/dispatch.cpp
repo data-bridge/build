@@ -508,12 +508,13 @@ if (board == nullptr)
         GuessDealerAndVul(chunk, chunk[BRIDGE_FORMAT_BOARD_NO], f);
     }
 
+    unsigned i;
     try
     {
 // cout << "fname " << fname << endl;
-      for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
+      for (i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
       {
- // if (bno == 2 && i == 28)
+ // if (bno == 9 && i == 27)
  // {
    // cout << "HERE" << endl;
  // }
@@ -530,6 +531,8 @@ if (board == nullptr)
     }
     catch (Bexcept& bex)
     {
+      cout << "bno " << bno << " i " << i << ", line '" << 
+        chunk[i] << "'\n";
       cout << "In file " << fname << ", lines " <<
           lnoOld+1 << "-" << lno-1 << ":" << endl;
       bex.Print();
@@ -609,12 +612,14 @@ static bool writeFormattedFile(
   const string& fname,
   const formatType f)
 {
+// cout << "Start write" << endl;
   ofstream fstr(fname.c_str());
   if (! fstr.is_open())
   {
     LOG("Cannot write to: " + fname);
     return false;
   }
+// cout << "POS1" << endl;
 
   writeInfoType writeInfo;
   writeInfo.namesOld[0] = "";
@@ -623,9 +628,11 @@ static bool writeFormattedFile(
   writeInfo.score2 = 0;
 
   writeHeader(fstr, group, f);
+// cout << "POS2" << endl;
 
   for (unsigned g = 0; g < group.GetLength(); g++)
   {
+// cout << "POS3" << g << endl;
     Segment * segment = group.GetSegment(g);
 
     (* formatFncs[f].writeSeg)(fstr, segment, f);
@@ -633,11 +640,12 @@ static bool writeFormattedFile(
     writeInfo.numBoards = segment->GetLength();
     for (unsigned b = 0; b < writeInfo.numBoards; b++)
     {
+// cout << "POS4" << g << " " << b << endl;
       Board * board = segment->GetBoard(b);
       if (board == nullptr)
       {
-        LOG("Invalid board");
         fstr.close();
+        LOG("Invalid board");
         return false;
       }
 
@@ -646,10 +654,11 @@ static bool writeFormattedFile(
 
       for (unsigned i = 0; i < writeInfo.numInst; i++)
       {
+// cout << "POS5" << g << " " << b << " " << i << endl;
         if (! board->SetInstance(i))
         {
-          LOG("Invalid instance");
           fstr.close();
+          LOG("Invalid instance");
           return false;
         }
 

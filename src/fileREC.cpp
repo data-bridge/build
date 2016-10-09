@@ -71,9 +71,11 @@ static bool readRECCanvas(
     lno++;
     if (line.empty())
     {
-      if (prevLine.size() >= 8 && prevLine.at(1) != ' ' && 
-          prevLine.at(2) == ' ' && prevLine.at(3) == ' ' &&
-          prevLine.at(4) != ' ')
+      // if (prevLine.size() >= 8 && prevLine.at(1) != ' ' && 
+          // prevLine.at(2) == ' ' && prevLine.at(3) == ' ' &&
+          // prevLine.at(4) != ' ')
+      int i = fstr.peek();
+      if (i == EOF || i == 0x49) // I
         return true;
       else
         continue;
@@ -191,6 +193,12 @@ static bool getRECAuction(
   const vector<string>& canvas,
   vector<string>& chunk)
 {
+  if (canvas[13].length() > 7 && canvas[13].substr(0, 7) == "Opening")
+  {
+    chunk[BRIDGE_FORMAT_AUCTION] = "";
+    return true;
+  }
+  
   stringstream d;
   d.clear();
 
@@ -254,7 +262,7 @@ static bool getRECAuction(
       }
       no++;
 
-      if (numPasses >= 3)
+      if (numPasses >= 3 && no >= 4)
       {
         done = true;
         break;

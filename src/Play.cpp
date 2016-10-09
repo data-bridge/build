@@ -13,6 +13,7 @@
 
 #include "Play.h"
 #include "Contract.h"
+#include "Bexcept.h"
 #include "Debug.h"
 #include "parse.h"
 #include "portab.h"
@@ -215,23 +216,15 @@ bool Play::SetHoldingDDS(
 playStatus Play::AddPlay(const string& str)
 {
   if (playOverFlag)
-  {
-    LOG("Play is over");
-    return PLAY_OVER;
-  }
+    THROW("Play is over");
 
   if (! setDealFlag)
-  {
-    LOG("Holding not set");
-    return PLAY_HOLDING_NOT_SET;
-  }
+    THROW("Holding not set");
 
   auto it = PLAY_CARD_TO_INFO.find(str);
   if (it == PLAY_CARD_TO_INFO.end())
-  {
-    LOG("Invalid card " + str);
-    return PLAY_CARD_INVALID;
-  }
+    THROW("Invalid card " + str);
+
   const cardInfoType& INFO = PLAY_CARD_TO_INFO[str];
 
   playerType leader = leads[trickToPlay].leader;
@@ -239,18 +232,12 @@ playStatus Play::AddPlay(const string& str)
     ((static_cast<unsigned>(leader) + cardToPlay) % 4);
 
   if ((holding[player][INFO.suit] & INFO.bitValue) == 0)
-  {
-    LOG("Card " + str + " not held (possibly held earlier)");
-    return PLAY_CARD_NOT_HELD;
-  }
+    THROW("Card " + str + " not held (possibly held earlier)");
 
   if (cardToPlay > 0 && 
       INFO.suit != static_cast<unsigned>(leads[trickToPlay].suit) &&
       holding[player][leads[trickToPlay].suit] > 0)
-  {
-    LOG("Revoke " + str);
-    return PLAY_REVOKE;
-  }
+    THROW("Revoke " + str);
 
   // So now it is OK to play the card.
 
@@ -366,19 +353,13 @@ bool Play::AddAllRBN(const string& sIn)
 {
   string str = sIn;
   if (str.length() < 2)
-  {
-    LOG("String too short: " + str);
-    return false;
-  }
+    THROW("String too short: " + str);
 
   toUpper(str);
 
   int seen = count(str.begin(), str.end(), ':');
   if (seen > BRIDGE_TRICKS-1)
-  {
-    LOG("Too many colons in RBN " + str);
-    return false;
-  }
+    THROW("Too many colons in RBN " + str);
 
   vector<string> tricks(BRIDGE_TRICKS);
   tricks.clear();
@@ -389,10 +370,7 @@ bool Play::AddAllRBN(const string& sIn)
     const string& trick = tricks[t];
     const unsigned l = trick.length();
     if (l < 2 || l > 8)
-    {
-      LOG("Bad RBN trick " + trick);
-      return false;
-    }
+      THROW("Bad RBN trick " + trick);
 
     const char suitLed = trick.at(0); // Might be invalid
     stringstream s;
@@ -401,10 +379,7 @@ bool Play::AddAllRBN(const string& sIn)
     while (i < l)
     {
       if (b >= BRIDGE_PLAYERS)
-      {
-        LOG("Too many plays in trick " + trick);
-        return false;
-      }
+        THROW("Too many plays in trick " + trick);
 
       s.str("");
       char next = trick.at(i);
@@ -421,7 +396,7 @@ bool Play::AddAllRBN(const string& sIn)
       }
       playStatus ps = Play::AddPlay(s.str());
       if (ps != PLAY_NO_ERROR)
-        return false;
+        THROW("Play error");
       b++;
     }
   }
@@ -429,7 +404,7 @@ bool Play::AddAllRBN(const string& sIn)
   if (playOverFlag)
   {
     if (Play::Claim(tricksDecl) != PLAY_CLAIM_NO_ERROR)
-      return false;
+      THROW("Claim error");
   }
 
 
