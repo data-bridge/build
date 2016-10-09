@@ -357,6 +357,7 @@ bool Contract::SetContract(
     case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_PBN:
     case BRIDGE_FORMAT_RBN:
+    case BRIDGE_FORMAT_RBX:
     case BRIDGE_FORMAT_EML:
       return Contract::SetContract(text);
 
@@ -542,7 +543,7 @@ bool Contract::SetResult(
       return false;
       
   }
-  else if (f == BRIDGE_FORMAT_RBN && 
+  else if ((f == BRIDGE_FORMAT_RBN || f == BRIDGE_FORMAT_RBX) && 
       (text == "P" || text.substr(0, 2) == "P:"))
   {
     return Contract::IsPassedOut();
@@ -956,6 +957,7 @@ string Contract::VulAsString(const formatType f) const
       return "";
 
     case BRIDGE_FORMAT_RBN:
+    case BRIDGE_FORMAT_RBX:
       return Contract::VulAsRBN();
 
     case BRIDGE_FORMAT_TXT:

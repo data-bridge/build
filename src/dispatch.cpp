@@ -298,7 +298,8 @@ void GuessDealerAndVul(
   // This is not quite fool-proof, as there are LIN files where
   // the board numbers don't match...
 
-  if (f == BRIDGE_FORMAT_RBN)
+  if (f == BRIDGE_FORMAT_RBN ||
+      f == BRIDGE_FORMAT_RBX)
   {
     chunk[BRIDGE_FORMAT_DEALER] = PLAYER_NAMES_SHORT[BOARD_TO_DEALER[b % 4]];
     chunk[BRIDGE_FORMAT_VULNERABLE] = VUL_NAMES_PBN[BOARD_TO_VUL[b % 16]];
@@ -502,7 +503,7 @@ static bool readFormattedFile(
 // cout << "fname " << fname << endl;
       for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
       {
-// if (bno == 1 && i == 19)
+// if (bno == 1 && i == 28)
 // {
   // cout << "HERE" << endl;
 // }
