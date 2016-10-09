@@ -133,6 +133,10 @@ static bool isRecordComment(
   const string& lineOut,
   const string& lineRef);
 
+static bool progress(
+  ifstream& fstr,
+  valSide& side);
+
 static void statsToVstat(
   const ValFileStats& stats,
   ValStatType& vstat);
@@ -472,6 +476,31 @@ static void readRefFix(
 }
 
 
+static bool progress(
+  ifstream& fstr,
+  valSide& side)
+{
+  if (! getline(fstr, side.line))
+    return false;
+
+  side.lno++;
+  return true;
+}
+
+
+static void logError(
+  ValFileStats& stats,
+  const ValExample& running,
+  const ValDiffs label)
+{
+  // Only keep the first example of each kind.
+  if (stats.examples[label].out.line == "")
+    stats.examples[label] = running;
+
+  stats.counts[label]++;
+}
+
+
 void validate(
   const string& fileOut,
   const string& fileRef,
@@ -501,17 +530,13 @@ void validate(
   bool keepLineOut = false;
   bool keepLineRef = false;
 
-  while (keepLineRef || getline(frstr, running.ref.line))
+  while (keepLineRef || progress(frstr, running.ref))
   {
-    if (! keepLineRef)
-      running.ref.lno++;
-    if (! keepLineOut && ! getline(fostr, running.out.line))
+    if (! keepLineOut && ! progress(fostr, running.out))
     {
       stats.counts[BRIDGE_VAL_OUT_SHORT]++;
       break;
     }
-    if (! keepLineOut)
-      running.out.lno++;
 
     if (running.ref.line == running.out.line)
     {
@@ -526,40 +551,32 @@ void validate(
       string expectLine;
       if (isLINLongRefLine(running.out.line, running.ref.line, expectLine))
       {
-        if (! getline(fostr, running.out.line))
+        if (! progress(fostr, running.out))
         {
           stats.counts[BRIDGE_VAL_OUT_SHORT]++;
           break;
         }
 
-        running.out.lno++;
-
         if (running.out.line == expectLine)
         {
           // No newline when no play (Pavlicek error).
-          if (stats.examples[BRIDGE_VAL_LIN_PLAY_NL].out.line == "")
-            stats.examples[BRIDGE_VAL_LIN_PLAY_NL] = running;
-          stats.counts[BRIDGE_VAL_LIN_PLAY_NL]++;
+          logError(stats, running, BRIDGE_VAL_LIN_PLAY_NL);
           continue;
         }
       }
       else if (isLINLongOutLine(running.out.line, running.ref.line, 
           expectLine))
       {
-        if (! getline(frstr, running.ref.line))
+        if (! progress(frstr, running.ref))
         {
           stats.counts[BRIDGE_VAL_REF_SHORT]++;
           break;
         }
 
-        running.ref.lno++;
-
         if (running.ref.line == expectLine)
         {
           // No newline when no play (Pavlicek error).
-          if (stats.examples[BRIDGE_VAL_LIN_PLAY_NL].out.line == "")
-            stats.examples[BRIDGE_VAL_LIN_PLAY_NL] = running;
-          stats.counts[BRIDGE_VAL_LIN_PLAY_NL]++;
+          logError(stats, running, BRIDGE_VAL_LIN_PLAY_NL);
           continue;
         }
       }
@@ -570,7 +587,7 @@ void validate(
       if (isTXTAllPass(running.out.line, running.ref.line, expectLine))
       {
         // Reference does not have "All Pass" (Pavlicek error).
-        if (expectLine != "" && ! getline(frstr, running.ref.line))
+        if (expectLine != "" && ! progress(frstr, running.ref))
         {
           stats.counts[BRIDGE_VAL_OUT_SHORT]++;
           break;
@@ -578,9 +595,7 @@ void validate(
 
         if (expectLine == "" || running.ref.line == expectLine)
         {
-          if (stats.examples[BRIDGE_VAL_TXT_ALL_PASS].out.line == "")
-            stats.examples[BRIDGE_VAL_TXT_ALL_PASS] = running;
-          stats.counts[BRIDGE_VAL_TXT_ALL_PASS]++;
+          logError(stats, running, BRIDGE_VAL_TXT_ALL_PASS);
           continue;
         }
       }
@@ -592,9 +607,7 @@ void validate(
         if (isRECPlay(running.out.line))
         {
           // Extra play line (Pavlicek error).
-          if (stats.examples[BRIDGE_VAL_REC_PLAY_SHORT].out.line == "")
-            stats.examples[BRIDGE_VAL_REC_PLAY_SHORT] = running;
-          stats.counts[BRIDGE_VAL_REC_PLAY_SHORT]++;
+          logError(stats, running, BRIDGE_VAL_REC_PLAY_SHORT);
 
           keepLineRef = true;
           continue;
@@ -603,15 +616,11 @@ void validate(
       else if (isRECJustMade(running.out.line, running.ref.line))
       {
         // "Won 32" (Pavlicek error, should be "Made 0" or so.
-        if (stats.examples[BRIDGE_VAL_REC_MADE_32].out.line == "")
-          stats.examples[BRIDGE_VAL_REC_MADE_32] = running;
-        stats.counts[BRIDGE_VAL_REC_MADE_32]++;
+        logError(stats, running, BRIDGE_VAL_REC_MADE_32);
 
         // The next line (Score, Points) is then also different.
-        getline(fostr, running.out.line);
-        getline(frstr, running.ref.line);
-        running.out.lno++;
-        running.ref.lno++;
+        progress(fostr, running.out);
+        progress(frstr, running.ref);
         continue;
       }
     }
@@ -619,23 +628,19 @@ void validate(
     // General: % line numbers (Pavlicek error).
     if (isRecordComment(running.out.line, running.ref.line))
     {
-      if (stats.examples[BRIDGE_VAL_RECORD_NUMBER].out.line == "")
-        stats.examples[BRIDGE_VAL_RECORD_NUMBER] = running;
-      stats.counts[BRIDGE_VAL_RECORD_NUMBER]++;
+      logError(stats, running, BRIDGE_VAL_RECORD_NUMBER);
       continue;
     }
 
 
 // printExample(running);
-    stats.counts[BRIDGE_VAL_ERROR]++;
-    if (stats.examples[BRIDGE_VAL_ERROR].out.line == "")
-      stats.examples[BRIDGE_VAL_ERROR] = running;
+    logError(stats, running, BRIDGE_VAL_ERROR);
 
     keepLineOut = false;
     keepLineRef = false;
   }
 
-  if (getline(fostr, running.out.line))
+  if (progress(fostr, running.out))
   {
     stats.examples[BRIDGE_VAL_REF_SHORT] = running;
     stats.counts[BRIDGE_VAL_REF_SHORT]++;
