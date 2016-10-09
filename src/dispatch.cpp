@@ -247,7 +247,7 @@ void dispatch(
   {
     Group group;
 
-// cout << "Input " << task.fileInput << endl;
+cout << "Input " << task.fileInput << endl;
     try
     {
       if (! readFormattedFile(task.fileInput, task.formatInput, group))
@@ -264,7 +264,7 @@ void dispatch(
 
     for (auto &t: task.taskList)
     {
-// cout << "Output " << t.fileOutput << endl;
+cout << "Output " << t.fileOutput << endl;
       try
       {
         if (! writeFormattedFile(group, t.fileOutput, t.formatOutput))
@@ -449,6 +449,7 @@ static bool readFormattedFile(
       fstr.close();
       assert(false);
     }
+// cout << "Got chunk, lno now " << lno << endl;
 
     while (fix.size() > 0 && fix[0].no == chunkNo)
       fixChunk(chunk, newSegFlag, fix);
@@ -471,7 +472,10 @@ static bool readFormattedFile(
 
     if (chunk[BRIDGE_FORMAT_BOARD_NO] != "" &&
         chunk[BRIDGE_FORMAT_BOARD_NO] != lastBoard &&
-        chunk[BRIDGE_FORMAT_BOARD_NO].at(0) != 'c')
+        (f != BRIDGE_FORMAT_LIN ||
+        lastBoard == "" ||
+        chunk[BRIDGE_FORMAT_BOARD_NO].substr(1) != lastBoard.substr(1)))
+        // chunk[BRIDGE_FORMAT_BOARD_NO].at(0) != 'c')
     {
       // New board.
       lastBoard = chunk[BRIDGE_FORMAT_BOARD_NO];
@@ -485,6 +489,12 @@ static bool readFormattedFile(
         return false;
       }
     }
+
+if (board == nullptr)
+{
+  // cout << "HERE" << endl;
+  assert(false);
+}
 
     board->NewInstance();
     segment->CopyPlayers();
@@ -503,15 +513,16 @@ static bool readFormattedFile(
 // cout << "fname " << fname << endl;
       for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
       {
-// if (bno == 1 && i == 28)
-// {
-  // cout << "HERE" << endl;
-// }
+ // if (bno == 2 && i == 28)
+ // {
+   // cout << "HERE" << endl;
+ // }
 // cout << "bno " << bno << " i " << i << " chunk " << chunk[i] << endl;
         if (chunk[i] != "")
         {
           if (! tryFormatMethod(f, chunk[i], segment, board, i, fstr))
           {
+            debug.Print();
             THROW("b " + STR(bno) + " i " + STR(i) + ", line '" + chunk[i] + "'");
           }
         }
@@ -534,6 +545,7 @@ static bool readFormattedFile(
     if (fstr.eof())
       break;
   }
+// cout << "Done reading" << endl;
 
   fstr.close();
   return true;

@@ -124,6 +124,7 @@ void Board::SetLINheader(const LINdataType& lin)
     Board::SetScoreIMP("0.0", BRIDGE_FORMAT_LIN);
 }
 
+
 unsigned Board::GetLength() const
 {
   return len;
