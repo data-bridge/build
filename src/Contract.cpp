@@ -11,6 +11,7 @@
 #include "parse.h"
 #include "portab.h"
 #include "Bexcept.h"
+#include "Bdiff.h"
 #include "Debug.h"
 #include <map>
 
@@ -327,8 +328,7 @@ bool Contract::SetContract(const string& text)
   auto it = CONTRACT_STRING_TO_PARTS.find(text);
   if (it == CONTRACT_STRING_TO_PARTS.end())
   {
-    LOG("Invalid string: '" + text + "'");
-    return false;
+    THROW("Invalid string: '" + text + "'");
   }
   else
   {
@@ -359,6 +359,7 @@ bool Contract::SetContract(
     case BRIDGE_FORMAT_RBN:
     case BRIDGE_FORMAT_RBX:
     case BRIDGE_FORMAT_EML:
+    case BRIDGE_FORMAT_REC:
       return Contract::SetContract(text);
 
     case BRIDGE_FORMAT_TXT:
@@ -385,8 +386,7 @@ bool Contract::SetContract(
       return Contract::SetContract(mod);
 
     default:
-      LOG("Other score formats not implemented");
-      return "";
+      THROW("Other score formats not implemented");
   }
 }
 
@@ -405,10 +405,8 @@ bool Contract::SetDeclarer(
   else if (d == "W")
     contract.declarer = BRIDGE_WEST;
   else
-  {
-    LOG("Invalid declarer");
-    return false;
-  }
+    THROW("Invalid declarer");
+
   return true;
 }
 
@@ -417,10 +415,7 @@ bool Contract::SetVul(
   const vulType v)
 {
   if (setVulFlag && vul != v)
-  {
-    LOG("Vulnerability already set differently");
-    return false;
-  }
+    THROW("Vulnerability already set differently");
 
   vul = v;
   setVulFlag = true;
@@ -435,14 +430,9 @@ bool Contract::SetTricks(
     static_cast<int>(contract.level + 6);
 
   if (setResultFlag)
-  {
     return (tricksRelative == trel);
-  }
   else if (! setContractFlag)
-  {
-    LOG("Cannot set tricks before a contract is entered");
-    return false;
-  }
+    THROW("Cannot set tricks before a contract is entered");
   else
   {
     setResultFlag = true;
@@ -480,20 +470,16 @@ bool Contract::SetScore(
     {
       pp = text.substr(3, string::npos);
       if (! StringToInt(pp, s))
-      {
-        LOG("Invalid score");
-        return false;
-      }
+        THROW("Invalid score");
+
       score = sign * s;
       return true;
     }
   }
 
   if (! StringToInt(text, s))
-  {
-    LOG("Invalid score");
-    return false;
-  }
+    THROW("Invalid score");
+
   score = s;
   return true;
 }
@@ -511,10 +497,7 @@ bool Contract::SetResult(
   {
     int i;
     if (! StringToInt(text, i))
-    {
-      LOG("Not an integer result");
-      return false;
-    }
+      THROW("Not an integer result");
 
     if (i > 0)
       u = static_cast<unsigned>(i + 6); // Possible Pavlicek error?
@@ -641,79 +624,43 @@ int Contract::ConvertDiffToIMPs(const int d) const
 bool Contract::operator == (const Contract& c2) const
 {
   if (setVulFlag != c2.setVulFlag)
-  {
-    LOG("Vulnerabilities are not equally set");
-    return false;
-  }
+    DIFF("Vulnerabilities are not equally set");
 
   if (setVulFlag && vul != c2.vul)
-  {
-    LOG("Vulnerabilities differ");
-    return false;
-  }
+    DIFF("Vulnerabilities differ");
 
   if (setContractFlag)
   {
     if (! c2.setContractFlag)
-    {
-      LOG("First contract is set, second one is not");
-      return false;
-    }
+      DIFF("First contract is set, second one is not");
     else if (contract.level == 0)
     {
       if (c2.contract.level == 0)
         return true;
       else
-      {
-        LOG("First contract is passed out, second one is not");
-	return false;
-      }
+        DIFF("First contract is passed out, second one is not");
     }
     else if (contract.declarer != c2.contract.declarer)
-    {
-      LOG("Declarers differ");
-      return false;
-    }
+      DIFF("Declarers differ");
     else if (contract.level != c2.contract.level)
-    {
-      LOG("Levels differ");
-      return false;
-    }
+      DIFF("Levels differ");
     else if (contract.denom != c2.contract.denom)
-    {
-      LOG("Denominations differ");
-      return false;
-    }
+      DIFF("Denominations differ");
     else if (contract.mult != c2.contract.mult)
-    {
-      LOG("Multipliers differ");
-      return false;
-    }
+      DIFF("Multipliers differ");
     else if (setResultFlag && ! c2.setResultFlag)
-    {
-      LOG("First result is set, second one is not");
-      return false;
-    }
+      DIFF("First result is set, second one is not");
     else if (! setResultFlag && c2.setResultFlag)
-    {
-      LOG("First result is not set, second one is");
-      return false;
-    }
+      DIFF("First result is not set, second one is");
     else if (setResultFlag && tricksRelative != c2.tricksRelative)
-    {
-      LOG("Results differ");
-      return false;
-    }
+      DIFF("Results differ");
     else
       return true;
   }
   else if (! c2.setContractFlag)
     return true;
   else
-  {
-    LOG("First constract is not set, second one is");
-    return false;
-  }
+    DIFF("First constract is not set, second one is");
 }
 
 
@@ -910,23 +857,11 @@ string Contract::DeclarerAsString(const formatType f) const
 {
   switch(f)
   {
-    case BRIDGE_FORMAT_LIN:
-      LOG("LIN declarer not implemented");
-      return "";
-
     case BRIDGE_FORMAT_PBN:
       return Contract::DeclarerAsPBN();
 
-    case BRIDGE_FORMAT_RBN:
-      LOG("RBN declarer not implemented");
-      return "";
-
-    case BRIDGE_FORMAT_TXT:
-      LOG("TXT declarer not implemented");
-      return "";
-
     default:
-      LOG("Other declarer formats not implemented");
+      THROW("Other declarer formats not implemented");
       return "";
   }
 }
@@ -941,32 +876,16 @@ string Contract::VulAsRBN() const
 string Contract::VulAsString(const formatType f) const
 {
   if (! setVulFlag)
-  {
-    LOG("Vulnerability not yet");
-    return "";
-  }
+    THROW("Vulnerability not yet");
 
   switch(f)
   {
-    case BRIDGE_FORMAT_LIN:
-      LOG("LIN vulnerability not implemented");
-      return "";
-
-    case BRIDGE_FORMAT_PBN:
-      LOG("PBN vulnerability not implemented");
-      return "";
-
     case BRIDGE_FORMAT_RBN:
     case BRIDGE_FORMAT_RBX:
       return Contract::VulAsRBN();
 
-    case BRIDGE_FORMAT_TXT:
-      LOG("TXT vulnerability not implemented");
-      return "";
-
     default:
-      LOG("Other vulnerability formats not implemented");
-      return "";
+      THROW("Other vulnerability formats not implemented");
   }
 }
 
@@ -987,23 +906,11 @@ string Contract::TricksAsString(const formatType f) const
 {
   switch(f)
   {
-    case BRIDGE_FORMAT_LIN:
-      LOG("LIN tricks not implemented");
-      return "";
-
     case BRIDGE_FORMAT_PBN:
       return Contract::TricksAsPBN();
 
-    case BRIDGE_FORMAT_RBN:
-      LOG("RBN tricks not implemented");
-      return "";
-
-    case BRIDGE_FORMAT_TXT:
-      LOG("TXT tricks not implemented");
-      return "";
-
     default:
-      LOG("Other tricks formats not implemented");
+      THROW("Other tricks formats not implemented");
       return "";
   }
 }
@@ -1083,16 +990,8 @@ string Contract::ScoreAsString(const formatType f) const
 {
   switch(f)
   {
-    case BRIDGE_FORMAT_LIN:
-      LOG("LIN score not implemented");
-      return "";
-
     case BRIDGE_FORMAT_PBN:
       return Contract::ScoreAsPBN();
-
-    case BRIDGE_FORMAT_RBN:
-      LOG("RBN score not implemented");
-      return "";
 
     case BRIDGE_FORMAT_EML:
       return Contract::ScoreAsEML();
@@ -1104,8 +1003,7 @@ string Contract::ScoreAsString(const formatType f) const
       return Contract::ScoreAsREC();
 
     default:
-      LOG("Other score formats not implemented");
-      return "";
+      THROW("Other score formats not implemented");
   }
 }
 
@@ -1133,8 +1031,7 @@ string Contract::ScoreIMPAsString(
       return Contract::ScoreIMPAsREC(refScore);
 
     default:
-      LOG("Other score formats not implemented");
-      return "";
+      THROW("Other score formats not implemented");
   }
 }
 
@@ -1151,27 +1048,14 @@ string Contract::ScoreAsString(
 {
   switch(f)
   {
-    case BRIDGE_FORMAT_LIN:
-      LOG("LIN score not implemented");
-      return "";
-
     case BRIDGE_FORMAT_PBN:
       return Contract::ScoreAsPBN(refScore);
-
-    case BRIDGE_FORMAT_RBN:
-      LOG("RBN score not implemented");
-      return "";
 
     case BRIDGE_FORMAT_EML:
       return Contract::ScoreAsEML(refScore);
 
-    case BRIDGE_FORMAT_TXT:
-      LOG("TXT score not implemented");
-      return "";
-
     default:
-      LOG("Other score formats not implemented");
-      return "";
+      THROW("Other score formats not implemented");
   }
 }
 
@@ -1314,10 +1198,6 @@ string Contract::ResultAsString(const formatType f) const
 
   switch(f)
   {
-    case BRIDGE_FORMAT_LIN:
-      LOG("LIN score not implemented");
-      return "";
-
     case BRIDGE_FORMAT_PBN:
       return Contract::ResultAsStringPBN();
 
@@ -1337,8 +1217,7 @@ string Contract::ResultAsString(const formatType f) const
       return Contract::ResultAsStringREC();
 
     default:
-      LOG("Other score formats not implemented");
-      return "";
+      THROW("Other score formats not implemented");
   }
 }
 
@@ -1352,27 +1231,14 @@ string Contract::ResultAsString(
 
   switch(f)
   {
-    case BRIDGE_FORMAT_LIN:
-      LOG("LIN score not implemented");
-      return "";
-
-    case BRIDGE_FORMAT_PBN:
-      LOG("PBN score not implemented");
-      return "";
-
     case BRIDGE_FORMAT_RBN:
       return Contract::ResultAsStringRBN(refScore);
 
     case BRIDGE_FORMAT_RBX:
       return Contract::ResultAsStringRBX(refScore);
 
-    case BRIDGE_FORMAT_TXT:
-      // return Contract::ResultAsStringTXT(refScore);
-      LOG("TXT score not implemented");
-      return "";
-
     default:
-      LOG("Other score formats not implemented");
+      THROW("Other score formats not implemented");
       return "";
   }
 }
@@ -1388,17 +1254,11 @@ string Contract::ResultAsString(
 
   switch(f)
   {
-    case BRIDGE_FORMAT_LIN:
-    case BRIDGE_FORMAT_PBN:
-    case BRIDGE_FORMAT_RBN:
-      LOG("LIN score not implemented");
-      return "";
-
     case BRIDGE_FORMAT_TXT:
       return Contract::ResultAsStringTXT(refScore, team);
 
     default:
-      LOG("Other score formats not implemented");
+      THROW("Other score formats not implemented");
       return "";
   }
 }

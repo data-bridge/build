@@ -1,10 +1,12 @@
 08.10.16
 --------
+Try to get single line shifts in validate (go on until next chunk
+boundary?).
+
+Maybe put errors to cerr.
+
 LIN input: Board.cpp, NewInstance() and SetLINHeader();
 Have to somehow swap if closed room comes first.
-
-REC input:  S97FA3.REC, lines 446-466:
-When there is no auction, we don't know the contract!
 
 Move increasingly to .fix and away from validate "fixes"
 

@@ -159,28 +159,28 @@ static bool getRECDeal(
   stringstream d;
   d << "W:";
 
-  if (! ReadNextSpacedWord(canvas[4], 2, sts)) sts = "";
-  if (! ReadNextSpacedWord(canvas[5], 2, sth)) sth = "";
-  if (! ReadNextSpacedWord(canvas[6], 2, std)) std = "";
-  if (! ReadNextSpacedWord(canvas[7], 2, stc)) stc = "";
+  if (! ReadNextWord(canvas[4], 2, sts)) sts = "";
+  if (! ReadNextWord(canvas[5], 2, sth)) sth = "";
+  if (! ReadNextWord(canvas[6], 2, std)) std = "";
+  if (! ReadNextWord(canvas[7], 2, stc)) stc = "";
   d << sts << "." << sth <<  "." << std << "." << stc << " ";
 
-  if (! ReadNextSpacedWord(canvas[1], 14, sts)) sts = "";
-  if (! ReadNextSpacedWord(canvas[2], 14, sth)) sth = "";
-  if (! ReadNextSpacedWord(canvas[3], 14, std)) std = "";
-  if (! ReadNextSpacedWord(canvas[4], 14, stc)) stc = "";
+  if (! ReadNextWord(canvas[1], 14, sts)) sts = "";
+  if (! ReadNextWord(canvas[2], 14, sth)) sth = "";
+  if (! ReadNextWord(canvas[3], 14, std)) std = "";
+  if (! ReadNextWord(canvas[4], 14, stc)) stc = "";
   d << sts << "." << sth <<  "." << std << "." << stc << " ";
 
-  if (! ReadNextSpacedWord(canvas[4], 26, sts)) sts = "";
-  if (! ReadNextSpacedWord(canvas[5], 26, sth)) sth = "";
-  if (! ReadNextSpacedWord(canvas[6], 26, std)) std = "";
-  if (! ReadNextSpacedWord(canvas[7], 26, stc)) stc = "";
+  if (! ReadNextWord(canvas[4], 26, sts)) sts = "";
+  if (! ReadNextWord(canvas[5], 26, sth)) sth = "";
+  if (! ReadNextWord(canvas[6], 26, std)) std = "";
+  if (! ReadNextWord(canvas[7], 26, stc)) stc = "";
   d << sts << "." << sth <<  "." << std << "." << stc << " ";
 
-  if (! ReadNextSpacedWord(canvas[7], 14, sts)) sts = "";
-  if (! ReadNextSpacedWord(canvas[8], 14, sth)) sth = "";
-  if (! ReadNextSpacedWord(canvas[9], 14, std)) std = "";
-  if (! ReadNextSpacedWord(canvas[10], 14, stc)) stc = "";
+  if (! ReadNextWord(canvas[7], 14, sts)) sts = "";
+  if (! ReadNextWord(canvas[8], 14, sth)) sth = "";
+  if (! ReadNextWord(canvas[9], 14, std)) std = "";
+  if (! ReadNextWord(canvas[10], 14, stc)) stc = "";
   d << sts << "." << sth <<  "." << std << "." << stc;
 
   // Void is shown as empty in REC.
@@ -219,7 +219,7 @@ static bool getRECAuction(
   {
     for (unsigned beg = (l == offset ? firstStart : 0); beg < 32; beg += 9)
     {
-      if (! ReadNextWord(canvas[l], beg, wd))
+      if (! ReadNextWord(canvas[l], beg, wd) || wd == "Opening")
       {
         done = true;
         break;

@@ -20,6 +20,7 @@ void setTables();
 
 void dispatch(
   const int thrNo, 
-  Files& files);
+  Files& files,
+  const OptionsType& options);
 
 #endif

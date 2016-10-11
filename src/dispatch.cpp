@@ -91,7 +91,8 @@ BoardPtr boardPtr[BRIDGE_FORMAT_LABELS_SIZE];
 static bool readFormattedFile(
   const string& fname,
   const formatType f,
-  Group& group);
+  Group& group,
+  const OptionsType& options);
 
 static bool tryFormatMethod(
   const formatType f,
@@ -238,19 +239,22 @@ void setTables()
 
 void dispatch(
   const int thrNo,
-  Files& files)
+  Files& files,
+  const OptionsType& options)
 {
   UNUSED(thrNo);
 
   FileTaskType task;
   while (files.GetNextTask(task))
   {
-    Group group;
+    if (options.verboseIO)
+      cout << "Input " << task.fileInput << endl;
 
-cout << "Input " << task.fileInput << endl;
+    Group group;
     try
     {
-      if (! readFormattedFile(task.fileInput, task.formatInput, group))
+      if (! readFormattedFile(task.fileInput, task.formatInput, 
+          group, options))
       {
         debug.Print();
         THROW("something blew up");
@@ -264,11 +268,13 @@ cout << "Input " << task.fileInput << endl;
 
     for (auto &t: task.taskList)
     {
-cout << "Output " << t.fileOutput << endl;
+      if (options.verboseIO)
+        cout << "Output " << t.fileOutput << endl;
+
       try
       {
         if (! writeFormattedFile(group, t.fileOutput, t.formatOutput))
-        THROW("something blew up");
+          THROW("something blew up");
       }
       catch (Bexcept& bex)
       {
@@ -403,7 +409,8 @@ static void fixChunk(
 static bool readFormattedFile(
   const string& fname,
   const formatType f,
-  Group& group)
+  Group& group,
+  const OptionsType& options)
 {
   ifstream fstr(fname.c_str());
   if (! fstr.is_open())
@@ -432,8 +439,6 @@ static bool readFormattedFile(
   unsigned lno = 0;
   unsigned lnoOld;
 
-// cout << "Fix length " << fix.size() << endl;
-
   while (true)
   {
     lnoOld = lno;
@@ -449,7 +454,6 @@ static bool readFormattedFile(
       fstr.close();
       assert(false);
     }
-// cout << "Got chunk, lno now " << lno << endl;
 
     while (fix.size() > 0 && fix[0].no == chunkNo)
       fixChunk(chunk, newSegFlag, fix);
@@ -511,14 +515,12 @@ if (board == nullptr)
     unsigned i;
     try
     {
-// cout << "fname " << fname << endl;
       for (i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
       {
- // if (bno == 9 && i == 27)
- // {
-   // cout << "HERE" << endl;
- // }
-// cout << "bno " << bno << " i " << i << " chunk " << chunk[i] << endl;
+// if (chunkNo == 4 && bno == 3 && i == 27)
+// {
+  // cout << "HERE" << endl;
+// }
         if (chunk[i] != "")
         {
           if (! tryFormatMethod(f, chunk[i], segment, board, i, fstr))
@@ -531,11 +533,36 @@ if (board == nullptr)
     }
     catch (Bexcept& bex)
     {
-      cout << "bno " << bno << " i " << i << ", line '" << 
-        chunk[i] << "'\n";
-      cout << "In file " << fname << ", lines " <<
-          lnoOld+1 << "-" << lno-1 << ":" << endl;
+      if (options.verboseThrow)
+      {
+        cout << "Input file " << fname << endl;
+        if (lnoOld+1 > lno-1)
+          cout << "Line number " << lnoOld;
+        else
+          cout << "Line numbers " << lnoOld+2 << " to " << lno-1;
+        cout << ", chunk " << chunkNo-1 << ", bno " << bno-1 << endl;
+        cout << "label " << formatLabelNames[i] << 
+            " (" << i << "), '" <<
+            chunk[i] << "'" << endl << endl;
+      }
+
       bex.Print();
+
+      if (options.verboseBatch)
+      {
+        cout << endl;
+        for (i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
+        {
+          if (chunk[i] != "")
+          {
+            cout << setw(15) << formatLabelNames[i] <<
+                " (" << setw(2) << i << "), '" <<
+                chunk[i] << "'" << endl;
+          }
+        }
+      }
+
+      cout << endl;
       fstr.close();
       assert(false);
     }

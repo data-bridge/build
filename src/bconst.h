@@ -204,6 +204,13 @@ struct OptionsType
 
   bool formatSetFlag; // -f, --format
   formatType format;
+
+  bool verboseIO;
+  bool verboseThrow;
+  bool verboseBatch;
+
+  bool verboseValStats;
+  bool verboseValDetails;
 };
 
 

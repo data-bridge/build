@@ -30,7 +30,7 @@ struct optEntry
   unsigned numArgs;
 };
 
-#define BRIDGE_NUM_OPTIONS 8
+#define BRIDGE_NUM_OPTIONS 9
 
 const optEntry optList[BRIDGE_NUM_OPTIONS] =
 {
@@ -41,7 +41,8 @@ const optEntry optList[BRIDGE_NUM_OPTIONS] =
   {"r", "reffile", 1},
   {"R", "refdir", 1},
   {"l", "logfile", 1},
-  {"f", "format", 1}
+  {"f", "format", 1},
+  {"v", "verbose", 1}
 };
 
 string shortOptsAll, shortOptsWithArg;
@@ -86,6 +87,12 @@ void usage(
     "-f, --format       Output format for -O (default: ALL).\n" <<
     "                   Values LIN, PBN, RBN, TXT, EML, DOC, REC, ALL.\n" <<
     "                   Some dialects are set by the input filename.\n" <<
+    "-v, -verbose n     Verbosity (default: 0).  Bits:\n" <<
+    "                   0x01: Show input/output file names.\n" <<
+    "                   0x02: Show input error messages.\n" <<
+    "                   0x04: Show input error details.\n" <<
+    "                   0x08: Show validation issue type stats.\n" <<
+    "                   0x10: Show an example of each issue.\n" <<
     endl;
 }
 
@@ -264,7 +271,7 @@ void readArgs(
 
   setDefaults();
 
-  int c;
+  int c, m;
   bool errFlag = false, matchFlag;
   string stmp;
 
@@ -315,10 +322,28 @@ void readArgs(
 
         if (! matchFlag)
         {
-          cout << " Could not parse format\n";
+          cout << "Could not parse format\n";
           nextToken -= 2;
           errFlag = true;
         }
+        break;
+
+      case 'v':
+        char * temp;
+        m = static_cast<int>(strtol(optarg, &temp, 0));
+        if (temp == optarg || temp == '\0' ||
+            ((m == LONG_MIN || m == LONG_MAX) && errno == ERANGE))
+        {
+          cout << "Could not parse verbose\n";
+          nextToken -= 2;
+          errFlag = true;
+        }
+        
+        options.verboseIO = ((m & 0x01) != 0);
+        options.verboseThrow = ((m & 0x02) != 0);
+        options.verboseBatch = ((m & 0x04) != 0);
+        options.verboseValStats = ((m & 0x08) != 0);
+        options.verboseValDetails = ((m & 0x10) != 0);
         break;
 
       default:
