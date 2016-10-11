@@ -256,8 +256,9 @@ void dispatch(
       if (! readFormattedFile(task.fileInput, task.formatInput, 
           group, options))
       {
+        cout << "dispatch: read failed\n";
         debug.Print();
-        THROW("something blew up");
+        continue;
       }
     }
     catch (Bexcept& bex)
@@ -415,7 +416,7 @@ static bool readFormattedFile(
   ifstream fstr(fname.c_str());
   if (! fstr.is_open())
   {
-    LOG("No such file: " + fname);
+    cout << "No such file: " << fname << endl;
     return false;
   }
 
@@ -449,10 +450,35 @@ static bool readFormattedFile(
     }
     catch (Bexcept& bex)
     {
-      cout << "In input file " << fname << ", line number " << lno << endl;
+      if (options.verboseThrow)
+      {
+        cout << "Input file " << fname << endl;
+        if (lnoOld+1 > lno-1)
+          cout << "Line number " << lnoOld;
+        else
+          cout << "Line numbers " << lnoOld+2 << " to " << lno-1 << 
+              ", chunk " << chunkNo << endl << endl;
+      }
+
       bex.Print();
+
+      if (options.verboseBatch)
+      {
+        cout << endl;
+        for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
+        {
+          if (chunk[i] != "")
+          {
+            cout << setw(15) << formatLabelNames[i] <<
+                " (" << setw(2) << i << "), '" <<
+                chunk[i] << "'" << endl;
+          }
+        }
+      }
+
+      cout << endl;
       fstr.close();
-      assert(false);
+      return false;
     }
 
     while (fix.size() > 0 && fix[0].no == chunkNo)
@@ -564,7 +590,7 @@ if (board == nullptr)
 
       cout << endl;
       fstr.close();
-      assert(false);
+      return false;
     }
 
 
