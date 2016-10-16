@@ -186,16 +186,16 @@ static void getRECDeal(
   stringstream d;
   d << "W:";
 
-  if (! ReadNextWord(canvas[4], 2, sts)) sts = "";
-  if (! ReadNextWord(canvas[5], 2, sth)) sth = "";
-  if (! ReadNextWord(canvas[6], 2, std)) std = "";
-  if (! ReadNextWord(canvas[7], 2, stc)) stc = "";
+  if (! ReadNextWord(canvas[4], 2, 11, sts)) sts = "";
+  if (! ReadNextWord(canvas[5], 2, 11, sth)) sth = "";
+  if (! ReadNextWord(canvas[6], 2, 11, std)) std = "";
+  if (! ReadNextWord(canvas[7], 2, 11, stc)) stc = "";
   d << sts << "." << sth <<  "." << std << "." << stc << " ";
 
-  if (! ReadNextWord(canvas[1], 14, sts)) sts = "";
-  if (! ReadNextWord(canvas[2], 14, sth)) sth = "";
-  if (! ReadNextWord(canvas[3], 14, std)) std = "";
-  if (! ReadNextWord(canvas[4], 14, stc)) stc = "";
+  if (! ReadNextWord(canvas[1], 14, 23, sts)) sts = "";
+  if (! ReadNextWord(canvas[2], 14, 23, sth)) sth = "";
+  if (! ReadNextWord(canvas[3], 14, 23, std)) std = "";
+  if (! ReadNextWord(canvas[4], 14, 23, stc)) stc = "";
   d << sts << "." << sth <<  "." << std << "." << stc << " ";
 
   if (! ReadNextWord(canvas[4], 26, sts)) sts = "";
@@ -204,10 +204,10 @@ static void getRECDeal(
   if (! ReadNextWord(canvas[7], 26, stc)) stc = "";
   d << sts << "." << sth <<  "." << std << "." << stc << " ";
 
-  if (! ReadNextWord(canvas[7], 14, sts)) sts = "";
-  if (! ReadNextWord(canvas[8], 14, sth)) sth = "";
-  if (! ReadNextWord(canvas[9], 14, std)) std = "";
-  if (! ReadNextWord(canvas[10], 14, stc)) stc = "";
+  if (! ReadNextWord(canvas[7], 14, 23, sts)) sts = "";
+  if (! ReadNextWord(canvas[8], 14, 23, sth)) sth = "";
+  if (! ReadNextWord(canvas[9], 14, 23, std)) std = "";
+  if (! ReadNextWord(canvas[10], 14, 23, stc)) stc = "";
   d << sts << "." << sth <<  "." << std << "." << stc;
 
   // Void is shown as empty in REC.

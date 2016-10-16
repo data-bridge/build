@@ -16,63 +16,14 @@
 #include <regex>
 
 #include "validate.h"
+#include "valint.h"
+#include "validateLIN.h"
 #include "parse.h"
 #include "Bexcept.h"
 
 
 using namespace std;
 
-
-// Types of differences that can occur and be OK (except "ERROR").
-
-enum ValDiffs
-{
-  BRIDGE_VAL_TITLE = 0,
-  BRIDGE_VAL_DATE = 1,
-  BRIDGE_VAL_LOCATION = 2,
-  BRIDGE_VAL_EVENT = 3,
-  BRIDGE_VAL_SESSION = 4,
-  BRIDGE_VAL_SCORING = 5,
-  BRIDGE_VAL_TEAMS = 6,
-
-  BRIDGE_VAL_NAMES8 = 7,
-  BRIDGE_VAL_TXT_ALL_PASS = 8,
-  BRIDGE_VAL_LIN_EXCLAIM = 9,
-  BRIDGE_VAL_LIN_PLAY_NL = 10,
-  BRIDGE_VAL_REC_PLAY_SHORT = 11,
-  BRIDGE_VAL_REC_MADE_32 = 12,
-  BRIDGE_VAL_VG_CHAT = 13,
-  BRIDGE_VAL_RECORD_NUMBER = 14,
-
-  BRIDGE_VAL_ERROR = 15,
-  BRIDGE_VAL_OUT_SHORT = 16,
-  BRIDGE_VAL_REF_SHORT = 17,
-  BRIDGE_VAL_SIZE = 18
-};
-
-const string valNames[] =
-{
-  "Title",
-  "Date",
-  "Location",
-  "Event",
-  "Session",
-  "Scoring",
-  "Teams",
-
-  "Names8",
-  "All-pass",
-  "Lin-!",
-  "Play-newline",
-  "Play-short",
-  "Made-32",
-  "VG-chat",
-  "Rec-comment",
-
-  "Error",
-  "Out-short",
-  "Ref-short"
-};
 
 const vector<formatType> formatActive =
 {
@@ -86,29 +37,6 @@ const vector<formatType> formatActive =
   BRIDGE_FORMAT_TXT,
   BRIDGE_FORMAT_EML,
   BRIDGE_FORMAT_REC
-};
-
-
-// A single example of a difference of any kind.
-
-struct valSide
-{
-  string line;
-  unsigned lno;
-};
-
-struct ValExample
-{
-  valSide out;
-  valSide ref;
-};
-
-// Counts of differences between two files, with the first examples.
-
-struct ValFileStats
-{
-  unsigned counts[BRIDGE_VAL_SIZE];
-  ValExample examples[BRIDGE_VAL_SIZE];
 };
 
 
@@ -133,10 +61,6 @@ static bool isLINLongLine(
 static bool isRecordComment(
   const string& lineOut,
   const string& lineRef);
-
-static bool progress(
-  ifstream& fstr,
-  valSide& side);
 
 static void statsToVstat(
   const ValFileStats& stats,
@@ -306,80 +230,6 @@ static bool isTXTPasses(
 }
 
 
-static bool isLINLongRefLine(
-  const string& lineOut, 
-  const string& lineRef, 
-  string& expectLine)
-{
-  const unsigned lOut = lineOut.length();
-  const unsigned lRef = lineRef.length();
-
-  if (lOut >= lRef)
-    return false;
-
-  const string sOut = lineOut.substr(0, 3);
-  const string sRef = lineRef.substr(0, 3);
-
-  if ((sOut != "mb|" && sOut != "pf|") || sOut != sRef)
-    return false;
-
-  if (lineRef.substr(0, lOut) == lineOut)
-  {
-    expectLine = lineRef.substr(lOut);
-    return true;
-  }
-
-  // Can lop off "pg||" at end of lineOut and try again.
-  if (lineOut.substr(lOut-4) != "pg||")
-    return false;
-
-  if (lineOut.substr(0, lOut-4) == lineRef.substr(0, lOut-4))
-  {
-    expectLine = lineRef.substr(lOut-4);
-    return true;
-  }
-  else
-    return false;
-}
-
-
-static bool isLINLongOutLine(
-  const string& lineOut, 
-  const string& lineRef, 
-  string& expectLine)
-{
-  const unsigned lOut = lineOut.length();
-  const unsigned lRef = lineRef.length();
-
-  if (lRef >= lOut)
-    return false;
-
-  const string sOut = lineOut.substr(0, 3);
-  const string sRef = lineRef.substr(0, 3);
-
-  if ((sOut != "mb|" && sOut != "pf|") || sOut != sRef)
-    return false;
-
-  if (lineOut.substr(0, lRef) == lineRef)
-  {
-    expectLine = lineOut.substr(lRef);
-    return true;
-  }
-
-  // Can lop off "pg||" at end of lineRef and try again.
-  if (lineRef.substr(lRef-4) != "pg||")
-    return false;
-
-  if (lineRef.substr(0, lRef-4) == lineOut.substr(0, lRef-4))
-  {
-    expectLine = lineOut.substr(lRef-4);
-    return true;
-  }
-  else
-    return false;
-}
-
-
 static bool isRecordComment(
   const string& lineOut,
   const string& lineRef)
@@ -497,7 +347,7 @@ static void readRefFix(
 }
 
 
-static bool progress(
+bool valProgress(
   ifstream& fstr,
   valSide& side)
 {
@@ -509,7 +359,7 @@ static bool progress(
 }
 
 
-static void logError(
+void valError(
   ValFileStats& stats,
   const ValExample& running,
   const ValDiffs label)
@@ -527,6 +377,7 @@ void validate(
   const string& fileRef,
   const formatType formatOrig,
   const formatType formatRef,
+  const OptionsType& options,
   ValStatType vstats[][BRIDGE_FORMAT_LABELS_SIZE])
 {
   ifstream fostr(fileOut.c_str());
@@ -551,9 +402,9 @@ void validate(
   bool keepLineOut = false;
   bool keepLineRef = false;
 
-  while (keepLineRef || progress(frstr, running.ref))
+  while (keepLineRef || valProgress(frstr, running.ref))
   {
-    if (! keepLineOut && ! progress(fostr, running.out))
+    if (! keepLineOut && ! valProgress(fostr, running.out))
     {
       stats.counts[BRIDGE_VAL_OUT_SHORT]++;
       break;
@@ -566,8 +417,8 @@ void validate(
         if (refFix[0].value != running.out.line)
         {
           // This will mess up everything that follows...
-          logError(stats, running, BRIDGE_VAL_ERROR);
-          if (! progress(fostr, running.out))
+          valError(stats, running, BRIDGE_VAL_ERROR);
+          if (! valProgress(fostr, running.out))
             THROW("Next line is not there");
           keepLineRef = false;
           keepLineOut = false;
@@ -575,7 +426,7 @@ void validate(
         }
 
         // Get the next out line to compare with the ref line.
-        if (! progress(fostr, running.out))
+        if (! valProgress(fostr, running.out))
           THROW("Next line is not there");
       }
       else if (refFix[0].type == BRIDGE_REF_REPLACE)
@@ -586,7 +437,7 @@ void validate(
       {
         for (unsigned i = 0; i < refFix[0].count; i++)
         {
-          if (! progress(frstr, running.ref))
+          if (! valProgress(frstr, running.ref))
             THROW("Skip line is not there");
         }
       }
@@ -602,40 +453,23 @@ void validate(
     }
 // printExample(running);
 
-    if (formatRef == BRIDGE_FORMAT_LIN_RP)
+    // General: % line numbers (Pavlicek error).
+    if (isRecordComment(running.out.line, running.ref.line))
     {
-      string expectLine;
-      if (isLINLongRefLine(running.out.line, running.ref.line, expectLine))
+      valError(stats, running, BRIDGE_VAL_RECORD_NUMBER);
+      continue;
+    }
+    else if (formatRef == BRIDGE_FORMAT_LIN_RP)
+    {
+      if (validateLIN_RP(frstr, fostr, running, stats))
       {
-        if (! progress(fostr, running.out))
-        {
-          stats.counts[BRIDGE_VAL_OUT_SHORT]++;
-          break;
-        }
-
-        if (running.out.line == expectLine)
-        {
-          // No newline when no play (Pavlicek error).
-          logError(stats, running, BRIDGE_VAL_LIN_PLAY_NL);
-          continue;
-        }
+        // Fix is already recorded in stats.
+        continue;
       }
-      else if (isLINLongOutLine(running.out.line, running.ref.line, 
-          expectLine))
-      {
-        if (! progress(frstr, running.ref))
-        {
-          stats.counts[BRIDGE_VAL_REF_SHORT]++;
-          break;
-        }
+      else if (fostr.eof() || frstr.eof())
+        break;
 
-        if (running.ref.line == expectLine)
-        {
-          // No newline when no play (Pavlicek error).
-          logError(stats, running, BRIDGE_VAL_LIN_PLAY_NL);
-          continue;
-        }
-      }
+      // If not, fall through to general error.
     }
     else if (formatRef == BRIDGE_FORMAT_TXT)
     {
@@ -643,7 +477,7 @@ void validate(
       if (isTXTAllPass(running.out.line, running.ref.line, expectPasses))
       {
         // Reference does not have "All Pass" (Pavlicek error).
-        if (expectPasses > 0 && ! progress(frstr, running.ref))
+        if (expectPasses > 0 && ! valProgress(frstr, running.ref))
         {
           stats.counts[BRIDGE_VAL_OUT_SHORT]++;
           break;
@@ -651,7 +485,7 @@ void validate(
 
         if (expectPasses == 0 || isTXTPasses(running.ref.line, expectPasses))
         {
-          logError(stats, running, BRIDGE_VAL_TXT_ALL_PASS);
+          valError(stats, running, BRIDGE_VAL_TXT_ALL_PASS);
           continue;
         }
       }
@@ -663,7 +497,7 @@ void validate(
         if (isRECPlay(running.out.line))
         {
           // Extra play line (Pavlicek error).
-          logError(stats, running, BRIDGE_VAL_REC_PLAY_SHORT);
+          valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
 
           keepLineRef = true;
           continue;
@@ -672,37 +506,31 @@ void validate(
       else if (isRECJustMade(running.out.line, running.ref.line))
       {
         // "Won 32" (Pavlicek error, should be "Made 0" or so.
-        logError(stats, running, BRIDGE_VAL_REC_MADE_32);
+        valError(stats, running, BRIDGE_VAL_REC_MADE_32);
 
         // The next line (Score, Points) is then also different.
-        progress(fostr, running.out);
-        progress(frstr, running.ref);
+        valProgress(fostr, running.out);
+        valProgress(frstr, running.ref);
         continue;
       }
     }
 
-    // General: % line numbers (Pavlicek error).
-    if (isRecordComment(running.out.line, running.ref.line))
-    {
-      logError(stats, running, BRIDGE_VAL_RECORD_NUMBER);
-      continue;
-    }
-
 
 // printExample(running);
-    logError(stats, running, BRIDGE_VAL_ERROR);
+    valError(stats, running, BRIDGE_VAL_ERROR);
 
     keepLineOut = false;
     keepLineRef = false;
   }
 
-  if (progress(fostr, running.out))
+  if (valProgress(fostr, running.out))
   {
     stats.examples[BRIDGE_VAL_REF_SHORT] = running;
     stats.counts[BRIDGE_VAL_REF_SHORT]++;
   }
 
-  printFileStats(stats, fileOut);
+  if (options.verboseValDetails)
+    printFileStats(stats, fileOut);
 
   statsToVstat(stats, vstats[formatOrig][formatRef]);
 
@@ -715,38 +543,39 @@ static void statsToVstat(
   const ValFileStats& stats,
   ValStatType& vstat)
 {
-  bool expectedFlag = false;
+  bool minorErrorFlag = false;
   for (unsigned v = 0; v < BRIDGE_VAL_ERROR; v++)
   {
     if (stats.counts[v])
     {
-      expectedFlag = true;
-      break;
+      minorErrorFlag = true;
+      vstat.details[v]++;
     }
   }
 
-  bool errorFlag = false;
+  bool majorErrorFlag = false;
   for (unsigned v = BRIDGE_VAL_ERROR; v < BRIDGE_VAL_SIZE; v++)
   {
     if (stats.counts[v])
     {
-      errorFlag = true;
-      break;
+      majorErrorFlag = true;
+      vstat.details[v]++;
     }
   }
 
   vstat.numFiles++;
 
-  if (expectedFlag)
+  if (minorErrorFlag)
   {
     vstat.numExpectedDiffs++;
-    if (errorFlag)
+    if (majorErrorFlag)
       vstat.numErrors++;
   }
-  else if (errorFlag)
+  else if (majorErrorFlag)
     vstat.numErrors++;
   else
     vstat.numIdentical++;
+
 }
 
 
@@ -761,8 +590,9 @@ static void printFileStats(
   ValFileStats& stats,
   const string& fname)
 {
+  // Only shows examples of bad errors.
+
   bool showFlag = false;
-  // for (unsigned v = 0; v < BRIDGE_VAL_SIZE; v++)
   for (unsigned v = BRIDGE_VAL_ERROR; v < BRIDGE_VAL_SIZE; v++)
   {
     if (stats.counts[v])
@@ -779,7 +609,6 @@ static void printFileStats(
   }
   
   cout << "File stats: " << fname << "\n";
-  // for (unsigned v = 0; v < BRIDGE_VAL_SIZE; v++)
   for (unsigned v = BRIDGE_VAL_ERROR; v < BRIDGE_VAL_SIZE; v++)
   {
     if (stats.counts[v] == 0)
@@ -790,7 +619,6 @@ static void printFileStats(
   }
   cout << "\n";
 
-  // for (unsigned v = 0; v < BRIDGE_VAL_SIZE; v++)
   for (unsigned v = BRIDGE_VAL_ERROR; v < BRIDGE_VAL_SIZE; v++)
   {
     if (stats.counts[v] == 0)
@@ -813,8 +641,31 @@ static string posOrDash(const unsigned u)
 }
 
 
+static bool rowHasEntries(
+  const ValStatType vstat[],
+  const unsigned label)
+{
+  for (auto &g: formatActive)
+    if (vstat[g].details[label] > 0)
+      return true;
+  return false;
+}
+
+
+static void printRow(
+  const ValStatType vstat[],
+  const unsigned label)
+{
+  cout << "  " << setw(5) << left << valNamesShort[label];
+  for (auto &g: formatActive)
+    cout << setw(7) << right << posOrDash(vstat[g].details[label]);
+  cout << "\n";
+}
+
+
 void printOverallStats(
-  ValStatType vstats[][BRIDGE_FORMAT_LABELS_SIZE])
+  const ValStatType vstats[][BRIDGE_FORMAT_LABELS_SIZE],
+  const bool detailsFlag)
 {
   cout << setw(7) << "";
   for (auto &f: formatActive)
@@ -828,12 +679,30 @@ void printOverallStats(
       cout << setw(7) << right << posOrDash(vstats[f][g].numFiles);
     cout << "\n";
 
-    cout << setw(7) << left << "";
+    if (detailsFlag)
+    {
+      for (unsigned v = 0; v < BRIDGE_VAL_ERROR; v++)
+      {
+        if (rowHasEntries(vstats[f], v))
+          printRow(vstats[f], v);
+      }
+    }
+
+    cout << "  MINOR";
     for (auto &g: formatActive)
       cout << setw(7) << right << posOrDash(vstats[f][g].numExpectedDiffs);
     cout << "\n";
 
-    cout << setw(7) << left << "";
+    if (detailsFlag)
+    {
+      for (unsigned v = BRIDGE_VAL_ERROR; v < BRIDGE_VAL_SIZE; v++)
+      {
+        if (rowHasEntries(vstats[f], v))
+          printRow(vstats[f], v);
+      }
+    }
+
+    cout << "  MAJOR";
     for (auto &g: formatActive)
       cout << setw(7) << right << posOrDash(vstats[f][g].numErrors);
     cout << "\n\n";

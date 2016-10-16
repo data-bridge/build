@@ -87,7 +87,7 @@ void usage(
     "-f, --format       Output format for -O (default: ALL).\n" <<
     "                   Values LIN, PBN, RBN, TXT, EML, DOC, REC, ALL.\n" <<
     "                   Some dialects are set by the input filename.\n" <<
-    "-v, -verbose n     Verbosity (default: 0).  Bits:\n" <<
+    "-v, -verbose n     Verbosity (default: 0x1a).  Bits:\n" <<
     "                   0x01: Show input/output file names.\n" <<
     "                   0x02: Show input error messages.\n" <<
     "                   0x04: Show input error details.\n" <<
@@ -150,15 +150,21 @@ static int getNextArgToken(
 static void setDefaults()
 {
   options.fileInput = {false, ""};
-  options.fileInput = {false, ""};
-  options.fileInput = {false, ""};
-  options.fileInput = {false, ""};
-  options.fileInput = {false, ""};
-  options.fileInput = {false, ""};
-  options.fileInput = {false, ""};
+  options.dirInput = {false, ""};
+  options.fileOutput = {false, ""};
+  options.dirOutput = {false, ""};
+  options.fileRef = {false, ""};
+  options.dirRef = {false, ""};
+  options.fileLog = {false, ""};
 
   options.formatSetFlag = false;
   options.format = BRIDGE_FORMAT_SIZE;
+
+  options.verboseIO = false;
+  options.verboseThrow = true;
+  options.verboseBatch = false;
+  options.verboseValStats = true;
+  options.verboseValDetails = true;
 }
 
 

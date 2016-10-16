@@ -63,7 +63,7 @@ int main(int argc, char * argv[])
       try
       {
         validate(t.fileOutput, t.fileRef,
-          task.formatInput, t.formatOutput, vstats);
+          task.formatInput, t.formatOutput, options, vstats);
       }
       catch(Bexcept& bex)
       {
@@ -74,6 +74,6 @@ int main(int argc, char * argv[])
   }
 
   cout << "Overall stats:\n";
-  printOverallStats(vstats);
+  printOverallStats(vstats, options.verboseValStats);
 }
 
