@@ -32,7 +32,8 @@ SOURCE_FILES 	=		\
 	parse.cpp		\
 	reader.cpp		\
 	validate.cpp		\
-	validateLIN.cpp
+	validateLIN.cpp		\
+	validatePBN.cpp
 
 TEST		= reader
 

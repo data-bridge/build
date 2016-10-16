@@ -18,6 +18,7 @@
 #include "validate.h"
 #include "valint.h"
 #include "validateLIN.h"
+#include "validatePBN.h"
 #include "parse.h"
 #include "Bexcept.h"
 
@@ -470,6 +471,13 @@ void validate(
         break;
 
       // If not, fall through to general error.
+    }
+    else if (formatRef == BRIDGE_FORMAT_PBN)
+    {
+      if (validatePBN(frstr, running, stats))
+        continue;
+      else if (fostr.eof() || frstr.eof())
+        break;
     }
     else if (formatRef == BRIDGE_FORMAT_TXT)
     {
