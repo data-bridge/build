@@ -28,20 +28,21 @@ enum ValDiffs
   BRIDGE_VAL_BOARDS_HEADER = 5,
   BRIDGE_VAL_SCORING = 6,
   BRIDGE_VAL_TEAMS = 7,
+  BRIDGE_VAL_NAMES = 8,
 
-  BRIDGE_VAL_NAMES8 = 8,
-  BRIDGE_VAL_TXT_ALL_PASS = 9,
-  BRIDGE_VAL_LIN_EXCLAIM = 10,
-  BRIDGE_VAL_LIN_PLAY_NL = 11,
-  BRIDGE_VAL_PLAY_SHORT = 12,
-  BRIDGE_VAL_REC_MADE_32 = 13,
-  BRIDGE_VAL_VG_CHAT = 14,
-  BRIDGE_VAL_RECORD_NUMBER = 15,
+  BRIDGE_VAL_NAMES_SHORT = 9,
+  BRIDGE_VAL_TXT_ALL_PASS = 10,
+  BRIDGE_VAL_LIN_EXCLAIM = 11,
+  BRIDGE_VAL_LIN_PLAY_NL = 12,
+  BRIDGE_VAL_PLAY_SHORT = 13,
+  BRIDGE_VAL_REC_MADE_32 = 14,
+  BRIDGE_VAL_VG_CHAT = 15,
+  BRIDGE_VAL_RECORD_NUMBER = 16,
 
-  BRIDGE_VAL_ERROR = 16,
-  BRIDGE_VAL_OUT_SHORT = 17,
-  BRIDGE_VAL_REF_SHORT = 18,
-  BRIDGE_VAL_SIZE = 19
+  BRIDGE_VAL_ERROR = 17,
+  BRIDGE_VAL_OUT_SHORT = 18,
+  BRIDGE_VAL_REF_SHORT = 19,
+  BRIDGE_VAL_SIZE = 20
 };
 
 const string valNames[] =
@@ -54,8 +55,9 @@ const string valNames[] =
   "Board numbers",
   "Scoring",
   "Teams",
+  "Names",
 
-  "Names8",
+  "Names-short",
   "All-pass",
   "Lin-!",
   "Play-newline",
@@ -79,8 +81,9 @@ const string valNamesShort[] =
   "Bnos",
   "F",
   "K",
+  "N",
 
-  "Name8",
+  "Nsht",
   "Apass",
   "Alert",
   "Pline",
