@@ -24,6 +24,10 @@ unsigned countDelimiters(
   const string& str,
   const string& delimiters);
 
+void splitIntoWords(
+  const string& line,
+  vector<string>& words);
+
 string RevStr(const string& s);
 
 bool getWords(

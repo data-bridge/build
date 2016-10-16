@@ -132,7 +132,7 @@ string Location::asString(const formatType f) const
     
     case BRIDGE_FORMAT_TXT:
        if (location.general == "")
-         return "";
+         return "\n";
       return Location::asRBN(", ") + "\n";
     
     default:

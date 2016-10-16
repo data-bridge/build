@@ -454,7 +454,10 @@ string Teams::AsRBX() const
 
 string Teams::AsTXT() const
 {
-  return Teams::SingleAsTXT(team1) + " vs. " + Teams::SingleAsTXT(team2);
+  if (team1.name == "" && team2.name == "")
+    return "";
+  else
+    return Teams::SingleAsTXT(team1) + " vs. " + Teams::SingleAsTXT(team2);
 }
 
 
@@ -462,6 +465,9 @@ string Teams::AsTXT(
   const int score1,
   const int score2) const
 {
+  if (team1.name == "" && team2.name == "")
+    return "\n";
+
   stringstream s1, s2;
   bool order12Flag = true;
 

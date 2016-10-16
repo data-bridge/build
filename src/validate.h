@@ -28,21 +28,22 @@ enum ValDiffs
   BRIDGE_VAL_BOARDS_HEADER = 5,
   BRIDGE_VAL_SCORING = 6,
   BRIDGE_VAL_TEAMS = 7,
-  BRIDGE_VAL_NAMES = 8,
 
+  BRIDGE_VAL_NAMES = 8,
   BRIDGE_VAL_NAMES_SHORT = 9,
   BRIDGE_VAL_TXT_ALL_PASS = 10,
   BRIDGE_VAL_LIN_EXCLAIM = 11,
   BRIDGE_VAL_LIN_PLAY_NL = 12,
   BRIDGE_VAL_PLAY_SHORT = 13,
   BRIDGE_VAL_REC_MADE_32 = 14,
-  BRIDGE_VAL_VG_CHAT = 15,
-  BRIDGE_VAL_RECORD_NUMBER = 16,
+  BRIDGE_VAL_TXT_RESULT = 15,
+  BRIDGE_VAL_VG_CHAT = 16,
+  BRIDGE_VAL_RECORD_NUMBER = 17,
 
-  BRIDGE_VAL_ERROR = 17,
-  BRIDGE_VAL_OUT_SHORT = 18,
-  BRIDGE_VAL_REF_SHORT = 19,
-  BRIDGE_VAL_SIZE = 20
+  BRIDGE_VAL_ERROR = 18,
+  BRIDGE_VAL_OUT_SHORT = 19,
+  BRIDGE_VAL_REF_SHORT = 20,
+  BRIDGE_VAL_SIZE = 21
 };
 
 const string valNames[] =
@@ -63,6 +64,7 @@ const string valNames[] =
   "Play-newline",
   "Play-short",
   "Made-32",
+  "TXT-result",
   "VG-chat",
   "Rec-comment",
 
@@ -88,6 +90,7 @@ const string valNamesShort[] =
   "Alert",
   "Pline",
   "Psht",
+  "RTXT",
   "R32",
   "Chat",
   "%",

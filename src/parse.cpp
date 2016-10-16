@@ -69,6 +69,39 @@ unsigned countDelimiters(
 }
 
 
+void splitIntoWords(
+  const string& line,
+  vector<string>& words)
+{
+  // Split into words (split on \s+, effectively).
+  unsigned pos = 0;
+  unsigned startPos = 0;
+  bool isSpace = true;
+  const unsigned l = line.length();
+
+  while (pos < l)
+  {
+    if (line.at(pos) == ' ')
+    {
+      if (! isSpace)
+      {
+        words.push_back(line.substr(startPos, pos-startPos));
+        isSpace = true;
+      }
+    }
+    else if (isSpace)
+    {
+      isSpace = false;
+      startPos = pos;
+    }
+    pos++;
+  }
+
+  if (! isSpace)
+    words.push_back(line.substr(startPos, pos-startPos));
+}
+
+
 string RevStr(const string& s)
 {
   string t = s;

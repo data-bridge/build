@@ -20,6 +20,7 @@
 #include "validateLIN.h"
 #include "validatePBN.h"
 #include "validateRBN.h"
+#include "validateTXT.h"
 #include "parse.h"
 #include "Bexcept.h"
 
@@ -43,10 +44,6 @@ const vector<formatType> formatActive =
 
 
 static void resetStats(ValFileStats& stats);
-
-static void splitIntoWords(
-  const string& line,
-  vector<string>& words);
 
 static bool isRECPlay(const string& line);
 
@@ -89,39 +86,6 @@ static void resetStats(ValFileStats& stats)
 }
 
 
-static void splitIntoWords(
-  const string& line,
-  vector<string>& words)
-{
-  // Split into words (split on \s+, effectively).
-  unsigned pos = 0;
-  unsigned startPos = 0;
-  bool isSpace = true;
-  const unsigned l = line.length();
-
-  while (pos < l)
-  {
-    if (line.at(pos) == ' ')
-    {
-      if (! isSpace)
-      {
-        words.push_back(line.substr(startPos, pos-startPos));
-        isSpace = true;
-      }
-    }
-    else if (isSpace)
-    {
-      isSpace = false;
-      startPos = pos;
-    }
-    pos++;
-  }
-
-  if (! isSpace)
-    words.push_back(line.substr(startPos, pos-startPos));
-}
-
-
 static bool isRECPlay(const string& line)
 {
   vector<string> words;
@@ -161,74 +125,6 @@ static bool isRECJustMade(
     return true;
   else
     return false;
-}
-
-
-static bool isTXTAllPass(
-  const string& lineOut,
-  const string& lineRef,
-  unsigned& expectPasses)
-{
-  vector<string> wordsRef;
-  splitIntoWords(lineRef, wordsRef);
-  unsigned lRef = wordsRef.size();
-  if (lRef > 4)
-    return false;
-
-  vector<string> wordsOut;
-  splitIntoWords(lineOut, wordsOut);
-  unsigned lOut = wordsOut.size();
-  if (lOut < 2 || lOut+2 < lRef || lOut > lRef+1)
-    return false;
-
-  if (wordsOut[lOut-2] != "All" || wordsOut[lOut-1] != "Pass")
-    return false;
-
-  for (unsigned i = lOut-2; i < lRef; i++)
-    if (wordsRef[i] != "Pass")
-      return false;
-
-  for (unsigned i = 0; i < lOut-2; i++)
-  {
-    if (wordsRef[i] != wordsOut[i])
-      return false;
-  }
-
-  if (lOut == 2 && lRef == 4)
-  {
-    expectPasses = 0;
-    return true;
-  }
-
-  unsigned pos = 0;
-  while (pos < lineOut.length() && lineOut.at(pos) == ' ')
-    pos++;
-  if (pos == lineOut.length())
-    return false;
-
-  expectPasses = lOut + 1 - lRef;
-  if (pos > 0 && lineOut.at(pos) == 'A')
-    expectPasses++;
-
-  return true;
-}
-
-
-static bool isTXTPasses(
-  const string& lineOut,
-  const unsigned expectPasses)
-{
-  vector<string> wordsOut;
-  splitIntoWords(lineOut, wordsOut);
-  if (wordsOut.size() != expectPasses)
-    return false;
-
-  for (unsigned i = 0; i < expectPasses; i++)
-  {
-    if (wordsOut[i] != "Pass")
-      return false;
-  }
-  return true;
 }
 
 
@@ -403,6 +299,7 @@ void validate(
   running.ref.lno = 0;
   bool keepLineOut = false;
   bool keepLineRef = false;
+  unsigned emptyState = 0;
 
   while (keepLineRef || valProgress(frstr, running.ref))
   {
@@ -447,6 +344,10 @@ void validate(
       refFix.erase(refFix.begin());
     }
 
+    if (formatRef == BRIDGE_FORMAT_TXT &&
+        running.out.line.substr(0, 5) == "-----")
+      emptyState = 0;
+
     if (running.ref.line == running.out.line)
     {
       keepLineRef = false;
@@ -489,22 +390,10 @@ void validate(
     }
     else if (formatRef == BRIDGE_FORMAT_TXT)
     {
-      unsigned expectPasses;
-      if (isTXTAllPass(running.out.line, running.ref.line, expectPasses))
-      {
-        // Reference does not have "All Pass" (Pavlicek error).
-        if (expectPasses > 0 && ! valProgress(frstr, running.ref))
-        {
-          stats.counts[BRIDGE_VAL_OUT_SHORT]++;
-          break;
-        }
-
-        if (expectPasses == 0 || isTXTPasses(running.ref.line, expectPasses))
-        {
-          valError(stats, running, BRIDGE_VAL_TXT_ALL_PASS);
-          continue;
-        }
-      }
+      if (validateTXT(frstr, running, emptyState, stats))
+        continue;
+      else if (fostr.eof() || frstr.eof())
+        break;
     }
     else if (formatRef == BRIDGE_FORMAT_REC)
     {

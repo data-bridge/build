@@ -273,7 +273,7 @@ string Date::asRBX() const
 string Date::asTXT() const
 {
   if (month == 0 || year == 0)
-    return "";
+    return "\n";
 
   stringstream s;
   if (day > 0)
