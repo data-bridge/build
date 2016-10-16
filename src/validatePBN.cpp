@@ -41,6 +41,25 @@ bool validatePBN(
   ValExample& running,
   ValFileStats& stats)
 {
+  if (running.out.line == "*")
+  {
+    // Could be the Pavlicek bug where play is shortened.
+    while (running.ref.line != "*" && valProgress(frstr, running.ref))
+    {
+    }
+
+    if (frstr.eof())
+    {
+      stats.counts[BRIDGE_VAL_REF_SHORT]++;
+      return false;
+    }
+    else
+    {
+      valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
+      return true;
+    }
+  }
+
   while (1)
   {
     regex re("^\\[(\\w+)\\s+\"(.*)\"\\]$");
