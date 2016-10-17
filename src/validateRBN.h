@@ -19,4 +19,9 @@ bool validateRBN(
   ValExample& running,
   ValFileStats& stats);
 
+bool validateRBX(
+  ifstream& frstr,
+  ValExample& running,
+  ValFileStats& stats);
+
 #endif

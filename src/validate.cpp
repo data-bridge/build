@@ -389,6 +389,13 @@ void validate(
       else if (fostr.eof() || frstr.eof())
         break;
     }
+    else if (formatRef == BRIDGE_FORMAT_RBX)
+    {
+      if (validateRBX(frstr, running, stats))
+        continue;
+      else if (fostr.eof() || frstr.eof())
+        break;
+    }
     else if (formatRef == BRIDGE_FORMAT_TXT)
     {
       // TODO: emptyState is a kludge.  It would be better to count
