@@ -369,6 +369,30 @@ bool ReadNextWord(
 }
 
 
+bool ReadAllWords(
+  const string& s,
+  const unsigned startPos,
+  const unsigned stopPosInclusive,
+  string& word)
+{
+  unsigned l = s.length();
+  if (l == 0 || l < startPos || s.at(startPos) == ' ')
+    return false;
+
+  unsigned pos = Min(l-1, stopPosInclusive);
+  while (pos > startPos && s.at(pos) == ' ')
+    pos--;
+  
+  if (s.at(pos) == ' ')
+    return false;
+  else
+  {
+    word = s.substr(startPos, pos+1-startPos);
+    return true;
+  }
+}
+
+
 bool ReadNextSpacedWord(
   const string& s,
   const unsigned startPos,

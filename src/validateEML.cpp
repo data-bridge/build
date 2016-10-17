@@ -29,7 +29,7 @@ static bool isEMLPlayLine(
   const unsigned lOut = lineOut.length();
   const unsigned lRef = lineRef.length();
 
-  if (lOut < 42 || lOut >= lRef)
+  if (lOut < 42 || lOut > lRef)
     return false;
 
   // A bit thin -- could look more carefully.
@@ -37,11 +37,11 @@ static bool isEMLPlayLine(
   if (lineOut == lineRef.substr(0, lOut))
     return true;
 
-  if (lRef > 78)
+  if (lRef > 75)
   {
     // The reference play may be shifted in by 3.
     string outShort = lineOut;
-    outShort.erase(39, 3);
+    outShort.erase(38, 3);
     if (outShort == lineRef.substr(0, lOut-3))
       return true;
   }
@@ -58,7 +58,7 @@ bool validateEML(
   UNUSED(frstr);
   if (isEMLPlayLine(running.out.line, running.ref.line))
   {
-    stats.counts[BRIDGE_VAL_PLAY_SHORT]++;
+    valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
     return true;
   }
 

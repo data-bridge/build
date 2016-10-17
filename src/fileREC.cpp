@@ -141,16 +141,16 @@ static void getRECFields(
   if (! ReadNextWord(canvas[1], 29, chunk[BRIDGE_FORMAT_VULNERABLE])) 
     THROW("Couldn't read vul: '" + chunk[BRIDGE_FORMAT_VULNERABLE] + "'");
 
-  if (! ReadNextWord(canvas[3], 0, chunk[BRIDGE_FORMAT_WEST])) 
+  if (! ReadAllWords(canvas[3], 0, 11, chunk[BRIDGE_FORMAT_WEST])) 
     THROW("Couldn't read West: '" + chunk[BRIDGE_FORMAT_WEST] + "'");
 
-  if (! ReadNextWord(canvas[0], 12, chunk[BRIDGE_FORMAT_NORTH])) 
+  if (! ReadAllWords(canvas[0], 12, 23, chunk[BRIDGE_FORMAT_NORTH])) 
     THROW("Couldn't read North: '" + chunk[BRIDGE_FORMAT_NORTH] + "'");
 
-  if (! ReadNextWord(canvas[3], 24, chunk[BRIDGE_FORMAT_EAST])) 
+  if (! ReadAllWords(canvas[3], 24, 35, chunk[BRIDGE_FORMAT_EAST])) 
     THROW("Couldn't read East: '" + chunk[BRIDGE_FORMAT_EAST] + "'");
 
-  if (! ReadNextWord(canvas[6], 12, chunk[BRIDGE_FORMAT_SOUTH])) 
+  if (! ReadAllWords(canvas[6], 12, 23, chunk[BRIDGE_FORMAT_SOUTH])) 
     THROW("Couldn't read South: '" + chunk[BRIDGE_FORMAT_SOUTH] + "'");
 
   getRECDeal(canvas, chunk);
