@@ -120,6 +120,10 @@ struct ValStatType
 };
 
 
+bool isRecordComment(
+  const string& lineOut,
+  const string& lineRef);
+
 void validate(
   const string& fileOut,
   const string& fileRef,

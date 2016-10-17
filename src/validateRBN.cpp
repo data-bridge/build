@@ -168,14 +168,9 @@ bool validateRBX(
     {
       if (vRef[i] == "K")
       {
-        if (vOut[j+1] != "")
-        {
-          stats.counts[BRIDGE_VAL_ERROR]++;
-          return false;
-        }
-        else
-          // j stays unchanged
-          valError(stats, running, BRIDGE_VAL_TEAMS);
+        // j stays unchanged
+        valError(stats, running, BRIDGE_VAL_TEAMS);
+        continue;
       }
       else
       {
@@ -188,11 +183,24 @@ bool validateRBX(
       j += 2;
       continue;
     }
-    else if (vRef[j] == "P")
+    else if (vRef[i] == "P")
     {
-      if (lOut >= lRef || vRef[j+1].substr(0, lOut) != vOut[i+1])
+      if (lOut >= lRef || vRef[i+1].substr(0, lOut) != vOut[j+1])
         return false;
       valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
+    }
+    else if (vRef[i] == "%")
+    {
+      // Record numbers have not been checked yet.
+      string llOut = "% " + vOut[j+1];
+      string llRef = "% " + vRef[i+1];
+      if (isRecordComment(llOut, llRef))
+        valError(stats, running, BRIDGE_VAL_RECORD_NUMBER);
+      else
+      {
+        valError(stats, running, BRIDGE_VAL_ERROR);
+        return false;
+      }
     }
     else if (vOut[j+1] != "")
       return false;

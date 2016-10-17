@@ -58,10 +58,6 @@ static bool isLINLongLine(
   const string& lineRef, 
   string& expectLine);
 
-static bool isRecordComment(
-  const string& lineOut,
-  const string& lineRef);
-
 static void statsToVstat(
   const ValFileStats& stats,
   ValStatType& vstat);
@@ -129,7 +125,7 @@ static bool isRECJustMade(
 }
 
 
-static bool isRecordComment(
+bool isRecordComment(
   const string& lineOut,
   const string& lineRef)
 {
@@ -358,7 +354,8 @@ void validate(
 // printExample(running);
 
     // General: % line numbers (Pavlicek error).
-    if (isRecordComment(running.out.line, running.ref.line))
+    if (formatRef != BRIDGE_FORMAT_RBX &&
+        isRecordComment(running.out.line, running.ref.line))
     {
       valError(stats, running, BRIDGE_VAL_RECORD_NUMBER);
       continue;
