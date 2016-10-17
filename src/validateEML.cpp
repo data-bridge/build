@@ -33,8 +33,18 @@ static bool isEMLPlayLine(
     return false;
 
   // A bit thin -- could look more carefully.
+  
   if (lineOut == lineRef.substr(0, lOut))
     return true;
+
+  if (lRef > 78)
+  {
+    // The reference play may be shifted in by 3.
+    string outShort = lineOut;
+    outShort.erase(39, 3);
+    if (outShort == lineRef.substr(0, lOut-3))
+      return true;
+  }
 
   return false;
 }
