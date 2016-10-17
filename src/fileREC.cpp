@@ -143,15 +143,24 @@ static void getRECFields(
 
   if (! ReadAllWords(canvas[3], 0, 11, chunk[BRIDGE_FORMAT_WEST])) 
     THROW("Couldn't read West: '" + chunk[BRIDGE_FORMAT_WEST] + "'");
+  // Let's hope West doesn't sit West :-)
+  if (chunk[BRIDGE_FORMAT_WEST] == "West")
+    chunk[BRIDGE_FORMAT_WEST] = "";
 
   if (! ReadAllWords(canvas[0], 12, 23, chunk[BRIDGE_FORMAT_NORTH])) 
     THROW("Couldn't read North: '" + chunk[BRIDGE_FORMAT_NORTH] + "'");
+  if (chunk[BRIDGE_FORMAT_NORTH] == "North")
+    chunk[BRIDGE_FORMAT_NORTH] = "";
 
   if (! ReadAllWords(canvas[3], 24, 35, chunk[BRIDGE_FORMAT_EAST])) 
     THROW("Couldn't read East: '" + chunk[BRIDGE_FORMAT_EAST] + "'");
+  if (chunk[BRIDGE_FORMAT_EAST] == "East")
+    chunk[BRIDGE_FORMAT_EAST] = "";
 
   if (! ReadAllWords(canvas[6], 12, 23, chunk[BRIDGE_FORMAT_SOUTH])) 
     THROW("Couldn't read South: '" + chunk[BRIDGE_FORMAT_SOUTH] + "'");
+  if (chunk[BRIDGE_FORMAT_SOUTH] == "South")
+    chunk[BRIDGE_FORMAT_SOUTH] = "";
 
   getRECDeal(canvas, chunk);
   getRECAuction(canvas, chunk);
