@@ -21,6 +21,7 @@
 #include "validatePBN.h"
 #include "validateRBN.h"
 #include "validateTXT.h"
+#include "validateEML.h"
 #include "parse.h"
 #include "Bexcept.h"
 
@@ -390,7 +391,17 @@ void validate(
     }
     else if (formatRef == BRIDGE_FORMAT_TXT)
     {
+      // TODO: emptyState is a kludge.  It would be better to count
+      // the lines from a chunk change.  This will also work when
+      // only some of the TXT headers are missing.
       if (validateTXT(frstr, running, emptyState, stats))
+        continue;
+      else if (fostr.eof() || frstr.eof())
+        break;
+    }
+    else if (formatRef == BRIDGE_FORMAT_EML)
+    {
+      if (validateEML(frstr, running, stats))
         continue;
       else if (fostr.eof() || frstr.eof())
         break;
@@ -449,11 +460,21 @@ static void statsToVstat(
   ValStatType& vstat)
 {
   bool minorErrorFlag = false;
-  for (unsigned v = 0; v < BRIDGE_VAL_ERROR; v++)
+  for (unsigned v = 0; v < BRIDGE_VAL_TXT_ALL_PASS; v++)
   {
     if (stats.counts[v])
     {
       minorErrorFlag = true;
+      vstat.details[v]++;
+    }
+  }
+
+  bool RPBugFlag = false;
+  for (unsigned v = BRIDGE_VAL_TXT_ALL_PASS; v < BRIDGE_VAL_ERROR; v++)
+  {
+    if (stats.counts[v])
+    {
+      RPBugFlag = true;
       vstat.details[v]++;
     }
   }
@@ -471,16 +492,16 @@ static void statsToVstat(
   vstat.numFiles++;
 
   if (minorErrorFlag)
-  {
     vstat.numExpectedDiffs++;
-    if (majorErrorFlag)
-      vstat.numErrors++;
-  }
-  else if (majorErrorFlag)
-    vstat.numErrors++;
-  else
-    vstat.numIdentical++;
 
+  if (RPBugFlag)
+    vstat.numPavlicekBugs++;
+
+  if (majorErrorFlag)
+    vstat.numErrors++;
+
+  if (! minorErrorFlag && ! RPBugFlag && ! majorErrorFlag)
+    vstat.numIdentical++;
 }
 
 
@@ -586,7 +607,7 @@ void printOverallStats(
 
     if (detailsFlag)
     {
-      for (unsigned v = 0; v < BRIDGE_VAL_ERROR; v++)
+      for (unsigned v = 0; v < BRIDGE_VAL_TXT_ALL_PASS; v++)
       {
         if (rowHasEntries(vstats[f], v))
           printRow(vstats[f], v);
@@ -596,6 +617,20 @@ void printOverallStats(
     cout << "  MINOR";
     for (auto &g: formatActive)
       cout << setw(7) << right << posOrDash(vstats[f][g].numExpectedDiffs);
+    cout << "\n";
+
+    if (detailsFlag)
+    {
+      for (unsigned v = BRIDGE_VAL_TXT_ALL_PASS; v < BRIDGE_VAL_ERROR; v++)
+      {
+        if (rowHasEntries(vstats[f], v))
+          printRow(vstats[f], v);
+      }
+    }
+
+    cout << "  RPBUG";
+    for (auto &g: formatActive)
+      cout << setw(7) << right << posOrDash(vstats[f][g].numPavlicekBugs);
     cout << "\n";
 
     if (detailsFlag)
