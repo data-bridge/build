@@ -133,7 +133,8 @@ static bool isTXTResult(const string& line)
     return false;
 
   const string w = line.substr(0, 4);
-  return (w == "Down" || w == "Made");
+  return (w == "Down" || w == "Made" || 
+    (line.length() >= 6 && line.substr(0, 6) == "Passed"));
 }
 
 
@@ -194,6 +195,22 @@ bool validateTXT(
     }
     else
       return false;
+  }
+  else if (running.out.line == "" &&
+      running.ref.line.length() == 41 &&
+      running.ref.line.substr(0, 5) == "-----")
+  {
+    if (! valProgress(frstr, running.ref))
+    {
+      stats.counts[BRIDGE_VAL_REF_SHORT]++;
+      return false;
+    }
+
+    if (running.ref.line != "")
+      return false;
+
+    valError(stats, running, BRIDGE_VAL_TXT_DASHES);
+    return true;
   }
 
   while (isTXTPlay(running.ref.line) && ! isTXTPlay(running.out.line))

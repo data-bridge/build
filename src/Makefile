@@ -143,6 +143,11 @@ fileREC.obj: Teams.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
 fileREC.obj: Play.h Canvas.h fileREC.h parse.h Bexcept.h
 parse.obj: Debug.h parse.h bconst.h portab.h
 reader.obj: args.h dispatch.h Files.h bconst.h validate.h Bexcept.h Debug.h
-validate.obj: validate.h bconst.h valint.h validateLIN.h parse.h Bexcept.h
+validate.obj: validate.h bconst.h valint.h validateLIN.h validatePBN.h
+validate.obj: validateRBN.h validateTXT.h validateEML.h parse.h Bexcept.h
 validateLIN.obj: validate.h bconst.h valint.h validateLIN.h parse.h
+validatePBN.obj: validate.h bconst.h valint.h validatePBN.h parse.h
+validateRBN.obj: validate.h bconst.h valint.h validateRBN.h parse.h
+validateTXT.obj: validate.h bconst.h valint.h validateTXT.h parse.h
+validateEML.obj: validate.h bconst.h valint.h validateEML.h parse.h portab.h
 reader.obj: args.h dispatch.h Files.h bconst.h validate.h Bexcept.h Debug.h

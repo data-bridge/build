@@ -31,22 +31,23 @@ enum ValDiffs
   BRIDGE_VAL_SCORING = 6,
   BRIDGE_VAL_TEAMS = 7,
   BRIDGE_VAL_NAMES_SHORT = 8,
-  BRIDGE_VAL_VG_CHAT = 9,
+  BRIDGE_VAL_TXT_DASHES = 9,
+  BRIDGE_VAL_VG_CHAT = 10,
 
   // These are Pavlicek bugs.
-  BRIDGE_VAL_TXT_ALL_PASS = 10,
-  BRIDGE_VAL_LIN_EXCLAIM = 11,
-  BRIDGE_VAL_LIN_PLAY_NL = 12,
-  BRIDGE_VAL_PLAY_SHORT = 13,
-  BRIDGE_VAL_REC_MADE_32 = 14,
-  BRIDGE_VAL_TXT_RESULT = 15,
-  BRIDGE_VAL_RECORD_NUMBER = 16,
+  BRIDGE_VAL_TXT_ALL_PASS = 11,
+  BRIDGE_VAL_LIN_EXCLAIM = 12,
+  BRIDGE_VAL_LIN_PLAY_NL = 13,
+  BRIDGE_VAL_PLAY_SHORT = 14,
+  BRIDGE_VAL_REC_MADE_32 = 15,
+  BRIDGE_VAL_TXT_RESULT = 16,
+  BRIDGE_VAL_RECORD_NUMBER = 17,
 
   // These are real errors.
-  BRIDGE_VAL_ERROR = 17,
-  BRIDGE_VAL_OUT_SHORT = 18,
-  BRIDGE_VAL_REF_SHORT = 19,
-  BRIDGE_VAL_SIZE = 20
+  BRIDGE_VAL_ERROR = 18,
+  BRIDGE_VAL_OUT_SHORT = 19,
+  BRIDGE_VAL_REF_SHORT = 20,
+  BRIDGE_VAL_SIZE = 21
 };
 
 const string valNames[] =
@@ -60,6 +61,7 @@ const string valNames[] =
   "Scoring",
   "Teams",
   "Names-short",
+  "TXT-dashes",
   "VG-chat",
 
   "All-pass",
@@ -86,6 +88,7 @@ const string valNamesShort[] =
   "F",
   "K",
   "Nsht",
+  "Dash",
   "Chat",
 
   "Apass",
