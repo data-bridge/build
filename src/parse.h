@@ -60,6 +60,8 @@ unsigned StringToMonth(const string& m);
 
 unsigned str2month(const string& m);
 
+unsigned GobbleLeadingSpace(string& s);
+
 bool GetNextWord(
   string& s,
   string& word);

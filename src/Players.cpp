@@ -7,6 +7,8 @@
 */
 
 
+#include <iomanip>
+#include <sstream>
 #include <algorithm>
 #include <vector>
 
@@ -14,10 +16,8 @@
 #include "portab.h"
 #include "parse.h"
 #include "Bexcept.h"
-#include "Debug.h"
+#include "Bdiff.h"
 
-
-extern Debug debug;
 
 
 const string ROOM_LIN[] =
@@ -57,10 +57,7 @@ bool Players::SetPlayer(
   const playerType player)
 {
   if (player > BRIDGE_WEST)
-  {
-    LOG("Player out of bounds");
-    return false;
-  }
+    THROW("Player out of bounds");
 
   unsigned p;
   if (player == BRIDGE_SOUTH)
@@ -127,10 +124,7 @@ bool Players::SetPlayersLIN(const string& names)
   int seen = count(names.begin(), names.end(), ',');
 
   if (seen != 3 && seen != 7)
-  {
-    LOG("Names are not in LIN format");
-    return false;
-  }
+    THROW("Names are not in LIN format");
 
   vector<string> v(static_cast<unsigned>(seen+1));
   v.clear();
@@ -182,20 +176,17 @@ bool Players::SetPlayers(
       return Players::SetPlayersLIN(names);
     
     case BRIDGE_FORMAT_PBN:
-      LOG("No overall PBN player format");
-      return "";
+      THROW("No overall PBN player format");
     
     case BRIDGE_FORMAT_RBN:
     case BRIDGE_FORMAT_RBX:
       return Players::SetPlayersRBN(names);
     
     case BRIDGE_FORMAT_TXT:
-      LOG("No overall TXT player format");
-      return "";
+      THROW("No overall TXT player format");
     
     default:
-      LOG("Invalid format " + STR(f));
-      return "";
+      THROW("Invalid format " + STR(f));
   }
 }
 
@@ -236,8 +227,7 @@ bool Players::SetRoom(
       return true;
     
     default:
-      LOG("Invalid format " + STR(f));
-      return "";
+      THROW("Invalid format " + STR(f));
   }
 }
 
@@ -258,19 +248,11 @@ roomType Players::GetRoom() const
 bool Players::operator == (const Players& p2) const
 {
   for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
-  {
     if (players[p] != p2.players[p])
-    {
-      LOG("Players differ");
-      return false;
-    }
-  }
+      DIFF("Players differ");
 
   if (room != p2.room)
-  {
-    LOG("Rooms differ");
-    return false;
-  }
+    DIFF("Rooms differ");
   else
     return true;
 }
@@ -389,8 +371,7 @@ string Players::AsString(
       return Players::AsLIN();
     
     case BRIDGE_FORMAT_PBN:
-      LOG("No separate PBN players format");
-      return "";
+      THROW("No separate PBN players format");
     
     case BRIDGE_FORMAT_RBN:
       return Players::AsRBN();
@@ -405,8 +386,7 @@ string Players::AsString(
       return Players::AsREC();
     
     default:
-      LOG("Invalid format " + STR(f));
-      return "";
+      THROW("Invalid format " + STR(f));
   }
 }
 
@@ -420,8 +400,7 @@ string Players::AsBareString(
         return Players::AsLIN() + ",";
 
     default:
-      LOG("Invalid format " + STR(f));
-      return "";
+      THROW("Invalid format " + STR(f));
   }
 }
 
@@ -444,8 +423,7 @@ string Players::AsDeltaString(
       return s;
 
     default:
-      LOG("Invalid format " + STR(f));
-      return "";
+      THROW("Invalid format " + STR(f));
   }
 }
 
@@ -459,8 +437,7 @@ string Players::PlayerAsString(
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
-      LOG("No separate LIN player format");
-      return "";
+      THROW("No separate LIN player format");
     
     case BRIDGE_FORMAT_PBN:
       s << "[" << PLAYER_NAMES_LONG[player] << " \"" <<
@@ -468,8 +445,7 @@ string Players::PlayerAsString(
       return s.str();
     
     case BRIDGE_FORMAT_RBN:
-      LOG("No separate RBN player format");
-      return "";
+      THROW("No separate RBN player format");
     
     case BRIDGE_FORMAT_EML:
       return players[player].substr(0, 8);
@@ -484,8 +460,7 @@ string Players::PlayerAsString(
       return players[player];
     
     default:
-      LOG("Invalid format " + STR(f));
-      return "";
+      THROW("Invalid format " + STR(f));
   }
 }
 
@@ -516,16 +491,14 @@ string Players::RoomAsString(
       return s.str();
     
     case BRIDGE_FORMAT_RBN:
-      LOG("No separate RBN room");
-      return "";
+      THROW("No separate RBN room");
     
     case BRIDGE_FORMAT_TXT:
       s << ROOM_PBN[room];
       return s.str();
     
     default:
-      LOG("Invalid format " + STR(f));
-      return "";
+      THROW("Invalid format " + STR(f));
   }
 }
 

@@ -52,28 +52,29 @@ static bool readEMLCanvas(
 static bool getEMLCanvasWest(
   const vector<string>& canvas,
   const unsigned pos,
-  const unsigned openingLine,
+  const unsigned resultLine,
   unsigned& westLine,
   unsigned& cardStart);
 
 static bool getEMLCanvasOffset(
   const vector<string>& canvas,
-  unsigned& openingLine,
+  unsigned& resultLine,
+  bool& playIsPresent,
   unsigned& westLine);
 
 static bool getEMLSimpleFields(
   const vector<string>& canvas,
-  const unsigned openingLine,
+  const unsigned resultLine,
   vector<string>& chunk);
 
 static bool getEMLAuction(
   const vector<string>& canvas,
-  const unsigned openingLine,
+  const unsigned resultLine,
   vector<string>& chunk);
 
 static bool getEMLPlay(
   const vector<string>& canvas,
-  const unsigned openingLine,
+  const unsigned resultLine,
   const unsigned westLine,
   const unsigned cardStart,
   vector<string>& chunk);
@@ -124,11 +125,11 @@ static bool readEMLCanvas(
 static bool getEMLCanvasWest(
   const vector<string>& canvas,
   const unsigned pos,
-  const unsigned openingLine,
+  const unsigned resultLine,
   unsigned& westLine,
   unsigned& cardStart)
 {
-  westLine = openingLine;
+  westLine = resultLine;
   cardStart = 0;
   string wd = "";
   while (westLine < canvas.size())
@@ -149,34 +150,36 @@ static bool getEMLCanvasWest(
 
 static bool getEMLCanvasOffset(
   const vector<string>& canvas,
-  unsigned& openingLine,
+  unsigned& resultLine,
   unsigned& westLine,
+  bool& playIsPresent,
   unsigned& cardStart)
 {
-  openingLine = 5;
+  resultLine = 5;
   string wd = "";
-  while (openingLine < canvas.size())
+  while (resultLine < canvas.size())
   {
-    if (ReadNextWord(canvas[openingLine], 42, wd) && wd == "Opening")
+    if (ReadNextWord(canvas[resultLine], 42, wd) && wd == "Result:")
       break;
-    openingLine++;
+    resultLine++;
   }
 
-  if (wd != "Opening")
+  if (wd != "Result:")
     return false;
 
-  if (getEMLCanvasWest(canvas, 42, openingLine, westLine, cardStart))
-    return true;
-  else if (getEMLCanvasWest(canvas, 39, openingLine, westLine, cardStart))
-    return true;
+  if (getEMLCanvasWest(canvas, 42, resultLine, westLine, cardStart))
+    playIsPresent = true;
+  else if (getEMLCanvasWest(canvas, 39, resultLine, westLine, cardStart))
+    playIsPresent = true;
   else
-    return false;
+    playIsPresent = false;
+  return true;
 }
 
 
 static bool getEMLSimpleFields(
   const vector<string>& canvas,
-  const unsigned openingLine,
+  const unsigned resultLine,
   vector<string>& chunk)
 {
   if (! ReadNextWord(canvas[0], 0, chunk[BRIDGE_FORMAT_SCORING]))
@@ -198,16 +201,16 @@ static bool getEMLSimpleFields(
   if (! ReadNextWord(canvas[2], 5, chunk[BRIDGE_FORMAT_VULNERABLE]))
     return false;
 
-  if (! ReadNextWord(canvas[openingLine+1], 50, chunk[BRIDGE_FORMAT_RESULT]))
+  if (! ReadNextWord(canvas[resultLine], 50, chunk[BRIDGE_FORMAT_RESULT]))
     return false;
 
-  if (! ReadNextWord(canvas[openingLine+2], 49, chunk[BRIDGE_FORMAT_SCORE]))
+  if (! ReadNextWord(canvas[resultLine+1], 49, chunk[BRIDGE_FORMAT_SCORE]))
     return false;
   chunk[BRIDGE_FORMAT_SCORE].pop_back(); // Drop trailing comma
 
-  if (canvas[openingLine+2].back() != ':')
+  if (canvas[resultLine+1].back() != ':')
   {
-    if (! ReadLastWord(canvas[openingLine+2], chunk[BRIDGE_FORMAT_SCORE_IMP]))
+    if (! ReadLastWord(canvas[resultLine+1], chunk[BRIDGE_FORMAT_SCORE_IMP]))
       return false;
   }
   return true;
@@ -255,13 +258,16 @@ static bool getEMLDeal(
 
 static bool getEMLAuction(
   const vector<string>& canvas,
-  const unsigned openingLine,
+  const unsigned resultLine,
   vector<string>& chunk)
 {
   stringstream d;
   d.clear();
 
   unsigned firstStart = 42;
+  if (canvas[5].size() < firstStart)
+    return true;
+
   while (firstStart < 75 && canvas[5].at(firstStart) == ' ')
     firstStart += 9;
 
@@ -270,13 +276,13 @@ static bool getEMLAuction(
 
   string wd;
   unsigned no = 0;
-  for (unsigned l = 5; l < openingLine-1; l++)
+  for (unsigned l = 5; l < resultLine-1; l++)
   {
     for (unsigned beg = (l == 5 ? firstStart : 42); beg < 75; beg += 9)
     {
       if (! ReadNextWord(canvas[l], beg, wd))
       {
-        if (l == openingLine-1)
+        if (l == resultLine-2)
           break;
         else
           return false;
@@ -311,7 +317,7 @@ static bool getEMLAuction(
 
 static bool getEMLPlay(
   const vector<string>& canvas,
-  const unsigned openingLine,
+  const unsigned resultLine,
   const unsigned westLine,
   const unsigned cardStart,
   vector<string>& chunk)
@@ -320,8 +326,9 @@ static bool getEMLPlay(
   d.clear();
 
   string p1, p2, p3, p4;
+
   string opld;
-  if (! ReadNextWord(canvas[openingLine], 56, opld))
+  if (! ReadNextWord(canvas[resultLine-1], 56, opld))
     return false;
 
   string wd;
@@ -414,7 +421,9 @@ bool readEMLChunk(
   unsigned openingLine = 0;
   unsigned westLine = 0;
   unsigned cardStart = 0;
-  if (! getEMLCanvasOffset(canvas, openingLine, westLine, cardStart))
+  bool playIsPresent;
+  if (! getEMLCanvasOffset(canvas, openingLine, 
+      westLine, playIsPresent, cardStart))
     return false;
 
   if (! getEMLSimpleFields(canvas, openingLine, chunk))
@@ -429,7 +438,8 @@ bool readEMLChunk(
     return false;
 
   // Synthesize an RBN-style string of plays.
-  if (! getEMLPlay(canvas, openingLine, westLine, cardStart, chunk))
+  if (playIsPresent && 
+      ! getEMLPlay(canvas, openingLine, westLine, cardStart, chunk))
     return false;
 
   return true;

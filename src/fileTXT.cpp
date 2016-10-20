@@ -16,11 +16,8 @@
 #include "Canvas.h"
 #include "fileTXT.h"
 #include "parse.h"
-#include "Debug.h"
 
 using namespace std;
-
-extern Debug debug;
 
 
 string TXTdashes;
@@ -34,10 +31,11 @@ static bool readTXTCanvas(
 
 static bool getTXTCanvasOffset(
   const vector<string>& canvas,
-  unsigned& auctionLine);
+  unsigned& auctionLine,
+  vector<string>& chunk);
 
 static bool getTXTFields(
-  const vector<string>& canvas,
+  vector<string>& canvas,
   const unsigned auctionLine,
   vector<string>& chunk);
 
@@ -47,7 +45,7 @@ static bool getTXTDeal(
   vector<string>& chunk);
 
 static bool getTXTAuction(
-  const vector<string>& canvas,
+  vector<string>& canvas,
   unsigned& offset,
   vector<string>& chunk);
 
@@ -107,7 +105,12 @@ static bool readTXTCanvas(
       {
         const string mid = line.substr(10, 10);
         if (mid == TXTshortDashes)
-          break;
+        {
+          if (seenDeal)
+            break;
+          else
+            continue;
+        }
       }
     }
 
@@ -119,37 +122,67 @@ static bool readTXTCanvas(
 
 static bool getTXTCanvasOffset(
   const vector<string>& canvas,
-  unsigned& auctionLine)
+  unsigned& auctionLine,
+  vector<string>& chunk)
 {
   auctionLine = 0;
   string wd = "";
   while (auctionLine < canvas.size())
   {
+    // Must distinguish from "West Dlr".
     if (canvas[auctionLine].size() > 12 &&
-        canvas[auctionLine].substr(0, 4) == "West")
+        canvas[auctionLine].substr(0, 6) == "West  ")
       break;
     auctionLine++;
   }
 
   if (auctionLine == canvas.size())
     return false;
-  else
-  {
-    auctionLine--;
+
+  if (auctionLine == 0)
+    // No player names present.
     return true;
-  }
+
+  // Get the names.
+
+  unsigned aline = auctionLine-1;
+
+  unsigned l = canvas[aline].length();
+  unsigned n = 0;
+
+  if (! ReadNextWord(canvas[aline], 0, chunk[BRIDGE_FORMAT_WEST])) 
+    return false;
+  n += chunk[BRIDGE_FORMAT_WEST].length();
+  while (n < l && canvas[aline].at(n) == ' ') n++;
+
+  if (! ReadNextWord(canvas[aline], n, chunk[BRIDGE_FORMAT_NORTH])) 
+    return false;
+  n += chunk[BRIDGE_FORMAT_NORTH].length();
+  while (n < l && canvas[aline].at(n) == ' ') n++;
+
+  if (! ReadNextWord(canvas[aline], n, chunk[BRIDGE_FORMAT_EAST])) 
+    return false;
+  n += chunk[BRIDGE_FORMAT_EAST].length();
+  while (n < l && canvas[aline].at(n) == ' ') n++;
+
+  if (! ReadNextWord(canvas[aline], n, chunk[BRIDGE_FORMAT_SOUTH])) 
+    return false;
+
+  return true;
 }
 
 
 static bool getTXTFields(
-  const vector<string>& canvas,
+  vector<string>& canvas,
   const unsigned aline,
   vector<string>& chunk)
 {
   unsigned bline = 0;
   if (canvas[0].size() < 19 || 
      (canvas[0].substr(12, 7) != "  North" &&
-      canvas[1].substr(0, 4) != "West"))
+      (canvas[1].size() < 4 || canvas[1].substr(0, 4) != "West") &&
+       canvas[0].substr(0, 4) != "West" &&
+       canvas[0].substr(12, 5) != "North"))
   {
     chunk[BRIDGE_FORMAT_TITLE] = canvas[0];
     chunk[BRIDGE_FORMAT_DATE] = canvas[1];
@@ -161,11 +194,21 @@ static bool getTXTFields(
     bline = 6;
   }
 
-  if (aline > 10)
+  if (aline > 11)
   {
+if (bline+14 >= canvas.size())
+{
+  cout << "GTF HERE" << endl;
+  exit(0);
+}
     if (! ReadNextWord(canvas[bline], 0, chunk[BRIDGE_FORMAT_BOARD_NO])) 
       return false;
     chunk[BRIDGE_FORMAT_BOARD_NO].pop_back(); // Drop trailing point
+
+    // Attempt to read dealer.  Pavlicek only puts a dealer
+    // when the auction is not given.
+
+    (void) ReadNextWord(canvas[bline+13], 0, chunk[BRIDGE_FORMAT_DEALER]);
 
     if (! ReadNextWord(canvas[bline+14], 0, chunk[BRIDGE_FORMAT_VULNERABLE])) 
       return false;
@@ -174,13 +217,7 @@ static bool getTXTFields(
       return false;
   }
 
-  if (! ReadNextWord(canvas[aline], 0, chunk[BRIDGE_FORMAT_WEST])) return false;
-  if (! ReadNextWord(canvas[aline], 12, chunk[BRIDGE_FORMAT_NORTH])) return false;
-  if (! ReadNextWord(canvas[aline], 24, chunk[BRIDGE_FORMAT_EAST])) return false;
-  if (! ReadNextWord(canvas[aline], 36, chunk[BRIDGE_FORMAT_SOUTH])) return false;
-
-
-  unsigned cline = aline+2;
+  unsigned cline = aline+1;
   if (! getTXTAuction(canvas, cline, chunk))
     return false;
 
@@ -195,15 +232,19 @@ static bool getTXTFields(
     cline++;
     if (! getTXTPlay(canvas, cline, chunk))
       return false;
+    cline++;
   }
   else if (wd == "Lead:")
   {
     if (! ReadLastWord(canvas[cline], wd))
       return false;
-    chunk[BRIDGE_FORMAT_PLAY] = wd;
+    if (wd.size() == 3 && wd.substr(1, 2) == "10")
+      chunk[BRIDGE_FORMAT_PLAY] = wd.substr(0, 1) + "T";
+    else
+      chunk[BRIDGE_FORMAT_PLAY] = wd;
+    cline++;
   }
 
-  cline++;
   if (canvas[cline].size() < 5)
     return false;
   chunk[BRIDGE_FORMAT_RESULT] = canvas[cline];
@@ -256,18 +297,26 @@ static bool getTXTDeal(
 
 
 static bool getTXTAuction(
-  const vector<string>& canvas,
+  vector<string>& canvas,
   unsigned& offset,
   vector<string>& chunk)
 {
+  const unsigned l0 = canvas[offset].length();
+  if (l0 > 6 && l0 < 10)
+  {
+    // No auction, e.g. "5C East".
+    chunk[BRIDGE_FORMAT_AUCTION] = "";
+    return true;
+  }
+
   stringstream d;
   d.clear();
 
-  unsigned firstStart = 0;
-  while (firstStart < 48 && canvas[offset].at(firstStart) == ' ')
-    firstStart += 12;
+  // The auction fields are normally 12 characters wide.
+  // With long names this may run over, but hopefully not by too much.
+  unsigned firstStart = GobbleLeadingSpace(canvas[offset]);
 
-  if (firstStart >= 48)
+  if (firstStart == l0)
     return false;
 
   chunk[BRIDGE_FORMAT_DEALER] = PLAYER_NAMES_LONG[
@@ -280,13 +329,15 @@ static bool getTXTAuction(
   unsigned numPasses = 0;
   for (l = offset; l < canvas.size(); l++)
   {
-    for (unsigned beg = (l == offset ? firstStart : 0); beg < 48; beg += 12)
+    while (GetNextWord(canvas[l], wd))
+    // for (unsigned beg = (l == offset ? firstStart : 0); beg < 48; beg += 12)
     {
-      if (! ReadNextWord(canvas[l], beg, wd))
-      {
-        done = true;
-        break;
-      }
+      // if (! ReadNextWord(canvas[l], beg, wd))
+      // {
+        // done = true;
+        // break;
+      // }
+      GobbleLeadingSpace(canvas[l]);
 
       if (no > 0 && no % 4 == 0)
         d << ":";
@@ -325,7 +376,7 @@ static bool getTXTAuction(
       }
       no++;
 
-      if (numPasses >= 3)
+      if (numPasses >= 3 && no >= 4)
       {
         done = true;
         break;
@@ -357,7 +408,8 @@ static bool getTXTPlay(
   unsigned l;
   for (l = offset; l < canvas.size(); l++)
   {
-    if (canvas[l].substr(1, 2) != ". " && canvas[l].substr(2, 2) != ". ")
+    if (canvas[l].length() < 3 ||
+       (canvas[l].substr(1, 2) != ". " && canvas[l].substr(2, 2) != ". "))
     {
       l--;
       break;
@@ -411,7 +463,7 @@ bool readTXTChunk(
     chunk[i] = "";
 
   unsigned auctionLine = 0;
-  if (! getTXTCanvasOffset(canvas, auctionLine))
+  if (! getTXTCanvasOffset(canvas, auctionLine, chunk))
     return false;
 
   newSegFlag = false;

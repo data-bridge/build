@@ -16,11 +16,9 @@
 #include "Segment.h"
 #include "Board.h"
 #include "fileLIN.h"
-#include "Debug.h"
+#include "Bexcept.h"
 
 using namespace std;
-
-extern Debug debug;
 
 
 map<string, formatLabelType> LINmap;
@@ -112,10 +110,7 @@ bool readLINChunk(
 
       auto it = LINmap.find(label);
       if (it == LINmap.end())
-      {
-        LOG("Illegal LIN label in line '" + line + "'");
-        return false;
-      }
+        THROW("Illegal LIN label in line '" + line + "'");
 
       const unsigned labelNo = it->second;
       if (labelNo <= BRIDGE_FORMAT_VISITTEAM)
@@ -140,10 +135,7 @@ bool readLINChunk(
       else if (chunk[labelNo] == "")
         chunk[labelNo] = value;
       else
-      {
-        LOG("Label already set in line '" + line + "'");
-        return false;
-      }
+        THROW("Label already set in line '" + line + "'");
     }
   }
 

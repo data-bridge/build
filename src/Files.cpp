@@ -20,11 +20,8 @@
 #include "Shlwapi.h"
 
 #include "Files.h"
-#include "Debug.h"
 #include "portab.h"
 #include "parse.h"
-
-extern Debug debug;
 
 mutex mtx;
 

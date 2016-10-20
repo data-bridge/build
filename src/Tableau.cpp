@@ -12,11 +12,10 @@
 
 #include "Tableau.h"
 #include "Contract.h"
-#include "Debug.h"
 #include "parse.h"
+#include "Bexcept.h"
+#include "Bdiff.h"
 
-
-extern Debug debug;
 
 
 Tableau::Tableau()
@@ -60,10 +59,7 @@ bool Tableau::RBNStringToList(
     else if (c >= 'A' && c <= 'D')
       t = static_cast<unsigned>(c - 'A' + 10);
     else
-    {
-      LOG("Invalid number of tricks: '" + STR(c) + "'");
-      return false;
-    }
+      THROW("Invalid number of tricks: '" + STR(c) + "'");
 
     listRBN[drbn] = (invertFlag ? 13-t : t);
   }
@@ -87,17 +83,11 @@ bool Tableau::SetRBNPlayer(
 bool Tableau::SetRBN(const string& text)
 {
   if (text == "")
-  {
-    LOG("Empty text");
-    return false;
-  }
+    THROW("Empty text");
     
   int c = count(text.begin(), text.end(), ':');
   if (c != 2 && c != 3)
-  {
-    LOG("Text without 2 or 3 colons: '" + text + "'");
-    return false;
-  }
+    THROW("Text without 2 or 3 colons: '" + text + "'");
 
   vector<string> tokens(4);
   tokens.clear();
@@ -107,31 +97,20 @@ bool Tableau::SetRBN(const string& text)
 
   size_t nsl = ns.length();
   size_t ewl = ew.length();
+
   if (nsl != 6 && nsl != 11) 
-  {
-    LOG("NS text not of length 6 or 11: '" + ns + "'");
-    return false;
-  }
+    THROW("NS text not of length 6 or 11: '" + ns + "'");
+
   if (ewl != 2 && ewl != 6 && ewl != 11)
-  {
-    LOG("EW text not of length 2, 6 or 11: '" + ew + "'");
-    return false;
-  }
+    THROW("EW text not of length 2, 6 or 11: '" + ew + "'");
   if (nsl == 6 && ns.at(5) != '=')
-  {
-    LOG("NS text without = at position 6: '" + ns + "'");
-    return false;
-  }
+    THROW("NS text without = at position 6: '" + ns + "'");
+
   if (nsl == 11 && ns.at(5) != '+')
-  {
-    LOG("NS text without + at position 6: '" + ns + "'");
-    return false;
-  }
+    THROW("NS text without + at position 6: '" + ns + "'");
+
   if (ewl == 11 && ew.at(5) != '+')
-  {
-    LOG("EW text without + at position 6: '" + ew + "'");
-    return false;
-  }
+    THROW("EW text without + at position 6: '" + ew + "'");
 
   unsigned listRBN[5];
   if (! Tableau::RBNStringToList(ns.substr(0, 5), listRBN))
@@ -151,15 +130,10 @@ bool Tableau::SetRBN(const string& text)
     w = ew.substr(0, 1);
     e = ew.substr(1, 1);
     if (w != "!")
-    {
-      LOG("W text not !");
-      return false;
-    }
+      THROW("W text not !");
+
     if (e != "!" && e != "=")
-    {
-      LOG("E text not ! nor =");
-      return false;
-    }
+      THROW("E text not ! nor =");
   }
   else if (ewl == 6)
   {
@@ -173,10 +147,7 @@ bool Tableau::SetRBN(const string& text)
       w = ew.substr(0, 5);
       e = ew.substr(5, 1);
       if (e != "!" && e != "=")
-      {
-        LOG("E text not ! nor =");
-        return false;
-      }
+        THROW("E text not ! nor =");
     }
   }
   else
@@ -220,23 +191,19 @@ bool Tableau::Set(
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
-      LOG("LIN tableau not implemented");
-      return "";
+      THROW("LIN tableau not implemented");
 
     case BRIDGE_FORMAT_PBN:
-      LOG("PBN tableau not implemented");
-      return "";
+      THROW("PBN tableau not implemented");
 
     case BRIDGE_FORMAT_RBN:
       return Tableau::SetRBN(text);
 
     case BRIDGE_FORMAT_TXT:
-      LOG("TXT tableau not implemented");
-      return "";
+      THROW("TXT tableau not implemented");
 
     default:
-      LOG("Other tableau formats not implemented");
-      return "";
+      THROW("Other tableau formats not implemented");
   }
 }
 
@@ -247,21 +214,16 @@ bool Tableau::SetEntry(
   const unsigned t)
 {
   if (t == BRIDGE_TRICKS+1)
-  {
-    LOG("Too many tricks");
-    return false;
-  }
-  else if (table[d][p] == BRIDGE_TRICKS+1)
+    THROW("Too many tricks");
+
+  if (table[d][p] == BRIDGE_TRICKS+1)
   {
     setNum++;
     table[d][p] = t;
     return true;
   }
   else if (table[d][p] != t)
-  {
-    LOG("Already set to something different");
-    return false;
-  }
+    THROW("Already set to something different");
   else
     return true;
 }
@@ -278,10 +240,7 @@ unsigned Tableau::GetEntry(
 bool Tableau::operator ==(const Tableau& tab2) const
 {
   if (setNum != tab2.setNum) 
-  {
-    LOG("Different numbers");
-    return false;
-  }
+    DIFF("Different numbers");
 
   for (int p = 0; p < BRIDGE_PLAYERS; p++)
   {
@@ -290,21 +249,12 @@ bool Tableau::operator ==(const Tableau& tab2) const
       if (table[d][p] == BRIDGE_TRICKS+1)
       {
         if (tab2.table[d][p] != BRIDGE_TRICKS+1)
-	{
-	  LOG("p " + STR(p) + ", d " + STR(d) + ": First unset, second set");
-	  return false;
-        }
+	  DIFF("p " + STR(p) + ", d " + STR(d) + ": First unset, second set");
       }
       else if (tab2.table[d][p] == BRIDGE_TRICKS+1)
-      {
-        LOG("p " + STR(p) + ", d " + STR(d) + ": First set, second unset");
-        return false;
-      }
+        DIFF("p " + STR(p) + ", d " + STR(d) + ": First set, second unset");
       else if (table[d][p] != tab2.table[d][p])
-      {
-        LOG("p " + STR(p) + ", d " + STR(d) + ": Different values");
-        return false;
-      }
+        DIFF("p " + STR(p) + ", d " + STR(d) + ": Different values");
     }
   }
 

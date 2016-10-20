@@ -16,9 +16,7 @@
 #include "parse.h"
 #include "portab.h"
 #include "Bexcept.h"
-#include "Debug.h"
-
-extern Debug debug;
+#include "Bdiff.h"
 
 
 #define AUCTION_SEQ_INIT 12
@@ -130,16 +128,10 @@ bool Auction::SetDealerLIN(
 {
   unsigned u;
   if (! StringToNonzeroUnsigned(d, u))
-  {
-    LOG("Not a LIN dealer");
-    return false;
-  }
+    THROW("Not a LIN dealer");
 
   if (u > 4)
-  {
-    LOG("LIN dealer out of range");
-    return false;
-  }
+    THROW("LIN dealer out of range");
 
   p = static_cast<playerType>((u+1) % 4);
   return true;
@@ -159,10 +151,8 @@ bool Auction::SetDealerPBN(
   else if (d == "W")
     p = BRIDGE_WEST;
   else
-  {
-    LOG("Invalid PBN dealer");
-    return false;
-  }
+    THROW("Invalid PBN dealer");
+
   return true;
 }
 
@@ -180,10 +170,8 @@ bool Auction::SetDealerTXT(
   else if (d == "West")
     p = BRIDGE_WEST;
   else
-  {
-    LOG("Invalid PBN dealer");
-    return false;
-  }
+    THROW("Invalid PBN dealer");
+
   return true;
 }
 
@@ -201,10 +189,8 @@ bool Auction::SetVulLIN(
   else if (v == "b" || v == "B")
     vOut = BRIDGE_VUL_BOTH;
   else
-  {
-    LOG("Invalid LIN vulnerability");
-    return false;
-  }
+    THROW("Invalid LIN vulnerability");
+
   return true;
 }
 
@@ -221,10 +207,8 @@ bool Auction::SetVulPBN(
   else if (v == "All")
     vOut = BRIDGE_VUL_BOTH;
   else
-  {
-    LOG("Invalid PBN vulnerability");
-    return false;
-  }
+    THROW("Invalid PBN vulnerability");
+
   return true;
 }
 
@@ -241,10 +225,8 @@ bool Auction::SetVulRBN(
   else if (v == "B")
     vOut = BRIDGE_VUL_BOTH;
   else
-  {
-    LOG("Invalid RBN vulnerability");
-    return false;
-  }
+    THROW("Invalid RBN vulnerability");
+
   return true;
 }
 
@@ -261,10 +243,8 @@ bool Auction::SetVulTXT(
   else if (v == "Both")
     vOut = BRIDGE_VUL_BOTH;
   else
-  {
-    LOG("Invalid TXT vulnerability");
-    return false;
-  }
+    THROW("Invalid TXT vulnerability");
+
   return true;
 }
 
@@ -302,8 +282,7 @@ bool Auction::ParseDealerVul(
       break;
     
     default:
-      LOG("Invalid format " + STR(f));
-      return "";
+      THROW("Invalid format " + STR(f));
   }
 
   return true;
@@ -316,10 +295,7 @@ bool Auction::SetDealerVul(
   const formatType f)
 {
   if (setDVFlag)
-  {
-    LOG("Dealer and vulnerability already set");
-    return false;
-  }
+    THROW("Dealer and vulnerability already set");
 
   playerType dOut;
   vulType vOut;
@@ -365,8 +341,7 @@ bool Auction::SetDealer(
       break;
     
     default:
-      LOG("Invalid format " + STR(f));
-      return "";
+      THROW("Invalid format " + STR(f));
   }
 
   return true;
@@ -406,8 +381,7 @@ bool Auction::SetVul(
       break;
     
     default:
-      LOG("Invalid format " + STR(f));
-      return "";
+      THROW("Invalid format " + STR(f));
   }
 
   return true;
@@ -428,10 +402,7 @@ bool Auction::CheckDealerVul(
   const formatType f) const
 {
   if (! setDVFlag)
-  {
-    LOG("Dealer and vulnerability not set");
-    return false;
-  }
+    THROW("Dealer and vulnerability not set");
 
   playerType dOut;
   vulType vOut;
@@ -500,16 +471,10 @@ bool Auction::AddCall(
   const string& alert)
 {
   if (Auction::IsOver())
-  {
-    LOG("Call after auction is over");
-    return false;
-  }
+    THROW("Call after auction is over");
 
   if (call == "")
-  {
-    LOG("Empty call");
-    return false;
-  }
+    THROW("Empty call");
 
   string c = call;
   bool alertFlag = false;
@@ -521,10 +486,7 @@ bool Auction::AddCall(
 
   map<string, unsigned>::iterator it = AUCTION_CALL_TO_NO.find(c);
   if (it == AUCTION_CALL_TO_NO.end())
-  {
-    LOG("Illegal call: " + call);
-    return false;
-  }
+    THROW("Illegal call: " + call);
 
   if (len == lenMax)
   {
@@ -538,10 +500,7 @@ bool Auction::AddCall(
   else if (n == 1)
   {
     if (multiplier != BRIDGE_MULT_UNDOUBLED)
-    {
-      LOG("Illegal double");
-      return false;
-    }
+      THROW("Illegal double");
 
     multiplier = BRIDGE_MULT_DOUBLED;
     numPasses = 0;
@@ -549,19 +508,13 @@ bool Auction::AddCall(
   else if (n == 2)
   {
     if (multiplier != BRIDGE_MULT_DOUBLED)
-    {
-      LOG("Illegal redouble");
-      return false;
-    }
+      THROW("Illegal redouble");
 
     multiplier = BRIDGE_MULT_REDOUBLED;
     numPasses = 0;
   }
   else if (n <= activeCNo)
-  {
-    LOG("Call " + STR(n) + " too low");
-    return false;
-  }
+    THROW("Call " + STR(n) + " too low");
   else
   {
     numPasses = 0;
@@ -606,23 +559,14 @@ bool Auction::AddAlertsRBN(const vector<string>& lines)
     string beg;
     string line = lines[i];
     if (! GetNextWord(line, beg))
-    {
-      LOG("Not a valid alert line");
-      return false;
-    }
+      THROW("Not a valid alert line");
 
     unsigned u;
     if (! StringToNonzeroUnsigned(beg, u))
-    {
-      LOG("Not a valid alert number");
-      return false;
-    }
+      THROW("Not a valid alert number");
 
     if (i != u)
-    {
-      LOG("Alert numbers not in strict sequence");
-      return false;
-    }
+      THROW("Alert numbers not in strict sequence");
 
     if (! Auction::AddAlert(i, line))
       return false;
@@ -643,16 +587,10 @@ void Auction::AddPasses()
 bool Auction::UndoLastCall()
 {
   if (len == 0)
-  {
-    LOG("Can't undo before any bidding");
-    return false;
-  }
+    THROW("Can't undo before any bidding");
 
   if (Auction::IsOver())
-  {
-    LOG("Can't undo after complete bidding");
-    return false;
-  }
+    THROW("Can't undo after complete bidding");
 
   if (sequence[len-1].no == 0)
   {
@@ -702,8 +640,7 @@ bool Auction::ParseRBNDealer(const char c)
       dealer = BRIDGE_WEST;
       break;
     default:
-      LOG("Unknown RBN dealer");
-      return false;
+      THROW("Unknown RBN dealer");
   }
   return true;
 }
@@ -726,8 +663,7 @@ bool Auction::ParseRBNVul(const char c)
       vul = BRIDGE_VUL_BOTH;
       break;
     default:
-      LOG("Unknown RBN vulnerability");
-      return false;
+      THROW("Unknown RBN vulnerability");
   }
   return true;
 }
@@ -741,10 +677,8 @@ bool Auction::GetRBNAlertNo(
 {
   char c = s.at(pos);
   if (c < '0' || c > '9')
-  {
-    LOG("Bad alert number " + STR(c));
-    return false;
-  }
+    THROW("Bad alert number " + STR(c));
+
   aNo = static_cast<unsigned>(c - '0');
   pos++;
 
@@ -754,16 +688,11 @@ bool Auction::GetRBNAlertNo(
     c = s.at(pos);
     pos++;
     if (pos == s.length())
-    {
-      LOG("Missing end of alert");
-      return false;
-    }
+      THROW("Missing end of alert");
 
     if (c < '0' || c > '9')
-    {
-      LOG("Bad alert number, second digit " + STR(c));
-      return false;
-    }
+      THROW("Bad alert number, second digit " + STR(c));
+
     aNo = 10*aNo + static_cast<unsigned>(c - '0');
   }
   return true;
@@ -788,10 +717,7 @@ bool Auction::AddAuctionLIN(const string& s)
       pos++;
     }
     else if (pos == l-1)
-    {
-      LOG("Missing end of bid");
-      return false;
-    }
+      THROW("Missing end of bid");
     else
     {
       string t = s.substr(pos, 2);
@@ -928,8 +854,7 @@ bool Auction::AddAuction(
       return Auction::AddAuctionEML(s);
     
     default:
-      LOG("Unknown auction type");
-      return false;
+      THROW("Unknown auction type");
   }
 }
 
@@ -957,23 +882,14 @@ bool Auction::IsPBNNote(
 bool Auction::AddAuctionPBN(const vector<string>& list)
 {
   if (! setDVFlag)
-  {
-    LOG("Dealer and vul should be set by now");
-    return false;
-  }
+    THROW("Dealer and vul should be set by now");
 
   playerType dlr;
   if (! Auction::SetDealerPBN(list[0], dlr))
-  {
-    LOG("Not a PBN dealer");
-    return false;
-  }
+    THROW("Not a PBN dealer");
 
   if (dealer != dlr)
-  {
-    LOG("Auction has different dealer");
-    return false;
-  }
+    THROW("Auction has different dealer");
 
   // Get the alerts from the back.
   unsigned end = list.size() - 1;
@@ -1016,16 +932,10 @@ bool Auction::AddAuctionPBN(const vector<string>& list)
       unsigned ano;
       words[i+1].erase(0, 1);
       if (! StringToNonzeroUnsigned(words[i+1], ano))
-      {
-        LOG("Not an alert number");
-        return false;
-      }
+        THROW("Not an alert number");
 
       if (ano > alerts.size()-1)
-      {
-        LOG("Alert too high");
-        return false;
-      }
+        THROW("Alert too high");
 
       if (! Auction::AddCall(words[i], alerts[ano]))
         return false;
@@ -1046,24 +956,20 @@ bool Auction::AddAuction(
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
-      LOG("Auction LIN type not implemented");
-      return false;
+      THROW("Auction LIN type not implemented");
     
     case BRIDGE_FORMAT_PBN:
       return Auction::AddAuctionPBN(list);
     
     case BRIDGE_FORMAT_RBN:
     case BRIDGE_FORMAT_RBX:
-      LOG("Auction RBN type not implemented");
-      return false;
+      THROW("Auction RBN type not implemented");
     
     case BRIDGE_FORMAT_TXT:
-      LOG("Auction TXT type not implemented");
-      return false;
+      THROW("Auction TXT type not implemented");
     
     default:
-      LOG("Unknown auction type");
-      return false;
+      THROW("Unknown auction type");
   }
 }
 
@@ -1071,29 +977,17 @@ bool Auction::AddAuction(
 bool Auction::operator == (const Auction& a2) const
 {
   if (setDVFlag != a2.setDVFlag)
-  {
-    LOG("Different DV status");
-    return false;
-  }
+    DIFF("Different DV status");
   else if (len != a2.len)
-  {
-    LOG("Different lengths");
-    return false;
-  }
+    DIFF("Different lengths");
   else if (activeCNo != a2.activeCNo || activeBNo != a2.activeBNo)
-  {
-    LOG("Different active numbers");
-    return false;
-  }
+    DIFF("Different active numbers");
   
   for (unsigned b = 0; b < len; b++)
   {
     if (sequence[b].no != a2.sequence[b].no ||
         sequence[b].alert != a2.sequence[b].alert)
-    {
-      LOG("Different sequences");
-      return false;
-    }
+      DIFF("Different sequences");
   }
 
   return true;
@@ -1109,10 +1003,7 @@ bool Auction::operator != (const Auction& a2) const
 bool Auction::ExtractContract(Contract& contract) const
 {
   if (! Auction::IsOver())
-  {
-    LOG("Auction not over");
-    return false;
-  }
+    THROW("Auction not over");
 
   if (activeCNo == 0)
     contract.SetPassedOut();
@@ -1552,10 +1443,7 @@ string Auction::AsString(
 {
   UNUSED(names);
   if (! setDVFlag)
-  {
-    LOG("Dealer/vul not set");
-    return "";
-  }
+    DIFF("Dealer/vul not set");
 
   switch(f)
   {
@@ -1582,15 +1470,13 @@ string Auction::AsString(
       return Auction::AsEML();
     
     case BRIDGE_FORMAT_TXT:
-      LOG("TXT needs lengths");
-      return "";
+      THROW("TXT needs lengths");
     
     case BRIDGE_FORMAT_REC:
       return Auction::AsREC();
     
     default:
-      LOG("Invalid format " + STR(f));
-      return "";
+      THROW("Invalid format " + STR(f));
   }
 }
 
@@ -1600,10 +1486,7 @@ string Auction::AsString(
   const unsigned lengths[BRIDGE_PLAYERS]) const
 {
   if (! setDVFlag)
-  {
-    LOG("Dealer/vul not set");
-    return "";
-  }
+    THROW("Dealer/vul not set");
 
   switch(f)
   {
@@ -1611,8 +1494,7 @@ string Auction::AsString(
       return Auction::AsTXT(lengths);
     
     default:
-      LOG("Invalid format " + STR(f));
-      return "";
+      THROW("Invalid format " + STR(f));
   }
 }
 
@@ -1683,10 +1565,7 @@ string Auction::DealerAsString(
   const formatType f) const
 {
   if (! setDVFlag)
-  {
-    LOG("Dealer/vul not set");
-    return "";
-  }
+    THROW("Dealer/vul not set");
 
   switch(f)
   {
@@ -1705,8 +1584,7 @@ string Auction::DealerAsString(
       return Auction::DealerAsTXT();
     
     default:
-      LOG("Invalid format " + STR(f));
-      return "";
+      THROW("Invalid format " + STR(f));
   }
 }
 
@@ -1715,10 +1593,7 @@ string Auction::VulAsString(
   const formatType f) const
 {
   if (! setDVFlag)
-  {
-    LOG("Dealer/vul not set");
-    return "";
-  }
+    THROW("Dealer/vul not set");
 
   switch(f)
   {
@@ -1744,8 +1619,7 @@ string Auction::VulAsString(
       return Auction::VulAsTXT();
     
     default:
-      LOG("Invalid format " + STR(f));
-      return "";
+      THROW("Invalid format " + STR(f));
   }
 }
 

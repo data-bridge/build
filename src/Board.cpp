@@ -9,15 +9,14 @@
 
 #include "bconst.h"
 #include "Board.h"
-#include "Debug.h"
 #include "Valuation.h"
 #include "portab.h"
 #include "parse.h"
+#include "Bexcept.h"
+#include "Bdiff.h"
 
 #include <map>
 #include <assert.h>
-
-extern Debug debug;
 
 
 Board::Board():
@@ -98,10 +97,7 @@ unsigned Board::NewInstance()
 bool Board::SetInstance(const unsigned no)
 {
   if (len == 0 || no > len-1)
-  {
-    LOG("Invalid instance selected");
-    return false;
-  }
+    THROW("Invalid instance selected");
   else
   {
     numActive = no;
@@ -607,10 +603,7 @@ roomType Board::GetRoom() const
 bool Board::operator == (const Board& b2) const
 {
   if (len != b2.len)
-  {
-    LOG("Different number of instances");
-    return false;
-  }
+    DIFF("Different number of instances");
 
   if (deal != b2.deal)
     return false;

@@ -13,9 +13,8 @@
 #include "Board.h"
 #include "portab.h"
 #include "parse.h"
-#include "Debug.h"
-
-extern Debug debug;
+#include "Bexcept.h"
+#include "Bdiff.h"
 
 
 Group::Group()
@@ -117,19 +116,13 @@ unsigned Group::GetCount()
 bool Group::operator == (const Group& g2) const
 {
   if (len != g2.len)
-  {
-    LOG("Different lengths");
-    return false;
-  }
+    DIFF("Different lengths");
 
   for (auto &p: segments)
   {
     const Segment * s2 = g2.GetSegmentReadOnly(p.extNo);
     if (s2 == nullptr || p.segment != * s2)
-    {
-      LOG("Segments not identical");
-      return false;
-    }
+      DIFF("Segments not identical");
   }
 
   return true;

@@ -16,11 +16,9 @@ using namespace std;
 #include "dispatch.h"
 #include "validate.h"
 #include "Bexcept.h"
-#include "Debug.h"
 
 
 OptionsType options;
-Debug debug;
 
 static const int numThreads = 1;
 

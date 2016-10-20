@@ -20,7 +20,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "Debug.h"
 #include "parse.h"
 #include "portab.h"
 
@@ -288,6 +287,19 @@ unsigned StringToMonth(const string& m)
 unsigned str2month(const string& m)
 {
   return StringToMonth(m);
+}
+
+
+unsigned GobbleLeadingSpace(string& s)
+{
+  unsigned pos = 0;
+  unsigned l = s.length();
+  while (pos < l && s.at(pos) == ' ')
+    pos++;
+
+  if (pos > 0)
+    s.erase(0, pos);
+  return pos;
 }
 
 

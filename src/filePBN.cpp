@@ -18,11 +18,8 @@
 #include "filePBN.h"
 #include "portab.h"
 #include "Bexcept.h"
-#include "Debug.h"
 
 using namespace std;
-
-extern Debug debug;
 
 
 map<string, formatLabelType> PBNmap;
@@ -107,24 +104,15 @@ bool readPBNChunk(
     regex re("^\\[(\\w+)\\s+\"(.*)\"\\]$");
     smatch match;
     if (! regex_search(line, match, re) || match.size() < 2)
-    {
       THROW("PBN line does not parse: '" + line + "'");
-      return false;
-    }
 
     auto it = PBNmap.find(match.str(1));
     if (it == PBNmap.end())
-    {
       THROW("PBN label is illegal or not implemented: '" + line + "'");
-      return false;
-    }
 
     const unsigned labelNo = static_cast<unsigned>(it->second);
     if (chunk[labelNo] != "")
-    {
       THROW("Label already set in line '" + line + "'");
-      return false;
-    }
 
     if (labelNo == BRIDGE_FORMAT_CONTRACT)
     {

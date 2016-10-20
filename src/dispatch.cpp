@@ -30,9 +30,7 @@
 #include "parse.h"
 #include "portab.h"
 #include "Bexcept.h"
-#include "Debug.h"
-
-extern Debug debug;
+#include "Bdiff.h"
 
 
 // Modulo 4, so West for Board "0" (4, 8, ...) etc.
@@ -256,9 +254,7 @@ void dispatch(
       if (! readFormattedFile(task.fileInput, task.formatInput, 
           group, options))
       {
-        cout << "dispatch: read failed\n";
-        debug.Print();
-        continue;
+        THROW("dispatch: read failed");
       }
     }
     catch (Bexcept& bex)
@@ -445,8 +441,18 @@ static bool readFormattedFile(
     lnoOld = lno;
     try
     {
+// if (formatFncs[f].readChunk == nullptr)
+// {
+  // cout << "START f " << f << ", " << fname << endl;
+// }
       if (! (* formatFncs[f].readChunk)(fstr, lno, chunk, newSegFlag))
-        break;
+      {
+        if (fstr.eof())
+          break;
+        else
+          THROW("Early end");
+      }
+  // cout << "END f " << f << endl;
     }
     catch (Bexcept& bex)
     {
@@ -454,7 +460,7 @@ static bool readFormattedFile(
       {
         cout << "Input file " << fname << endl;
         if (lnoOld+1 > lno-1)
-          cout << "Line number " << lnoOld;
+          cout << "Line number " << lnoOld << endl;
         else
           cout << "Line numbers " << lnoOld+2 << " to " << lno-1 << 
               ", chunk " << chunkNo << endl << endl;
@@ -490,9 +496,8 @@ static bool readFormattedFile(
     {
       if (! group.MakeSegment(segno))
       {
-        LOG("Cannot make segment " + STR(segno));
         fstr.close();
-        return false;
+        THROW("Cannot make segment " + STR(segno));
       }
 
       segment = group.GetSegment(segno);
@@ -514,9 +519,8 @@ static bool readFormattedFile(
 
       if (board == nullptr)
       {
-        LOG("Unknown error");
         fstr.close();
-        return false;
+        THROW("Unknown error");
       }
     }
 
@@ -543,7 +547,7 @@ if (board == nullptr)
     {
       for (i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
       {
-// if (chunkNo == 4 && bno == 3 && i == 27)
+// if (chunkNo == 18 && i == 24)
 // {
   // cout << "HERE" << endl;
 // }
@@ -551,7 +555,6 @@ if (board == nullptr)
         {
           if (! tryFormatMethod(f, chunk[i], segment, board, i, fstr))
           {
-            debug.Print();
             THROW("b " + STR(bno) + " i " + STR(i) + ", line '" + chunk[i] + "'");
           }
         }
@@ -622,18 +625,16 @@ static bool tryFormatMethod(
       return true;
     else
     {
-      LOG("Cannot add " + formatLabelNames[label] + " line " + text + "'");
       fstr.close();
-      return false;
+      THROW("Cannot add " + formatLabelNames[label] + " line " + text + "'");
     }
   }
   else  if ((board->*boardPtr[label])(text, f))
     return true;
   else
   {
-    LOG("Cannot add " + formatLabelNames[label] + " line " + text + "'");
     fstr.close();
-    return false;
+    THROW("Cannot add " + formatLabelNames[label] + " line " + text + "'");
   }
 }
 
@@ -668,10 +669,8 @@ static bool writeFormattedFile(
 // cout << "Start write" << endl;
   ofstream fstr(fname.c_str());
   if (! fstr.is_open())
-  {
-    LOG("Cannot write to: " + fname);
-    return false;
-  }
+    THROW("Cannot write to: " + fname);
+
 // cout << "POS1" << endl;
 
   writeInfoType writeInfo;
@@ -698,8 +697,7 @@ static bool writeFormattedFile(
       if (board == nullptr)
       {
         fstr.close();
-        LOG("Invalid board");
-        return false;
+        THROW("Invalid board");
       }
 
       writeInfo.bno = b;
@@ -711,8 +709,7 @@ static bool writeFormattedFile(
         if (! board->SetInstance(i))
         {
           fstr.close();
-          LOG("Invalid instance");
-          return false;
+          THROW("Invalid instance");
         }
 
         writeInfo.ino = i;

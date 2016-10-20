@@ -13,10 +13,8 @@
 #include <string.h>
 
 #include "Deal.h"
-#include "Debug.h"
+#include "Bexcept.h"
 #include "parse.h"
-
-extern Debug debug;
 
 
 // DDS encoding, but without the two bottom 00 bits: ((2 << 13) - 1)
@@ -101,10 +99,7 @@ bool Deal::StringToPlayer(
 {
   map<string, playerType>::iterator it = PLAYER_TO_DDS.find(s);
   if (it == PLAYER_TO_DDS.end())
-  {
-    LOG("No such player: '" + s + "'");
-    return false;
-  }
+    THROW("No such player: '" + s + "'");
 
   p = static_cast<unsigned>(PLAYER_TO_DDS[s]);
   return true;
@@ -117,10 +112,8 @@ bool Deal::SetCards(
 {
   map<string, unsigned>::iterator it = SUIT_TO_HOLDING.find(suit);
   if (it == SUIT_TO_HOLDING.end())
-  {
-    LOG("No such suit: '" + suit + "'");
-    return false;
-  }
+    THROW("No such suit: '" + suit + "'");
+
   res = SUIT_TO_HOLDING[suit];
   return true;
 }
@@ -137,10 +130,7 @@ bool Deal::SetHand(
     seen += count(hand.begin(), hand.end(), delimiters.at(i));
 
   if (seen != 3 + static_cast<int>(offset))
-  {
-    LOG("Not the right number of delimiters");
-    return false;
-  }
+    THROW("Not the right number of delimiters");
 
   vector<string> suits(BRIDGE_SUITS+1);
   suits.clear();
@@ -166,10 +156,7 @@ bool Deal::SetHands()
       xsum ^= holding[p][s];
     }
     if (sum != MAX_HOLDING || xsum != MAX_HOLDING)
-    {
-      LOG("Cards do not add up");
-      return false;
-    }
+      THROW("Cards do not add up");
   }
   return true;
 }
@@ -179,10 +166,7 @@ bool Deal::SetLIN(const string& text)
 {
   size_t c = countDelimiters(text, ",");
   if (c != 2 && c != 3)
-  {
-    LOG("Not 2 or 3 commas");
-    return false;
-  }
+    THROW("Not 2 or 3 commas");
 
   vector<string> tokens(BRIDGE_PLAYERS);
   tokens.clear();
@@ -198,10 +182,7 @@ bool Deal::SetLIN(const string& text)
 
     c = countDelimiters(tokens[plin], "SHDC");
     if (c != 4)
-    {
-      LOG("Not 4 suits");
-      return false;
-    }
+      THROW("Not 4 suits");
 
     if (! Deal::SetHand(tokens[plin], "SHDC", 1, holding[p]))
       return false;
@@ -218,10 +199,7 @@ bool Deal::SetPBN(const string& s)
 {
   unsigned c = countDelimiters(s, ": ");
   if (c != 4)
-  {
-    LOG("Not 4 space delimiters in '" + s + "'");
-    return false;
-  }
+    THROW("Not 4 space delimiters in '" + s + "'");
 
   vector<string> tokens(BRIDGE_PLAYERS+1);
   tokens.clear();
@@ -236,10 +214,7 @@ bool Deal::SetPBN(const string& s)
     unsigned p = (first + pno) % 4;
 
     if (countDelimiters(tokens[pno+1], ".") != 3)
-    {
-      LOG("Not 3 periods");
-      return false;
-    }
+      THROW("Not 3 periods");
 
     if (! Deal::SetHand(tokens[pno+1], ".", 0, holding[p]))
       return false;
@@ -253,10 +228,7 @@ bool Deal::SetRBN(const string& s)
 {
   size_t c = countDelimiters(s, ":");
   if (c != 3 && c != 4)
-  {
-    LOG("Not 3 or 4 colons");
-    return false;
-  }
+    THROW("Not 3 or 4 colons");
 
   vector<string> tokens(BRIDGE_PLAYERS+1);
   tokens.clear();
@@ -275,10 +247,7 @@ bool Deal::SetRBN(const string& s)
   {
     unsigned p = (first + pno) % 4;
     if (countDelimiters(tokens[pno+1], ".") != 3)
-    {
-      LOG("Not 3 periods");
-      return false;
-    }
+      THROW("Not 3 periods");
 
     if (! Deal::SetHand(tokens[pno+1], ".", 0, holding[p]))
       return false;
@@ -310,16 +279,10 @@ bool Deal::Set(
   const formatType f)
 {
   if (s == "")
-  {
-    LOG("Empty text");
-    return false;
-  }
+    THROW("Empty text");
 
   if (setFlag)
-  {
-    LOG("Already set");
-    return false;
-  }
+    THROW("Already set");
 
   setFlag = true;
   switch(f)
@@ -338,8 +301,7 @@ bool Deal::Set(
       return Deal::SetRBN(s);
 
     default:
-      LOG("Unacceptable format");
-      return false;
+      THROW("Unacceptable format");
   }
 }
 
@@ -349,32 +311,25 @@ bool Deal::Set(
   const formatType f)
 {
   if (setFlag)
-  {
-    LOG("Already set");
-    return false;
-  }
+    THROW("Already set");
 
   setFlag = true;
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
-      LOG("LIN matrix set format not implemented");
-      return "";
+      THROW("LIN matrix set format not implemented");
 
     case BRIDGE_FORMAT_PBN:
-      LOG("PBN matrix set format not implemented");
-      return "";
+      THROW("PBN matrix set format not implemented");
 
     case BRIDGE_FORMAT_RBN:
-      LOG("RBN matrix set format not implemented");
-      return "";
+      THROW("RBN matrix set format not implemented");
 
     case BRIDGE_FORMAT_TXT:
       return Deal::SetTXT(cardsArg);
 
     default:
-      LOG("Unacceptable format");
-      return false;
+      THROW("Unacceptable format");
   }
 }
 
@@ -382,10 +337,7 @@ bool Deal::Set(
 bool Deal::GetDDS(unsigned holdingArg[][BRIDGE_SUITS]) const
 {
   if (! setFlag)
-  {
-    LOG("Holding not set");
-    return false;
-  }
+    THROW("Holding not set");
 
   for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
     for (unsigned s = 0; s < BRIDGE_SUITS; s++)
@@ -398,10 +350,7 @@ bool Deal::GetDDS(unsigned holdingArg[][BRIDGE_SUITS]) const
 bool Deal::operator == (const Deal& b2) const
 {
   if (setFlag != b2.setFlag)
-  {
-    LOG("Different setFlags");
-    return false;
-  }
+    THROW("Different setFlags");
 
   if (! setFlag && ! b2.setFlag)
     return true;
@@ -411,10 +360,7 @@ bool Deal::operator == (const Deal& b2) const
     for (unsigned s = 0; s < BRIDGE_SUITS; s++)
     {
       if (holding[plin][s] != b2.holding[plin][s])
-      {
-        LOG("Different holdings");
-	return false;
-      }
+        THROW("Different holdings");
     }
   }
   return true;
@@ -478,6 +424,9 @@ string Deal::AsLIN_VG(
 string Deal::AsLIN_RP(
   const playerType start) const
 {
+  if (start < BRIDGE_NORTH || start > BRIDGE_WEST)
+    THROW("Bad start: " + STR(start));
+
   stringstream s;
   s << "md|" << PLAYER_DDS_TO_LIN_DEALER[start];
   
@@ -674,10 +623,7 @@ string Deal::AsString(
   const formatType f) const
 {
   if (! setFlag)
-  {
-    LOG("Not set");
-    return "";
-  }
+    THROW("Not set");
 
   switch(f)
   {
@@ -710,8 +656,7 @@ string Deal::AsString(
       return Deal::AsREC();
 
     default:
-      LOG("Other plain deal formats not implemented");
-      return "";
+      THROW("Other plain deal formats not implemented");
   }
 }
 

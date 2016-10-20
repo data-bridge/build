@@ -12,10 +12,7 @@
 #include "portab.h"
 #include "Bexcept.h"
 #include "Bdiff.h"
-#include "Debug.h"
 #include <map>
-
-extern Debug debug;
 
 
 const bool VUL_LOOKUP[BRIDGE_VUL_SIZE][BRIDGE_PLAYER_SIZE] =
@@ -203,9 +200,14 @@ void Contract::SetTables()
 	  stringstream s4;
 	  s4 << s3.str() << PLAYER_NAMES_SHORT[decl];
 
+          stringstream s4b;
+	  s4b << s2.str() << PLAYER_NAMES_SHORT[decl] << 
+            MULT_SUPERSET_TAG[mno];
+
 	  // No trick number given, e.g "4HE".
 	  e.tricksRelative = 7;
 	  CONTRACT_STRING_TO_PARTS[s4.str()] = e;
+	  CONTRACT_STRING_TO_PARTS[s4b.str()] = e;
 
           // RBN string with ":" and without result.
           stringstream s4a;
@@ -215,10 +217,13 @@ void Contract::SetTables()
 	  int lo = 7 - static_cast<int>(e.contract.level);
 	  for (int i = lo; i <= lo+13; i++)
 	  {
-	    stringstream s5;
+	    stringstream s5, s5b;
 	    e.tricksRelative = i-13;
 	    s5 << s4.str() << LEVEL_SHIFT_TO_TAG[i];
 	    CONTRACT_STRING_TO_PARTS[s5.str()] = e;
+
+	    s5b << s4b.str() << LEVEL_SHIFT_TO_TAG[i];
+	    CONTRACT_STRING_TO_PARTS[s5b.str()] = e;
 	  }
 	}
       }

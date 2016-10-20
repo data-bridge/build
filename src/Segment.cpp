@@ -13,9 +13,9 @@
 #include "Segment.h"
 #include "portab.h"
 #include "parse.h"
-#include "Debug.h"
+#include "Bexcept.h"
+#include "Bdiff.h"
 
-extern Debug debug;
 
 #define BIG_BOARD 99999
 
@@ -161,10 +161,7 @@ bool Segment::SetTitleLIN(const string& t)
 
   int seen = count(t.begin(), t.end(), ',');
   if (seen != 8)
-  {
-    LOG("LIN vg needs exactly 8 commas.");
-    return false;
-  }
+    THROW("LIN vg needs exactly 8 commas.");
 
   vector<string> v(9);
   v.clear();
@@ -232,18 +229,12 @@ bool Segment::SetTitleLIN(const string& t)
   if (v[3] == "")
     bInmin = 0;
   else if (! StringToNonzeroUnsigned(v[3], bInmin))
-  {
-    LOG("Not a board number");
-    return false;
-  }
+    THROW("Not a board number");
 
   if (v[4] == "")
     bInmax = 0;
   else if (! StringToNonzeroUnsigned(v[4], bInmax))
-  {
-    LOG("Not a board number");
-    return false;
-  }
+    THROW("Not a board number");
 
   // Synthesize an RBN-like team line (a bit wasteful).
   stringstream s;
@@ -292,8 +283,7 @@ bool Segment::SetTitle(
       return true;
 
     default:
-      LOG("Invalid format " + STR(f));
-      return false;
+      THROW("Invalid format " + STR(f));
   }
 }
 
@@ -420,10 +410,7 @@ bool Segment::SetResultsList(
   
   size_t c = countDelimiters(s, ",");
   if (c == 0 || c > 100)
-  {
-    LOG("Bad number of fields");
-    return false;
-  }
+    THROW("Bad number of fields");
 
   vector<string> tokens(c+1);
   tokens.clear();
@@ -457,10 +444,7 @@ bool Segment::SetPlayersList(
 
   size_t c = countDelimiters(s, ",");
   if (c+1 != 4*LINcount)
-  {
-    LOG("Wrong number of fields");
-    return false;
-  }
+    THROW("Wrong number of fields");
 
   vector<string> tokens(c+1);
   tokens.clear();
@@ -487,10 +471,7 @@ bool Segment::SetPlayersHeader(
 
   size_t c = countDelimiters(s, ",");
   if (c != 7)
-  {
-    LOG("Bad number of fields");
-    return false;
-  }
+    THROW("Bad number of fields");
 
   vector<string> tokens(8);
   tokens.clear();
@@ -514,10 +495,7 @@ bool Segment::SetScoresList(
 
   size_t c = countDelimiters(s, ",");
   if (c+1 != 2*LINcount)
-  {
-    LOG("Wrong number of fields");
-    return false;
-  }
+    THROW("Wrong number of fields");
 
   vector<string> tokens(c+1);
   tokens.clear();
@@ -541,20 +519,14 @@ bool Segment::SetBoardsList(
   
   size_t c = countDelimiters(s, ",");
   if (c > 100)
-  {
-    LOG("Too many fields");
-    return false;
-  }
+    THROW("Too many fields");
 
   vector<string> tokens(c+1);
   tokens.clear();
   tokenize(s, tokens, ",");
 
   if (c+1 != LINcount)
-  {
-    LOG("Odd number of boards");
-    return false;
-  }
+    THROW("Odd number of boards");
 
   for (unsigned i = 0; i < c; i++)
   {
@@ -600,10 +572,7 @@ bool Segment::SetNumber(
 
   unsigned extNo;
   if (! StringToNonzeroUnsigned(t, extNo))
-  {
-    LOG("Board number is not numerical");
-    return false;
-  }
+    THROW("Board number is not numerical");
 
   if (extNo < bmin)
     bmin = extNo;
@@ -630,34 +599,19 @@ bool Segment::CarryExists() const
 bool Segment::operator == (const Segment& s2) const
 {
   if (seg.title != s2.seg.title)
-  {
-    LOG("Different titles");
-    return false;
-  }
+    DIFF("Different titles");
   else if (seg.date != s2.seg.date)
-    return false;
+    DIFF("Different dates");
   else if (seg.location != s2.seg.location)
-  {
-    LOG("Different locations");
-    return false;
-  }
+    DIFF("Different locations");
   else if (seg.event != s2.seg.event)
-  {
-    LOG("Different events");
-    return false;
-  }
+    DIFF("Different events");
   else if (seg.session != s2.seg.session)
-  {
-    LOG("Different sessions");
-    return false;
-  }
+    DIFF("Different sessions");
   else if (seg.scoring != s2.seg.scoring)
-  {
-    LOG("Different scoring");
-    return false;
-  }
+    DIFF("Different scoring");
   else if (seg.teams != s2.seg.teams)
-    return false;
+    DIFF("Different teams");
   else
     return true;
 }
@@ -792,8 +746,7 @@ string Segment::TitleAsString(const formatType f) const
       return seg.title + "\n";
 
     default:
-      LOG("Invalid format " + STR(f));
-      return "";
+      THROW("Invalid format " + STR(f));
   }
 }
 
@@ -818,8 +771,7 @@ string Segment::EventAsString(const formatType f) const
     case BRIDGE_FORMAT_LIN:
       if (seg.event == "")
         return "";
-      LOG("No LIN event format");
-      return "";
+      THROW("No LIN event format");
 
     case BRIDGE_FORMAT_PBN:
       if (seg.event == "")
@@ -839,8 +791,7 @@ string Segment::EventAsString(const formatType f) const
       return seg.event + "\n";
 
     default:
-      LOG("Invalid format " + STR(f));
-      return "";
+      THROW("Invalid format " + STR(f));
   }
 }
 
@@ -934,8 +885,7 @@ string Segment::NumberAsString(
       return st.str();
 
     default:
-      LOG("Invalid format " + STR(f));
-      return "";
+      THROW("Invalid format " + STR(f));
   }
 }
 
@@ -1012,8 +962,7 @@ string Segment::ContractsAsString(const formatType f)
       return Segment::ContractsAsLIN(f);
 
     default:
-      LOG("Invalid format " + STR(f));
-      return "";
+      THROW("Invalid format " + STR(f));
   }
 }
 
@@ -1095,8 +1044,7 @@ string Segment::PlayersAsString(const formatType f)
         return "pn|" + s1 + "," + s2 + "|pg||\n\n";
 
     default:
-      LOG("Invalid format " + STR(f));
-      return "";
+      THROW("Invalid format " + STR(f));
   }
 }
 
@@ -1120,8 +1068,7 @@ string Segment::ScoresAsString(const formatType f) const
       return "";
 
     default:
-      LOG("Invalid format " + STR(f));
-      return "";
+      THROW("Invalid format " + STR(f));
   }
 }
 
@@ -1148,8 +1095,7 @@ string Segment::BoardsAsString(const formatType f) const
       return "";
 
     default:
-      LOG("Invalid format " + STR(f));
-      return "";
+      THROW("Invalid format " + STR(f));
   }
 }
 

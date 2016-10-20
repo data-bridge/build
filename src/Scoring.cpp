@@ -7,11 +7,12 @@
 */
 
 
+#include <iomanip>
+#include <sstream>
 #include "Scoring.h"
 #include "portab.h"
-#include "Debug.h"
-
-extern Debug debug;
+#include "Bexcept.h"
+#include "Bdiff.h"
 
 
 // No doubt LIN also has tags for some of these
@@ -70,10 +71,8 @@ bool Scoring::SetLIN(const string& t)
   else if (t == "P")
     scoring = BRIDGE_SCORING_MATCHPOINTS;
   else
-  {
-    LOG("Unknown LIN scoring");
-    return false;
-  }
+    THROW("Unknown LIN scoring");
+
   return true;
 }
 
@@ -146,8 +145,7 @@ bool Scoring::Set(
       return Scoring::SetRBN(t);
     
     default:
-      LOG("Invalid format " + STR(f));
-      return "";
+      THROW("Invalid format " + STR(f));
   }
 }
 
@@ -161,10 +159,7 @@ bool Scoring::ScoringIsIMPs() const
 bool Scoring::operator == (const Scoring& s2) const
 {
   if (scoring != s2.scoring)
-  {
-    LOG("Scoring differs");
-    return false;
-  }
+    DIFF("Scoring differs");
   else
     return true;
 }
@@ -246,8 +241,7 @@ string Scoring::AsString(const formatType f) const
       return Scoring::AsREC();
 
     default:
-      LOG("Invalid format " + STR(f));
-      return "";
+      THROW("Invalid format " + STR(f));
   }
 }
 

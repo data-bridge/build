@@ -8,12 +8,14 @@
 
 
 #include <regex>
+#include <sstream>
+#include <iomanip>
+#include "bconst.h"
 #include "Teams.h"
-#include "portab.h"
+#include "Bexcept.h"
+#include "Bdiff.h"
 #include "parse.h"
-#include "Debug.h"
-
-extern Debug debug;
+#include "portab.h"
 
 
 Teams::Teams()
@@ -59,10 +61,8 @@ bool Teams::ExtractCarry(
     tt.carryf = f;
   }
   else
-  {
-    LOG("Bad carry-over format");
-    return false;
-  }
+    THROW("Bad carry-over format");
+
   return true;
 }
 
@@ -81,10 +81,7 @@ bool Teams::SetSinglePBN(
     if (Teams::ExtractCarry(v[1], tt))
       return true;
     else
-    {
-      LOG("Cannot extract carry");
-      return false;
-    }
+      THROW("Cannot extract carry");
   }
   else
   {
@@ -105,10 +102,8 @@ bool Teams::SetSingleTXT(
     if (regex_search(t, match, re) && match.size() >= 2)
     {
       if (! Teams::ExtractCarry(match.str(2), tt))
-      {
-        LOG("Cannot extract carry");
-        return false;
-      }
+        THROW("Cannot extract carry");
+
       tt.name = match.str(1);
       return true;
     }
@@ -176,10 +171,8 @@ bool Teams::SetRBN(const string& t)
       return false;
   }
   else
-  {
-    LOG("Malformed RBN team line");
-    return false;
-  }
+    THROW("Malformed RBN team line");
+
   return true;
 }
 
@@ -188,10 +181,7 @@ bool Teams::SetTXT(const string& t)
 {
   size_t pos;
   if ((pos = t.find(" vs. ", 0)) == string::npos || t.size() < pos+6)
-  {
-    LOG("Cannot find two teams");
-    return false;
-  }
+    THROW("Cannot find two teams");
 
   string s1 = t.substr(0, pos);
   string s2 = t.substr(pos+5, string::npos);
@@ -216,16 +206,14 @@ bool Teams::Set(
       return Teams::SetRBN(s);
     
     case BRIDGE_FORMAT_PBN:
-      LOG("Set not implemented for PBN");
-      return false;
+      THROW("Set not implemented for PBN");
     
     
     case BRIDGE_FORMAT_TXT:
       return Teams::SetTXT(s);
     
     default:
-      LOG("Invalid format " + STR(f));
-      return "";
+      THROW("Invalid format " + STR(f));
   }
 }
 
@@ -239,15 +227,13 @@ bool Teams::SetFirst(
     case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_RBN:
     case BRIDGE_FORMAT_TXT:
-      LOG("SetFirst not implemented for this format");
-      return false;
+      THROW("SetFirst not implemented for this format");
     
     case BRIDGE_FORMAT_PBN:
       return Teams::SetSinglePBN(s, team1);
     
     default:
-      LOG("Invalid format " + STR(f));
-      return "";
+      THROW("Invalid format " + STR(f));
   }
 }
 
@@ -261,15 +247,13 @@ bool Teams::SetSecond(
     case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_RBN:
     case BRIDGE_FORMAT_TXT:
-      LOG("SetFirst not implemented for this format");
-      return false;
+      THROW("SetFirst not implemented for this format");
     
     case BRIDGE_FORMAT_PBN:
       return Teams::SetSinglePBN(s, team2);
     
     default:
-      LOG("Invalid format " + STR(f));
-      return "";
+      THROW("Invalid format " + STR(f));
   }
 }
 
@@ -279,28 +263,14 @@ bool Teams::TeamIsEqual(
   const teamType& tb) const
 {
   if (ta.name != tb.name)
-  {
-    LOG("Different team name");
-    return false;
-  }
+    DIFF("Different team name");
   else if (ta.carry != tb.carry)
-  {
-    LOG("Different team carry type");
-    return false;
-  }
-  else if (ta.carry == BRIDGE_CARRY_INT &&
-      ta.carryi != tb.carryi)
-  {
-    LOG("Different team integer carry value");
-    return false;
-  }
+    DIFF("Different team carry type");
+  else if (ta.carry == BRIDGE_CARRY_INT && ta.carryi != tb.carryi)
+    DIFF("Different team integer carry value");
   else if (ta.carry == BRIDGE_CARRY_FLOAT &&
-      (ta.carryf - tb.carryf > 0.001f ||
-      ta.carryf - tb.carryf < -0.001f))
-  {
-    LOG("Different team integer float value");
-    return false;
-  }
+      (ta.carryf - tb.carryf > 0.001f || ta.carryf - tb.carryf < -0.001f))
+    DIFF("Different team integer float value");
 
   return true;
 }
@@ -398,8 +368,7 @@ string Teams::CarryAsString(
       return s.str();
 
     default:
-      LOG("Unknown carry");
-      return "";
+      THROW("Unknown carry");
   }
 }
 
@@ -498,8 +467,7 @@ string Teams::AsTXT(
       s2 << fixed << setprecision(2) << score1 + team2.carryf;
 
     default:
-      LOG("Unknown carry");
-      return "";
+      THROW("Unknown carry");
   }
 
   if (order12Flag)
@@ -519,8 +487,7 @@ string Teams::AsString(
       return Teams::AsLIN(swapFlag);
 
     case BRIDGE_FORMAT_PBN:
-      LOG("AsString not implemented for PBN");
-      return "";
+      THROW("AsString not implemented for PBN");
     
     case BRIDGE_FORMAT_RBN:
       return Teams::AsRBN();
@@ -532,8 +499,7 @@ string Teams::AsString(
       return Teams::AsTXT();
     
     default:
-      LOG("Invalid format " + STR(f));
-      return "";
+      THROW("Invalid format " + STR(f));
   }
 }
 
@@ -549,15 +515,13 @@ string Teams::AsString(
     case BRIDGE_FORMAT_PBN:
     case BRIDGE_FORMAT_RBN:
     case BRIDGE_FORMAT_EML:
-      LOG("AsString with score not implemented for this format");
-      return "";
+      THROW("AsString with score not implemented for this format");
 
     case BRIDGE_FORMAT_TXT:
       return Teams::AsTXT(score1, score2);
     
     default:
-      LOG("Invalid format " + STR(f));
-      return "";
+      THROW("Invalid format " + STR(f));
   }
 }
 
@@ -568,8 +532,7 @@ string Teams::FirstAsString(const formatType f) const
   {
     case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_RBN:
-      LOG("FirstAsString not implemented");
-      return "";
+      THROW("FirstAsString not implemented");
 
     case BRIDGE_FORMAT_PBN:
       if (team1.name == "" && team1.carry == BRIDGE_CARRY_NONE)
@@ -582,8 +545,7 @@ string Teams::FirstAsString(const formatType f) const
       return team1.name;
 
     default:
-      LOG("Invalid format " + STR(f));
-      return "";
+      THROW("Invalid format " + STR(f));
   }
 }
 
@@ -594,8 +556,7 @@ string Teams::SecondAsString(const formatType f) const
   {
     case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_RBN:
-      LOG("FirstAsString not implemented");
-      return "";
+      THROW("FirstAsString not implemented");
 
     case BRIDGE_FORMAT_PBN:
       if (team2.name == "" && team2.carry == BRIDGE_CARRY_NONE)
@@ -608,8 +569,7 @@ string Teams::SecondAsString(const formatType f) const
       return team2.name;
 
     default:
-      LOG("Invalid format " + STR(f));
-      return "";
+      THROW("Invalid format " + STR(f));
   }
 }
 

@@ -14,11 +14,9 @@
 #include "Play.h"
 #include "Contract.h"
 #include "Bexcept.h"
-#include "Debug.h"
+#include "Bdiff.h"
 #include "parse.h"
 #include "portab.h"
-
-extern Debug debug;
 
 
 #define PLAY_SEQ_INIT 28
@@ -170,21 +168,15 @@ bool Play::SetDeclAndDenom(
     if (declIn == declarer && denomIn == denom)
       return true;
 
-    LOG("Declarer and denomination already set");
-    return false;
+    THROW("Declarer and denomination reset, " + 
+      STR(declIn) + STR(denomIn) + " " + STR(declarer) + STR(denomIn));
   }
 
   if (declIn >= BRIDGE_NORTH_SOUTH)
-  {
-    LOG("Invalid declarer " + STR(declIn));
-    return false;
-  }
+    THROW("Invalid declarer " + STR(declIn));
 
   if (denomIn >  BRIDGE_NOTRUMP)
-  {
-    LOG("Invalid denomination " + STR(denomIn));
-    return false;
-  }
+    THROW("Invalid denomination " + STR(denomIn));
 
   setDDFlag = true;
   declarer = declIn;
@@ -198,10 +190,8 @@ bool Play::SetHoldingDDS(
   const unsigned h[][BRIDGE_SUITS])
 {
   if (setDealFlag)
-  {
-    LOG("Holding already set");
-    return false;
-  }
+    THROW("Holding already set");
+
   setDealFlag = true;
 
   // No error checking.
@@ -325,10 +315,7 @@ playStatus Play::AddTrickPBN(const string& str)
   string plays[BRIDGE_PLAYERS];
   unsigned count;
   if (! getWords(str, plays, 4, count))
-  {
-    LOG("Not a valid PBN play line " + str);
-    return PLAY_INVALID_PBN;
-  }
+    THROW("Not a valid PBN play line " + str);
 
   unsigned offset = static_cast<unsigned>
     ((leads[trickToPlay].leader + 4 - leads[0].leader) % 4);
@@ -419,24 +406,20 @@ playStatus Play::SetPlay(
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
-      LOG("Currently unimplemented format " + STR(f));
-      return PLAY_INVALID_FORMAT;
+      THROW("Currently unimplemented format " + STR(f));
 
     case BRIDGE_FORMAT_PBN:
       return Play::AddTrickPBN(str);
 
     case BRIDGE_FORMAT_RBN:
     case BRIDGE_FORMAT_RBX:
-      LOG("Currently unimplemented format " + STR(f));
-      return PLAY_INVALID_FORMAT;
+      THROW("Currently unimplemented format " + STR(f));
 
     case BRIDGE_FORMAT_TXT:
-      LOG("Currently unimplemented format " + STR(f));
-      return PLAY_INVALID_FORMAT;
+      THROW("Currently unimplemented format " + STR(f));
 
     default:
-      LOG("Invalid format " + STR(f));
-      return PLAY_INVALID_FORMAT;
+      THROW("Invalid format " + STR(f));
   }
 }
 
@@ -463,8 +446,7 @@ bool Play::SetPlays(
       return Play::AddAllRBN(str);
 
     default:
-      LOG("Invalid format " + STR(f));
-      return false;
+      THROW("Invalid format " + STR(f));
   }
 }
 
@@ -480,23 +462,14 @@ static bool BothAreSpaces(char lhs, char rhs)
 bool Play::AddAllPBN(const vector<string>& list)
 {
   if (! setDDFlag)
-  {
-    LOG("Declarer and denomination should be set by now");
-    return false;
-  }
+    THROW("Declarer and denomination should be set by now");
 
   playerType opldr;
   if (! ParsePlayer(list[0].at(0), opldr))
-  {
-    LOG("Not an opening leader");
-    return false;
-  }
+    THROW("Not an opening leader");
 
   if ((declarer + 1) % 4 != opldr)
-  {
-    LOG("Wrong opening leader");
-    return false;
-  }
+    THROW("Wrong opening leader");
 
   for (unsigned i = 1; i < list.size(); i++)
   {
@@ -521,24 +494,20 @@ assert(false);
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
-      LOG("Currently unimplemented format " + STR(f));
-      return false;
+      THROW("Currently unimplemented format " + STR(f));
 
     case BRIDGE_FORMAT_PBN:
       return Play::AddAllPBN(list);
 
     case BRIDGE_FORMAT_RBN:
     case BRIDGE_FORMAT_RBX:
-      LOG("Currently unimplemented format " + STR(f));
-      return false;
+      THROW("Currently unimplemented format " + STR(f));
 
     case BRIDGE_FORMAT_TXT:
-      LOG("Currently unimplemented format " + STR(f));
-      return false;
+      THROW("Currently unimplemented format " + STR(f));
 
     default:
-      LOG("Invalid format " + STR(f));
-      return false;
+      THROW("Invalid format " + STR(f));
   }
 }
 
@@ -546,16 +515,10 @@ assert(false);
 bool Play::UndoPlay()
 {
   if (playOverFlag)
-  {
-    LOG("Cannot undo play after play is over");
-    return false;
-  }
+    THROW("Cannot undo play after play is over");
 
   if (len == 0)
-  {
-    LOG("Play has not started yet");
-    return false;
-  }
+    THROW("Play has not started yet");
 
   if (cardToPlay == 0)
   {
@@ -634,52 +597,25 @@ bool Play::operator == (const Play& p2) const
   // We don't require the holdings to be identical.
 
   if (setDDFlag != p2.setDDFlag)
-  {
-    LOG("DD not set in same way");
-    return false;
-  }
+    DIFF("DD not set in same way");
   else if (setDDFlag && (declarer != p2.declarer || denom != p2.denom))
-  {
-    LOG("DD difference");
-    return false;
-  }
+    DIFF("DD difference");
   else if (setDealFlag != p2.setDealFlag)
-  {
-    LOG("Deal difference");
-    return false;
-  }
+    DIFF("Deal difference");
   else if (len != p2.len)
-  {
-    LOG("Length difference");
-    return false;
-  }
+    DIFF("Length difference");
   else if (trickToPlay != p2.trickToPlay || cardToPlay != p2.cardToPlay)
-  {
-    LOG("Progress difference");
-    return false;
-  }
+    DIFF("Progress difference");
   else if (playOverFlag != p2.playOverFlag)
-  {
-    LOG("Play-over difference");
-    return false;
-  }
+    DIFF("Play-over difference");
   else if (claimMadeFlag != p2.claimMadeFlag)
-  {
-    LOG("Claim status difference");
-    return false;
-  }
+    DIFF("Claim status difference");
   else if (tricksDecl != p2.tricksDecl || tricksDef != p2.tricksDef)
-  {
-    LOG("Claim difference");
-    return false;
-  }
+    DIFF("Claim difference");
 
   for (unsigned n = 0; n < len; n++)
     if (sequence[n] != p2.sequence[n])
-    {
-      LOG("Sequence difference");
-      return false;
-    }
+      THROW("Sequence difference");
     
   // leads are implicitly identical when the plays are identical.
   return true;
@@ -1031,8 +967,7 @@ string Play::AsString(const formatType f) const
       return Play::AsREC();
 
     default:
-      LOG("Invalid format " + STR(f));
-      return "";
+      THROW("Invalid format " + STR(f));
   }
 }
 
@@ -1055,16 +990,13 @@ string Play::LeadAsString(const formatType f) const
   switch(f)
   {
     case BRIDGE_FORMAT_LIN:
-      LOG("Currently unimplemented format " + STR(f));
-      return "";
+      THROW("Currently unimplemented format " + STR(f));
 
     case BRIDGE_FORMAT_PBN:
-      LOG("Currently unimplemented format " + STR(f));
-      return "";
+      THROW("Currently unimplemented format " + STR(f));
 
     case BRIDGE_FORMAT_RBN:
-      LOG("Currently unimplemented format " + STR(f));
-      return "";
+      THROW("Currently unimplemented format " + STR(f));
 
     case BRIDGE_FORMAT_EML:
       if (len == 0)
@@ -1079,12 +1011,10 @@ string Play::LeadAsString(const formatType f) const
         return "Opening lead: " + PLAY_NO_TO_CARD[sequence[0]];
 
     case BRIDGE_FORMAT_TXT:
-      LOG("Currently unimplemented format " + STR(f));
-      return "";
+      THROW("Currently unimplemented format " + STR(f));
 
     default:
-      LOG("Invalid format " + STR(f));
-      return "";
+      THROW("Invalid format " + STR(f));
   }
 }
 
@@ -1118,20 +1048,16 @@ string Play::ClaimAsString(const formatType f) const
         return Play::ClaimAsLIN() + "pg||\n";
 
     case BRIDGE_FORMAT_PBN:
-      LOG("Currently unimplemented format " + STR(f));
-      return "";
+      THROW("Currently unimplemented format " + STR(f));
 
     case BRIDGE_FORMAT_RBN:
-      LOG("Currently unimplemented format " + STR(f));
-      return "";
+      THROW("Currently unimplemented format " + STR(f));
 
     case BRIDGE_FORMAT_TXT:
-      LOG("Currently unimplemented format " + STR(f));
-      return "";
+      THROW("Currently unimplemented format " + STR(f));
 
     default:
-      LOG("Invalid format " + STR(f));
-      return "";
+      THROW("Invalid format " + STR(f));
   }
 }
 

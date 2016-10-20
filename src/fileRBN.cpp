@@ -16,11 +16,8 @@
 #include "Bexcept.h"
 #include "fileRBN.h"
 #include "parse.h"
-#include "Debug.h"
 
 using namespace std;
-
-extern Debug debug;
 
 
 formatLabelType RBNmap[128];
@@ -83,7 +80,7 @@ bool readRBNChunk(
       newSegFlag = true;
 
     if (chunk[labelNo] != "")
-      LOG("RBN label already set in line:\n" + line);
+      THROW("RBN label already set in line:\n" + line);
 
     if (line.length() < 2)
       chunk[labelNo] = "";
