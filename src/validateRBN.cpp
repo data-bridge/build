@@ -88,6 +88,32 @@ bool isRBNMissing(
 }
 
 
+bool areRBNNames(
+  const string& lineRef,
+  const string& lineOut)
+{
+  vector<string> listRef, listOut;
+  listRef.clear();
+  listOut.clear();
+  tokenize(lineRef, listRef, "+:");
+  tokenize(lineOut, listOut, "+:");
+
+  if (listRef.size() != listOut.size())
+    return false;
+
+  for (unsigned i = 0; i < listRef.size(); i++)
+  {
+    if (listRef[i] == listOut[i])
+      continue;
+    unsigned lOut = listOut[i].length();
+    if (lOut >= listRef[i].length() ||
+        listRef[i].substr(0, lOut) != listOut[i])
+      return false;
+  }
+  return true;
+}
+
+
 bool validateRBN(
   ifstream& frstr,
   ValExample& running,
@@ -103,12 +129,32 @@ bool validateRBN(
 
     if (! valProgress(frstr, running.ref))
     {
-      stats.counts[BRIDGE_VAL_REF_SHORT]++;
+      valError(stats, running, BRIDGE_VAL_REF_SHORT);
       return false;
     }
   }
+
+  if (running.ref.line.length() > 0 && running.out.line.length() > 0)
+  {
+    if (running.ref.line.at(0) == 'N' && running.out.line.at(0) == 'N')
+    {
+      if (areRBNNames(running.ref.line, running.out.line))
+        return true;
+      else
+      {
+        valError(stats, running, BRIDGE_VAL_ERROR);
+        return false;
+      }
+    }
+  }
  
-  return (running.out.line == running.ref.line);
+  if (running.out.line == running.ref.line)
+    return true;
+  else
+  {
+    valError(stats, running, BRIDGE_VAL_ERROR);
+    return false;
+  }
 }
 
 
@@ -202,33 +248,35 @@ bool validateRBX(
         return false;
       }
     }
+    else if (vRef[i] == "N")
+      return areRBNNames(vRef[i+1], vOut[j+1]);
     else if (vOut[j+1] != "")
       return false;
-    else if (vRef[j] == "T")
+    else if (vRef[i] == "T")
     {
       if (lOut > 0)
         return false;
       valError(stats, running, BRIDGE_VAL_TITLE);
     }
-    else if (vRef[j] == "D")
+    else if (vRef[i] == "D")
     {
       if (lOut > 0)
         return false;
       valError(stats, running, BRIDGE_VAL_DATE);
     }
-    else if (vRef[j] == "L")
+    else if (vRef[i] == "L")
     {
       if (lOut > 0)
         return false;
       valError(stats, running, BRIDGE_VAL_LOCATION);
     }
-    else if (vRef[j] == "E")
+    else if (vRef[i] == "E")
     {
       if (lOut > 0)
         return false;
       valError(stats, running, BRIDGE_VAL_EVENT);
     }
-    else if (vRef[j] == "S")
+    else if (vRef[i] == "S")
     {
       if (lOut > 0)
         return false;

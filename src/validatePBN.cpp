@@ -60,10 +60,10 @@ bool validatePBN(
     }
   }
 
+  regex re("^\\[(\\w+)\\s+\"(.*)\"\\]$");
+  smatch match;
   while (1)
   {
-    regex re("^\\[(\\w+)\\s+\"(.*)\"\\]$");
-    smatch match;
     if (! regex_search(running.ref.line, match, re))
       return false;
 
@@ -98,6 +98,25 @@ bool validatePBN(
   {
     valError(stats, running, BRIDGE_VAL_LOCATION);
     return true;
+  }
+
+  const string label = match.str(1);
+  smatch matchOut;
+  if (! regex_search(running.out.line, matchOut, re))
+    return false;
+  if (label != matchOut.str(1))
+    return false;
+
+  if (label == "West" || label == "North" ||
+      label == "East" || label == "South")
+  {
+    const unsigned lOut = matchOut.str(2).length();
+    if (lOut < match.str(2).length() &&
+        match.str(2).substr(0, lOut) == matchOut.str(2))
+    {
+      valError(stats, running, BRIDGE_VAL_NAMES_SHORT);
+      return true;
+    }
   }
 
   return false;

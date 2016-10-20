@@ -299,7 +299,7 @@ static bool getEMLAuction(
       }
       else if (wd == "pass")
         d << "P";
-      else if (wd == "(all")
+      else if (wd == "(all" || wd == "Passed")
       {
         d << "A";
         break;
