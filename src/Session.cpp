@@ -208,7 +208,7 @@ void Session::setPart1(const string& t)
 void Session::setPart2(const string& t)
 {
   unsigned u;
-  if (t.length() <= 7)
+  if (t.length() <= 6)
   {
     if (! StringToNonzeroUnsigned(t, u))
     {
@@ -247,6 +247,22 @@ void Session::setPart2(const string& t)
   regex re("^Segment (.+)");
   smatch match;
   if (regex_search(t, match, re) && match.size() >= 1)
+  {
+    if (! StringToNonzeroUnsigned(match.str(1), u))
+    {
+      general2 = t;
+      sessionNo = 0;
+    }
+    else
+    {
+      general2 = "";
+      sessionNo = u;
+    }
+    return;
+  }
+
+  regex rer("^Round (.+)");
+  if (regex_search(t, match, rer) && match.size() >= 1)
   {
     if (! StringToNonzeroUnsigned(match.str(1), u))
     {

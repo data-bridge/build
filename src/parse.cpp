@@ -405,6 +405,41 @@ bool ReadAllWords(
 }
 
 
+bool ReadAllWordsOverlong(
+  const string& s,
+  const unsigned startPos,
+  const unsigned stopPosInclusive,
+  string& word)
+{
+  unsigned l = s.length();
+  if (l == 0 || l < startPos)
+    return false;
+
+  // Skip over leading spaces.
+  unsigned spos = startPos;
+  while (spos < l && s.at(spos) == ' ')
+    spos++;
+  if (spos == l)
+    return false;
+
+  // Spill over end until end of a word is reached.
+  unsigned pos = Min(l-1, stopPosInclusive);
+  while (pos < l && s.at(pos) != ' ')
+    pos++;
+
+  if (pos == l)
+    pos--;
+  else
+  {
+    while (pos > spos && s.at(pos) == ' ')
+      pos--;
+  }
+  
+  word = s.substr(spos, pos+1-spos);
+  return true;
+}
+
+
 bool ReadNextSpacedWord(
   const string& s,
   const unsigned startPos,

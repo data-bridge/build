@@ -147,26 +147,26 @@ static bool getTXTCanvasOffset(
   // Get the names.
 
   unsigned aline = auctionLine-1;
-
-  unsigned l = canvas[aline].length();
   unsigned n = 0;
 
-  if (! ReadNextWord(canvas[aline], 0, chunk[BRIDGE_FORMAT_WEST])) 
+  // The fields can be longer than 12 characters...
+  if (! ReadAllWordsOverlong(canvas[aline], n, n+11, 
+      chunk[BRIDGE_FORMAT_WEST])) 
     return false;
-  n += chunk[BRIDGE_FORMAT_WEST].length();
-  while (n < l && canvas[aline].at(n) == ' ') n++;
+  n += Max(12, chunk[BRIDGE_FORMAT_WEST].length()+1);
 
-  if (! ReadNextWord(canvas[aline], n, chunk[BRIDGE_FORMAT_NORTH])) 
+  if (! ReadAllWordsOverlong(canvas[aline], n, n+11, 
+      chunk[BRIDGE_FORMAT_NORTH])) 
     return false;
-  n += chunk[BRIDGE_FORMAT_NORTH].length();
-  while (n < l && canvas[aline].at(n) == ' ') n++;
+  n += Max(12, chunk[BRIDGE_FORMAT_WEST].length()+1);
 
-  if (! ReadNextWord(canvas[aline], n, chunk[BRIDGE_FORMAT_EAST])) 
+  if (! ReadAllWordsOverlong(canvas[aline], n, n+11, 
+      chunk[BRIDGE_FORMAT_EAST])) 
     return false;
-  n += chunk[BRIDGE_FORMAT_EAST].length();
-  while (n < l && canvas[aline].at(n) == ' ') n++;
+  n += Max(12, chunk[BRIDGE_FORMAT_WEST].length()+1);
 
-  if (! ReadNextWord(canvas[aline], n, chunk[BRIDGE_FORMAT_SOUTH])) 
+  if (! ReadAllWordsOverlong(canvas[aline], n, n+11, 
+      chunk[BRIDGE_FORMAT_SOUTH])) 
     return false;
 
   return true;

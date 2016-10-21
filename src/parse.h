@@ -83,6 +83,12 @@ bool ReadAllWords(
   const unsigned stopPosInclusive,
   string& word);
 
+bool ReadAllWordsOverlong(
+  const string& s,
+  const unsigned startPos,
+  const unsigned stopPosInclusive,
+  string& word);
+
 bool ReadNextSpacedWord(
   const string& s,
   const unsigned startPos,
