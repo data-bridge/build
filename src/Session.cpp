@@ -179,6 +179,7 @@ void Session::setPart1(const string& t)
     s = s.substr(0, l-2);
   }
   else if (s.at(0) == 'R' && s.at(l-1) != ' ' && 
+      (s.at(l-1) < '0' || s.at(l-1) > '9') &&
       s.at(l-2) >= '0' && s.at(l-2) <= '9')
   {
     // Might be R32B.  Undocumented Pavlicek extension!
@@ -444,6 +445,9 @@ string Session::asPBN() const
     s << general1;
   else if (stage != BRIDGE_SESSION_ROUND_OF)
     s << STAGE_NAMES_SHORT[stage] << extension;
+  else if (extension != "" && roundOf >= 64)
+    // Pavlicek...
+    s << STAGE_NAMES_SHORT[stage] << roundOf << " " << extension;
   else
     s << STAGE_NAMES_SHORT[stage] << roundOf << extension;
 
@@ -468,6 +472,9 @@ string Session::asRBNCore() const
     s << general1;
   else if (stage != BRIDGE_SESSION_ROUND_OF)
     s << STAGE_NAMES_SHORT[stage] << extension;
+  else if (extension != "" && roundOf >= 64)
+    // Pavlicek...
+    s << STAGE_NAMES_SHORT[stage] << roundOf << " " << extension;
   else
     s << STAGE_NAMES_SHORT[stage] << roundOf << extension;
 
