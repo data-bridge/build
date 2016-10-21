@@ -150,6 +150,12 @@ static bool getTXTCanvasOffset(
   unsigned n = 0;
 
   // The fields can be longer than 12 characters...
+  // The whole line can also be absent.
+
+  const unsigned ll = canvas[aline].length();
+  if (ll > 13 && ll < 36 && canvas[aline].substr(12, 2) == "C ")
+    return true;
+
   if (ReadAllWordsOverlong(canvas[aline], n, n+11, 
       chunk[BRIDGE_FORMAT_WEST])) 
     n += Max(12, chunk[BRIDGE_FORMAT_WEST].length()+1);
