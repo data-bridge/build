@@ -82,10 +82,11 @@ static bool readTXTCanvas(
 
       string& prevLine = canvas.back();
       string wd;
-      if (ReadNextWord(prevLine, 0, wd) && (wd == "Down" || wd == "Made"))
+      if (ReadNextWord(prevLine, 0, wd) && 
+          (wd == "Down" || wd == "Made" || wd == "Passed"))
       {
         int seen = count(prevLine.begin(), prevLine.end(), ' ');
-        if (seen > 4)
+        if (seen > 4 || (wd == "Passed" && seen >= 3))
           // Team line still to come
           continue;
         else
@@ -196,11 +197,6 @@ static bool getTXTFields(
 
   if (aline > 11)
   {
-if (bline+14 >= canvas.size())
-{
-  cout << "GTF HERE" << endl;
-  exit(0);
-}
     if (! ReadNextWord(canvas[bline], 0, chunk[BRIDGE_FORMAT_BOARD_NO])) 
       return false;
     chunk[BRIDGE_FORMAT_BOARD_NO].pop_back(); // Drop trailing point
@@ -221,33 +217,37 @@ if (bline+14 >= canvas.size())
   if (! getTXTAuction(canvas, cline, chunk))
     return false;
 
-  chunk[BRIDGE_FORMAT_CONTRACT] = canvas[cline++];
-
-  if (canvas[cline].size() < 5)
-    return false;
-
-  string wd = canvas[cline].substr(0, 5);
-  if (wd == "Trick")
+  if (canvas[cline].length() < 10 ||
+      canvas[cline].substr(0, 10) != "Passed out")
   {
-    cline++;
-    if (! getTXTPlay(canvas, cline, chunk))
-      return false;
-    cline++;
-  }
-  else if (wd == "Lead:")
-  {
-    if (! ReadLastWord(canvas[cline], wd))
-      return false;
-    if (wd.size() == 3 && wd.substr(1, 2) == "10")
-      chunk[BRIDGE_FORMAT_PLAY] = wd.substr(0, 1) + "T";
-    else
-      chunk[BRIDGE_FORMAT_PLAY] = wd;
-    cline++;
-  }
+    chunk[BRIDGE_FORMAT_CONTRACT] = canvas[cline++];
 
-  if (canvas[cline].size() < 5)
-    return false;
-  chunk[BRIDGE_FORMAT_RESULT] = canvas[cline];
+    if (canvas[cline].size() < 5)
+      return false;
+
+    string wd = canvas[cline].substr(0, 5);
+    if (wd == "Trick")
+    {
+      cline++;
+      if (! getTXTPlay(canvas, cline, chunk))
+        return false;
+      cline++;
+    }
+    else if (wd == "Lead:")
+    {
+      if (! ReadLastWord(canvas[cline], wd))
+        return false;
+      if (wd.size() == 3 && wd.substr(1, 2) == "10")
+        chunk[BRIDGE_FORMAT_PLAY] = wd.substr(0, 1) + "T";
+      else
+        chunk[BRIDGE_FORMAT_PLAY] = wd;
+      cline++;
+    }
+
+    if (canvas[cline].size() < 5)
+      return false;
+    chunk[BRIDGE_FORMAT_RESULT] = canvas[cline];
+  }
 
   // Ignore running IMP score, as we regenerate this.
   return true;
@@ -302,9 +302,9 @@ static bool getTXTAuction(
   vector<string>& chunk)
 {
   const unsigned l0 = canvas[offset].length();
-  if (l0 > 6 && l0 < 10)
+  if (l0 > 6 && l0 < 11)
   {
-    // No auction, e.g. "5C East".
+    // No auction, e.g. "5Cx North".
     chunk[BRIDGE_FORMAT_AUCTION] = "";
     return true;
   }

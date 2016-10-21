@@ -81,6 +81,7 @@ unsigned Board::NewInstance()
   if (numActive > 0)
   {
     auction[numActive].CopyDealerVulFrom(auction[0]);
+    contract[numActive].SetVul(auction[0].GetVul());
 
     if (deal.IsSet())
     {

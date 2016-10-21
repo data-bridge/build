@@ -260,7 +260,7 @@ void dispatch(
     catch (Bexcept& bex)
     {
       bex.Print();
-      break;
+      continue;
     }
 
     for (auto &t: task.taskList)
