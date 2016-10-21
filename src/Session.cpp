@@ -175,7 +175,7 @@ void Session::setPart1(const string& t)
   {
     // Might be Semifinal B, R64 B, Round of 32 B etc.
     // Undocumented Pavlicek extension!
-    ext = s.substr(l-2);
+    ext = s.substr(l-1);
     s = s.substr(0, l-2);
   }
   else if (s.at(0) == 'R' && s.at(l-1) != ' ' && 
