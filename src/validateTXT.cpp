@@ -355,7 +355,7 @@ bool validateTXT(
         return false;
     }
   }
-  else
+  else if (running.out.lno > headerStartTXT+6)
   {
     vector<string> vOut, vRef;
     vOut.clear();
@@ -373,9 +373,11 @@ bool validateTXT(
       const unsigned lOut = vOut[i].length();
       if (lOut >= vRef[i].length() ||
           vRef[i].substr(0, lOut) != vOut[i])
+      {
+        valError(stats, running, BRIDGE_VAL_NAMES_SHORT);
         return false;
+      }
     }
-    valError(stats, running, BRIDGE_VAL_NAMES_SHORT);
     return true;
   }
 
