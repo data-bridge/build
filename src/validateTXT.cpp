@@ -153,7 +153,7 @@ static bool areTXTSimilarResults(
   const unsigned lOut = wordsOut.size();
   const unsigned lRef = wordsRef.size();
 
-  if ((lOut+1 != lRef && lOut+2 != lRef) || lOut < 2)
+  if (lOut >= lRef || lOut < 2)
     return false;
 
   for (unsigned i = 0; i < lOut-2; i++)
