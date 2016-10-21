@@ -66,7 +66,7 @@ int main(int argc, char * argv[])
       catch(Bexcept& bex)
       {
         bex.Print();
-        exit(0);
+        // exit(0);
       }
     }
   }

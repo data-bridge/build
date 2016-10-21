@@ -22,6 +22,7 @@
 #include "validateRBN.h"
 #include "validateTXT.h"
 #include "validateEML.h"
+#include "validateREC.h"
 #include "parse.h"
 #include "Bexcept.h"
 
@@ -80,48 +81,6 @@ static void resetStats(ValFileStats& stats)
     stats.examples[v].out.line = "";
     stats.examples[v].ref.line = "";
   }
-}
-
-
-static bool isRECPlay(const string& line)
-{
-  vector<string> words;
-  splitIntoWords(line, words);
-
-  if (words.size() < 3 || words.size() > 6)
-    return false;
-
-  unsigned u;
-  if (! StringToNonzeroUnsigned(words[0], u))
-    return false;
-  if (u > 13)
-    return false;
-
-  for (unsigned i = 2; i < words.size(); i++)
-  {
-    if (words[i].length() > 3)
-      return false;
-  }
-
-  // We could also check word[1] for South/East/North/West etc.
-
-  return true;
-}
-
-static bool isRECJustMade(
-  const string &lineOut, 
-  const string &lineRef)
-{
-  unsigned lOut = lineOut.length();
-  unsigned lRef = lineRef.length();
-
-  if (lOut < 32 || lRef != lOut)
-    return false;
-
-  if (lineOut.substr(28) == "Made 0" && lineRef.substr(28) == "Won 32")
-    return true;
-  else
-    return false;
 }
 
 
@@ -296,7 +255,7 @@ void validate(
   running.ref.lno = 0;
   bool keepLineOut = false;
   bool keepLineRef = false;
-  unsigned emptyState = 0;
+  unsigned headerStartTXT = 4; // If comments and no dash line
 
   while (keepLineRef || valProgress(frstr, running.ref))
   {
@@ -343,7 +302,7 @@ void validate(
 
     if (formatRef == BRIDGE_FORMAT_TXT &&
         running.out.line.substr(0, 5) == "-----")
-      emptyState = 0;
+      headerStartTXT = running.out.lno+2;
 
     if (running.ref.line == running.out.line)
     {
@@ -395,10 +354,7 @@ void validate(
     }
     else if (formatRef == BRIDGE_FORMAT_TXT)
     {
-      // TODO: emptyState is a kludge.  It would be better to count
-      // the lines from a chunk change.  This will also work when
-      // only some of the TXT headers are missing.
-      if (validateTXT(frstr, running, emptyState, stats))
+      if (validateTXT(frstr, fostr, running, headerStartTXT, stats))
         continue;
       else if (fostr.eof() || frstr.eof())
         break;
@@ -412,27 +368,10 @@ void validate(
     }
     else if (formatRef == BRIDGE_FORMAT_REC)
     {
-      if (running.ref.line == "")
-      {
-        if (isRECPlay(running.out.line))
-        {
-          // Extra play line (Pavlicek error).
-          valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
-
-          keepLineRef = true;
-          continue;
-        }
-      }
-      else if (isRECJustMade(running.out.line, running.ref.line))
-      {
-        // "Won 32" (Pavlicek error, should be "Made 0" or so.
-        valError(stats, running, BRIDGE_VAL_REC_MADE_32);
-
-        // The next line (Score, Points) is then also different.
-        valProgress(fostr, running.out);
-        valProgress(frstr, running.ref);
+      if (validateREC(frstr, fostr, running, stats))
         continue;
-      }
+      else if (fostr.eof() || frstr.eof())
+        break;
     }
 
 

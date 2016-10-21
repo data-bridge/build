@@ -545,11 +545,14 @@ bool Contract::SetResult(
 
 void Contract::CalculateScore()
 {
-  if (! setContractFlag || ! setVulFlag || ! setResultFlag)
-  {
-    score = -1;
-    return;
-  }
+  if (! setContractFlag)
+    THROW("No contract set");
+
+  if (! setVulFlag)
+    THROW("No vulnerability set");
+
+  if (! setResultFlag)
+    THROW("No result set");
 
   if (contract.level == 0)
   {

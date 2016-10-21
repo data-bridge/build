@@ -99,16 +99,19 @@ static bool isLINLongOutLine(
 
 static bool LINtoList(
   const string& line,
-  vector<string>& list)
+  vector<string>& list,
+  const string& tag,
+  const int numFields)
 {
-  if (line.length() < 5 || line.substr(0, 3) != "vg|")
+  if (line.length() < 5 || line.substr(0, 3) != tag)
     return false;
 
   string piece = line.substr(3);
   piece = piece.substr(0, piece.find("|"));
 
   // A LIN vg line must have exactly 8 commas.
-  if (count(piece.begin(), piece.end(), ',') != 8)
+  // For a pn line it is 7.
+  if (count(piece.begin(), piece.end(), ',') != numFields)
     return false;
 
   list.clear();
@@ -122,9 +125,9 @@ static bool isLINHeaderLine(
   ValFileStats& stats)
 {
   vector<string> vOut(9), vRef(9);
-  if (! LINtoList(running.out.line, vOut))
+  if (! LINtoList(running.out.line, vOut, "vg|", 8))
     return false;
-  if (! LINtoList(running.ref.line, vRef))
+  if (! LINtoList(running.ref.line, vRef, "vg|", 8))
     return false;
 
   if (vOut[0] != vRef[0])
@@ -143,6 +146,33 @@ static bool isLINHeaderLine(
       vOut[7] != vRef[7] || vOut[8] != vRef[8])
     valError(stats, running, BRIDGE_VAL_TEAMS);
 
+  return true;
+}
+
+
+static bool isLINPlayerLine(
+  const ValExample& running, 
+  ValFileStats& stats)
+{
+  vector<string> vOut(8), vRef(8);
+  if (! LINtoList(running.out.line, vOut, "pn|", 7))
+    return false;
+  if (! LINtoList(running.ref.line, vRef, "pn|", 7))
+    return false;
+
+  for (unsigned i = 0; i < 8; i++)
+  {
+    if (vOut[i] == vRef[i])
+      continue;
+
+    const unsigned lOut = vOut[i].length();
+    if (lOut >= vRef[i].length() ||
+        vRef[i].substr(0, lOut) != vOut[i])
+    {
+      valError(stats, running, BRIDGE_VAL_NAMES_SHORT);
+      return false;
+    }
+  }
   return true;
 }
 
@@ -194,6 +224,8 @@ bool validateLIN_RP(
     }
   }
   else if (isLINHeaderLine(running, stats))
+    return true;
+  else if (isLINPlayerLine(running, stats))
     return true;
   else if (isLINPlay(running.ref.line) && ! isLINPlay(running.out.line))
   {

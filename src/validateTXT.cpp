@@ -115,15 +115,19 @@ static bool isTXTRunningScore(const string& line)
 {
   vector<string> words;
   splitIntoWords(line, words);
-  if (words.size() != 4)
+  const unsigned n = words.size();
+  if (n < 4)
     return false;
 
   int i;
-  if (! StringToInt(words[1], i))
+  if (! StringToInt(words[n-1], i))
     return false;
-  if (! StringToInt(words[3], i))
-    return false;
-  return true;
+
+  for (unsigned j = 1; j < n-2; j++)
+    if (StringToInt(words[j], i))
+      return true;
+
+  return false;
 }
 
 
@@ -149,7 +153,7 @@ static bool areTXTSimilarResults(
   const unsigned lOut = wordsOut.size();
   const unsigned lRef = wordsRef.size();
 
-  if (lOut+1 != lRef || lOut < 2)
+  if ((lOut+1 != lRef && lOut+2 != lRef) || lOut < 2)
     return false;
 
   for (unsigned i = 0; i < lOut-2; i++)
@@ -158,9 +162,10 @@ static bool areTXTSimilarResults(
       return false;
   }
 
+  const unsigned d = lRef-lOut;
   for (unsigned i = lOut-2; i < lOut; i++)
   {
-    if (wordsOut[i] != wordsRef[i+1])
+    if (wordsOut[i] != wordsRef[i+d])
       return false;
   }
 
@@ -168,10 +173,106 @@ static bool areTXTSimilarResults(
 }
 
 
+static const vector<ValDiffs> headerErrorType =
+{
+  BRIDGE_VAL_TITLE, 
+  BRIDGE_VAL_ERROR, // Unused
+  BRIDGE_VAL_DATE, 
+  BRIDGE_VAL_LOCATION, 
+  BRIDGE_VAL_EVENT, 
+  BRIDGE_VAL_SESSION, 
+  BRIDGE_VAL_TEAMS
+};
+
+
+bool isTXTHeader(
+  ifstream& frstr,
+  ifstream& fostr,
+  ValExample& running, 
+  const unsigned & headerStartTXT, 
+  ValFileStats& stats)
+{
+  // Make a list of output header lines (absolute position known).
+  vector<string> listOut(7);
+  listOut.clear();
+
+  for (unsigned i = running.out.lno; i <= headerStartTXT+6; i++)
+  {
+    // +0 is empty by construction, +1 must be empty.
+    if (i <= headerStartTXT+1)
+      continue;
+    listOut[i-headerStartTXT] = running.out.line;
+
+    if (! valProgress(fostr, running.out))
+    {
+      valError(stats, running, BRIDGE_VAL_OUT_SHORT);
+      return false;
+    }
+  }
+
+  // Reading the rest of the out header should leave us at an empty line.
+  if (running.out.line != "")
+  {
+    valError(stats, running, BRIDGE_VAL_ERROR);
+    return false;
+  }
+
+
+  // Make a list of reference header lines (relative).
+  vector<string> listRef;
+  listRef.clear();
+
+  unsigned i = running.out.lno;
+  while (running.ref.line != "")
+  {
+    listRef.push_back(running.ref.line);
+    if (! valProgress(frstr, running.ref))
+    {
+      valError(stats, running, BRIDGE_VAL_REF_SHORT);
+      return false;
+    }
+
+    if (i == headerStartTXT)
+    {
+      // Expect a newline.
+      if (running.ref.line != "")
+      {
+        valError(stats, running, BRIDGE_VAL_ERROR);
+        return false;
+      }
+
+      if (! valProgress(frstr, running.ref))
+      {
+        valError(stats, running, BRIDGE_VAL_REF_SHORT);
+        return false;
+      }
+      i++;
+    }
+    i++;
+  }
+
+  // Attempt to match them up.
+  unsigned r = 0;
+  for (i = 0; i <= 6; i++)
+  {
+    if (listOut[i] == "")
+      continue;
+    else if (listOut[i] != listRef[r])
+    {
+      valError(stats, running, headerErrorType[i]);
+      return false;
+    }
+    r++;
+  }
+  return true;
+}
+
+
 bool validateTXT(
   ifstream& frstr,
+  ifstream& fostr,
   ValExample& running,
-  unsigned& emptyState,
+  const unsigned& headerStartTXT,
   ValFileStats& stats)
 {
   // emptyState is a bit of a kludge to attempt to detect the empty
@@ -246,42 +347,36 @@ bool validateTXT(
       valError(stats, running, BRIDGE_VAL_TEAMS);
       return true;
     }
-    else if (emptyState == 0)
+    else if (running.out.lno <= headerStartTXT + 6)
     {
-      valError(stats, running, BRIDGE_VAL_TITLE);
-      emptyState++;
-      return true;
+      if (isTXTHeader(frstr, fostr, running, headerStartTXT, stats))
+        return true;
+      else
+        return false;
     }
-    else if (emptyState == 1)
+  }
+  else
+  {
+    vector<string> vOut, vRef;
+    vOut.clear();
+    vRef.clear();
+    splitIntoWords(running.out.line, vOut);
+    splitIntoWords(running.ref.line, vRef);
+    if (vOut.size() != vRef.size())
+      return false;
+
+    for (unsigned i = 0; i < vOut.size(); i++)
     {
-      valError(stats, running, BRIDGE_VAL_DATE);
-      emptyState++;
-      return true;
+      if (vOut[i] == vRef[i])
+        continue;
+
+      const unsigned lOut = vOut[i].length();
+      if (lOut >= vRef[i].length() ||
+          vRef[i].substr(0, lOut) != vOut[i])
+        return false;
     }
-    else if (emptyState == 2)
-    {
-      valError(stats, running, BRIDGE_VAL_LOCATION);
-      emptyState++;
-      return true;
-    }
-    else if (emptyState == 3)
-    {
-      valError(stats, running, BRIDGE_VAL_EVENT);
-      emptyState++;
-      return true;
-    }
-    else if (emptyState == 4)
-    {
-      valError(stats, running, BRIDGE_VAL_SESSION);
-      emptyState++;
-      return true;
-    }
-    else if (emptyState == 5)
-    {
-      valError(stats, running, BRIDGE_VAL_TEAMS);
-      emptyState++;
-      return true;
-    }
+    valError(stats, running, BRIDGE_VAL_NAMES_SHORT);
+    return true;
   }
 
   return false;

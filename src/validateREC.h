@@ -6,19 +6,18 @@
    See LICENSE and README.
 */
 
-#ifndef BRIDGE_VALTXT_H
-#define BRIDGE_VALTXT_H
+#ifndef BRIDGE_VALREC_H
+#define BRIDGE_VALREC_H
 
 #include <string>
 
 using namespace std;
 
 
-bool validateTXT(
+bool validateREC(
   ifstream& frstr,
   ifstream& fostr,
   ValExample& running,
-  const unsigned& emptyState,
   ValFileStats& stats);
 
 #endif

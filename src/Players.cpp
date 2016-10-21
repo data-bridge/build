@@ -209,6 +209,7 @@ bool Players::SetRoom(
     case BRIDGE_FORMAT_PBN:
     case BRIDGE_FORMAT_TXT:
     case BRIDGE_FORMAT_REC:
+    case BRIDGE_FORMAT_EML:
       if (rm == "Open")
         room = BRIDGE_ROOM_OPEN;
       else if (rm == "Closed")

@@ -106,7 +106,13 @@ static bool readEMLCanvas(
   while (getline(fstr, line))
   {
     lno++;
-    if (line.empty() || line.at(0) == '%')
+    if (line.empty())
+    {
+      // If some players aren't given, we might have an empty line.
+      if (canvas.size() != 7 && canvas.size() != 13)
+        continue;
+    }
+    else if (line.at(0) == '%')
       continue;
 
     if (line.size() > 40)
@@ -118,7 +124,7 @@ static bool readEMLCanvas(
 
     canvas.push_back(line);
   }
-  return (canvas.size() >= 18);
+  return (canvas.size() >= 17);
 }
 
 
@@ -185,14 +191,14 @@ static bool getEMLSimpleFields(
   if (! ReadNextWord(canvas[0], 0, chunk[BRIDGE_FORMAT_SCORING]))
     return false;
 
-  if (! ReadNextWord(canvas[1], 16, chunk[BRIDGE_FORMAT_NORTH]))
-    return false;
-  if (! ReadNextWord(canvas[7], 4, chunk[BRIDGE_FORMAT_WEST]))
-    return false;
-  if (! ReadNextWord(canvas[7], 27, chunk[BRIDGE_FORMAT_EAST]))
-    return false;
-  if (! ReadNextWord(canvas[13], 16, chunk[BRIDGE_FORMAT_SOUTH]))
-    return false;
+  if (! ReadAllWords(canvas[1], 16, 23, chunk[BRIDGE_FORMAT_NORTH]))
+    chunk[BRIDGE_FORMAT_NORTH] = "";
+  if (! ReadAllWords(canvas[7], 4, 11, chunk[BRIDGE_FORMAT_WEST]))
+    chunk[BRIDGE_FORMAT_WEST] = "";
+  if (! ReadAllWords(canvas[7], 27, 34, chunk[BRIDGE_FORMAT_EAST]))
+    chunk[BRIDGE_FORMAT_EAST] = "";
+  if (! ReadAllWords(canvas[13], 16, 23, chunk[BRIDGE_FORMAT_SOUTH]))
+    chunk[BRIDGE_FORMAT_SOUTH] = "";
 
   if (! ReadNextWord(canvas[0], 54, chunk[BRIDGE_FORMAT_BOARD_NO]))
     return false;
@@ -282,7 +288,7 @@ static bool getEMLAuction(
     {
       if (! ReadNextWord(canvas[l], beg, wd))
       {
-        if (l == resultLine-2)
+        if (l == resultLine-2 || l == resultLine-3)
           break;
         else
           return false;

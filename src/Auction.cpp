@@ -1003,7 +1003,7 @@ bool Auction::operator != (const Auction& a2) const
 bool Auction::ExtractContract(Contract& contract) const
 {
   if (! Auction::IsOver())
-    THROW("Auction not over");
+    return false;
 
   if (activeCNo == 0)
     contract.SetPassedOut();
