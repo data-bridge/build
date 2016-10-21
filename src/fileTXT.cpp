@@ -187,14 +187,34 @@ static bool getTXTFields(
        canvas[0].substr(0, 4) != "West" &&
        canvas[0].substr(12, 5) != "North"))
   {
-    chunk[BRIDGE_FORMAT_TITLE] = canvas[0];
-    chunk[BRIDGE_FORMAT_DATE] = canvas[1];
-    chunk[BRIDGE_FORMAT_LOCATION] = canvas[2];
-    chunk[BRIDGE_FORMAT_EVENT] = canvas[3];
-    chunk[BRIDGE_FORMAT_SESSION] = canvas[4];
-    chunk[BRIDGE_FORMAT_SCORING] = "IMPs"; // Maybe others possible
-    chunk[BRIDGE_FORMAT_TEAMS] = canvas[5];
+    // Guess the number of header lines.
     bline = 6;
+    string tmp;
+    while (bline != 0 && ! ReadNextWord(canvas[bline], 0, tmp))
+      bline--;
+
+    if (bline == 6)
+    {
+      chunk[BRIDGE_FORMAT_TITLE] = canvas[0];
+      chunk[BRIDGE_FORMAT_DATE] = canvas[1];
+      chunk[BRIDGE_FORMAT_LOCATION] = canvas[2];
+      chunk[BRIDGE_FORMAT_EVENT] = canvas[3];
+      chunk[BRIDGE_FORMAT_SESSION] = canvas[4];
+      chunk[BRIDGE_FORMAT_SCORING] = "IMPs"; // Maybe others possible
+      chunk[BRIDGE_FORMAT_TEAMS] = canvas[5];
+    }
+    else if (bline == 5)
+    {
+      // Probably.  Could do a better job here.
+      chunk[BRIDGE_FORMAT_TITLE] = canvas[0];
+      chunk[BRIDGE_FORMAT_DATE] = canvas[1];
+      chunk[BRIDGE_FORMAT_EVENT] = canvas[2];
+      chunk[BRIDGE_FORMAT_SESSION] = canvas[3];
+      chunk[BRIDGE_FORMAT_SCORING] = "IMPs"; // Maybe others possible
+      chunk[BRIDGE_FORMAT_TEAMS] = canvas[4];
+    }
+    else
+      return false;
   }
 
   if (aline > 11)
@@ -331,14 +351,17 @@ static bool getTXTAuction(
   unsigned numPasses = 0;
   for (l = offset; l < canvas.size(); l++)
   {
-    while (GetNextWord(canvas[l], wd))
-    // for (unsigned beg = (l == offset ? firstStart : 0); beg < 48; beg += 12)
+    const unsigned ll = canvas[l].length();
+    if (ll >= 7 && ll <= 11 && canvas[l] != "All Pass")
     {
-      // if (! ReadNextWord(canvas[l], beg, wd))
-      // {
-        // done = true;
-        // break;
-      // }
+      // "5S South", not an actual bid.
+      l--;
+      break;
+
+    }
+
+    while (GetNextWord(canvas[l], wd))
+    {
       GobbleLeadingSpace(canvas[l]);
 
       if (no > 0 && no % 4 == 0)
