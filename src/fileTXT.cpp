@@ -158,12 +158,12 @@ static bool getTXTCanvasOffset(
   if (! ReadAllWordsOverlong(canvas[aline], n, n+11, 
       chunk[BRIDGE_FORMAT_NORTH])) 
     return false;
-  n += Max(12, chunk[BRIDGE_FORMAT_WEST].length()+1);
+  n += Max(12, chunk[BRIDGE_FORMAT_NORTH].length()+1);
 
   if (! ReadAllWordsOverlong(canvas[aline], n, n+11, 
       chunk[BRIDGE_FORMAT_EAST])) 
     return false;
-  n += Max(12, chunk[BRIDGE_FORMAT_WEST].length()+1);
+  n += Max(12, chunk[BRIDGE_FORMAT_EAST].length()+1);
 
   if (! ReadAllWordsOverlong(canvas[aline], n, n+11, 
       chunk[BRIDGE_FORMAT_SOUTH])) 
