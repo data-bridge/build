@@ -497,7 +497,7 @@ void Segment::SetFromHeader(const string& room)
   if (! activeBoard->SetContract(LINdata[activeNo].contract[r], f))
     THROW("Cannot preset contract");
 
-  string s = "pn";
+  string s = "";
   for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
   {
     s += LINdata[activeNo].players[r][i];
@@ -505,7 +505,7 @@ void Segment::SetFromHeader(const string& room)
       s += ",";
   }
 
-  if (s != "pn|")
+  if (s != ",,,")
     activeBoard->SetPlayers(s, f);
 }
 
