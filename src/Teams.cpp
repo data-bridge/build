@@ -382,7 +382,7 @@ string Teams::AsLIN(const bool swapFlag) const
 }
 
 
-string Teams::AsRBNCore() const
+string Teams::AsRBNCore(const bool swapFlag) const
 {
   if (team1.name == "" && team2.name == "" &&
       team1.carry == BRIDGE_CARRY_NONE &&
@@ -390,20 +390,33 @@ string Teams::AsRBNCore() const
     return "";
 
   stringstream s;
-  s << team1.name << ":" << team2.name;
-  if (team1.carry == BRIDGE_CARRY_NONE &&
-      team2.carry == BRIDGE_CARRY_NONE)
-    return s.str();
+  if (swapFlag)
+  {
+    s << team2.name << ":" << team1.name;
+    if (team1.carry == BRIDGE_CARRY_NONE &&
+        team2.carry == BRIDGE_CARRY_NONE)
+      return s.str();
 
-  s << ":" << Teams::CarryAsString(team1) << 
-      ":" << Teams::CarryAsString(team2);
+    s << ":" << Teams::CarryAsString(team2) << 
+        ":" << Teams::CarryAsString(team1);
+  }
+  else
+  {
+    s << team1.name << ":" << team2.name;
+    if (team1.carry == BRIDGE_CARRY_NONE &&
+        team2.carry == BRIDGE_CARRY_NONE)
+      return s.str();
+
+    s << ":" << Teams::CarryAsString(team1) << 
+        ":" << Teams::CarryAsString(team2);
+  }
 
   return s.str();
 }
 
-string Teams::AsRBN() const
+string Teams::AsRBN(const bool swapFlag) const
 {
-  const string c = Teams::AsRBNCore();
+  const string c = Teams::AsRBNCore(swapFlag);
   if (c == "")
     return "";
 
@@ -411,9 +424,9 @@ string Teams::AsRBN() const
 }
 
 
-string Teams::AsRBX() const
+string Teams::AsRBX(const bool swapFlag) const
 {
-  const string c = Teams::AsRBNCore();
+  const string c = Teams::AsRBNCore(swapFlag);
   if (c == "")
     return "";
 
@@ -490,10 +503,10 @@ string Teams::AsString(
       THROW("AsString not implemented for PBN");
     
     case BRIDGE_FORMAT_RBN:
-      return Teams::AsRBN();
+      return Teams::AsRBN(swapFlag);
     
     case BRIDGE_FORMAT_RBX:
-      return Teams::AsRBX();
+      return Teams::AsRBX(swapFlag);
     
     case BRIDGE_FORMAT_TXT:
       return Teams::AsTXT();
@@ -526,7 +539,9 @@ string Teams::AsString(
 }
 
 
-string Teams::FirstAsString(const formatType f) const
+string Teams::FirstAsString(
+  const formatType f,
+  const bool swapFlag) const
 {
   switch(f)
   {
@@ -537,7 +552,10 @@ string Teams::FirstAsString(const formatType f) const
     case BRIDGE_FORMAT_PBN:
       if (team1.name == "" && team1.carry == BRIDGE_CARRY_NONE)
         return "";
-      return "[HomeTeam \"" + Teams::SingleAsPBN(team1) + "\"]\n";
+      if (swapFlag)
+        return "[HomeTeam \"" + Teams::SingleAsPBN(team2) + "\"]\n";
+      else
+        return "[HomeTeam \"" + Teams::SingleAsPBN(team1) + "\"]\n";
 
     case BRIDGE_FORMAT_TXT:
       if (team1.name == "" && team1.carry == BRIDGE_CARRY_NONE)
@@ -550,7 +568,9 @@ string Teams::FirstAsString(const formatType f) const
 }
 
 
-string Teams::SecondAsString(const formatType f) const
+string Teams::SecondAsString(
+  const formatType f,
+  const bool swapFlag) const
 {
   switch(f)
   {
@@ -561,7 +581,10 @@ string Teams::SecondAsString(const formatType f) const
     case BRIDGE_FORMAT_PBN:
       if (team2.name == "" && team2.carry == BRIDGE_CARRY_NONE)
         return "";
-      return "[VisitTeam \"" + Teams::SingleAsPBN(team2) + "\"]\n";
+      if (swapFlag)
+        return "[VisitTeam \"" + Teams::SingleAsPBN(team1) + "\"]\n";
+      else
+        return "[VisitTeam \"" + Teams::SingleAsPBN(team2) + "\"]\n";
 
     case BRIDGE_FORMAT_TXT:
       if (team2.name == "" && team2.carry == BRIDGE_CARRY_NONE)

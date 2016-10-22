@@ -498,9 +498,10 @@ void Segment::SetFromHeader(const string& room)
     THROW("Cannot preset contract");
 
   string s = "";
+  // unsigned r2 = activeBoard->GetInstance();
   for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
   {
-    s += LINdata[activeNo].players[r][i];
+    s += LINdata[activeNo].players[r][(i+2) % 4];
     if (i < 3)
       s += ",";
   }
@@ -862,7 +863,18 @@ string Segment::ScoringAsString(
 string Segment::TeamsAsString(
   const formatType f) const
 {
-  return seg.teams.AsString(f);
+  bool swapFlag = false;
+  if (f == BRIDGE_FORMAT_RBN)
+  {
+    if (activeBoard->SetInstance(0) && 
+        activeBoard->GetRoom() == BRIDGE_ROOM_CLOSED)
+      swapFlag = true;
+  }
+
+  if (swapFlag)
+    return seg.teams.AsString(f, swapFlag);
+  else
+    return seg.teams.AsString(f);
 }
 
 
@@ -878,14 +890,24 @@ string Segment::TeamsAsString(
 string Segment::FirstTeamAsString(
   const formatType f) const
 {
-  return seg.teams.FirstAsString(f);
+  bool swapFlag = false;
+  if (activeBoard->SetInstance(0) && 
+      activeBoard->GetRoom() == BRIDGE_ROOM_CLOSED)
+    swapFlag = true;
+
+  return seg.teams.FirstAsString(f, swapFlag);
 }
 
 
 string Segment::SecondTeamAsString(
   const formatType f) const
 {
-  return seg.teams.SecondAsString(f);
+  bool swapFlag = false;
+  if (activeBoard->SetInstance(0) && 
+      activeBoard->GetRoom() == BRIDGE_ROOM_CLOSED)
+    swapFlag = true;
+
+  return seg.teams.SecondAsString(f, swapFlag);
 }
 
 
@@ -1068,7 +1090,6 @@ string Segment::PlayersAsString(const formatType f)
       if (board == nullptr || board->GetLength() != 2)
         return "";
 
-      /*
       if (activeBoard->SetInstance(0) && 
           activeBoard->GetRoom() == BRIDGE_ROOM_CLOSED)
       {
@@ -1079,12 +1100,11 @@ string Segment::PlayersAsString(const formatType f)
       }
       else
       {
-      */
         board->SetInstance(0);
         s1 = board->PlayersAsString(f);
         board->SetInstance(1);
         s2 = board->PlayersAsString(f);
-      // }
+      }
 
       if (f == BRIDGE_FORMAT_LIN_TRN)
       {

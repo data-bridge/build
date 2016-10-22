@@ -605,7 +605,7 @@ if (board == nullptr)
 
     // Have to wait until after the methods with this.
     // Only applies to LIN.
-    segment->TransferHeader(bno-1, board->GetInstance());
+    // segment->TransferHeader(bno-1, board->GetInstance());
 
     if (fstr.eof())
       break;
