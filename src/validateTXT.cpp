@@ -321,6 +321,7 @@ bool validateTXT(
       valError(stats, running, BRIDGE_VAL_REF_SHORT);
       return false;
     }
+    valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
   }
 
   if (frstr.eof())
@@ -331,6 +332,16 @@ bool validateTXT(
 
   if (running.out.line == running.ref.line)
     return true;
+
+  if ((running.out.line.length() == 8 ||
+       running.out.line.length() == 9) &&
+      running.out.line.substr(0, 6) == "Lead: " &&
+      running.ref.line == "Trick   Lead    2nd    3rd    4th")
+  {
+    // Play is missing from output, but lead is stated.
+    valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
+    return true;
+  }
 
   if (isTXTResult(running.out.line) &&
       isTXTResult(running.ref.line) &&
