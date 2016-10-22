@@ -1068,6 +1068,7 @@ string Segment::PlayersAsString(const formatType f)
       if (board == nullptr || board->GetLength() != 2)
         return "";
 
+      /*
       if (activeBoard->SetInstance(0) && 
           activeBoard->GetRoom() == BRIDGE_ROOM_CLOSED)
       {
@@ -1078,11 +1079,12 @@ string Segment::PlayersAsString(const formatType f)
       }
       else
       {
+      */
         board->SetInstance(0);
         s1 = board->PlayersAsString(f);
         board->SetInstance(1);
         s2 = board->PlayersAsString(f);
-      }
+      // }
 
       if (f == BRIDGE_FORMAT_LIN_TRN)
       {

@@ -260,7 +260,6 @@ bool isTXTHeader(
     else if (listOut[i] != listRef[r])
     {
       valError(stats, running, headerErrorType[i]);
-      return false;
     }
     r++;
   }
@@ -360,10 +359,15 @@ bool validateTXT(
     }
     else if (running.out.lno <= headerStartTXT + 6)
     {
-      if (isTXTHeader(frstr, fostr, running, headerStartTXT, stats))
+      if (! isTXTHeader(frstr, fostr, running, headerStartTXT, stats))
+        return false;
+      else if (running.out.line == running.ref.line)
         return true;
       else
+      {
+        valError(stats, running, BRIDGE_VAL_TEAMS);
         return false;
+      }
     }
   }
   else if (running.out.lno > headerStartTXT+6)
