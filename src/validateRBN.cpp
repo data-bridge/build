@@ -279,6 +279,14 @@ bool validateRBX(
     }
     else if (vRef[i] == "N")
       return areRBNNames(vRef[i+1], vOut[j+1]);
+    else if (vRef[i] == "S")
+    {
+      if (lOut >= lRef || 
+          vRef[i+1].substr(0, lOut) != vOut[j+1])
+      // if (lOut > 0)
+        return false;
+      valError(stats, running, BRIDGE_VAL_SESSION);
+    }
     else if (vOut[j+1] != "")
       return false;
     else if (vRef[i] == "T")
@@ -304,12 +312,6 @@ bool validateRBX(
       if (lOut > 0)
         return false;
       valError(stats, running, BRIDGE_VAL_EVENT);
-    }
-    else if (vRef[i] == "S")
-    {
-      if (lOut > 0)
-        return false;
-      valError(stats, running, BRIDGE_VAL_SESSION);
     }
     else
       return false;
