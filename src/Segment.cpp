@@ -171,11 +171,13 @@ bool Segment::SetTitleLIN(const string& t)
   bool eventFlag = true;
   regex re1("^(.+)\\s+(\\w+)$");
   regex re2("^Segment\\s+\\d+$");
+  regex re3("^Round\\s+\\d+$");
   smatch match1, match2;
   if (regex_search(v[0], match1, re1) && 
       match1.size() >= 2 &&
       seg.session.isRBNPart(match1.str(2)) &&
-      regex_search(v[1], match2, re2))
+      (regex_search(v[1], match2, re2) ||
+       regex_search(v[1], match2, re3)))
   {
     if (! Segment::SetTitle(match1.str(1), BRIDGE_FORMAT_RBN))
       return false;
