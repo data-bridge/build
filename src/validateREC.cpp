@@ -185,8 +185,46 @@ bool validateREC(
     }
   }
 
+  if (running.out.line == "")
+  {
+    while (isRECPlay(running.ref.line))
+    {
+      // The other way round.
+      valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
 
-  if (isRECJustMade(running.out.line, running.ref.line))
+      if (! valProgress(frstr, running.ref))
+      {
+        valError(stats, running, BRIDGE_VAL_REF_SHORT);
+        return false;
+      }
+    }
+
+    if (running.out.line == running.ref.line)
+      return true;
+    else
+    {
+      valError(stats, running, BRIDGE_VAL_ERROR);
+      return false;
+    }
+  }
+
+
+  if (isRECPlay(running.out.line) && isRECPlay(running.ref.line))
+  {
+    unsigned lOut = running.out.line.length();
+    if (lOut >= running.ref.line.length() ||
+        running.ref.line.substr(0, lOut) != running.out.line)
+    {
+      valError(stats, running, BRIDGE_VAL_ERROR);
+      return false;
+    }
+    else
+    {
+      valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
+      return true;
+    }
+  }
+  else if (isRECJustMade(running.out.line, running.ref.line))
   {
     // "Won 32" (Pavlicek error, should be "Made 0" or so.
     valError(stats, running, BRIDGE_VAL_REC_MADE_32);

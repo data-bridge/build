@@ -60,6 +60,33 @@ bool validatePBN(
     }
   }
 
+  const unsigned lo = running.out.line.length();
+  const unsigned lr = running.ref.line.length();
+  if (lo == 11 && lr == 11 &&
+      running.out.line.at(0) != '[' &&
+      running.ref.line.at(0) != '[')
+  {
+    // Could be a short play line, "S4 -- -- -- --" (Pavlicek notation!).
+    unsigned poso = 0;
+    while (poso < lo && running.out.line.at(poso) != '-')
+      poso++;
+    
+    if (poso > 0 && poso < lo)
+    {
+      if (running.ref.line.substr(0, poso) ==
+          running.out.line.substr(0, poso))
+      {
+        valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
+        return true;
+      }
+      else
+      {
+        valError(stats, running, BRIDGE_VAL_ERROR);
+        return false;
+      }
+    }
+  }
+
   regex re("^\\[(\\w+)\\s+\"(.*)\"\\]$");
   smatch match;
   while (1)
