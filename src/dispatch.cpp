@@ -551,12 +551,18 @@ if (board == nullptr)
 // {
   // cout << "HERE" << endl;
 // }
-        if (chunk[i] != "")
+
+        if (chunk[i] == "")
         {
-          if (! tryFormatMethod(f, chunk[i], segment, board, i, fstr))
-          {
-            THROW("b " + STR(bno) + " i " + STR(i) + ", line '" + chunk[i] + "'");
-          }
+          if (i == BRIDGE_FORMAT_CONTRACT && f == BRIDGE_FORMAT_LIN)
+            segment->SetFromHeader(chunk[BRIDGE_FORMAT_BOARD_NO]);
+
+          continue;
+        }
+
+        if (! tryFormatMethod(f, chunk[i], segment, board, i, fstr))
+        {
+          THROW("b " + STR(bno) + " i " + STR(i) + ", line '" + chunk[i] + "'");
         }
       }
     }
@@ -626,7 +632,7 @@ static bool tryFormatMethod(
     else
     {
       fstr.close();
-      THROW("Cannot add " + formatLabelNames[label] + " line " + text + "'");
+      THROW("Cannot add " + formatLabelNames[label] + " line '" + text + "'");
     }
   }
   else  if ((board->*boardPtr[label])(text, f))
@@ -634,7 +640,7 @@ static bool tryFormatMethod(
   else
   {
     fstr.close();
-    THROW("Cannot add " + formatLabelNames[label] + " line " + text + "'");
+    THROW("Cannot add " + formatLabelNames[label] + " line '" + text + "'");
   }
 }
 

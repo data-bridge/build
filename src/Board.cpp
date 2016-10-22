@@ -62,21 +62,26 @@ unsigned Board::NewInstance()
   else if (numActive == 1)
     Board::SetRoom("Closed", 1, BRIDGE_FORMAT_PBN);
 
+  /*
   if (LINset)
   {
     if (LINdata.contract[numActive] != "")
     {
-      // Just ignore errors.
       Board::SetContract(LINdata.contract[numActive], BRIDGE_FORMAT_LIN);
     }
 
     string s = "pn|";
     for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
+    {
       s += LINdata.players[numActive][i];
+      if (i < 3)
+        s += ",";
+    }
 
-    if (s == "pn|")
+    if (s != "pn|,,,")
       Board::SetPlayers(s, BRIDGE_FORMAT_LIN);
   }
+  */
 
   if (numActive > 0)
   {

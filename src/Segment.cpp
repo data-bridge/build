@@ -431,6 +431,7 @@ bool Segment::SetResultsList(
     LINdata[d].contract[0] = tokens[b];
     LINdata[d].contract[1] = tokens[b+1];
   }
+
   return true;
 }
 
@@ -443,23 +444,71 @@ bool Segment::SetPlayersList(
     return false;
 
   size_t c = countDelimiters(s, ",");
-  if (c+1 != 4*LINcount)
-    THROW("Wrong number of fields");
-
-  vector<string> tokens(c+1);
-  tokens.clear();
-  tokenize(s, tokens, ",");
-
-  for (size_t b = 0; b < c; b += 8)
+  if (c == 7)
   {
-    for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
+    // Assume a single set of 8 players repeating.
+    vector<string> tokens(c+1);
+    tokens.clear();
+    tokenize(s, tokens, ",");
+
+    for (size_t b = 0; b < LINcount; b++)
     {
-      LINdata[b >> 3].players[0][(d+2) % 4] = tokens[b+d];
-      LINdata[b >> 3].players[1][(d+2) % 4] = tokens[b+d+4];
+      for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
+      {
+        LINdata[b].players[0][(d+2) % 4] = tokens[d];
+        LINdata[b].players[1][(d+2) % 4] = tokens[d+4];
+      }
+    }
+  }
+  else
+  {
+    // Assume all players are given.
+    if (c+1 != 4*LINcount)
+      THROW("Wrong number of fields");
+
+    vector<string> tokens(c+1);
+    tokens.clear();
+    tokenize(s, tokens, ",");
+
+    for (size_t b = 0; b < c; b += 8)
+    {
+      for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
+      {
+        LINdata[b >> 3].players[0][(d+2) % 4] = tokens[b+d];
+        LINdata[b >> 3].players[1][(d+2) % 4] = tokens[b+d+4];
+      }
     }
   }
   return true;
 }
+
+
+void Segment::SetFromHeader(const string& room)
+{
+  if (LINcount == 0)
+    return;
+
+  if (activeBoard == nullptr)
+    return;
+
+  int r = (room != "" && room.substr(0, 1) == "c" ? 1 : 0);
+  const formatType f = BRIDGE_FORMAT_LIN;
+
+  if (! activeBoard->SetContract(LINdata[activeNo].contract[r], f))
+    THROW("Cannot preset contract");
+
+  string s = "pn";
+  for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
+  {
+    s += LINdata[activeNo].players[r][i];
+    if (i < 3)
+      s += ",";
+  }
+
+  if (s != "pn|")
+    activeBoard->SetPlayers(s, f);
+}
+
 
 
 bool Segment::SetPlayersHeader(

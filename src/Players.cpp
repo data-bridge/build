@@ -124,7 +124,7 @@ bool Players::SetPlayersLIN(const string& names)
   int seen = count(names.begin(), names.end(), ',');
 
   if (seen != 3 && seen != 7)
-    THROW("Names are not in LIN format");
+    THROW("Names are not in LIN format: '" + names + "'");
 
   vector<string> v(static_cast<unsigned>(seen+1));
   v.clear();

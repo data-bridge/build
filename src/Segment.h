@@ -164,6 +164,9 @@ class Segment
       const string& s,
       const formatType f);
 
+    void SetFromHeader(
+      const string& room);
+
     bool SetPlayersHeader(
       const string& s,
       const formatType f);
