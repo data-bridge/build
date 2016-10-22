@@ -192,13 +192,13 @@ static bool getEMLSimpleFields(
   if (! ReadNextWord(canvas[0], 0, chunk[BRIDGE_FORMAT_SCORING]))
     return false;
 
-  if (! ReadAllWords(canvas[1], 16, 23, chunk[BRIDGE_FORMAT_NORTH]))
+  if (! ReadAllWords(canvas[1], 16, 26, chunk[BRIDGE_FORMAT_NORTH]))
     chunk[BRIDGE_FORMAT_NORTH] = "";
-  if (! ReadAllWords(canvas[7], 4, 11, chunk[BRIDGE_FORMAT_WEST]))
+  if (! ReadAllWords(canvas[7], 4, 14, chunk[BRIDGE_FORMAT_WEST]))
     chunk[BRIDGE_FORMAT_WEST] = "";
-  if (! ReadAllWords(canvas[7], 27, 34, chunk[BRIDGE_FORMAT_EAST]))
+  if (! ReadAllWords(canvas[7], 27, 37, chunk[BRIDGE_FORMAT_EAST]))
     chunk[BRIDGE_FORMAT_EAST] = "";
-  if (! ReadAllWords(canvas[13], 16, 23, chunk[BRIDGE_FORMAT_SOUTH]))
+  if (! ReadAllWords(canvas[13], 16, 26, chunk[BRIDGE_FORMAT_SOUTH]))
     chunk[BRIDGE_FORMAT_SOUTH] = "";
 
   if (! ReadNextWord(canvas[0], 54, chunk[BRIDGE_FORMAT_BOARD_NO]))

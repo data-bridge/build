@@ -1,12 +1,6 @@
 08.10.16
 --------
-Try to get single line shifts in validate (go on until next chunk
-boundary?).
-
 Maybe put errors to cerr.
-
-LIN input: Board.cpp, NewInstance() and SetLINHeader();
-Have to somehow swap if closed room comes first.
 
 Move increasingly to .fix and away from validate "fixes"
 
@@ -47,12 +41,7 @@ LIN_EXT or so.  In this case take advantage of file names too
 Parse VG LIN headers for some recognizable format.
 
 
-Check that LOG is only set at the lowest level where error occurs.
-In read*, we should perhaps add the input file line number.
-
 Maybe combine the enum and the string on top of each file*.cpp
-
-Actually a lot of the pointed-to functions are the same.  Maybe unify?
 
 options
 -------
@@ -82,12 +71,7 @@ options
 Then write a script to set combinations
 
 Auction:
-If we SetScore, then must check against CalculateScore (order?).
 Include alerts =1= I think.
-Contract:
-Probably SetDeclarer gets called after auction (order)?  check vs auction
-Play:
-Write AddAllPBN(list).
 
 Use ParsePlayer instead of e.g. Auction::ParseRBNDealer()
 
@@ -101,9 +85,6 @@ make Board checks
 Test on concatenated RBN file
 come up with format for accompanying fixes, .fix files
 Read these in, apply before crying wolf
-
-Test on all RBN files
-Maybe input list of files, output list of faulty unfixed files
 
 Support PBN ##
 
