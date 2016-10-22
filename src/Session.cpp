@@ -414,7 +414,10 @@ string Session::asLIN_RP() const
   }
   else if (stage == BRIDGE_SESSION_ROUND_OF)
   {
-    s << ",R" << roundOf << extension;
+    if (extension != "" && roundOf >= 64)
+      s << ",R" << roundOf << " " << extension;
+    else
+      s << ",R" << roundOf << extension;
   }
   else
   {
@@ -514,6 +517,9 @@ string Session::asTXT() const
     if (extension != "")
       s << " " << extension;
   }
+  else if (extension != "" && roundOf >= 64)
+    // Pavlicek...
+    s << STAGE_NAMES[stage] << roundOf << " " << extension;
   else
     s << STAGE_NAMES[stage] << roundOf << extension;
 

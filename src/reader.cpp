@@ -58,6 +58,10 @@ int main(int argc, char * argv[])
   {
     for (auto &t: task.taskList)
     {
+      if (options.verboseThrow)
+        cout << "Validating " << t.fileOutput << 
+            " against " << t.fileRef << endl;
+
       try
       {
         validate(t.fileOutput, t.fileRef,

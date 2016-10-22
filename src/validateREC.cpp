@@ -68,7 +68,9 @@ static bool isRECNorthLine(
   const string &lineOut, 
   const string &lineRef)
 {
-  if (lineOut.length() < 30 && lineOut.length() != lineRef.length())
+  if (lineOut.length() < 30 || 
+      lineRef.length() < 30 || 
+      lineOut.length() != lineRef.length())
     return false;
 
   if (lineOut.substr(0, 3) != "IMP" || lineRef.substr(0, 3) != "IMP")
@@ -93,7 +95,9 @@ static bool isRECEWLine(
   const string &lineOut, 
   const string &lineRef)
 {
-  if (lineOut.length() < 25 && lineOut.length() != lineRef.length())
+  if (lineOut.length() < 25 ||
+      lineRef.length() < 25 ||
+      lineOut.length() > lineRef.length())
     return false;
 
   if (lineOut.at(12) != 'D' || lineRef.at(12) != 'D')
@@ -106,8 +110,8 @@ static bool isRECEWLine(
     return false;
 
   unsigned lOut = pOut.length();
-  if (lOut >= pRef.length() ||
-      pRef.substr(0, lOut) != pOut)
+  if (pRef != pOut &&
+      (lOut >= pRef.length() || pRef.substr(0, lOut) != pOut))
     return false;
 
   if (! ReadAllWords(lineOut, 24, 35, pOut))
@@ -116,8 +120,8 @@ static bool isRECEWLine(
     return false;
 
   lOut = pOut.length();
-  if (lOut >= pRef.length() ||
-      pRef.substr(0, lOut) != pOut)
+  if (pRef != pOut &&
+      (lOut >= pRef.length() || pRef.substr(0, lOut) != pOut))
     return false;
 
   return true;
@@ -128,7 +132,9 @@ static bool isRECSouthLine(
   const string &lineOut, 
   const string &lineRef)
 {
-  if (lineOut.length() < 25 && lineOut.length() != lineRef.length())
+  if (lineOut.length() < 25 ||
+      lineRef.length() < 25 ||
+      lineOut.length() != lineRef.length())
     return false;
 
   if (lineOut.at(0) != 'D' || lineOut.at(24) != 'D' ||
@@ -202,17 +208,17 @@ bool validateREC(
   else if (isRECNorthLine(running.out.line, running.ref.line))
   {
     valError(stats, running, BRIDGE_VAL_NAMES_SHORT);
-    return false;
+    return true;
   }
   else if (isRECEWLine(running.out.line, running.ref.line))
   {
     valError(stats, running, BRIDGE_VAL_NAMES_SHORT);
-    return false;
+    return true;
   }
   else if (isRECSouthLine(running.out.line, running.ref.line))
   {
     valError(stats, running, BRIDGE_VAL_NAMES_SHORT);
-    return false;
+    return true;
   }
   // else if (isRECPlayerLine(running.out.line, running.ref.line))
   // {
