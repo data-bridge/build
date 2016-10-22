@@ -74,6 +74,7 @@ static bool getEMLAuction(
 
 static bool getEMLPlay(
   const vector<string>& canvas,
+  const bool playIsPresent,
   const unsigned resultLine,
   const unsigned westLine,
   const unsigned cardStart,
@@ -323,6 +324,7 @@ static bool getEMLAuction(
 
 static bool getEMLPlay(
   const vector<string>& canvas,
+  const bool playIsPresent,
   const unsigned resultLine,
   const unsigned westLine,
   const unsigned cardStart,
@@ -335,7 +337,18 @@ static bool getEMLPlay(
 
   string opld;
   if (! ReadNextWord(canvas[resultLine-1], 56, opld))
-    return false;
+  {
+    if (playIsPresent)
+      return false;
+    else
+      return true;
+  }
+
+  if (! playIsPresent)
+  {
+    chunk[BRIDGE_FORMAT_PLAY] = opld;
+    return true;
+  }
 
   string wd;
   unsigned pos0 = cardStart;
@@ -444,8 +457,8 @@ bool readEMLChunk(
     return false;
 
   // Synthesize an RBN-style string of plays.
-  if (playIsPresent && 
-      ! getEMLPlay(canvas, openingLine, westLine, cardStart, chunk))
+  if (! getEMLPlay(canvas, playIsPresent, openingLine, 
+      westLine, cardStart, chunk))
     return false;
 
   return true;

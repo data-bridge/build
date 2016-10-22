@@ -285,7 +285,7 @@ bool validateTXT(
     // Reference does not have "All Pass" (Pavlicek error).
     if (expectPasses > 0 && ! valProgress(frstr, running.ref))
     {
-      stats.counts[BRIDGE_VAL_OUT_SHORT]++;
+      valError(stats, running, BRIDGE_VAL_OUT_SHORT);
       return false;
     }
 
@@ -303,7 +303,7 @@ bool validateTXT(
   {
     if (! valProgress(frstr, running.ref))
     {
-      stats.counts[BRIDGE_VAL_REF_SHORT]++;
+      valError(stats, running, BRIDGE_VAL_REF_SHORT);
       return false;
     }
 
@@ -318,14 +318,14 @@ bool validateTXT(
   {
     if (! valProgress(frstr, running.ref))
     {
-      stats.counts[BRIDGE_VAL_REF_SHORT]++;
+      valError(stats, running, BRIDGE_VAL_REF_SHORT);
       return false;
     }
   }
 
   if (frstr.eof())
   {
-    stats.counts[BRIDGE_VAL_REF_SHORT]++;
+    valError(stats, running, BRIDGE_VAL_REF_SHORT);
     return false;
   }
 

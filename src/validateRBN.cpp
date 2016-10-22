@@ -23,7 +23,8 @@
 
 
 bool isRBNMissing(
-  const ValExample& running,
+  ifstream& frstr,
+  ValExample& running,
   ValFileStats& stats,
   char& rf)
 {
@@ -39,7 +40,27 @@ bool isRBNMissing(
   rf = running.ref.line.at(0);
 
   if (of != rf)
+  {
+    if (rf == 'P' && of == 'R')
+    {
+      if (! valProgress(frstr, running.ref))
+      {
+        valError(stats, running, BRIDGE_VAL_REF_SHORT);
+        return false;
+      }
+
+      rf = running.ref.line.at(0);
+      if (rf != of)
+      {
+        valError(stats, running, BRIDGE_VAL_ERROR);
+        return false;
+      }
+
+      return (running.ref.line == running.out.line);
+    }
+
     return false;
+  }
 
   switch (of)
   {
@@ -120,7 +141,7 @@ bool validateRBN(
   ValFileStats& stats)
 {
   char rf;
-  if (isRBNMissing(running, stats, rf))
+  if (isRBNMissing(frstr, running, stats, rf))
     return true;
 
   if (rf == 'K')
@@ -216,6 +237,12 @@ bool validateRBX(
       {
         // j stays unchanged
         valError(stats, running, BRIDGE_VAL_TEAMS);
+        continue;
+      }
+      else if (vRef[i] == "P" && vOut[j] == "R" && vRef[i+2] == "R")
+      {
+        // Play may be missing completely (e.g., coming from EML).
+        valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
         continue;
       }
       else

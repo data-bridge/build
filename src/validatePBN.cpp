@@ -114,7 +114,7 @@ bool validatePBN(
 
     if (! valProgress(frstr, running.ref))
     {
-      stats.counts[BRIDGE_VAL_REF_SHORT]++;
+      valError(stats, running, BRIDGE_VAL_REF_SHORT);
       return false;
     }
   }

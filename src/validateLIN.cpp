@@ -196,7 +196,7 @@ bool validateLIN_RP(
   {
     if (! valProgress(fostr, running.out))
     {
-      stats.counts[BRIDGE_VAL_OUT_SHORT]++;
+      valError(stats, running, BRIDGE_VAL_OUT_SHORT);
       return false;
     }
 
@@ -212,7 +212,7 @@ bool validateLIN_RP(
   {
     if (! valProgress(frstr, running.ref))
     {
-      stats.counts[BRIDGE_VAL_REF_SHORT]++;
+      valError(stats, running, BRIDGE_VAL_REF_SHORT);
       return false;
     }
 
@@ -233,7 +233,7 @@ bool validateLIN_RP(
     {
       if (! valProgress(frstr, running.ref))
       {
-        stats.counts[BRIDGE_VAL_REF_SHORT]++;
+        valError(stats, running, BRIDGE_VAL_REF_SHORT);
         return false;
       }
     }
