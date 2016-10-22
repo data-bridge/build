@@ -74,7 +74,7 @@ class Teams
     string AsRBNCore(const bool swapFlag) const;
     string AsRBN(const bool swapFlag) const;
     string AsRBX(const bool swapFlag) const;
-    string AsTXT() const;
+    string AsTXT(const bool swapFlag) const;
     string AsTXT(
       const int score1,
       const int score2) const;

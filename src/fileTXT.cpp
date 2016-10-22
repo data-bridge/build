@@ -574,15 +574,16 @@ void writeTXTBoardLevel(
     fstr << board->PlayAsString(f);
 
     int s = board->ScoreIMPAsInt();
+    bool swapFlag = (board->GetRoom() == BRIDGE_ROOM_OPEN);
     string tWin;
-    if (s > 0)
+    if ((s > 0 && ! swapFlag) || (s <= 0 && swapFlag))
     {
-      writeInfo.score2 += s;
+      writeInfo.score2 += (s > 0 ? s : -s);
       tWin = segment->SecondTeamAsString(f);
     }
     else
     {
-      writeInfo.score1 += -s;
+      writeInfo.score1 += (s > 0 ? s : -s);
       tWin = segment->FirstTeamAsString(f);
     }
 

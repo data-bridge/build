@@ -434,10 +434,12 @@ string Teams::AsRBX(const bool swapFlag) const
 }
 
 
-string Teams::AsTXT() const
+string Teams::AsTXT(const bool swapFlag) const
 {
   if (team1.name == "" && team2.name == "")
     return "";
+  else if (swapFlag)
+    return Teams::SingleAsTXT(team2) + " vs. " + Teams::SingleAsTXT(team1);
   else
     return Teams::SingleAsTXT(team1) + " vs. " + Teams::SingleAsTXT(team2);
 }
@@ -509,7 +511,7 @@ string Teams::AsString(
       return Teams::AsRBX(swapFlag);
     
     case BRIDGE_FORMAT_TXT:
-      return Teams::AsTXT();
+      return Teams::AsTXT(swapFlag);
     
     default:
       THROW("Invalid format " + STR(f));

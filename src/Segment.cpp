@@ -864,7 +864,7 @@ string Segment::TeamsAsString(
   const formatType f) const
 {
   bool swapFlag = false;
-  if (f == BRIDGE_FORMAT_RBN)
+  if (f == BRIDGE_FORMAT_RBN || f == BRIDGE_FORMAT_RBX)
   {
     if (activeBoard->SetInstance(0) && 
         activeBoard->GetRoom() == BRIDGE_ROOM_CLOSED)
@@ -890,10 +890,13 @@ string Segment::TeamsAsString(
 string Segment::FirstTeamAsString(
   const formatType f) const
 {
+  // Kludge -- should store swapFlag in Segment.
   bool swapFlag = false;
+  unsigned inst = activeBoard->GetInstance();
   if (activeBoard->SetInstance(0) && 
       activeBoard->GetRoom() == BRIDGE_ROOM_CLOSED)
     swapFlag = true;
+  activeBoard->SetInstance(inst);
 
   return seg.teams.FirstAsString(f, swapFlag);
 }
@@ -902,10 +905,13 @@ string Segment::FirstTeamAsString(
 string Segment::SecondTeamAsString(
   const formatType f) const
 {
+  // Kludge -- should store swapFlag in Segment.
   bool swapFlag = false;
+  unsigned inst = activeBoard->GetInstance();
   if (activeBoard->SetInstance(0) && 
       activeBoard->GetRoom() == BRIDGE_ROOM_CLOSED)
     swapFlag = true;
+  activeBoard->SetInstance(inst);
 
   return seg.teams.SecondAsString(f, swapFlag);
 }
