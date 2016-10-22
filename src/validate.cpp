@@ -321,7 +321,7 @@ void validate(
     }
     else if (formatRef == BRIDGE_FORMAT_PBN)
     {
-      if (validatePBN(frstr, running, stats))
+      if (validatePBN(frstr, fostr, running, stats))
         continue;
       else if (fostr.eof() || frstr.eof())
         break;

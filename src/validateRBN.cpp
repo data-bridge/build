@@ -89,8 +89,10 @@ bool isRBNMissing(
       return true;
         
     case 'S':
-      if (lOut > 2)
-        return false;
+      if (lOut >= lRef || 
+          running.ref.line.substr(0, lOut) != running.out.line)
+      // if (lOut > 2)
+        // return false;
       valError(stats, running, BRIDGE_VAL_SESSION);
       return true;
 

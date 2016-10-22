@@ -190,6 +190,19 @@ bool Segment::SetTitleLIN(const string& t)
     seg.event = "";
     eventFlag = false;
   }
+  else
+  {
+    regex re4("^R(\\d+)$");
+    if (regex_search(v[1], match2, re4))
+    {
+      if (! Segment::SetTitle(v[0], BRIDGE_FORMAT_RBN))
+        return false;
+      if (! Segment::SetSession(v[1], BRIDGE_FORMAT_RBN))
+        return false;
+      seg.event = "";
+      eventFlag = false;
+    }
+  }
 
   // See whether the title line contains extra information.
   seen = count(t.begin(), t.end(), '%');

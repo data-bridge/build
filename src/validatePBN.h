@@ -16,6 +16,7 @@ using namespace std;
 
 bool validatePBN(
   ifstream& frstr,
+  ifstream& fostr,
   ValExample& running,
   ValFileStats& stats);
 

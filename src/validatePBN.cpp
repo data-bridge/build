@@ -38,6 +38,7 @@ bool isPBNSite(
 
 bool validatePBN(
   ifstream& frstr,
+  ifstream& fostr,
   ValExample& running,
   ValFileStats& stats)
 {
@@ -95,6 +96,7 @@ bool validatePBN(
       return false;
 
     const string refField = match.str(1);
+    const string refValue = match.str(2);
 
     if (refField == "Event")
       valError(stats, running, BRIDGE_VAL_EVENT);
@@ -144,6 +146,35 @@ bool validatePBN(
       valError(stats, running, BRIDGE_VAL_REF_SHORT);
       return false;
     }
+
+    // May in fact have the same field in the output, but shorter.
+    smatch matchOut;
+    if (! regex_search(running.out.line, matchOut, re))
+      continue;
+
+    if (matchOut.str(1) != refField)
+      continue;
+
+    const unsigned lRef = refValue.length();
+    const unsigned lOut = matchOut.str(2).length();
+
+    if (lOut > lRef ||
+        refValue.substr(0, lOut) != matchOut.str(2))
+    {
+// cout << "refField " << refField << endl;
+// cout << "ref match '" << refValue << "'" << endl;
+// cout << "out match '" << matchOut.str(2) << "'" << endl;
+// cout << "substr '" << refValue.substr(0, lOut) << "'" << endl;
+      valError(stats, running, BRIDGE_VAL_ERROR);
+      return false;
+    }
+
+    if (! valProgress(fostr, running.out))
+    {
+      valError(stats, running, BRIDGE_VAL_OUT_SHORT);
+      return false;
+    }
+
   }
 
   if (running.ref.line == running.out.line)
