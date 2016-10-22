@@ -368,6 +368,31 @@ bool validateTXT(
   }
   else if (running.out.lno > headerStartTXT+6)
   {
+    // This is tricky, as both the numbers and positions of words
+    // can differ.  We combine two heuristics.
+    // The first one assumes the names are in-place with no shifts.
+    // The second one assumes the number of words is the same.
+
+    unsigned lo = running.out.line.length();
+    unsigned lr = running.ref.line.length();
+    if (lo > lr)
+      return false;
+
+    bool diffSeen = false;
+    for (unsigned i = 0; ! diffSeen && i < lo; i++)
+    {
+      char c = running.out.line.at(i);
+      if (c != ' ' && c != running.ref.line.at(i))
+        diffSeen = true;
+    }
+
+    if (! diffSeen)
+    {
+      valError(stats, running, BRIDGE_VAL_NAMES_SHORT);
+      return true;
+    }
+
+    // Second method.
     vector<string> vOut, vRef;
     vOut.clear();
     vRef.clear();
@@ -385,10 +410,10 @@ bool validateTXT(
       if (lOut >= vRef[i].length() ||
           vRef[i].substr(0, lOut) != vOut[i])
       {
-        valError(stats, running, BRIDGE_VAL_NAMES_SHORT);
         return false;
       }
     }
+    valError(stats, running, BRIDGE_VAL_NAMES_SHORT);
     return true;
   }
 
