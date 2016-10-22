@@ -249,7 +249,7 @@ void validate(
   {
     if (! keepLineOut && ! valProgress(fostr, running.out))
     {
-      stats.counts[BRIDGE_VAL_OUT_SHORT]++;
+      valError(stats, running, BRIDGE_VAL_OUT_SHORT);
       break;
     }
 
@@ -371,10 +371,7 @@ void validate(
   }
 
   if (valProgress(fostr, running.out))
-  {
-    stats.examples[BRIDGE_VAL_REF_SHORT] = running;
-    stats.counts[BRIDGE_VAL_REF_SHORT]++;
-  }
+    valError(stats, running, BRIDGE_VAL_REF_SHORT);
 
   if (options.verboseValDetails)
     printFileStats(stats, fileOut);

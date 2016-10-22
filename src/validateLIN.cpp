@@ -185,6 +185,30 @@ static bool isLINPlay(const string& line)
 }
 
 
+static bool isLINPlaySubstr(
+  const ValExample& running)
+{
+  const unsigned lOut = running.out.line.length();
+  const unsigned lRef = running.ref.line.length();
+
+  size_t poso = 3;
+  while (poso < lRef && running.out.line.at(poso) != '|')
+    poso++;
+
+  size_t posr = 3;
+  while (posr < lRef && running.ref.line.at(posr) != '|')
+    posr++;
+
+  if (poso >= posr)
+    return false;
+
+  const string os = running.out.line.substr(3, poso);
+  const string rs = running.ref.line.substr(3, poso);
+
+  return (os == rs);
+}
+
+
 bool validateLIN_RP(
   ifstream& frstr,
   ifstream& fostr,
@@ -227,27 +251,43 @@ bool validateLIN_RP(
     return true;
   else if (isLINPlayerLine(running, stats))
     return true;
-  else if (isLINPlay(running.ref.line) && ! isLINPlay(running.out.line))
+  else if (isLINPlay(running.ref.line))
   {
-    do
+    if (isLINPlay(running.out.line))
     {
-      if (! valProgress(frstr, running.ref))
+      if (isLINPlaySubstr(running))
       {
-        valError(stats, running, BRIDGE_VAL_REF_SHORT);
+        valError(stats, running, BRIDGE_VAL_ERROR);
         return false;
       }
-    }
-    while (isLINPlay(running.ref.line));
-
-    if (running.out.line == running.ref.line)
-    {
-      valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
-      return true;
+      else
+      {
+        valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
+        return true;
+      }
     }
     else
     {
-      valError(stats, running, BRIDGE_VAL_ERROR);
-      return false;
+      do
+      {
+        if (! valProgress(frstr, running.ref))
+        {
+          valError(stats, running, BRIDGE_VAL_REF_SHORT);
+          return false;
+        }
+      }
+      while (isLINPlay(running.ref.line));
+
+      if (running.out.line == running.ref.line)
+      {
+        valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
+        return true;
+      }
+      else
+      {
+        valError(stats, running, BRIDGE_VAL_ERROR);
+        return false;
+      }
     }
   }
 
