@@ -50,7 +50,7 @@ bool validatePBN(
 
     if (frstr.eof())
     {
-      stats.counts[BRIDGE_VAL_REF_SHORT]++;
+      valError(stats, running, BRIDGE_VAL_REF_SHORT);
       return false;
     }
     else
@@ -81,6 +81,34 @@ bool validatePBN(
       valError(stats, running, BRIDGE_VAL_TEAMS);
     else if (refField == "VisitTeam")
       valError(stats, running, BRIDGE_VAL_TEAMS);
+    else if (refField == "Play")
+    {
+      // Play may be completely absent.
+      if (running.out.line.length() < 6 ||
+          running.out.line.substr(0, 6) == "[Play ")
+        return false;
+      
+      while (1)
+      {
+        if (! valProgress(frstr, running.ref))
+        {
+          valError(stats, running, BRIDGE_VAL_REF_SHORT);
+          return false;
+        }
+
+        if (running.ref.line.length() == 0)
+        {
+          valError(stats, running, BRIDGE_VAL_ERROR);
+          return false;
+        }
+
+        valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
+        if (running.ref.line.substr(0, 1) == "[")
+          break;
+      }
+
+      return true;
+    }
     else
       break;
 

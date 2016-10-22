@@ -47,18 +47,6 @@ const vector<formatType> formatActive =
 
 static void resetStats(ValFileStats& stats);
 
-static bool isRECPlay(const string& line);
-
-static bool isTXTAllPass(
-  const string& lineOut,
-  const string& lineRef,
-  string& expectLine);
-
-static bool isLINLongLine(
-  const string& lineOut, 
-  const string& lineRef, 
-  string& expectLine);
-
 static void statsToVstat(
   const ValFileStats& stats,
   ValStatType& vstat);
