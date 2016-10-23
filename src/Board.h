@@ -241,8 +241,6 @@ class Board
       const string& text,
       const playerType player);
 
-    bool PlayersAreSet(const unsigned instance) const;
-
     void CopyPlayers(
       const Board& b2,
       const unsigned instance);

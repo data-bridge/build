@@ -9,7 +9,6 @@ SOURCE_FILES 	=		\
 	Contract.cpp		\
 	Date.cpp		\
 	Deal.cpp		\
-	Debug.cpp		\
 	Files.cpp		\
 	Group.cpp		\
         Location.cpp            \
@@ -102,7 +101,6 @@ Canvas.obj: Canvas.h
 Contract.obj: Contract.h bconst.h parse.h portab.h Bexcept.h Bdiff.h
 Date.obj: Date.h bconst.h parse.h Bexcept.h Bdiff.h
 Deal.obj: Deal.h bconst.h Bexcept.h parse.h
-Debug.obj: Debug.h
 Files.obj: dirent.h Files.h bconst.h portab.h parse.h
 Group.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 Group.obj: Teams.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h

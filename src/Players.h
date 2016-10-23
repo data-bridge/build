@@ -10,8 +10,8 @@
 #ifndef BRIDGE_PLAYERS_H
 #define BRIDGE_PLAYERS_H
 
-#include "bconst.h"
 #include <string>
+#include "bconst.h"
 
 using namespace std;
 
@@ -21,22 +21,23 @@ class Players
   private:
 
     string players[BRIDGE_PLAYERS];
-    roomType room;
 
-    void SetRBNSide(
+    Room roomVal;
+
+    void setRBNSide(
       const string& side,
-      string& p1,
-      string& p2);
+      const Player p1,
+      const Player p2);
     
-    bool SetPlayersLIN(const string& names);
-    bool SetPlayersRBN(const string& names);
+    void setLIN(const string& text);
+    void setRBN(const string& text);
 
-    string AsLIN() const;
-    string AsRBNCore() const;
-    string AsRBN() const;
-    string AsRBX() const;
-    string AsREC() const;
-    string AsTXT() const;
+    string strLIN() const;
+    string strRBNCore() const;
+    string strRBN() const;
+    string strRBX() const;
+    string strREC() const;
+    string strTXT() const;
 
 
   public:
@@ -45,50 +46,46 @@ class Players
 
     ~Players();
 
-    void Reset();
+    void reset();
 
-    bool SetPlayers(
-      const string& names,
-      const formatType f);
+    void set(
+      const string& text,
+      const Format format);
 
-    bool SetPlayer(
+    void setPlayer(
       const string& name,
-      const playerType player);
+      const Player player);
 
-    bool SetNorth(const string& name);
-    bool SetEast(const string& name);
-    bool SetSouth(const string& name);
-    bool SetWest(const string& name);
+    void setNorth(const string& name);
+    void setEast(const string& name);
+    void setSouth(const string& name);
+    void setWest(const string& name);
 
-    bool SetRoom(
+    void setRoom(
       const string& room,
-      const formatType f);
+      const Format format);
 
-    bool PlayersAreSet() const;
+    Room room() const;
 
-    roomType GetRoom() const;
+    bool operator == (const Players& players2) const;
 
-    bool operator == (const Players& p2) const;
+    bool operator != (const Players& players2) const;
 
-    bool operator != (const Players& p2) const;
-
-    string AsString(
-      const formatType f,
+    string str(
+      const Format format,
       const bool closedFlag = false) const;
 
-    string AsBareString(const formatType f) const;
-
-    string AsDeltaString(
+    string strDelta(
       const Players& refPlayers,
-      const formatType f) const;
+      const Format format) const;
 
-    string PlayerAsString(
-      const playerType player,
-      const formatType f) const;
+    string strPlayer(
+      const Player player,
+      const Format format) const;
 
-    string RoomAsString(
+    string strRoom(
       const unsigned no,
-      const formatType f) const;
+      const Format format) const;
 };
 
 #endif

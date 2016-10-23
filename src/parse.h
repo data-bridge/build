@@ -62,6 +62,8 @@ unsigned str2month(const string& m);
 
 unsigned GobbleLeadingSpace(string& s);
 
+string trimTrailing(const string& str);
+
 bool GetNextWord(
   string& s,
   string& word);

@@ -9,23 +9,21 @@
 
 #include <iomanip>
 #include <sstream>
-#include <algorithm>
 #include <vector>
 
 #include "Players.h"
-#include "portab.h"
 #include "parse.h"
 #include "Bexcept.h"
 #include "Bdiff.h"
 
 
 
-const string ROOM_LIN[] =
+static const string ROOM_LIN[] =
 {
   "o", "c", ""
 };
 
-const string ROOM_PBN[] =
+static const string ROOM_PBN[] =
 {
   "Open", "Closed", ""
 };
@@ -34,7 +32,7 @@ const string ROOM_PBN[] =
 
 Players::Players()
 {
-  Players::Reset();
+  Players::reset();
 }
 
 
@@ -43,22 +41,100 @@ Players::~Players()
 }
 
 
-void Players::Reset()
+void Players::reset()
 {
   for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
     players[p] = "";
 
-  room = BRIDGE_ROOM_UNDEFINED;
+  roomVal = BRIDGE_ROOM_UNDEFINED;
 }
 
 
-bool Players::SetPlayer(
-  const string& name,
-  const playerType player)
+void Players::setRBNSide(
+  const string& text,
+  const Player p1,
+  const Player p2)
 {
-  if (player > BRIDGE_WEST)
-    THROW("Player out of bounds");
+  if (text == "")
+    return;
 
+  int seen = count(text.begin(), text.end(), '+');
+  if (seen != 1)
+    THROW("RBN side does not have exactly one plus");
+
+  vector<string> v(2);
+  v.clear();
+  tokenize(text, v, "+");
+
+  players[p1] = v[0];
+  players[p2] = v[1];
+}
+
+
+void Players::setLIN(const string& text)
+{
+  int seen = count(text.begin(), text.end(), ',');
+  if (seen != 3 && seen != 7)
+    THROW("Names are not in LIN format: '" + text + "'");
+
+  vector<string> v(static_cast<unsigned>(seen+1));
+  v.clear();
+  tokenize(text, v, ",");
+
+  unsigned start = (seen == 7 ? 4u : 0u);
+  players[BRIDGE_SOUTH] = v[start];
+  players[BRIDGE_WEST] = v[start+1];
+  players[BRIDGE_NORTH] = v[start+2];
+  players[BRIDGE_EAST] = v[start+3];
+}
+
+
+void Players::setRBN(const string& text)
+{
+  if (text.length() <= 2)
+    THROW("Names are not in RBN format");
+
+  int seen = count(text.begin(), text.end(), ':');
+  if (seen == 0 || seen > 2)
+    THROW("Names are not in RBN format");
+
+  vector<string> v(3);
+  v.clear();
+  tokenize(text, v, ":");
+
+  Players::setRBNSide(v[0], BRIDGE_NORTH, BRIDGE_SOUTH);
+  Players::setRBNSide(v[1], BRIDGE_WEST, BRIDGE_EAST);
+
+  if (seen == 2)
+    Players::setRoom(v[2], BRIDGE_FORMAT_RBN);
+}
+
+
+void Players::set(
+  const string& text,
+  const Format format)
+{
+  switch(format)
+  {
+    case BRIDGE_FORMAT_LIN:
+      Players::setLIN(text);
+      break;
+    
+    case BRIDGE_FORMAT_RBN:
+    case BRIDGE_FORMAT_RBX:
+      Players::setRBN(text);
+      break;
+    
+    default:
+      THROW("Invalid format: " + STR(format));
+  }
+}
+
+
+void Players::setPlayer(
+  const string& name,
+  const Player player)
+{
   unsigned p;
   if (player == BRIDGE_SOUTH)
     p = BRIDGE_SOUTH;
@@ -66,252 +142,167 @@ bool Players::SetPlayer(
     p = BRIDGE_WEST;
   else if (player == BRIDGE_NORTH)
     p = BRIDGE_NORTH;
-  else
+  else if (player == BRIDGE_EAST)
     p = BRIDGE_EAST;
+  else
+    THROW("Player out of bounds");
 
   players[p] = name;
-  return true;
 }
 
 
-bool Players::SetNorth(const string& name)
+void Players::setNorth(const string& name)
 {
-  return Players::SetPlayer(name, BRIDGE_NORTH);
+  Players::setPlayer(name, BRIDGE_NORTH);
 }
 
 
-bool Players::SetEast(const string& name)
+void Players::setEast(const string& name)
 {
-  return Players::SetPlayer(name, BRIDGE_EAST);
+  Players::setPlayer(name, BRIDGE_EAST);
 }
 
 
-bool Players::SetSouth(const string& name)
+void Players::setSouth(const string& name)
 {
-  return Players::SetPlayer(name, BRIDGE_SOUTH);
+  Players::setPlayer(name, BRIDGE_SOUTH);
 }
 
 
-bool Players::SetWest(const string& name)
+void Players::setWest(const string& name)
 {
-  return Players::SetPlayer(name, BRIDGE_WEST);
+  Players::setPlayer(name, BRIDGE_WEST);
 }
 
 
-void Players::SetRBNSide(
-  const string& side,
-  string& p1,
-  string& p2)
+void Players::setRoom(
+  const string& room,
+  const Format format)
 {
-  if (side == "")
-    return;
-
-  int seen = count(side.begin(), side.end(), '+');
-  if (seen != 1)
-    THROW("RBN side does not have exactly one plus");
-
-  vector<string> v(2);
-  v.clear();
-  tokenize(side, v, "+");
-
-  p1 = v[0];
-  p2 = v[1];
-}
-
-
-bool Players::SetPlayersLIN(const string& names)
-{
-  int seen = count(names.begin(), names.end(), ',');
-
-  if (seen != 3 && seen != 7)
-    THROW("Names are not in LIN format: '" + names + "'");
-
-  vector<string> v(static_cast<unsigned>(seen+1));
-  v.clear();
-  tokenize(names, v, ",");
-
-  unsigned start = (seen == 7 ? 4u : 0u);
-  players[BRIDGE_SOUTH] = v[start];
-  players[BRIDGE_WEST] = v[start+1];
-  players[BRIDGE_NORTH] = v[start+2];
-  players[BRIDGE_EAST] = v[start+3];
-  return true;
-}
-
-
-bool Players::SetPlayersRBN(const string& names)
-{
-  if (names.length() <= 2)
-    THROW("Names are not in RBN format");
-
-  int seen = count(names.begin(), names.end(), ':');
-
-  if (seen == 0 || seen > 2)
-    THROW("Names are not in RBN format");
-
-  vector<string> v(3);
-  v.clear();
-  tokenize(names, v, ":");
-
-  Players::SetRBNSide(v[0], players[BRIDGE_NORTH], players[BRIDGE_SOUTH]);
-  Players::SetRBNSide(v[1], players[BRIDGE_WEST], players[BRIDGE_EAST]);
-
-  if (seen == 2)
-  {
-    if (! Players::SetRoom(v[2], BRIDGE_FORMAT_RBN))
-      return false;
-  }
-
-  return true;
-}
-
-
-bool Players::SetPlayers(
-  const string& names,
-  const formatType f)
-{
-  switch(f)
+  switch(format)
   {
     case BRIDGE_FORMAT_LIN:
-      return Players::SetPlayersLIN(names);
-    
-    case BRIDGE_FORMAT_PBN:
-      THROW("No overall PBN player format");
-    
-    case BRIDGE_FORMAT_RBN:
-    case BRIDGE_FORMAT_RBX:
-      return Players::SetPlayersRBN(names);
-    
-    case BRIDGE_FORMAT_TXT:
-      THROW("No overall TXT player format");
-    
-    default:
-      THROW("Invalid format " + STR(f));
-  }
-}
-
-
-bool Players::SetRoom(
-  const string& rm,
-  const formatType f)
-{
-  switch(f)
-  {
-    case BRIDGE_FORMAT_LIN:
-      if (rm == "o")
-        room = BRIDGE_ROOM_OPEN;
-      else if (rm == "c")
-        room = BRIDGE_ROOM_CLOSED;
+      if (room == "o")
+        roomVal = BRIDGE_ROOM_OPEN;
+      else if (room == "c")
+        roomVal = BRIDGE_ROOM_CLOSED;
       else
-        return false;
-      return true;
+        THROW("Unknown room: " + room);
+      break;
     
     case BRIDGE_FORMAT_PBN:
     case BRIDGE_FORMAT_TXT:
-    case BRIDGE_FORMAT_REC:
     case BRIDGE_FORMAT_EML:
-      if (rm == "Open")
-        room = BRIDGE_ROOM_OPEN;
-      else if (rm == "Closed")
-        room = BRIDGE_ROOM_CLOSED;
+    case BRIDGE_FORMAT_REC:
+      if (room == "Open")
+        roomVal = BRIDGE_ROOM_OPEN;
+      else if (room == "Closed")
+        roomVal = BRIDGE_ROOM_CLOSED;
       else
-        return false;
-      return true;
+        THROW("Unknown room: " + room);
+      break;
     
     case BRIDGE_FORMAT_RBN:
     case BRIDGE_FORMAT_RBX:
-      if (rm == "O")
-        room = BRIDGE_ROOM_OPEN;
-      else if (rm == "C")
-        room = BRIDGE_ROOM_CLOSED;
+      if (room == "O")
+        roomVal = BRIDGE_ROOM_OPEN;
+      else if (room == "C")
+        roomVal = BRIDGE_ROOM_CLOSED;
       else
-        return false;
-      return true;
+        THROW("Unknown room: " + room);
+      break;
     
     default:
-      THROW("Invalid format " + STR(f));
+      THROW("Invalid format: " + STR(format));
   }
 }
 
 
-bool Players::PlayersAreSet() const
+Room Players::room() const
 {
-  return (players[0] != "" || players[1] != "" ||
-      players[2] != "" || players[3] != "");
+  return roomVal;
 }
 
 
-roomType Players::GetRoom() const
-{
-  return room;
-}
-
-
-bool Players::operator == (const Players& p2) const
+bool Players::operator == (const Players& players2) const
 {
   for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
-    if (players[p] != p2.players[p])
+    if (players[p] != players2.players[p])
       DIFF("Players differ");
 
-  if (room != p2.room)
+  if (roomVal != players2.roomVal)
     DIFF("Rooms differ");
-  else
-    return true;
+
+  return true;
 }
 
 
-bool Players::operator != (const Players& p2) const
+bool Players::operator != (const Players& players2) const
 {
-  return ! (* this == p2);
+  return ! (* this == players2);
 }
 
 
-string Players::AsLIN() const
+string Players::strLIN() const
 {
-  stringstream s;
-  s << 
-    players[BRIDGE_SOUTH] << "," <<
-    players[BRIDGE_WEST] << "," <<
-    players[BRIDGE_NORTH] << "," <<
+  return 
+    players[BRIDGE_SOUTH] + "," +
+    players[BRIDGE_WEST] + "," +
+    players[BRIDGE_NORTH] + "," +
     players[BRIDGE_EAST];
-
-  return s.str();
 }
 
 
-string Players::AsRBNCore() const
+string Players::strRBNCore() const
 {
-  stringstream s;
+  stringstream ss;
   if (players[BRIDGE_NORTH] != "" || players[BRIDGE_SOUTH] != "")
-    s << players[BRIDGE_NORTH] << "+" << players[BRIDGE_SOUTH];
-  s << ":";
+    ss << players[BRIDGE_NORTH] << "+" << players[BRIDGE_SOUTH];
+  ss << ":";
   if (players[BRIDGE_WEST] != "" || players[BRIDGE_EAST] != "")
-    s << players[BRIDGE_WEST] << "+" << players[BRIDGE_EAST];
+    ss << players[BRIDGE_WEST] << "+" << players[BRIDGE_EAST];
 
-  string st = s.str();
-  // if (st == ":")
-    // return "";
+  string str = ss.str();
 
-  if (room == BRIDGE_ROOM_OPEN)
-    st += ":O";
-  else if (room == BRIDGE_ROOM_CLOSED)
-    st += ":C";
-  return st;
+  if (roomVal == BRIDGE_ROOM_OPEN)
+    str += ":O";
+  else if (roomVal == BRIDGE_ROOM_CLOSED)
+    str += ":C";
+  return str;
 }
 
 
-string Players::AsRBN() const
+string Players::strRBN() const
 {
-  return "N " + Players::AsRBNCore() + "\n";
+  return "N " + Players::strRBNCore() + "\n";
 }
 
-string Players::AsRBX() const
+
+string Players::strRBX() const
 {
-  return "N{" + Players::AsRBNCore() + "}";
+  return "N{" + Players::strRBNCore() + "}";
 }
 
 
-string Players::AsREC() const
+string Players::strTXT() const
+{
+  stringstream ss;
+  for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
+  {
+    const unsigned pTXT = PLAYER_DDS_TO_TXT[p];
+    const unsigned l = 1 + Max(11, players[pTXT].length());
+    ss << setw(l) << left << players[pTXT];
+  }
+
+  string str = trimTrailing(ss.str());
+  if (str == "")
+    return "";
+  else
+    return str + "\n";
+}
+
+
+string Players::strREC() const
 {
   stringstream s;
   s << setw(9) << left << "West" <<
@@ -328,126 +319,84 @@ string Players::AsREC() const
 }
 
 
-string Players::AsTXT() const
-{
-  stringstream s;
-  unsigned l;
-  for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
-  {
-    unsigned pp = (p+3) % 4;
-    l = players[pp].length();
-    l = Max(12, l+1);
-    s << setw(l) << left << players[pp];
-  }
-
-  // TODO: Central function to trim trailing spaces.
-  string st = s.str();
-  int p = static_cast<int>(st.length()) - 1;
-  while (p >= 0 && st.at(static_cast<unsigned>(p)) == ' ')
-    p--;
-
-  if (p < 0)
-    return "";
-  else
-    return st.substr(0, static_cast<unsigned>(p)+1) + "\n";
-}
-
-
-string Players::AsString(
-  const formatType f,
+string Players::str(
+  const Format format,
   const bool closedFlag) const
 {
-  switch(f)
+  switch(format)
   {
     case BRIDGE_FORMAT_LIN:
-      return "pn|" + Players::AsLIN() + "|";
-
-    case BRIDGE_FORMAT_LIN_TRN:
-      if (closedFlag)
-        return "pn|,,,," + Players::AsLIN() + "|";
-      else
-        return "pn|" + Players::AsLIN() + "|";
+      return "pn|" + Players::strLIN() + "|";
 
     case BRIDGE_FORMAT_LIN_RP:
     case BRIDGE_FORMAT_LIN_VG:
-      return Players::AsLIN();
+      return Players::strLIN();
     
-    case BRIDGE_FORMAT_PBN:
-      THROW("No separate PBN players format");
-    
+    case BRIDGE_FORMAT_LIN_TRN:
+      // TODO: Clean up, do we need closedFlag?
+      if (closedFlag && roomVal != BRIDGE_ROOM_CLOSED)
+        exit(0);
+      if (roomVal == BRIDGE_ROOM_CLOSED && ! closedFlag)
+        exit(0);
+
+      if (closedFlag)
+        return "pn|,,,," + Players::strLIN() + "|";
+      else
+        return "pn|" + Players::strLIN() + "|";
+
     case BRIDGE_FORMAT_RBN:
-      return Players::AsRBN();
+      return Players::strRBN();
     
     case BRIDGE_FORMAT_RBX:
-      return Players::AsRBX();
+      return Players::strRBX();
     
     case BRIDGE_FORMAT_TXT:
-      return Players::AsTXT();
+      return Players::strTXT();
     
     case BRIDGE_FORMAT_REC:
-      return Players::AsREC();
+      return Players::strREC();
     
     default:
-      THROW("Invalid format " + STR(f));
+      THROW("Invalid format: " + STR(format));
   }
 }
 
 
-string Players::AsBareString(
-  const formatType f) const
-{
-  switch(f)
-  {
-    case BRIDGE_FORMAT_LIN:
-        return Players::AsLIN() + ",";
-
-    default:
-      THROW("Invalid format " + STR(f));
-  }
-}
-
-
-string Players::AsDeltaString(
+string Players::strDelta(
   const Players& refPlayers,
-  const formatType f) const
+  const Format format) const
 {
-  string s;
-  switch(f)
+  string str;
+  switch(format)
   {
     case BRIDGE_FORMAT_LIN:
-      for (unsigned pp = 0; pp < BRIDGE_PLAYERS; pp++)
+      for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
       {
-        unsigned p = (pp+2) % 4; // BBO order, starting with South
-        if (players[p] != refPlayers.players[p])
-          s += players[p];
-        s += ",";
+        unsigned pLIN = PLAYER_DDS_TO_LIN[p];
+        if (players[pLIN] != refPlayers.players[pLIN])
+          str += players[pLIN];
+        str += ",";
       }
-      return s;
+      return str;
 
     default:
-      THROW("Invalid format " + STR(f));
+      THROW("Invalid format: " + STR(format));
   }
 }
 
 
-string Players::PlayerAsString(
-  const playerType player,
-  formatType f) const
+string Players::strPlayer(
+  const Player player,
+  const Format format) const
 {
-  stringstream s;
-
-  switch(f)
+  switch(format)
   {
-    case BRIDGE_FORMAT_LIN:
-      THROW("No separate LIN player format");
-    
     case BRIDGE_FORMAT_PBN:
-      s << "[" << PLAYER_NAMES_LONG[player] << " \"" <<
-        players[player] << "\"]\n";
-      return s.str();
+      return "[" + PLAYER_NAMES_LONG[player] + " \"" +
+        players[player] + "\"]\n";
     
-    case BRIDGE_FORMAT_RBN:
-      THROW("No separate RBN player format");
+    case BRIDGE_FORMAT_TXT:
+      return players[player];
     
     case BRIDGE_FORMAT_EML:
       return players[player].substr(0, 8);
@@ -458,49 +407,35 @@ string Players::PlayerAsString(
       else
         return players[player].substr(0, 11);
 
-    case BRIDGE_FORMAT_TXT:
-      return players[player];
-    
     default:
-      THROW("Invalid format " + STR(f));
+      THROW("Invalid format: " + STR(format));
   }
 }
 
 
-string Players::RoomAsString(
+string Players::strRoom(
   const unsigned no,
-  const formatType f) const
+  const Format format) const
 {
-  if (room == BRIDGE_ROOM_UNDEFINED)
+  if (roomVal == BRIDGE_ROOM_UNDEFINED)
     return "";
 
-  stringstream s;
-  
-  switch(f)
+  switch(format)
   {
     case BRIDGE_FORMAT_LIN:
-      s << "qx|" << ROOM_LIN[room] << no << "|";
-      return s.str();
-
     case BRIDGE_FORMAT_LIN_RP:
     case BRIDGE_FORMAT_LIN_VG:
     case BRIDGE_FORMAT_LIN_TRN:
-      s << "qx|" << ROOM_LIN[room] << no << "|";
-      return s.str();
+      return "qx|" + ROOM_LIN[roomVal] + STR(no) + "|";
     
     case BRIDGE_FORMAT_PBN:
-      s << "[Room \"" << ROOM_PBN[room] << "\"]\n";
-      return s.str();
-    
-    case BRIDGE_FORMAT_RBN:
-      THROW("No separate RBN room");
+      return "[Room \"" + ROOM_PBN[roomVal] + "\"]\n";
     
     case BRIDGE_FORMAT_TXT:
-      s << ROOM_PBN[room];
-      return s.str();
+      return ROOM_PBN[roomVal];
     
     default:
-      THROW("Invalid format " + STR(f));
+      THROW("Invalid format: " + STR(format));
   }
 }
 

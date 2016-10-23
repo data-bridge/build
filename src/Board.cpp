@@ -542,7 +542,8 @@ bool Board::SetPlayers(
   const string& text,
   const formatType f)
 {
-  return players[numActive].SetPlayers(text, f);
+  players[numActive].set(text, f);
+  return true;
 }
 
 
@@ -550,13 +551,8 @@ bool Board::SetPlayer(
   const string& text,
   const playerType player)
 {
-  return players[numActive].SetPlayer(text, player);
-}
-
-
-bool Board::PlayersAreSet(const unsigned inst) const
-{
-  return players[inst].PlayersAreSet();
+  players[numActive].setPlayer(text, player);
+  return true;
 }
 
 
@@ -573,7 +569,8 @@ bool Board::SetRoom(
   const unsigned inst,
   const formatType f)
 {
-  return players[inst].SetRoom(s, f);
+  players[inst].setRoom(s, f);
+  return true;
 }
 
 
@@ -602,7 +599,7 @@ bool Board::CheckBoard() const
 
 roomType Board::GetRoom() const
 {
-  return players[numActive].GetRoom();
+  return players[numActive].room();
 }
 
 
@@ -677,7 +674,7 @@ string Board::AuctionAsString(
     for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
     {
       playerType pp = static_cast<playerType>((p+3) % 4);
-      lengths[p] = players[numActive].PlayerAsString(pp, f).length();
+      lengths[p] = players[numActive].strPlayer(pp, f).length();
     }
     return auction[numActive].AsString(f, lengths);
   }
@@ -783,14 +780,15 @@ string Board::PlayerAsString(
   const playerType p,
   const formatType f) const
 {
-  return players[numActive].PlayerAsString(p, f);
+  return players[numActive].strPlayer(p, f);
 }
 
 
 string Board::PlayersAsString(
   const formatType f) const
 {
-  return players[numActive].AsString(f, numActive == 1);
+  // TODO: Not a reliable indicator of open/closed.
+  return players[numActive].str(f, numActive == 1);
 }
 
 
@@ -799,37 +797,37 @@ string Board::PlayersAsDeltaString(
   const formatType f) const
 {
   if (refBoard == nullptr)
-    return players[numActive].AsBareString(f);
+    return players[numActive].str(BRIDGE_FORMAT_LIN_RP);
   else
-    return players[numActive].AsDeltaString(refBoard->players[numActive], f);
+    return players[numActive].strDelta(refBoard->players[numActive], f);
 }
 
 
 string Board::WestAsString(
   const formatType f) const
 {
-  return players[numActive].PlayerAsString(BRIDGE_WEST, f);
+  return players[numActive].strPlayer(BRIDGE_WEST, f);
 }
 
 
 string Board::NorthAsString(
   const formatType f) const
 {
-  return players[numActive].PlayerAsString(BRIDGE_NORTH, f);
+  return players[numActive].strPlayer(BRIDGE_NORTH, f);
 }
 
 
 string Board::EastAsString(
   const formatType f) const
 {
-  return players[numActive].PlayerAsString(BRIDGE_EAST, f);
+  return players[numActive].strPlayer(BRIDGE_EAST, f);
 }
 
 
 string Board::SouthAsString(
   const formatType f) const
 {
-  return players[numActive].PlayerAsString(BRIDGE_SOUTH, f);
+  return players[numActive].strPlayer(BRIDGE_SOUTH, f);
 }
 
 
@@ -863,6 +861,6 @@ string Board::RoomAsString(
   const unsigned no,
   const formatType f) const
 {
-  return players[numActive].RoomAsString(no, f);
+  return players[numActive].strRoom(no, f);
 }
 

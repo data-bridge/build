@@ -648,8 +648,7 @@ void Segment::CopyPlayers()
 
   // Also copies room.
   unsigned inst = activeBoard->GetInstance();
-  // if (boards[len-2].board.PlayersAreSet(inst))
-    activeBoard->CopyPlayers(boards[len-2].board, inst);
+  activeBoard->CopyPlayers(boards[len-2].board, inst);
 }
 
 

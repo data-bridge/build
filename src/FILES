@@ -3,7 +3,6 @@
    868   1491  14301 Board.cpp
   1276   3096  26550 Contract.cpp
    662   1930  14883 Deal.cpp
-    43     85    603 Debug.cpp
    731   1821  18033 dispatch.cpp
    551   1518  13444 fileEML.cpp
    183    475   4435 fileLIN.cpp
@@ -14,9 +13,7 @@
    598   1673  14360 fileTXT.cpp
    610   1397  10699 parse.cpp
   1063   2739  23146 Play.cpp
-   506   1119  10046 Players.cpp
     81    146   1495 reader.cpp
-   247    514   4596 Scoring.cpp
   1251   2924  26385 Segment.cpp
    567   1375  11050 Session.cpp
    964   3245  23746 Tableau.cpp
@@ -35,7 +32,6 @@
    356    649   6702 Board.h
    187    367   3845 Contract.h
    101    210   2127 Deal.h
-    59     89    865 Debug.h
    838   2598  19892 dirent.h
     26     43    383 dispatch.h
     39     63    541 fileEML.h
@@ -47,9 +43,7 @@
     44     73    631 fileTXT.h
    118    218   2048 parse.h
    164    281   2901 Play.h
-    95    179   1763 Players.h
     77    156   1408 portab.h
-    74    142   1354 Scoring.h
    257    483   4866 Segment.h
     86    159   1485 Session.h
    162    304   3207 Tableau.h
@@ -65,15 +59,28 @@
     30     32    281 Valuation.h
 
  OK, except possibly for coverage:
-   314    721   5706 Date.cpp
-    62    107    966 Date.h
-   133    251   2449 Location.cpp
-    53     81    775 Location.h
-   136    242   2057 Group.cpp
-    71    102   1043 Group.h
+
     35     72    574 Bdiff.cpp
     43     64    595 Bdiff.h
+
     35     71    588 Bexcept.cpp
     43     64    604 Bexcept.h
+
     96    220   1647 Canvas.cpp
     54     82    803 Canvas.h
+
+   314    721   5706 Date.cpp
+    62    107    966 Date.h
+
+   136    242   2057 Group.cpp
+    71    102   1043 Group.h
+
+   133    251   2449 Location.cpp
+    53     81    775 Location.h
+
+   506   1119  10046 Players.cpp        str: 1 TODO
+    95    179   1763 Players.h
+
+   247    514   4596 Scoring.cpp
+    74    142   1354 Scoring.h
+

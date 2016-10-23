@@ -303,6 +303,19 @@ unsigned GobbleLeadingSpace(string& s)
 }
 
 
+string trimTrailing(const string& str)
+{
+  unsigned pos = str.length();
+  while (pos >= 1 && str.at(pos-1) == ' ')
+    pos--;
+
+  if (pos == 0)
+    return "";
+  else
+    return str.substr(0, pos);
+}
+
+
 bool GetNextWord(
   string& s,
   string& word)
