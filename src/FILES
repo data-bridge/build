@@ -1,36 +1,41 @@
-   342    841   7225 args.cpp
-  1751   4110  32101 Auction.cpp
+   373    985   8434 args.cpp
+  1625   3920  30822 Auction.cpp
     35     72    574 Bdiff.cpp
-    35     72    582 Bexcept.cpp
-   868   1492  14265 Board.cpp
+    35     71    588 Bexcept.cpp
+   868   1491  14301 Board.cpp
     96    220   1647 Canvas.cpp
-  1403   3306  28616 Contract.cpp
-   717   2000  15340 Deal.cpp
+  1276   3096  26550 Contract.cpp
+   662   1930  14883 Deal.cpp
     43     85    603 Debug.cpp
-   653   1534  15876 dispatch.cpp
-   522   1436  12734 fileEML.cpp
-   191    486   4534 fileLIN.cpp
-   240    584   5869 filePBN.cpp
-   186    436   4196 fileRBN.cpp
-   392   1145   9396 fileREC.cpp
-   304    614   6124 Files.cpp
-   513   1367  11819 fileTXT.cpp
-   143    251   2120 Group.cpp
-   142    282   2708 Location.cpp
-   506   1125   8735 parse.cpp
-  1162   2877  24284 Play.cpp
-   531   1153  10288 Players.cpp
-    79    130   1353 reader.cpp
-   253    523   4642 Scoring.cpp
-  1155   2558  23007 Segment.cpp
-   538   1250  10217 Session.cpp
-  1014   3323  24325 Tableau.cpp
-   609   1323  11853 Teams.cpp
-   842   2092  18392 validate.cpp
+   731   1821  18033 dispatch.cpp
+   551   1518  13444 fileEML.cpp
+   183    475   4435 fileLIN.cpp
+   232    588   5893 filePBN.cpp
+   183    431   4155 fileRBN.cpp
+   426   1305  10722 fileREC.cpp
+   301    609   6084 Files.cpp
+   598   1673  14360 fileTXT.cpp
+   136    242   2057 Group.cpp
+   610   1397  10699 parse.cpp
+  1063   2739  23146 Play.cpp
+   506   1119  10046 Players.cpp
+    81    146   1495 reader.cpp
+   247    514   4596 Scoring.cpp
+  1251   2924  26385 Segment.cpp
+   567   1375  11050 Session.cpp
+   964   3245  23746 Tableau.cpp
+   584   1296  11598 Teams.cpp
+   579   1473  13180 validate.cpp
+    67    146   1223 validateEML.cpp
+   296    717   6575 validateLIN.cpp
+   210    553   5194 validatePBN.cpp
+   323    731   6911 validateRBN.cpp
+   269    657   6059 validateREC.cpp
+   426   1130   9713 validateTXT.cpp
     27     28    233 Valuation.cpp
     22     34    274 args.h
    217    434   4104 Auction.h
-   382    750   6335 bconst.h
+   389    760   6447 bconst.h
     43     64    595 Bdiff.h
     43     64    604 Bexcept.h
    356    649   6702 Board.h
@@ -39,7 +44,7 @@
    101    210   2127 Deal.h
     59     89    865 Debug.h
    838   2598  19892 dirent.h
-    25     40    352 dispatch.h
+    26     43    383 dispatch.h
     39     63    541 fileEML.h
     40     66    575 fileLIN.h
     35     56    485 filePBN.h
@@ -48,21 +53,27 @@
     81    121   1341 Files.h
     44     73    631 fileTXT.h
     71    102   1043 Group.h
-    55     79    743 Location.h
-   100    182   1675 parse.h
+   118    218   2048 parse.h
    164    281   2901 Play.h
     95    179   1763 Players.h
     77    156   1408 portab.h
     74    142   1354 Scoring.h
-   254    478   4811 Segment.h
+   257    483   4866 Segment.h
     86    159   1485 Session.h
    162    304   3207 Tableau.h
-   124    248   2324 Teams.h
-    40     62    651 validate.h
+   127    252   2348 Teams.h
+   139    250   2416 validate.h
+    22     33    302 validateEML.h
+    23     35    325 validateLIN.h
+    23     35    322 validatePBN.h
+    27     41    392 validateRBN.h
+    23     35    322 validateREC.h
+    24     38    353 validateTXT.h
+    49     86    721 valint.h
     30     32    281 Valuation.h
 
-
- OK
- --
-   309    710   5538 Date.cpp
-    62    107    957 Date.h
+ OK, except possibly for coverage:
+   314    721   5706 Date.cpp
+    62    107    966 Date.h
+   133    251   2449 Location.cpp
+    53     81    775 Location.h

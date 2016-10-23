@@ -14,7 +14,7 @@ using namespace std;
 
 #include "args.h"
 #include "dispatch.h"
-#include "validate.h"
+// #include "validate.h"
 #include "Bexcept.h"
 
 
@@ -25,18 +25,7 @@ static const int numThreads = 1;
 
 int main(int argc, char * argv[])
 {
-  ValStatType vstats[BRIDGE_FORMAT_LABELS_SIZE][BRIDGE_FORMAT_LABELS_SIZE];
-
-  /*
-  validate("tmp/W96FA5.TXT", "W96FA5.TXT",
-    BRIDGE_FORMAT_RBN, BRIDGE_FORMAT_TXT,
-    vstats);
-  exit(0);
-
-  cout << "OVerall stats:\n";
-  printOverallStats(vstats);
-  exit(0);
-  */
+  // ValStatType vstats[BRIDGE_FORMAT_LABELS_SIZE][BRIDGE_FORMAT_LABELS_SIZE];
 
   readArgs(argc, argv);
 
@@ -51,31 +40,5 @@ int main(int argc, char * argv[])
 
   for (int i = 0; i < numThreads; i++)
     thr[i].join();
-  
-  files.Rewind();
-  FileTaskType task;
-  while (files.GetNextTask(task))
-  {
-    for (auto &t: task.taskList)
-    {
-      if (options.verboseIO)
-        cout << "Validating " << t.fileOutput << 
-            " against " << t.fileRef << endl;
-
-      try
-      {
-        validate(t.fileOutput, t.fileRef,
-          task.formatInput, t.formatOutput, options, vstats);
-      }
-      catch(Bexcept& bex)
-      {
-        bex.Print();
-        // exit(0);
-      }
-    }
-  }
-
-  cout << "Overall stats:\n";
-  printOverallStats(vstats, options.verboseValStats);
 }
 

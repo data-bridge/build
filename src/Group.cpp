@@ -10,16 +10,16 @@
 #include <assert.h>
 
 #include "Group.h"
-#include "Board.h"
-#include "portab.h"
-#include "parse.h"
+// #include "Board.h"
+// #include "portab.h"
+// #include "parse.h"
 #include "Bexcept.h"
 #include "Bdiff.h"
 
 
 Group::Group()
 {
-  Group::Reset();
+  Group::reset();
 }
 
 
@@ -28,42 +28,54 @@ Group::~Group()
 }
 
 
-void Group::Reset()
+void Group::reset()
 {
   len = 0;
-  fileName = "";
-  formatOrigin = BRIDGE_FORMAT_SIZE;
-  segments.clear();
+  nameVal = "";
+  formatVal = BRIDGE_FORMAT_SIZE;
+  segmentPairs.clear();
 }
 
 
-void Group::SetFileName(const string& fname)
+void Group::setName(const string& nameIn)
 {
-  fileName = fname;
+  nameVal = nameIn;
 }
 
 
-void Group::SetInputFormat(const formatType f)
+string Group::name() const
 {
-  formatOrigin = f;
+  return nameVal;
 }
 
 
-bool Group::MakeSegment(const unsigned no)
+void Group::setFormat(const Format formatIn)
 {
-  if (Group::GetSegment(no) != nullptr)
-    return false;
+  formatVal = formatIn;
+}
 
-  segments.resize(len+1);
-  segments[len].extNo = no;
+
+formatType Group::format() const
+{
+  return formatVal;
+}
+
+
+Segment * Group::make(const unsigned extNo)
+{
+  if (Group::get(extNo) != nullptr)
+    THROW("Segment already exists: " + STR(extNo));
+
   len++;
-  return true;
+  segmentPairs.resize(len);
+  segmentPairs[len-1].extNo = extNo;
+  return &segmentPairs[len-1].segment;
 }
 
 
-Segment * Group::GetSegment(const unsigned extNo) 
+Segment * Group::get(const unsigned extNo)
 {
-  for (auto &p: segments)
+  for (auto &p: segmentPairs)
   {
     if (p.extNo == extNo)
       return &p.segment;
@@ -72,65 +84,55 @@ Segment * Group::GetSegment(const unsigned extNo)
 }
 
 
-const Segment * Group::GetSegmentReadOnly(const unsigned extNo) const
+unsigned Group::size() const
 {
-  for (auto &p: segments)
-  {
-    if (p.extNo == extNo)
-      return &p.segment;
-  }
-  return nullptr;
+ return segmentPairs.size();
 }
 
 
-formatType Group::GetInputFormat() const
-{
-  assert(formatOrigin != BRIDGE_FORMAT_SIZE);
-  return formatOrigin;
-}
-
-
-string Group::GetFileName() const
-{
-  return fileName;
-}
-
-
-unsigned Group::GetLength() const
-{
- return len;
-}
-
-
-unsigned Group::GetCount() 
+unsigned Group::count() 
 {
   unsigned count = 0;
-  for (unsigned g = 0; g < len; g++)
-    for (unsigned b = 0; b < segments[g].segment.GetLength(); b++)
-      count += segments[g].segment.GetBoard(b)->GetLength();
+  for (auto &pair: segmentPairs)
+    count += pair.segment.count();
 
   return count;
 }
 
 
-bool Group::operator == (const Group& g2) const
+bool Group::operator == (const Group& group2) const
 {
-  if (len != g2.len)
+  if (len != group2.len)
     DIFF("Different lengths");
 
-  for (auto &p: segments)
+  for (auto &pair: segmentPairs)
   {
-    const Segment * s2 = g2.GetSegmentReadOnly(p.extNo);
-    if (s2 == nullptr || p.segment != * s2)
-      DIFF("Segments not identical");
+    bool seen = false;
+    for (auto &pair2: group2.segmentPairs)
+    {
+      if (pair.extNo == pair2.extNo)
+      {
+        seen = true;
+        if (pair.segment == pair2.segment)
+          break;
+        else
+          return false;
+      }
+    }
+    if (! seen)
+      return false;
+
+    // const Segment * segment2 = group2.GetSegmentReadOnly(pair.extNo);
+    // if (segment2 == nullptr || pair.segment != * segment2)
+      // DIFF("Segments not identical");
   }
 
   return true;
 }
 
 
-bool Group::operator != (const Group& s2) const
+bool Group::operator != (const Group& group2) const
 {
-  return ! (* this == s2);
+  return ! (* this == group2);
 }
 

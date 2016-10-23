@@ -71,14 +71,13 @@ class Teams
 
     string AsLIN(const bool swapFlag) const;
     string AsPBN() const;
-    string AsRBNCore(const bool swapFlag) const;
-    string AsRBN(const bool swapFlag) const;
-    string AsRBX(const bool swapFlag) const;
-    string AsTXT(const bool swapFlag) const;
+    string AsRBNCore() const;
+    string AsRBN() const;
+    string AsRBX() const;
+    string AsTXT() const;
     string AsTXT(
       const int score1,
-      const int score2,
-      const bool swapFlag) const;
+      const int score2) const;
 
 
   public:
@@ -101,6 +100,8 @@ class Teams
       const string& s,
       const formatType f);
 
+    void swap();
+
     bool CarryExists() const;
       
     bool operator == (const Teams& t2) const;
@@ -114,16 +115,11 @@ class Teams
     string AsString(
       const formatType f,
       const int score1,
-      const int score2,
-      const bool swapFlag = false) const;
+      const int score2) const;
 
-    string FirstAsString(
-      const formatType f,
-      const bool swapFlag = false) const;
+    string FirstAsString( const formatType f) const;
 
-    string SecondAsString(
-      const formatType f,
-      const bool swapFlag = false) const;
+    string SecondAsString( const formatType f) const;
 
 };
 

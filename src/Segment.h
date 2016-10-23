@@ -100,6 +100,8 @@ class Segment
 
     unsigned GetLength() const;
 
+    unsigned count() const;
+
     bool SetTitle(
       const string& t,
       const formatType f);

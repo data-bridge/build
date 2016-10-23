@@ -31,12 +31,12 @@ class Date
     void setRBN(const string& text);
     void setTXT(const string& text);
 
-    string asLIN() const;
-    string asPBN() const;
-    string asRBNCore() const;
-    string asRBN() const;
-    string asRBX() const;
-    string asTXT() const;
+    string strLIN() const;
+    string strPBN() const;
+    string strRBNCore() const;
+    string strRBN() const;
+    string strRBX() const;
+    string strTXT() const;
 
 
   public:
@@ -48,14 +48,14 @@ class Date
     void reset();
 
     void set(
-      const string& t,
+      const string& text,
       const Format f);
 
     bool operator == (const Date& date2) const;
 
     bool operator != (const Date& date2) const;
 
-    string asString(const Format f) const;
+    string str(const Format format) const;
 };
 
 #endif

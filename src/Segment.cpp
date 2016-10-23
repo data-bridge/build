@@ -159,7 +159,7 @@ bool Segment::SetTitleLIN(const string& t)
   // Fields 3 and 4 are board ranges (ignored and re-generated).
   // Fields 5 through 8 are team tags.
 
-  int seen = count(t.begin(), t.end(), ',');
+  int seen = std::count(t.begin(), t.end(), ',');
   if (seen != 8)
     THROW("LIN vg needs exactly 8 commas.");
 
@@ -223,7 +223,7 @@ bool Segment::SetTitleLIN(const string& t)
   */
 
   // See whether the title line contains extra information.
-  seen = count(t.begin(), t.end(), '%');
+  seen = std::count(t.begin(), t.end(), '%');
   if (seen == 3)
   {
     vector<string> vv(4);
@@ -288,6 +288,16 @@ bool Segment::SetTitleLIN(const string& t)
 unsigned Segment::GetLength() const
 {
   return len;
+}
+
+
+unsigned Segment::count() const
+{
+  unsigned count = 0;
+  for (auto &p: boards)
+    count += p.board.GetLength();
+
+  return count;
 }
 
 
@@ -539,6 +549,16 @@ void Segment::SetFromHeader(const string& room)
       s += ",";
   }
 
+  if (activeNo == 0 &&
+      activeBoard->GetInstance() == 0 &&
+      r == 1)
+  {
+    // Teams from LIN header were in "wrong" order for our internal
+    // format, which is consistent with RBN:  The first team is NS
+    // in the first room.  In LIN, the first team is NS in Open.
+    seg.teams.swap();
+  }
+
   if (s != ",,,")
     activeBoard->SetPlayers(s, f);
 }
@@ -740,8 +760,8 @@ string Segment::TitleAsLIN_EXT() const
   // BBO hands played at own table (not tournaments).
   stringstream s;
   s << seg.title << "%" <<
-      seg.date.asString(BRIDGE_FORMAT_LIN) << "%" <<
-      seg.location.asString(BRIDGE_FORMAT_LIN) << "%" <<
+      seg.date.str(BRIDGE_FORMAT_LIN) << "%" <<
+      seg.location.str(BRIDGE_FORMAT_LIN) << "%" <<
       seg.session.asString(BRIDGE_FORMAT_LIN) << "%" <<
       seg.event << "%" <<
       seg.scoring.AsString(BRIDGE_FORMAT_LIN) << 
@@ -785,8 +805,8 @@ string Segment::TitleAsLIN_TRN() const
   // BBO hands played in own tournaments.
   stringstream s;
   s << seg.title << "%" <<
-      seg.date.asString(BRIDGE_FORMAT_LIN) << "%" <<
-      seg.location.asString(BRIDGE_FORMAT_LIN) << "%" <<
+      seg.date.str(BRIDGE_FORMAT_LIN) << "%" <<
+      seg.location.str(BRIDGE_FORMAT_LIN) << "%" <<
       seg.session.asString(BRIDGE_FORMAT_LIN) << "%" <<
       seg.event << "%" <<
       seg.scoring.AsString(BRIDGE_FORMAT_LIN) << 
@@ -836,13 +856,13 @@ string Segment::TitleAsString(const formatType f) const
 
 string Segment::DateAsString(const formatType f) const
 {
-  return seg.date.asString(f);
+  return seg.date.str(f);
 }
 
 
 string Segment::LocationAsString(const formatType f) const
 {
-  return seg.location.asString(f);
+  return seg.location.str(f);
 }
 
 
@@ -896,9 +916,9 @@ string Segment::ScoringAsString(
 string Segment::TeamsAsString(
   const formatType f) const
 {
+  /*
   bool swapFlag = false;
-  if (f == BRIDGE_FORMAT_RBN || 
-      f == BRIDGE_FORMAT_RBX ||
+  if (f == BRIDGE_FORMAT_PBN || 
       f == BRIDGE_FORMAT_TXT)
   {
     if (activeBoard->SetInstance(0) && 
@@ -909,6 +929,7 @@ string Segment::TeamsAsString(
   if (swapFlag)
     return seg.teams.AsString(f, swapFlag);
   else
+  */
     return seg.teams.AsString(f);
 }
 
@@ -918,6 +939,7 @@ string Segment::TeamsAsString(
   const int score2,
   const formatType f) const
 {
+  /*
   bool swapFlag = false;
   if (f == BRIDGE_FORMAT_RBN || 
       f == BRIDGE_FORMAT_RBX ||
@@ -927,8 +949,10 @@ string Segment::TeamsAsString(
         activeBoard->GetRoom() == BRIDGE_ROOM_CLOSED)
       swapFlag = true;
   }
-
   return seg.teams.AsString(f, score1, score2, swapFlag);
+  */
+
+  return seg.teams.AsString(f, score1, score2);
 }
 
 
@@ -936,14 +960,21 @@ string Segment::FirstTeamAsString(
   const formatType f) const
 {
   // Kludge -- should store swapFlag in Segment.
+  /*
   bool swapFlag = false;
-  unsigned inst = activeBoard->GetInstance();
-  if (activeBoard->SetInstance(0) && 
-      activeBoard->GetRoom() == BRIDGE_ROOM_CLOSED)
-    swapFlag = true;
-  activeBoard->SetInstance(inst);
-
+  if (f == BRIDGE_FORMAT_PBN ||
+      f == BRIDGE_FORMAT_TXT)
+  {
+    unsigned inst = activeBoard->GetInstance();
+    if (activeBoard->SetInstance(0) && 
+        activeBoard->GetRoom() == BRIDGE_ROOM_CLOSED)
+      swapFlag = true;
+    activeBoard->SetInstance(inst);
+  }
   return seg.teams.FirstAsString(f, swapFlag);
+  */
+
+  return seg.teams.FirstAsString(f);
 }
 
 
@@ -951,14 +982,21 @@ string Segment::SecondTeamAsString(
   const formatType f) const
 {
   // Kludge -- should store swapFlag in Segment.
+  /*
   bool swapFlag = false;
-  unsigned inst = activeBoard->GetInstance();
-  if (activeBoard->SetInstance(0) && 
-      activeBoard->GetRoom() == BRIDGE_ROOM_CLOSED)
-    swapFlag = true;
-  activeBoard->SetInstance(inst);
-
+  if (f == BRIDGE_FORMAT_PBN ||
+      f == BRIDGE_FORMAT_TXT)
+  {
+    unsigned inst = activeBoard->GetInstance();
+    if (activeBoard->SetInstance(0) && 
+        activeBoard->GetRoom() == BRIDGE_ROOM_CLOSED)
+      swapFlag = true;
+    activeBoard->SetInstance(inst);
   return seg.teams.SecondAsString(f, swapFlag);
+  }
+  */
+
+  return seg.teams.SecondAsString(f);
 }
 
 

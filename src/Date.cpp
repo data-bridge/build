@@ -65,14 +65,15 @@ void Date::check() const
 }
 
 
-void Date::setLIN(const string& t)
+void Date::setLIN(const string& text)
 {
   // Note that this parses the date in the *file name*, not a real
   // date field.
 
+  // 12-31-14
   regex re("(\\d\\d)-(\\d\\d)-(\\d\\d)");
   smatch match;
-  if (! regex_search(t, match, re) || match.size() < 3)
+  if (! regex_search(text, match, re) || match.size() < 3)
     THROW("Bad LIN date");
 
   (void) str2upos(match.str(1), month);
@@ -88,11 +89,12 @@ void Date::setLIN(const string& t)
 }
 
 
-void Date::setPBN(const string& t)
+void Date::setPBN(const string& text)
 {
+  // 2010.12.31
   regex re("(....).(..).(..)");
   smatch match;
-  if (! regex_search(t, match, re) || match.size() < 3)
+  if (! regex_search(text, match, re) || match.size() < 3)
     THROW("Bad PBN date");
 
   if (match.str(1) == "????")
@@ -114,13 +116,14 @@ void Date::setPBN(const string& t)
 }
 
 
-void Date::setRBN(const string& t)
+void Date::setRBN(const string& text)
 {
-  if (t.length() == 6)
+  if (text.length() == 6)
   {
+    // 201001
     regex re("(\\d\\d\\d\\d)(\\d\\d)");
     smatch match;
-    if (! regex_search(t, match, re) || match.size() < 2)
+    if (! regex_search(text, match, re) || match.size() < 2)
       THROW("Bad RBN date");
 
     (void) str2upos(match.str(1), year);
@@ -128,9 +131,10 @@ void Date::setRBN(const string& t)
   }
   else
   {
+    // 20101231
     regex re("(\\d\\d\\d\\d)(\\d\\d)(\\d\\d)");
     smatch match;
-    if (! regex_search(t, match, re) || match.size() < 3)
+    if (! regex_search(text, match, re) || match.size() < 3)
       THROW("Bad RBN date");
 
     (void) str2upos(match.str(1), year);
@@ -142,11 +146,12 @@ void Date::setRBN(const string& t)
 }
 
 
-void Date::setTXT(const string& t)
+void Date::setTXT(const string& text)
 {
+  // January 1999
   regex re("(\\w+) (\\d\\d\\d\\d)");
   smatch match;
-  if (! regex_search(t, match, re) || match.size() < 2)
+  if (! regex_search(text, match, re) || match.size() < 2)
     THROW("Bad TXT date");
 
   (void) str2upos(match.str(2), year);
@@ -157,30 +162,30 @@ void Date::setTXT(const string& t)
 
 
 void Date::set(
-  const string& t,
-  const Format f)
+  const string& text,
+  const Format format)
 {
-  switch(f)
+  switch(format)
   {
     case BRIDGE_FORMAT_LIN:
-      Date::setLIN(t);
+      Date::setLIN(text);
       return;
     
     case BRIDGE_FORMAT_PBN:
-      Date::setPBN(t);
+      Date::setPBN(text);
       return;
     
     case BRIDGE_FORMAT_RBN:
     case BRIDGE_FORMAT_RBX:
-      Date::setRBN(t);
+      Date::setRBN(text);
       return;
     
     case BRIDGE_FORMAT_TXT:
-      Date::setTXT(t);
+      Date::setTXT(text);
       return;
     
     default:
-      THROW("Invalid format: " + STR(f));
+      THROW("Invalid format: " + STR(format));
   }
 }
 
@@ -206,7 +211,7 @@ bool Date::operator != (const Date& date2) const
 }
 
 
-string Date::asLIN() const
+string Date::strLIN() const
 {
   if (day == 0 || month == 0 || year == 0)
     return "";
@@ -220,7 +225,7 @@ string Date::asLIN() const
 }
 
 
-string Date::asPBN() const
+string Date::strPBN() const
 {
   if (day == 0 && month == 0 && year == 0)
     return "";
@@ -246,7 +251,7 @@ string Date::asPBN() const
 }
 
 
-string Date::asRBNCore() const
+string Date::strRBNCore() const
 {
   if (month == 0 || year == 0)
     return "";
@@ -258,19 +263,19 @@ string Date::asRBNCore() const
   return s.str();
 }
 
-string Date::asRBN() const
+string Date::strRBN() const
 {
-  return "D " + Date::asRBNCore() + "\n";
+  return "D " + Date::strRBNCore() + "\n";
 }
 
 
-string Date::asRBX() const
+string Date::strRBX() const
 {
-  return "D{" + Date::asRBNCore() + "}";
+  return "D{" + Date::strRBNCore() + "}";
 }
 
 
-string Date::asTXT() const
+string Date::strTXT() const
 {
   if (month == 0 || year == 0)
     return "\n";
@@ -283,27 +288,27 @@ string Date::asTXT() const
 }
 
 
-string Date::asString(const Format f) const
+string Date::str(const Format format) const
 {
-  switch(f)
+  switch(format)
   {
     case BRIDGE_FORMAT_LIN:
-      return Date::asLIN();
+      return Date::strLIN();
     
     case BRIDGE_FORMAT_PBN:
-      return Date::asPBN();
+      return Date::strPBN();
     
     case BRIDGE_FORMAT_RBN:
-      return Date::asRBN();
+      return Date::strRBN();
     
     case BRIDGE_FORMAT_RBX:
-      return Date::asRBX();
+      return Date::strRBX();
     
     case BRIDGE_FORMAT_TXT:
-      return Date::asTXT();
+      return Date::strTXT();
     
     default:
-      THROW("Invalid format: " + STR(f));
+      THROW("Invalid format: " + STR(format));
   }
 }
 

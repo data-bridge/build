@@ -19,6 +19,7 @@
 #include "Segment.h"
 #include "Board.h"
 #include "dispatch.h"
+#include "validate.h"
 
 #include "fileLIN.h"
 #include "filePBN.h"
@@ -242,6 +243,8 @@ void dispatch(
 {
   UNUSED(thrNo);
 
+  ValStatType vstats[BRIDGE_FORMAT_LABELS_SIZE][BRIDGE_FORMAT_LABELS_SIZE];
+
   FileTaskType task;
   while (files.GetNextTask(task))
   {
@@ -281,7 +284,19 @@ void dispatch(
 
       if (t.refFlag)
       {
-        // Compare magic on t.fileOutput and t.fileRef: TODO
+        if (options.verboseIO)
+          cout << "Validating " << t.fileOutput <<
+              " against " << t.fileRef << endl;
+
+        try
+        {
+          validate(t.fileOutput, t.fileRef,
+            task.formatInput, t.formatOutput, options, vstats);
+        }
+        catch(Bexcept& bex)
+        {
+          bex.Print();
+        }
       }
 
       if (task.removeOutputFlag)
@@ -290,6 +305,9 @@ void dispatch(
       }
     }
   }
+
+  cout << "Overall stats:\n";
+  printOverallStats(vstats, options.verboseValStats);
 }
 
 
@@ -419,8 +437,8 @@ static bool readFormattedFile(
   vector<Fix> fix;
   readFix(fname, fix);
 
-  group.SetFileName(fname);
-  group.SetInputFormat(f);
+  group.setName(fname);
+  group.setFormat(f);
 
   vector<string> chunk(BRIDGE_FORMAT_LABELS_SIZE);
 
@@ -494,13 +512,7 @@ static bool readFormattedFile(
 
     if (newSegFlag || segment == nullptr)
     {
-      if (! group.MakeSegment(segno))
-      {
-        fstr.close();
-        THROW("Cannot make segment " + STR(segno));
-      }
-
-      segment = group.GetSegment(segno);
+      segment = group.make(segno);
       segno++;
       bno = 0;
     }
@@ -650,7 +662,7 @@ static void writeHeader(
   Group& group,
   const formatType f)
 {
-  const string g = GuessOriginalLine(group.GetFileName(), group.GetCount());
+  const string g = GuessOriginalLine(group.name(), group.count());
   if (g == "")
     return;
 
@@ -688,10 +700,10 @@ static bool writeFormattedFile(
   writeHeader(fstr, group, f);
 // cout << "POS2" << endl;
 
-  for (unsigned g = 0; g < group.GetLength(); g++)
+  for (unsigned g = 0; g < group.size(); g++)
   {
 // cout << "POS3" << g << endl;
-    Segment * segment = group.GetSegment(g);
+    Segment * segment = group.get(g);
 
     (* formatFncs[f].writeSeg)(fstr, segment, f);
 

@@ -20,16 +20,14 @@ class Location
 {
   private:
 
-    struct LocationType
-    {
-      string general;
-      string specific;
-    };
+    string locGeneral;
+    string locSpecific;
 
-    LocationType location;
+    void setWithSeparator(
+      const string& text,
+      const string& separator);
 
-    string asRBN(const string& sep) const;
-
+    string strCore(const string& separator) const;
 
 
   public:
@@ -41,14 +39,14 @@ class Location
     void reset();
 
     void set(
-      const string& t,
-      const formatType f);
+      const string& text,
+      const Format f);
 
-    bool operator == (const Location& l2) const;
+    bool operator == (const Location& location2) const;
 
-    bool operator != (const Location& l2) const;
+    bool operator != (const Location& location2) const;
 
-    string asString(const formatType f) const;
+    string str(const Format f) const;
 };
 
 #endif

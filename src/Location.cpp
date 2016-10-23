@@ -11,8 +11,8 @@
 #include <sstream>
 
 #include "Location.h"
-#include "Bdiff.h"
 #include "Bexcept.h"
+#include "Bdiff.h"
 
 
 Location::Location()
@@ -28,115 +28,106 @@ Location::~Location()
 
 void Location::reset()
 {
-  location.general = "";
-  location.specific = "";
+  locGeneral = "";
+  locSpecific = "";
 }
 
 
-void Location::set(
-  const string& t,
-  const formatType f)
+void Location::setWithSeparator(
+  const string& text,
+  const string& separator)
 {
+  const size_t len = separator.length();
   size_t pos;
 
-  switch(f)
+  if ((pos = text.find(separator, 0)) == string::npos)
+    locGeneral = text;
+  else if (text.length() < pos+len+1)
+    locGeneral = text;
+  else
   {
-    case BRIDGE_FORMAT_LIN:
-      THROW("No LIN location format");
-    
-    case BRIDGE_FORMAT_PBN:
-    case BRIDGE_FORMAT_RBN:
-    case BRIDGE_FORMAT_RBX:
-      if ((pos = t.find(":", 0)) == string::npos)
-        location.general = t;
-      else if (t.length() < pos+2)
-        location.general = t;
-      else
-      {
-        location.general = t.substr(0, pos);
-        location.specific = t.substr(pos+1, string::npos);
-      }
-      return;
-    
-    case BRIDGE_FORMAT_TXT:
-      if ((pos = t.find(", ", 0)) == string::npos)
-        location.general = t;
-      else
-      {
-        if (t.length() < pos+3)
-          location.general = t;
-        else
-        {
-          location.general = t.substr(0, pos);
-          location.specific = t.substr(pos+2, string::npos);
-        }
-      }
-      return;
-    
-    default:
-      THROW("Invalid format: " + STR(f));
+    locGeneral = text.substr(0, pos);
+    locSpecific = text.substr(pos+len, string::npos);
   }
 }
 
 
-bool Location::operator == (const Location& l2) const
+void Location::set(
+  const string& text,
+  const formatType format)
 {
-  if (location.general != l2.location.general)
+  switch(format)
+  {
+    case BRIDGE_FORMAT_PBN:
+    case BRIDGE_FORMAT_RBN:
+    case BRIDGE_FORMAT_RBX:
+      Location::setWithSeparator(text, ":");
+      return;
+    
+    case BRIDGE_FORMAT_TXT:
+      Location::setWithSeparator(text, ", ");
+      return;
+    
+    default:
+      THROW("Invalid format: " + STR(format));
+  }
+}
+
+
+bool Location::operator == (const Location& location2) const
+{
+  if (locGeneral != location2.locGeneral)
     DIFF("General location differs");
 
-  if (location.specific != l2.location.specific)
+  if (locSpecific != location2.locSpecific)
     DIFF("Specific location differs");
 
   return true;
 }
 
 
-bool Location::operator != (const Location& l2) const
+bool Location::operator != (const Location& location2) const
 {
-  return ! (* this == l2);
+  return ! (* this == location2);
 }
 
 
-string Location::asRBN(const string& sep) const
+string Location::strCore(const string& separator) const
 {
-  stringstream s;
-  s << location.general;
-  if (location.specific != "")
-    s << sep << location.specific;
-  return s.str();
+  string str;
+  str = locGeneral;
+  if (locSpecific != "")
+    str += separator + locSpecific;
+  return str;
 }
 
 
-string Location::asString(const formatType f) const
+string Location::str(const Format format) const
 {
-  string s;
-  switch(f)
+  switch(format)
   {
     case BRIDGE_FORMAT_LIN:
-      return Location::asRBN(":");
+      return Location::strCore(":");
     
     case BRIDGE_FORMAT_PBN:
-      // if (location.general == "")
-        // return "";
-      return "[Site \"" + Location::asRBN(":") + "\"]\n";
+      return "[Site \"" + Location::strCore(":") + "\"]\n";
     
     case BRIDGE_FORMAT_RBN:
-      s = Location::asRBN(":");
-      if (s == "")
+       if (locGeneral == "")
         return "L\n";
       else
-        return "L " + s + "\n";
+        return "L " + Location::strCore(":") + "\n";
     
     case BRIDGE_FORMAT_RBX:
-      return "L{" + Location::asRBN(":") + "}";
+      return "L{" + Location::strCore(":") + "}";
     
     case BRIDGE_FORMAT_TXT:
-       if (location.general == "")
+       if (locGeneral == "")
          return "\n";
-      return Location::asRBN(", ") + "\n";
+      return Location::strCore(", ") + "\n";
     
     default:
-      THROW("Invalid format: " + STR(f));
+      THROW("Invalid format: " + STR(format));
   }
 }
 
