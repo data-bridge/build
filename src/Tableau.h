@@ -10,10 +10,7 @@
 #ifndef BRIDGE_TABLEAU_H
 #define BRIDGE_TABLEAU_H
 
-#include <iostream>
-#include <iomanip>
 #include <string>
-#include <sstream>
 #include <list>
 #include "bconst.h"
 
@@ -27,7 +24,7 @@ class Tableau
 {
   private:
 
-    struct listType
+    struct ListTableau
     {
       int score;
       unsigned dno;
@@ -36,7 +33,7 @@ class Tableau
       unsigned down;
     };
 
-    struct dataType
+    struct DataTableau
     {
       int primacy;
       unsigned highestMakingNo;
@@ -49,70 +46,72 @@ class Tableau
     unsigned table[BRIDGE_DENOMS][BRIDGE_PLAYERS];
 
 
-    string ToRBN() const;
+    string strPBN() const;
+    string strRBN() const;
+    string strTXT() const;
 
-    bool SetRBNPlayer(
+    bool setRBNPlayer(
       const string text,
-      const playerType p);
+      const Player player);
     
     bool RBNStringToList(
       const string text,
       unsigned listRBN[],
       const bool invertFlag = false);
 
-    bool SetRBNPlayer(
+    bool setRBNPlayer(
       const unsigned listRBN[],
-      const playerType p);
+      const Player player);
 
-    bool SetRBN(const string& text);
+    bool setRBN(const string& text);
     
-    unsigned ToRBNPlayer(const playerType p) const;
+    unsigned toRBNPlayer(const Player player) const;
 
-    void SurveyScores(
-      const playerType dealer,
+    void surveyScores(
+      const Player dealer,
       const unsigned * vulBySide,
-      dataType& data,
+      DataTableau& data,
       unsigned& numCand,
-      listType list[][BRIDGE_DENOMS]) const;
+      ListTableau list[][BRIDGE_DENOMS]) const;
 
-    void BestSacrifice(
+    void bestSacrifice(
       const unsigned side,
       const unsigned no,
       const unsigned dno,
-      const playerType dealer,
-      const listType slist[][BRIDGE_DENOMS],
+      const Player dealer,
+      const ListTableau slist[][BRIDGE_DENOMS],
       unsigned sacrTable[][BRIDGE_DENOMS],
       unsigned& bestDown) const;
 
-    void ReduceContract(
+    void reduceContract(
       unsigned& no,
       const int sacGap,
       unsigned& plus) const;
     
-    bool AddSacrifices(
-      const vulType v,
+    bool addSacrifices(
+      const Vul vul,
       const unsigned side,
-      const playerType dealer,
+      const Player dealer,
       const int bestDown,
       const unsigned noDecl,
       const unsigned dno,
-      const listType slist[][BRIDGE_DENOMS],
+      const ListTableau slist[][BRIDGE_DENOMS],
       const unsigned sacr[][BRIDGE_DENOMS],
       list<Contract>& clist) const;
 
-    bool AddContract(
-      const vulType v,
+    bool addContract(
+      const Vul vul,
       const unsigned side,
       const unsigned no,
-      const denomType dno,
+      const Denom dno,
       const int delta,
       list<Contract>& clist) const;
 
-    bool AddSpecialSac(
-      const vulType v,
+    bool addSpecialSac(
+      const Vul vul,
       const unsigned no,
-      const denomType denom,
-      const playerType sacker,
+      const Denom denom,
+      const Player sacker,
       const int delta,
       list<Contract>& clist) const;
 
@@ -123,38 +122,37 @@ class Tableau
 
     ~Tableau();
 
-    void Reset();
+    void reset();
 
-    bool TableIsSet() const;
+    bool isComplete() const;
 
-    bool Set(
+    bool set(
       const string& text,
-      const formatType f);
+      const Format format);
     
-    bool SetEntry(
-      const playerType p,
-      const denomType d,
+    bool set(
+      const Player player,
+      const Denom denom,
       const unsigned t);
 
-    unsigned GetEntry(
-      const playerType p,
-      const denomType d) const;
+    unsigned get(
+      const Player player,
+      const Denom denom) const;
     
-    bool operator ==(const Tableau& tab2) const;
+    bool operator == (const Tableau& tableau2) const;
 
-    bool operator !=(const Tableau& tab2) const;
+    bool operator != (const Tableau& tableau2) const;
 
-    string AsString(
-      formatType f = BRIDGE_FORMAT_LIN) const;
+    string str(const Format format = BRIDGE_FORMAT_LIN) const;
     
-    bool GetPar(
-      playerType dealer,
-      vulType v,
+    bool getPar(
+      const Player dealer,
+      const Vul vul,
       string& text) const;
 
-    bool GetPar(
-      playerType dealer,
-      vulType v,
+    bool getPar(
+      const Player dealer,
+      const Vul vul,
       list<Contract>& clist) const;
 };
 

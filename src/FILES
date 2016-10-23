@@ -16,7 +16,6 @@
     81    146   1495 reader.cpp
   1251   2924  26385 Segment.cpp
    567   1375  11050 Session.cpp
-   964   3245  23746 Tableau.cpp
    584   1296  11598 Teams.cpp
    579   1473  13180 validate.cpp
     67    146   1223 validateEML.cpp
@@ -46,7 +45,6 @@
     77    156   1408 portab.h
    257    483   4866 Segment.h
     86    159   1485 Session.h
-   162    304   3207 Tableau.h
    127    252   2348 Teams.h
    139    250   2416 validate.h
     22     33    302 validateEML.h
@@ -84,3 +82,5 @@
    247    514   4596 Scoring.cpp
     74    142   1354 Scoring.h
 
+   964   3245  23746 Tableau.cpp
+   162    304   3207 Tableau.h

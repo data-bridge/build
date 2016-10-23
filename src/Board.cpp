@@ -498,7 +498,7 @@ bool Board::SetTableau(
   const string& text,
   const formatType f)
 {
-  return tableau.Set(text, f);
+  return tableau.set(text, f);
 }
 
 bool Board::SetTableauEntry(
@@ -506,7 +506,7 @@ bool Board::SetTableauEntry(
   const denomType d,
   const unsigned t)
 {
-  return tableau.SetEntry(p, d, t);
+  return tableau.set(p, d, t);
 }
 
 
@@ -514,7 +514,7 @@ unsigned Board::GetTableauEntry(
   const playerType p,
   const denomType d) const
 {
-  return tableau.GetEntry(p, d);
+  return tableau.get(p, d);
 }
 
 
@@ -523,7 +523,7 @@ bool Board::GetPar(
   vulType v,
   string& text) const
 {
-  return tableau.GetPar(dealer, v, text);
+  return tableau.getPar(dealer, v, text);
 }
 
 
@@ -532,7 +532,7 @@ bool Board::GetPar(
   vulType v,
   list<Contract>& text) const
 {
-  return tableau.GetPar(dealer, v, text);
+  return tableau.getPar(dealer, v, text);
 }
 
 
@@ -660,7 +660,7 @@ string Board::DealAsString(
 string Board::TableauAsString(
   const formatType f) const
 {
-  return tableau.AsString(f);
+  return tableau.str(f);
 }
 
 

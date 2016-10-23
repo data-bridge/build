@@ -249,6 +249,8 @@ enum vulType
   BRIDGE_VUL_SIZE = 4
 };
 
+typedef vulType Vul;
+
 enum multiplierType
 {
   BRIDGE_MULT_UNDOUBLED = 0,
@@ -318,6 +320,8 @@ enum denomType
   BRIDGE_CLUBS = 3,
   BRIDGE_NOTRUMP = 4
 };
+
+typedef denomType Denom;
 
 const denomType DENOM_RBN_TO_DDS[BRIDGE_DENOMS] =
 {

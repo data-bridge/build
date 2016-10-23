@@ -7,7 +7,6 @@
 */
 
 
-#include <algorithm>
 #include <vector>
 
 #include "Tableau.h"
@@ -20,7 +19,7 @@
 
 Tableau::Tableau()
 {
-  Tableau::Reset();
+  Tableau::reset();
 }
 
 
@@ -29,7 +28,7 @@ Tableau::~Tableau()
 }
 
 
-void Tableau::Reset()
+void Tableau::reset()
 {
   setNum = 0;
   for (unsigned d = 0; d < BRIDGE_DENOMS; d++)
@@ -38,7 +37,7 @@ void Tableau::Reset()
 }
 
 
-bool Tableau::TableIsSet() const
+bool Tableau::isComplete() const
 {
   return (setNum == 20);
 }
@@ -67,20 +66,20 @@ bool Tableau::RBNStringToList(
 }
 
 
-bool Tableau::SetRBNPlayer(
+bool Tableau::setRBNPlayer(
   const unsigned listRBN[],
-  const playerType p)
+  const Player p)
 {
   for (unsigned drbn = 0; drbn < BRIDGE_DENOMS; drbn++)
   {
-    if (! Tableau::SetEntry(p, DENOM_RBN_TO_DDS[drbn], listRBN[drbn]))
+    if (! Tableau::set(p, DENOM_RBN_TO_DDS[drbn], listRBN[drbn]))
       return false;
   }
   return true;
 }
 
 
-bool Tableau::SetRBN(const string& text)
+bool Tableau::setRBN(const string& text)
 {
   if (text == "")
     THROW("Empty text");
@@ -115,13 +114,13 @@ bool Tableau::SetRBN(const string& text)
   unsigned listRBN[5];
   if (! Tableau::RBNStringToList(ns.substr(0, 5), listRBN))
     return false;
-  if (! Tableau::SetRBNPlayer(listRBN, BRIDGE_NORTH))
+  if (! Tableau::setRBNPlayer(listRBN, BRIDGE_NORTH))
     return false;
 
   string sub = (nsl == 6 ? ns.substr(0, 5) : ns.substr(6, 5));
   if (! Tableau::RBNStringToList(sub, listRBN))
     return false;
-  if (! Tableau::SetRBNPlayer(listRBN, BRIDGE_SOUTH))
+  if (! Tableau::setRBNPlayer(listRBN, BRIDGE_SOUTH))
     return false;
 
   string e, w;
@@ -166,7 +165,7 @@ bool Tableau::SetRBN(const string& text)
     if (! Tableau::RBNStringToList(w, listRBN))
       return false;
   }
-  if (! Tableau::SetRBNPlayer(listRBN, BRIDGE_WEST))
+  if (! Tableau::setRBNPlayer(listRBN, BRIDGE_WEST))
     return false;
   
   if (e == "!")
@@ -180,66 +179,57 @@ bool Tableau::SetRBN(const string& text)
       return false;
   }
   
-  return Tableau::SetRBNPlayer(listRBN, BRIDGE_EAST);
+  return Tableau::setRBNPlayer(listRBN, BRIDGE_EAST);
 }
 
 
-bool Tableau::Set(
+bool Tableau::set(
   const string& text,
-  const formatType f)
+  const Format format)
 {
-  switch(f)
+  switch(format)
   {
-    case BRIDGE_FORMAT_LIN:
-      THROW("LIN tableau not implemented");
-
-    case BRIDGE_FORMAT_PBN:
-      THROW("PBN tableau not implemented");
-
     case BRIDGE_FORMAT_RBN:
-      return Tableau::SetRBN(text);
-
-    case BRIDGE_FORMAT_TXT:
-      THROW("TXT tableau not implemented");
+      return Tableau::setRBN(text);
 
     default:
-      THROW("Other tableau formats not implemented");
+      THROW("Tableau format not implemented:" + STR(format));
   }
 }
 
 
-bool Tableau::SetEntry(
-  const playerType p,
-  const denomType d,
-  const unsigned t)
+bool Tableau::set(
+  const Player player,
+  const Denom denom,
+  const unsigned tricks)
 {
-  if (t == BRIDGE_TRICKS+1)
+  if (tricks == BRIDGE_TRICKS+1)
     THROW("Too many tricks");
 
-  if (table[d][p] == BRIDGE_TRICKS+1)
+  if (table[denom][player] == BRIDGE_TRICKS+1)
   {
     setNum++;
-    table[d][p] = t;
+    table[denom][player] = tricks;
     return true;
   }
-  else if (table[d][p] != t)
+  else if (table[denom][player] != tricks)
     THROW("Already set to something different");
   else
     return true;
 }
 
 
-unsigned Tableau::GetEntry(
-  const playerType p,
-  const denomType d) const
+unsigned Tableau::get(
+  const Player player,
+  const Denom denom) const
 {
-  return table[d][p];
+  return table[denom][player];
 }
 
 
-bool Tableau::operator ==(const Tableau& tab2) const
+bool Tableau::operator == (const Tableau& tableau2) const
 {
-  if (setNum != tab2.setNum) 
+  if (setNum != tableau2.setNum) 
     DIFF("Different numbers");
 
   for (int p = 0; p < BRIDGE_PLAYERS; p++)
@@ -248,13 +238,16 @@ bool Tableau::operator ==(const Tableau& tab2) const
     {
       if (table[d][p] == BRIDGE_TRICKS+1)
       {
-        if (tab2.table[d][p] != BRIDGE_TRICKS+1)
-	  DIFF("p " + STR(p) + ", d " + STR(d) + ": First unset, second set");
+        if (tableau2.table[d][p] != BRIDGE_TRICKS+1)
+	  DIFF("p " + STR(p) + ", d " + STR(d) + 
+              ": First unset, second set");
       }
-      else if (tab2.table[d][p] == BRIDGE_TRICKS+1)
-        DIFF("p " + STR(p) + ", d " + STR(d) + ": First set, second unset");
-      else if (table[d][p] != tab2.table[d][p])
-        DIFF("p " + STR(p) + ", d " + STR(d) + ": Different values");
+      else if (tableau2.table[d][p] == BRIDGE_TRICKS+1)
+        DIFF("p " + STR(p) + ", d " + STR(d) + 
+          ": First set, second unset");
+      else if (table[d][p] != tableau2.table[d][p])
+        DIFF("p " + STR(p) + ", d " + STR(d) + 
+          ": Different values");
     }
   }
 
@@ -262,70 +255,53 @@ bool Tableau::operator ==(const Tableau& tab2) const
 }
 
 
-bool Tableau::operator !=(const Tableau& tab2) const
+bool Tableau::operator != (const Tableau& tableau2) const
 {
-  return ! (*this == tab2);
+  return ! (*this == tableau2);
 }
 
 
-string Tableau::AsString(formatType f) const
+string Tableau::strPBN() const
 {
-  if (setNum != 20)
-    return "";
-
-  stringstream text("");
-
-  switch(f)
+  stringstream ss;
+  ss << "[OptimumResultTable \"Declarer Denomination Result\"]\n";
+  for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
   {
-    case BRIDGE_FORMAT_LIN:
-      text << "op|" << Tableau::ToRBN() << "|\n";
-      break;
-
-    case BRIDGE_FORMAT_PBN:
-      text << "[OptimumResultTable \"Declarer Denomination Result\"]\n";
-      for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
-      {
-        for (unsigned d = 0; d < BRIDGE_DENOMS; d++)
-        {
-          text << PLAYER_NAMES_SHORT[p] << " " <<
-            DENOM_NAMES_SHORT_RBN[d] << " " <<
-	    Tableau::GetEntry(static_cast<playerType>(p), 
-	      DENOM_RBN_TO_DDS[d]) << "\n";
-        }
-      }
-      break;
-
-    case BRIDGE_FORMAT_RBN:
-      text << "M " << Tableau::ToRBN() << "\n";
-      break;
-
-    case BRIDGE_FORMAT_TXT:
-      text << "opt  S  N    E  W\n";
-      for (unsigned d = 0; d < BRIDGE_DENOMS; d++)
-      {
-        denomType drbn = DENOM_RBN_TO_DDS[d];
-        text << setw(3) << DENOM_NAMES_SHORT_RBN[d] <<
-	  setw(3) << Tableau::GetEntry(BRIDGE_SOUTH, drbn) <<
-	  setw(3) << Tableau::GetEntry(BRIDGE_NORTH, drbn) <<
-	  setw(5) << Tableau::GetEntry(BRIDGE_EAST, drbn) <<
-	  setw(3) << Tableau::GetEntry(BRIDGE_WEST, drbn) << "\n";
-      }
-      text << "\n";
-      break;
-    
-    default:
-      break;
+    for (unsigned d = 0; d < BRIDGE_DENOMS; d++)
+    {
+      ss << PLAYER_NAMES_SHORT[p] << " " <<
+        DENOM_NAMES_SHORT_RBN[d] << " " <<
+      Tableau::get(static_cast<Player>(p), DENOM_RBN_TO_DDS[d]) << "\n";
+    }
   }
-  return text.str();
+  return ss.str();
 }
 
 
-string Tableau::ToRBN() const
+string Tableau::strTXT() const
 {
-  unsigned n = Tableau::ToRBNPlayer(BRIDGE_NORTH);
-  unsigned s = Tableau::ToRBNPlayer(BRIDGE_SOUTH);
-  unsigned e = Tableau::ToRBNPlayer(BRIDGE_EAST);
-  unsigned w = Tableau::ToRBNPlayer(BRIDGE_WEST);
+  stringstream ss;
+  ss << "opt  S  N    E  W\n";
+  for (unsigned d = 0; d < BRIDGE_DENOMS; d++)
+  {
+    Denom drbn = DENOM_RBN_TO_DDS[d];
+    ss << setw(3) << DENOM_NAMES_SHORT_RBN[d] <<
+      setw(3) << Tableau::get(BRIDGE_SOUTH, drbn) <<
+      setw(3) << Tableau::get(BRIDGE_NORTH, drbn) <<
+      setw(5) << Tableau::get(BRIDGE_EAST, drbn) <<
+      setw(3) << Tableau::get(BRIDGE_WEST, drbn) << "\n";
+  }
+  ss << "\n";
+  return ss.str();
+}
+
+
+string Tableau::strRBN() const
+{
+  unsigned n = Tableau::toRBNPlayer(BRIDGE_NORTH);
+  unsigned s = Tableau::toRBNPlayer(BRIDGE_SOUTH);
+  unsigned e = Tableau::toRBNPlayer(BRIDGE_EAST);
+  unsigned w = Tableau::toRBNPlayer(BRIDGE_WEST);
   unsigned ninv = 0xddddd - n;
   unsigned sinv = 0xddddd - s;
 
@@ -355,21 +331,49 @@ string Tableau::ToRBN() const
 }
 
 
-unsigned Tableau::ToRBNPlayer(const playerType p) const
+unsigned Tableau::toRBNPlayer(const Player player) const
 {
   unsigned r = 0;
   for (unsigned d = 0; d < BRIDGE_DENOMS; d++)
   {
     r <<= 4;
-    r |= table[DENOM_RBN_TO_DDS[d]][p];
+    r |= table[DENOM_RBN_TO_DDS[d]][player];
   }
   return r;
+}
+
+
+string Tableau::str(const Format format) const
+{
+  if (! Tableau::isComplete())
+    return "";
+
+  stringstream ss("");
+
+  switch(format)
+  {
+    case BRIDGE_FORMAT_LIN:
+      return "op|" + Tableau::strRBN() + "|\n";
+
+    case BRIDGE_FORMAT_PBN:
+      return Tableau::strPBN();
+
+    case BRIDGE_FORMAT_RBN:
+      return "M " + Tableau::strRBN() + "\n";
+
+    case BRIDGE_FORMAT_TXT:
+      return Tableau::strTXT();
+    
+    default:
+      THROW("Unknown format: " + STR(format));
+  }
 }
 
 
 // --------------------------------------------------------------
 // Par functions.
 // Adapted from DDS (where I contributed them).
+// Data structures could probably be cleaned up some.
 // --------------------------------------------------------------
 
 // First index is contract number,
@@ -451,50 +455,49 @@ static const unsigned DENOM_PAR_TO_DDS[5] =
 #define BIGNUM 9999
 
 
-bool Tableau::GetPar(
-  const playerType dealer,
-  const vulType v,
-  string& parstr) const
+bool Tableau::getPar(
+  const Player dealer,
+  const Vul vul,
+  string& text) const
 {
   list<Contract> clist;
-  if (! Tableau::GetPar(dealer, v, clist))
+  if (! Tableau::getPar(dealer, vul, clist))
     return false;
 
   stringstream s;
   s.clear();
   bool first = true;
-  for (list<Contract>::iterator it = clist.begin(); 
-    it != clist.end(); it++)
+  for (auto &contract: clist)
   {
     if (first)
       first = false;
     else
       s << " ";
 
-    s << it->AsString(BRIDGE_FORMAT_PAR);
+    s << contract.AsString(BRIDGE_FORMAT_PAR);
   }
   s << "\n";
 
-  parstr = s.str();
+  text = s.str();
   return true;
 }
 
 
-bool Tableau::GetPar(
-  const playerType dealer,
-  const vulType v,
+bool Tableau::getPar(
+  const Player dealer,
+  const Vul vul,
   list<Contract>& clist) const
 {
-  const unsigned * vulBySide = VUL_TO_SIDE_VUL[v];
-  listType list[2][BRIDGE_DENOMS];
-  dataType data;
+  const unsigned * vulBySide = VUL_TO_SIDE_VUL[vul];
+  ListTableau list[2][BRIDGE_DENOMS];
+  DataTableau data;
 
   // First we find the side entitled to a plus score (primacy)
   // and some statistics for each constructively bid (undoubled)
   // contract that might be the par score.
 
   unsigned numCand;
-  Tableau::SurveyScores(dealer, vulBySide, data, numCand, list);
+  Tableau::surveyScores(dealer, vulBySide, data, numCand, list);
   int side = data.primacy;
 
   if (side == -1)
@@ -507,7 +510,7 @@ bool Tableau::GetPar(
   }
 
   // Go through the contracts, starting from the highest one.
-  listType * lists = list[side];
+  ListTableau * lists = list[side];
   unsigned vulNo = data.vulNo;
   int bestPlus = 0;
   unsigned down = 0;
@@ -526,7 +529,7 @@ bool Tableau::GetPar(
     unsigned dno = lists[n].dno;
     unsigned target = DOWN_TARGET[no][vulNo];
 
-    Tableau::BestSacrifice(static_cast<unsigned>(side), no, dno, 
+    Tableau::bestSacrifice(static_cast<unsigned>(side), no, dno, 
       dealer, list, sacr, down);
 
     if (down <= target)
@@ -562,13 +565,13 @@ bool Tableau::GetPar(
     // The primacy side bids.
     for (unsigned n = 0; n < numCand; n++)
     {
-      listType *l = &(lists[n]);
+      ListTableau *l = &(lists[n]);
       if (type[n] != 1 || l->score != bestPlus) 
         continue;
       unsigned plus;
-      ReduceContract(l->no, sacGap[n], plus);
-      if (! Tableau::AddContract(v, static_cast<unsigned>(side), l->no, 
-          static_cast<denomType>(l->dno), static_cast<int>(plus), clist))
+      reduceContract(l->no, sacGap[n], plus);
+      if (! Tableau::addContract(vul, static_cast<unsigned>(side), l->no, 
+          static_cast<Denom>(l->dno), static_cast<int>(plus), clist))
         return false;
     }
   }
@@ -577,10 +580,10 @@ bool Tableau::GetPar(
     // The primacy side collects the penalty.
     for (unsigned n = 0; n < numCand; n++)
     {
-      const listType *l = &(lists[n]);
+      const ListTableau *l = &(lists[n]);
       if (type[n] != 0 || lists[n].down != bestDown) 
         continue;
-      if (! Tableau::AddSacrifices(v, static_cast<unsigned>(side), 
+      if (! Tableau::addSacrifices(vul, static_cast<unsigned>(side), 
           dealer, static_cast<int>(bestDown), l->no, l->dno, 
 	  list, sacr, clist))
         return false;
@@ -590,12 +593,12 @@ bool Tableau::GetPar(
 }
 
 
-void Tableau::SurveyScores(
-  const playerType dealer,
+void Tableau::surveyScores(
+  const Player dealer,
   const unsigned * vulBySide,
-  dataType& data,
+  DataTableau& data,
   unsigned& numCand,
-  listType list[][BRIDGE_DENOMS]) const
+  ListTableau list[][BRIDGE_DENOMS]) const
 {
   /*
     When this is done, data has added the following entries:
@@ -616,18 +619,18 @@ void Tableau::SurveyScores(
     order of the contract number (no).
   */
 
-  dataType stats[2];
+  DataTableau stats[2];
 
   for (unsigned side = 0; side <= 1; side++)
   {
-    dataType * sside = &stats[side];
+    DataTableau * sside = &stats[side];
     sside->highestMakingNo = 0;
     sside->dearestMakingNo = 0;
     sside->dearestScore = 0;
 
     for (unsigned dno = 0; dno < BRIDGE_DENOMS; dno++)
     {
-      listType * slist = &list[side][dno];
+      ListTableau * slist = &list[side][dno];
       const unsigned * t = table[ DENOM_PAR_TO_DDS[dno] ];
       const unsigned best = Max(t[side], t[side+2]);
 
@@ -687,7 +690,7 @@ void Tableau::SurveyScores(
     }
   }
 
-  const dataType * sside = &stats[primacy];
+  const DataTableau * sside = &stats[primacy];
 
   const unsigned dmNo = sside->dearestMakingNo;
   data.primacy = static_cast<int>(primacy);
@@ -711,7 +714,7 @@ void Tableau::SurveyScores(
       if (list[primacy][i-1].no > list[primacy][i].no) 
         continue;
 
-      listType temp = list[primacy][i - 1];
+      ListTableau temp = list[primacy][i - 1];
       list[primacy][i - 1] = list[primacy][i];
       list[primacy][i] = temp;
 
@@ -730,22 +733,22 @@ void Tableau::SurveyScores(
 }
 
 
-void Tableau::BestSacrifice(
+void Tableau::bestSacrifice(
   const unsigned side,
   const unsigned no,
   const unsigned dno,
-  const playerType dealer,
-  const listType slist[][BRIDGE_DENOMS],
+  const Player dealer,
+  const ListTableau slist[][BRIDGE_DENOMS],
   unsigned sacrTable[][BRIDGE_DENOMS],
   unsigned& bestDown) const
 {
   const unsigned other = 1 - side;
-  const listType * sacrList = slist[other];
+  const ListTableau * sacrList = slist[other];
   bestDown = BIGNUM;
 
   for (unsigned eno = 0; eno < BRIDGE_DENOMS; eno++)
   {
-    listType sacr = sacrList[eno];
+    ListTableau sacr = sacrList[eno];
     unsigned down = BIGNUM;
 
     if (eno == dno)
@@ -783,7 +786,7 @@ void Tableau::BestSacrifice(
 }
 
 
-void Tableau::ReduceContract(
+void Tableau::reduceContract(
   unsigned& no,
   const int sacGap,
   unsigned& plus) const
@@ -815,19 +818,19 @@ void Tableau::ReduceContract(
 }
 
 
-bool Tableau::AddSacrifices(
-  const vulType v,
+bool Tableau::addSacrifices(
+  const Vul vul,
   const unsigned side,
-  const playerType dealer,
+  const Player dealer,
   const int bestDown,
   const unsigned noDecl,
   const unsigned dno,
-  const listType slist[][BRIDGE_DENOMS],
+  const ListTableau slist[][BRIDGE_DENOMS],
   const unsigned sacr[][BRIDGE_DENOMS],
   list<Contract>& clist) const
 {
   const unsigned other = 1 - side;
-  const listType * sacrList = slist[other];
+  const ListTableau * sacrList = slist[other];
 
   for (unsigned eno = 0; eno <= 4; eno++)
   {
@@ -839,8 +842,8 @@ bool Tableau::AddSacrifices(
     {
       unsigned noSac = 
         sacrList[eno].no + 5 * static_cast<unsigned>(bestDown);
-      if (! Tableau::AddContract(v, other, noSac, 
-          static_cast<denomType>(eno), -static_cast<int>(bestDown), 
+      if (! Tableau::addContract(vul, other, noSac, 
+          static_cast<Denom>(eno), -static_cast<int>(bestDown), 
 	  clist))
 	return false;
       continue;
@@ -851,7 +854,7 @@ bool Tableau::AddSacrifices(
     const unsigned * t = table[ DENOM_PAR_TO_DDS[dno] ];
     unsigned incrFlag = 0;
     unsigned pHit = 0;
-    playerType pnoList[2];
+    Player pnoList[2];
     unsigned sacList[2];
     for (unsigned pno = dealer; 
         pno <= static_cast<unsigned>(dealer) + 3; pno++)
@@ -868,7 +871,7 @@ bool Tableau::AddSacrifices(
         down = diff + incrFlag;
         if (static_cast<int>(down) != bestDown) 
 	  continue;
-        pnoList[pHit] = static_cast<playerType>(pnoMod);
+        pnoList[pHit] = static_cast<Player>(pnoMod);
         sacList[pHit] = noDecl + 5 * incrFlag;
         pHit++;
       }
@@ -877,8 +880,8 @@ bool Tableau::AddSacrifices(
     unsigned ns0 = sacList[0];
     if (pHit == 1)
     {
-      if (! Tableau::AddSpecialSac(v, ns0, 
-          static_cast<denomType>(eno), pnoList[0], bestDown, clist))
+      if (! Tableau::addSpecialSac(vul, ns0, 
+          static_cast<Denom>(eno), pnoList[0], bestDown, clist))
 	return false;
       continue;
     }
@@ -887,33 +890,33 @@ bool Tableau::AddSacrifices(
     if (ns0 == ns1)
     {
       // Both players.
-      if (! Tableau::AddContract(v, other, ns0, 
-          static_cast<denomType>(eno), -bestDown, clist))
+      if (! Tableau::addContract(vul, other, ns0, 
+          static_cast<Denom>(eno), -bestDown, clist))
         return false;
       continue;
     }
 
     int p = (ns0 < ns1 ? 0 : 1);
-    if (! Tableau::AddSpecialSac(v, sacList[p], 
-        static_cast<denomType>(eno), pnoList[p], bestDown, clist))
+    if (! Tableau::addSpecialSac(vul, sacList[p], 
+        static_cast<Denom>(eno), pnoList[p], bestDown, clist))
       return false;
   }
   return true;
 }
 
 
-bool Tableau::AddContract(
-  const vulType v,
+bool Tableau::addContract(
+  const Vul vul,
   const unsigned side,
   const unsigned no,
-  const denomType dno,
+  const Denom dno,
   const int delta,
   list<Contract>& clist) const
 {
   Contract contract;
-  playerType declarer;
+  Player declarer;
   const unsigned level = (no+4) / 5;
-  const denomType denom = static_cast<denomType>(DENOM_PAR_TO_DDS[dno]);
+  const Denom denom = static_cast<Denom>(DENOM_PAR_TO_DDS[dno]);
   const multiplierType mult = (delta < 0 ? 
     BRIDGE_MULT_DOUBLED : BRIDGE_MULT_UNDOUBLED);
 
@@ -928,7 +931,7 @@ bool Tableau::AddContract(
   else
     declarer = (side == 0 ? BRIDGE_SOUTH : BRIDGE_WEST);
 
-  if (! contract.SetContract(v, declarer, level, denom, mult))
+  if (! contract.SetContract(vul, declarer, level, denom, mult))
     return false;
 
   if (! contract.SetTricks(tricks))
@@ -939,11 +942,11 @@ bool Tableau::AddContract(
 }
 
 
-bool Tableau::AddSpecialSac(
-  const vulType v,
+bool Tableau::addSpecialSac(
+  const Vul vul,
   const unsigned no,
-  const denomType denom,
-  const playerType sacker,
+  const Denom denom,
+  const Player sacker,
   const int delta,
   list<Contract>& clist) const
 {
@@ -951,7 +954,7 @@ bool Tableau::AddSpecialSac(
   const unsigned level = (no-1) / 5;
   const multiplierType mult = BRIDGE_MULT_DOUBLED;
 
-  if (! contract.SetContract(v, sacker, level, denom, mult))
+  if (! contract.SetContract(vul, sacker, level, denom, mult))
     return false;
 
   if (! contract.SetTricks(
