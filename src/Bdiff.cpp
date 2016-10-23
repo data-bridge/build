@@ -25,11 +25,11 @@ Bdiff::Bdiff(
 }
 
 
-void Bdiff::Print() const
+void Bdiff::print() const
 {
-  cout << "[File " << file << "]\n";
-  cout << "[Line " << line << "]\n";
-  cout << "[Func " << function << "]\n";
+  cout << "Difference seen in " << file <<
+      ", function " << function <<
+      ", line number " << line << endl;
   cout << message << endl;
 }
 

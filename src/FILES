@@ -1,7 +1,5 @@
    373    985   8434 args.cpp
   1625   3920  30822 Auction.cpp
-    35     72    574 Bdiff.cpp
-    35     71    588 Bexcept.cpp
    868   1491  14301 Board.cpp
     96    220   1647 Canvas.cpp
   1276   3096  26550 Contract.cpp
@@ -15,7 +13,6 @@
    426   1305  10722 fileREC.cpp
    301    609   6084 Files.cpp
    598   1673  14360 fileTXT.cpp
-   136    242   2057 Group.cpp
    610   1397  10699 parse.cpp
   1063   2739  23146 Play.cpp
    506   1119  10046 Players.cpp
@@ -36,8 +33,6 @@
     22     34    274 args.h
    217    434   4104 Auction.h
    389    760   6447 bconst.h
-    43     64    595 Bdiff.h
-    43     64    604 Bexcept.h
    356    649   6702 Board.h
     54     82    803 Canvas.h
    187    367   3845 Contract.h
@@ -52,7 +47,6 @@
     37     61    519 fileREC.h
     81    121   1341 Files.h
     44     73    631 fileTXT.h
-    71    102   1043 Group.h
    118    218   2048 parse.h
    164    281   2901 Play.h
     95    179   1763 Players.h
@@ -77,3 +71,9 @@
     62    107    966 Date.h
    133    251   2449 Location.cpp
     53     81    775 Location.h
+   136    242   2057 Group.cpp
+    71    102   1043 Group.h
+    35     72    574 Bdiff.cpp
+    43     64    595 Bdiff.h
+    35     71    588 Bexcept.cpp
+    43     64    604 Bexcept.h

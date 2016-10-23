@@ -509,39 +509,39 @@ void writeEMLBoardLevel(
   const unsigned clen = (playFlag ? alstart + 5 : Max(18, as+6));
   const unsigned acstart = (play[0].length() > 38 ? 39u : 42u);
 
-  canvas.SetDimensions(clen, 80);
+  canvas.resize(clen, 80);
 
-  canvas.SetRectangle(deal, 0, 4);
-  canvas.SetRectangle(auction, 2, 42);
+  canvas.setRectangle(deal, 0, 4);
+  canvas.setRectangle(auction, 2, 42);
   if (playFlag)
-    canvas.SetRectangle(play, alstart, acstart);
+    canvas.setRectangle(play, alstart, acstart);
 
-  canvas.SetLine(chunk[EML_SCORING], 0, 0);
-  canvas.SetLine(chunk[EML_WEST], 7, 4);
-  canvas.SetLine(chunk[EML_NORTH], 1, 16);
-  canvas.SetLine(chunk[EML_EAST], 7, 27);
-  canvas.SetLine(chunk[EML_SOUTH], 13, 16);
-  canvas.SetLine(chunk[EML_WEST], 3, 42);
-  canvas.SetLine(chunk[EML_NORTH], 3, 51);
-  canvas.SetLine(chunk[EML_EAST], 3, 60);
-  canvas.SetLine(chunk[EML_SOUTH], 3, 69);
-  canvas.SetLine(chunk[EML_BOARD], 0, 42);
+  canvas.setLine(chunk[EML_SCORING], 0, 0);
+  canvas.setLine(chunk[EML_WEST], 7, 4);
+  canvas.setLine(chunk[EML_NORTH], 1, 16);
+  canvas.setLine(chunk[EML_EAST], 7, 27);
+  canvas.setLine(chunk[EML_SOUTH], 13, 16);
+  canvas.setLine(chunk[EML_WEST], 3, 42);
+  canvas.setLine(chunk[EML_NORTH], 3, 51);
+  canvas.setLine(chunk[EML_EAST], 3, 60);
+  canvas.setLine(chunk[EML_SOUTH], 3, 69);
+  canvas.setLine(chunk[EML_BOARD], 0, 42);
 
-  canvas.SetLine(chunk[EML_DEALER], 1, 0);
-  canvas.SetLine(chunk[EML_VULNERABLE], 2, 0);
+  canvas.setLine(chunk[EML_DEALER], 1, 0);
+  canvas.setLine(chunk[EML_VULNERABLE], 2, 0);
   if (chunk[EML_LEAD] == "Opening Lead:")
   {
-    canvas.SetLine(chunk[EML_RESULT], a+3, 42);
-    canvas.SetLine(chunk[EML_SCORE], a+4, 42);
+    canvas.setLine(chunk[EML_RESULT], a+3, 42);
+    canvas.setLine(chunk[EML_SCORE], a+4, 42);
   }
   else
   {
-    canvas.SetLine(chunk[EML_LEAD], a+3, 42);
-    canvas.SetLine(chunk[EML_RESULT], a+4, 42);
-    canvas.SetLine(chunk[EML_SCORE], a+5, 42);
+    canvas.setLine(chunk[EML_LEAD], a+3, 42);
+    canvas.setLine(chunk[EML_RESULT], a+4, 42);
+    canvas.setLine(chunk[EML_SCORE], a+5, 42);
   }
 
-  fstr << canvas.AsString() << "\n";
+  fstr << canvas.str() << "\n";
 
   if (writeInfo.ino < writeInfo.numInst-1)
     fstr << EMLdashes << "\n\n";

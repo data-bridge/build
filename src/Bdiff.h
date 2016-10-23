@@ -36,7 +36,7 @@ class Bdiff: public exception
       const char functionArg[],
       const string messageArg);
 
-    void Print() const;
+    void print() const;
 };
 
 #endif

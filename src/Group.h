@@ -24,15 +24,7 @@ class Group
 
     Format formatVal;
 
-    struct SegmentPairs
-    {
-      unsigned extNo;
-      Segment segment;
-    };
-
-    unsigned len;
-
-    vector<SegmentPairs> segmentPairs;
+    vector<Segment> segments;
 
 
   public:
@@ -40,6 +32,10 @@ class Group
     Group();
 
     ~Group();
+
+    vector<Segment>::iterator begin() { return segments.begin(); }
+
+    vector<Segment>::iterator end() { return segments.end(); }
 
     void reset();
 
@@ -49,11 +45,7 @@ class Group
     void setFormat(const Format format);
     Format format() const;
 
-    Segment * make(const unsigned no);
-
-    Segment * get(const unsigned no);
-
-    unsigned size() const;
+    Segment * make();
 
     unsigned count();
 

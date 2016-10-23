@@ -25,7 +25,7 @@ Bexcept::Bexcept(
 }
 
 
-void Bexcept::Print() const
+void Bexcept::print() const
 {
   cout << "Exception thrown in " << file << 
       ", function " << function << 

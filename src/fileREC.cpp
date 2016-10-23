@@ -398,20 +398,20 @@ void writeRECBoardLevel(
   vector<string> deal;
   ConvertMultilineToVector(dstr, deal);
 
-  canvas.SetDimensions(11, 80);
-  canvas.SetRectangle(deal, 0, 0);
+  canvas.resize(11, 80);
+  canvas.setRectangle(deal, 0, 0);
 
-  canvas.SetLine(sstr, 0, 0);
-  canvas.SetLine(estr, 0, 24);
-  canvas.SetLine(bstr, 1, 0);
-  canvas.SetLine(vstr, 1, 24);
+  canvas.setLine(sstr, 0, 0);
+  canvas.setLine(estr, 0, 24);
+  canvas.setLine(bstr, 1, 0);
+  canvas.setLine(vstr, 1, 24);
 
-  canvas.SetLine(north, 0, 12);
-  canvas.SetLine(west, 3, 0);
-  canvas.SetLine(east, 3, 24);
-  canvas.SetLine(south, 6, 12);
+  canvas.setLine(north, 0, 12);
+  canvas.setLine(west, 3, 0);
+  canvas.setLine(east, 3, 24);
+  canvas.setLine(south, 6, 12);
 
-  fstr << canvas.AsString(true) << "\n";
+  fstr << canvas.str(true) << "\n";
 
   fstr << board->PlayersAsString(f) << "\n";
   fstr << board->AuctionAsString(f);

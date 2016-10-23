@@ -10,7 +10,6 @@
 #ifndef BRIDGE_CANVAS_H
 #define BRIDGE_CANVAS_H
 
-#include <iostream>
 #include <string>
 #include <vector>
 
@@ -31,23 +30,23 @@ class Canvas
 
     ~Canvas();
 
-    void Reset();
+    void reset();
 
-    void SetDimensions(
-      const unsigned h,
-      const unsigned w);
+    void resize(
+      const unsigned height,
+      const unsigned width);
 
-    void SetLine(
-      const string& s,
+    void setLine(
+      const string& text,
       const unsigned lineNo,
       const unsigned colNo);
 
-    void SetRectangle(
-      const vector<string>& rect,
+    void setRectangle(
+      const vector<string>& rectangle,
       const unsigned lineNo,
       const unsigned colNo);
 
-    string AsString(const bool specialFlag = false) const;
+    string str(const bool RECflag = false) const;
 };
 
 #endif

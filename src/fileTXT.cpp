@@ -546,12 +546,12 @@ void writeTXTBoardLevel(
     vector<string> deal;
     ConvertMultilineToVector(dstr, deal);
 
-    canvas.SetDimensions(15, 80);
-    canvas.SetRectangle(deal, 0, 0);
-    canvas.SetLine(bstr, 0, 0);
-    canvas.SetLine(lstr, 13, 0);
-    canvas.SetLine(vstr, 14, 0);
-    fstr << canvas.AsString() << "\n";
+    canvas.resize(15, 80);
+    canvas.setRectangle(deal, 0, 0);
+    canvas.setLine(bstr, 0, 0);
+    canvas.setLine(lstr, 13, 0);
+    canvas.setLine(vstr, 14, 0);
+    fstr << canvas.str() << "\n";
 
     fstr << board->PlayersAsString(f);
     fstr << board->AuctionAsString(f) << "\n";

@@ -36,7 +36,7 @@ class Bexcept: public exception
       const char functionArg[],
       const string messageArg);
 
-    void Print() const;
+    void print() const;
 };
 
 #endif

@@ -262,7 +262,7 @@ void dispatch(
     }
     catch (Bexcept& bex)
     {
-      bex.Print();
+      bex.print();
       continue;
     }
 
@@ -278,7 +278,7 @@ void dispatch(
       }
       catch (Bexcept& bex)
       {
-        bex.Print();
+        bex.print();
         continue;
       }
 
@@ -295,7 +295,7 @@ void dispatch(
         }
         catch(Bexcept& bex)
         {
-          bex.Print();
+          bex.print();
         }
       }
 
@@ -484,7 +484,7 @@ static bool readFormattedFile(
               ", chunk " << chunkNo << endl << endl;
       }
 
-      bex.Print();
+      bex.print();
 
       if (options.verboseBatch)
       {
@@ -512,7 +512,8 @@ static bool readFormattedFile(
 
     if (newSegFlag || segment == nullptr)
     {
-      segment = group.make(segno);
+      // segment = group.make(segno);
+      segment = group.make();
       segno++;
       bno = 0;
     }
@@ -593,7 +594,7 @@ if (board == nullptr)
             chunk[i] << "'" << endl << endl;
       }
 
-      bex.Print();
+      bex.print();
 
       if (options.verboseBatch)
       {
@@ -700,18 +701,19 @@ static bool writeFormattedFile(
   writeHeader(fstr, group, f);
 // cout << "POS2" << endl;
 
-  for (unsigned g = 0; g < group.size(); g++)
+  for (auto &segment: group)
+  // for (unsigned g = 0; g < group.size(); g++)
   {
 // cout << "POS3" << g << endl;
-    Segment * segment = group.get(g);
+    // Segment * segment = group.get(g);
 
-    (* formatFncs[f].writeSeg)(fstr, segment, f);
+    (* formatFncs[f].writeSeg)(fstr, &segment, f);
 
-    writeInfo.numBoards = segment->GetLength();
+    writeInfo.numBoards = segment.GetLength();
     for (unsigned b = 0; b < writeInfo.numBoards; b++)
     {
 // cout << "POS4" << g << " " << b << endl;
-      Board * board = segment->GetBoard(b);
+      Board * board = segment.GetBoard(b);
       if (board == nullptr)
       {
         fstr.close();
@@ -732,7 +734,7 @@ static bool writeFormattedFile(
 
         writeInfo.ino = i;
 // cout << "b " << b << " i " << i << endl;
-        (* formatFncs[f].writeBoard)(fstr, segment, board, writeInfo, f);
+        (* formatFncs[f].writeBoard)(fstr, &segment, board, writeInfo, f);
       }
     }
   }
