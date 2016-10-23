@@ -46,7 +46,7 @@ void Segment::Reset()
   seg.location.reset();
   seg.event = ""; 
   seg.session.reset(); 
-  seg.scoring.Reset();
+  seg.scoring.reset();
   seg.teams.Reset();
 }
 
@@ -372,7 +372,8 @@ bool Segment::SetScoring(
   const string& t,
   const formatType f)
 {
-  return seg.scoring.Set(t, f);
+  seg.scoring.set(t, f);
+  return true;
 }
 
 
@@ -689,7 +690,7 @@ bool Segment::SetNumber(
 
 bool Segment::ScoringIsIMPs() const
 {
-  return seg.scoring.ScoringIsIMPs();
+  return seg.scoring.isIMPs();
 }
 
 
@@ -749,7 +750,7 @@ string Segment::TitleAsLIN() const
   stringstream s;
   s << "vg|" << seg.title << "," << 
       seg.event << "," <<
-      seg.scoring.AsString(BRIDGE_FORMAT_LIN) << ",";
+      seg.scoring.str(BRIDGE_FORMAT_LIN) << ",";
   s << Segment::TitleAsLINCommon() << "\n";
   return s.str();
 }
@@ -764,7 +765,7 @@ string Segment::TitleAsLIN_EXT() const
       seg.location.str(BRIDGE_FORMAT_LIN) << "%" <<
       seg.session.asString(BRIDGE_FORMAT_LIN) << "%" <<
       seg.event << "%" <<
-      seg.scoring.AsString(BRIDGE_FORMAT_LIN) << 
+      seg.scoring.str(BRIDGE_FORMAT_LIN) << 
       ",IMPs,P,";
   s << Segment::TitleAsLINCommon();
   return s.str() + "\n";
@@ -783,7 +784,7 @@ string Segment::TitleAsLIN_RP() const
   stringstream s;
   s << "vg|" << seg.title << 
       seg.session.asString(BRIDGE_FORMAT_LIN_RP) << "," <<
-      seg.scoring.AsString(BRIDGE_FORMAT_LIN) << ",";
+      seg.scoring.str(BRIDGE_FORMAT_LIN) << ",";
   s << Segment::TitleAsLINCommon(swapFlag) << "pf|y|\n";
   return s.str();
 }
@@ -809,7 +810,7 @@ string Segment::TitleAsLIN_TRN() const
       seg.location.str(BRIDGE_FORMAT_LIN) << "%" <<
       seg.session.asString(BRIDGE_FORMAT_LIN) << "%" <<
       seg.event << "%" <<
-      seg.scoring.AsString(BRIDGE_FORMAT_LIN) << 
+      seg.scoring.str(BRIDGE_FORMAT_LIN) << 
       ",IMPs,P,";
   s << Segment::TitleAsLINCommon();
   return s.str() + "\n";
@@ -909,28 +910,14 @@ string Segment::SessionAsString(
 string Segment::ScoringAsString(
   const formatType f) const
 {
-  return seg.scoring.AsString(f);
+  return seg.scoring.str(f);
 }
 
 
 string Segment::TeamsAsString(
   const formatType f) const
 {
-  /*
-  bool swapFlag = false;
-  if (f == BRIDGE_FORMAT_PBN || 
-      f == BRIDGE_FORMAT_TXT)
-  {
-    if (activeBoard->SetInstance(0) && 
-        activeBoard->GetRoom() == BRIDGE_ROOM_CLOSED)
-      swapFlag = true;
-  }
-
-  if (swapFlag)
-    return seg.teams.AsString(f, swapFlag);
-  else
-  */
-    return seg.teams.AsString(f);
+  return seg.teams.AsString(f);
 }
 
 
@@ -939,19 +926,6 @@ string Segment::TeamsAsString(
   const int score2,
   const formatType f) const
 {
-  /*
-  bool swapFlag = false;
-  if (f == BRIDGE_FORMAT_RBN || 
-      f == BRIDGE_FORMAT_RBX ||
-      f == BRIDGE_FORMAT_TXT)
-  {
-    if (activeBoard->SetInstance(0) && 
-        activeBoard->GetRoom() == BRIDGE_ROOM_CLOSED)
-      swapFlag = true;
-  }
-  return seg.teams.AsString(f, score1, score2, swapFlag);
-  */
-
   return seg.teams.AsString(f, score1, score2);
 }
 
@@ -959,21 +933,6 @@ string Segment::TeamsAsString(
 string Segment::FirstTeamAsString(
   const formatType f) const
 {
-  // Kludge -- should store swapFlag in Segment.
-  /*
-  bool swapFlag = false;
-  if (f == BRIDGE_FORMAT_PBN ||
-      f == BRIDGE_FORMAT_TXT)
-  {
-    unsigned inst = activeBoard->GetInstance();
-    if (activeBoard->SetInstance(0) && 
-        activeBoard->GetRoom() == BRIDGE_ROOM_CLOSED)
-      swapFlag = true;
-    activeBoard->SetInstance(inst);
-  }
-  return seg.teams.FirstAsString(f, swapFlag);
-  */
-
   return seg.teams.FirstAsString(f);
 }
 
@@ -981,21 +940,6 @@ string Segment::FirstTeamAsString(
 string Segment::SecondTeamAsString(
   const formatType f) const
 {
-  // Kludge -- should store swapFlag in Segment.
-  /*
-  bool swapFlag = false;
-  if (f == BRIDGE_FORMAT_PBN ||
-      f == BRIDGE_FORMAT_TXT)
-  {
-    unsigned inst = activeBoard->GetInstance();
-    if (activeBoard->SetInstance(0) && 
-        activeBoard->GetRoom() == BRIDGE_ROOM_CLOSED)
-      swapFlag = true;
-    activeBoard->SetInstance(inst);
-  return seg.teams.SecondAsString(f, swapFlag);
-  }
-  */
-
   return seg.teams.SecondAsString(f);
 }
 
@@ -1031,7 +975,7 @@ string Segment::NumberAsString(
       return st.str();
 
     case BRIDGE_FORMAT_EML:
-      if (! seg.scoring.ScoringIsIMPs())
+      if (! seg.scoring.isIMPs())
         return "";
       st << "Teams Board " << extNo;
       return st.str();

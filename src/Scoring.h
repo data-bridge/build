@@ -21,7 +21,7 @@ class Scoring
   private:
 
     // At present only IMPS and MATCHPOINTS are implemented.
-    enum scoringType
+    enum ScoringStruct
     {
       BRIDGE_SCORING_IMPS = 0,
       BRIDGE_SCORING_BAM = 1,
@@ -35,18 +35,18 @@ class Scoring
       BRIDGE_SCORING_UNDEFINED = 9
     };
 
-    scoringType scoring;
+    ScoringStruct scoring;
 
-    bool SetLIN(const string& t);
-    bool SetPBN(const string& t);
-    bool SetRBN(const string& t);
+    void setLIN(const string& text);
+    void setPBN(const string& text);
+    void setRBN(const string& text);
 
-    string AsLIN() const;
-    string AsPBN() const;
-    string AsRBN() const;
-    string AsRBX() const;
-    string AsEML() const;
-    string AsREC() const;
+    string strLIN() const;
+    string strPBN() const;
+    string strRBN() const;
+    string strRBX() const;
+    string strEML() const;
+    string strREC() const;
 
 
   public:
@@ -55,19 +55,19 @@ class Scoring
 
     ~Scoring();
 
-    void Reset();
+    void reset();
 
-    bool Set(
-      const string& t,
-      const formatType f);
+    void set(
+      const string& text,
+      const Format format);
 
-    bool ScoringIsIMPs() const;
+    bool isIMPs() const;
 
-    bool operator == (const Scoring& s2) const;
+    bool operator == (const Scoring& scoring2) const;
 
-    bool operator != (const Scoring& s2) const;
+    bool operator != (const Scoring& scoring2) const;
 
-    string AsString(const formatType f) const;
+    string str(const Format format) const;
 };
 
 #endif

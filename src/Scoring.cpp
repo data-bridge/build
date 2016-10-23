@@ -7,32 +7,31 @@
 */
 
 
-#include <iomanip>
 #include <sstream>
 #include "Scoring.h"
-#include "portab.h"
 #include "Bexcept.h"
 #include "Bdiff.h"
 
 
-// No doubt LIN also has tags for some of these
-const string SCORING_LIN[] =
+// This maps the ScoringStruct fields to scoring tags.
+// No doubt LIN also has tags for some of these.
+static const string SCORING_LIN[] =
 {
-  "I", "X", "X", "X", "P", "X", "X", "X", "X", "X"
+  "I", "X", "X", "X", "P", "X", "X", "X", "X", ""
 };
 
-const string SCORING_PBN[] =
+static const string SCORING_PBN[] =
 {
   "IMP", "BAM", "X", "X", "Matchpoints", 
-  "Instant", "Rubber", "Chicago", "Cavendish", "X"
+  "Instant", "Rubber", "Chicago", "Cavendish", ""
 };
 
-const string SCORING_RBN[] =
+static const string SCORING_RBN[] =
 {
-  "I", "B", "T", "X", "M", "N", "R", "C", "A", "P"
+  "I", "B", "T", "X", "M", "N", "R", "C", "A", ""
 };
 
-const string SCORING_EML[] =
+static const string SCORING_EML[] =
 {
   "IMPs", 
   "Board-a-match", 
@@ -43,13 +42,13 @@ const string SCORING_EML[] =
   "Rubber", 
   "Chicago", 
   "Cavendish", 
-  "Undefined"
+  ""
 };
 
 
 Scoring::Scoring()
 {
-  Scoring::Reset();
+  Scoring::reset();
 }
 
 
@@ -58,190 +57,174 @@ Scoring::~Scoring()
 }
 
 
-void Scoring::Reset()
+void Scoring::reset()
 {
   scoring = BRIDGE_SCORING_UNDEFINED;
 }
 
 
-bool Scoring::SetLIN(const string& t)
+void Scoring::setLIN(const string& text)
 {
-  if (t == "I")
+  if (text == "I")
     scoring = BRIDGE_SCORING_IMPS;
-  else if (t == "P")
+  else if (text == "P")
     scoring = BRIDGE_SCORING_MATCHPOINTS;
   else
     THROW("Unknown LIN scoring");
-
-  return true;
 }
 
 
-bool Scoring::SetPBN(const string& t)
+void Scoring::setPBN(const string& text)
 {
-  if (t == "IMP" || t == "IMPs")
+  if (text == "IMP" || text == "IMPs")
     scoring = BRIDGE_SCORING_IMPS;
-  else if (t == "BAM")
+  else if (text == "BAM")
     scoring = BRIDGE_SCORING_BAM;
-  else if (t == "MP" || t == "Matchpoints")
+  else if (text == "MP" || text == "Matchpoints")
     scoring = BRIDGE_SCORING_MATCHPOINTS;
-  else if (t == "Instant")
+  else if (text == "Instant")
     scoring = BRIDGE_SCORING_INSTANT;
-  else if (t == "Rubber")
+  else if (text == "Rubber")
     scoring = BRIDGE_SCORING_RUBBER;
-  else if (t == "Chicago")
+  else if (text == "Chicago")
     scoring = BRIDGE_SCORING_CHICAGO;
-  else if (t == "Cavendish")
+  else if (text == "Cavendish")
     scoring = BRIDGE_SCORING_CAVENDISH;
   else
-    return false;
-  return true;
+    THROW("Unknown PBN scoring");
 }
 
 
-bool Scoring::SetRBN(const string& t)
+void Scoring::setRBN(const string& text)
 {
-  if (t == "I")
+  if (text == "I")
     scoring = BRIDGE_SCORING_IMPS;
-  else if (t == "B")
+  else if (text == "B")
     scoring = BRIDGE_SCORING_BAM;
-  else if (t == "T")
+  else if (text == "T")
     scoring = BRIDGE_SCORING_TOTAL;
-  else if (t == "X")
+  else if (text == "X")
     scoring = BRIDGE_SCORING_CROSS_IMPS;
-  else if (t == "M")
+  else if (text == "M")
     scoring = BRIDGE_SCORING_MATCHPOINTS;
-  else if (t == "N")
+  else if (text == "N")
     scoring = BRIDGE_SCORING_INSTANT;
-  else if (t == "R")
+  else if (text == "R")
     scoring = BRIDGE_SCORING_RUBBER;
-  else if (t == "C")
+  else if (text == "C")
     scoring = BRIDGE_SCORING_CHICAGO;
-  else if (t == "A")
+  else if (text == "A")
     scoring = BRIDGE_SCORING_CAVENDISH;
   else
-    return false;
-  return true;
+    THROW("Unknown RBN scoring");
 }
 
 
-bool Scoring::Set(
-  const string& t,
-  const formatType f)
+void Scoring::set(
+  const string& text,
+  const Format format)
 {
-  switch(f)
+  switch(format)
   {
     case BRIDGE_FORMAT_LIN:
-      return Scoring::SetLIN(t);
+      return Scoring::setLIN(text);
     
     case BRIDGE_FORMAT_PBN:
     case BRIDGE_FORMAT_EML:
     case BRIDGE_FORMAT_TXT:
     case BRIDGE_FORMAT_REC:
-      return Scoring::SetPBN(t);
+      return Scoring::setPBN(text);
     
     case BRIDGE_FORMAT_RBN:
     case BRIDGE_FORMAT_RBX:
-      return Scoring::SetRBN(t);
+      return Scoring::setRBN(text);
     
     default:
-      THROW("Invalid format " + STR(f));
+      THROW("Invalid format: " + STR(format));
   }
 }
 
 
-bool Scoring::ScoringIsIMPs() const
+bool Scoring::isIMPs() const
 {
   return (scoring == BRIDGE_SCORING_IMPS);
 }
 
 
-bool Scoring::operator == (const Scoring& s2) const
+bool Scoring::operator == (const Scoring& scoring2) const
 {
-  if (scoring != s2.scoring)
+  if (scoring != scoring2.scoring)
     DIFF("Scoring differs");
   else
     return true;
 }
 
 
-bool Scoring::operator != (const Scoring& s2) const
+bool Scoring::operator != (const Scoring& scoring2) const
 {
-  return ! (* this == s2);
+  return ! (* this == scoring2);
 }
 
 
-string Scoring::AsLIN() const
+string Scoring::strLIN() const
 {
-  if (scoring == BRIDGE_SCORING_UNDEFINED)
-    return "";
   return SCORING_LIN[scoring];
 }
 
 
-string Scoring::AsPBN() const
+string Scoring::strPBN() const
 {
-  if (scoring == BRIDGE_SCORING_UNDEFINED)
-    return "";
   return "[Scoring \"" + SCORING_PBN[scoring] + "\"]\n";
 }
 
 
-string Scoring::AsRBN() const
+string Scoring::strRBN() const
 {
-  if (scoring == BRIDGE_SCORING_UNDEFINED)
-    return "";
   return "F " + SCORING_RBN[scoring] + "\n";
 }
 
-string Scoring::AsRBX() const
+string Scoring::strRBX() const
 {
-  if (scoring == BRIDGE_SCORING_UNDEFINED)
-    return "";
   return "F{" + SCORING_RBN[scoring] + "}";
 }
 
 
-string Scoring::AsEML() const
+string Scoring::strEML() const
 {
-  if (scoring == BRIDGE_SCORING_UNDEFINED)
-    return "";
   return SCORING_EML[scoring];
 }
 
 
-string Scoring::AsREC() const
+string Scoring::strREC() const
 {
-  if (scoring == BRIDGE_SCORING_UNDEFINED)
-    return "";
   return SCORING_PBN[scoring];
 }
 
 
-string Scoring::AsString(const formatType f) const
+string Scoring::str(const Format format) const
 {
-  switch(f)
+  switch(format)
   {
     case BRIDGE_FORMAT_LIN:
-      return Scoring::AsLIN();
+      return Scoring::strLIN();
     
     case BRIDGE_FORMAT_PBN:
-      return Scoring::AsPBN();
+      return Scoring::strPBN();
     
     case BRIDGE_FORMAT_RBN:
-      return Scoring::AsRBN();
+      return Scoring::strRBN();
     
     case BRIDGE_FORMAT_RBX:
-      return Scoring::AsRBX();
+      return Scoring::strRBX();
     
     case BRIDGE_FORMAT_EML:
-      return Scoring::AsEML();
+      return Scoring::strEML();
     
     case BRIDGE_FORMAT_REC:
-      return Scoring::AsREC();
+      return Scoring::strREC();
 
     default:
-      THROW("Invalid format " + STR(f));
+      THROW("Invalid format " + STR(format));
   }
 }
 

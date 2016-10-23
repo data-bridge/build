@@ -369,14 +369,14 @@ unsigned Tableau::ToRBNPlayer(const playerType p) const
 
 // --------------------------------------------------------------
 // Par functions.
-// Adapted from DDS (where I contributed it).
+// Adapted from DDS (where I contributed them).
 // --------------------------------------------------------------
 
 // First index is contract number,
 // 0 is pass, 1 is 1C, ..., 35 is 7NT.
 // Second index is 0 nonvul, 1 vul.
 
-const int SCORES[36][2] =
+static const int SCORES[36][2] =
 {
   {    0,   0},
   {   70,  70}, {  70,   70}, {  80,   80}, {  80,   80}, {  90,   90},
@@ -390,7 +390,7 @@ const int SCORES[36][2] =
 
 // First index: 0 nonvul, 1 vul. Second index: tricks down.
 
-const int DOUBLED_SCORES[2][14] =
+static const int DOUBLED_SCORES[2][14] =
 {
   {
     0   ,  100,  300,  500,  800, 1100, 1400, 1700,
@@ -405,7 +405,7 @@ const int DOUBLED_SCORES[2][14] =
 // Second index is contract number, 0 .. 35.
 // First index is vul: none, only defender, only declarer, both.
 
-const unsigned DOWN_TARGET[36][4] =
+static const unsigned DOWN_TARGET[36][4] =
 {
   {0, 0, 0, 0},
   {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
@@ -417,7 +417,7 @@ const unsigned DOWN_TARGET[36][4] =
   {6, 5, 8, 7}, {6, 5, 8, 7}, {6, 5, 8, 7}, {6, 5, 8, 7}, {6, 5, 8, 7}
 };
 
-const unsigned FLOOR_CONTRACT[36] =
+static const unsigned FLOOR_CONTRACT[36] =
 {
    0,  1,  2,  3,  4,  5,  1,  2,  3,  4,  5,
        1,  2,  3,  4, 15,  1,  2, 18, 19, 15,
@@ -428,21 +428,21 @@ const unsigned FLOOR_CONTRACT[36] =
 // First index is vul: none, both, NS, EW.
 // Second index is vul (0, 1) for NS and then EW.
 
-const unsigned VUL_TO_SIDE_VUL[BRIDGE_VUL_SIZE][2] =
+static const unsigned VUL_TO_SIDE_VUL[BRIDGE_VUL_SIZE][2] =
 {
   {0, 0}, {1, 1}, {1, 0}, {0, 1}
 };
 
 // First vul is declarer (not necessarily NS), second is defender.
 
-const unsigned VUL_TO_NO[2][2] = 
+static const unsigned VUL_TO_NO[2][2] = 
 { 
   {0, 1}, {2, 3} 
 };
 
 // Maps DDS order (S, H, D, C, NT) to par order (C, D, H, S, NT).
 
-const unsigned DENOM_PAR_TO_DDS[5] = 
+static const unsigned DENOM_PAR_TO_DDS[5] = 
 { 
   3, 2, 1, 0, 4 
 };
