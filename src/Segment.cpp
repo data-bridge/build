@@ -174,6 +174,7 @@ bool Segment::SetTitleLIN(const string& t)
   regex re3("^Round\\s+\\d+$");
   regex re4("^R(\\d+)$");
   regex re5("^R(\\d+)[ABCD]$");
+  regex re6("^[QS][ABCD]$");
   // This has become a mess.  It should be tested in Session.cpp
   smatch match1, match2;
   if (regex_search(v[0], match1, re1) && 
@@ -181,8 +182,7 @@ bool Segment::SetTitleLIN(const string& t)
       seg.session.isRBNPart(match1.str(2)) &&
       (regex_search(v[1], match2, re2) ||
        regex_search(v[1], match2, re3) ||
-       v[1] == "Overtime" ||
-       v[1] == "QB"))
+       v[1] == "Overtime"))
   {
     if (! Segment::SetTitle(match1.str(1), BRIDGE_FORMAT_RBN))
       return false;
@@ -196,7 +196,8 @@ bool Segment::SetTitleLIN(const string& t)
     eventFlag = false;
   }
   else if (regex_search(v[1], match2, re4) ||
-           regex_search(v[1], match2, re5))
+           regex_search(v[1], match2, re5) ||
+           regex_search(v[1], match2, re6))
   {
     if (! Segment::SetTitle(v[0], BRIDGE_FORMAT_RBN))
       return false;
