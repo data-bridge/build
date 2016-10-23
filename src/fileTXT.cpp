@@ -576,7 +576,7 @@ void writeTXTBoardLevel(
     int s = board->ScoreIMPAsInt();
     bool swapFlag = (board->GetRoom() == BRIDGE_ROOM_OPEN);
     string tWin;
-    if ((s > 0 && ! swapFlag) || (s <= 0 && swapFlag))
+    if ((s > 0 && ! swapFlag) || (s < 0 && swapFlag))
     {
       writeInfo.score2 += (s > 0 ? s : -s);
       tWin = segment->SecondTeamAsString(f);

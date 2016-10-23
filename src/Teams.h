@@ -77,7 +77,8 @@ class Teams
     string AsTXT(const bool swapFlag) const;
     string AsTXT(
       const int score1,
-      const int score2) const;
+      const int score2,
+      const bool swapFlag) const;
 
 
   public:
@@ -113,7 +114,8 @@ class Teams
     string AsString(
       const formatType f,
       const int score1,
-      const int score2) const;
+      const int score2,
+      const bool swapFlag = false) const;
 
     string FirstAsString(
       const formatType f,

@@ -447,7 +447,8 @@ string Teams::AsTXT(const bool swapFlag) const
 
 string Teams::AsTXT(
   const int score1,
-  const int score2) const
+  const int score2,
+  const bool swapFlag) const
 {
   if (team1.name == "" && team2.name == "")
     return "\n";
@@ -461,14 +462,16 @@ string Teams::AsTXT(
   switch(team1.carry)
   {
     case BRIDGE_CARRY_NONE:
-      if (score1 < score2)
+      if (score1 < score2 ||
+          (score1 == score2 && swapFlag))
         order12Flag = false;
       s1 << score1;
       s2 << score2;
       break;
 
     case BRIDGE_CARRY_INT:
-      if (score1 + team1.carryi < score2 + team2.carryi)
+      if (score1 + team1.carryi < score2 + team2.carryi ||
+         (score1 + team1.carryi == score2 + team2.carryi && swapFlag))
         order12Flag = false;
       s1 << score1 + team1.carryi;
       s2 << score2 + team2.carryi;
@@ -522,7 +525,8 @@ string Teams::AsString(
 string Teams::AsString(
   const formatType f,
   const int score1,
-  const int score2) const
+  const int score2,
+  const bool swapFlag) const
 {
   switch(f)
   {
@@ -533,7 +537,7 @@ string Teams::AsString(
       THROW("AsString with score not implemented for this format");
 
     case BRIDGE_FORMAT_TXT:
-      return Teams::AsTXT(score1, score2);
+      return Teams::AsTXT(score1, score2, swapFlag);
     
     default:
       THROW("Invalid format " + STR(f));

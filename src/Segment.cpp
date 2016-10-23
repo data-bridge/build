@@ -879,7 +879,9 @@ string Segment::TeamsAsString(
   const formatType f) const
 {
   bool swapFlag = false;
-  if (f == BRIDGE_FORMAT_RBN || f == BRIDGE_FORMAT_RBX)
+  if (f == BRIDGE_FORMAT_RBN || 
+      f == BRIDGE_FORMAT_RBX ||
+      f == BRIDGE_FORMAT_TXT)
   {
     if (activeBoard->SetInstance(0) && 
         activeBoard->GetRoom() == BRIDGE_ROOM_CLOSED)
@@ -898,7 +900,17 @@ string Segment::TeamsAsString(
   const int score2,
   const formatType f) const
 {
-  return seg.teams.AsString(f, score1, score2);
+  bool swapFlag = false;
+  if (f == BRIDGE_FORMAT_RBN || 
+      f == BRIDGE_FORMAT_RBX ||
+      f == BRIDGE_FORMAT_TXT)
+  {
+    if (activeBoard->SetInstance(0) && 
+        activeBoard->GetRoom() == BRIDGE_ROOM_CLOSED)
+      swapFlag = true;
+  }
+
+  return seg.teams.AsString(f, score1, score2, swapFlag);
 }
 
 
