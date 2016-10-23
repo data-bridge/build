@@ -10,8 +10,8 @@
 #ifndef BRIDGE_SCORING_H
 #define BRIDGE_SCORING_H
 
-#include "bconst.h"
 #include <string>
+#include "bconst.h"
 
 using namespace std;
 

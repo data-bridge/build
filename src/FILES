@@ -1,7 +1,6 @@
    373    985   8434 args.cpp
   1625   3920  30822 Auction.cpp
    868   1491  14301 Board.cpp
-    96    220   1647 Canvas.cpp
   1276   3096  26550 Contract.cpp
    662   1930  14883 Deal.cpp
     43     85    603 Debug.cpp
@@ -34,7 +33,6 @@
    217    434   4104 Auction.h
    389    760   6447 bconst.h
    356    649   6702 Board.h
-    54     82    803 Canvas.h
    187    367   3845 Contract.h
    101    210   2127 Deal.h
     59     89    865 Debug.h
@@ -77,3 +75,5 @@
     43     64    595 Bdiff.h
     35     71    588 Bexcept.cpp
     43     64    604 Bexcept.h
+    96    220   1647 Canvas.cpp
+    54     82    803 Canvas.h

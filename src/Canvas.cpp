@@ -78,18 +78,18 @@ string Canvas::str(const bool RECflag) const
   string str = "";
   for (unsigned i = 0; i < height; i++)
   {
-    int p = static_cast<int>(width) - 1;
-    while (p >= 0 && canvas[i].at(static_cast<unsigned>(p)) == ' ')
+    unsigned p = width;
+    while (p >= 1 && canvas[i].at(p-1) == ' ')
       p--;
-    if (p < 0)
+    if (p == 0)
     {
       str += "\n";
       continue;
     }
 
     // Needed for REC annoyance in the deal diagram (Voids).
-    unsigned num = static_cast<unsigned>(p+1);
-    if (RECflag && (p == 12 || p == 24))
+    unsigned num = p;
+    if (RECflag && (p == 13 || p == 25))
       num++;
 
     str += canvas[i].substr(0, num) + "\n";
