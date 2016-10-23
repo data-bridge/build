@@ -172,12 +172,14 @@ bool Segment::SetTitleLIN(const string& t)
   regex re1("^(.+)\\s+(\\w+)$");
   regex re2("^Segment\\s+\\d+$");
   regex re3("^Round\\s+\\d+$");
+  regex re4("^R(\\d+)$");
   smatch match1, match2;
   if (regex_search(v[0], match1, re1) && 
       match1.size() >= 2 &&
       seg.session.isRBNPart(match1.str(2)) &&
       (regex_search(v[1], match2, re2) ||
-       regex_search(v[1], match2, re3)))
+       regex_search(v[1], match2, re3) ||
+       v[1] == "Overtime"))
   {
     if (! Segment::SetTitle(match1.str(1), BRIDGE_FORMAT_RBN))
       return false;
@@ -190,19 +192,26 @@ bool Segment::SetTitleLIN(const string& t)
     seg.event = "";
     eventFlag = false;
   }
-  else
+  else if (regex_search(v[1], match2, re4))
   {
-    regex re4("^R(\\d+)$");
-    if (regex_search(v[1], match2, re4))
-    {
-      if (! Segment::SetTitle(v[0], BRIDGE_FORMAT_RBN))
-        return false;
-      if (! Segment::SetSession(v[1], BRIDGE_FORMAT_RBN))
-        return false;
-      seg.event = "";
-      eventFlag = false;
-    }
+    if (! Segment::SetTitle(v[0], BRIDGE_FORMAT_RBN))
+      return false;
+    if (! Segment::SetSession(v[1], BRIDGE_FORMAT_RBN))
+      return false;
+    seg.event = "";
+    eventFlag = false;
   }
+  /*
+  else if (v[1] == "Overtime")
+  {
+    if (! Segment::SetTitle(v[0], BRIDGE_FORMAT_RBN))
+      return false;
+    if (! Segment::SetSession(v[1], BRIDGE_FORMAT_RBN))
+      return false;
+    seg.event = "";
+    eventFlag = false;
+  }
+  */
 
   // See whether the title line contains extra information.
   seen = count(t.begin(), t.end(), '%');
