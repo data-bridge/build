@@ -88,10 +88,10 @@ unsigned Board::NewInstance()
     auction[numActive].CopyDealerVulFrom(auction[0]);
     contract[numActive].SetVul(auction[0].GetVul());
 
-    if (deal.IsSet())
+    if (deal.isSet())
     {
       unsigned cards[BRIDGE_PLAYERS][BRIDGE_SUITS];
-      if (deal.GetDDS(cards))
+      if (deal.getDDS(cards))
         play[numActive].SetHoldingDDS(cards);
     }
   }
@@ -196,13 +196,12 @@ bool Board::SetDeal(
     return true;
   }
 
-  if (! deal.Set(s, f))
-    return false;
+  deal.set(s, f);
 
   if (numActive == 0)
   {
     unsigned cards[BRIDGE_PLAYERS][BRIDGE_SUITS];
-    if (! deal.GetDDS(cards))
+    if (! deal.getDDS(cards))
       return false;
 
     if (! play[0].SetHoldingDDS(cards))
@@ -220,18 +219,21 @@ bool Board::SetDeal(
 }
 
 
+/*
 bool Board::SetDeal(
   const string cards[][BRIDGE_SUITS],
   const formatType f)
 {
-  return deal.Set(cards, f);
+  deal.set(cards, f);
+  return true;
 }
+*/
 
 
 bool Board::GetDealDDS(
   unsigned cards[][BRIDGE_SUITS]) const
 {
-  return deal.GetDDS(cards);
+  return deal.getDDS(cards);
 }
 
 
@@ -653,7 +655,7 @@ string Board::DealAsString(
   const playerType start,
   const formatType f) const
 {
-  return deal.AsString(start, f);
+  return deal.str(start, f);
 }
 
 

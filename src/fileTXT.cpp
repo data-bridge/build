@@ -316,7 +316,6 @@ static bool getTXTDeal(
   if (! ReadNextSpacedWord(canvas[offset+14], 14, stc)) stc = "";
   d << sts << "." << sth <<  "." << std << "." << stc;
 
-
   // Turn -- (void) into nothing.
   regex re("--");
   chunk[BRIDGE_FORMAT_DEAL] = regex_replace(d.str(), re, "");

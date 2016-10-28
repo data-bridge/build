@@ -101,9 +101,11 @@ class Board
       const string& s,
       const formatType f);
       
+    /*
     bool SetDeal(
       const string cardsArg[][BRIDGE_SUITS],
       const formatType f);
+      */
 
     bool GetDealDDS(
       unsigned cards[][BRIDGE_SUITS]) const;

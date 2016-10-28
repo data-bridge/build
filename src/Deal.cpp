@@ -7,45 +7,44 @@
 */
 
 
-#include <algorithm>
 #include <map>
-#include <stdio.h>
-#include <string.h>
 
 #include "Deal.h"
-#include "Bexcept.h"
 #include "parse.h"
+#include "Bexcept.h"
+#include "Bdiff.h"
 
 
 // DDS encoding, but without the two bottom 00 bits: ((2 << 13) - 1)
 
 #define MAX_HOLDING 0x1fff
 
-const string CARDS[BRIDGE_TRICKS] =
+static const string CARDS[BRIDGE_TRICKS] =
 {
   "2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K", "A"
 };
 
-const string CARDS_TXT[BRIDGE_TRICKS] =
+static const string CARDS_TXT[BRIDGE_TRICKS] =
 {
   "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"
 };
 
 
-bool setDealTables = false;
-string HOLDING_TO_SUIT[MAX_HOLDING+1];
-string HOLDING_TO_SUIT_TXT[MAX_HOLDING+1];
-map<string, unsigned> SUIT_TO_HOLDING;
-map<string, playerType> PLAYER_TO_DDS;
+// Global translation tables that are set once and for all.
+static bool setDealTables = false;
+static string HOLDING_TO_SUIT[MAX_HOLDING+1];
+static string HOLDING_TO_SUIT_TXT[MAX_HOLDING+1];
+static map<string, unsigned> SUIT_TO_HOLDING;
+static map<string, playerType> PLAYER_TO_DDS;
 
 
 Deal::Deal()
 {
-  Deal::Reset();
+  Deal::reset();
   if (! setDealTables)
   {
     setDealTables = true;
-    Deal::SetTables();
+    Deal::setTables();
   }
 }
 
@@ -55,13 +54,13 @@ Deal::~Deal()
 }
 
 
-void Deal::Reset()
+void Deal::reset()
 {
   setFlag = false;
 }
 
 
-void Deal::SetTables()
+void Deal::setTables()
 {
   for (unsigned h = 0; h <= MAX_HOLDING; h++)
   {
@@ -87,39 +86,33 @@ void Deal::SetTables()
 }
 
 
-bool Deal::IsSet() const
+bool Deal::isSet() const
 {
   return setFlag;
 }
 
 
-bool Deal::StringToPlayer(
-  const string& s,
-  unsigned& p) const
+Player Deal::strToPlayer(const string& text) const
 {
-  map<string, playerType>::iterator it = PLAYER_TO_DDS.find(s);
+  auto it = PLAYER_TO_DDS.find(text);
   if (it == PLAYER_TO_DDS.end())
-    THROW("No such player: '" + s + "'");
+    THROW("No such player: '" + text + "'");
 
-  p = static_cast<unsigned>(PLAYER_TO_DDS[s]);
-  return true;
+  return PLAYER_TO_DDS[text]; // TODO: Use iterator?
 }
 
 
-bool Deal::SetCards(
-  const string suit,
-  unsigned& res) const
+unsigned Deal::suitToHolding(const string suit) const
 {
-  map<string, unsigned>::iterator it = SUIT_TO_HOLDING.find(suit);
+  auto it = SUIT_TO_HOLDING.find(suit);
   if (it == SUIT_TO_HOLDING.end())
     THROW("No such suit: '" + suit + "'");
 
-  res = SUIT_TO_HOLDING[suit];
-  return true;
+  return SUIT_TO_HOLDING[suit]; // TODO: Use iterator?
 }
 
 
-bool Deal::SetHand(
+void Deal::setHand(
   const string& hand,
   const string& delimiters,
   const unsigned offset,
@@ -137,14 +130,11 @@ bool Deal::SetHand(
   tokenize(hand, suits, delimiters);
 
   for (unsigned s = 0; s < BRIDGE_SUITS; s++)
-    if (! Deal::SetCards(suits[s+offset], pholding[s]))
-      return false;
-
-  return true;
+    pholding[s] = suitToHolding(suits[s+offset]);
 }
 
 
-bool Deal::SetHands()
+void Deal::setHands()
 {
   for (unsigned s = 0; s < BRIDGE_SUITS; s++)
   {
@@ -158,11 +148,10 @@ bool Deal::SetHands()
     if (sum != MAX_HOLDING || xsum != MAX_HOLDING)
       THROW("Cards do not add up");
   }
-  return true;
 }
 
 
-bool Deal::SetLIN(const string& text)
+void Deal::setLIN(const string& text)
 {
   size_t c = countDelimiters(text, ",");
   if (c != 2 && c != 3)
@@ -184,157 +173,154 @@ bool Deal::SetLIN(const string& text)
     if (c != 4)
       THROW("Not 4 suits");
 
-    if (! Deal::SetHand(tokens[plin], "SHDC", 1, holding[p]))
-      return false;
+    Deal::setHand(tokens[plin], "SHDC", 1, holding[p]);
 
     for (unsigned s = 0; s < BRIDGE_SUITS; s++)
       holding[PLAYER_LIN_TO_DDS[3]][s] ^= holding[p][s];
   }
 
-  return Deal::SetHands();
+  Deal::setHands();
 }
 
 
-bool Deal::SetPBN(const string& s)
+void Deal::setPBN(const string& text)
 {
-  unsigned c = countDelimiters(s, ": ");
+  unsigned c = countDelimiters(text, ": ");
   if (c != 4)
-    THROW("Not 4 space delimiters in '" + s + "'");
+    THROW("Not 4 space delimiters in '" + text + "'");
 
   vector<string> tokens(BRIDGE_PLAYERS+1);
   tokens.clear();
-  tokenize(s, tokens, ": ");
+  tokenize(text, tokens, ": ");
 
-  unsigned first;
-  if (! Deal::StringToPlayer(tokens[0], first))
-    return false;
+  Player first = strToPlayer(tokens[0]);
 
   for (unsigned pno = 0; pno < BRIDGE_PLAYERS; pno++)
   {
-    unsigned p = (first + pno) % 4;
+    unsigned p = (static_cast<unsigned>(first) + pno) % 4;
 
     if (countDelimiters(tokens[pno+1], ".") != 3)
       THROW("Not 3 periods");
 
-    if (! Deal::SetHand(tokens[pno+1], ".", 0, holding[p]))
-      return false;
+    Deal::setHand(tokens[pno+1], ".", 0, holding[p]);
   }
 
-  return Deal::SetHands();
+  Deal::setHands();
 }
 
 
-bool Deal::SetRBN(const string& s)
+void Deal::setRBN(const string& text)
 {
-  size_t c = countDelimiters(s, ":");
+  size_t c = countDelimiters(text, ":");
   if (c != 3 && c != 4)
     THROW("Not 3 or 4 colons");
 
   vector<string> tokens(BRIDGE_PLAYERS+1);
   tokens.clear();
-  tokenize(s, tokens, ":");
+  tokenize(text, tokens, ":");
 
-  unsigned first;
-  if (! Deal::StringToPlayer(tokens[0], first))
-    return false;
+  const Player first = strToPlayer(tokens[0]);
+  const unsigned firstU = static_cast<unsigned>(first);
+
 
   // Last is derived, not given (it is re-derived even if given).
-  const unsigned last = (first + 3) % 4;
+  const unsigned last = (firstU + 3) % 4;
   for (unsigned suit = 0; suit < BRIDGE_SUITS; suit++)
     holding[last][suit] = MAX_HOLDING;
   
   for (unsigned pno = 0; pno <= 2; pno++)
   {
-    unsigned p = (first + pno) % 4;
+    unsigned p = (firstU + pno) % 4;
     if (countDelimiters(tokens[pno+1], ".") != 3)
       THROW("Not 3 periods");
 
-    if (! Deal::SetHand(tokens[pno+1], ".", 0, holding[p]))
-      return false;
+    Deal::setHand(tokens[pno+1], ".", 0, holding[p]);
 
     for (unsigned suit = 0; suit < BRIDGE_SUITS; suit++)
       holding[last][suit] ^= holding[p][suit];
   }
 
-  return Deal::SetHands();
+  Deal::setHands();
 }
 
 
-bool Deal::SetTXT(const string cardsArg[][BRIDGE_SUITS])
+/*
+// void Deal::setTXT(const string cardsArg[][BRIDGE_SUITS])
+void Deal::setTXT(const string text)
 {
-  // Might be better to pass in the 12 lines as a single string,
-  // and then parse them out here.  Unifies SetTXT with Set.
+  // TODO: pass in the 12 lines as a single string,
+  // and then parse them out here.  Unifies setTXT with set.
+  vector<string> lines;
+  ConvertMultilineToVector(text, lines);
+  string cardsArg[][BRIDGE_SUITS];
 
   for (unsigned plin = 0; plin < BRIDGE_PLAYERS; plin++)
     for (unsigned s = 0; s < BRIDGE_SUITS; s++)
-      if (! Deal::SetCards(cardsArg[plin][s], holding[plin][s]))
-        return false;
+      holding[plin][s] = Deal::suitToHolding(lines[BRIDGE_SUITS*plin + s]);
+      // holding[plin][s] = Deal::suitToHolding(cardsArg[plin][s]);
 
-  return Deal::SetHands();
+  Deal::setHands();
 }
+*/
 
 
-bool Deal::Set(
-  const string& s,
-  const formatType f)
+void Deal::set(
+  const string& text,
+  const Format format)
 {
-  if (s == "")
+  if (text == "")
     THROW("Empty text");
 
   if (setFlag)
     THROW("Already set");
 
   setFlag = true;
-  switch(f)
+  switch(format)
   {
     case BRIDGE_FORMAT_LIN:
-      return Deal::SetLIN(s);
+      Deal::setLIN(text);
+      break;
 
     case BRIDGE_FORMAT_PBN:
-    case BRIDGE_FORMAT_EML:
     case BRIDGE_FORMAT_TXT:
+    case BRIDGE_FORMAT_EML:
     case BRIDGE_FORMAT_REC:
-      return Deal::SetPBN(s);
+      Deal::setPBN(text);
+      break;
 
     case BRIDGE_FORMAT_RBN:
     case BRIDGE_FORMAT_RBX:
-      return Deal::SetRBN(s);
+      Deal::setRBN(text);
+      break;
 
     default:
-      THROW("Unacceptable format");
+      THROW("Invalid format:" + STR(format));
   }
 }
 
-
-bool Deal::Set(
+/*
+void Deal::set(
   const string cardsArg[][BRIDGE_SUITS],
-  const formatType f)
+  const Format format)
 {
   if (setFlag)
     THROW("Already set");
 
   setFlag = true;
-  switch(f)
+  switch(format)
   {
-    case BRIDGE_FORMAT_LIN:
-      THROW("LIN matrix set format not implemented");
-
-    case BRIDGE_FORMAT_PBN:
-      THROW("PBN matrix set format not implemented");
-
-    case BRIDGE_FORMAT_RBN:
-      THROW("RBN matrix set format not implemented");
-
     case BRIDGE_FORMAT_TXT:
-      return Deal::SetTXT(cardsArg);
+      Deal::setTXT(cardsArg);
+      break;
 
     default:
       THROW("Unacceptable format");
   }
 }
+*/
 
 
-bool Deal::GetDDS(unsigned holdingArg[][BRIDGE_SUITS]) const
+bool Deal::getDDS(unsigned holdingArg[][BRIDGE_SUITS]) const
 {
   if (! setFlag)
     THROW("Holding not set");
@@ -347,186 +333,143 @@ bool Deal::GetDDS(unsigned holdingArg[][BRIDGE_SUITS]) const
 }
 
 
-bool Deal::operator == (const Deal& b2) const
+bool Deal::operator == (const Deal& deal2) const
 {
-  if (setFlag != b2.setFlag)
+  if (setFlag != deal2.setFlag)
     THROW("Different setFlags");
 
-  if (! setFlag && ! b2.setFlag)
+  if (! setFlag && ! deal2.setFlag)
     return true;
   
   for (unsigned plin = 0; plin < BRIDGE_PLAYERS; plin++)
-  {
     for (unsigned s = 0; s < BRIDGE_SUITS; s++)
-    {
-      if (holding[plin][s] != b2.holding[plin][s])
+      if (holding[plin][s] != deal2.holding[plin][s])
         THROW("Different holdings");
-    }
-  }
+
   return true;
 }
 
 
-bool Deal::operator != (const Deal& b2) const
+bool Deal::operator != (const Deal& deal2) const
 {
-  return ! (* this == b2);
+  return ! (* this == deal2);
 }
 
 
-string Deal::AsLIN(
-  const playerType start) const
+string Deal::strLIN(const Player start) const
 {
   // This is an evil hack to get the cards printed in reverse order
   // while leaving everything else in the correct order.
   // Players are always in same order.
 
-  stringstream s;
-  s << ",";
+  stringstream ss;
+  ss << ",";
   for (unsigned p = 0; p <= 2; p++)
   {
     unsigned pdds = (4-p) % 4;
-    s << cards[pdds][BRIDGE_CLUBS] << "C" <<
+    ss << cards[pdds][BRIDGE_CLUBS] << "C" <<
          cards[pdds][BRIDGE_DIAMONDS] << "D" <<
          cards[pdds][BRIDGE_HEARTS] << "H" <<
          cards[pdds][BRIDGE_SPADES] << "S";
     if (p < 2)
-      s << ",";
+      ss << ",";
   }
-  s << PLAYER_DDS_TO_LIN_DEALER[start] << "|dm";
+  ss << PLAYER_DDS_TO_LIN_DEALER[start] << "|dm";
 
-  string st = s.str();
+  string st = ss.str();
   return string(st.rbegin(), st.rend()) + "|";
 }
 
 
-string Deal::AsLIN_VG(
-  const playerType start) const
+string Deal::strLIN_RP(const Player start) const
 {
-  stringstream s;
-  s << "md|" << PLAYER_DDS_TO_LIN_DEALER[start];
+  stringstream ss;
+  ss << "md|" << PLAYER_DDS_TO_LIN_DEALER[start];
+  
+  // Players are always in same order.
+  for (unsigned p = 0; p <= 2; p++)
+  {
+    unsigned pdds = PLAYER_LIN_TO_DDS[p];
+    for (unsigned d = 0; d < BRIDGE_SUITS; d++)
+      ss << DENOM_NAMES_SHORT[d] << cards[pdds][d];
+    if (p < 2)
+      ss << ",";
+  }
+    
+  return ss.str() + "|";
+}
+
+
+string Deal::strLIN_VG(const Player start) const
+{
+  stringstream ss;
+  ss << "md|" << PLAYER_DDS_TO_LIN_DEALER[start];
   
   // Players are always in same order.
   for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
   {
     unsigned pdds = (p+2) % 4;
-    s << "S" << cards[pdds][BRIDGE_SPADES] <<
-         "H" << cards[pdds][BRIDGE_HEARTS] <<
-         "D" << cards[pdds][BRIDGE_DIAMONDS] <<
-         "C" << cards[pdds][BRIDGE_CLUBS];
+    for (unsigned d = 0; d < BRIDGE_SUITS; d++)
+      ss << DENOM_NAMES_SHORT[d] << cards[pdds][d];
     if (p < 3)
-      s << ",";
+      ss << ",";
   }
     
-  return s.str() + "|";
+  return ss.str() + "|";
 }
 
 
-string Deal::AsLIN_RP(
-  const playerType start) const
+string Deal::strPBN(const Player start) const
 {
-  if (start < BRIDGE_NORTH || start > BRIDGE_WEST)
-    THROW("Bad start: " + STR(start));
-
-  stringstream s;
-  s << "md|" << PLAYER_DDS_TO_LIN_DEALER[start];
-  
-  // Players are always in same order.
-  for (unsigned p = 0; p <= 2; p++)
-  {
-    unsigned pdds = (p+2) % 4;
-    s << "S" << cards[pdds][BRIDGE_SPADES] <<
-         "H" << cards[pdds][BRIDGE_HEARTS] <<
-         "D" << cards[pdds][BRIDGE_DIAMONDS] <<
-         "C" << cards[pdds][BRIDGE_CLUBS];
-    if (p < 2)
-      s << ",";
-  }
-    
-  return s.str() + "|";
-}
-
-
-string Deal::AsPBN(const playerType start) const
-{
-  stringstream s;
-  s << "[Deal \"" << PLAYER_NAMES_SHORT[start] << ":";
+  stringstream ss;
+  ss << "[Deal \"" << PLAYER_NAMES_SHORT[start] << ":";
 
   // Players start from dealer.
   for (unsigned pno = 0; pno < BRIDGE_PLAYERS; pno++)
   {
     unsigned p = (static_cast<unsigned>(start) + pno) % 4;
-    s << cards[p][BRIDGE_SPADES] << "." <<
+    ss << cards[p][BRIDGE_SPADES] << "." <<
          cards[p][BRIDGE_HEARTS] << "." <<
          cards[p][BRIDGE_DIAMONDS] << "." <<
          cards[p][BRIDGE_CLUBS];
     if (pno < 3)
-      s << " ";
+      ss << " ";
   }
-  return s.str() + "\"]\n";
+  return ss.str() + "\"]\n";
 }
 
 
-string Deal::AsRBNCore(const playerType start) const
+string Deal::strRBNCore(const Player start) const
 {
-  stringstream s;
-  s << PLAYER_NAMES_SHORT[start] << ":";
+  stringstream ss;
+  ss << PLAYER_NAMES_SHORT[start] << ":";
 
   // Players start from here.
   for (unsigned pno = 0; pno <= 2; pno++)
   {
     unsigned p = (static_cast<unsigned>(start) + pno) % 4;
-    s << cards[p][BRIDGE_SPADES] << "." <<
+    ss << cards[p][BRIDGE_SPADES] << "." <<
          cards[p][BRIDGE_HEARTS] << "." <<
          cards[p][BRIDGE_DIAMONDS] << "." <<
          cards[p][BRIDGE_CLUBS] << ":";
   }
-  return s.str();
+  return ss.str();
 }
 
 
-string Deal::AsRBN(const playerType start) const
+string Deal::strRBN(const Player start) const
 {
-  return "H " + Deal::AsRBNCore(start) + "\n";
+  return "H " + Deal::strRBNCore(start) + "\n";
 }
 
 
-string Deal::AsRBX(const playerType start) const
+string Deal::strRBX(const Player start) const
 {
-  return "H{" + Deal::AsRBNCore(start) + "}";
+  return "H{" + Deal::strRBNCore(start) + "}";
 }
 
 
-string Deal::AsEML() const
-{
-  stringstream t;
-  t << setw(12) << "" << "north\n\n";
-  for (unsigned s = 0; s < BRIDGE_SUITS; s++)
-  {
-    t << setw(12) << "" << DENOM_NAMES_SHORT[s] << " " <<
-      (holding[BRIDGE_NORTH][s] == 0 ? "" : cards[BRIDGE_NORTH][s]) << "\n";
-  }
-
-  t << setw(23) << left << "west" << "east\n\n";
-
-  for (unsigned s = 0; s < BRIDGE_SUITS; s++)
-  {
-    t << DENOM_NAMES_SHORT[s] << " " << setw(21) << left << 
-      (holding[BRIDGE_WEST][s] == 0 ? "" : cards[BRIDGE_WEST][s]) <<
-      DENOM_NAMES_SHORT[s] << " " << setw(13) << left <<
-      (holding[BRIDGE_EAST][s] == 0 ? "" : cards[BRIDGE_EAST][s]) << "\n";
-  }
-
-  t << setw(12) << "" << "south\n\n";
-  for (unsigned s = 0; s < BRIDGE_SUITS; s++)
-  {
-    t << setw(12) << "" << DENOM_NAMES_SHORT[s] << " " <<
-      (holding[BRIDGE_SOUTH][s] == 0 ? "" : cards[BRIDGE_SOUTH][s]) << "\n";
-  }
-  return t.str();
-}
-
-
-string Deal::AsTXT() const
+string Deal::strTXT() const
 {
   stringstream t;
   stringstream u;
@@ -565,7 +508,41 @@ string Deal::AsTXT() const
 }
 
 
-string Deal::AsRECDetail(
+string Deal::strEML() const
+{
+  stringstream ss;
+  ss << setw(12) << "" << "north\n\n";
+  for (unsigned s = 0; s < BRIDGE_SUITS; s++)
+  {
+    ss << setw(12) << "" << DENOM_NAMES_SHORT[s] << " " <<
+      cards[BRIDGE_NORTH][s] << "\n";
+      // (holding[BRIDGE_NORTH][s] == 0 ? "" : cards[BRIDGE_NORTH][s]) << "\n";
+  }
+
+  ss << setw(23) << left << "west" << "east\n\n";
+
+  for (unsigned s = 0; s < BRIDGE_SUITS; s++)
+  {
+    ss << DENOM_NAMES_SHORT[s] << " " << setw(21) << left << 
+      cards[BRIDGE_WEST][s] <<
+      // (holding[BRIDGE_WEST][s] == 0 ? "" : cards[BRIDGE_WEST][s]) <<
+      DENOM_NAMES_SHORT[s] << " " << setw(13) << left <<
+      cards[BRIDGE_EAST][s] << "\n";
+      // (holding[BRIDGE_EAST][s] == 0 ? "" : cards[BRIDGE_EAST][s]) << "\n";
+  }
+
+  ss << setw(12) << "" << "south\n\n";
+  for (unsigned s = 0; s < BRIDGE_SUITS; s++)
+  {
+    ss << setw(12) << "" << DENOM_NAMES_SHORT[s] << " " <<
+      cards[BRIDGE_SOUTH][s] << "\n";
+      // (holding[BRIDGE_SOUTH][s] == 0 ? "" : cards[BRIDGE_SOUTH][s]) << "\n";
+  }
+  return ss.str();
+}
+
+
+string Deal::strRECDetail(
   const playerType midPlayer,
   const unsigned LRsuit,
   const unsigned mSuit) const
@@ -573,90 +550,97 @@ string Deal::AsRECDetail(
   stringstream s;
 
   s << DENOM_NAMES_SHORT[LRsuit] << " " << setw(10) << left <<
-      (holding[BRIDGE_WEST][LRsuit] == 0 ? "" : cards[BRIDGE_WEST][LRsuit]);
+      cards[BRIDGE_WEST][LRsuit];
+      // (holding[BRIDGE_WEST][LRsuit] == 0 ? "" : cards[BRIDGE_WEST][LRsuit]);
 
   s << DENOM_NAMES_SHORT[mSuit] << " " << setw(10) << left <<
-      (holding[midPlayer][mSuit] == 0 ? "" : cards[midPlayer][mSuit]);
+      cards[midPlayer][mSuit];
+      // (holding[midPlayer][mSuit] == 0 ? "" : cards[midPlayer][mSuit]);
 
   s << DENOM_NAMES_SHORT[LRsuit] << " " << setw(10) << left <<
-      (holding[BRIDGE_EAST][LRsuit] == 0 ? "" : cards[BRIDGE_EAST][LRsuit]);
+      cards[BRIDGE_EAST][LRsuit];
+      // (holding[BRIDGE_EAST][LRsuit] == 0 ? "" : cards[BRIDGE_EAST][LRsuit]);
   
   return s.str();
 }
 
-string Deal::AsREC() const
+string Deal::strREC() const
 {
   stringstream t;
   t <<  "\n";
   for (unsigned s = 0; s < BRIDGE_SUITS-1; s++)
   {
     t << setw(12) << "" << DENOM_NAMES_SHORT[s] << " " <<
-      (holding[BRIDGE_NORTH][s] == 0 ? "" : cards[BRIDGE_NORTH][s]) << "\n";
+      cards[BRIDGE_NORTH][s] << "\n";
+      // (holding[BRIDGE_NORTH][s] == 0 ? "" : cards[BRIDGE_NORTH][s]) << "\n";
   }
 
-  t << Deal::AsRECDetail(BRIDGE_NORTH, BRIDGE_SPADES, BRIDGE_CLUBS) << "\n";
+  t << Deal::strRECDetail(BRIDGE_NORTH, BRIDGE_SPADES, BRIDGE_CLUBS) << "\n";
 
 
   for (unsigned s = 1; s < BRIDGE_SUITS-1; s++)
   {
     t << DENOM_NAMES_SHORT[s] << " " << setw(22) << left <<
-        (holding[BRIDGE_WEST][s] == 0 ? "" : cards[BRIDGE_WEST][s]);
+        cards[BRIDGE_WEST][s];
+        // (holding[BRIDGE_WEST][s] == 0 ? "" : cards[BRIDGE_WEST][s]);
 
     t << DENOM_NAMES_SHORT[s] << " " << setw(10) << left <<
-        (holding[BRIDGE_EAST][s] == 0 ? "" : cards[BRIDGE_EAST][s]) << "\n";
+        cards[BRIDGE_EAST][s] << "\n";
+        // (holding[BRIDGE_EAST][s] == 0 ? "" : cards[BRIDGE_EAST][s]) << "\n";
   }
 
-  t << Deal::AsRECDetail(BRIDGE_SOUTH, BRIDGE_CLUBS, BRIDGE_SPADES) << "\n";
+  t << Deal::strRECDetail(BRIDGE_SOUTH, BRIDGE_CLUBS, BRIDGE_SPADES) << "\n";
 
   for (unsigned s = 1; s < BRIDGE_SUITS; s++)
   {
     t << setw(12) << "" << DENOM_NAMES_SHORT[s] << " " <<
-      (holding[BRIDGE_SOUTH][s] == 0 ? "" : cards[BRIDGE_SOUTH][s]) << "\n";
+      cards[BRIDGE_SOUTH][s] << "\n";
+      // (holding[BRIDGE_SOUTH][s] == 0 ? "" : cards[BRIDGE_SOUTH][s]) << "\n";
   }
 
   return t.str();
 }
 
 
-string Deal::AsString(
-  const playerType start,
-  const formatType f) const
+string Deal::str(
+  const Player start,
+  const Format format) const
 {
   if (! setFlag)
     THROW("Not set");
 
-  switch(f)
+  switch(format)
   {
     case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_LIN_TRN:
-      return "st||" + Deal::AsLIN(start) + "rh||";
+      return "st||" + Deal::strLIN(start) + "rh||";
 
     case BRIDGE_FORMAT_LIN_VG:
-      return "st||" + Deal::AsLIN_VG(start);
+      return "st||" + Deal::strLIN_VG(start);
 
     case BRIDGE_FORMAT_LIN_RP:
-      return Deal::AsLIN_RP(start);
+      return Deal::strLIN_RP(start);
 
     case BRIDGE_FORMAT_PBN:
-      return Deal::AsPBN(start);
+      return Deal::strPBN(start);
 
     case BRIDGE_FORMAT_RBN:
-      return Deal::AsRBN(start);
+      return Deal::strRBN(start);
 
     case BRIDGE_FORMAT_RBX:
-      return Deal::AsRBX(start);
-
-    case BRIDGE_FORMAT_EML:
-      return Deal::AsEML();
+      return Deal::strRBX(start);
 
     case BRIDGE_FORMAT_TXT:
-      return Deal::AsTXT();
+      return Deal::strTXT();
+
+    case BRIDGE_FORMAT_EML:
+      return Deal::strEML();
 
     case BRIDGE_FORMAT_REC:
-      return Deal::AsREC();
+      return Deal::strREC();
 
     default:
-      THROW("Other plain deal formats not implemented");
+      THROW("Deal format not implemented: " + STR(format));
   }
 }
 

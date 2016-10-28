@@ -28,43 +28,40 @@ class Deal
     unsigned holding[BRIDGE_PLAYERS][BRIDGE_SUITS];
     char cards[BRIDGE_PLAYERS][BRIDGE_SUITS][BRIDGE_TRICKS];
 
-    void SetTables();
 
-    bool StringToPlayer(
-      const string& s,
-      unsigned& p) const;
+    void setTables();
 
-    bool SetCards(
-      const string suit,
-      unsigned& res) const;
+    Player strToPlayer(const string& s) const;
 
-    bool SetHand(
+    unsigned suitToHolding(const string suit) const;
+
+    void setHand(
       const string& hand,
       const string& delimiters,
       const unsigned offset,
       unsigned pholding[]);
 
-    bool SetHands();
+    void setHands();
 
-    bool SetLIN(const string& s);
-    bool SetPBN(const string& s);
-    bool SetRBN(const string& s);
-    bool SetTXT(const string cardsArg[][BRIDGE_SUITS]);
+    void setLIN(const string& text);
+    void setPBN(const string& text);
+    void setRBN(const string& text);
+    // void setTXT(const string cardsArg[][BRIDGE_SUITS]);
 
-    string AsLIN(const playerType start) const;
-    string AsLIN_VG(const playerType start) const;
-    string AsLIN_RP(const playerType start) const;
-    string AsPBN(const playerType start) const;
-    string AsRBNCore(const playerType start) const;
-    string AsRBN(const playerType start) const;
-    string AsRBX(const playerType start) const;
-    string AsEML() const;
-    string AsTXT() const;
-    string AsRECDetail(
-      const playerType midPlayer,
+    string strLIN(const Player start) const;
+    string strLIN_RP(const Player start) const;
+    string strLIN_VG(const Player start) const;
+    string strPBN(const Player start) const;
+    string strRBNCore(const Player start) const;
+    string strRBN(const Player start) const;
+    string strRBX(const Player start) const;
+    string strTXT() const;
+    string strEML() const;
+    string strRECDetail(
+      const Player midPlayer,
       const unsigned LRsuit,
       const unsigned mSuit) const;
-    string AsREC() const;
+    string strREC() const;
 
 
   public:
@@ -73,28 +70,29 @@ class Deal
 
     ~Deal();
 
-    void Reset();
+    void reset();
 
-    bool IsSet() const;
+    bool isSet() const;
 
-    bool Set(
+    void set(
       const string& s,
-      const formatType f = BRIDGE_FORMAT_LIN);
+      const formatType);
 
-    bool Set(
+    /*
+    void set(
       const string cardsArg[][BRIDGE_SUITS],
-      const formatType f = BRIDGE_FORMAT_LIN);
+      const formatType);
+      */
 
-    bool GetDDS(unsigned cards[][BRIDGE_SUITS]) const;
+    bool getDDS(unsigned cards[][BRIDGE_SUITS]) const;
 
-    bool operator == (const Deal& d2) const;
+    bool operator == (const Deal& deal2) const;
 
-    bool operator != (const Deal& d2) const;
+    bool operator != (const Deal& deal2) const;
 
-    string AsString(
-      const playerType start = BRIDGE_NORTH,
-      const formatType f = BRIDGE_FORMAT_LIN) const;
-
+    string str(
+      const Player start,
+      const Format format) const;
 };
 
 #endif
