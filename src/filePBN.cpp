@@ -25,6 +25,12 @@ using namespace std;
 map<string, formatLabelType> PBNmap;
 
 
+void writePBNSegmentLevel(
+  ofstream& fstr,
+  Segment * segment,
+  const formatType f);
+
+
 void setPBNTables()
 {
   PBNmap["Description"] = BRIDGE_FORMAT_TITLE;

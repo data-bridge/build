@@ -345,7 +345,7 @@ static void getRECPlay(
   }
 
   regex re(" ");
-  chunk[BRIDGE_FORMAT_PLAY] = regex_replace(d.str(), re, "");
+  chunk[BRIDGE_FORMAT_PLAY] = regex_replace(d.str(), re, string(""));
 }
 
 

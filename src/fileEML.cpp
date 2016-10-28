@@ -440,7 +440,7 @@ bool readEMLChunk(
   unsigned openingLine = 0;
   unsigned westLine = 0;
   unsigned cardStart = 0;
-  bool playIsPresent;
+  bool playIsPresent = false;
   if (! getEMLCanvasOffset(canvas, openingLine, 
       westLine, playIsPresent, cardStart))
     return false;

@@ -8,6 +8,7 @@
 
 
 #include <vector>
+#include <algorithm>
 
 #include "Tableau.h"
 #include "Contract.h"

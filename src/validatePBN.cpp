@@ -23,6 +23,11 @@
 
 bool isPBNSite(
   const string& lineOut,
+  const string& lineRef);
+
+
+bool isPBNSite(
+  const string& lineOut,
   const string& lineRef)
 {
   regex re("^\\[(\\w+)\\s+\"(.*)\"\\]$");
@@ -40,7 +45,8 @@ bool validatePBN(
   ifstream& frstr,
   ifstream& fostr,
   ValExample& running,
-  ValFileStats& stats)
+  ValProfile& prof)
+  // ValFileStats& stats)
 {
   if (running.out.line == "*")
   {
@@ -51,12 +57,14 @@ bool validatePBN(
 
     if (frstr.eof())
     {
-      valError(stats, running, BRIDGE_VAL_REF_SHORT);
+      // valError(stats, running, BRIDGE_VAL_REF_SHORT);
+      prof.log(BRIDGE_VAL_REF_SHORT, running);
       return false;
     }
     else
     {
-      valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
+      // valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
+      prof.log(BRIDGE_VAL_PLAY_SHORT, running);
       return true;
     }
   }
@@ -77,12 +85,14 @@ bool validatePBN(
       if (running.ref.line.substr(0, poso) ==
           running.out.line.substr(0, poso))
       {
-        valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
+        // valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
+        prof.log(BRIDGE_VAL_PLAY_SHORT, running);
         return true;
       }
       else
       {
-        valError(stats, running, BRIDGE_VAL_ERROR);
+        // valError(stats, running, BRIDGE_VAL_ERROR);
+        prof.log(BRIDGE_VAL_ERROR, running);
         return false;
       }
     }
@@ -99,17 +109,23 @@ bool validatePBN(
     const string refValue = match.str(2);
 
     if (refField == "Event")
-      valError(stats, running, BRIDGE_VAL_EVENT);
+      // valError(stats, running, BRIDGE_VAL_EVENT);
+      prof.log(BRIDGE_VAL_EVENT, running);
     else if (refField == "Date")
-      valError(stats, running, BRIDGE_VAL_DATE);
+      // valError(stats, running, BRIDGE_VAL_DATE);
+      prof.log(BRIDGE_VAL_DATE, running);
     else if (refField == "Description")
-      valError(stats, running, BRIDGE_VAL_TITLE);
+      // valError(stats, running, BRIDGE_VAL_TITLE);
+      prof.log(BRIDGE_VAL_TITLE, running);
     else if (refField == "Stage")
-      valError(stats, running, BRIDGE_VAL_SESSION);
+      // valError(stats, running, BRIDGE_VAL_SESSION);
+      prof.log(BRIDGE_VAL_SESSION, running);
     else if (refField == "HomeTeam")
-      valError(stats, running, BRIDGE_VAL_TEAMS);
+      // valError(stats, running, BRIDGE_VAL_TEAMS);
+      prof.log(BRIDGE_VAL_TEAMS, running);
     else if (refField == "VisitTeam")
-      valError(stats, running, BRIDGE_VAL_TEAMS);
+      // valError(stats, running, BRIDGE_VAL_TEAMS);
+      prof.log(BRIDGE_VAL_TEAMS, running);
     else if (refField == "Play")
     {
       // Play may be completely absent.
@@ -121,17 +137,20 @@ bool validatePBN(
       {
         if (! valProgress(frstr, running.ref))
         {
-          valError(stats, running, BRIDGE_VAL_REF_SHORT);
+          // valError(stats, running, BRIDGE_VAL_REF_SHORT);
+          prof.log(BRIDGE_VAL_REF_SHORT, running);
           return false;
         }
 
         if (running.ref.line.length() == 0)
         {
-          valError(stats, running, BRIDGE_VAL_ERROR);
+          // valError(stats, running, BRIDGE_VAL_ERROR);
+          prof.log(BRIDGE_VAL_ERROR, running);
           return false;
         }
 
-        valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
+        // valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
+        prof.log(BRIDGE_VAL_PLAY_SHORT, running);
         if (running.ref.line.substr(0, 1) == "[")
           break;
       }
@@ -143,7 +162,8 @@ bool validatePBN(
 
     if (! valProgress(frstr, running.ref))
     {
-      valError(stats, running, BRIDGE_VAL_REF_SHORT);
+      // valError(stats, running, BRIDGE_VAL_REF_SHORT);
+      prof.log(BRIDGE_VAL_REF_SHORT, running);
       return false;
     }
 
@@ -165,13 +185,15 @@ bool validatePBN(
 // cout << "ref match '" << refValue << "'" << endl;
 // cout << "out match '" << matchOut.str(2) << "'" << endl;
 // cout << "substr '" << refValue.substr(0, lOut) << "'" << endl;
-      valError(stats, running, BRIDGE_VAL_ERROR);
+      // valError(stats, running, BRIDGE_VAL_ERROR);
+      prof.log(BRIDGE_VAL_ERROR, running);
       return false;
     }
 
     if (! valProgress(fostr, running.out))
     {
-      valError(stats, running, BRIDGE_VAL_OUT_SHORT);
+      // valError(stats, running, BRIDGE_VAL_OUT_SHORT);
+      prof.log(BRIDGE_VAL_OUT_SHORT, running);
       return false;
     }
 
@@ -182,7 +204,8 @@ bool validatePBN(
 
   if (isPBNSite(running.out.line, running.ref.line))
   {
-    valError(stats, running, BRIDGE_VAL_LOCATION);
+    // valError(stats, running, BRIDGE_VAL_LOCATION);
+    prof.log(BRIDGE_VAL_LOCATION, running);
     return true;
   }
 
@@ -200,7 +223,8 @@ bool validatePBN(
     if (lOut < match.str(2).length() &&
         match.str(2).substr(0, lOut) == matchOut.str(2))
     {
-      valError(stats, running, BRIDGE_VAL_NAMES_SHORT);
+      // valError(stats, running, BRIDGE_VAL_NAMES_SHORT);
+      prof.log(BRIDGE_VAL_NAMES_SHORT, running);
       return true;
     }
   }

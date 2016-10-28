@@ -63,11 +63,11 @@ Segment * Group::make()
 
 unsigned Group::count() 
 {
-  unsigned count = 0;
+  unsigned cnt = 0;
   for (auto &segment: segments)
-    count += segment.count();
+    cnt += segment.count();
 
-  return count;
+  return cnt;
 }
 
 

@@ -20,6 +20,13 @@
 #include "validateTXT.h"
 #include "parse.h"
 
+bool isTXTHeader(
+  ifstream& frstr,
+  ifstream& fostr,
+  ValExample& running, 
+  const unsigned & headerStartTXT, 
+  ValProfile& prof);
+
 
 static bool isTXTAllPass(
   const string& lineOut,
@@ -173,7 +180,7 @@ static bool areTXTSimilarResults(
 }
 
 
-static const vector<ValDiffs> headerErrorType =
+static const vector<ValError> headerErrorType =
 {
   BRIDGE_VAL_TITLE, 
   BRIDGE_VAL_ERROR, // Unused
@@ -190,7 +197,8 @@ bool isTXTHeader(
   ifstream& fostr,
   ValExample& running, 
   const unsigned & headerStartTXT, 
-  ValFileStats& stats)
+  ValProfile& prof)
+  // ValFileStats& stats)
 {
   // Make a list of output header lines (absolute position known).
   vector<string> listOut(7);
@@ -205,7 +213,8 @@ bool isTXTHeader(
 
     if (! valProgress(fostr, running.out))
     {
-      valError(stats, running, BRIDGE_VAL_OUT_SHORT);
+      // valError(stats, running, BRIDGE_VAL_OUT_SHORT);
+      prof.log(BRIDGE_VAL_OUT_SHORT, running);
       return false;
     }
   }
@@ -213,7 +222,8 @@ bool isTXTHeader(
   // Reading the rest of the out header should leave us at an empty line.
   if (running.out.line != "")
   {
-    valError(stats, running, BRIDGE_VAL_ERROR);
+    // valError(stats, running, BRIDGE_VAL_ERROR);
+    prof.log(BRIDGE_VAL_ERROR, running);
     return false;
   }
 
@@ -228,7 +238,8 @@ bool isTXTHeader(
     listRef.push_back(running.ref.line);
     if (! valProgress(frstr, running.ref))
     {
-      valError(stats, running, BRIDGE_VAL_REF_SHORT);
+      // valError(stats, running, BRIDGE_VAL_REF_SHORT);
+      prof.log(BRIDGE_VAL_REF_SHORT, running);
       return false;
     }
 
@@ -237,13 +248,15 @@ bool isTXTHeader(
       // Expect a newline.
       if (running.ref.line != "")
       {
-        valError(stats, running, BRIDGE_VAL_ERROR);
+        // valError(stats, running, BRIDGE_VAL_ERROR);
+        prof.log(BRIDGE_VAL_ERROR, running);
         return false;
       }
 
       if (! valProgress(frstr, running.ref))
       {
-        valError(stats, running, BRIDGE_VAL_REF_SHORT);
+        // valError(stats, running, BRIDGE_VAL_REF_SHORT);
+        prof.log(BRIDGE_VAL_REF_SHORT, running);
         return false;
       }
       i++;
@@ -259,7 +272,8 @@ bool isTXTHeader(
       continue;
     else if (listOut[i] != listRef[r])
     {
-      valError(stats, running, headerErrorType[i]);
+      // valError(stats, running, headerErrorType[i]);
+      prof.log(headerErrorType[i], running);
     }
     r++;
   }
@@ -272,7 +286,8 @@ bool validateTXT(
   ifstream& fostr,
   ValExample& running,
   const unsigned& headerStartTXT,
-  ValFileStats& stats)
+  ValProfile& prof)
+  // ValFileStats& stats)
 {
   // emptyState is a bit of a kludge to attempt to detect the empty
   // lines (as there is no contextual information in a TXT file).
@@ -284,13 +299,15 @@ bool validateTXT(
     // Reference does not have "All Pass" (Pavlicek error).
     if (expectPasses > 0 && ! valProgress(frstr, running.ref))
     {
-      valError(stats, running, BRIDGE_VAL_OUT_SHORT);
+      // valError(stats, running, BRIDGE_VAL_OUT_SHORT);
+      prof.log(BRIDGE_VAL_OUT_SHORT, running);
       return false;
     }
 
     if (expectPasses == 0 || isTXTPasses(running.ref.line, expectPasses))
     {
-      valError(stats, running, BRIDGE_VAL_TXT_ALL_PASS);
+      // valError(stats, running, BRIDGE_VAL_TXT_ALL_PASS);
+      prof.log(BRIDGE_VAL_TXT_ALL_PASS, running);
       return true;
     }
     else
@@ -302,14 +319,16 @@ bool validateTXT(
   {
     if (! valProgress(frstr, running.ref))
     {
-      valError(stats, running, BRIDGE_VAL_REF_SHORT);
+      // valError(stats, running, BRIDGE_VAL_REF_SHORT);
+      prof.log(BRIDGE_VAL_REF_SHORT, running);
       return false;
     }
 
     if (running.ref.line != "")
       return false;
 
-    valError(stats, running, BRIDGE_VAL_TXT_DASHES);
+    // valError(stats, running, BRIDGE_VAL_TXT_DASHES);
+    prof.log(BRIDGE_VAL_TXT_DASHES, running);
     return true;
   }
 
@@ -317,15 +336,18 @@ bool validateTXT(
   {
     if (! valProgress(frstr, running.ref))
     {
-      valError(stats, running, BRIDGE_VAL_REF_SHORT);
+      // valError(stats, running, BRIDGE_VAL_REF_SHORT);
+      prof.log(BRIDGE_VAL_REF_SHORT, running);
       return false;
     }
-    valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
+    // valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
+    prof.log(BRIDGE_VAL_PLAY_SHORT, running);
   }
 
   if (frstr.eof())
   {
-    valError(stats, running, BRIDGE_VAL_REF_SHORT);
+    // valError(stats, running, BRIDGE_VAL_REF_SHORT);
+    prof.log(BRIDGE_VAL_REF_SHORT, running);
     return false;
   }
 
@@ -338,7 +360,8 @@ bool validateTXT(
       running.ref.line == "Trick   Lead    2nd    3rd    4th")
   {
     // Play is missing from output, but lead is stated.
-    valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
+    // valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
+    prof.log(BRIDGE_VAL_PLAY_SHORT, running);
     return true;
   }
 
@@ -346,7 +369,8 @@ bool validateTXT(
       isTXTResult(running.ref.line) &&
       areTXTSimilarResults(running.out.line, running.ref.line))
   {
-    valError(stats, running, BRIDGE_VAL_TXT_RESULT);
+    // valError(stats, running, BRIDGE_VAL_TXT_RESULT);
+    prof.log(BRIDGE_VAL_TXT_RESULT, running);
     return true;
   }
 
@@ -354,18 +378,20 @@ bool validateTXT(
   {
     if (isTXTRunningScore(running.ref.line))
     {
-      valError(stats, running, BRIDGE_VAL_TEAMS);
+      // valError(stats, running, BRIDGE_VAL_TEAMS);
+      prof.log(BRIDGE_VAL_TEAMS, running);
       return true;
     }
     else if (running.out.lno <= headerStartTXT + 6)
     {
-      if (! isTXTHeader(frstr, fostr, running, headerStartTXT, stats))
+      if (! isTXTHeader(frstr, fostr, running, headerStartTXT, prof))
         return false;
       else if (running.out.line == running.ref.line)
         return true;
       else
       {
-        valError(stats, running, BRIDGE_VAL_TEAMS);
+        // valError(stats, running, BRIDGE_VAL_TEAMS);
+        prof.log(BRIDGE_VAL_TEAMS, running);
         return false;
       }
     }
@@ -392,7 +418,8 @@ bool validateTXT(
 
     if (! diffSeen)
     {
-      valError(stats, running, BRIDGE_VAL_NAMES_SHORT);
+      // valError(stats, running, BRIDGE_VAL_NAMES_SHORT);
+      prof.log(BRIDGE_VAL_NAMES_SHORT, running);
       return true;
     }
 
@@ -417,7 +444,8 @@ bool validateTXT(
         return false;
       }
     }
-    valError(stats, running, BRIDGE_VAL_NAMES_SHORT);
+    // valError(stats, running, BRIDGE_VAL_NAMES_SHORT);
+    prof.log(BRIDGE_VAL_NAMES_SHORT, running);
     return true;
   }
 

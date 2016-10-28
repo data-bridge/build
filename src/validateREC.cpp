@@ -160,18 +160,21 @@ bool validateREC(
   ifstream& frstr,
   ifstream& fostr,
   ValExample& running,
-  ValFileStats& stats)
+  ValProfile& prof)
+  // ValFileStats& stats)
 {
   if (running.ref.line == "")
   {
     while (isRECPlay(running.out.line))
     {
       // Extra play line in output (not in ref!) (Pavlicek error).
-      valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
+      // valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
+      prof.log(BRIDGE_VAL_PLAY_SHORT, running);
 
       if (! valProgress(fostr, running.out))
       {
-        valError(stats, running, BRIDGE_VAL_OUT_SHORT);
+        // valError(stats, running, BRIDGE_VAL_OUT_SHORT);
+        prof.log(BRIDGE_VAL_OUT_SHORT, running);
         return false;
       }
     }
@@ -180,7 +183,8 @@ bool validateREC(
       return true;
     else
     {
-      valError(stats, running, BRIDGE_VAL_ERROR);
+      // valError(stats, running, BRIDGE_VAL_ERROR);
+      prof.log(BRIDGE_VAL_ERROR, running);
       return false;
     }
   }
@@ -190,11 +194,13 @@ bool validateREC(
     while (isRECPlay(running.ref.line))
     {
       // The other way round.
-      valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
+      // valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
+      prof.log(BRIDGE_VAL_PLAY_SHORT, running);
 
       if (! valProgress(frstr, running.ref))
       {
-        valError(stats, running, BRIDGE_VAL_REF_SHORT);
+        // valError(stats, running, BRIDGE_VAL_REF_SHORT);
+        prof.log(BRIDGE_VAL_REF_SHORT, running);
         return false;
       }
     }
@@ -203,7 +209,8 @@ bool validateREC(
       return true;
     else
     {
-      valError(stats, running, BRIDGE_VAL_ERROR);
+      // valError(stats, running, BRIDGE_VAL_ERROR);
+      prof.log(BRIDGE_VAL_ERROR, running);
       return false;
     }
   }
@@ -215,47 +222,55 @@ bool validateREC(
     if (lOut >= running.ref.line.length() ||
         running.ref.line.substr(0, lOut) != running.out.line)
     {
-      valError(stats, running, BRIDGE_VAL_ERROR);
+      // valError(stats, running, BRIDGE_VAL_ERROR);
+      prof.log(BRIDGE_VAL_ERROR, running);
       return false;
     }
     else
     {
-      valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
+      // valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
+      prof.log(BRIDGE_VAL_PLAY_SHORT, running);
       return true;
     }
   }
   else if (isRECJustMade(running.out.line, running.ref.line))
   {
     // "Won 32" (Pavlicek error, should be "Made 0" or so.
-    valError(stats, running, BRIDGE_VAL_REC_MADE_32);
+    // valError(stats, running, BRIDGE_VAL_REC_MADE_32);
+    prof.log(BRIDGE_VAL_REC_MADE_32, running);
 
     // The next line (Score, Points) is then also different.
     if (! valProgress(fostr, running.out))
     {
-      valError(stats, running, BRIDGE_VAL_OUT_SHORT);
+      // valError(stats, running, BRIDGE_VAL_OUT_SHORT);
+      prof.log(BRIDGE_VAL_OUT_SHORT, running);
       return false;
     }
 
     if (! valProgress(frstr, running.ref))
     {
-      valError(stats, running, BRIDGE_VAL_REF_SHORT);
+      // valError(stats, running, BRIDGE_VAL_REF_SHORT);
+      prof.log(BRIDGE_VAL_REF_SHORT, running);
       return false;
     }
     return true;
   }
   else if (isRECNorthLine(running.out.line, running.ref.line))
   {
-    valError(stats, running, BRIDGE_VAL_NAMES_SHORT);
+    // valError(stats, running, BRIDGE_VAL_NAMES_SHORT);
+    prof.log(BRIDGE_VAL_NAMES_SHORT, running);
     return true;
   }
   else if (isRECEWLine(running.out.line, running.ref.line))
   {
-    valError(stats, running, BRIDGE_VAL_NAMES_SHORT);
+    // valError(stats, running, BRIDGE_VAL_NAMES_SHORT);
+    prof.log(BRIDGE_VAL_NAMES_SHORT, running);
     return true;
   }
   else if (isRECSouthLine(running.out.line, running.ref.line))
   {
-    valError(stats, running, BRIDGE_VAL_NAMES_SHORT);
+    // valError(stats, running, BRIDGE_VAL_NAMES_SHORT);
+    prof.log(BRIDGE_VAL_NAMES_SHORT, running);
     return true;
   }
   // else if (isRECPlayerLine(running.out.line, running.ref.line))

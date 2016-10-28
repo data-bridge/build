@@ -318,7 +318,7 @@ static bool getTXTDeal(
 
   // Turn -- (void) into nothing.
   regex re("--");
-  chunk[BRIDGE_FORMAT_DEAL] = regex_replace(d.str(), re, "");
+  chunk[BRIDGE_FORMAT_DEAL] = regex_replace(d.str(), re, string(""));
   return true;
 }
 

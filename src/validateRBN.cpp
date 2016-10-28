@@ -15,6 +15,7 @@
 #include <fstream>
 #include <regex>
 
+#include "ValProfile.h"
 #include "validate.h"
 #include "valint.h"
 #include "validateRBN.h"
@@ -25,7 +26,22 @@
 bool isRBNMissing(
   ifstream& frstr,
   ValExample& running,
-  ValFileStats& stats,
+  ValProfile& prof,
+  char& rf);
+
+bool areRBNNames(
+  const string& lineRef,
+  const string& lineOut);
+
+bool splitRBXToVector(
+  const string& line,
+  vector<string>& list);
+
+
+bool isRBNMissing(
+  ifstream& frstr,
+  ValExample& running,
+  ValProfile& prof,
   char& rf)
 {
   char of;
@@ -45,14 +61,16 @@ bool isRBNMissing(
     {
       if (! valProgress(frstr, running.ref))
       {
-        valError(stats, running, BRIDGE_VAL_REF_SHORT);
+        // valError(stats, running, BRIDGE_VAL_REF_SHORT);
+        prof.log(BRIDGE_VAL_REF_SHORT, running);
         return false;
       }
 
       rf = running.ref.line.at(0);
       if (rf != of)
       {
-        valError(stats, running, BRIDGE_VAL_ERROR);
+        // valError(stats, running, BRIDGE_VAL_ERROR);
+        prof.log(BRIDGE_VAL_ERROR, running);
         return false;
       }
 
@@ -67,25 +85,29 @@ bool isRBNMissing(
     case 'T':
       if (lOut > 2)
         return false;
-      valError(stats, running, BRIDGE_VAL_TITLE);
+      // valError(stats, running, BRIDGE_VAL_TITLE);
+      prof.log(BRIDGE_VAL_TITLE, running);
       return true;
 
     case 'D':
       if (lOut > 2)
         return false;
-      valError(stats, running, BRIDGE_VAL_DATE);
+      // valError(stats, running, BRIDGE_VAL_DATE);
+      prof.log(BRIDGE_VAL_DATE, running);
       return true;
         
     case 'L':
       if (lOut > 2)
         return false;
-      valError(stats, running, BRIDGE_VAL_LOCATION);
+      // valError(stats, running, BRIDGE_VAL_LOCATION);
+      prof.log(BRIDGE_VAL_LOCATION, running);
       return true;
         
     case 'E':
       if (lOut > 2)
         return false;
-      valError(stats, running, BRIDGE_VAL_EVENT);
+      // valError(stats, running, BRIDGE_VAL_EVENT);
+      prof.log(BRIDGE_VAL_EVENT, running);
       return true;
         
     case 'S':
@@ -93,21 +115,22 @@ bool isRBNMissing(
           running.ref.line.substr(0, lOut) != running.out.line)
       // if (lOut > 2)
         // return false;
-      valError(stats, running, BRIDGE_VAL_SESSION);
+      // valError(stats, running, BRIDGE_VAL_SESSION);
+      prof.log(BRIDGE_VAL_SESSION, running);
       return true;
 
     case 'P':
       if (lOut >= lRef || 
           running.ref.line.substr(0, lOut) != running.out.line)
         return false;
-      valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
+      // valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
+      prof.log(BRIDGE_VAL_PLAY_SHORT, running);
       return true;
 
     default:
       return false;
   }
 
-  return false;
 }
 
 
@@ -140,19 +163,22 @@ bool areRBNNames(
 bool validateRBN(
   ifstream& frstr,
   ValExample& running,
-  ValFileStats& stats)
+  ValProfile& prof)
+  // ValFileStats& stats)
 {
-  char rf;
-  if (isRBNMissing(frstr, running, stats, rf))
+  char rf = ' ';
+  if (isRBNMissing(frstr, running, prof, rf))
     return true;
 
   if (rf == 'K')
   {
-    valError(stats, running, BRIDGE_VAL_TEAMS);
+    // valError(stats, running, BRIDGE_VAL_TEAMS);
+    prof.log(BRIDGE_VAL_TEAMS, running);
 
     if (! valProgress(frstr, running.ref))
     {
-      valError(stats, running, BRIDGE_VAL_REF_SHORT);
+      // valError(stats, running, BRIDGE_VAL_REF_SHORT);
+      prof.log(BRIDGE_VAL_REF_SHORT, running);
       return false;
     }
   }
@@ -165,7 +191,8 @@ bool validateRBN(
         return true;
       else
       {
-        valError(stats, running, BRIDGE_VAL_ERROR);
+        // valError(stats, running, BRIDGE_VAL_ERROR);
+        prof.log(BRIDGE_VAL_ERROR, running);
         return false;
       }
     }
@@ -175,7 +202,8 @@ bool validateRBN(
     return true;
   else
   {
-    valError(stats, running, BRIDGE_VAL_ERROR);
+    // valError(stats, running, BRIDGE_VAL_ERROR);
+    prof.log(BRIDGE_VAL_ERROR, running);
     return false;
   }
 }
@@ -194,7 +222,7 @@ bool splitRBXToVector(
   {
     list.push_back(match.str(1));
     list.push_back(match.str(2));
-    s = regex_replace(s, re, "");
+    s = regex_replace(s, re, string(""));
   }
 
   return (s == "");
@@ -204,20 +232,23 @@ bool splitRBXToVector(
 bool validateRBX(
   ifstream& frstr,
   ValExample& running,
-  ValFileStats& stats)
+  ValProfile& prof)
+  // ValFileStats& stats)
 {
   UNUSED(frstr);
 
   vector<string> vOut, vRef;
   if (! splitRBXToVector(running.out.line, vOut))
   {
-    valError(stats, running, BRIDGE_VAL_ERROR);
+    // valError(stats, running, BRIDGE_VAL_ERROR);
+    prof.log(BRIDGE_VAL_ERROR, running);
     return false;
   }
 
   if (! splitRBXToVector(running.ref.line, vRef))
   {
-    valError(stats, running, BRIDGE_VAL_ERROR);
+    // valError(stats, running, BRIDGE_VAL_ERROR);
+    prof.log(BRIDGE_VAL_ERROR, running);
     return false;
   }
 
@@ -226,7 +257,8 @@ bool validateRBX(
   {
     if (j >= vOut.size())
     {
-      valError(stats, running, BRIDGE_VAL_ERROR);
+      // valError(stats, running, BRIDGE_VAL_ERROR);
+      prof.log(BRIDGE_VAL_ERROR, running);
       return false;
     }
 
@@ -238,18 +270,21 @@ bool validateRBX(
       if (vRef[i] == "K")
       {
         // j stays unchanged
-        valError(stats, running, BRIDGE_VAL_TEAMS);
+        // valError(stats, running, BRIDGE_VAL_TEAMS);
+        prof.log(BRIDGE_VAL_TEAMS, running);
         continue;
       }
       else if (vRef[i] == "P" && vOut[j] == "R" && vRef[i+2] == "R")
       {
         // Play may be missing completely (e.g., coming from EML).
-        valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
+        // valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
+        prof.log(BRIDGE_VAL_PLAY_SHORT, running);
         continue;
       }
       else
       {
-        valError(stats, running, BRIDGE_VAL_ERROR);
+        // valError(stats, running, BRIDGE_VAL_ERROR);
+        prof.log(BRIDGE_VAL_ERROR, running);
         return false;
       }
     }
@@ -262,7 +297,8 @@ bool validateRBX(
     {
       if (lOut >= lRef || vRef[i+1].substr(0, lOut) != vOut[j+1])
         return false;
-      valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
+      // valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
+      prof.log(BRIDGE_VAL_PLAY_SHORT, running);
     }
     else if (vRef[i] == "%")
     {
@@ -270,10 +306,12 @@ bool validateRBX(
       string llOut = "% " + vOut[j+1];
       string llRef = "% " + vRef[i+1];
       if (isRecordComment(llOut, llRef))
-        valError(stats, running, BRIDGE_VAL_RECORD_NUMBER);
+        // valError(stats, running, BRIDGE_VAL_RECORD_NUMBER);
+        prof.log(BRIDGE_VAL_RECORD_NUMBER, running);
       else
       {
-        valError(stats, running, BRIDGE_VAL_ERROR);
+        // valError(stats, running, BRIDGE_VAL_ERROR);
+        prof.log(BRIDGE_VAL_ERROR, running);
         return false;
       }
     }
@@ -285,7 +323,8 @@ bool validateRBX(
           vRef[i+1].substr(0, lOut) != vOut[j+1])
       // if (lOut > 0)
         return false;
-      valError(stats, running, BRIDGE_VAL_SESSION);
+      // valError(stats, running, BRIDGE_VAL_SESSION);
+      prof.log(BRIDGE_VAL_SESSION, running);
     }
     else if (vOut[j+1] != "")
       return false;
@@ -293,25 +332,29 @@ bool validateRBX(
     {
       if (lOut > 0)
         return false;
-      valError(stats, running, BRIDGE_VAL_TITLE);
+      // valError(stats, running, BRIDGE_VAL_TITLE);
+      prof.log(BRIDGE_VAL_TITLE, running);
     }
     else if (vRef[i] == "D")
     {
       if (lOut > 0)
         return false;
-      valError(stats, running, BRIDGE_VAL_DATE);
+      // valError(stats, running, BRIDGE_VAL_DATE);
+      prof.log(BRIDGE_VAL_DATE, running);
     }
     else if (vRef[i] == "L")
     {
       if (lOut > 0)
         return false;
-      valError(stats, running, BRIDGE_VAL_LOCATION);
+      // valError(stats, running, BRIDGE_VAL_LOCATION);
+      prof.log(BRIDGE_VAL_LOCATION, running);
     }
     else if (vRef[i] == "E")
     {
       if (lOut > 0)
         return false;
-      valError(stats, running, BRIDGE_VAL_EVENT);
+      // valError(stats, running, BRIDGE_VAL_EVENT);
+      prof.log(BRIDGE_VAL_EVENT, running);
     }
     else
       return false;

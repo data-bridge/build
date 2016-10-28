@@ -14,6 +14,7 @@
 #include <string>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
 #include "bconst.h"
 #include "args.h"

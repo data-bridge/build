@@ -15,6 +15,8 @@
 #include "Bexcept.h"
 #include "Bdiff.h"
 
+#include <regex>
+#include <iterator>
 #include <map>
 #include <assert.h>
 

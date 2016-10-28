@@ -1311,9 +1311,9 @@ string Auction::AsEML() const
 
 string Auction::AsTXT(const unsigned lengths[]) const
 {
-  unsigned adjLen[BRIDGE_PLAYERS];
+  int adjLen[BRIDGE_PLAYERS];
   for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
-    adjLen[p] = Max(12, lengths[p]+1);
+    adjLen[p] = Max(12, static_cast<int>(lengths[p])+1);
 
   stringstream s;
   s << left <<

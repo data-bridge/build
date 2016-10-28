@@ -75,7 +75,7 @@ void Canvas::setRectangle(
 string Canvas::str(const bool RECflag) const
 {
   // Drop trailing spaces.
-  string str = "";
+  string st = "";
   for (unsigned i = 0; i < height; i++)
   {
     unsigned p = width;
@@ -83,7 +83,7 @@ string Canvas::str(const bool RECflag) const
       p--;
     if (p == 0)
     {
-      str += "\n";
+      st += "\n";
       continue;
     }
 
@@ -92,9 +92,9 @@ string Canvas::str(const bool RECflag) const
     if (RECflag && (p == 13 || p == 25))
       num++;
 
-    str += canvas[i].substr(0, num) + "\n";
+    st += canvas[i].substr(0, num) + "\n";
   }
 
-  return str;
+  return st;
 }
 

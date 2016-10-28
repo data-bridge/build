@@ -115,7 +115,7 @@ bool readRBXChunk(
     const char c = match.str(1).at(0);
     const string value = match.str(2);
 
-    line = regex_replace(line, re, "");
+    line = regex_replace(line, re, string(""));
 
     if (c == '%')
       continue;

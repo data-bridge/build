@@ -18,6 +18,7 @@ bool validatePBN(
   ifstream& frstr,
   ifstream& fostr,
   ValExample& running,
-  ValFileStats& stats);
+  ValProfile& prof);
+  // ValFileStats& stats);
 
 #endif

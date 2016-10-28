@@ -14,36 +14,63 @@
 using namespace std;
 
 
-// A single example of a difference of any kind.
-
-struct valSide
+const string ValErrorName[] =
 {
-  string line;
-  unsigned lno;
+  "Title",
+  "Date",
+  "Location",
+  "Event",
+  "Session",
+  "Board numbers",
+  "Scoring",
+  "Teams",
+  "Names-short",
+  "TXT-dashes",
+  "VG-chat",
+
+  "All-pass",
+  "Lin-!",
+  "Play-newline",
+  "Play-short",
+  "Made-32",
+  "TXT-result",
+  "Rec-comment",
+
+  "Error",
+  "Out-short",
+  "Ref-short"
 };
 
-struct ValExample
+const string ValErrorNameShort[] =
 {
-  valSide out;
-  valSide ref;
-};
+  "T",
+  "D",
+  "L",
+  "E",
+  "S",
+  "Bnos",
+  "F",
+  "K",
+  "Nsht",
+  "Dash",
+  "Chat",
 
-// Counts of differences between two files, with the first examples.
+  "Apass",
+  "Alert",
+  "Pline",
+  "Psht",
+  "R32",
+  "RTXT",
+  "Comm",
 
-struct ValFileStats
-{
-  unsigned counts[BRIDGE_VAL_SIZE];
-  ValExample examples[BRIDGE_VAL_SIZE];
+  "Error",
+  "Osht",
+  "Rsht"
 };
 
 
 bool valProgress(
   ifstream& fstr,
-  valSide& side);
-
-void valError(
-  ValFileStats& stats,
-  const ValExample& running,
-  const ValDiffs label);
+  ValSide& side);
 
 #endif

@@ -19,6 +19,7 @@
 #include "Segment.h"
 #include "Board.h"
 #include "dispatch.h"
+#include "ValStats.h"
 #include "validate.h"
 
 #include "fileLIN.h"
@@ -86,6 +87,32 @@ typedef bool (Board::*BoardPtr)(const string& s, const formatType f);
 SegPtr segPtr[BRIDGE_FORMAT_LABELS_SIZE];
 BoardPtr boardPtr[BRIDGE_FORMAT_LABELS_SIZE];
 
+struct Fix
+{
+  unsigned no;
+  formatLabelType field;
+  string value;
+};
+
+
+void writeDummySegmentLevel(
+  ofstream& fstr,
+  Segment * segment,
+  const formatType f);
+
+void GuessDealerAndVul(
+  vector<string>& chunk, 
+  const unsigned b,
+  const formatType f);
+
+void GuessDealerAndVul(
+  vector<string>& chunk, 
+  const string& s,
+  const formatType f);
+
+static void readFix(
+  const string& fname,
+  vector<Fix>& fix);
 
 static bool readFormattedFile(
   const string& fname,
@@ -241,9 +268,11 @@ void dispatch(
   Files& files,
   const OptionsType& options)
 {
+  ValStats vstats;
+
   UNUSED(thrNo);
 
-  ValStatType vstats[BRIDGE_FORMAT_LABELS_SIZE][BRIDGE_FORMAT_LABELS_SIZE];
+  // ValStatType vstats[BRIDGE_FORMAT_LABELS_SIZE][BRIDGE_FORMAT_LABELS_SIZE];
 
   FileTaskType task;
   while (files.GetNextTask(task))
@@ -307,7 +336,8 @@ void dispatch(
   }
 
   cout << "Overall stats:\n";
-  printOverallStats(vstats, options.verboseValStats);
+  vstats.print(cout, options.verboseValStats);
+  // printOverallStats(vstats, options.verboseValStats);
 }
 
 
@@ -341,20 +371,12 @@ void GuessDealerAndVul(
 }
 
 
-struct Fix
-{
-  unsigned no;
-  formatLabelType field;
-  string value;
-};
-
-
 static void readFix(
   const string& fname,
   vector<Fix>& fix)
 {
   regex re("\\.\\w+$");
-  string fixName = regex_replace(fname, re, ".fix");
+  string fixName = regex_replace(fname, re, string(".fix"));
   
   // There might not be a fix file (not an error).
   ifstream fixstr(fixName.c_str());

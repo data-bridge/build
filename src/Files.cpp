@@ -12,12 +12,18 @@
 #include <thread>
 #include <mutex>
 #include <stdlib.h>
+#include <string.h>
 #include <assert.h>
-#include "dirent.h"
 
-#include <windows.h>
+#if defined(_WIN32)
+  #include "dirent.h"
+  #include <windows.h>
+  #include "Shlwapi.h"
+#else
+  #include <dirent.h>
+#endif
+
 #include <iostream>
-#include "Shlwapi.h"
 
 #include "Files.h"
 #include "portab.h"

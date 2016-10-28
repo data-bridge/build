@@ -9,6 +9,8 @@
 #ifndef BRIDGE_VALEML_H
 #define BRIDGE_VALEML_H
 
+#include "ValProfile.h"
+
 #include <string>
 
 using namespace std;
@@ -17,6 +19,7 @@ using namespace std;
 bool validateEML(
   ifstream& frstr,
   ValExample& running,
-  ValFileStats& stats);
+  ValProfile& prof);
+  // ValFileStats& stats);
 
 #endif

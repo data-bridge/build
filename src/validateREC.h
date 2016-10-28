@@ -11,6 +11,9 @@
 
 #include <string>
 
+#include "ValProfile.h"
+
+
 using namespace std;
 
 
@@ -18,6 +21,7 @@ bool validateREC(
   ifstream& frstr,
   ifstream& fostr,
   ValExample& running,
-  ValFileStats& stats);
+  ValProfile& prof);
+  // ValFileStats& stats);
 
 #endif

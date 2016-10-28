@@ -10,11 +10,14 @@
 #define BRIDGE_VALIDATE_H
 
 #include <string>
+
+#include "ValStats.h"
 #include "bconst.h"
 
 using namespace std;
 
 
+/*
 // Types of differences that can occur.
 
 enum ValDiffs
@@ -118,6 +121,7 @@ struct ValStatType
 
   unsigned details[BRIDGE_VAL_SIZE];
 };
+*/
 
 
 bool isRecordComment(
@@ -130,10 +134,13 @@ void validate(
   const formatType fOrig,
   const formatType fRef,
   const OptionsType& options,
-  ValStatType vstats[][BRIDGE_FORMAT_LABELS_SIZE]);
+  ValStats& vstats);
+  // ValStatType vstats[][BRIDGE_FORMAT_LABELS_SIZE]);
 
+/*
 void printOverallStats(
   const ValStatType vstats[][BRIDGE_FORMAT_LABELS_SIZE],
   const bool detailsFlag);
+  */
 
 #endif

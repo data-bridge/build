@@ -9,6 +9,7 @@
 
 #include <iomanip>
 #include <sstream>
+#include <algorithm>
 #include <vector>
 
 #include "Players.h"
@@ -176,40 +177,40 @@ void Players::setWest(const string& name)
 
 
 void Players::setRoom(
-  const string& room,
+  const string& roomIn,
   const Format format)
 {
   switch(format)
   {
     case BRIDGE_FORMAT_LIN:
-      if (room == "o")
+      if (roomIn == "o")
         roomVal = BRIDGE_ROOM_OPEN;
-      else if (room == "c")
+      else if (roomIn == "c")
         roomVal = BRIDGE_ROOM_CLOSED;
       else
-        THROW("Unknown room: " + room);
+        THROW("Unknown room: " + roomIn);
       break;
     
     case BRIDGE_FORMAT_PBN:
     case BRIDGE_FORMAT_TXT:
     case BRIDGE_FORMAT_EML:
     case BRIDGE_FORMAT_REC:
-      if (room == "Open")
+      if (roomIn == "Open")
         roomVal = BRIDGE_ROOM_OPEN;
-      else if (room == "Closed")
+      else if (roomIn == "Closed")
         roomVal = BRIDGE_ROOM_CLOSED;
       else
-        THROW("Unknown room: " + room);
+        THROW("Unknown room: " + roomIn);
       break;
     
     case BRIDGE_FORMAT_RBN:
     case BRIDGE_FORMAT_RBX:
-      if (room == "O")
+      if (roomIn == "O")
         roomVal = BRIDGE_ROOM_OPEN;
-      else if (room == "C")
+      else if (roomIn == "C")
         roomVal = BRIDGE_ROOM_CLOSED;
       else
-        THROW("Unknown room: " + room);
+        THROW("Unknown room: " + roomIn);
       break;
     
     default:
@@ -262,13 +263,13 @@ string Players::strRBNCore() const
   if (players[BRIDGE_WEST] != "" || players[BRIDGE_EAST] != "")
     ss << players[BRIDGE_WEST] << "+" << players[BRIDGE_EAST];
 
-  string str = ss.str();
+  string st = ss.str();
 
   if (roomVal == BRIDGE_ROOM_OPEN)
-    str += ":O";
+    st += ":O";
   else if (roomVal == BRIDGE_ROOM_CLOSED)
-    str += ":C";
-  return str;
+    st += ":C";
+  return st;
 }
 
 
@@ -291,14 +292,14 @@ string Players::strTXT() const
   {
     const unsigned pTXT = PLAYER_DDS_TO_TXT[p];
     const unsigned l = 1 + Max(11, players[pTXT].length());
-    ss << setw(l) << left << players[pTXT];
+    ss << setw(static_cast<int>(l)) << left << players[pTXT];
   }
 
-  string str = trimTrailing(ss.str());
-  if (str == "")
+  string st = trimTrailing(ss.str());
+  if (st == "")
     return "";
   else
-    return str + "\n";
+    return st + "\n";
 }
 
 
@@ -366,7 +367,7 @@ string Players::strDelta(
   const Players& refPlayers,
   const Format format) const
 {
-  string str;
+  string st;
   switch(format)
   {
     case BRIDGE_FORMAT_LIN:
@@ -374,10 +375,10 @@ string Players::strDelta(
       {
         unsigned pLIN = PLAYER_DDS_TO_LIN[p];
         if (players[pLIN] != refPlayers.players[pLIN])
-          str += players[pLIN];
-        str += ",";
+          st += players[pLIN];
+        st += ",";
       }
-      return str;
+      return st;
 
     default:
       THROW("Invalid format: " + STR(format));

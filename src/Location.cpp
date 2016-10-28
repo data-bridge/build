@@ -94,11 +94,11 @@ bool Location::operator != (const Location& location2) const
 
 string Location::strCore(const string& separator) const
 {
-  string str;
-  str = locGeneral;
+  string st;
+  st = locGeneral;
   if (locSpecific != "")
-    str += separator + locSpecific;
-  return str;
+    st += separator + locSpecific;
+  return st;
 }
 
 

@@ -14,8 +14,6 @@ using namespace std;
 
 #include "args.h"
 #include "dispatch.h"
-// #include "validate.h"
-#include "Bexcept.h"
 
 
 OptionsType options;
@@ -25,8 +23,6 @@ static const int numThreads = 1;
 
 int main(int argc, char * argv[])
 {
-  // ValStatType vstats[BRIDGE_FORMAT_LABELS_SIZE][BRIDGE_FORMAT_LABELS_SIZE];
-
   readArgs(argc, argv);
 
   setTables();

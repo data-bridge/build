@@ -873,7 +873,6 @@ string Contract::DeclarerAsString(const formatType f) const
 
     default:
       THROW("Other declarer formats not implemented");
-      return "";
   }
 }
 
@@ -922,7 +921,6 @@ string Contract::TricksAsString(const formatType f) const
 
     default:
       THROW("Other tricks formats not implemented");
-      return "";
   }
 }
 
@@ -1250,7 +1248,6 @@ string Contract::ResultAsString(
 
     default:
       THROW("Other score formats not implemented");
-      return "";
   }
 }
 
@@ -1270,7 +1267,6 @@ string Contract::ResultAsString(
 
     default:
       THROW("Other score formats not implemented");
-      return "";
   }
 }
 

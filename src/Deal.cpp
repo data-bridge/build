@@ -9,6 +9,8 @@
 
 #include <iostream>
 #include <iomanip>
+#include <cstring>
+#include <algorithm>
 #include <sstream>
 #include <vector>
 #include <map>
@@ -331,8 +333,8 @@ string Deal::strLINReverse(const Player start) const
   }
   ss << PLAYER_DDS_TO_LIN_DEALER[start] << "|dm";
 
-  string str = ss.str();
-  return string(str.rbegin(), str.rend()) + "|";
+  string st = ss.str();
+  return string(st.rbegin(), st.rend()) + "|";
 }
 
 

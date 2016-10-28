@@ -465,7 +465,6 @@ string Teams::AsTXT(
       s1 << score1 + team1.carryi;
       s2 << score2 + team2.carryi;
       break;
-          team1.name + " " + STR(score1 + team1.carryi) + "\n";
 
     case BRIDGE_CARRY_FLOAT:
       if (score1 + team1.carryf < score2 + team2.carryf)

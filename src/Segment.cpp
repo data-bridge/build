@@ -293,11 +293,11 @@ unsigned Segment::GetLength() const
 
 unsigned Segment::count() const
 {
-  unsigned count = 0;
+  unsigned cnt = 0;
   for (auto &p: boards)
-    count += p.board.GetLength();
+    cnt += p.board.GetLength();
 
-  return count;
+  return cnt;
 }
 
 

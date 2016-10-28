@@ -94,7 +94,7 @@ bool readLINChunk(
       string label = match.str(1);
       const string value = match.str(2);
 
-      line = regex_replace(line, re, "");
+      line = regex_replace(line, re, string(""));
 
       // Artificial label to disambiguate.
       if (label == "pn" && ! qxSeen)

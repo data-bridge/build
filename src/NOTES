@@ -1,4 +1,12 @@
+Add Timer
+
+Add multi-threading (vstats[numthreads] in reader.cpp)
+
+Put the fix file into a class?
+
 TXT header lines: Should compare these better.
+
+Eliminate valint.h?
 
 08.10.16
 --------

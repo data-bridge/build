@@ -15,6 +15,9 @@
 #include <fstream>
 #include <regex>
 
+#include "ValStats.h"
+#include "ValProfile.h"
+
 #include "validate.h"
 #include "valint.h"
 #include "validateLIN.h"
@@ -28,48 +31,6 @@
 
 
 using namespace std;
-
-
-const vector<formatType> formatActive =
-{
-  BRIDGE_FORMAT_LIN,
-  BRIDGE_FORMAT_LIN_RP,
-  BRIDGE_FORMAT_LIN_VG,
-  BRIDGE_FORMAT_LIN_TRN,
-  BRIDGE_FORMAT_PBN,
-  BRIDGE_FORMAT_RBN,
-  BRIDGE_FORMAT_RBX,
-  BRIDGE_FORMAT_TXT,
-  BRIDGE_FORMAT_EML,
-  BRIDGE_FORMAT_REC
-};
-
-
-static void resetStats(ValFileStats& stats);
-
-static void statsToVstat(
-  const ValFileStats& stats,
-  ValStatType& vstat);
-
-static void printExample(const ValExample& ex);
-
-static string posOrDash(const unsigned u);
-
-static void printFileStats(
-  ValFileStats& stats,
-  const string& fname);
-
-
-
-static void resetStats(ValFileStats& stats)
-{
-  for (unsigned v = 0; v < BRIDGE_VAL_SIZE; v++)
-  {
-    stats.counts[v] = 0;
-    stats.examples[v].out.line = "";
-    stats.examples[v].ref.line = "";
-  }
-}
 
 
 bool isRecordComment(
@@ -128,7 +89,7 @@ static void readRefFix(
   vector<RefFix>& refFix)
 {
   regex re("\\.\\w+$");
-  string refName = regex_replace(fname, re, ".ref");
+  string refName = regex_replace(fname, re, string(".ref"));
 
   // There might not be a .ref file (not an error).
   ifstream refstr(refName.c_str());
@@ -191,7 +152,7 @@ static void readRefFix(
 
 bool valProgress(
   ifstream& fstr,
-  valSide& side)
+  ValSide& side)
 {
   if (! getline(fstr, side.line))
     return false;
@@ -201,26 +162,13 @@ bool valProgress(
 }
 
 
-void valError(
-  ValFileStats& stats,
-  const ValExample& running,
-  const ValDiffs label)
-{
-  // Only keep the first example of each kind.
-  if (stats.examples[label].out.line == "")
-    stats.examples[label] = running;
-
-  stats.counts[label]++;
-}
-
-
 void validate(
   const string& fileOut,
   const string& fileRef,
   const formatType formatOrig,
   const formatType formatRef,
   const OptionsType& options,
-  ValStatType vstats[][BRIDGE_FORMAT_LABELS_SIZE])
+  ValStats& vstats)
 {
   ifstream fostr(fileOut.c_str());
   if (! fostr.is_open())
@@ -233,8 +181,7 @@ void validate(
   vector<RefFix> refFix;
   readRefFix(fileRef.c_str(), refFix);
 
-  ValFileStats stats;
-  resetStats(stats);
+  ValProfile prof;
 
   ValExample running;
   running.out.line = "";
@@ -249,7 +196,7 @@ void validate(
   {
     if (! keepLineOut && ! valProgress(fostr, running.out))
     {
-      valError(stats, running, BRIDGE_VAL_OUT_SHORT);
+      prof.log(BRIDGE_VAL_OUT_SHORT, running);
       break;
     }
 
@@ -260,7 +207,7 @@ void validate(
         if (refFix[0].value != running.out.line)
         {
           // This will mess up everything that follows...
-          valError(stats, running, BRIDGE_VAL_ERROR);
+          prof.log(BRIDGE_VAL_ERROR, running);
           if (! valProgress(fostr, running.out))
             THROW("Next line is not there");
           keepLineRef = false;
@@ -298,18 +245,17 @@ void validate(
       keepLineOut = false;
       continue;
     }
-// printExample(running);
 
     // General: % line numbers (Pavlicek error).
     if (formatRef != BRIDGE_FORMAT_RBX &&
         isRecordComment(running.out.line, running.ref.line))
     {
-      valError(stats, running, BRIDGE_VAL_RECORD_NUMBER);
+      prof.log(BRIDGE_VAL_RECORD_NUMBER, running);
       continue;
     }
     else if (formatRef == BRIDGE_FORMAT_LIN_RP)
     {
-      if (validateLIN_RP(frstr, fostr, running, stats))
+      if (validateLIN_RP(frstr, fostr, running, prof))
       {
         // Fix is already recorded in stats.
         continue;
@@ -321,259 +267,62 @@ void validate(
     }
     else if (formatRef == BRIDGE_FORMAT_PBN)
     {
-      if (validatePBN(frstr, fostr, running, stats))
+      if (validatePBN(frstr, fostr, running, prof))
         continue;
       else if (fostr.eof() || frstr.eof())
         break;
     }
     else if (formatRef == BRIDGE_FORMAT_RBN)
     {
-      if (validateRBN(frstr, running, stats))
+      if (validateRBN(frstr, running, prof))
         continue;
       else if (fostr.eof() || frstr.eof())
         break;
     }
     else if (formatRef == BRIDGE_FORMAT_RBX)
     {
-      if (validateRBX(frstr, running, stats))
+      if (validateRBX(frstr, running, prof))
         continue;
       else if (fostr.eof() || frstr.eof())
         break;
     }
     else if (formatRef == BRIDGE_FORMAT_TXT)
     {
-      if (validateTXT(frstr, fostr, running, headerStartTXT, stats))
+      if (validateTXT(frstr, fostr, running, headerStartTXT, prof))
         continue;
       else if (fostr.eof() || frstr.eof())
         break;
     }
     else if (formatRef == BRIDGE_FORMAT_EML)
     {
-      if (validateEML(frstr, running, stats))
+      if (validateEML(frstr, running, prof))
         continue;
       else if (fostr.eof() || frstr.eof())
         break;
     }
     else if (formatRef == BRIDGE_FORMAT_REC)
     {
-      if (validateREC(frstr, fostr, running, stats))
+      if (validateREC(frstr, fostr, running, prof))
         continue;
       else if (fostr.eof() || frstr.eof())
         break;
     }
 
-
-// printExample(running);
-    valError(stats, running, BRIDGE_VAL_ERROR);
+    prof.log(BRIDGE_VAL_ERROR, running);
 
     keepLineOut = false;
     keepLineRef = false;
   }
 
   if (valProgress(fostr, running.out))
-    valError(stats, running, BRIDGE_VAL_REF_SHORT);
+    prof.log(BRIDGE_VAL_REF_SHORT, running);
 
   if (options.verboseValDetails)
-    printFileStats(stats, fileOut);
+    prof.print(cout);
 
-  statsToVstat(stats, vstats[formatOrig][formatRef]);
+  vstats.add(formatOrig, formatRef, prof);
 
   fostr.close();
   frstr.close();
-}
-
-
-static void statsToVstat(
-  const ValFileStats& stats,
-  ValStatType& vstat)
-{
-  bool minorErrorFlag = false;
-  for (unsigned v = 0; v < BRIDGE_VAL_TXT_ALL_PASS; v++)
-  {
-    if (stats.counts[v])
-    {
-      minorErrorFlag = true;
-      vstat.details[v]++;
-    }
-  }
-
-  bool RPBugFlag = false;
-  for (unsigned v = BRIDGE_VAL_TXT_ALL_PASS; v < BRIDGE_VAL_ERROR; v++)
-  {
-    if (stats.counts[v])
-    {
-      RPBugFlag = true;
-      vstat.details[v]++;
-    }
-  }
-
-  bool majorErrorFlag = false;
-  for (unsigned v = BRIDGE_VAL_ERROR; v < BRIDGE_VAL_SIZE; v++)
-  {
-    if (stats.counts[v])
-    {
-      majorErrorFlag = true;
-      vstat.details[v]++;
-    }
-  }
-
-  vstat.numFiles++;
-
-  if (minorErrorFlag)
-    vstat.numExpectedDiffs++;
-
-  if (RPBugFlag)
-    vstat.numPavlicekBugs++;
-
-  if (majorErrorFlag)
-    vstat.numErrors++;
-
-  if (! minorErrorFlag && ! RPBugFlag && ! majorErrorFlag)
-    vstat.numIdentical++;
-}
-
-
-static void printExample(const ValExample& ex)
-{
-  cout << "Out (" << setw(4) << ex.out.lno << "): " << ex.out.line << "\n";
-  cout << "Ref (" << setw(4) << ex.ref.lno << "): " << ex.ref.line << "\n";
-}
-
-
-static void printFileStats(
-  ValFileStats& stats,
-  const string& fname)
-{
-  // Only shows examples of bad errors.
-
-  bool showFlag = false;
-  for (unsigned v = BRIDGE_VAL_ERROR; v < BRIDGE_VAL_SIZE; v++)
-  {
-    if (stats.counts[v])
-    {
-      showFlag = true;
-      break;
-    }
-  }
-
-  if (! showFlag)
-  {
-    cout.flush();
-    return;
-  }
-  
-  cout << "File stats: " << fname << "\n";
-  for (unsigned v = BRIDGE_VAL_ERROR; v < BRIDGE_VAL_SIZE; v++)
-  {
-    if (stats.counts[v] == 0)
-      continue;
-    
-    cout << setw(12) << left << valNames[v] << 
-        setw(4) << right << stats.counts[v] << "\n";
-  }
-  cout << "\n";
-
-  for (unsigned v = BRIDGE_VAL_ERROR; v < BRIDGE_VAL_SIZE; v++)
-  {
-    if (stats.counts[v] == 0)
-      continue;
-    
-    cout << valNames[v] << ":\n";
-    printExample(stats.examples[v]);
-    cout << "\n";
-  }
-  cout << "\n";
-}
-
-
-static string posOrDash(const unsigned u)
-{
-  if (u == 0)
-    return "-";
-  else
-    return STR(u);
-}
-
-
-static bool rowHasEntries(
-  const ValStatType vstat[],
-  const unsigned label)
-{
-  for (auto &g: formatActive)
-    if (vstat[g].details[label] > 0)
-      return true;
-  return false;
-}
-
-
-static void printRow(
-  const ValStatType vstat[],
-  const unsigned label)
-{
-  cout << "  " << setw(5) << left << valNamesShort[label];
-  for (auto &g: formatActive)
-    cout << setw(7) << right << posOrDash(vstat[g].details[label]);
-  cout << "\n";
-}
-
-
-void printOverallStats(
-  const ValStatType vstats[][BRIDGE_FORMAT_LABELS_SIZE],
-  const bool detailsFlag)
-{
-  cout << setw(7) << "";
-  for (auto &f: formatActive)
-    cout << setw(7) << right << FORMAT_NAMES[f];
-  cout << "\n\n";
-
-  for (auto &f: formatActive)
-  {
-    cout << setw(7) << left << FORMAT_NAMES[f];
-    for (auto &g: formatActive)
-      cout << setw(7) << right << posOrDash(vstats[f][g].numFiles);
-    cout << "\n";
-
-    if (detailsFlag)
-    {
-      for (unsigned v = 0; v < BRIDGE_VAL_TXT_ALL_PASS; v++)
-      {
-        if (rowHasEntries(vstats[f], v))
-          printRow(vstats[f], v);
-      }
-    }
-
-    cout << "  MINOR";
-    for (auto &g: formatActive)
-      cout << setw(7) << right << posOrDash(vstats[f][g].numExpectedDiffs);
-    cout << "\n";
-
-    if (detailsFlag)
-    {
-      for (unsigned v = BRIDGE_VAL_TXT_ALL_PASS; v < BRIDGE_VAL_ERROR; v++)
-      {
-        if (rowHasEntries(vstats[f], v))
-          printRow(vstats[f], v);
-      }
-    }
-
-    cout << "  RPBUG";
-    for (auto &g: formatActive)
-      cout << setw(7) << right << posOrDash(vstats[f][g].numPavlicekBugs);
-    cout << "\n";
-
-    if (detailsFlag)
-    {
-      for (unsigned v = BRIDGE_VAL_ERROR; v < BRIDGE_VAL_SIZE; v++)
-      {
-        if (rowHasEntries(vstats[f], v))
-          printRow(vstats[f], v);
-      }
-    }
-
-    cout << "  MAJOR";
-    for (auto &g: formatActive)
-      cout << setw(7) << right << posOrDash(vstats[f][g].numErrors);
-    cout << "\n\n";
-  }
 }
 
