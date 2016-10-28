@@ -91,8 +91,8 @@ unsigned Board::NewInstance()
     if (deal.isSet())
     {
       unsigned cards[BRIDGE_PLAYERS][BRIDGE_SUITS];
-      if (deal.getDDS(cards))
-        play[numActive].SetHoldingDDS(cards);
+      deal.getDDS(cards);
+      play[numActive].SetHoldingDDS(cards);
     }
   }
 
@@ -201,8 +201,7 @@ bool Board::SetDeal(
   if (numActive == 0)
   {
     unsigned cards[BRIDGE_PLAYERS][BRIDGE_SUITS];
-    if (! deal.getDDS(cards))
-      return false;
+    deal.getDDS(cards);
 
     if (! play[0].SetHoldingDDS(cards))
       return false;
@@ -219,21 +218,11 @@ bool Board::SetDeal(
 }
 
 
-/*
-bool Board::SetDeal(
-  const string cards[][BRIDGE_SUITS],
-  const formatType f)
-{
-  deal.set(cards, f);
-  return true;
-}
-*/
-
-
 bool Board::GetDealDDS(
   unsigned cards[][BRIDGE_SUITS]) const
 {
-  return deal.getDDS(cards);
+  deal.getDDS(cards);
+  return true;
 }
 
 

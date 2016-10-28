@@ -2,7 +2,6 @@
   1625   3920  30822 Auction.cpp
    868   1491  14301 Board.cpp
   1276   3096  26550 Contract.cpp
-   662   1930  14883 Deal.cpp
    731   1821  18033 dispatch.cpp
    551   1518  13444 fileEML.cpp
    183    475   4435 fileLIN.cpp
@@ -30,7 +29,6 @@
    389    760   6447 bconst.h
    356    649   6702 Board.h
    187    367   3845 Contract.h
-   101    210   2127 Deal.h
    838   2598  19892 dirent.h
     26     43    383 dispatch.h
     39     63    541 fileEML.h
@@ -66,6 +64,9 @@
 
     96    220   1647 Canvas.cpp
     54     82    803 Canvas.h
+
+   662   1930  14883 Deal.cpp
+   101    210   2127 Deal.h
 
    314    721   5706 Date.cpp
     62    107    966 Date.h

@@ -10,11 +10,7 @@
 #ifndef BRIDGE_DEAL_H
 #define BRIDGE_DEAL_H
 
-#include <iostream>
-#include <iomanip>
 #include <string>
-#include <sstream>
-#include <vector>
 #include "bconst.h"
 
 using namespace std;
@@ -46,11 +42,11 @@ class Deal
     void setLIN(const string& text);
     void setPBN(const string& text);
     void setRBN(const string& text);
-    // void setTXT(const string cardsArg[][BRIDGE_SUITS]);
 
-    string strLIN(const Player start) const;
-    string strLIN_RP(const Player start) const;
-    string strLIN_VG(const Player start) const;
+    string strLINReverse(const Player start) const;
+    string strLINRegular(
+      const Player start,
+      const unsigned limit) const;
     string strPBN(const Player start) const;
     string strRBNCore(const Player start) const;
     string strRBN(const Player start) const;
@@ -78,13 +74,7 @@ class Deal
       const string& s,
       const formatType);
 
-    /*
-    void set(
-      const string cardsArg[][BRIDGE_SUITS],
-      const formatType);
-      */
-
-    bool getDDS(unsigned cards[][BRIDGE_SUITS]) const;
+    void getDDS(unsigned cards[][BRIDGE_SUITS]) const;
 
     bool operator == (const Deal& deal2) const;
 
