@@ -16,25 +16,31 @@ using namespace std;
 #include "dispatch.h"
 
 
-OptionsType options;
-
-static const int numThreads = 1;
-
 
 int main(int argc, char * argv[])
 {
-  readArgs(argc, argv);
+  OptionsType options;
+  readArgs(argc, argv, options);
 
   setTables();
 
   Files files;
   files.Set(options);
 
-  thread thr[numThreads];
-  for (int i = 0; i < numThreads; i++)
-    thr[i] = thread(dispatch, i, files, options);
+  vector<thread> thr(options.numThreads);
+  vector<ValStats> vstats(options.numThreads);
+  vector<Timer> timer(options.numThreads);
 
-  for (int i = 0; i < numThreads; i++)
+  for (unsigned i = 0; i < options.numThreads; i++)
+    thr[i] = thread(dispatch, i, 
+      ref(files), options, ref(vstats[i]), ref(timer[i]));
+
+  for (unsigned i = 0; i < options.numThreads; i++)
     thr[i].join();
+
+  mergeResults(vstats, timer, options);
+
+  vstats[0].print(cout, options.verboseValStats);
+  timer[0].print(options.numThreads);
 }
 

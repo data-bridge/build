@@ -9,6 +9,8 @@
 
 #include <map>
 #include <algorithm>
+#include <thread>
+#include <mutex>
 #include <assert.h>
 
 #include "Play.h"
@@ -18,6 +20,8 @@
 #include "parse.h"
 #include "portab.h"
 
+static mutex mtx;
+
 
 #define PLAY_SEQ_INIT 28
 #define PLAY_SEQ_INCR 24
@@ -25,17 +29,17 @@
 #define PLAY_NUM_CARDS 52
 
 
-const char PLAY_CARDS[BRIDGE_TRICKS] =
+static const char PLAY_CARDS[BRIDGE_TRICKS] =
 {
   '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'
 };
 
-const string PLAY_CARDS_TXT[BRIDGE_TRICKS] =
+static const string PLAY_CARDS_TXT[BRIDGE_TRICKS] =
 {
   "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"
 };
 
-const char PLAY_DENOMS[2 * BRIDGE_SUITS] =
+static const char PLAY_DENOMS[2 * BRIDGE_SUITS] =
 {
   'S', 'H', 'D', 'C', 's', 'h', 'd', 'c'
 };
@@ -48,16 +52,16 @@ struct cardInfoType
   unsigned rank;
 };
 
-string PLAY_NO_TO_CARD[PLAY_NUM_CARDS];
-string PLAY_NO_TO_CARD_TXT[PLAY_NUM_CARDS];
+static string PLAY_NO_TO_CARD[PLAY_NUM_CARDS];
+static string PLAY_NO_TO_CARD_TXT[PLAY_NUM_CARDS];
 
-map<string, cardInfoType> PLAY_CARD_TO_INFO; // All syntaxes
+static map<string, cardInfoType> PLAY_CARD_TO_INFO; // All syntaxes
 
-cardInfoType PLAY_NO_TO_INFO[PLAY_NUM_CARDS];
+static cardInfoType PLAY_NO_TO_INFO[PLAY_NUM_CARDS];
 
-unsigned TRICK_RANKS[BRIDGE_DENOMS][BRIDGE_SUITS][PLAY_NUM_CARDS];
+static unsigned TRICK_RANKS[BRIDGE_DENOMS][BRIDGE_SUITS][PLAY_NUM_CARDS];
 
-bool setPlayTables = false;
+static bool setPlayTables = false;
 
 static bool BothAreSpaces(char lhs, char rhs);
 
@@ -67,8 +71,11 @@ Play::Play()
   Play::Reset();
   if (! setPlayTables)
   {
+    mtx.lock();
+    if (! setPlayTables)
+      Play::SetTables();
     setPlayTables = true;
-    Play::SetTables();
+    mtx.unlock();
   }
 }
 

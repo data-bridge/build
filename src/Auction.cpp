@@ -9,6 +9,8 @@
 
 #include <map>
 #include <regex>
+#include <thread>
+#include <mutex>
 #include <assert.h>
 
 #include "Auction.h"
@@ -18,30 +20,33 @@
 #include "Bexcept.h"
 #include "Bdiff.h"
 
+static mutex mtx;
+
 
 #define AUCTION_SEQ_INIT 12
 #define AUCTION_SEQ_INCR 8
 
 #define AUCTION_NUM_CALLS 38
 
-string AUCTION_NO_TO_CALL_LIN[AUCTION_NUM_CALLS]; // And RBN
-string AUCTION_NO_TO_CALL_PBN[AUCTION_NUM_CALLS];
-string AUCTION_NO_TO_CALL_EML[AUCTION_NUM_CALLS];
-string AUCTION_NO_TO_CALL_TXT[AUCTION_NUM_CALLS];
+static string AUCTION_NO_TO_CALL_LIN[AUCTION_NUM_CALLS]; // And RBN
+static string AUCTION_NO_TO_CALL_PBN[AUCTION_NUM_CALLS];
+static string AUCTION_NO_TO_CALL_EML[AUCTION_NUM_CALLS];
+static string AUCTION_NO_TO_CALL_TXT[AUCTION_NUM_CALLS];
 
-const string AUCTION_DENOM_LIN[BRIDGE_DENOMS] =
+
+static const string AUCTION_DENOM_LIN[BRIDGE_DENOMS] =
 {
   "C", "D", "H", "S", "N"
 };
 
-const string AUCTION_DENOM_PBN[BRIDGE_DENOMS] =
+static const string AUCTION_DENOM_PBN[BRIDGE_DENOMS] =
 {
   "C", "D", "H", "S", "NT"
 };
 
-map<string, unsigned> AUCTION_CALL_TO_NO; // All syntaxes
+static map<string, unsigned> AUCTION_CALL_TO_NO; // All syntaxes
 
-bool setAuctionTables = false;
+static bool setAuctionTables = false;
 
 
 Auction::Auction()
@@ -49,8 +54,11 @@ Auction::Auction()
   Auction::Reset();
   if (! setAuctionTables)
   {
+    mtx.lock();
+    if (! setAuctionTables)
+      Auction::SetTables();
     setAuctionTables = true;
-    Auction::SetTables();
+    mtx.unlock();
   }
 }
 

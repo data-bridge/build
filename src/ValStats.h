@@ -79,10 +79,10 @@ class ValStats
       const Format formatRef,
       const ValProfile& prof);
 
-    void add(const ValStats& statsIn);
+    void operator += (const ValStats& statsIn);
       
     void print(
-      ostream& fstr = cout,
+      ostream& fstr,
       const bool detailFlag = true) const;
 };
 

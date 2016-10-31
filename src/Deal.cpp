@@ -14,11 +14,15 @@
 #include <sstream>
 #include <vector>
 #include <map>
+#include <thread>
+#include <mutex>
 
 #include "Deal.h"
 #include "parse.h"
 #include "Bexcept.h"
 #include "Bdiff.h"
+
+static mutex mtx;
 
 
 // DDS encoding, but without the two bottom 00 bits: ((2 << 13) - 1)
@@ -49,8 +53,11 @@ Deal::Deal()
   Deal::reset();
   if (! setDealTables)
   {
+    mtx.lock();
+    if (! setDealTables)
+      Deal::setTables();
     setDealTables = true;
-    Deal::setTables();
+    mtx.unlock();
   }
 }
 

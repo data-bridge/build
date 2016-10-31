@@ -22,8 +22,6 @@
 using namespace std;
 
 
-extern OptionsType options;
-
 struct optEntry
 {
   string shortName;
@@ -31,9 +29,9 @@ struct optEntry
   unsigned numArgs;
 };
 
-#define BRIDGE_NUM_OPTIONS 9
+#define BRIDGE_NUM_OPTIONS 10
 
-const optEntry optList[BRIDGE_NUM_OPTIONS] =
+static const optEntry optList[BRIDGE_NUM_OPTIONS] =
 {
   {"i", "infile", 1},
   {"I", "indir", 1},
@@ -43,10 +41,11 @@ const optEntry optList[BRIDGE_NUM_OPTIONS] =
   {"R", "refdir", 1},
   {"l", "logfile", 1},
   {"f", "format", 1},
+  {"n", "threads", 1},
   {"v", "verbose", 1}
 };
 
-string shortOptsAll, shortOptsWithArg;
+static string shortOptsAll, shortOptsWithArg;
 
 static int getNextArgToken(
   int argc,
@@ -88,6 +87,9 @@ void usage(
     "-f, --format       Output format for -O (default: ALL).\n" <<
     "                   Values LIN, PBN, RBN, TXT, EML, DOC, REC, ALL.\n" <<
     "                   Some dialects are set by the input filename.\n" <<
+    "\n" <<
+    "-n, --threads      Number of threads (default: 1).\n" <<
+    "\n" <<
     "-v, -verbose n     Verbosity (default: 0x1a).  Bits:\n" <<
     "                   0x01: Show input/output file names.\n" <<
     "                   0x02: Show input error messages.\n" <<
@@ -148,7 +150,7 @@ static int getNextArgToken(
 }
 
 
-static void setDefaults()
+static void setDefaults(OptionsType& options)
 {
   options.fileInput = {false, ""};
   options.dirInput = {false, ""};
@@ -160,6 +162,8 @@ static void setDefaults()
 
   options.formatSetFlag = false;
   options.format = BRIDGE_FORMAT_SIZE;
+
+  options.numThreads = 1;
 
   options.verboseIO = false;
   options.verboseThrow = true;
@@ -181,7 +185,7 @@ static void printFileOption(
 }
 
 
-void printOptions()
+void printOptions(const OptionsType& options)
 {
   cout << left;
   printFileOption(options.fileInput, "infile");
@@ -198,14 +202,16 @@ void printOptions()
   if (options.formatSetFlag)
   {
     cout << setw(12) << "format" << 
-        setw(12) << FORMAT_NAMES[options.formatSetFlag] << "\n\n";
+        setw(12) << FORMAT_NAMES[options.formatSetFlag] << "\n";
   }
   else
-    cout << setw(12) << "(not set)\n\n";
+    cout << setw(12) << "(not set)\n";
+
+  cout << setw(12) << "threads" << setw(12) << options.numThreads << "\n\n";
 }
 
 
-static void checkArgs()
+static void checkArgs(const OptionsType& options)
 {
   if (options.fileInput.setFlag && options.dirInput.setFlag)
   {
@@ -261,7 +267,8 @@ static void checkArgs()
 
 void readArgs(
   int argc,
-  char * argv[])
+  char * argv[],
+  OptionsType& options)
 {
   for (unsigned i = 0; i < BRIDGE_NUM_OPTIONS; i++)
   {
@@ -276,11 +283,13 @@ void readArgs(
     exit(0);
   }
 
-  setDefaults();
+  setDefaults(options);
 
   int c, m;
+  unsigned mu;
   bool errFlag = false, matchFlag;
   string stmp;
+  char * temp;
 
   while ((c = getNextArgToken(argc, argv)) > 0)
   {
@@ -335,8 +344,26 @@ void readArgs(
         }
         break;
 
+      case 'n':
+        mu = static_cast<unsigned>(strtol(optarg, &temp, 0));
+        if (temp == optarg || temp == '\0' || errno == ERANGE)
+        {
+          cout << "Could not parse numThreads\n";
+          nextToken -= 2;
+          errFlag = true;
+        }
+        
+        if (mu < 1 || mu > 16)
+        {
+          cout << "numThreads out of range\n";
+          nextToken -= 2;
+          errFlag = true;
+        }
+
+        options.numThreads = mu;
+        break;
+
       case 'v':
-        char * temp;
         m = static_cast<int>(strtol(optarg, &temp, 0));
         if (temp == optarg || temp == '\0' ||
             ((m == LONG_MIN || m == LONG_MAX) && errno == ERANGE))
@@ -369,6 +396,6 @@ void readArgs(
     exit(0);
   }
 
-  checkArgs();
+  checkArgs(options);
 }
 

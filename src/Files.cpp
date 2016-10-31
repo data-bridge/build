@@ -29,7 +29,7 @@
 #include "portab.h"
 #include "parse.h"
 
-mutex mtx;
+static mutex mtx;
 
 
 Files::Files()

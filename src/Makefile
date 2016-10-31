@@ -19,6 +19,7 @@ SOURCE_FILES 	=		\
         Session.cpp             \
 	Tableau.cpp		\
         Teams.cpp               \
+        Timer.cpp               \
 	Valuation.cpp		\
 	args.cpp		\
 	dispatch.cpp		\
@@ -119,13 +120,14 @@ Segment.obj: portab.h parse.h Bexcept.h Bdiff.h
 Session.obj: Session.h bconst.h parse.h Bdiff.h Bexcept.h
 Tableau.obj: Tableau.h bconst.h Contract.h parse.h Bexcept.h Bdiff.h
 Teams.obj: bconst.h Teams.h Bexcept.h Bdiff.h parse.h portab.h
+Timer.obj: Timer.h bconst.h
 Valuation.obj: Valuation.h
 args.obj: bconst.h args.h
 dispatch.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h
 dispatch.obj: Scoring.h Teams.h Board.h Deal.h Tableau.h Players.h Auction.h
-dispatch.obj: Contract.h Play.h dispatch.h Files.h ValStats.h ValProfile.h
-dispatch.obj: validate.h fileLIN.h filePBN.h fileRBN.h fileTXT.h fileEML.h
-dispatch.obj: fileREC.h parse.h portab.h Bexcept.h Bdiff.h
+dispatch.obj: Contract.h Play.h dispatch.h Files.h Timer.h ValStats.h
+dispatch.obj: ValProfile.h validate.h fileLIN.h filePBN.h fileRBN.h fileTXT.h
+dispatch.obj: fileEML.h fileREC.h parse.h portab.h Bexcept.h Bdiff.h
 fileEML.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 fileEML.obj: Teams.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
 fileEML.obj: Play.h Canvas.h fileEML.h parse.h
@@ -162,5 +164,7 @@ validateEML.obj: validate.h ValStats.h ValProfile.h bconst.h valint.h
 validateEML.obj: validateEML.h parse.h portab.h
 validateREC.obj: validate.h ValStats.h ValProfile.h bconst.h valint.h
 validateREC.obj: validateREC.h parse.h
-reader.obj: args.h dispatch.h Files.h bconst.h Bexcept.h
-reader.obj: args.h dispatch.h Files.h bconst.h Bexcept.h
+reader.obj: args.h dispatch.h Files.h bconst.h Timer.h ValStats.h
+reader.obj: ValProfile.h
+reader.obj: args.h dispatch.h Files.h bconst.h Timer.h ValStats.h
+reader.obj: ValProfile.h

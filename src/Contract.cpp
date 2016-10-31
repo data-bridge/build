@@ -7,15 +7,20 @@
 */
 
 
+#include <map>
+#include <thread>
+#include <mutex>
+
 #include "Contract.h"
 #include "parse.h"
 #include "portab.h"
 #include "Bexcept.h"
 #include "Bdiff.h"
-#include <map>
+
+static mutex mtx;
 
 
-const bool VUL_LOOKUP[BRIDGE_VUL_SIZE][BRIDGE_PLAYER_SIZE] =
+static const bool VUL_LOOKUP[BRIDGE_VUL_SIZE][BRIDGE_PLAYER_SIZE] =
 {
   {false, false, false, false, false, false, false},
   {true, true, true, true, true, true, false},
@@ -23,71 +28,71 @@ const bool VUL_LOOKUP[BRIDGE_VUL_SIZE][BRIDGE_PLAYER_SIZE] =
   {false, true, false, true, false, true, false}
 };
 
-const string VUL_RBN_TAG[BRIDGE_VUL_SIZE] =
+static const string VUL_RBN_TAG[BRIDGE_VUL_SIZE] =
 {
   "Z", "B", "N", "E"
 };
 
-const int DECLARER_DDS_TO_SIGN[BRIDGE_PLAYER_SIZE] =
+static const int DECLARER_DDS_TO_SIGN[BRIDGE_PLAYER_SIZE] =
 {
   1, -1, 1, -1, 1, -1, 0
 };
 
-const string LEVEL_SHIFT_TO_TAG[20] =
+static const string LEVEL_SHIFT_TO_TAG[20] =
 {
   "-13", "-12", "-11", "-10", "-9", "-8", "-7", "-6", "-5", "-4", 
   "-3", "-2", "-1", "=", "+1", "+2", "+3", "+4", "+5", "+6"
 };
 
-map<string, int> LEVEL_TAG_TO_RELATIVE;
+static map<string, int> LEVEL_TAG_TO_RELATIVE;
 
-const unsigned DENOM_DDS_TO_CATEGORY[BRIDGE_DENOMS] =
+static const unsigned DENOM_DDS_TO_CATEGORY[BRIDGE_DENOMS] =
 {
   2, 2, 1, 1, 3
 };
 
-const string DENOM_DDS_TO_PBN_TAG[BRIDGE_DENOMS] =
+static const string DENOM_DDS_TO_PBN_TAG[BRIDGE_DENOMS] =
 {
   "C", "D", "H", "S", "NT"
 };
 
-const string DENOM_SUPERSET_TAG[6] =
+static const string DENOM_SUPERSET_TAG[6] =
 {
   "C", "D", "H", "S", "N", "NT"
 };
 
-const denomType DENOM_SUPERSET_NUM[6] =
+static const denomType DENOM_SUPERSET_NUM[6] =
 {
   BRIDGE_CLUBS, BRIDGE_DIAMONDS, BRIDGE_HEARTS, BRIDGE_SPADES,
   BRIDGE_NOTRUMP, BRIDGE_NOTRUMP
 };
 
-const string MULT_NUM_TO_LIN_TAG[3] =
+static const string MULT_NUM_TO_LIN_TAG[3] =
 {
   "", "x", "xx"
 };
 
-const string MULT_NUM_TO_PBN_TAG[3] =
+static const string MULT_NUM_TO_PBN_TAG[3] =
 {
   "", "X", "XX"
 };
 
-const string MULT_NUM_TO_RBN_TAG[3] =
+static const string MULT_NUM_TO_RBN_TAG[3] =
 {
   "", "X", "R"
 };
 
-const string MULT_NUM_TO_PAR_TAG[3] =
+static const string MULT_NUM_TO_PAR_TAG[3] =
 {
   "", "*", "**"
 };
 
-const string MULT_SUPERSET_TAG[6] =
+static const string MULT_SUPERSET_TAG[6] =
 {
   "", "x", "xx", "X", "XX", "R"
 };
 
-const multiplierType MULT_SUPERSET_NUM[6] =
+static const multiplierType MULT_SUPERSET_NUM[6] =
 {
   BRIDGE_MULT_UNDOUBLED,
   BRIDGE_MULT_DOUBLED,
@@ -97,7 +102,7 @@ const multiplierType MULT_SUPERSET_NUM[6] =
   BRIDGE_MULT_REDOUBLED
 };
 
-const int CONTRACT_SCORES[22][2][3] =
+static const int CONTRACT_SCORES[22][2][3] =
 {
   { {   0,   -1,   -1}, {   0,   -1,   -1} }, // passed out
   { {  70,  140,  230}, {  70,  140,  230} }, // 1m
@@ -123,12 +128,12 @@ const int CONTRACT_SCORES[22][2][3] =
   { {1520, 1790, 2280}, {2220, 2490, 2980} }, // 7N
 };
 
-const int DENOM_TO_OVERTRICKS_UNDOUBLED[BRIDGE_DENOMS] =
+static const int DENOM_TO_OVERTRICKS_UNDOUBLED[BRIDGE_DENOMS] =
 {
   30, 30, 20, 20, 30 
 };
 
-const unsigned IMPscale[26] =
+static const unsigned IMPscale[26] =
 {
      0,   10,   40,   80,  120,  160,  210,  260,
    310,  360,  420,  490,  590,  740,  890, 1090,
@@ -136,9 +141,9 @@ const unsigned IMPscale[26] =
   3990, 9990
 };
 
-unsigned IMPlookup[501];
+static unsigned IMPlookup[501];
 
-bool setContractTables = false;
+static bool setContractTables = false;
 
 struct entryType
 {
@@ -146,8 +151,7 @@ struct entryType
   int tricksRelative;
 };
 
-map<string, entryType> CONTRACT_STRING_TO_PARTS;
-
+static map<string, entryType> CONTRACT_STRING_TO_PARTS;
 
 
 Contract::Contract()
@@ -155,8 +159,11 @@ Contract::Contract()
   Contract::Reset();
   if (! setContractTables)
   {
+    mtx.lock();
+    if (! setContractTables)
+      Contract::SetTables();
     setContractTables = true;
-    Contract::SetTables();
+    mtx.unlock();
   }
 }
 

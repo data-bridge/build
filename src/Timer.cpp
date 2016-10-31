@@ -1,32 +1,149 @@
+/* 
+   Part of BridgeData.
+
+   Copyright (C) 2016 by Soren Hein.
+
+   See LICENSE and README.
+*/
 
 
+#include <iomanip>
+
+#include "Timer.h"
 
 
-// http://stackoverflow.com/questions/17925051/fast-textfile-reading-in-c
-//
-static uintmax_t wc(char const *fname)
+const string TimerName[]
 {
-  static const auto BUFFER_SIZE = 16*1024;
-  int fd = open(fname, O_RDONLY);
-  if(fd == -1)
-    handle_error("open");
+  "Read",
+  "Write",
+  "Valid",
+  "Comp"
+};
 
-  /* Advise the kernel of our access pattern.  */
-  posix_fadvise(fd, 0, 0, 1);  // FDADVICE_SEQUENTIAL
 
-  char buf[BUFFER_SIZE + 1];
-  uintmax_t lines = 0;
+Timer::Timer()
+{
+  Timer::reset();
+}
 
-  while(size_t bytes_read = read(fd, buf, BUFFER_SIZE))
+
+Timer::~Timer()
+{
+}
+
+
+void Timer::reset()
+{
+  for (unsigned fnc = 0; fnc < BRIDGE_TIMER_SIZE; fnc++)
   {
-    if(bytes_read == (size_t)-1)
-      handle_error("read failed");
-    if (!bytes_read)
-      break;
+    for (unsigned format = 0; format < BRIDGE_FORMAT_SIZE; format++)
+    {
+      timer[fnc][format].no = 0;
+      timer[fnc][format].sum = 0.;
+    }
+  }
+}
 
-    for(char *p = buf; (p = (char*) memchr(p, '\n', (buf + bytes_read) - p)); ++p)
-      ++lines;
+
+void Timer::start(
+  const TimerFunction fnc,
+  const Format format)
+{
+  timer[fnc][format].start = std::chrono::high_resolution_clock::now();
+}
+
+
+void Timer::stop(
+  const TimerFunction fnc,
+  const Format format)
+{
+  auto end = std::chrono::high_resolution_clock::now();
+  auto delta = std::chrono::duration_cast<std::chrono::microseconds>
+    (end - timer[fnc][format].start);
+
+  timer[fnc][format].no++;
+  timer[fnc][format].sum += delta.count();
+}
+
+
+void Timer::operator += (const Timer& timer2)
+{
+  for (unsigned fnc = 0; fnc < BRIDGE_TIMER_SIZE; fnc++)
+  {
+    for (unsigned format = 0; format < BRIDGE_FORMAT_SIZE; format++)
+    {
+      timer[fnc][format].no += timer2.timer[fnc][format].no;
+      timer[fnc][format].sum += timer2.timer[fnc][format].sum;
+    }
+  }
+}
+
+
+void Timer::printTable(
+  const string& header,
+  const double table[][BRIDGE_FORMAT_SIZE],
+  const unsigned prec) const
+{
+  cout << setw(8) << left << header;
+  for (unsigned fnc = 0; fnc < BRIDGE_TIMER_SIZE; fnc++)
+    cout << setw(12) << right << TimerName[fnc];
+  cout << "\n";
+
+  for (unsigned format = 0; format < BRIDGE_FORMAT_SIZE; format++)
+  {
+    cout << setw(8) << left << FORMAT_NAMES[format];
+
+    for (unsigned fnc = 0; fnc < BRIDGE_TIMER_SIZE; fnc++)
+    {
+      if (table[fnc][format] == 0.)
+        cout << setw(12) << right << "-";
+      else
+        cout << setw(12) << right << fixed << setprecision(prec) <<
+          table[fnc][format];
+    }
+    cout << "\n";
+  }
+  cout << "\n";
+}
+
+
+void Timer::print(const unsigned numThreads) const 
+{
+  double table[BRIDGE_TIMER_SIZE][BRIDGE_FORMAT_SIZE];
+  double sum = 0.;
+  for (unsigned fnc = 0; fnc < BRIDGE_TIMER_SIZE; fnc++)
+    for (unsigned format = 0; format < BRIDGE_FORMAT_SIZE; format++)
+      sum += timer[fnc][format].sum;
+
+  if (sum == 0.)
+    return;
+
+  cout << "Time spent in main functions: " <<
+    fixed << setprecision(2) << sum / 1000000. << " seconds";
+  if (numThreads > 1)
+    cout << " (" << numThreads << " threads)";
+  cout << "\n\n";
+
+  for (unsigned fnc = 0; fnc < BRIDGE_TIMER_SIZE; fnc++)
+    for (unsigned format = 0; format < BRIDGE_FORMAT_SIZE; format++)
+      table[fnc][format] = 100. * timer[fnc][format].sum / sum;
+
+  Timer::printTable("Sum %", table);
+
+  for (unsigned fnc = 0; fnc < BRIDGE_TIMER_SIZE; fnc++)
+  {
+    for (unsigned format = 0; format < BRIDGE_FORMAT_SIZE; format++)
+    {
+      if (timer[fnc][format].no == 0)
+        table[fnc][format] = 0.;
+      else
+      {
+        double avg = timer[fnc][format].sum / timer[fnc][format].no;
+        table[fnc][format] = avg / 1000.;
+      }
+    }
   }
 
-  return lines;
+  Timer::printTable("Avg ms", table);
 }
+

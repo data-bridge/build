@@ -221,6 +221,8 @@ struct OptionsType
   bool formatSetFlag; // -f, --format
   formatType format;
 
+  unsigned numThreads;
+
   bool verboseIO;
   bool verboseThrow;
   bool verboseBatch;

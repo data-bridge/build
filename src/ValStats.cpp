@@ -69,7 +69,7 @@ void ValStats::add(
 }
 
 
-void ValStats::add(const ValStats& statsIn)
+void ValStats::operator += (const ValStats& statsIn)
 {
   for (unsigned vOrig = 0; vOrig < BRIDGE_FORMAT_LABELS_SIZE; vOrig++)
   {

@@ -9,6 +9,9 @@
 #ifndef BRIDGE_ARGS_H
 #define BRIDGE_ARGS_H
 
+#include "bconst.h"
+
+
 void usage(
  const char base[]);
 
@@ -16,7 +19,8 @@ void printOptions();
 
 void readArgs(
   int argc,
-  char * argv[]);
+  char * argv[],
+  OptionsType& options);
 
 #endif
 

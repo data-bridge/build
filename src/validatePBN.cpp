@@ -181,10 +181,6 @@ bool validatePBN(
     if (lOut > lRef ||
         refValue.substr(0, lOut) != matchOut.str(2))
     {
-// cout << "refField " << refField << endl;
-// cout << "ref match '" << refValue << "'" << endl;
-// cout << "out match '" << matchOut.str(2) << "'" << endl;
-// cout << "substr '" << refValue.substr(0, lOut) << "'" << endl;
       // valError(stats, running, BRIDGE_VAL_ERROR);
       prof.log(BRIDGE_VAL_ERROR, running);
       return false;

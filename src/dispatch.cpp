@@ -19,7 +19,6 @@
 #include "Segment.h"
 #include "Board.h"
 #include "dispatch.h"
-#include "ValStats.h"
 #include "validate.h"
 
 #include "fileLIN.h"
@@ -37,14 +36,14 @@
 
 // Modulo 4, so West for Board "0" (4, 8, ...) etc.
 //
-const playerType BOARD_TO_DEALER[4] = 
+static const playerType BOARD_TO_DEALER[4] = 
 {
   BRIDGE_WEST, BRIDGE_NORTH, BRIDGE_EAST, BRIDGE_SOUTH
 };
 
 // Modulo 16, so EW for Board "0" (16, 32, ...) etc.
 
-const vulType BOARD_TO_VUL[16] =
+static const vulType BOARD_TO_VUL[16] =
 {
   BRIDGE_VUL_EAST_WEST, 
   BRIDGE_VUL_NONE, 
@@ -266,21 +265,23 @@ void setTables()
 void dispatch(
   const int thrNo,
   Files& files,
-  const OptionsType& options)
+  const OptionsType& options,
+  ValStats& vstats,
+  Timer& timer)
 {
-  ValStats vstats;
-
-  UNUSED(thrNo);
-
-  // ValStatType vstats[BRIDGE_FORMAT_LABELS_SIZE][BRIDGE_FORMAT_LABELS_SIZE];
+  ofstream freal;
+  if (options.fileLog.setFlag)
+    freal.open(options.fileLog.name + (thrNo == 0 ? "" : STR(thrNo)));
+  ostream& flog = (options.fileLog.setFlag ? freal : cout);
 
   FileTaskType task;
   while (files.GetNextTask(task))
   {
     if (options.verboseIO)
-      cout << "Input " << task.fileInput << endl;
+      flog << "Input " << task.fileInput << endl;
 
     Group group;
+    timer.start(BRIDGE_TIMER_READ, task.formatInput);
     try
     {
       if (! readFormattedFile(task.fileInput, task.formatInput, 
@@ -294,12 +295,14 @@ void dispatch(
       bex.print();
       continue;
     }
+    timer.stop(BRIDGE_TIMER_READ, task.formatInput);
 
     for (auto &t: task.taskList)
     {
       if (options.verboseIO)
-        cout << "Output " << t.fileOutput << endl;
+        flog << "Output " << t.fileOutput << endl;
 
+      timer.start(BRIDGE_TIMER_WRITE, task.formatInput);
       try
       {
         if (! writeFormattedFile(group, t.fileOutput, t.formatOutput))
@@ -310,13 +313,15 @@ void dispatch(
         bex.print();
         continue;
       }
+      timer.stop(BRIDGE_TIMER_WRITE, task.formatInput);
 
       if (t.refFlag)
       {
         if (options.verboseIO)
-          cout << "Validating " << t.fileOutput <<
+          flog << "Validating " << t.fileOutput <<
               " against " << t.fileRef << endl;
 
+        timer.start(BRIDGE_TIMER_VALIDATE, task.formatInput);
         try
         {
           validate(t.fileOutput, t.fileRef,
@@ -326,6 +331,7 @@ void dispatch(
         {
           bex.print();
         }
+        timer.stop(BRIDGE_TIMER_VALIDATE, task.formatInput);
       }
 
       if (task.removeOutputFlag)
@@ -334,10 +340,6 @@ void dispatch(
       }
     }
   }
-
-  cout << "Overall stats:\n";
-  vstats.print(cout, options.verboseValStats);
-  // printOverallStats(vstats, options.verboseValStats);
 }
 
 
@@ -428,17 +430,10 @@ static void fixChunk(
   vector<Fix>& fix)
 {
   if (fix[0].field == BRIDGE_FORMAT_LABELS_SIZE)
-  {
-// cout << "Fixing segment flag to " << fix[0].value << endl;
-    // Special case: segment flag.
     newSegFlag = (fix[0].value != "0");
-  }
   else
-  {
-// cout << "Fixing " << formatLabelNames[fix[0].field] << " to " <<
-  // fix[0].value << "\n";
     chunk[fix[0].field] = fix[0].value;
-  }
+
   fix.erase(fix.begin());
 }
 
@@ -481,10 +476,6 @@ static bool readFormattedFile(
     lnoOld = lno;
     try
     {
-// if (formatFncs[f].readChunk == nullptr)
-// {
-  // cout << "START f " << f << ", " << fname << endl;
-// }
       if (! (* formatFncs[f].readChunk)(fstr, lno, chunk, newSegFlag))
       {
         if (fstr.eof())
@@ -492,7 +483,6 @@ static bool readFormattedFile(
         else
           THROW("Early end");
       }
-  // cout << "END f " << f << endl;
     }
     catch (Bexcept& bex)
     {
@@ -545,7 +535,6 @@ static bool readFormattedFile(
         (f != BRIDGE_FORMAT_LIN ||
         lastBoard == "" ||
         chunk[BRIDGE_FORMAT_BOARD_NO].substr(1) != lastBoard.substr(1)))
-        // chunk[BRIDGE_FORMAT_BOARD_NO].at(0) != 'c')
     {
       // New board.
       lastBoard = chunk[BRIDGE_FORMAT_BOARD_NO];
@@ -558,12 +547,6 @@ static bool readFormattedFile(
         THROW("Unknown error");
       }
     }
-
-if (board == nullptr)
-{
-  // cout << "HERE" << endl;
-  assert(false);
-}
 
     board->NewInstance();
     segment->CopyPlayers();
@@ -582,11 +565,6 @@ if (board == nullptr)
     {
       for (i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
       {
-// if (chunkNo == 18 && i == 24)
-// {
-  // cout << "HERE" << endl;
-// }
-
         if (chunk[i] == "")
         {
           if (i == BRIDGE_FORMAT_CONTRACT && f == BRIDGE_FORMAT_LIN)
@@ -645,7 +623,6 @@ if (board == nullptr)
     if (fstr.eof())
       break;
   }
-// cout << "Done reading" << endl;
 
   fstr.close();
   return true;
@@ -707,12 +684,9 @@ static bool writeFormattedFile(
   const string& fname,
   const formatType f)
 {
-// cout << "Start write" << endl;
   ofstream fstr(fname.c_str());
   if (! fstr.is_open())
     THROW("Cannot write to: " + fname);
-
-// cout << "POS1" << endl;
 
   writeInfoType writeInfo;
   writeInfo.namesOld[0] = "";
@@ -721,20 +695,14 @@ static bool writeFormattedFile(
   writeInfo.score2 = 0;
 
   writeHeader(fstr, group, f);
-// cout << "POS2" << endl;
 
   for (auto &segment: group)
-  // for (unsigned g = 0; g < group.size(); g++)
   {
-// cout << "POS3" << g << endl;
-    // Segment * segment = group.get(g);
-
     (* formatFncs[f].writeSeg)(fstr, &segment, f);
 
     writeInfo.numBoards = segment.GetLength();
     for (unsigned b = 0; b < writeInfo.numBoards; b++)
     {
-// cout << "POS4" << g << " " << b << endl;
       Board * board = segment.GetBoard(b);
       if (board == nullptr)
       {
@@ -747,7 +715,6 @@ static bool writeFormattedFile(
 
       for (unsigned i = 0; i < writeInfo.numInst; i++)
       {
-// cout << "POS5" << g << " " << b << " " << i << endl;
         if (! board->SetInstance(i))
         {
           fstr.close();
@@ -755,7 +722,6 @@ static bool writeFormattedFile(
         }
 
         writeInfo.ino = i;
-// cout << "b " << b << " i " << i << endl;
         (* formatFncs[f].writeBoard)(fstr, &segment, board, writeInfo, f);
       }
     }
@@ -763,5 +729,49 @@ static bool writeFormattedFile(
 
   fstr.close();
   return true;
+}
+
+
+#include <cstdio>
+
+void mergeResults(
+  vector<ValStats>& vstats,
+  vector<Timer>& timer,
+  const OptionsType& options)
+{
+  if (options.numThreads == 1)
+    return;
+
+  for (unsigned i = 1; i < options.numThreads; i++)
+  {
+    vstats[0] += vstats[i];
+    timer[0] += timer[i];
+  }
+
+  if (! options.fileLog.setFlag)
+    return;
+
+  ofstream fbase(options.fileLog.name, std::ofstream::app);
+  if (! fbase.is_open())
+    return;
+
+  string line;
+  for (unsigned i = 1; i < options.numThreads; i++)
+  {
+    const string fname = options.fileLog.name + STR(i);
+    ifstream flog(fname);
+    if (! flog.is_open())
+      continue;
+
+    fbase << "From thread " << i << ":\n";
+    fbase << "-------------\n\n";
+
+    while (getline(flog, line))
+      fbase << line;
+
+    flog.close();
+    remove(fname.c_str());
+  }
+  fbase.close();
 }
 
