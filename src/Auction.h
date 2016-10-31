@@ -48,29 +48,6 @@ class Auction
 
     void setDealerLIN(const string& text);
     void setDealerPBN(const string& text);
-    void setDealerTXT(const string& text);
-
-    bool SetVulLIN(
-      const string& v,
-      vulType& vOut) const;
-
-    bool SetVulPBN(
-      const string& v,
-      vulType& vOut) const;
-
-    bool SetVulRBN(
-      const string& v,
-      vulType& vOut) const;
-
-    bool SetVulTXT(
-      const string& v,
-      vulType& vOut) const;
-
-    bool ParseDealerVul(
-      const string& d,
-      const string& v,
-      const formatType f,
-      vulType& vOut);
 
     void AddCallNo(
       const unsigned no,
@@ -137,9 +114,9 @@ class Auction
 
     playerType GetDealer() const;
 
-    bool SetVul(
-      const string& v,
-      const formatType f);
+    void setVul(
+      const string& text,
+      const Format format);
 
     /*
     bool CheckDealerVul(

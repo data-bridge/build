@@ -292,6 +292,7 @@ unsigned str2month(const string& m)
 
 Player str2player(const string& text)
 {
+  // This function is "too permissive" as it doesn't limit the format...
   if (text == "N" || text == "North")
     return BRIDGE_NORTH;
   else if (text == "E" || text == "East")
@@ -302,6 +303,26 @@ Player str2player(const string& text)
     return BRIDGE_WEST;
   else
     return BRIDGE_PLAYER_SIZE;
+}
+
+
+Vul str2vul(const string& text)
+{
+  // This function is "too permissive" as it doesn't limit the format...
+  // Pavlicek uses "0" -- wrong?
+  if (text == "o" || text == "O" || text == "0" || 
+      text == "None" || text == "Z")
+    return BRIDGE_VUL_NONE;
+  else if (text == "e" || text == "E" || text == "EW" || 
+       text == "E" || text == "E-W")
+    return BRIDGE_VUL_EAST_WEST;
+  else if (text == "n" || text == "N" || text == "NS" || 
+      text == "N-S" || text == "N")
+    return BRIDGE_VUL_NORTH_SOUTH;
+  else if (text == "b" || text == "B" || text == "All" || text == "Both")
+    return BRIDGE_VUL_BOTH;
+  else
+    return BRIDGE_VUL_SIZE;
 }
 
 

@@ -62,6 +62,8 @@ unsigned str2month(const string& m);
 
 Player str2player(const string& text);
 
+Vul str2vul(const string& text);
+
 unsigned GobbleLeadingSpace(string& s);
 
 string trimTrailing(const string& str);

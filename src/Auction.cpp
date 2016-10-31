@@ -133,28 +133,19 @@ void Auction::setDealerLIN(const string& text)
   unsigned u;
   if (! str2upos(text, u))
     THROW("Not a LIN dealer");
-
   if (u > 4)
     THROW("LIN dealer out of range");
 
-  // dealer = static_cast<Player>((u+1) % 4);
   dealer = PLAYER_LIN_DEALER_TO_DDS[u];
 }
 
 
 void Auction::setDealerPBN(const string& text)
 {
+  // This is a "too permissive" version that accepts all formats.
   dealer = str2player(text);
   if (dealer == BRIDGE_PLAYER_SIZE) 
-    THROW("Invalid PBN dealer");
-}
-
-
-void Auction::setDealerTXT(const string& text)
-{
-  dealer = str2player(text);
-  if (dealer == BRIDGE_PLAYER_SIZE) 
-    THROW("Invalid TXT dealer");
+    THROW("Invalid dealer");
 }
 
 
@@ -171,13 +162,10 @@ void Auction::setDealer(
     case BRIDGE_FORMAT_PBN:
     case BRIDGE_FORMAT_RBN:
     case BRIDGE_FORMAT_RBX:
-      Auction::setDealerPBN(text);
-      break;
-    
     case BRIDGE_FORMAT_TXT:
     case BRIDGE_FORMAT_EML:
     case BRIDGE_FORMAT_REC:
-      Auction::setDealerTXT(text);
+      Auction::setDealerPBN(text);
       break;
     
     default:
@@ -187,152 +175,29 @@ void Auction::setDealer(
 }
 
 
-bool Auction::SetVulLIN(
-  const string& v,
-  vulType& vOut) const
+void Auction::setVul(
+  const string& text,
+  const Format format)
 {
-  if (v == "o" || v == "O" || v == "0") // Pavlicek uses 0 -- wrong?
-    vOut = BRIDGE_VUL_NONE;
-  else if (v == "e" || v == "E")
-    vOut = BRIDGE_VUL_EAST_WEST;
-  else if (v == "n" || v == "N")
-    vOut = BRIDGE_VUL_NORTH_SOUTH;
-  else if (v == "b" || v == "B")
-    vOut = BRIDGE_VUL_BOTH;
-  else
-    THROW("Invalid LIN vulnerability");
-
-  return true;
-}
-
-bool Auction::SetVulPBN(
-  const string& v,
-  vulType& vOut) const
-{
-  if (v == "None")
-    vOut = BRIDGE_VUL_NONE;
-  else if (v == "NS")
-    vOut = BRIDGE_VUL_NORTH_SOUTH;
-  else if (v == "EW")
-    vOut = BRIDGE_VUL_EAST_WEST;
-  else if (v == "All")
-    vOut = BRIDGE_VUL_BOTH;
-  else
-    THROW("Invalid PBN vulnerability");
-
-  return true;
-}
-
-bool Auction::SetVulRBN(
-  const string& v,
-  vulType& vOut) const
-{
-  if (v == "Z")
-    vOut = BRIDGE_VUL_NONE;
-  else if (v == "E")
-    vOut = BRIDGE_VUL_EAST_WEST;
-  else if (v == "N")
-    vOut = BRIDGE_VUL_NORTH_SOUTH;
-  else if (v == "B")
-    vOut = BRIDGE_VUL_BOTH;
-  else
-    THROW("Invalid RBN vulnerability");
-
-  return true;
-}
-
-bool Auction::SetVulTXT(
-  const string& v,
-  vulType& vOut) const
-{
-  if (v == "None")
-    vOut = BRIDGE_VUL_NONE;
-  else if (v == "E-W")
-    vOut = BRIDGE_VUL_EAST_WEST;
-  else if (v == "N-S")
-    vOut = BRIDGE_VUL_NORTH_SOUTH;
-  else if (v == "Both")
-    vOut = BRIDGE_VUL_BOTH;
-  else
-    THROW("Invalid TXT vulnerability");
-
-  return true;
-}
-
-
-bool Auction::SetVul(
-  const string& v,
-  const formatType f)
-{
-  vulType vOut;
-  switch(f)
+  switch(format)
   {
     case BRIDGE_FORMAT_LIN:
-      if (! Auction::SetVulLIN(v, vOut))
-        return false;
-      setDVFlag = true;
-      vul = vOut;
-      break;
-    
     case BRIDGE_FORMAT_PBN:
     case BRIDGE_FORMAT_RBN:
     case BRIDGE_FORMAT_RBX:
-      if (! Auction::SetVulPBN(v, vOut))
-        return false;
-      setDVFlag = true;
-      vul = vOut;
-      break;
-    
+    case BRIDGE_FORMAT_TXT:
     case BRIDGE_FORMAT_EML:
-    case BRIDGE_FORMAT_TXT:
     case BRIDGE_FORMAT_REC:
-      if (! Auction::SetVulTXT(v, vOut))
-        return false;
-      setDVFlag = true;
-      vul = vOut;
+      // This is a "too permissive" version that accepts all formats.
+      vul = str2vul(text);
+      if (vul == BRIDGE_VUL_SIZE)
+        THROW("Invalid LIN vulnerability");
       break;
     
     default:
-      THROW("Invalid format " + STR(f));
+      THROW("Invalid format: " + STR(format));
   }
-
-  return true;
-}
-
-
-bool Auction::ParseDealerVul(
-  const string& d,
-  const string& v,
-  const formatType f,
-  vulType& vOut)
-{
-  switch(f)
-  {
-    case BRIDGE_FORMAT_LIN:
-      Auction::setDealerLIN(d);
-      if (! Auction::SetVulLIN(v, vOut))
-        return false;
-      break;
-    
-    case BRIDGE_FORMAT_PBN:
-    case BRIDGE_FORMAT_RBN:
-    case BRIDGE_FORMAT_RBX:
-      Auction::setDealerPBN(d);
-      if (! Auction::SetVulPBN(v, vOut))
-        return false;
-      break;
-    
-    case BRIDGE_FORMAT_TXT:
-      Auction::setDealerTXT(d);
-      if (! Auction::SetVulTXT(v, vOut))
-        return false;
-      break;
-    
-    default:
-      THROW("Invalid format " + STR(f));
-  }
-
-  return true;
+  setDVFlag = true;
 }
 
 
@@ -344,10 +209,9 @@ bool Auction::SetDealerVul(
   if (setDVFlag)
     THROW("Dealer and vulnerability already set");
 
-  vulType vOut;
-  Auction::ParseDealerVul(d, v, f, vOut);
+  Auction::setDealer(d, f);
+  Auction::setVul(v, f);
   setDVFlag = true;
-  vul = vOut;
   return true;
 }
 
@@ -358,25 +222,6 @@ void Auction::CopyDealerVulFrom(const Auction& a2)
   dealer = a2.dealer;
   vul = a2.vul;
 }
-
-
-/*
-bool Auction::CheckDealerVul(
-  const string& d,
-  const string& v,
-  const formatType f) const
-{
-  if (! setDVFlag)
-    THROW("Dealer and vulnerability not set");
-
-  playerType dOut;
-  vulType vOut;
-  if (! Auction::ParseDealerVul(d, v, f, dOut, vOut))
-    return false;
-
-  return (dealer == dOut && vul == vOut);
-}
-*/
 
 
 bool Auction::IsOver() const

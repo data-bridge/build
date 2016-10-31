@@ -164,8 +164,7 @@ bool Board::SetVul(
   const string& v,
   const formatType f)
 {
-  if (! auction[0].SetVul(v, f))
-    return false;
+  auction[0].setVul(v, f);
   if (! contract[numActive].SetVul(auction[0].GetVul()))
     return false;
   return true;
