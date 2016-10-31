@@ -290,6 +290,21 @@ unsigned str2month(const string& m)
 }
 
 
+Player str2player(const string& text)
+{
+  if (text == "N" || text == "North")
+    return BRIDGE_NORTH;
+  else if (text == "E" || text == "East")
+    return BRIDGE_EAST;
+  else if (text == "S" || text == "South")
+    return BRIDGE_SOUTH;
+  else if (text == "W" || text == "West")
+    return BRIDGE_WEST;
+  else
+    return BRIDGE_PLAYER_SIZE;
+}
+
+
 unsigned GobbleLeadingSpace(string& s)
 {
   unsigned pos = 0;

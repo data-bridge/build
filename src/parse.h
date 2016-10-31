@@ -60,6 +60,8 @@ unsigned StringToMonth(const string& m);
 
 unsigned str2month(const string& m);
 
+Player str2player(const string& text);
+
 unsigned GobbleLeadingSpace(string& s);
 
 string trimTrailing(const string& str);

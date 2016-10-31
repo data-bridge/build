@@ -155,7 +155,8 @@ bool Board::SetDealer(
   const string& d,
   const formatType f)
 {
-  return auction[0].SetDealer(d, f);
+  auction[0].setDealer(d, f);
+  return true;
 }
 
 
@@ -171,6 +172,7 @@ bool Board::SetVul(
 }
 
 
+/*
 bool Board::CheckDealerVul(
   const string& d,
   const string& v,
@@ -178,6 +180,7 @@ bool Board::CheckDealerVul(
 {
   return auction[0].CheckDealerVul(d, v, f);
 }
+*/
 
 
 playerType Board::GetDealer() const
@@ -212,8 +215,7 @@ bool Board::SetDeal(
   if (f == BRIDGE_FORMAT_LIN)
   {
     string d = s.substr(0, 1);
-    if (! auction[numActive].SetDealer(d, f))
-      return false;
+    auction[numActive].setDealer(d, f);
   }
 
   return true;

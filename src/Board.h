@@ -88,10 +88,12 @@ class Board
       const string& v,
       const formatType f);
 
+    /*
     bool CheckDealerVul(
       const string& d,
       const string& v,
       const formatType f) const;
+      */
 
     playerType GetDealer() const;
 

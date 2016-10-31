@@ -32,7 +32,7 @@ class Auction
     };
 
     bool setDVFlag;
-    playerType dealer;
+    Player dealer;
     vulType vul;
 
     unsigned len;
@@ -46,17 +46,9 @@ class Auction
 
     void setTables();
 
-    bool SetDealerLIN(
-      const string& d,
-      playerType& dOut) const;
-
-    bool SetDealerPBN(
-      const string& d,
-      playerType& dOut) const;
-
-    bool SetDealerTXT(
-      const string& d,
-      playerType& dOut) const;
+    void setDealerLIN(const string& text);
+    void setDealerPBN(const string& text);
+    void setDealerTXT(const string& text);
 
     bool SetVulLIN(
       const string& v,
@@ -78,8 +70,7 @@ class Auction
       const string& d,
       const string& v,
       const formatType f,
-      playerType& dOut,
-      vulType& vOut) const;
+      vulType& vOut);
 
     void AddCallNo(
       const unsigned no,
@@ -140,9 +131,9 @@ class Auction
       const string& v,
       const formatType f);
 
-    bool SetDealer(
-      const string& d,
-      const formatType f);
+    void setDealer(
+      const string& text,
+      const Format format);
 
     playerType GetDealer() const;
 
@@ -150,10 +141,12 @@ class Auction
       const string& v,
       const formatType f);
 
+    /*
     bool CheckDealerVul(
       const string& d,
       const string& v,
       const formatType f) const;
+      */
 
     void CopyDealerVulFrom(const Auction& a2);
 

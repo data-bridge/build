@@ -128,57 +128,62 @@ void Auction::setTables()
 }
 
 
-bool Auction::SetDealerLIN(
-  const string& d,
-  playerType& p) const
+void Auction::setDealerLIN(const string& text)
 {
   unsigned u;
-  if (! StringToNonzeroUnsigned(d, u))
+  if (! str2upos(text, u))
     THROW("Not a LIN dealer");
 
   if (u > 4)
     THROW("LIN dealer out of range");
 
-  p = static_cast<playerType>((u+1) % 4);
-  return true;
+  // dealer = static_cast<Player>((u+1) % 4);
+  dealer = PLAYER_LIN_DEALER_TO_DDS[u];
 }
 
 
-bool Auction::SetDealerPBN(
-  const string& d,
-  playerType& p) const
+void Auction::setDealerPBN(const string& text)
 {
-  if (d == "N")
-    p = BRIDGE_NORTH;
-  else if (d == "E")
-    p = BRIDGE_EAST;
-  else if (d == "S")
-    p = BRIDGE_SOUTH;
-  else if (d == "W")
-    p = BRIDGE_WEST;
-  else
+  dealer = str2player(text);
+  if (dealer == BRIDGE_PLAYER_SIZE) 
     THROW("Invalid PBN dealer");
-
-  return true;
 }
 
 
-bool Auction::SetDealerTXT(
-  const string& d,
-  playerType& p) const
+void Auction::setDealerTXT(const string& text)
 {
-  if (d == "North")
-    p = BRIDGE_NORTH;
-  else if (d == "East")
-    p = BRIDGE_EAST;
-  else if (d == "South")
-    p = BRIDGE_SOUTH;
-  else if (d == "West")
-    p = BRIDGE_WEST;
-  else
-    THROW("Invalid PBN dealer");
+  dealer = str2player(text);
+  if (dealer == BRIDGE_PLAYER_SIZE) 
+    THROW("Invalid TXT dealer");
+}
 
-  return true;
+
+void Auction::setDealer(
+  const string& text,
+  const Format format)
+{
+  switch(format)
+  {
+    case BRIDGE_FORMAT_LIN:
+      Auction::setDealerLIN(text);
+      break;
+    
+    case BRIDGE_FORMAT_PBN:
+    case BRIDGE_FORMAT_RBN:
+    case BRIDGE_FORMAT_RBX:
+      Auction::setDealerPBN(text);
+      break;
+    
+    case BRIDGE_FORMAT_TXT:
+    case BRIDGE_FORMAT_EML:
+    case BRIDGE_FORMAT_REC:
+      Auction::setDealerTXT(text);
+      break;
+    
+    default:
+      THROW("Invalid format: " + STR(format));
+  }
+  setDVFlag = true;
 }
 
 
@@ -255,105 +260,6 @@ bool Auction::SetVulTXT(
 }
 
 
-bool Auction::ParseDealerVul(
-  const string& d,
-  const string& v,
-  const formatType f,
-  playerType& dOut,
-  vulType& vOut) const
-{
-  switch(f)
-  {
-    case BRIDGE_FORMAT_LIN:
-      if (! Auction::SetDealerLIN(d, dOut))
-        return false;
-      if (! Auction::SetVulLIN(v, vOut))
-        return false;
-      break;
-    
-    case BRIDGE_FORMAT_PBN:
-    case BRIDGE_FORMAT_RBN:
-    case BRIDGE_FORMAT_RBX:
-      if (! Auction::SetDealerPBN(d, dOut))
-        return false;
-      if (! Auction::SetVulPBN(v, vOut))
-        return false;
-      break;
-    
-    case BRIDGE_FORMAT_TXT:
-      if (! Auction::SetDealerTXT(d, dOut))
-        return false;
-      if (! Auction::SetVulTXT(v, vOut))
-        return false;
-      break;
-    
-    default:
-      THROW("Invalid format " + STR(f));
-  }
-
-  return true;
-}
-
-
-bool Auction::SetDealerVul(
-  const string& d,
-  const string& v,
-  const formatType f)
-{
-  if (setDVFlag)
-    THROW("Dealer and vulnerability already set");
-
-  playerType dOut;
-  vulType vOut;
-  if (! Auction::ParseDealerVul(d, v, f, dOut, vOut))
-    return false;
-  setDVFlag = true;
-  dealer = dOut;
-  vul = vOut;
-  return true;
-}
-
-
-bool Auction::SetDealer(
-  const string& d,
-  const formatType f)
-{
-  playerType dOut;
-  switch(f)
-  {
-    case BRIDGE_FORMAT_LIN:
-      if (! Auction::SetDealerLIN(d, dOut))
-        return false;
-      setDVFlag = true;
-      dealer = dOut;
-      break;
-    
-    case BRIDGE_FORMAT_PBN:
-    case BRIDGE_FORMAT_RBN:
-    case BRIDGE_FORMAT_RBX:
-      if (! Auction::SetDealerPBN(d, dOut))
-        return false;
-      setDVFlag = true;
-      dealer = dOut;
-      break;
-    
-    case BRIDGE_FORMAT_EML:
-    case BRIDGE_FORMAT_TXT:
-    case BRIDGE_FORMAT_REC:
-      if (! Auction::SetDealerTXT(d, dOut))
-        return false;
-      setDVFlag = true;
-      dealer = dOut;
-      break;
-    
-    default:
-      THROW("Invalid format " + STR(f));
-  }
-
-  return true;
-}
-
-
 bool Auction::SetVul(
   const string& v,
   const formatType f)
@@ -394,6 +300,58 @@ bool Auction::SetVul(
 }
 
 
+bool Auction::ParseDealerVul(
+  const string& d,
+  const string& v,
+  const formatType f,
+  vulType& vOut)
+{
+  switch(f)
+  {
+    case BRIDGE_FORMAT_LIN:
+      Auction::setDealerLIN(d);
+      if (! Auction::SetVulLIN(v, vOut))
+        return false;
+      break;
+    
+    case BRIDGE_FORMAT_PBN:
+    case BRIDGE_FORMAT_RBN:
+    case BRIDGE_FORMAT_RBX:
+      Auction::setDealerPBN(d);
+      if (! Auction::SetVulPBN(v, vOut))
+        return false;
+      break;
+    
+    case BRIDGE_FORMAT_TXT:
+      Auction::setDealerTXT(d);
+      if (! Auction::SetVulTXT(v, vOut))
+        return false;
+      break;
+    
+    default:
+      THROW("Invalid format " + STR(f));
+  }
+
+  return true;
+}
+
+
+bool Auction::SetDealerVul(
+  const string& d,
+  const string& v,
+  const formatType f)
+{
+  if (setDVFlag)
+    THROW("Dealer and vulnerability already set");
+
+  vulType vOut;
+  Auction::ParseDealerVul(d, v, f, vOut);
+  setDVFlag = true;
+  vul = vOut;
+  return true;
+}
+
+
 void Auction::CopyDealerVulFrom(const Auction& a2)
 {
   setDVFlag = true;
@@ -402,6 +360,7 @@ void Auction::CopyDealerVulFrom(const Auction& a2)
 }
 
 
+/*
 bool Auction::CheckDealerVul(
   const string& d,
   const string& v,
@@ -417,6 +376,7 @@ bool Auction::CheckDealerVul(
 
   return (dealer == dOut && vul == vOut);
 }
+*/
 
 
 bool Auction::IsOver() const
@@ -890,8 +850,8 @@ bool Auction::AddAuctionPBN(const vector<string>& list)
   if (! setDVFlag)
     THROW("Dealer and vul should be set by now");
 
-  playerType dlr;
-  if (! Auction::SetDealerPBN(list[0], dlr))
+  Player dlr = str2player(list[0]);
+  if (dlr == BRIDGE_PLAYER_SIZE)
     THROW("Not a PBN dealer");
 
   if (dealer != dlr)
