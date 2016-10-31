@@ -64,31 +64,10 @@ unsigned Board::NewInstance()
   else if (numActive == 1)
     Board::SetRoom("Closed", 1, BRIDGE_FORMAT_PBN);
 
-  /*
-  if (LINset)
-  {
-    if (LINdata.contract[numActive] != "")
-    {
-      Board::SetContract(LINdata.contract[numActive], BRIDGE_FORMAT_LIN);
-    }
-
-    string s = "pn|";
-    for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
-    {
-      s += LINdata.players[numActive][i];
-      if (i < 3)
-        s += ",";
-    }
-
-    if (s != "pn|,,,")
-      Board::SetPlayers(s, BRIDGE_FORMAT_LIN);
-  }
-  */
-
   if (numActive > 0)
   {
-    auction[numActive].CopyDealerVulFrom(auction[0]);
-    contract[numActive].SetVul(auction[0].GetVul());
+    auction[numActive].copyDealerVul(auction[0]);
+    contract[numActive].SetVul(auction[0].getVul());
 
     if (deal.isSet())
     {
@@ -147,7 +126,8 @@ bool Board::SetDealerVul(
   const formatType f)
 {
   // Only the first one is independent.
-  return auction[0].SetDealerVul(d, v, f);
+  auction[0].setDealerVul(d, v, f);
+  return true;
 }
 
 
@@ -165,26 +145,15 @@ bool Board::SetVul(
   const formatType f)
 {
   auction[0].setVul(v, f);
-  if (! contract[numActive].SetVul(auction[0].GetVul()))
+  if (! contract[numActive].SetVul(auction[0].getVul()))
     return false;
   return true;
 }
 
 
-/*
-bool Board::CheckDealerVul(
-  const string& d,
-  const string& v,
-  const formatType f) const
-{
-  return auction[0].CheckDealerVul(d, v, f);
-}
-*/
-
-
 playerType Board::GetDealer() const
 {
-  return auction[0].GetDealer();
+  return auction[0].getDealer();
 }
 
 
@@ -235,7 +204,8 @@ bool Board::AddCall(
   const string& call,
   const string& alert)
 {
-  return auction[numActive].AddCall(call, alert);
+  auction[numActive].addCall(call, alert);
+  return true;
 }
 
 
@@ -243,19 +213,21 @@ bool Board::AddAlert(
   const unsigned alertNo,
   const string& alert)
 {
-  return auction[numActive].AddAlert(alertNo, alert);
+  auction[numActive].addAlert(alertNo, alert);
+  return true;
 }
 
 
 void Board::AddPasses()
 {
-  auction[numActive].AddPasses();
+  auction[numActive].addPasses();
 }
 
 
 bool Board::UndoLastCall()
 {
-  return auction[numActive].UndoLastCall();
+  auction[numActive].undoLastCall();
+  return true;
 }
 
 
@@ -269,56 +241,37 @@ bool Board::SetAuction(
   const string& s,
   const formatType f)
 {
-  if (! auction[numActive].AddAuction(s, f))
-    return false;
+  auction[numActive].addAuction(s, f);
 
-  if (auction[numActive].DVIsSet())
+  if (auction[numActive].hasDealerVul())
   {
-    if (! contract[numActive].SetVul(auction[numActive].GetVul()))
+    if (! contract[numActive].SetVul(auction[numActive].getVul()))
       return false;
   }
 
   // Doesn't bother us unduly.
-  if (! auction[numActive].ExtractContract(contract[numActive]))
+  if (! auction[numActive].getContract(contract[numActive]))
     return true;
 
   return play[numActive].SetContract(contract[numActive]);
 }
 
 
-bool Board::SetAuction(
-  const vector<string>& list,
-  const formatType f)
-{
-  if (! auction[numActive].AddAuction(list, f))
-    return false;
-
-  if (auction[numActive].DVIsSet())
-  {
-    if (! contract[numActive].SetVul(auction[numActive].GetVul()))
-      return false;
-  }
-
-  return true;
-
-}
-
-
 bool Board::AuctionIsOver() const
 {
-  return auction[numActive].IsOver();
+  return auction[numActive].isOver();
 }
 
 
 bool Board::AuctionIsEmpty() const
 {
-  return auction[numActive].IsEmpty();
+  return auction[numActive].isEmpty();
 }
 
 
 bool Board::IsPassedOut() const
 {
-  return auction[numActive].IsPassedOut();
+  return auction[numActive].isPassedOut();
 }
 
 
@@ -671,10 +624,10 @@ string Board::AuctionAsString(
       playerType pp = static_cast<playerType>((p+3) % 4);
       lengths[p] = players[numActive].strPlayer(pp, f).length();
     }
-    return auction[numActive].AsString(f, lengths);
+    return auction[numActive].str(f, lengths);
   }
   else
-    return auction[numActive].AsString(f);
+    return auction[numActive].str(f);
 }
 
 

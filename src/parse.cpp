@@ -379,6 +379,14 @@ bool GetNextWord(
 }
 
 
+bool getNextWord(
+  string& text,
+  string& word)
+{
+  return GetNextWord(text, word);
+}
+
+
 bool ReadNextWord(
   const string& s,
   const unsigned startPos,
@@ -605,6 +613,14 @@ void ConvertMultilineToVector(
 
     p = found+1;
   }
+}
+
+
+void str2lines(
+  const string& sin,
+  vector<string>& sout)
+{
+  ConvertMultilineToVector(sin, sout);
 }
 
 

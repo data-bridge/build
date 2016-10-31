@@ -201,75 +201,65 @@ void Auction::setVul(
 }
 
 
-bool Auction::SetDealerVul(
-  const string& d,
-  const string& v,
-  const formatType f)
+void Auction::setDealerVul(
+  const string& dtext,
+  const string& vtext,
+  const Format format)
 {
   if (setDVFlag)
     THROW("Dealer and vulnerability already set");
 
-  Auction::setDealer(d, f);
-  Auction::setVul(v, f);
+  Auction::setDealer(dtext, format);
+  Auction::setVul(vtext, format);
   setDVFlag = true;
-  return true;
 }
 
 
-void Auction::CopyDealerVulFrom(const Auction& a2)
-{
-  setDVFlag = true;
-  dealer = a2.dealer;
-  vul = a2.vul;
-}
-
-
-bool Auction::IsOver() const
-{
-  return (Auction::IsPassedOut() ||
-    (numPasses == 3 && activeCNo > 0));
-}
-
-
-bool Auction::IsEmpty() const
-{
-  return (len == 0);
-}
-
-
-bool Auction::DVIsSet() const
+bool Auction::hasDealerVul() const
 {
   return setDVFlag;
 }
 
 
-vulType Auction::GetVul() const
+Player Auction::getDealer() const
 {
-  return vul;
-}
+  if (! setDVFlag)
+    THROW("Dealer not set");
 
-
-bool Auction::IsPassedOut() const
-{
-  return (numPasses == 4);
-}
-
-
-playerType Auction::GetDealer() const
-{
   return dealer;
 }
 
 
-void Auction::AddCallNo(
+Vul Auction::getVul() const
+{
+  if (! setDVFlag)
+    THROW("Vulnerability not set");
+
+  return vul;
+}
+
+
+void Auction::copyDealerVul(const Auction& auction2)
+{
+  dealer = auction2.dealer;
+  vul = auction2.vul;
+  setDVFlag = true;
+}
+
+
+void Auction::extend()
+{
+  lenMax += AUCTION_SEQ_INCR;
+  sequence.resize(lenMax);
+}
+
+
+void Auction::addCallNo(
   const unsigned no,
   const string& alert)
 {
   if (len == lenMax)
-  {
-    lenMax += AUCTION_SEQ_INCR;
-    sequence.resize(lenMax);
-  }
+    Auction::extend();
 
   sequence[len].no = no;
   sequence[len].alert = alert;
@@ -277,11 +267,11 @@ void Auction::AddCallNo(
 }
 
 
-bool Auction::AddCall(
+void Auction::addCall(
   const string& call,
   const string& alert)
 {
-  if (Auction::IsOver())
+  if (Auction::isOver())
     THROW("Call after auction is over");
 
   if (call == "")
@@ -295,17 +285,14 @@ bool Auction::AddCall(
     c.pop_back();
   }
 
-  map<string, unsigned>::iterator it = AUCTION_CALL_TO_NO.find(c);
+  if (len == lenMax)
+    Auction::extend();
+
+  auto it = AUCTION_CALL_TO_NO.find(c);
   if (it == AUCTION_CALL_TO_NO.end())
     THROW("Illegal call: " + call);
 
-  if (len == lenMax)
-  {
-    lenMax += AUCTION_SEQ_INCR;
-    sequence.resize(lenMax);
-  }
-
-  unsigned n = AUCTION_CALL_TO_NO[c];
+  unsigned n = it->second;
   if (n == 0)
     numPasses++;
   else if (n == 1)
@@ -335,14 +322,13 @@ bool Auction::AddCall(
   }
 
   if (alert == "" && alertFlag)
-    Auction::AddCallNo(n, "!");
+    Auction::addCallNo(n, "!");
   else
-    Auction::AddCallNo(n, alert);
-  return true;
+    Auction::addCallNo(n, alert);
 }
 
 
-bool Auction::AddAlert(
+void Auction::addAlert(
   const unsigned alertNo,
   const string& alert)
 {
@@ -356,51 +342,58 @@ bool Auction::AddAlert(
     if (sequence[b].alert == lookFor)
     {
       sequence[b].alert = alert;
-      return true;
+      return;
     }
   }
-  return false;
+
+  THROW("Alert number not given: " + STR(alertNo));
 }
 
 
-bool Auction::AddAlertsRBN(const vector<string>& lines)
-{
-  for (unsigned i = 1; i < lines.size(); i++)
-  {
-    string beg;
-    string line = lines[i];
-    if (! GetNextWord(line, beg))
-      THROW("Not a valid alert line");
-
-    unsigned u;
-    if (! StringToNonzeroUnsigned(beg, u))
-      THROW("Not a valid alert number");
-
-    if (i != u)
-      THROW("Alert numbers not in strict sequence");
-
-    if (! Auction::AddAlert(i, line))
-      return false;
-  }
-  return true;
-}
-
-
-void Auction::AddPasses()
+void Auction::addPasses()
 {
   unsigned add = (activeCNo == 0 ? 4 - numPasses : 3 - numPasses);
   numPasses += add;
   for (unsigned p = 0; p < add; p++)
-    Auction::AddCallNo(0);
+    Auction::addCallNo(0);
 }
 
 
-bool Auction::UndoLastCall()
+unsigned Auction::getRBNAlertNo(
+  const string& s,
+  size_t& pos,
+  const bool extendedFlag) const
+{
+  char c = s.at(pos);
+  if (c < '0' || c > '9')
+    THROW("Bad alert number " + STR(c));
+
+  unsigned aNo = static_cast<unsigned>(c - '0');
+  pos++;
+
+  if (extendedFlag)
+  {
+    // This is not standard RBN.
+    c = s.at(pos);
+    pos++;
+    if (pos == s.length())
+      THROW("Missing end of alert");
+
+    if (c < '0' || c > '9')
+      THROW("Bad alert number, second digit " + STR(c));
+
+    aNo = 10*aNo + static_cast<unsigned>(c - '0');
+  }
+  return aNo;
+}
+
+
+void Auction::undoLastCall()
 {
   if (len == 0)
     THROW("Can't undo before any bidding");
 
-  if (Auction::IsOver())
+  if (Auction::isOver())
     THROW("Can't undo after complete bidding");
 
   if (sequence[len-1].no == 0)
@@ -408,7 +401,7 @@ bool Auction::UndoLastCall()
     sequence[len-1].alert = "";
     len--;
     numPasses--;
-    return true;
+    return;
   }
 
   sequence[len-1].alert = "";
@@ -430,254 +423,66 @@ bool Auction::UndoLastCall()
 
   activeCNo = sequence[p].no;
   activeBNo = p;
-  return true;
 }
 
 
-bool Auction::ParseRBNDealer(const char c)
+void Auction::addAlertsRBN(const vector<string>& lines)
 {
-  switch(c)
+  for (unsigned i = 1; i < lines.size(); i++)
   {
-    case 'N':
-      dealer = BRIDGE_NORTH;
-      break;
-    case 'E':
-      dealer = BRIDGE_EAST;
-      break;
-    case 'S':
-      dealer = BRIDGE_SOUTH;
-      break;
-    case 'W':
-      dealer = BRIDGE_WEST;
-      break;
-    default:
-      THROW("Unknown RBN dealer");
+    string beg;
+    string line = lines[i];
+    if (! getNextWord(line, beg))
+      THROW("Not a valid alert line");
+
+    unsigned u;
+    if (! str2upos(beg, u))
+      THROW("Not a valid alert number");
+
+    if (i != u)
+      THROW("Alert numbers not in strict sequence");
+
+    Auction::addAlert(i, line);
   }
-  return true;
 }
 
 
-bool Auction::ParseRBNVul(const char c)
-{
-  switch(c)
-  {
-    case 'Z':
-      vul = BRIDGE_VUL_NONE;
-      break;
-    case 'N':
-      vul = BRIDGE_VUL_NORTH_SOUTH;
-      break;
-    case 'E':
-      vul = BRIDGE_VUL_EAST_WEST;
-      break;
-    case 'B':
-      vul = BRIDGE_VUL_BOTH;
-      break;
-    default:
-      THROW("Unknown RBN vulnerability");
-  }
-  return true;
-}
-
-
-bool Auction::GetRBNAlertNo(
-  const string& s,
-  size_t& pos,
-  unsigned& aNo,
-  const bool extendedFlag) const
-{
-  char c = s.at(pos);
-  if (c < '0' || c > '9')
-    THROW("Bad alert number " + STR(c));
-
-  aNo = static_cast<unsigned>(c - '0');
-  pos++;
-
-  if (extendedFlag)
-  {
-    // This is not standard RBN.
-    c = s.at(pos);
-    pos++;
-    if (pos == s.length())
-      THROW("Missing end of alert");
-
-    if (c < '0' || c > '9')
-      THROW("Bad alert number, second digit " + STR(c));
-
-    aNo = 10*aNo + static_cast<unsigned>(c - '0');
-  }
-  return true;
-}
-
-
-bool Auction::AddAuctionLIN(const string& s)
+void Auction::addAuctionLIN(const string& text)
 {
   // This only occurs in RP-style LIN where alerts are not given.
-  const size_t l = s.length();
+  const size_t l = text.length();
   size_t pos = 0;
 
   while (1)
   {
     if (pos >= l)
-      return true;
+      return;
 
-    const char c = s.at(pos);
+    const char c = text.at(pos);
     if (c == 'P' || c == 'D' || c == 'R')
     {
-      Auction::AddCall(string(1, c), "");
+      Auction::addCall(string(1, c), "");
       pos++;
     }
     else if (pos == l-1)
       THROW("Missing end of bid");
     else
     {
-      string t = s.substr(pos, 2);
+      Auction::addCall(text.substr(pos, 2), "");
       pos += 2;
-      if (! Auction::AddCall(t, ""))
-        return false;
-    }
-  }
-  return true;
-}
-
-
-bool Auction::AddAuctionRBN(const string& s)
-{
-  const size_t l = s.length();
-  if (l < 4)
-    THROW("String too short: " + s);
-
-  if (s.at(2) != ':')
-    THROW("Must start with 'xy:'");
-
-  if (! Auction::ParseRBNDealer(s.at(0)))
-    THROW("Bad dealer " + STR(s.at(0)));
-
-  if (! Auction::ParseRBNVul(s.at(1)))
-    THROW("Bad vulnerability " + STR(s.at(1)));
-
-  setDVFlag = true;
-
-  return Auction::AddAuctionEML(s, 2);
-
-}
-
-
-bool Auction::AddAuctionEML(
-  const string& t,
-  const unsigned startPos)
-{
-  const size_t l = t.length();
-  string s = t;
-  toUpper(s);
-  size_t pos = startPos;
-  unsigned aNo = 0;
-  while (1)
-  {
-    if (pos >= l)
-      return true;
-
-    const char c = s.at(pos);
-    if (c == 'A')
-    {
-      Auction::AddPasses();
-      if (pos == l-1)
-        return true;
-      else
-        THROW("Characters trailing all-pass");
-    }
-    else if (c == ':')
-    {
-      // In real RBN this is only permitted between groups of
-      // four bids.
-      pos++;
-    }
-    else if (c == '^')
-    {
-      unsigned aNoNew;
-      pos++;
-      if (pos >= l)
-        THROW("Missing end of alert");
-
-      if (! Auction::GetRBNAlertNo(s, pos, aNoNew, aNo > 9))
-        THROW("Bad alert number");
-
-      if (aNoNew <= aNo)
-        THROW("Alerts not in ascending order");
-
-      aNo = aNoNew;
-      sequence[len-1].alert = "[" + STR(aNo) + "]";
-    }
-    else if (c == '*' || c == '!') 
-    {
-      pos++;
-      sequence[activeBNo].alert = '!';
-    }
-    else if (c == 'P' || c == 'X' || c == 'D' || c == 'R')
-    {
-      Auction::AddCall(string(1, c), "");
-      pos++;
-    }
-    else if (pos == l-1)
-      THROW("Missing end of bid");
-    else
-    {
-      string tt = s.substr(pos, 2);
-      pos += 2;
-      if (! Auction::AddCall(tt, ""))
-        return false;
     }
   }
 }
 
 
-bool Auction::AddAuction(
-  const string& s,
-  const formatType f)
-{
-  switch(f)
-  {
-    case BRIDGE_FORMAT_LIN:
-      // return Auction::AddAuctionLIN(s);
-      {
-        vector<string> lines;
-        ConvertMultilineToVector(s, lines);
-        if (! Auction::AddAuctionEML(lines[0]))
-          return false;
-
-        return Auction::AddAlertsRBN(lines);
-      }
-    
-    case BRIDGE_FORMAT_PBN:
-      {
-        vector<string> lines;
-        ConvertMultilineToVector(s, lines);
-        return Auction::AddAuctionPBN(lines);
-      }
-    
-    case BRIDGE_FORMAT_RBN:
-    case BRIDGE_FORMAT_RBX:
-      return Auction::AddAuctionRBN(s);
-
-    case BRIDGE_FORMAT_REC:
-    case BRIDGE_FORMAT_EML:
-    case BRIDGE_FORMAT_TXT:
-      return Auction::AddAuctionEML(s);
-    
-    default:
-      THROW("Unknown auction type");
-  }
-}
-
-
-bool Auction::IsPBNNote(
-  const string& s,
+bool Auction::isPBNNote(
+  const string& text,
   int& no,
   string& alert) const
 {
   regex re("^\\[Note \"(\\d+):(.*)\"\\]$");
   smatch match;
-  if (regex_search(s, match, re) && match.size() >= 2)
+  if (regex_search(text, match, re) && match.size() >= 2)
   {
     if (! str2int(match.str(1), no))
       return false;
@@ -690,7 +495,7 @@ bool Auction::IsPBNNote(
 }
 
 
-bool Auction::AddAuctionPBN(const vector<string>& list)
+void Auction::addAuctionPBN(const vector<string>& list)
 {
   if (! setDVFlag)
     THROW("Dealer and vul should be set by now");
@@ -708,7 +513,7 @@ bool Auction::AddAuctionPBN(const vector<string>& list)
   alerts.clear();
   int no;
   string alert;
-  while (end > 0 && Auction::IsPBNNote(list[end], no, alert))
+  while (end > 0 && Auction::isPBNNote(list[end], no, alert))
   {
     alerts.insert(alerts.begin() + no, alert);
     end--;
@@ -721,7 +526,7 @@ bool Auction::AddAuctionPBN(const vector<string>& list)
   for (unsigned i = 1; i <= end; i++)
   {
     string s = list[i];
-    while (GetNextWord(s, word))
+    while (getNextWord(s, word))
       words.push_back(word);
   }
 
@@ -732,11 +537,10 @@ bool Auction::AddAuctionPBN(const vector<string>& list)
     {
       if (i == l-1 && words[i] == "AP")
       {
-        Auction::AddPasses();
-        return true;
+        Auction::addPasses();
+        return;
       }
-      if (! Auction::AddCall(words[i]))
-        return false;
+      Auction::addCall(words[i]);
     }
     else
     {
@@ -748,72 +552,141 @@ bool Auction::AddAuctionPBN(const vector<string>& list)
       if (ano > alerts.size()-1)
         THROW("Alert too high");
 
-      if (! Auction::AddCall(words[i], alerts[ano]))
-        return false;
+      Auction::addCall(words[i], alerts[ano]);
 
       // Already consumed the alert.
       i--;
     }
   }
-
-  return true;
 }
 
 
-bool Auction::AddAuction(
-  const vector<string>& list,
-  const formatType f)
+void Auction::addAuctionRBN(const string& text)
 {
-  switch(f)
+  const size_t l = text.length();
+  if (l < 4)
+    THROW("String too short: " + text);
+
+  if (text.at(2) != ':')
+    THROW("Must start with 'xy:'");
+
+  Auction::setDealerPBN(text.substr(0, 1));
+  Auction::setVul(text.substr(1, 1), BRIDGE_FORMAT_RBN);
+  setDVFlag = true;
+
+  Auction::addAuctionRBNCore(text, 2);
+}
+
+
+void Auction::addAuctionRBNCore(
+  const string& text,
+  const unsigned startPos)
+{
+  const size_t l = text.length();
+  string s = text;
+  toUpper(s);
+  size_t pos = startPos;
+  unsigned aNo = 0;
+  while (1)
+  {
+    if (pos >= l)
+      return;
+
+    const char c = s.at(pos);
+    if (c == 'A')
+    {
+      Auction::addPasses();
+      if (pos == l-1)
+        return;
+      else
+        THROW("Characters trailing all-pass");
+    }
+    else if (c == ':')
+    {
+      // In real RBN this is only permitted between groups of
+      // four bids.
+      pos++;
+    }
+    else if (c == '^')
+    {
+      unsigned aNoNew;
+      pos++;
+      if (pos >= l)
+        THROW("Missing end of alert");
+
+      aNoNew = Auction::getRBNAlertNo(s, pos, aNo > 9);
+
+      if (aNoNew <= aNo)
+        THROW("Alerts not in ascending order");
+
+      aNo = aNoNew;
+      sequence[len-1].alert = "[" + STR(aNo) + "]";
+    }
+    else if (c == '*' || c == '!') 
+    {
+      pos++;
+      sequence[activeBNo].alert = '!';
+    }
+    else if (c == 'P' || c == 'X' || c == 'D' || c == 'R')
+    {
+      Auction::addCall(string(1, c), "");
+      pos++;
+    }
+    else if (pos == l-1)
+      THROW("Missing end of bid");
+    else
+    {
+      string tt = s.substr(pos, 2);
+      pos += 2;
+      Auction::addCall(tt, "");
+    }
+  }
+}
+
+
+void Auction::addAuction(
+  const string& text,
+  const Format format)
+{
+  switch(format)
   {
     case BRIDGE_FORMAT_LIN:
-      THROW("Auction LIN type not implemented");
+      {
+        vector<string> lines;
+        str2lines(text, lines);
+        Auction::addAuctionRBNCore(lines[0]);
+        Auction::addAlertsRBN(lines);
+      }
+      break;
     
     case BRIDGE_FORMAT_PBN:
-      return Auction::AddAuctionPBN(list);
+      {
+        vector<string> lines;
+        str2lines(text, lines);
+        Auction::addAuctionPBN(lines);
+      }
+      break;
     
     case BRIDGE_FORMAT_RBN:
     case BRIDGE_FORMAT_RBX:
-      THROW("Auction RBN type not implemented");
-    
+      Auction::addAuctionRBN(text);
+      break;
+
     case BRIDGE_FORMAT_TXT:
-      THROW("Auction TXT type not implemented");
+    case BRIDGE_FORMAT_EML:
+    case BRIDGE_FORMAT_REC:
+      Auction::addAuctionRBNCore(text);
+      break;
     
     default:
-      THROW("Unknown auction type");
+      THROW("Unknown format: " + STR(format));
   }
 }
 
 
-bool Auction::operator == (const Auction& a2) const
+bool Auction::getContract(Contract& contract) const
 {
-  if (setDVFlag != a2.setDVFlag)
-    DIFF("Different DV status");
-  else if (len != a2.len)
-    DIFF("Different lengths");
-  else if (activeCNo != a2.activeCNo || activeBNo != a2.activeBNo)
-    DIFF("Different active numbers");
-  
-  for (unsigned b = 0; b < len; b++)
-  {
-    if (sequence[b].no != a2.sequence[b].no ||
-        sequence[b].alert != a2.sequence[b].alert)
-      DIFF("Different sequences");
-  }
-
-  return true;
-}
-
-
-bool Auction::operator != (const Auction& a2) const
-{
-  return !(* this == a2);
-}
-
-
-bool Auction::ExtractContract(Contract& contract) const
-{
-  if (! Auction::IsOver())
+  if (! Auction::isOver())
     return false;
 
   if (activeCNo == 0)
@@ -833,7 +706,7 @@ bool Auction::ExtractContract(Contract& contract) const
 	break;
       }
     }
-    const playerType declarer = static_cast<playerType>
+    const Player declarer = static_cast<Player>
       ((static_cast<unsigned>(dealer) + p) % 4);
 
     // Switch to DDS encoding.
@@ -844,23 +717,60 @@ bool Auction::ExtractContract(Contract& contract) const
       vul,
       declarer,
       level,
-      static_cast<denomType>(denom),
+      static_cast<Denom>(denom),
       multiplier);
   }
   return true;
 }
 
 
-bool Auction::ConsistentWith(const Contract& cref) const
+bool Auction::isPassedOut() const
 {
-  Contract cown;
-  if (! Auction::ExtractContract(cown))
-    return false;
-
-  return (cown == cref);
+  return (numPasses == 4);
 }
 
-string Auction::AsLIN() const
+
+bool Auction::isOver() const
+{
+  return (Auction::isPassedOut() ||
+    (numPasses == 3 && activeCNo > 0));
+}
+
+
+bool Auction::isEmpty() const
+{
+  return (len == 0);
+}
+
+
+bool Auction::operator == (const Auction& auction2) const
+{
+  if (setDVFlag != auction2.setDVFlag)
+    DIFF("Different DV status");
+  else if (len != auction2.len)
+    DIFF("Different lengths");
+  else if (activeCNo != auction2.activeCNo || 
+      activeBNo != auction2.activeBNo)
+    DIFF("Different active numbers");
+  
+  for (unsigned b = 0; b < len; b++)
+  {
+    if (sequence[b].no != auction2.sequence[b].no ||
+        sequence[b].alert != auction2.sequence[b].alert)
+      DIFF("Different sequences");
+  }
+
+  return true;
+}
+
+
+bool Auction::operator != (const Auction& a2) const
+{
+  return !(* this == a2);
+}
+
+
+string Auction::strLIN() const
 {
   if (len == 0)
     return "";
@@ -883,7 +793,7 @@ string Auction::AsLIN() const
 }
 
 
-string Auction::AsLIN_RP() const
+string Auction::strLIN_RP() const
 {
   if (len == 0)
     return "";
@@ -900,13 +810,13 @@ string Auction::AsLIN_RP() const
 }
 
 
-string Auction::AsPBN() const
+string Auction::strPBN() const
 {
   if (len == 0)
     return "";
   
   stringstream s, alerts;
-  if (Auction::IsPassedOut())
+  if (Auction::isPassedOut())
   {
     s << "[Auction \"" << PLAYER_NAMES_SHORT[dealer] << "\"]\nAP\n";
     return s.str();
@@ -966,7 +876,7 @@ string Auction::AsPBN() const
 }
 
 
-string Auction::AsRBNCore(const bool RBNflag) const
+string Auction::strRBNCore(const bool RBNflag) const
 {
   if (len == 0)
     return "";
@@ -974,7 +884,7 @@ string Auction::AsRBNCore(const bool RBNflag) const
   stringstream s, alerts;
   s << PLAYER_NAMES_SHORT[dealer] << VUL_NAMES_RBN[vul] << ":";
   
-  if (Auction::IsPassedOut())
+  if (Auction::isPassedOut())
     return s.str() + "A";
 
   unsigned trailing = 0;
@@ -1036,27 +946,94 @@ string Auction::AsRBNCore(const bool RBNflag) const
 }
 
 
-string Auction::AsRBN() const
+string Auction::strRBN() const
 {
-  const string s = Auction::AsRBNCore(true);
-  if (s == "")
+  const string st = Auction::strRBNCore(true);
+  if (st == "")
     return "";
 
-  return "A " + s + "\n";
+  return "A " + st + "\n";
 }
 
 
-string Auction::AsRBX() const
+string Auction::strRBX() const
 {
-  const string s = Auction::AsRBNCore(false);
-  if (s == "")
+  const string st = Auction::strRBNCore(false);
+  if (st == "")
     return "";
 
-  return "A{" + s + "}";
+  return "A{" + st + "}";
 }
 
 
-string Auction::AsEML() const
+string Auction::strTXT(const unsigned * lengths) const
+{
+  int adjLen[BRIDGE_PLAYERS];
+  for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
+    adjLen[p] = Max(12, static_cast<int>(lengths[p])+1);
+
+  stringstream s;
+  s << left <<
+       setw(adjLen[0]) << "West" << 
+       setw(adjLen[1]) << "North" << 
+       setw(adjLen[2]) << "East" << 
+       "South" << "\n";
+
+  if (len == 0)
+    return s.str();
+
+  const unsigned numSkips = static_cast<unsigned>
+    ((dealer + 4 - BRIDGE_WEST) % 4);
+  const unsigned wrap = 3 - numSkips;
+  for (unsigned i = 0; i < numSkips; i++)
+    s << setw(adjLen[i]) << "";
+  
+  if (Auction::isPassedOut())
+  {
+    s << "All Pass\n";
+    return s.str();
+  }
+
+  unsigned trailing = 0;
+  unsigned end = len-1;
+  while (sequence[end].no == 0 && sequence[end].alert == "")
+    trailing++, end--;
+
+  if (trailing > 0 && trailing < 3)
+    end = len-1;
+    
+  for (unsigned b = 0; b <= end; b++)
+  {
+    const Call& c = sequence[b];
+    stringstream bid;
+    bid << AUCTION_NO_TO_CALL_TXT[c.no];
+    if (b % 4 == wrap)
+      s << bid.str() << "\n";
+    else
+      s << setw(adjLen[(b+numSkips) % 4]) << bid.str();
+  }
+
+  if (trailing == 3)
+  {
+    s << "All Pass\n";
+    return s.str();
+  }
+
+  string st = s.str();
+  // TODO: General function to trim trailing spaces
+  int pos = static_cast<int>(st.length()) - 1;
+  while (pos >= 0 && st.at(static_cast<unsigned>(pos)) == ' ')
+    pos--;
+  st = st.substr(0, static_cast<unsigned>(pos)+1);
+
+  if (end % 4 != wrap)
+    st += "\n";
+
+  return st;
+}
+
+
+string Auction::strEML() const
 {
   stringstream s;
   s << setw(9) << left << "west" <<
@@ -1067,7 +1044,7 @@ string Auction::AsEML() const
   if (len == 0)
     return s.str();
 
-  if (Auction::IsPassedOut())
+  if (Auction::isPassedOut())
   {
     s << "Passed out\n";
     return s.str();
@@ -1120,76 +1097,8 @@ string Auction::AsEML() const
 }
 
 
-string Auction::AsTXT(const unsigned lengths[]) const
+string Auction::strREC() const
 {
-  int adjLen[BRIDGE_PLAYERS];
-  for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
-    adjLen[p] = Max(12, static_cast<int>(lengths[p])+1);
-
-  stringstream s;
-  s << left <<
-       setw(adjLen[0]) << "West" << 
-       setw(adjLen[1]) << "North" << 
-       setw(adjLen[2]) << "East" << 
-       "South" << "\n";
-
-  if (len == 0)
-    return s.str();
-
-  const unsigned numSkips = static_cast<unsigned>
-    ((dealer + 4 - BRIDGE_WEST) % 4);
-  const unsigned wrap = 3 - numSkips;
-  for (unsigned i = 0; i < numSkips; i++)
-    s << setw(adjLen[i]) << "";
-  
-  if (Auction::IsPassedOut())
-  {
-    s << "All Pass\n";
-    return s.str();
-  }
-
-  unsigned trailing = 0;
-  unsigned end = len-1;
-  while (sequence[end].no == 0 && sequence[end].alert == "")
-    trailing++, end--;
-
-  if (trailing > 0 && trailing < 3)
-    end = len-1;
-    
-  for (unsigned b = 0; b <= end; b++)
-  {
-    const Call& c = sequence[b];
-    stringstream bid;
-    bid << AUCTION_NO_TO_CALL_TXT[c.no];
-    if (b % 4 == wrap)
-      s << bid.str() << "\n";
-    else
-      s << setw(adjLen[(b+numSkips) % 4]) << bid.str();
-  }
-
-  if (trailing == 3)
-  {
-    s << "All Pass\n";
-    return s.str();
-  }
-
-  string st = s.str();
-  // TODO: General function to trim trailing spaces
-  int pos = static_cast<int>(st.length()) - 1;
-  while (pos >= 0 && st.at(static_cast<unsigned>(pos)) == ' ')
-    pos--;
-  st = st.substr(0, static_cast<unsigned>(pos)+1);
-
-  if (end % 4 != wrap)
-    st += "\n";
-
-  return st;
-}
-
-
-string Auction::AsREC() const
-{
-
   if (len == 0)
     return "";
 
@@ -1200,7 +1109,7 @@ string Auction::AsREC() const
   for (unsigned i = 0; i < numSkips; i++)
     s << setw(9) << "";
   
-  if (Auction::IsPassedOut())
+  if (Auction::isPassedOut())
   {
     s << "All Pass\n\n";
     return s.str();
@@ -1248,61 +1157,47 @@ string Auction::AsREC() const
 }
 
 
-string Auction::AsString(const formatType f) const
+string Auction::str(
+  const Format format,
+  const unsigned * lengths) const
 {
   if (! setDVFlag)
     DIFF("Dealer/vul not set");
 
-  switch(f)
+  switch(format)
   {
     case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_LIN_TRN:
-      return Auction::AsLIN();
-
-    case BRIDGE_FORMAT_LIN_VG:
-      return Auction::AsLIN() + "\n";
+      return Auction::strLIN();
 
     case BRIDGE_FORMAT_LIN_RP:
-      return Auction::AsLIN_RP();
+      return Auction::strLIN_RP();
     
+    case BRIDGE_FORMAT_LIN_VG:
+      return Auction::strLIN() + "\n";
+
     case BRIDGE_FORMAT_PBN:
-      return Auction::AsPBN();
+      return Auction::strPBN();
     
     case BRIDGE_FORMAT_RBN:
-      return Auction::AsRBN();
+      return Auction::strRBN();
     
     case BRIDGE_FORMAT_RBX:
-      return Auction::AsRBX();
+      return Auction::strRBX();
+    
+    case BRIDGE_FORMAT_TXT:
+      if (lengths == nullptr)
+        THROW("TXT needs lengths");
+      return Auction::strTXT(lengths);
     
     case BRIDGE_FORMAT_EML:
-      return Auction::AsEML();
-    
-    case BRIDGE_FORMAT_TXT:
-      THROW("TXT needs lengths");
+      return Auction::strEML();
     
     case BRIDGE_FORMAT_REC:
-      return Auction::AsREC();
+      return Auction::strREC();
     
     default:
-      THROW("Invalid format " + STR(f));
-  }
-}
-
-
-string Auction::AsString(
-  const formatType f,
-  const unsigned lengths[BRIDGE_PLAYERS]) const
-{
-  if (! setDVFlag)
-    THROW("Dealer/vul not set");
-
-  switch(f)
-  {
-    case BRIDGE_FORMAT_TXT:
-      return Auction::AsTXT(lengths);
-    
-    default:
-      THROW("Invalid format " + STR(f));
+      THROW("Invalid format: " + STR(format));
   }
 }
 

@@ -49,51 +49,41 @@ class Auction
     void setDealerLIN(const string& text);
     void setDealerPBN(const string& text);
 
-    void AddCallNo(
+    void extend();
+
+    void addCallNo(
       const unsigned no,
       const string& alert = "");
 
-    bool ParseRBNDealer(const char c);
+    void addAlertsRBN(const vector<string>& lines);
 
-    bool ParseRBNVul(const char c);
-
-    bool GetRBNAlertNo(
-      const string& s,
+    unsigned getRBNAlertNo(
+      const string& text,
       size_t& pos,
-      unsigned& aNo,
       const bool extendedFlag) const;
 
-    bool AddAlertsRBN(const vector<string>& lines);
-
-    bool IsPBNNote(
-      const string& s,
+    bool isPBNNote(
+      const string& text,
       int& no,
       string& alert) const;
 
-    bool AddAuctionLIN(const string& list);
-    bool AddAuctionPBN(const vector<string>& list);
+    void addAuctionLIN(const string& list);
+    void addAuctionPBN(const vector<string>& list);
+    void addAuctionRBN(const string& text);
+    void addAuctionRBNCore(
+      const string& text,
+      const unsigned startPos = 0);
 
-    string AsLIN() const;
-    string AsLIN_RP() const;
-    string AsPBN() const;
-    string AsRBNCore(const bool RBNflag) const;
-    string AsRBN() const;
-    string AsRBX() const;
-    string AsEML() const;
-    string AsTXT(const unsigned lengths[BRIDGE_PLAYERS]) const;
-    string AsREC() const;
+    string strLIN() const;
+    string strLIN_RP() const;
+    string strPBN() const;
+    string strRBNCore(const bool RBNflag) const;
+    string strRBN() const;
+    string strRBX() const;
+    string strEML() const;
+    string strTXT(const unsigned * lengths) const;
+    string strREC() const;
 
-    string DealerAsLIN() const;
-    string DealerAsPBN() const;
-    string DealerAsEML() const;
-    string DealerAsTXT() const;
-
-    string VulAsLIN() const;
-    string VulAsLIN_RP() const;
-    string VulAsPBN() const;
-    string VulAsRBN() const;
-    string VulAsEML() const;
-    string VulAsTXT() const;
 
   public:
 
@@ -103,80 +93,65 @@ class Auction
 
     void reset();
 
-    bool SetDealerVul(
-      const string& d,
-      const string& v,
-      const formatType f);
+    // Dealer and vulnerability.
 
     void setDealer(
       const string& text,
       const Format format);
 
-    playerType GetDealer() const;
-
     void setVul(
       const string& text,
       const Format format);
 
-    /*
-    bool CheckDealerVul(
-      const string& d,
-      const string& v,
-      const formatType f) const;
-      */
+    void setDealerVul(
+      const string& dtext,
+      const string& vtext,
+      const Format format);
 
-    void CopyDealerVulFrom(const Auction& a2);
+    bool hasDealerVul() const;
 
-    bool IsOver() const;
+    Player getDealer() const;
 
-    bool IsEmpty() const;
+    Vul getVul() const;
 
-    bool IsPassedOut() const;
+    void copyDealerVul(const Auction& auction2);
 
-    bool DVIsSet() const;
 
-    vulType GetVul() const;
+    // Auction itself.
 
-    bool AddCall(
+    void addCall(
       const string& call,
       const string& alert = "");
 
-    bool AddAlert(
+    void addAlert(
       const unsigned alertNo,
       const string& alert);
 
-    void AddPasses();
+    void addPasses();
 
-    bool UndoLastCall();
+    void undoLastCall();
 
-    bool AddAuctionRBN(
-      const string& s);
+    void addAuction(
+      const string& text,
+      const Format format);
 
-    bool AddAuctionEML(
-      const string& s,
-      const unsigned startPos = 0);
+    bool getContract(Contract& contract) const;
+      
+    bool isPassedOut() const;
 
-    bool AddAuction(
-      const string& s,
-      const formatType f);
+    bool isOver() const;
 
-    bool AddAuction(
-      const vector<string>& s,
-      const formatType f);
+    bool isEmpty() const;
+
 
     bool operator == (const Auction& a2) const;
 
     bool operator != (const Auction& a2) const;
 
-    bool ExtractContract(Contract& contract) const;
-      
-    bool ConsistentWith(const Contract& cref) const;
-      
-    string AsString(const Format format) const;
-    
-    string AsString(
-      const formatType f,
-      const unsigned lengths[BRIDGE_PLAYERS]) const;
+
+    string str(
+      const Format format,
+      const unsigned * lengths = nullptr) const;
     
     string strDealer(const Format format) const;
 

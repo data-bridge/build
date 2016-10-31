@@ -72,6 +72,10 @@ bool GetNextWord(
   string& s,
   string& word);
 
+bool getNextWord(
+  string& text,
+  string& word);
+
 bool ReadNextWord(
   const string& s,
   const unsigned startPos,
@@ -109,6 +113,10 @@ bool ParsePlayer(
   playerType& p);
 
 void ConvertMultilineToVector(
+  const string& sin,
+  vector<string>& sout);
+
+void str2lines(
   const string& sin,
   vector<string>& sout);
 
