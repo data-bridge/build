@@ -127,11 +127,11 @@ static bool isTXTRunningScore(const string& line)
     return false;
 
   int i;
-  if (! StringToInt(words[n-1], i))
+  if (! str2int(words[n-1], i))
     return false;
 
   for (unsigned j = 1; j < n-2; j++)
-    if (StringToInt(words[j], i))
+    if (str2int(words[j], i))
       return true;
 
   return false;

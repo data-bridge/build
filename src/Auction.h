@@ -10,10 +10,11 @@
 #ifndef BRIDGE_AUCTION_H
 #define BRIDGE_AUCTION_H
 
-#include "bconst.h"
 #include <iostream>
 #include <string>
 #include <vector>
+
+#include "bconst.h"
 
 using namespace std;
 
@@ -42,7 +43,8 @@ class Auction
     unsigned activeCNo; // Contract number
     unsigned activeBNo; // Number in auction list
 
-    void SetTables();
+
+    void setTables();
 
     bool SetDealerLIN(
       const string& d,
@@ -131,7 +133,7 @@ class Auction
 
     ~Auction();
 
-    void Reset();
+    void reset();
 
     bool SetDealerVul(
       const string& d,
@@ -200,17 +202,15 @@ class Auction
       
     bool ConsistentWith(const Contract& cref) const;
       
-    string AsString(
-      const formatType f,
-      const string& names = "") const;
+    string AsString(const Format format) const;
     
     string AsString(
       const formatType f,
       const unsigned lengths[BRIDGE_PLAYERS]) const;
     
-    string DealerAsString(const formatType f) const;
+    string strDealer(const Format format) const;
 
-    string VulAsString(const formatType f) const;
+    string strVul(const Format format) const;
 };
 
 #endif

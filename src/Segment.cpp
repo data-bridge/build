@@ -47,7 +47,7 @@ void Segment::Reset()
   seg.event = ""; 
   seg.session.reset(); 
   seg.scoring.reset();
-  seg.teams.Reset();
+  seg.teams.reset();
 }
 
 
@@ -381,7 +381,8 @@ bool Segment::SetTeams(
   const string& s,
   const formatType f)
 {
-  return seg.teams.Set(s, f); 
+  seg.teams.set(s, f); 
+  return true;
 }
 
 
@@ -389,7 +390,8 @@ bool Segment::SetFirstTeam(
   const string& s,
   const formatType f)
 {
-  return seg.teams.SetFirst(s, f); 
+  seg.teams.setFirst(s, f); 
+  return true;
 }
 
 
@@ -397,7 +399,8 @@ bool Segment::SetSecondTeam(
   const string& s,
   const formatType f)
 {
-  return seg.teams.SetSecond(s, f); 
+  seg.teams.setSecond(s, f); 
+  return true;
 }
 
 
@@ -695,7 +698,7 @@ bool Segment::ScoringIsIMPs() const
 
 bool Segment::CarryExists() const
 {
-  return seg.teams.CarryExists();
+  return seg.teams.hasCarry();
 }
 
 
@@ -739,7 +742,7 @@ string Segment::TitleAsLINCommon(const bool swapFlag) const
   else
     s << bmax << ",";
 
-  s << seg.teams.AsString(BRIDGE_FORMAT_LIN, swapFlag) << "|";
+  s << seg.teams.str(BRIDGE_FORMAT_LIN, swapFlag) << "|";
   return s.str();
 }
 
@@ -916,7 +919,7 @@ string Segment::ScoringAsString(
 string Segment::TeamsAsString(
   const formatType f) const
 {
-  return seg.teams.AsString(f);
+  return seg.teams.str(f);
 }
 
 
@@ -925,21 +928,21 @@ string Segment::TeamsAsString(
   const int score2,
   const formatType f) const
 {
-  return seg.teams.AsString(f, score1, score2);
+  return seg.teams.str(f, score1, score2);
 }
 
 
 string Segment::FirstTeamAsString(
   const formatType f) const
 {
-  return seg.teams.FirstAsString(f);
+  return seg.teams.strFirst(f);
 }
 
 
 string Segment::SecondTeamAsString(
   const formatType f) const
 {
-  return seg.teams.SecondAsString(f);
+  return seg.teams.strSecond(f);
 }
 
 

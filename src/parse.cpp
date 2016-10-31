@@ -193,7 +193,7 @@ bool str2upos(
 }
 
 
-bool StringToInt(
+bool str2int(
   const string& s,
   int& res)
 {
@@ -222,7 +222,7 @@ bool StringToInt(
 }
 
 
-bool StringToFloat(
+bool str2float(
   const string& s,
   float& res)
 {

@@ -18,9 +18,10 @@ SOURCE_FILES 	=		\
         Segment.cpp             \
         Session.cpp             \
 	Tableau.cpp		\
+        Team.cpp                \
         Teams.cpp               \
         Timer.cpp               \
-        Timers.cpp               \
+        Timers.cpp              \
 	Valuation.cpp		\
 	args.cpp		\
 	dispatch.cpp		\

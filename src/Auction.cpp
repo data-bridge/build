@@ -11,12 +11,10 @@
 #include <regex>
 #include <thread>
 #include <mutex>
-#include <assert.h>
 
 #include "Auction.h"
 #include "Contract.h"
 #include "parse.h"
-#include "portab.h"
 #include "Bexcept.h"
 #include "Bdiff.h"
 
@@ -30,8 +28,8 @@ static mutex mtx;
 
 static string AUCTION_NO_TO_CALL_LIN[AUCTION_NUM_CALLS]; // And RBN
 static string AUCTION_NO_TO_CALL_PBN[AUCTION_NUM_CALLS];
-static string AUCTION_NO_TO_CALL_EML[AUCTION_NUM_CALLS];
 static string AUCTION_NO_TO_CALL_TXT[AUCTION_NUM_CALLS];
+static string AUCTION_NO_TO_CALL_EML[AUCTION_NUM_CALLS];
 
 
 static const string AUCTION_DENOM_LIN[BRIDGE_DENOMS] =
@@ -51,12 +49,12 @@ static bool setAuctionTables = false;
 
 Auction::Auction()
 {
-  Auction::Reset();
+  Auction::reset();
   if (! setAuctionTables)
   {
     mtx.lock();
     if (! setAuctionTables)
-      Auction::SetTables();
+      Auction::setTables();
     setAuctionTables = true;
     mtx.unlock();
   }
@@ -68,7 +66,7 @@ Auction::~Auction()
 }
 
 
-void Auction::Reset()
+void Auction::reset()
 {
   setDVFlag = false;
   len = 0;
@@ -81,7 +79,7 @@ void Auction::Reset()
 }
 
 
-void Auction::SetTables()
+void Auction::setTables()
 {
   AUCTION_NO_TO_CALL_LIN[0] = "P";
   AUCTION_NO_TO_CALL_LIN[1] = "D";
@@ -876,7 +874,7 @@ bool Auction::IsPBNNote(
   smatch match;
   if (regex_search(s, match, re) && match.size() >= 2)
   {
-    if (! StringToInt(match.str(1), no))
+    if (! str2int(match.str(1), no))
       return false;
 
     alert = match.str(2);
@@ -1445,11 +1443,8 @@ string Auction::AsREC() const
 }
 
 
-string Auction::AsString(
-  const formatType f,
-  const string& names) const
+string Auction::AsString(const formatType f) const
 {
-  UNUSED(names);
   if (! setDVFlag)
     DIFF("Dealer/vul not set");
 
@@ -1507,127 +1502,63 @@ string Auction::AsString(
 }
 
 
-string Auction::DealerAsLIN() const
-{
-  stringstream s;
-  s << PLAYER_DDS_TO_LIN_DEALER[dealer];
-  return s.str();
-}
-
-
-string Auction::DealerAsPBN() const
-{
-  return "[Dealer \"" + PLAYER_NAMES_SHORT[dealer] + "\"]\n";
-}
-
-
-string Auction::DealerAsEML() const
-{
-  return "Dlr: " + PLAYER_NAMES_LONG[dealer];
-}
-
-
-string Auction::DealerAsTXT() const
-{
-  return PLAYER_NAMES_LONG[dealer] + " Dlr";
-}
-
-
-string Auction::VulAsLIN() const
-{
-  return "sv|" + VUL_NAMES_LIN[vul] + "|";
-}
-
-
-string Auction::VulAsLIN_RP() const
-{
-  return "sv|" + VUL_NAMES_LIN_RP[vul] + "|\npf|y|";
-}
-
-
-string Auction::VulAsPBN() const
-{
-  return "[Vulnerable \"" + VUL_NAMES_PBN[vul] + "\"]\n";
-}
-
-
-string Auction::VulAsRBN() const
-{
-  return VUL_NAMES_RBN[vul];
-}
-
-
-string Auction::VulAsEML() const
-{
-  return "Vul: " + VUL_NAMES_TXT[vul];
-}
-
-
-string Auction::VulAsTXT() const
-{
-  return VUL_NAMES_TXT[vul] + " Vul";
-}
-
-
-string Auction::DealerAsString(
-  const formatType f) const
+string Auction::strDealer(const Format format) const
 {
   if (! setDVFlag)
     THROW("Dealer/vul not set");
 
-  switch(f)
+  switch(format)
   {
     case BRIDGE_FORMAT_LIN:
-      return Auction::DealerAsLIN();
+      return STR(PLAYER_DDS_TO_LIN_DEALER[dealer]);
     
     case BRIDGE_FORMAT_PBN:
     case BRIDGE_FORMAT_RBN:
-      return Auction::DealerAsPBN();
+      return "[Dealer \"" + PLAYER_NAMES_SHORT[dealer] + "\"]\n";
     
     case BRIDGE_FORMAT_EML:
     case BRIDGE_FORMAT_REC:
-      return Auction::DealerAsEML();
+      return "Dlr: " + PLAYER_NAMES_LONG[dealer];
 
     case BRIDGE_FORMAT_TXT:
-      return Auction::DealerAsTXT();
+      return PLAYER_NAMES_LONG[dealer] + " Dlr";
     
     default:
-      THROW("Invalid format " + STR(f));
+      THROW("Invalid format: " + STR(format));
   }
 }
 
 
-string Auction::VulAsString(
-  const formatType f) const
+string Auction::strVul(const Format format) const
 {
   if (! setDVFlag)
     THROW("Dealer/vul not set");
 
-  switch(f)
+  switch(format)
   {
     case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_LIN_VG:
     case BRIDGE_FORMAT_LIN_TRN:
-      return Auction::VulAsLIN();
+      return "sv|" + VUL_NAMES_LIN[vul] + "|";
 
     case BRIDGE_FORMAT_LIN_RP:
-      return Auction::VulAsLIN_RP();
+      return "sv|" + VUL_NAMES_LIN_RP[vul] + "|\npf|y|";
     
     case BRIDGE_FORMAT_PBN:
-      return Auction::VulAsPBN();
+      return "[Vulnerable \"" + VUL_NAMES_PBN[vul] + "\"]\n";
     
     case BRIDGE_FORMAT_RBN:
-      return Auction::VulAsRBN();
+      return VUL_NAMES_RBN[vul];
+    
+    case BRIDGE_FORMAT_TXT:
+      return VUL_NAMES_TXT[vul] + " Vul";
     
     case BRIDGE_FORMAT_EML:
     case BRIDGE_FORMAT_REC:
-      return Auction::VulAsEML();
-    
-    case BRIDGE_FORMAT_TXT:
-      return Auction::VulAsTXT();
+      return "Vul: " + VUL_NAMES_TXT[vul];
     
     default:
-      THROW("Invalid format " + STR(f));
+      THROW("Invalid format: " + STR(format));
   }
 }
 

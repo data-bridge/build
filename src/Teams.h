@@ -10,8 +10,10 @@
 #ifndef BRIDGE_TEAMS_H
 #define BRIDGE_TEAMS_H
 
-#include "bconst.h"
 #include <string>
+
+#include "Team.h"
+#include "bconst.h"
 
 using namespace std;
 
@@ -20,62 +22,21 @@ class Teams
 {
   private:
 
-    enum carryType
-    {
-      BRIDGE_CARRY_NONE = 0,
-      BRIDGE_CARRY_INT = 1,
-      BRIDGE_CARRY_FLOAT = 2
-    };
+    Team team1;
+    Team team2;
 
-    struct teamType
-    {
-      string name;
-      carryType carry;
-      int carryi;
-      float carryf;
-    };
+    void setPBN(
+      const string& text1,
+      const string& text2);
+    void setRBN(const string& text);
+    void setTXT(const string& text);
 
-    teamType team1;
-    teamType team2;
-
-    bool ExtractCarry(
-      const string& t,
-      teamType& tt) const;
-
-    bool SetSinglePBN(
-      const string& t,
-      teamType& tt) const;
-
-    bool SetSingleTXT(
-      const string& t,
-      teamType& tt) const;
-
-    bool SetLIN(const string& t);
-    bool SetPBN(
-      const string& t1,
-      const string& t2);
-    bool SetRBN(const string& t);
-    bool SetTXT(const string& t);
-
-    bool TeamIsEqual(
-      const teamType& ta,
-      const teamType& tb) const;
-
-    string SingleAsLIN(const teamType& tt) const;
-    string SingleAsPBN(const teamType& tt) const;
-    string SingleAsTXT(const teamType& tt) const;
-
-    string CarryAsString(
-      const teamType& tt,
-      const bool forceFlag = false) const;
-
-    string AsLIN(const bool swapFlag) const;
-    string AsPBN() const;
-    string AsRBNCore() const;
-    string AsRBN() const;
-    string AsRBX() const;
-    string AsTXT() const;
-    string AsTXT(
+    string strLIN(const bool swapFlag) const;
+    string strRBNCore() const;
+    string strRBN() const;
+    string strRBX() const;
+    string strTXT() const;
+    string strTXT(
       const int score1,
       const int score2) const;
 
@@ -86,41 +47,40 @@ class Teams
 
     ~Teams();
 
-    void Reset();
+    void reset();
 
-    bool Set(
-      const string& s,
-      const formatType f);
+    void set(
+      const string& text,
+      const Format format);
       
-    bool SetFirst(
-      const string& s,
-      const formatType f);
+    void setFirst(
+      const string& text,
+      const Format format);
       
-    bool SetSecond(
-      const string& s,
-      const formatType f);
-
+    void setSecond(
+      const string& text,
+      const Format format);
+      
     void swap();
 
-    bool CarryExists() const;
+    bool hasCarry() const;
       
     bool operator == (const Teams& t2) const;
 
     bool operator != (const Teams& t2) const;
 
-    string AsString(
-      const formatType f,
+    string str(
+      const Format format,
       const bool swapFlag = false) const;
 
-    string AsString(
-      const formatType f,
+    string str(
+      const Format format,
       const int score1,
       const int score2) const;
 
-    string FirstAsString( const formatType f) const;
+    string strFirst(const Format format) const;
 
-    string SecondAsString( const formatType f) const;
-
+    string strSecond(const Format format) const;
 };
 
 #endif

@@ -481,7 +481,7 @@ bool Contract::SetScore(
     if (sign)
     {
       pp = text.substr(3, string::npos);
-      if (! StringToInt(pp, s))
+      if (! str2int(pp, s))
         THROW("Invalid score");
 
       score = sign * s;
@@ -489,7 +489,7 @@ bool Contract::SetScore(
     }
   }
 
-  if (! StringToInt(text, s))
+  if (! str2int(text, s))
     THROW("Invalid score");
 
   score = s;
@@ -508,7 +508,7 @@ bool Contract::SetResult(
   if (f == BRIDGE_FORMAT_EML)
   {
     int i;
-    if (! StringToInt(text, i))
+    if (! str2int(text, i))
       THROW("Not an integer result");
 
     if (i > 0)

@@ -48,11 +48,11 @@ bool StringToUnsigned(
   const string& s,
   unsigned& res);
 
-bool StringToInt(
+bool str2int(
   const string& s,
   int& res);
 
-bool StringToFloat(
+bool str2float(
   const string& s,
   float& res);
 

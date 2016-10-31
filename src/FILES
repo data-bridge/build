@@ -15,7 +15,6 @@
     81    146   1495 reader.cpp
   1251   2924  26385 Segment.cpp
    567   1375  11050 Session.cpp
-   584   1296  11598 Teams.cpp
    579   1473  13180 validate.cpp
     67    146   1223 validateEML.cpp
    296    717   6575 validateLIN.cpp
@@ -42,7 +41,6 @@
     77    156   1408 portab.h
    257    483   4866 Segment.h
     86    159   1485 Session.h
-   127    252   2348 Teams.h
    139    250   2416 validate.h
     22     33    302 validateEML.h
     23     35    325 validateLIN.h
@@ -66,6 +64,10 @@ OK, except possibly for coverage:
 * Players (str: 1 TODO)
 * Scoring
 * Tableau
+* Team
+* Teams
+* Timer
+* Timers
 * ValProfile
 * ValStats
 

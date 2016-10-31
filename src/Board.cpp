@@ -388,7 +388,7 @@ bool Board::SetScoreIMP(
 {
   // We regenerate this ourselves, so mostly ignore for now.
   if (f == BRIDGE_FORMAT_LIN)
-    return StringToFloat(text, givenScore);
+    return str2float(text, givenScore);
   else
     return true;
 }
@@ -400,7 +400,7 @@ bool Board::SetScoreMP(
 {
   // We ignore this for now.
   UNUSED(f);
-  return StringToFloat(text, givenScore);
+  return str2float(text, givenScore);
 }
 
 
@@ -631,14 +631,14 @@ bool Board::operator != (const Board& b2) const
 string Board::DealerAsString(
   const formatType f) const
 {
-  return auction[numActive].DealerAsString(f);
+  return auction[numActive].strDealer(f);
 }
 
 
 string Board::VulAsString(
   const formatType f) const
 {
-  return auction[numActive].VulAsString(f);
+  return auction[numActive].strVul(f);
 }
 
 
@@ -661,6 +661,7 @@ string Board::AuctionAsString(
   const formatType f,
   const string& names) const
 {
+  UNUSED(names);
   if (f == BRIDGE_FORMAT_TXT)
   {
     unsigned lengths[BRIDGE_PLAYERS];
@@ -672,7 +673,7 @@ string Board::AuctionAsString(
     return auction[numActive].AsString(f, lengths);
   }
   else
-    return auction[numActive].AsString(f, names);
+    return auction[numActive].AsString(f);
 }
 
 
