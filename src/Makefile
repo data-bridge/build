@@ -20,6 +20,7 @@ SOURCE_FILES 	=		\
 	Tableau.cpp		\
         Teams.cpp               \
         Timer.cpp               \
+        Timers.cpp               \
 	Valuation.cpp		\
 	args.cpp		\
 	dispatch.cpp		\

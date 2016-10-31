@@ -267,7 +267,7 @@ void dispatch(
   Files& files,
   const OptionsType& options,
   ValStats& vstats,
-  Timer& timer)
+  Timers& timers)
 {
   ofstream freal;
   if (options.fileLog.setFlag)
@@ -281,7 +281,7 @@ void dispatch(
       flog << "Input " << task.fileInput << endl;
 
     Group group;
-    timer.start(BRIDGE_TIMER_READ, task.formatInput);
+    timers.start(BRIDGE_TIMER_READ, task.formatInput);
     try
     {
       if (! readFormattedFile(task.fileInput, task.formatInput, 
@@ -295,14 +295,14 @@ void dispatch(
       bex.print();
       continue;
     }
-    timer.stop(BRIDGE_TIMER_READ, task.formatInput);
+    timers.stop(BRIDGE_TIMER_READ, task.formatInput);
 
     for (auto &t: task.taskList)
     {
       if (options.verboseIO)
         flog << "Output " << t.fileOutput << endl;
 
-      timer.start(BRIDGE_TIMER_WRITE, task.formatInput);
+      timers.start(BRIDGE_TIMER_WRITE, task.formatInput);
       try
       {
         if (! writeFormattedFile(group, t.fileOutput, t.formatOutput))
@@ -313,7 +313,7 @@ void dispatch(
         bex.print();
         continue;
       }
-      timer.stop(BRIDGE_TIMER_WRITE, task.formatInput);
+      timers.stop(BRIDGE_TIMER_WRITE, task.formatInput);
 
       if (t.refFlag)
       {
@@ -321,7 +321,7 @@ void dispatch(
           flog << "Validating " << t.fileOutput <<
               " against " << t.fileRef << endl;
 
-        timer.start(BRIDGE_TIMER_VALIDATE, task.formatInput);
+        timers.start(BRIDGE_TIMER_VALIDATE, task.formatInput);
         try
         {
           validate(t.fileOutput, t.fileRef,
@@ -331,7 +331,7 @@ void dispatch(
         {
           bex.print();
         }
-        timer.stop(BRIDGE_TIMER_VALIDATE, task.formatInput);
+        timers.stop(BRIDGE_TIMER_VALIDATE, task.formatInput);
       }
 
       if (task.removeOutputFlag)
@@ -736,7 +736,7 @@ static bool writeFormattedFile(
 
 void mergeResults(
   vector<ValStats>& vstats,
-  vector<Timer>& timer,
+  vector<Timers>& timers,
   const OptionsType& options)
 {
   if (options.numThreads == 1)
@@ -745,7 +745,7 @@ void mergeResults(
   for (unsigned i = 1; i < options.numThreads; i++)
   {
     vstats[0] += vstats[i];
-    timer[0] += timer[i];
+    timers[0] += timers[i];
   }
 
   if (! options.fileLog.setFlag)

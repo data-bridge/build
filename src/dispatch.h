@@ -13,7 +13,7 @@
 #include <vector>
 
 #include "Files.h"
-#include "Timer.h"
+#include "Timers.h"
 #include "ValStats.h"
 #include "bconst.h"
 
@@ -26,11 +26,11 @@ void dispatch(
   Files& files,
   const OptionsType& options,
   ValStats& vstats,
-  Timer& timer);
+  Timers& timers);
 
 void mergeResults(
   vector<ValStats>& vstats,
-  vector<Timer>& timer,
+  vector<Timers>& timer,
   const OptionsType& options);
 
 #endif
