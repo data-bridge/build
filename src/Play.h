@@ -123,10 +123,6 @@ class Play
       const string& text,
       const Format format);
     
-    // bool SetPlays(
-      // const vector<string>& str,
-      // const formatType f);
-    
     playStatus AddTrickPBN(
       const string& str);
     
@@ -153,7 +149,6 @@ class Play
     string strLead(const Format format) const;
 
     string strClaim(const Format format) const;
-
 };
 
 #endif

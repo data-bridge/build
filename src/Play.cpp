@@ -11,14 +11,12 @@
 #include <algorithm>
 #include <thread>
 #include <mutex>
-#include <assert.h>
 
 #include "Play.h"
 #include "Contract.h"
+#include "parse.h"
 #include "Bexcept.h"
 #include "Bdiff.h"
-#include "parse.h"
-#include "portab.h"
 
 static mutex mtx;
 
@@ -473,34 +471,6 @@ bool Play::SetPlaysPBN(const vector<string>& list)
 
   return true;
 }
-
-
-/*
-bool Play::SetPlays(
-  const vector<string>& list,
-  const formatType f)
-{
-assert(false);
-  switch(f)
-  {
-    case BRIDGE_FORMAT_LIN:
-      THROW("Currently unimplemented format " + STR(f));
-
-    case BRIDGE_FORMAT_PBN:
-      return Play::SetPlaysPBN(list);
-
-    case BRIDGE_FORMAT_RBN:
-    case BRIDGE_FORMAT_RBX:
-      THROW("Currently unimplemented format " + STR(f));
-
-    case BRIDGE_FORMAT_TXT:
-      THROW("Currently unimplemented format " + STR(f));
-
-    default:
-      THROW("Invalid format " + STR(f));
-  }
-}
-*/
 
 
 bool Play::UndoPlay()
