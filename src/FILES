@@ -1,5 +1,4 @@
    373    985   8434 args.cpp
-  1625   3920  30822 Auction.cpp
    868   1491  14301 Board.cpp
   1276   3096  26550 Contract.cpp
    731   1821  18033 dispatch.cpp
@@ -24,7 +23,6 @@
    426   1130   9713 validateTXT.cpp
     27     28    233 Valuation.cpp
     22     34    274 args.h
-   217    434   4104 Auction.h
    389    760   6447 bconst.h
    356    649   6702 Board.h
    187    367   3845 Contract.h
@@ -54,6 +52,7 @@
 
 OK, except possibly for coverage:
 
+* Auction
 * Bdiff
 * Bexcept
 * Canvas
