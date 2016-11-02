@@ -169,13 +169,13 @@ void writeRBNBoardLevel(
   if (writeInfo.ino == 0)
   {
     fstr << segment->NumberAsString(f, writeInfo.bno);
-    fstr << board->DealAsString(BRIDGE_WEST, f);
+    fstr << board->strDeal(BRIDGE_WEST, f);
   }
 
   board->CalculateScore();
 
-  fstr << board->AuctionAsString(f);
-  fstr << board->ContractAsString(f);
+  fstr << board->strAuction(f);
+  fstr << board->strContract(f);
   fstr << board->PlayAsString(f);
   fstr << board->ResultAsString(f, segment->ScoringIsIMPs());
   fstr << "\n";

@@ -535,11 +535,10 @@ void writeTXTBoardLevel(
 
   if (writeInfo.ino == 0)
   {
-    const string dstr = board->DealAsString(BRIDGE_WEST, f);
+    const string dstr = board->strDeal(BRIDGE_WEST, f);
     const string bstr = segment->NumberAsString(f, writeInfo.bno);
-    const string vstr = board->VulAsString(f);
-    const string lstr = (board->AuctionIsEmpty() ?
-      board->DealerAsString(f) : "");
+    const string vstr = board->strVul(f);
+    const string lstr = (board->AuctionIsEmpty() ?  board->strDealer(f) : "");
 
     // Convert deal, auction and play from \n to vectors.
     vector<string> deal;
@@ -553,8 +552,8 @@ void writeTXTBoardLevel(
     fstr << canvas.str() << "\n";
 
     fstr << board->PlayersAsString(f);
-    fstr << board->AuctionAsString(f) << "\n";
-    fstr << board->ContractAsString(f);
+    fstr << board->strAuction(f) << "\n";
+    fstr << board->strContract(f);
     fstr << board->PlayAsString(f);
 
     fstr << board->ResultAsString(f, false) << "\n";
@@ -568,8 +567,8 @@ void writeTXTBoardLevel(
     else
       fstr << board->PlayersAsString(f);
 
-    fstr << board->AuctionAsString(f) << "\n";
-    fstr << board->ContractAsString(f);
+    fstr << board->strAuction(f) << "\n";
+    fstr << board->strContract(f);
     fstr << board->PlayAsString(f);
 
     int s = board->ScoreIMPAsInt();

@@ -63,11 +63,11 @@ class Segment
     Board * activeBoard;
     unsigned activeNo;
 
-    vector<LINdataType> LINdata;
+    vector<LINData> LINdata;
     unsigned LINcount;
 
 
-    bool SetTitleLIN(const string& t);
+    void SetTitleLIN(const string& text);
 
     string TitleAsLINCommon(const bool swapFlag = false) const;
     string TitleAsLIN() const;
@@ -102,94 +102,94 @@ class Segment
 
     unsigned count() const;
 
-    bool SetTitle(
+    void setTitle(
       const string& t,
       const formatType f);
 
-    bool SetDate(
+    void setDate(
       const string& d,
       const formatType f);
 
-    bool SetLocation(
+    void setLocation(
       const string& l,
       const formatType f);
 
-    bool SetEvent(
+    void setEvent(
       const string& e,
       const formatType f);
 
-    bool SetSession(
+    void setSession(
       const string& s,
       const formatType f);
 
-    bool SetScoring(
+    void setScoring(
       const string& s,
       const formatType f);
 
-    bool SetTeams(
+    void setTeams(
       const string& s,
       const formatType f);
 
-    bool SetFirstTeam(
+    void setFirstTeam(
       const string& s,
       const formatType f);
 
-    bool SetSecondTeam(
+    void setSecondTeam(
       const string& s,
       const formatType f);
 
-    bool SetPlayers(
+    void setPlayers(
       const string& s,
       const formatType f);
 
-    bool SetWest(
+    void setWest(
       const string& s,
       const formatType f);
 
-    bool SetNorth(
+    void setNorth(
       const string& s,
       const formatType f);
 
-    bool SetEast(
+    void setEast(
       const string& s,
       const formatType f);
 
-    bool SetSouth(
+    void setSouth(
       const string& s,
       const formatType f);
 
-    bool SetResultsList(
+    void setResultsList(
       const string& s,
       const formatType f);
 
-    bool SetPlayersList(
+    void setPlayersList(
       const string& s,
       const formatType f);
 
     void SetFromHeader(
       const string& room);
 
-    bool SetPlayersHeader(
+    void setPlayersHeader(
       const string& s,
       const formatType f);
 
-    bool SetScoresList(
+    void setScoresList(
       const string& s,
       const formatType f);
 
-    bool SetBoardsList(
+    void setBoardsList(
       const string& s,
       const formatType f);
 
     void CopyPlayers();
 
-    bool SetRoom(
-      const string& s,
-      const formatType f);
+    void setRoom(
+      const string& text,
+      const Format format);
 
-    bool SetNumber(
-      const string& s,
-      const formatType f);
+    void setNumber(
+      const string& text,
+      const Format format);
 
     bool ScoringIsIMPs() const;
 

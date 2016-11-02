@@ -423,15 +423,13 @@ bool Contract::SetDeclarer(
 }
 
 
-bool Contract::SetVul(
-  const vulType v)
+void Contract::SetVul(const Vul v)
 {
   if (setVulFlag && vul != v)
     THROW("Vulnerability already set differently");
 
   vul = v;
   setVulFlag = true;
-  return true;
 }
 
 
@@ -463,9 +461,9 @@ unsigned Contract::GetTricks() const
 }
 
 
-bool Contract::SetScore(
+bool Contract::setScore(
   const string& text,
-  const formatType f)
+  const Format f)
 {
   int s;
   if (f == BRIDGE_FORMAT_PBN)

@@ -10,6 +10,9 @@
 #ifndef BRIDGE_BOARD_H
 #define BRIDGE_BOARD_H
 
+#include <string>
+#include <vector>
+
 #include "Deal.h"
 #include "Tableau.h"
 #include "Players.h"
@@ -17,18 +20,12 @@
 #include "Contract.h"
 #include "Play.h"
 
-#include <iostream>
-#include <iomanip>
-#include <string>
-#include <sstream>
-#include <vector>
-
 using namespace std;
 
 class Valuation;
 
 
-struct LINdataType
+struct LINData
 {
   string contract[2];
   string players[2][4];
@@ -51,7 +48,7 @@ class Board
 
     unsigned len;
     unsigned numActive;
-    LINdataType LINdata;
+    LINData LINdata;
     bool LINset;
 
 
@@ -61,54 +58,34 @@ class Board
 
     ~Board();
 
-    void Reset();
+    void reset();
 
-    unsigned NewInstance();
+    void newInstance();
 
-    bool SetInstance(
-      const unsigned no);
+    void setInstance(const unsigned no);
 
-    unsigned GetLength() const;
+    unsigned getInstance() const;
 
-    unsigned GetInstance() const;
+    unsigned count() const;
 
-    void SetLINheader(
-      const LINdataType& lin);
+    void setLINheader(const LINData& lin);
 
-    bool SetDealerVul(
-      const string& d,
-      const string& v,
-      const formatType f);
+    void setDealer(
+      const string& text,
+      const Format format);
 
-    bool SetDealer(
-      const string& d,
-      const formatType f);
-
-    bool SetVul(
-      const string& v,
-      const formatType f);
-
-    /*
-    bool CheckDealerVul(
-      const string& d,
-      const string& v,
-      const formatType f) const;
-      */
+    void setVul(
+      const string& text,
+      const Format format);
 
     playerType GetDealer() const;
 
     // Deal
 
-    bool SetDeal(
-      const string& s,
-      const formatType f);
+    void setDeal(
+      const string& text,
+      const Format format);
       
-    /*
-    bool SetDeal(
-      const string cardsArg[][BRIDGE_SUITS],
-      const formatType f);
-      */
-
     bool GetDealDDS(
       unsigned cards[][BRIDGE_SUITS]) const;
 
@@ -128,9 +105,9 @@ class Board
 
     bool PassOut();
 
-    bool SetAuction(
-      const string& s,
-      const formatType f);
+    void setAuction(
+      const string& text,
+      const Format format);
 
     bool SetAuction(
       const vector<string>& s,
@@ -153,41 +130,41 @@ class Board
       const denomType denom,
       const multiplierType mult);
 
-    bool SetContract(
-      const vulType vul,
+    void setContract(
+      const Vul vul,
       const string& cstring);
 
-    bool SetContract(
+    void setContract(
       const string& text,
       const formatType f);
 
-    bool SetDeclarer(
+    void setDeclarer(
       const string& text,
       const formatType f);
 
     bool SetTricks(
       const unsigned tricks);
 
-    bool SetScore(
+    void setScore(
       const string& text,
-      const formatType f);
+      const Format format);
 
-    bool SetScoreIMP(
+    void setScoreIMP(
       const string& text,
-      const formatType f);
+      const Format format);
 
-    bool SetScoreMP(
+    void setScoreMP(
       const string& text,
-      const formatType f);
+      const Format format);
 
     // Play
 
     playStatus AddPlay(
       const string& str);
 
-    bool SetPlays(
-      const string& str,
-      const formatType f);
+    void setPlays(
+      const string& text,
+      const Format format);
 
     bool SetPlays(
       const vector<string>& str,
@@ -204,15 +181,15 @@ class Board
 
     // Result
 
-    bool SetResult(
+    void setResult(
       const string& text,
-      const formatType f);
+      const Format format);
       
     bool ResultIsSet() const;
 
     // Tableau
     //
-    bool SetTableau(
+    void setTableau(
       const string& text,
       const formatType f);
 
@@ -267,86 +244,54 @@ class Board
 
     bool operator != (const Board& b2) const;
 
-    string DealerAsString(
-      const formatType f) const;
-
-    string VulAsString(
-      const formatType f) const;
-
-    string DealAsString(
-      const playerType start,
-      const formatType f) const;
-
-    string TableauAsString(
-      const formatType f) const;
-
-    string AuctionAsString(
-      const formatType f,
-      const string& names = "") const;
-
-    string ContractAsString(
-      const formatType f) const;
-
-    string DeclarerAsString(
-      const formatType f) const;
-
-    string TricksAsString(
-      const formatType f) const;
+    string strDealer(const Format format) const;
+    string strVul(const Format format) const;
+    string strDeal(const Format format) const;
+    string strDeal(
+      const Player player,
+      const Format format) const;
+    string strTableau(const Format format) const;
+    string strAuction(const Format format) const;
+    string strContract(const Format format) const;
+    string strDeclarer(const Format format) const;
+    string strTricks(const Format format) const;
 
     string ScoreAsString(
-      const formatType f,
+      const Format format,
       const bool scoringIsIMPs) const;
 
     string ScoreIMPAsString(
-      const formatType f,
+      const Format format,
       const bool showFlag) const;
 
-    string GivenScoreAsString(
-      const formatType f) const;
+    string GivenScoreAsString(const Format format) const;
 
     int ScoreIMPAsInt() const;
 
-    string LeadAsString(
-      const formatType f) const;
+    string LeadAsString(const Format format) const;
 
-    string PlayAsString(
-      const formatType f) const;
+    string PlayAsString(const Format format) const;
 
-    string ClaimAsString(
-      const formatType f) const;
+    string ClaimAsString(const Format format) const;
     
     string strPlayer(
       const Player player,
       const Format format) const;
     
-    string PlayersAsString(
-      const formatType f) const;
+    string PlayersAsString(const Format format) const;
     
     string PlayersAsDeltaString(
       Board * refBoard,
-      const formatType f) const;
+      const Format format) const;
     
-    string WestAsString(
-      const formatType f) const;
-    
-    string NorthAsString(
-      const formatType f) const;
-    
-    string EastAsString(
-      const formatType f) const;
-    
-    string SouthAsString(
-      const formatType f) const;
+    string ResultAsString(const Format format) const;
     
     string ResultAsString(
-      const formatType f) const;
-    
-    string ResultAsString(
-      const formatType f,
+      const Format format,
       const bool scoringIsIMPs) const;
 
     string ResultAsString(
-      const formatType f,
+      const Format format,
       const string& team) const;
 
     string strRoom(

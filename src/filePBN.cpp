@@ -199,19 +199,19 @@ void writePBNBoardLevel(
   fstr << board->strPlayer(BRIDGE_EAST, f);
   fstr << board->strPlayer(BRIDGE_SOUTH, f);
 
-  fstr << board->DealerAsString(f);
-  fstr << board->VulAsString(f);
-  fstr << board->DealAsString(BRIDGE_WEST, f);
+  fstr << board->strDealer(f);
+  fstr << board->strVul(f);
+  fstr << board->strDeal(BRIDGE_WEST, f);
 
   if (writeInfo.bno == 0 && writeInfo.ino == 0)
     fstr << segment->ScoringAsString(f);
   else
     fstr << "[Scoring \"#\"]\n";
 
-  fstr << board->DeclarerAsString(f);
-  fstr << board->ContractAsString(f);
+  fstr << board->strDeclarer(f);
+  fstr << board->strContract(f);
   fstr << board->ResultAsString(f, false);
-  fstr << board->AuctionAsString(f);
+  fstr << board->strAuction(f);
   fstr << board->PlayAsString(f);
 
   if (writeInfo.bno == 0 && writeInfo.ino == 0)
@@ -231,7 +231,7 @@ void writePBNBoardLevel(
 
   fstr << board->strRoom(0, f);
   fstr << board->ScoreAsString(f, segment->ScoringIsIMPs());
-  fstr << board->TableauAsString(f);
+  fstr << board->strTableau(f);
 
   fstr << "\n";
 }

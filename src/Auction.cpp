@@ -201,20 +201,6 @@ void Auction::setVul(
 }
 
 
-void Auction::setDealerVul(
-  const string& dtext,
-  const string& vtext,
-  const Format format)
-{
-  if (setDVFlag)
-    THROW("Dealer and vulnerability already set");
-
-  Auction::setDealer(dtext, format);
-  Auction::setVul(vtext, format);
-  setDVFlag = true;
-}
-
-
 bool Auction::hasDealerVul() const
 {
   return setDVFlag;

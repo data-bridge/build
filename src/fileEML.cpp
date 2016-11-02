@@ -485,10 +485,10 @@ void writeEMLBoardLevel(
   chunk[EML_EAST] = board->strPlayer(BRIDGE_EAST, f);
   chunk[EML_SOUTH] = board->strPlayer(BRIDGE_SOUTH, f);
 
-  chunk[EML_DEAL] = board->DealAsString(BRIDGE_WEST, f);
-  chunk[EML_DEALER] = board->DealerAsString(f);
-  chunk[EML_VULNERABLE] = board->VulAsString(f);
-  chunk[EML_AUCTION] = board->AuctionAsString(f);
+  chunk[EML_DEAL] = board->strDeal(BRIDGE_WEST, f);
+  chunk[EML_DEALER] = board->strDealer(f);
+  chunk[EML_VULNERABLE] = board->strVul(f);
+  chunk[EML_AUCTION] = board->strAuction(f);
   chunk[EML_LEAD] = board->LeadAsString(f);
   chunk[EML_PLAY] = board->PlayAsString(f);
   chunk[EML_RESULT] = board->ResultAsString(f, false);

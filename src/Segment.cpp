@@ -111,7 +111,7 @@ void Segment::TransferHeader(const unsigned intNo)
   if (board == nullptr)
     return;
 
-  board->SetLINheader(LINdata[intNo]);
+  board->setLINheader(LINdata[intNo]);
 }
 
 
@@ -126,8 +126,7 @@ void Segment::TransferHeader(
   if (board == nullptr)
     return;
 
-  if (! board->SetInstance(instNo))
-    return;
+  board->setInstance(instNo);
 
   for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
   {
@@ -137,11 +136,11 @@ void Segment::TransferHeader(
   }
 
   if (instNo == 0)
-    board->SetLINheader(LINdata[intNo]);
+    board->setLINheader(LINdata[intNo]);
 }
 
 
-bool Segment::SetTitleLIN(const string& t)
+void Segment::SetTitleLIN(const string& t)
 {
   // We figure out which of the LIN formats is used.
   //
@@ -187,14 +186,12 @@ bool Segment::SetTitleLIN(const string& t)
        regex_search(v[1], match2, re8) ||
        v[1] == "Overtime"))
   {
-    if (! Segment::SetTitle(match1.str(1), BRIDGE_FORMAT_RBN))
-      return false;
+    Segment::setTitle(match1.str(1), BRIDGE_FORMAT_RBN);
 
     // Make a synthetic RBN-like session line (a bit wasteful).
     stringstream s;
     s << match1.str(2) << ":" << v[1];
-    if (! Segment::SetSession(s.str(), BRIDGE_FORMAT_RBN))
-      return false;
+    Segment::setSession(s.str(), BRIDGE_FORMAT_RBN);
     seg.event = "";
     eventFlag = false;
   }
@@ -203,24 +200,11 @@ bool Segment::SetTitleLIN(const string& t)
            regex_search(v[1], match2, re6) ||
            regex_search(v[1], match2, re7))
   {
-    if (! Segment::SetTitle(v[0], BRIDGE_FORMAT_RBN))
-      return false;
-    if (! Segment::SetSession(v[1], BRIDGE_FORMAT_RBN))
-      return false;
+    Segment::setTitle(v[0], BRIDGE_FORMAT_RBN);
+    Segment::setSession(v[1], BRIDGE_FORMAT_RBN);
     seg.event = "";
     eventFlag = false;
   }
-  /*
-  else if (v[1] == "Overtime")
-  {
-    if (! Segment::SetTitle(v[0], BRIDGE_FORMAT_RBN))
-      return false;
-    if (! Segment::SetSession(v[1], BRIDGE_FORMAT_RBN))
-      return false;
-    seg.event = "";
-    eventFlag = false;
-  }
-  */
 
   // See whether the title line contains extra information.
   seen = std::count(t.begin(), t.end(), '%');
@@ -229,39 +213,28 @@ bool Segment::SetTitleLIN(const string& t)
     vector<string> vv(4);
     vv.clear();
     tokenize(v[0], vv, "%");
-    if (! Segment::SetTitle(vv[0], BRIDGE_FORMAT_RBN))
-      return false;
 
-    if (! Segment::SetDate(vv[1], BRIDGE_FORMAT_RBN))
-      return false;
-
-    if (! Segment::SetLocation(vv[2], BRIDGE_FORMAT_RBN))
-      return false;
-
-    if (! Segment::SetSession(vv[3], BRIDGE_FORMAT_RBN))
-      return false;
-
-    if (! Segment::SetEvent(v[1], BRIDGE_FORMAT_RBN))
-      return false;
+    Segment::setTitle(vv[0], BRIDGE_FORMAT_RBN);
+    Segment::setDate(vv[1], BRIDGE_FORMAT_RBN);
+    Segment::setLocation(vv[2], BRIDGE_FORMAT_RBN);
+    Segment::setSession(vv[3], BRIDGE_FORMAT_RBN);
+    Segment::setEvent(v[1], BRIDGE_FORMAT_RBN);
   }
   else if (eventFlag)
   {
-    if (! Segment::SetTitle(v[0], BRIDGE_FORMAT_RBN))
-      return false;
-
-    if (! Segment::SetEvent(v[1], BRIDGE_FORMAT_RBN))
-      return false;
+    Segment::setTitle(v[0], BRIDGE_FORMAT_RBN);
+    Segment::setEvent(v[1], BRIDGE_FORMAT_RBN);
   }
 
 
   if (v[2] == "P" && v[1] != "IMPs")
-    Segment::SetScoring("P", BRIDGE_FORMAT_LIN);
+    Segment::setScoring("P", BRIDGE_FORMAT_LIN);
   else
-    Segment::SetScoring("I", BRIDGE_FORMAT_LIN);
+    Segment::setScoring("I", BRIDGE_FORMAT_LIN);
     
   if (v[3] == "")
     bInmin = 0;
-  else if (! StringToNonzeroUnsigned(v[3], bInmin))
+  else if (! str2upos(v[3], bInmin))
     THROW("Not a board number");
 
   if (v[4] == "")
@@ -278,10 +251,7 @@ bool Segment::SetTitleLIN(const string& t)
     s << ":" << (v[8] == "" ? 0 : v[8]);
   }
 
-  if (! Segment::SetTeams(s.str(), BRIDGE_FORMAT_LIN))
-    return false;
-
-  return true;
+  Segment::setTeams(s.str(), BRIDGE_FORMAT_LIN);
 }
 
 
@@ -295,173 +265,160 @@ unsigned Segment::count() const
 {
   unsigned cnt = 0;
   for (auto &p: boards)
-    cnt += p.board.GetLength();
+    cnt += p.board.count();
 
   return cnt;
 }
 
 
-bool Segment::SetTitle(
-  const string& t,
-  const formatType f)
+void Segment::setTitle(
+  const string& text,
+  const Format format)
 {
   // In LIN this includes the entire vg line.
   
-  switch(f)
+  switch(format)
   {
     case BRIDGE_FORMAT_LIN:
-      return Segment::SetTitleLIN(t);
+      Segment::SetTitleLIN(text);
+      break;
 
     case BRIDGE_FORMAT_PBN:
-      seg.title = t;
-      return true;
-
     case BRIDGE_FORMAT_RBN:
     case BRIDGE_FORMAT_RBX:
-      seg.title = t;
-      return true;
-
     case BRIDGE_FORMAT_TXT:
-      seg.title = t;
-      return true;
+      seg.title = text;
+      break;
 
     default:
-      THROW("Invalid format " + STR(f));
+      THROW("Invalid format: " + STR(format));
   }
 }
 
 
-bool Segment::SetDate(
-  const string& t,
-  const formatType f)
+void Segment::setDate(
+  const string& text,
+  const Format format)
 {
-  seg.date.set(t, f);
-  return true;
+  seg.date.set(text, format);
 }
 
 
-bool Segment::SetLocation(
-  const string& t,
-  const formatType f)
+void Segment::setLocation(
+  const string& text,
+  const Format format)
 {
-  seg.location.set(t, f);
-  return true;
+  seg.location.set(text, format);
 }
 
 
-bool Segment::SetEvent(
-  const string& t,
-  const formatType f)
+void Segment::setEvent(
+  const string& text,
+  const Format format)
 {
-  UNUSED(f);
-  seg.event = t;
-  return true;
+  UNUSED(format);
+  seg.event = text;
 }
 
 
-bool Segment::SetSession(
-  const string& t,
-  const formatType f)
+void Segment::setSession(
+  const string& text,
+  const Format format)
 {
-  seg.session.set(t, f);
-  return true;
+  seg.session.set(text, format);
 }
 
 
-bool Segment::SetScoring(
-  const string& t,
-  const formatType f)
+void Segment::setScoring(
+  const string& text,
+  const Format format)
 {
-  seg.scoring.set(t, f);
-  return true;
+  seg.scoring.set(text, format);
 }
 
 
-bool Segment::SetTeams(
-  const string& s,
-  const formatType f)
+void Segment::setTeams(
+  const string& text,
+  const Format format)
 {
-  seg.teams.set(s, f); 
-  return true;
+  seg.teams.set(text, format); 
 }
 
 
-bool Segment::SetFirstTeam(
-  const string& s,
-  const formatType f)
+void Segment::setFirstTeam(
+  const string& text,
+  const Format format)
 {
-  seg.teams.setFirst(s, f); 
-  return true;
+  seg.teams.setFirst(text, format); 
 }
 
 
-bool Segment::SetSecondTeam(
-  const string& s,
-  const formatType f)
+void Segment::setSecondTeam(
+  const string& text,
+  const Format format)
 {
-  seg.teams.setSecond(s, f); 
-  return true;
+  seg.teams.setSecond(text, format); 
 }
 
 
-bool Segment::SetPlayers(
-  const string& s,
-  const formatType f)
+void Segment::setPlayers(
+  const string& text,
+  const Format format)
 {
-  return activeBoard->SetPlayers(s, f);
+  activeBoard->SetPlayers(text, format);
 }
 
 
-bool Segment::SetWest(
-  const string& s,
-  const formatType f)
+void Segment::setWest(
+  const string& text,
+  const Format format)
 {
-  UNUSED(f);
-  return activeBoard->SetPlayer(s, BRIDGE_WEST);
+  UNUSED(format);
+  activeBoard->SetPlayer(text, BRIDGE_WEST);
 }
 
 
-bool Segment::SetNorth(
-  const string& s,
-  const formatType f)
+void Segment::setNorth(
+  const string& text,
+  const Format format)
 {
-  UNUSED(f);
-  return activeBoard->SetPlayer(s, BRIDGE_NORTH);
+  UNUSED(format);
+  activeBoard->SetPlayer(text, BRIDGE_NORTH);
 }
 
 
-bool Segment::SetEast(
-  const string& s,
-  const formatType f)
+void Segment::setEast(
+  const string& text,
+  const Format format)
 {
-  UNUSED(f);
-  return activeBoard->SetPlayer(s, BRIDGE_EAST);
+  UNUSED(format);
+  activeBoard->SetPlayer(text, BRIDGE_EAST);
 }
 
 
-bool Segment::SetSouth(
-  const string& s,
-  const formatType f)
+void Segment::setSouth(
+  const string& text,
+  const Format format)
 {
-  UNUSED(f);
-  return activeBoard->SetPlayer(s, BRIDGE_SOUTH);
+  UNUSED(format);
+  activeBoard->SetPlayer(text, BRIDGE_SOUTH);
 }
 
 
-bool Segment::SetResultsList(
-  const string& s,
-  const formatType f)
+void Segment::setResultsList(
+  const string& text,
+  const Format format)
 {
-  if (f != BRIDGE_FORMAT_LIN)
-    return false;
+  if (format != BRIDGE_FORMAT_LIN)
+    THROW("Invalid format: " + STR(format));
   
-  size_t c = countDelimiters(s, ",");
+  size_t c = countDelimiters(text, ",");
   if (c == 0 || c > 100)
     THROW("Bad number of fields");
 
   vector<string> tokens(c+1);
   tokens.clear();
-  tokenize(s, tokens, ",");
+  tokenize(text, tokens, ",");
 
   // There may or may not be a trailing comma
   if (c % 2 == 0)
@@ -478,25 +435,23 @@ bool Segment::SetResultsList(
     LINdata[d].contract[0] = tokens[b];
     LINdata[d].contract[1] = tokens[b+1];
   }
-
-  return true;
 }
 
 
-bool Segment::SetPlayersList(
-  const string& s,
-  const formatType f)
+void Segment::setPlayersList(
+  const string& text,
+  const Format format)
 {
-  if (f != BRIDGE_FORMAT_LIN)
-    return false;
+  if (format != BRIDGE_FORMAT_LIN)
+    THROW("Invalid format: " + STR(format));
 
-  size_t c = countDelimiters(s, ",");
+  size_t c = countDelimiters(text, ",");
   if (c == 7)
   {
     // Assume a single set of 8 players repeating.
     vector<string> tokens(c+1);
     tokens.clear();
-    tokenize(s, tokens, ",");
+    tokenize(text, tokens, ",");
 
     for (size_t b = 0; b < LINcount; b++)
     {
@@ -515,7 +470,7 @@ bool Segment::SetPlayersList(
 
     vector<string> tokens(c+1);
     tokens.clear();
-    tokenize(s, tokens, ",");
+    tokenize(text, tokens, ",");
 
     for (size_t b = 0; b < c; b += 8)
     {
@@ -526,7 +481,6 @@ bool Segment::SetPlayersList(
       }
     }
   }
-  return true;
 }
 
 
@@ -541,8 +495,7 @@ void Segment::SetFromHeader(const string& room)
   int r = (room != "" && room.substr(0, 1) == "c" ? 1 : 0);
   const formatType f = BRIDGE_FORMAT_LIN;
 
-  if (! activeBoard->SetContract(LINdata[activeNo].contract[r], f))
-    THROW("Cannot preset contract");
+  activeBoard->setContract(LINdata[activeNo].contract[r], f);
 
   string s = "";
   // unsigned r2 = activeBoard->GetInstance();
@@ -554,7 +507,7 @@ void Segment::SetFromHeader(const string& room)
   }
 
   if (activeNo == 0 &&
-      activeBoard->GetInstance() == 0 &&
+      activeBoard->getInstance() == 0 &&
       r == 1)
   {
     // Teams from LIN header were in "wrong" order for our internal
@@ -569,68 +522,66 @@ void Segment::SetFromHeader(const string& room)
 
 
 
-bool Segment::SetPlayersHeader(
-  const string& s,
-  const formatType f)
+void Segment::setPlayersHeader(
+  const string& text,
+  const Format format)
 {
-  if (f != BRIDGE_FORMAT_LIN)
-    return false;
+  if (format != BRIDGE_FORMAT_LIN)
+    THROW("Invalid format: " + STR(format));
 
-  size_t c = countDelimiters(s, ",");
+  size_t c = countDelimiters(text, ",");
   if (c != 7)
     THROW("Bad number of fields");
 
   vector<string> tokens(8);
   tokens.clear();
-  tokenize(s, tokens, ",");
+  tokenize(text, tokens, ",");
 
   for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
   {
     LINdata[0].players[0][(i+2) % 4] = tokens[i];
     LINdata[0].players[1][(i+2) % 4] = tokens[i+4];
   }
-  return true;
 }
 
 
-bool Segment::SetScoresList(
-  const string& s,
-  const formatType f)
+void Segment::setScoresList(
+  const string& text,
+  const Format format)
 {
-  if (f != BRIDGE_FORMAT_LIN)
-    return false;
+  if (format != BRIDGE_FORMAT_LIN)
+    THROW("Invalid format: " + STR(format));
 
-  size_t c = countDelimiters(s, ",");
+  size_t c = countDelimiters(text, ",");
   if (c+1 != 2*LINcount)
     THROW("Wrong number of fields");
 
   vector<string> tokens(c+1);
   tokens.clear();
-  tokenize(s, tokens, ",");
+  tokenize(text, tokens, ",");
 
   for (size_t b = 0, d = 0; b < c; b += 2, d++)
   {
     LINdata[d].mp[0] = tokens[b];
     LINdata[d].mp[1] = tokens[b+1];
   }
-  return true;
 }
 
 
-bool Segment::SetBoardsList(
-  const string& s,
-  const formatType f)
+void Segment::setBoardsList(
+  const string& text,
+  const Format format)
 {
-  if (f != BRIDGE_FORMAT_LIN)
-    return false;
+  if (format != BRIDGE_FORMAT_LIN)
+    THROW("Invalid format: " + STR(format));
   
-  size_t c = countDelimiters(s, ",");
+  size_t c = countDelimiters(text, ",");
   if (c > 100)
     THROW("Too many fields");
 
   vector<string> tokens(c+1);
   tokens.clear();
-  tokenize(s, tokens, ",");
+  tokenize(text, tokens, ",");
 
   if (c+1 != LINcount)
     THROW("Odd number of boards");
@@ -639,8 +590,6 @@ bool Segment::SetBoardsList(
   {
     LINdata[i].no = tokens[i];
   }
-
-  return true;
 }
 
 
@@ -650,34 +599,34 @@ void Segment::CopyPlayers()
     return;
 
   // Also copies room.
-  unsigned inst = activeBoard->GetInstance();
+  unsigned inst = activeBoard->getInstance();
   activeBoard->CopyPlayers(boards[len-2].board, inst);
 }
 
 
-bool Segment::SetRoom(
-  const string& s,
-  const formatType f)
+void Segment::setRoom(
+  const string& text,
+  const Format format)
 {
-  unsigned inst = activeBoard->GetInstance();
-  return activeBoard->SetRoom(s, inst, f);
+  unsigned inst = activeBoard->getInstance();
+  activeBoard->SetRoom(text, inst, format); // TODO: Need inst here?
 }
 
 
-bool Segment::SetNumber(
-  const string& s,
-  const formatType f)
+void Segment::setNumber(
+  const string& text,
+  const Format format)
 {
-  string t = s;
-  if (f == BRIDGE_FORMAT_LIN)
+  string t = text;
+  if (format == BRIDGE_FORMAT_LIN)
   {
     // Drop the open/closed indicator.
     t = t.substr(1);
-    Segment::SetRoom(s.substr(0, 1), f);
+    Segment::setRoom(text.substr(0, 1), format);
   }
 
   unsigned extNo;
-  if (! StringToNonzeroUnsigned(t, extNo))
+  if (! str2upos(t, extNo))
     THROW("Board number is not numerical");
 
   if (extNo < bmin)
@@ -686,7 +635,6 @@ bool Segment::SetNumber(
     bmax = extNo;
 
   boards[activeNo].extNo = extNo;
-  return true;
 }
 
 
@@ -779,8 +727,8 @@ string Segment::TitleAsLIN_RP() const
   // BBO hands from Pavlicek.
 
   bool swapFlag = false;
-  if (activeBoard->SetInstance(0) && 
-      activeBoard->GetRoom() == BRIDGE_ROOM_CLOSED)
+  activeBoard->setInstance(0);
+  if (activeBoard->GetRoom() == BRIDGE_ROOM_CLOSED)
     swapFlag = true;
 
   stringstream s;
@@ -1019,22 +967,23 @@ string Segment::ContractsAsLIN(const formatType f)
   s << "rs|";
   for (auto &p: boards)
   {
-    const unsigned l = p.board.GetLength();
+    const unsigned l = p.board.count();
+    p.board.setInstance(0);
     if (l == 2 && 
-        activeBoard->SetInstance(0) && 
-        activeBoard->GetRoom() == BRIDGE_ROOM_CLOSED)
+        p.board.GetRoom() == BRIDGE_ROOM_CLOSED)
+        // activeBoard->GetRoom() == BRIDGE_ROOM_CLOSED)
     {
-      p.board.SetInstance(1);
-      s << p.board.ContractAsString(f) << ",";
-      p.board.SetInstance(0);
-      s << p.board.ContractAsString(f) << ",";
+      p.board.setInstance(1);
+      s << p.board.strContract(f) << ",";
+      p.board.setInstance(0);
+      s << p.board.strContract(f) << ",";
     }
     else
     {
       for (unsigned i = 0; i < l; i++)
       {
-        p.board.SetInstance(i);
-        s << p.board.ContractAsString(f) << ",";
+        p.board.setInstance(i);
+        s << p.board.strContract(f) << ",";
       }
     }
 
@@ -1084,9 +1033,9 @@ string Segment::PlayersAsString(const formatType f)
       s1 = "pw|";
       for (auto &p: boards)
       {
-        for (unsigned i = 0; i < p.board.GetLength(); i++)
+        for (unsigned i = 0; i < p.board.count(); i++)
         {
-          p.board.SetInstance(i);
+          p.board.setInstance(i);
           s1 += p.board.PlayersAsDeltaString(refBoard, f);
           refBoard = &p.board;
         }
@@ -1099,16 +1048,16 @@ string Segment::PlayersAsString(const formatType f)
       if (board == nullptr)
         return "";
 
-      if (board->GetLength() == 1)
+      if (board->count() == 1)
       {
-        board->SetInstance(0);
+        board->setInstance(0);
         s1 = board->PlayersAsString(f);
         return "pn|" + s1 + ",South,West,North,East|pg||\n";
       }
 
-      board->SetInstance(0);
+      board->setInstance(0);
       s1 = board->PlayersAsString(f);
-      board->SetInstance(1);
+      board->setInstance(1);
       s2 = board->PlayersAsString(f);
 
       if (f == BRIDGE_FORMAT_LIN_TRN)
@@ -1122,22 +1071,23 @@ string Segment::PlayersAsString(const formatType f)
     case BRIDGE_FORMAT_LIN_RP:
     case BRIDGE_FORMAT_LIN_TRN:
       board = Segment::GetBoard(0);
-      if (board == nullptr || board->GetLength() != 2)
+      if (board == nullptr || board->count() != 2)
         return "";
 
-      if (activeBoard->SetInstance(0) && 
-          activeBoard->GetRoom() == BRIDGE_ROOM_CLOSED)
+      // if (activeBoard->GetRoom() == BRIDGE_ROOM_CLOSED)
+      board->setInstance(0);
+      if (board->GetRoom() == BRIDGE_ROOM_CLOSED)
       {
-        board->SetInstance(1);
+        board->setInstance(1);
         s1 = board->PlayersAsString(f);
-        board->SetInstance(0);
+        board->setInstance(0);
         s2 = board->PlayersAsString(f);
       }
       else
       {
-        board->SetInstance(0);
+        board->setInstance(0);
         s1 = board->PlayersAsString(f);
-        board->SetInstance(1);
+        board->setInstance(1);
         s2 = board->PlayersAsString(f);
       }
 

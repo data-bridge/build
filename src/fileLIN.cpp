@@ -170,13 +170,13 @@ void writeLINBoardLevel(
   if (f == BRIDGE_FORMAT_LIN || f == BRIDGE_FORMAT_LIN_TRN)
     fstr << board->PlayersAsString(f);
 
-  fstr << board->DealAsString(board->GetDealer(), f);
+  fstr << board->strDeal(f);
   fstr << segment->NumberAsBoardString(f, writeInfo.bno);
-  fstr << board->VulAsString(f);
+  fstr << board->strVul(f);
 
   board->CalculateScore();
 
-  fstr << board->AuctionAsString(f);
+  fstr << board->strAuction(f);
   fstr << board->PlayAsString(f);
   fstr << board->ClaimAsString(f);
 }

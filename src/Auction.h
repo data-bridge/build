@@ -105,11 +105,6 @@ class Auction
       const string& text,
       const Format format);
 
-    void setDealerVul(
-      const string& dtext,
-      const string& vtext,
-      const Format format);
-
     bool hasDealerVul() const;
 
     Player getDealer() const;

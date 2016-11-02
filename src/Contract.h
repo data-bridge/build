@@ -120,7 +120,7 @@ class Contract
       const string& text,
       const formatType f);
 
-    bool SetVul(const vulType vul);
+    void SetVul(const Vul vul);
 
     bool SetTricks(
       const unsigned tricks);
@@ -131,9 +131,9 @@ class Contract
       const string& text,
       const formatType f);
 
-    bool SetScore(
+    bool setScore(
       const string& text,
-      const formatType f);
+      const Format f);
 
     bool IsPassedOut() const;	
 

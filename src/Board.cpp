@@ -7,6 +7,11 @@
 */
 
 
+#include <regex>
+#include <iterator>
+#include <map>
+#include <assert.h>
+
 #include "bconst.h"
 #include "Board.h"
 #include "Valuation.h"
@@ -14,11 +19,6 @@
 #include "parse.h"
 #include "Bexcept.h"
 #include "Bdiff.h"
-
-#include <regex>
-#include <iterator>
-#include <map>
-#include <assert.h>
 
 
 Board::Board():
@@ -37,20 +37,24 @@ Board::~Board()
 }
 
 
-void Board::Reset()
+void Board::reset()
 {
   len = 0;
+  numActive = 0;
+
+  deal.reset();
+  tableau.reset();
   players.clear();
   auction.clear();
   contract.clear();
   play.clear();
-  numActive = 0;
+
   givenScore = 0.0f;
   LINset = false;
 }
 
 
-unsigned Board::NewInstance()
+void Board::newInstance()
 {
   numActive = len++;
   players.resize(len);
@@ -58,96 +62,79 @@ unsigned Board::NewInstance()
   contract.resize(len);
   play.resize(len);
 
-  // Default
+  // Default, may change.
   if (numActive == 0)
     Board::SetRoom("Open", 0, BRIDGE_FORMAT_PBN);
   else if (numActive == 1)
     Board::SetRoom("Closed", 1, BRIDGE_FORMAT_PBN);
 
-  if (numActive > 0)
+  if (numActive == 0)
+    return;
+
+  // Reuse data from first instance.
+  auction[numActive].copyDealerVul(auction[0]);
+  contract[numActive].SetVul(auction[0].getVul());
+
+  if (deal.isSet())
   {
-    auction[numActive].copyDealerVul(auction[0]);
-    contract[numActive].SetVul(auction[0].getVul());
-
-    if (deal.isSet())
-    {
-      unsigned cards[BRIDGE_PLAYERS][BRIDGE_SUITS];
-      deal.getDDS(cards);
-      play[numActive].SetHoldingDDS(cards);
-    }
+    unsigned cards[BRIDGE_PLAYERS][BRIDGE_SUITS];
+    deal.getDDS(cards);
+    play[numActive].SetHoldingDDS(cards);
   }
+}
 
+
+void Board::setInstance(const unsigned no)
+{
+  if (len == 0 || no > len-1)
+    THROW("Invalid instance selected");
+
+  numActive = no;
+}
+
+
+unsigned Board::getInstance() const
+{
   return numActive;
 }
 
 
-bool Board::SetInstance(const unsigned no)
+unsigned Board::count() const
 {
-  if (len == 0 || no > len-1)
-    THROW("Invalid instance selected");
-  else
-  {
-    numActive = no;
-    return true;
-  }
+  return len;
 }
 
 
-void Board::SetLINheader(const LINdataType& lin)
+void Board::setLINheader(const LINData& lin)
 {
   if (! LINset)
     LINdata = lin;
   LINset = true;
 
   if (LINdata.mp[0] != "")
-    Board::SetScoreIMP(LINdata.mp[0], BRIDGE_FORMAT_LIN);
+    Board::setScoreIMP(LINdata.mp[0], BRIDGE_FORMAT_LIN);
   else if (LINdata.mp[1] != "")
-    Board::SetScoreIMP("-" + LINdata.mp[1], BRIDGE_FORMAT_LIN);
+    Board::setScoreIMP("-" + LINdata.mp[1], BRIDGE_FORMAT_LIN);
   else
-    Board::SetScoreIMP("0.0", BRIDGE_FORMAT_LIN);
+    Board::setScoreIMP("0.0", BRIDGE_FORMAT_LIN);
 }
 
 
-unsigned Board::GetLength() const
+void Board::setDealer(
+  const string& text,
+  const Format format)
 {
-  return len;
+  auction[0].setDealer(text, format);
 }
 
 
-unsigned Board::GetInstance() const
+void Board::setVul(
+  const string& text,
+  const Format format)
 {
-  return numActive;
-}
+  auction[0].setVul(text, format);
 
-
-bool Board::SetDealerVul(
-  const string& d,
-  const string& v,
-  const formatType f)
-{
-  // Only the first one is independent.
-  auction[0].setDealerVul(d, v, f);
-  return true;
-}
-
-
-bool Board::SetDealer(
-  const string& d,
-  const formatType f)
-{
-  auction[0].setDealer(d, f);
-  return true;
-}
-
-
-bool Board::SetVul(
-  const string& v,
-  const formatType f)
-{
-  auction[0].setVul(v, f);
-  if (! contract[numActive].SetVul(auction[0].getVul()))
-    return false;
-  return true;
+  contract[numActive].SetVul(auction[0].getVul());
 }
 
 
@@ -159,17 +146,15 @@ playerType Board::GetDealer() const
 
 // Deal
 
-bool Board::SetDeal(
-  const string& s,
-  const formatType f)
+void Board::setDeal(
+  const string& text,
+  const Format format)
 {
-  if (numActive > 0)
-  {
     // Assume the cards are unchanged.  Don't check for now.
-    return true;
-  }
+  if (numActive > 0)
+    return;
 
-  deal.set(s, f);
+  deal.set(text, format);
 
   if (numActive == 0)
   {
@@ -177,16 +162,11 @@ bool Board::SetDeal(
     deal.getDDS(cards);
 
     if (! play[0].SetHoldingDDS(cards))
-      return false;
+      THROW("Cannot set holding"); // TODO: Probably play already throws?
   }
 
-  if (f == BRIDGE_FORMAT_LIN)
-  {
-    string d = s.substr(0, 1);
-    auction[numActive].setDealer(d, f);
-  }
-
-  return true;
+  if (format == BRIDGE_FORMAT_LIN)
+    auction[numActive].setDealer(text.substr(0, 1), format);
 }
 
 
@@ -237,23 +217,20 @@ bool Board::PassOut()
 }
 
 
-bool Board::SetAuction(
-  const string& s,
-  const formatType f)
+void Board::setAuction(
+  const string& text,
+  const Format format)
 {
-  auction[numActive].addAuction(s, f);
+  auction[numActive].addAuction(text, format);
 
   if (auction[numActive].hasDealerVul())
-  {
-    if (! contract[numActive].SetVul(auction[numActive].getVul()))
-      return false;
-  }
+    contract[numActive].SetVul(auction[numActive].getVul());
 
   // Doesn't bother us unduly.
   if (! auction[numActive].getContract(contract[numActive]))
-    return true;
+    return;
 
-  return play[numActive].SetContract(contract[numActive]);
+  play[numActive].SetContract(contract[numActive]);
 }
 
 
@@ -284,40 +261,39 @@ bool Board::ContractIsSet() const
 
 
 bool Board::SetContract(
-  const vulType vul,
-  const playerType declarer,
+  const Vul vul,
+  const Player declarer,
   const unsigned level,
-  const denomType denom,
+  const Denom denom,
   const multiplierType mult)
 {
   return contract[numActive].SetContract(vul, declarer, level, denom, mult);
 }
 
 
-bool Board::SetContract(
-  const vulType vul,
+void Board::setContract(
+  const Vul vul,
   const string& cstring)
 {
-  return contract[numActive].SetContract(vul, cstring);
+  contract[numActive].SetContract(vul, cstring);
 }
 
 
-bool Board::SetContract(
+void Board::setContract(
   const string& text,
-  const formatType f)
+  const Format format)
 {
-  if (! contract[numActive].SetContract(text, f))
-    return false;
+  contract[numActive].SetContract(text, format);
 
-  return play[numActive].SetContract(contract[numActive]);
+  play[numActive].SetContract(contract[numActive]);
 }
 
 
-bool Board::SetDeclarer(
+void Board::setDeclarer(
   const string& text,
-  const formatType f)
+  const Format format)
 {
-  return contract[numActive].SetDeclarer(text, f);
+  contract[numActive].SetDeclarer(text, format);
 }
 
 
@@ -328,33 +304,35 @@ bool Board::SetTricks(
 }
 
 
-bool Board::SetScore(
+void Board::setScore(
   const string& text,
-  const formatType f)
+  const Format format)
 {
-  return contract[numActive].SetScore(text, f);
+  contract[numActive].setScore(text, format);
 }
 
 
-bool Board::SetScoreIMP(
+void Board::setScoreIMP(
   const string& text,
-  const formatType f)
+  const Format format)
 {
   // We regenerate this ourselves, so mostly ignore for now.
-  if (f == BRIDGE_FORMAT_LIN)
-    return str2float(text, givenScore);
-  else
-    return true;
+  if (format == BRIDGE_FORMAT_LIN)
+  {
+    if (! str2float(text, givenScore))
+      THROW("Bad IMP score");
+  }
 }
 
 
-bool Board::SetScoreMP(
+void Board::setScoreMP(
   const string& text,
-  const formatType f)
+  const Format format)
 {
   // We ignore this for now.
-  UNUSED(f);
-  return str2float(text, givenScore);
+  UNUSED(format);
+  if (! str2float(text, givenScore))
+    THROW("Bad matchpoint score");
 }
 
 
@@ -367,25 +345,23 @@ playStatus Board::AddPlay(
 }
 
 
-bool Board::SetPlays(
-  const string& str,
-  const formatType f)
+void Board::setPlays(
+  const string& text,
+  const Format format)
 {
-  if (! play[numActive].SetPlays(str, f))
-    return false;
+  if (! play[numActive].SetPlays(text, format))
+    THROW("Cannot set play"); // TODO: Already throws?
 
   if (play[numActive].PlayIsOver())
-    return contract[numActive].SetTricks( play[numActive].GetTricks() );
-
-  return true;
+    contract[numActive].SetTricks( play[numActive].GetTricks() );
 }
 
 
 bool Board::SetPlays(
   const vector<string>& list,
-  const formatType f)
+  const Format format)
 {
-  return play[numActive].SetPlays(list, f);
+  return play[numActive].SetPlays(list, format);
 }
 
 
@@ -416,20 +392,19 @@ bool Board::ClaimIsMade() const
 
 // Result
 
-bool Board::SetResult(
+void Board::setResult(
   const string& text,
-  const formatType f)
+  const Format format)
 {
-  if (! contract[numActive].SetResult(text, f))
-    return false;
+  if (! contract[numActive].SetResult(text, format))
+    THROW("Cannot set result"); // TODO: Already throws?
 
   if (contract[numActive].IsPassedOut())
-    return true;
-  else if (play[numActive].Claim(contract[numActive].GetTricks()) ==
+    return;
+
+  if (play[numActive].Claim(contract[numActive].GetTricks()) !=
       PLAY_CLAIM_NO_ERROR)
-    return true;
-  else
-    return false;
+    THROW("Bad claim"); // TODO: Already throws?
 }
 
 
@@ -441,33 +416,34 @@ bool Board::ResultIsSet() const
 
 // Tableau
 
-bool Board::SetTableau(
+void Board::setTableau(
   const string& text,
-  const formatType f)
+  const Format format)
 {
-  return tableau.set(text, f);
+  tableau.set(text, format);
 }
 
+
 bool Board::SetTableauEntry(
-  const playerType p,
-  const denomType d,
-  const unsigned t)
+  const Player player,
+  const Denom denom,
+  const unsigned tricks)
 {
-  return tableau.set(p, d, t);
+  return tableau.set(player, denom, tricks);
 }
 
 
 unsigned Board::GetTableauEntry(
-  const playerType p,
-  const denomType d) const
+  const Player player,
+  const Denom denom) const
 {
-  return tableau.get(p, d);
+  return tableau.get(player, denom);
 }
 
 
 bool Board::GetPar(
-  playerType dealer,
-  vulType v,
+  Player dealer,
+  Vul v,
   string& text) const
 {
   return tableau.getPar(dealer, v, text);
@@ -475,8 +451,8 @@ bool Board::GetPar(
 
 
 bool Board::GetPar(
-  playerType dealer,
-  vulType v,
+  Player dealer,
+  Vul v,
   list<Contract>& text) const
 {
   return tableau.getPar(dealer, v, text);
@@ -487,16 +463,16 @@ bool Board::GetPar(
 
 bool Board::SetPlayers(
   const string& text,
-  const formatType f)
+  const Format format)
 {
-  players[numActive].set(text, f);
+  players[numActive].set(text, format);
   return true;
 }
 
 
 bool Board::SetPlayer(
   const string& text,
-  const playerType player)
+  const Player player)
 {
   players[numActive].setPlayer(text, player);
   return true;
@@ -514,7 +490,7 @@ void Board::CopyPlayers(
 bool Board::SetRoom(
   const string& s,
   const unsigned inst,
-  const formatType f)
+  const Format f)
 {
   players[inst].setRoom(s, f);
   return true;
@@ -582,94 +558,92 @@ bool Board::operator != (const Board& b2) const
 }
 
 
-string Board::DealerAsString(
-  const formatType f) const
+string Board::strDealer(const Format format) const
 {
-  return auction[numActive].strDealer(f);
+  return auction[numActive].strDealer(format);
 }
 
 
-string Board::VulAsString(
-  const formatType f) const
+string Board::strVul(const Format format) const
 {
-  return auction[numActive].strVul(f);
+  return auction[numActive].strVul(format);
 }
 
 
-string Board::DealAsString(
-  const playerType start,
-  const formatType f) const
+string Board::strDeal(const Format format) const
 {
-  return deal.str(start, f);
+  return deal.str(auction[0].getDealer(), format);
 }
 
 
-string Board::TableauAsString(
-  const formatType f) const
+string Board::strDeal(
+  const Player start,
+  const Format format) const
 {
-  return tableau.str(f);
+  return deal.str(start, format);
 }
 
 
-string Board::AuctionAsString(
-  const formatType f,
-  const string& names) const
+string Board::strTableau(const Format format) const
 {
-  UNUSED(names);
-  if (f == BRIDGE_FORMAT_TXT)
+  return tableau.str(format);
+}
+
+
+string Board::strAuction(const Format format) const
+{
+  if (format == BRIDGE_FORMAT_TXT)
   {
     unsigned lengths[BRIDGE_PLAYERS];
     for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
     {
-      playerType pp = static_cast<playerType>((p+3) % 4);
-      lengths[p] = players[numActive].strPlayer(pp, f).length();
+      Player pp = static_cast<Player>((p+3) % 4);
+      lengths[p] = players[numActive].strPlayer(pp, format).length();
       lengths[p] = Max(12u, static_cast<int>(lengths[p]+1));
     }
-    return auction[numActive].str(f, lengths);
+    return auction[numActive].str(format, lengths);
   }
   else
-    return auction[numActive].str(f);
+    return auction[numActive].str(format);
 }
 
 
-string Board::ContractAsString(
-  const formatType f) const
+string Board::strContract(const Format format) const
 {
-  return contract[numActive].AsString(f);
+  return contract[numActive].AsString(format);
 }
 
 
-string Board::DeclarerAsString(
-  const formatType f) const
+string Board::strDeclarer(const Format format) const
 {
-  return contract[numActive].DeclarerAsString(f);
+  return contract[numActive].DeclarerAsString(format);
 }
 
 
-string Board::TricksAsString(
-  const formatType f) const
+string Board::strTricks(const Format format) const
 {
-  return contract[numActive].TricksAsString(f);
+  return contract[numActive].TricksAsString(format);
 }
 
 
 string Board::ScoreAsString(
-  const formatType f,
+  const Format format,
   const bool scoringIsIMPs) const
 {
   if (numActive != 1 || 
      ! scoringIsIMPs ||
      ! contract[0].ResultIsSet())
-    return contract[numActive].ScoreAsString(f);
+    return contract[numActive].ScoreAsString(format);
   else
-    return contract[numActive].ScoreAsString(f, contract[0].GetScore());
+    return contract[numActive].ScoreAsString(format, 
+      contract[0].GetScore());
 }
 
 
 string Board::GivenScoreAsString(
-  const formatType f) const
+  const Format format) const
 {
-  UNUSED(f);
+  UNUSED(format);
   stringstream s;
   if (givenScore == 0.0f)
     s << "--,--,";
@@ -682,16 +656,17 @@ string Board::GivenScoreAsString(
 
 
 string Board::ScoreIMPAsString(
-  const formatType f,
+  const Format format,
   const bool showFlag) const
 {
-  if (f != BRIDGE_FORMAT_REC)
+  if (format != BRIDGE_FORMAT_REC)
     return "";
 
   if (! showFlag)
     return "Points:       ";
 
-  return contract[numActive].ScoreIMPAsString(f, contract[0].GetScore());
+  return contract[numActive].ScoreIMPAsString(format, 
+    contract[0].GetScore());
 }
 
 
@@ -704,24 +679,21 @@ int Board::ScoreIMPAsInt() const
 }
 
 
-string Board::LeadAsString(
-  const formatType f) const
+string Board::LeadAsString(const Format format) const
 {
-  return play[numActive].LeadAsString(f);
+  return play[numActive].LeadAsString(format);
 }
 
 
-string Board::PlayAsString(
-  const formatType f) const
+string Board::PlayAsString(const Format format) const
 {
-  return play[numActive].AsString(f);
+  return play[numActive].AsString(format);
 }
 
 
-string Board::ClaimAsString(
-  const formatType f) const
+string Board::ClaimAsString(const Format format) const
 {
-  return play[numActive].ClaimAsString(f);
+  return play[numActive].ClaimAsString(format);
 }
 
 
@@ -734,79 +706,50 @@ string Board::strPlayer(
 
 
 string Board::PlayersAsString(
-  const formatType f) const
+  const Format format) const
 {
   // TODO: Not a reliable indicator of open/closed.
-  return players[numActive].str(f, numActive == 1);
+  return players[numActive].str(format, numActive == 1);
 }
 
 
 string Board::PlayersAsDeltaString(
   Board * refBoard,
-  const formatType f) const
+  const Format format) const
 {
   if (refBoard == nullptr)
     return players[numActive].str(BRIDGE_FORMAT_LIN_RP);
   else
-    return players[numActive].strDelta(refBoard->players[numActive], f);
-}
-
-
-string Board::WestAsString(
-  const formatType f) const
-{
-assert(false);
-  return players[numActive].strPlayer(BRIDGE_WEST, f);
-}
-
-
-string Board::NorthAsString(
-  const formatType f) const
-{
-assert(false);
-  return players[numActive].strPlayer(BRIDGE_NORTH, f);
-}
-
-
-string Board::EastAsString(
-  const formatType f) const
-{
-assert(false);
-  return players[numActive].strPlayer(BRIDGE_EAST, f);
-}
-
-
-string Board::SouthAsString(
-  const formatType f) const
-{
-assert(false);
-  return players[numActive].strPlayer(BRIDGE_SOUTH, f);
+    return players[numActive].strDelta(refBoard->players[numActive], 
+      format);
 }
 
 
 string Board::ResultAsString(
-  const formatType f,
+  const Format format,
   const bool scoringIsIMPs) const
 {
   if (numActive != 1 || 
      ! scoringIsIMPs ||
      ! contract[0].ResultIsSet())
-    return contract[numActive].ResultAsString(f);
+    return contract[numActive].ResultAsString(format);
   else
-    return contract[numActive].ResultAsString(f, contract[0].GetScore());
+    return contract[numActive].ResultAsString(format, 
+      contract[0].GetScore());
 }
 
 
 string Board::ResultAsString(
-  const formatType f,
+  const Format format,
   const string& team) const
 {
   if (numActive != 1 || 
      ! contract[0].ResultIsSet())
-    return contract[numActive].ResultAsString(f);
+    return contract[numActive].ResultAsString(format);
   else
     return 
-      contract[numActive].ResultAsString(f, contract[0].GetScore(), team);
+      contract[numActive].ResultAsString(format, 
+        contract[0].GetScore(), team);
 }
 
 

@@ -80,8 +80,8 @@ struct FormatFunctionsType
 
 FormatFunctionsType formatFncs[BRIDGE_FORMAT_SIZE];
 
-typedef bool (Segment::*SegPtr)(const string& s, const formatType f);
-typedef bool (Board::*BoardPtr)(const string& s, const formatType f);
+typedef void (Segment::*SegPtr)(const string& s, const formatType f);
+typedef void (Board::*BoardPtr)(const string& s, const formatType f);
 
 SegPtr segPtr[BRIDGE_FORMAT_LABELS_SIZE];
 BoardPtr boardPtr[BRIDGE_FORMAT_LABELS_SIZE];
@@ -119,13 +119,12 @@ static bool readFormattedFile(
   Group& group,
   const OptionsType& options);
 
-static bool tryFormatMethod(
+static void tryFormatMethod(
   const formatType f,
   const string& text,
   Segment * segment,
   Board * board,
-  const unsigned label,
-  ifstream& fstr);
+  const unsigned label);
 
 static void writeHeader(
   ofstream& fstr,
@@ -215,42 +214,42 @@ static void setIO()
 
 static void setInterface()
 {
-  segPtr[BRIDGE_FORMAT_TITLE] = &Segment::SetTitle;
-  segPtr[BRIDGE_FORMAT_DATE] = &Segment::SetDate;
-  segPtr[BRIDGE_FORMAT_LOCATION] = &Segment::SetLocation;
-  segPtr[BRIDGE_FORMAT_EVENT] = &Segment::SetEvent;
-  segPtr[BRIDGE_FORMAT_SESSION] = &Segment::SetSession;
-  segPtr[BRIDGE_FORMAT_SCORING] = &Segment::SetScoring;
-  segPtr[BRIDGE_FORMAT_TEAMS] = &Segment::SetTeams;
-  segPtr[BRIDGE_FORMAT_HOMETEAM] = &Segment::SetFirstTeam;
-  segPtr[BRIDGE_FORMAT_VISITTEAM] = &Segment::SetSecondTeam;
+  segPtr[BRIDGE_FORMAT_TITLE] = &Segment::setTitle;
+  segPtr[BRIDGE_FORMAT_DATE] = &Segment::setDate;
+  segPtr[BRIDGE_FORMAT_LOCATION] = &Segment::setLocation;
+  segPtr[BRIDGE_FORMAT_EVENT] = &Segment::setEvent;
+  segPtr[BRIDGE_FORMAT_SESSION] = &Segment::setSession;
+  segPtr[BRIDGE_FORMAT_SCORING] = &Segment::setScoring;
+  segPtr[BRIDGE_FORMAT_TEAMS] = &Segment::setTeams;
+  segPtr[BRIDGE_FORMAT_HOMETEAM] = &Segment::setFirstTeam;
+  segPtr[BRIDGE_FORMAT_VISITTEAM] = &Segment::setSecondTeam;
 
-  segPtr[BRIDGE_FORMAT_RESULTS_LIST] = &Segment::SetResultsList;
-  segPtr[BRIDGE_FORMAT_PLAYERS_LIST] = &Segment::SetPlayersList;
-  segPtr[BRIDGE_FORMAT_PLAYERS_HEADER] = &Segment::SetPlayersHeader;
-  segPtr[BRIDGE_FORMAT_WEST] = &Segment::SetWest;
-  segPtr[BRIDGE_FORMAT_NORTH] = &Segment::SetNorth;
-  segPtr[BRIDGE_FORMAT_EAST] = &Segment::SetEast;
-  segPtr[BRIDGE_FORMAT_SOUTH] = &Segment::SetSouth;
-  segPtr[BRIDGE_FORMAT_SCORES_LIST] = &Segment::SetScoresList;
-  segPtr[BRIDGE_FORMAT_BOARDS_LIST] = &Segment::SetBoardsList;
+  segPtr[BRIDGE_FORMAT_RESULTS_LIST] = &Segment::setResultsList;
+  segPtr[BRIDGE_FORMAT_PLAYERS_LIST] = &Segment::setPlayersList;
+  segPtr[BRIDGE_FORMAT_PLAYERS_HEADER] = &Segment::setPlayersHeader;
+  segPtr[BRIDGE_FORMAT_WEST] = &Segment::setWest;
+  segPtr[BRIDGE_FORMAT_NORTH] = &Segment::setNorth;
+  segPtr[BRIDGE_FORMAT_EAST] = &Segment::setEast;
+  segPtr[BRIDGE_FORMAT_SOUTH] = &Segment::setSouth;
+  segPtr[BRIDGE_FORMAT_SCORES_LIST] = &Segment::setScoresList;
+  segPtr[BRIDGE_FORMAT_BOARDS_LIST] = &Segment::setBoardsList;
 
-  segPtr[BRIDGE_FORMAT_BOARD_NO] = &Segment::SetNumber;
-  segPtr[BRIDGE_FORMAT_PLAYERS_BOARD] = &Segment::SetPlayers;
-  segPtr[BRIDGE_FORMAT_ROOM] = &Segment::SetRoom;
+  segPtr[BRIDGE_FORMAT_BOARD_NO] = &Segment::setNumber;
+  segPtr[BRIDGE_FORMAT_PLAYERS_BOARD] = &Segment::setPlayers;
+  segPtr[BRIDGE_FORMAT_ROOM] = &Segment::setRoom;
 
-  boardPtr[BRIDGE_FORMAT_DEAL] = &Board::SetDeal;
-  boardPtr[BRIDGE_FORMAT_DEALER] = &Board::SetDealer;
-  boardPtr[BRIDGE_FORMAT_VULNERABLE] = &Board::SetVul;
-  boardPtr[BRIDGE_FORMAT_AUCTION] = &Board::SetAuction;
-  boardPtr[BRIDGE_FORMAT_DECLARER] = &Board::SetDeclarer;
-  boardPtr[BRIDGE_FORMAT_CONTRACT] = &Board::SetContract;
-  boardPtr[BRIDGE_FORMAT_PLAY] = &Board::SetPlays;
-  boardPtr[BRIDGE_FORMAT_RESULT] = &Board::SetResult;
-  boardPtr[BRIDGE_FORMAT_SCORE] = &Board::SetScore;
-  boardPtr[BRIDGE_FORMAT_SCORE_IMP] = &Board::SetScoreIMP;
-  boardPtr[BRIDGE_FORMAT_SCORE_MP] = &Board::SetScoreMP;
-  boardPtr[BRIDGE_FORMAT_DOUBLE_DUMMY] = &Board::SetTableau;
+  boardPtr[BRIDGE_FORMAT_DEAL] = &Board::setDeal;
+  boardPtr[BRIDGE_FORMAT_DEALER] = &Board::setDealer;
+  boardPtr[BRIDGE_FORMAT_VULNERABLE] = &Board::setVul;
+  boardPtr[BRIDGE_FORMAT_AUCTION] = &Board::setAuction;
+  boardPtr[BRIDGE_FORMAT_DECLARER] = &Board::setDeclarer;
+  boardPtr[BRIDGE_FORMAT_CONTRACT] = &Board::setContract;
+  boardPtr[BRIDGE_FORMAT_PLAY] = &Board::setPlays;
+  boardPtr[BRIDGE_FORMAT_RESULT] = &Board::setResult;
+  boardPtr[BRIDGE_FORMAT_SCORE] = &Board::setScore;
+  boardPtr[BRIDGE_FORMAT_SCORE_IMP] = &Board::setScoreIMP;
+  boardPtr[BRIDGE_FORMAT_SCORE_MP] = &Board::setScoreMP;
+  boardPtr[BRIDGE_FORMAT_DOUBLE_DUMMY] = &Board::setTableau;
 }
 
 
@@ -548,7 +547,7 @@ static bool readFormattedFile(
       }
     }
 
-    board->NewInstance();
+    board->newInstance();
     segment->CopyPlayers();
 
     if (chunk[BRIDGE_FORMAT_AUCTION] == "")
@@ -573,10 +572,7 @@ static bool readFormattedFile(
           continue;
         }
 
-        if (! tryFormatMethod(f, chunk[i], segment, board, i, fstr))
-        {
-          THROW("b " + STR(bno) + " i " + STR(i) + ", line '" + chunk[i] + "'");
-        }
+        tryFormatMethod(f, chunk[i], segment, board, i);
       }
     }
     catch (Bexcept& bex)
@@ -629,31 +625,19 @@ static bool readFormattedFile(
 }
 
 
-static bool tryFormatMethod(
-  const formatType f,
+static void tryFormatMethod(
+  const Format format,
   const string& text,
   Segment * segment,
   Board * board,
-  const unsigned label,
-  ifstream& fstr)
+  const unsigned label)
 {
   if (label <= BRIDGE_FORMAT_ROOM)
   {
-    if ((segment->*segPtr[label])(text, f))
-      return true;
-    else
-    {
-      fstr.close();
-      THROW("Cannot add " + formatLabelNames[label] + " line '" + text + "'");
-    }
+    (segment->*segPtr[label])(text, format);
   }
-  else  if ((board->*boardPtr[label])(text, f))
-    return true;
-  else
-  {
-    fstr.close();
-    THROW("Cannot add " + formatLabelNames[label] + " line '" + text + "'");
-  }
+  else 
+    (board->*boardPtr[label])(text, format);
 }
 
 
@@ -711,16 +695,11 @@ static bool writeFormattedFile(
       }
 
       writeInfo.bno = b;
-      writeInfo.numInst = board->GetLength();
+      writeInfo.numInst = board->count();
 
       for (unsigned i = 0; i < writeInfo.numInst; i++)
       {
-        if (! board->SetInstance(i))
-        {
-          fstr.close();
-          THROW("Invalid instance");
-        }
-
+        board->setInstance(i);
         writeInfo.ino = i;
         (* formatFncs[f].writeBoard)(fstr, &segment, board, writeInfo, f);
       }

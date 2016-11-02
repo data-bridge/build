@@ -383,11 +383,11 @@ void writeRECBoardLevel(
 
   board->CalculateScore();
 
-  const string dstr = board->DealAsString(BRIDGE_WEST, f);
+  const string dstr = board->strDeal(BRIDGE_WEST, f);
   const string sstr = segment->ScoringAsString(f);
-  const string estr = board->DealerAsString(f);
+  const string estr = board->strDealer(f);
   const string bstr = segment->NumberAsString(f, writeInfo.bno);
-  const string vstr = board->VulAsString(f);
+  const string vstr = board->strVul(f);
 
   const string west = board->strPlayer(BRIDGE_WEST, f);
   const string north = board->strPlayer(BRIDGE_NORTH, f);
@@ -414,7 +414,7 @@ void writeRECBoardLevel(
   fstr << canvas.str(true) << "\n";
 
   fstr << board->PlayersAsString(f) << "\n";
-  fstr << board->AuctionAsString(f);
+  fstr << board->strAuction(f);
 
   fstr << board->LeadAsString(f) << "    ";
   fstr << board->ResultAsString(f, false) << "\n";
