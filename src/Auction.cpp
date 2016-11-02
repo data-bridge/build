@@ -770,11 +770,31 @@ bool Auction::operator != (const Auction& a2) const
 }
 
 
+string Auction::strTXTHeader(const unsigned * lengths) const
+{
+  stringstream ss;
+  ss << left <<
+       setw(lengths[0]) << "West" << 
+       setw(lengths[1]) << "North" << 
+       setw(lengths[2]) << "East" << 
+       "South" << "\n";
+  return ss.str();
+}
+
+
+string Auction::strEMLHeader() const
+{
+  stringstream ss;
+  ss << setw(9) << left << "west" <<
+      setw(9) << left << "north" <<
+      setw(9) << left << "east" <<
+      setw(9) << left << "south" << "\n\n\n";
+  return ss.str();
+}
+
+
 string Auction::strLIN() const
 {
-  if (len == 0)
-    return "";
-
   stringstream s;
   for (unsigned b = 0; b < len; b++)
   {
@@ -795,9 +815,6 @@ string Auction::strLIN() const
 
 string Auction::strLIN_RP() const
 {
-  if (len == 0)
-    return "";
-
   stringstream s;
   s << "\nmb|";
   for (unsigned b = 0; b < len; b++)
@@ -812,9 +829,6 @@ string Auction::strLIN_RP() const
 
 string Auction::strPBN() const
 {
-  if (len == 0)
-    return "";
-  
   stringstream s, alerts;
   if (Auction::isPassedOut())
   {
@@ -828,6 +842,9 @@ string Auction::strPBN() const
   unsigned end = len-1;
   while (sequence[end].no == 0 && sequence[end].alert == "")
     trailing++, end--;
+
+if (trailing != numPasses)
+  THROW("NumPasses PBN");
 
   if (trailing > 0 && trailing < 3)
     end = len-1;
@@ -878,9 +895,6 @@ string Auction::strPBN() const
 
 string Auction::strRBNCore(const bool RBNflag) const
 {
-  if (len == 0)
-    return "";
-  
   stringstream s, alerts;
   s << PLAYER_NAMES_SHORT[dealer] << VUL_NAMES_RBN[vul] << ":";
   
@@ -891,6 +905,9 @@ string Auction::strRBNCore(const bool RBNflag) const
   unsigned end = len-1;
   while (sequence[end].no == 0 && sequence[end].alert == "")
     trailing++, end--;
+if (trailing != numPasses)
+  THROW("NumPasses RBN");
+
     
   unsigned aNo = 1;
   for (unsigned b = 0; b <= end; b++)
@@ -948,45 +965,25 @@ string Auction::strRBNCore(const bool RBNflag) const
 
 string Auction::strRBN() const
 {
-  const string st = Auction::strRBNCore(true);
-  if (st == "")
-    return "";
-
-  return "A " + st + "\n";
+  return "A " + Auction::strRBNCore(true) + "\n";
 }
 
 
 string Auction::strRBX() const
 {
-  const string st = Auction::strRBNCore(false);
-  if (st == "")
-    return "";
-
-  return "A{" + st + "}";
+  return "A{" + Auction::strRBNCore(false) + "}";
 }
 
 
 string Auction::strTXT(const unsigned * lengths) const
 {
-  int adjLen[BRIDGE_PLAYERS];
-  for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
-    adjLen[p] = Max(12, static_cast<int>(lengths[p])+1);
-
   stringstream s;
-  s << left <<
-       setw(adjLen[0]) << "West" << 
-       setw(adjLen[1]) << "North" << 
-       setw(adjLen[2]) << "East" << 
-       "South" << "\n";
-
-  if (len == 0)
-    return s.str();
 
   const unsigned numSkips = static_cast<unsigned>
     ((dealer + 4 - BRIDGE_WEST) % 4);
   const unsigned wrap = 3 - numSkips;
   for (unsigned i = 0; i < numSkips; i++)
-    s << setw(adjLen[i]) << "";
+    s << setw(lengths[i]) << "";
   
   if (Auction::isPassedOut())
   {
@@ -998,6 +995,8 @@ string Auction::strTXT(const unsigned * lengths) const
   unsigned end = len-1;
   while (sequence[end].no == 0 && sequence[end].alert == "")
     trailing++, end--;
+if (trailing != numPasses)
+  THROW("NumPasses TXT");
 
   if (trailing > 0 && trailing < 3)
     end = len-1;
@@ -1010,7 +1009,7 @@ string Auction::strTXT(const unsigned * lengths) const
     if (b % 4 == wrap)
       s << bid.str() << "\n";
     else
-      s << setw(adjLen[(b+numSkips) % 4]) << bid.str();
+      s << setw(lengths[(b+numSkips) % 4]) << left << bid.str();
   }
 
   if (trailing == 3)
@@ -1036,13 +1035,6 @@ string Auction::strTXT(const unsigned * lengths) const
 string Auction::strEML() const
 {
   stringstream s;
-  s << setw(9) << left << "west" <<
-      setw(9) << left << "north" <<
-      setw(9) << left << "east" <<
-      setw(9) << left << "south" << "\n\n\n";
-
-  if (len == 0)
-    return s.str();
 
   if (Auction::isPassedOut())
   {
@@ -1060,6 +1052,8 @@ string Auction::strEML() const
   unsigned end = len-1;
   while (sequence[end].no == 0 && sequence[end].alert == "")
     trailing++, end--;
+if (trailing != numPasses)
+  THROW("NumPasses EML");
     
   if (trailing > 0 && trailing < 3)
     end = len-1;
@@ -1069,7 +1063,7 @@ string Auction::strEML() const
     const Call& c = sequence[b];
     stringstream bid;
     bid << AUCTION_NO_TO_CALL_EML[c.no];
-    s << setw(9) << bid.str();
+    s << setw(9) << left << bid.str();
     if (b % 4 == wrap)
       s << "\n";
   }
@@ -1099,9 +1093,6 @@ string Auction::strEML() const
 
 string Auction::strREC() const
 {
-  if (len == 0)
-    return "";
-
   stringstream s;
   const unsigned numSkips = static_cast<unsigned>
     ((dealer + 4 - BRIDGE_WEST) % 4);
@@ -1119,6 +1110,8 @@ string Auction::strREC() const
   unsigned end = len-1;
   while (sequence[end].no == 0 && sequence[end].alert == "")
     trailing++, end--;
+if (trailing != numPasses)
+  THROW("NumPasses REC");
     
   if (trailing > 0 && trailing < 3)
     end = len-1;
@@ -1164,6 +1157,17 @@ string Auction::str(
   if (! setDVFlag)
     DIFF("Dealer/vul not set");
 
+  string header;
+  if (format == BRIDGE_FORMAT_TXT)
+    header = Auction::strTXTHeader(lengths);
+  else if (format == BRIDGE_FORMAT_EML)
+    header = Auction::strEMLHeader();
+  else
+    header = "";
+
+  if (len == 0)
+    return header;
+
   switch(format)
   {
     case BRIDGE_FORMAT_LIN:
@@ -1188,10 +1192,10 @@ string Auction::str(
     case BRIDGE_FORMAT_TXT:
       if (lengths == nullptr)
         THROW("TXT needs lengths");
-      return Auction::strTXT(lengths);
+      return header + Auction::strTXT(lengths);
     
     case BRIDGE_FORMAT_EML:
-      return Auction::strEML();
+      return header + Auction::strEML();
     
     case BRIDGE_FORMAT_REC:
       return Auction::strREC();

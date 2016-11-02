@@ -74,6 +74,8 @@ class Auction
       const string& text,
       const unsigned startPos = 0);
 
+    string strTXTHeader(const unsigned * lengths) const;
+    string strEMLHeader() const;
     string strLIN() const;
     string strLIN_RP() const;
     string strPBN() const;

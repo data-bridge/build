@@ -623,6 +623,7 @@ string Board::AuctionAsString(
     {
       playerType pp = static_cast<playerType>((p+3) % 4);
       lengths[p] = players[numActive].strPlayer(pp, f).length();
+      lengths[p] = Max(12u, static_cast<int>(lengths[p]+1));
     }
     return auction[numActive].str(f, lengths);
   }
