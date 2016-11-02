@@ -231,24 +231,26 @@ struct OptionsType
   bool verboseValDetails;
 };
 
+typedef OptionsType Options;
 
-struct FileOutputTaskType
+
+struct FileOutputTask
 {
   string fileOutput;
-  formatType formatOutput;
+  Format formatOutput;
 
   bool refFlag;
   string fileRef;
 };
 
 
-struct FileTaskType
+struct FileTask
 {
   string fileInput;
-  formatType formatInput;
+  Format formatInput;
   bool removeOutputFlag;
 
-  vector<FileOutputTaskType> taskList;
+  vector<FileOutputTask> taskList;
 };
 
 

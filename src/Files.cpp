@@ -7,13 +7,10 @@
 */
 
 
-#include <map>
+#include <iostream>
 #include <regex>
 #include <thread>
 #include <mutex>
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
 
 #if defined(_WIN32)
   #include "dirent.h"
@@ -23,10 +20,7 @@
   #include <dirent.h>
 #endif
 
-#include <iostream>
-
 #include "Files.h"
-#include "portab.h"
 #include "parse.h"
 
 static mutex mtx;
@@ -34,7 +28,7 @@ static mutex mtx;
 
 Files::Files()
 {
-  Files::Reset();
+  Files::reset();
 }
 
 
@@ -43,30 +37,30 @@ Files::~Files()
 }
 
 
-void Files::Reset()
+void Files::reset()
 {
   nextNo = 0;
   fileTasks.clear();
 }
 
 
-void Files::Rewind()
+void Files::rewind()
 {
   nextNo = 0;
 }
 
 
-bool Files::FillEntry(
-  const string& s,
-  FileEntryType& entry) const
+bool Files::fillEntry(
+  const string& text,
+  FileEntry& entry) const
 {
   regex re("([^./]+)\\.(\\w+)$");
   smatch match;
-  if (regex_search(s, match, re) && match.size() >= 2)
+  if (regex_search(text, match, re) && match.size() >= 2)
   {
-    entry.fullName = s;
+    entry.fullName = text;
     entry.base = match.str(1);
-    entry.format = ExtToFormat(match.str(2));
+    entry.format = ext2format(match.str(2));
     return (entry.format != BRIDGE_FORMAT_SIZE);
   }
   else
@@ -74,14 +68,14 @@ bool Files::FillEntry(
 }
 
 
-void Files::BuildFileList(
+void Files::buildFileList(
   const string& dirName,
-  vector<FileEntryType>& fileList,
-  const formatType formatOnly)
+  vector<FileEntry>& fileList,
+  const Format formatOnly)
 {
   DIR *dir;
   struct dirent *ent;
-  FileEntryType entry;
+  FileEntry entry;
 
   if ((dir = opendir(dirName.c_str())) == nullptr) 
     return;
@@ -92,7 +86,7 @@ void Files::BuildFileList(
     switch(ent->d_type)
     {
       case DT_REG:
-        if (Files::FillEntry(s, entry))
+        if (Files::fillEntry(s, entry))
         {
           if (formatOnly == BRIDGE_FORMAT_SIZE || 
               entry.format == formatOnly)
@@ -104,7 +98,7 @@ void Files::BuildFileList(
         if (strcmp(ent->d_name, ".") != 0 &&
             strcmp(ent->d_name, "..") != 0)
         {
-          BuildFileList(s, fileList, formatOnly);
+          Files::buildFileList(s, fileList, formatOnly);
         }
 
       default:
@@ -115,9 +109,9 @@ void Files::BuildFileList(
 }
 
 
-void Files::ListToMap(
-  const vector<FileEntryType>& fileList,
-  map<string, vector<FileEntryType>>& refMap)
+void Files::list2map(
+  const vector<FileEntry>& fileList,
+  map<string, vector<FileEntry>>& refMap)
 {
   // Index the file list by basename.
   for (auto &e: fileList)
@@ -125,7 +119,7 @@ void Files::ListToMap(
 }
 
 
-formatType Files::GuessLINFormat(const string& base) const
+formatType Files::guessLINFormat(const string& base) const
 {
  // Guess the specific LIN output dialect from the filename.
 
@@ -145,13 +139,13 @@ formatType Files::GuessLINFormat(const string& base) const
 }
 
 
-void Files::ExtendTaskList(
-  const FileEntryType& in,
-  const vector<FileEntryType>& out,
+void Files::extendTaskList(
+  const FileEntry& in,
+  const vector<FileEntry>& out,
   const bool keepFlag,
-  const map<string, vector<FileEntryType>>& refMap)
+  const map<string, vector<FileEntry>>& refMap)
 {
-  FileTaskType t;
+  FileTask t;
 
   t.fileInput = in.fullName;
   t.formatInput = in.format;
@@ -159,11 +153,11 @@ void Files::ExtendTaskList(
 
   for (auto &e: out)
   {
-    FileOutputTaskType o;
+    FileOutputTask o;
     o.fileOutput = e.fullName;
 
     if (e.format == BRIDGE_FORMAT_LIN)
-      o.formatOutput = Files::GuessLINFormat(in.base);
+      o.formatOutput = Files::guessLINFormat(in.base);
     else
       o.formatOutput = e.format;
 
@@ -189,36 +183,36 @@ void Files::ExtendTaskList(
 }
 
 
-void Files::Set(const OptionsType& options)
+void Files::set(const Options& options)
 {
-  vector<FileEntryType> inputList, refList, outputList;
-  map<string, vector<FileEntryType>> refMap;
+  vector<FileEntry> inputList, refList, outputList;
+  map<string, vector<FileEntry>> refMap;
 
   // Set inputList
   if (options.fileInput.setFlag)
   {
-    FileEntryType e;
-    Files::FillEntry(options.fileInput.name, e);
+    FileEntry e;
+    Files::fillEntry(options.fileInput.name, e);
     inputList.push_back(e);
   }
   else
-    Files::BuildFileList(options.dirInput.name, inputList);
+    Files::buildFileList(options.dirInput.name, inputList);
 
   // Set refMap, a map of reference files indexed by basename
   if (options.fileRef.setFlag)
   {
-    FileEntryType e;
-    Files::FillEntry(options.fileRef.name, e);
+    FileEntry e;
+    Files::fillEntry(options.fileRef.name, e);
     refList.push_back(e);
   }
   else if (options.dirRef.setFlag)
-    Files::BuildFileList(options.dirRef.name, refList, options.format);
+    Files::buildFileList(options.dirRef.name, refList, options.format);
 
-  Files::ListToMap(refList, refMap);
+  Files::list2map(refList, refMap);
 
   // Set output list and list of output formats
-  vector<formatType> flist;
-  FileEntryType oe;
+  vector<Format> flist;
+  FileEntry oe;
   bool keepFlag;
   string prefix;
 
@@ -226,14 +220,14 @@ void Files::Set(const OptionsType& options)
   {
     keepFlag = true;
     prefix = "";
-    Files::FillEntry(options.fileOutput.name, oe);
+    Files::fillEntry(options.fileOutput.name, oe);
 
     outputList.push_back(oe);
     flist.push_back(oe.format);
 
     // Only one entry in the inputList.
     for (auto &i: inputList)
-      Files::ExtendTaskList(i, outputList, keepFlag, refMap);
+      Files::extendTaskList(i, outputList, keepFlag, refMap);
   }
   else
   {
@@ -261,17 +255,17 @@ void Files::Set(const OptionsType& options)
       for (auto &f: flist)
       {
         string oname = prefix + i.base + "." + FORMAT_NAMES[f];
-        Files::FillEntry(oname, oe);
+        Files::fillEntry(oname, oe);
         outputList.push_back(oe);
       }
 
-      Files::ExtendTaskList(i, outputList, keepFlag, refMap);
+      Files::extendTaskList(i, outputList, keepFlag, refMap);
     }
   }
 }
 
 
-bool Files::GetNextTask(FileTaskType& ftask) 
+bool Files::next(FileTask& ftask) 
 {
   if (nextNo >= fileTasks.size())
     return false;
@@ -283,7 +277,7 @@ bool Files::GetNextTask(FileTaskType& ftask)
 }
 
 
-void Files::PrintTasks() const
+void Files::print() const
 {
   for (auto &i: fileTasks)
   {

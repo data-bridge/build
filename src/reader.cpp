@@ -19,13 +19,13 @@ using namespace std;
 
 int main(int argc, char * argv[])
 {
-  OptionsType options;
+  Options options;
   readArgs(argc, argv, options);
 
   setTables();
 
   Files files;
-  files.Set(options);
+  files.set(options);
 
   vector<thread> thr(options.numThreads);
   vector<ValStats> vstats(options.numThreads);

@@ -1,19 +1,48 @@
-   373    985   8434 args.cpp
-   868   1491  14301 Board.cpp
   1276   3096  26550 Contract.cpp
+   187    367   3845 Contract.h
+
+  1063   2739  23146 Play.cpp
+   164    281   2901 Play.h
+
+   868   1491  14301 Board.cpp
+   356    649   6702 Board.h
+
+   373    985   8434 args.cpp
+    22     34    274 args.h
+
+   301    609   6084 Files.cpp
+    81    121   1341 Files.h
+
    731   1821  18033 dispatch.cpp
+    26     43    383 dispatch.h
    551   1518  13444 fileEML.cpp
    183    475   4435 fileLIN.cpp
    232    588   5893 filePBN.cpp
    183    431   4155 fileRBN.cpp
    426   1305  10722 fileREC.cpp
-   301    609   6084 Files.cpp
    598   1673  14360 fileTXT.cpp
+    39     63    541 fileEML.h
+    40     66    575 fileLIN.h
+    35     56    485 filePBN.h
+    50     83    732 fileRBN.h
+    37     61    519 fileREC.h
+    44     73    631 fileTXT.h
+
    610   1397  10699 parse.cpp
-  1063   2739  23146 Play.cpp
+   118    218   2048 parse.h
+
     81    146   1495 reader.cpp
+
   1251   2924  26385 Segment.cpp
+   257    483   4866 Segment.h
+
    567   1375  11050 Session.cpp
+    86    159   1485 Session.h
+
+   389    760   6447 bconst.h
+
+    77    156   1408 portab.h
+
    579   1473  13180 validate.cpp
     67    146   1223 validateEML.cpp
    296    717   6575 validateLIN.cpp
@@ -21,24 +50,6 @@
    323    731   6911 validateRBN.cpp
    269    657   6059 validateREC.cpp
    426   1130   9713 validateTXT.cpp
-    27     28    233 Valuation.cpp
-    22     34    274 args.h
-   389    760   6447 bconst.h
-   356    649   6702 Board.h
-   187    367   3845 Contract.h
-    26     43    383 dispatch.h
-    39     63    541 fileEML.h
-    40     66    575 fileLIN.h
-    35     56    485 filePBN.h
-    50     83    732 fileRBN.h
-    37     61    519 fileREC.h
-    81    121   1341 Files.h
-    44     73    631 fileTXT.h
-   118    218   2048 parse.h
-   164    281   2901 Play.h
-    77    156   1408 portab.h
-   257    483   4866 Segment.h
-    86    159   1485 Session.h
    139    250   2416 validate.h
     22     33    302 validateEML.h
     23     35    325 validateLIN.h
@@ -47,6 +58,8 @@
     23     35    322 validateREC.h
     24     38    353 validateTXT.h
     49     86    721 valint.h
+
+    27     28    233 Valuation.cpp
     30     32    281 Valuation.h
 
 

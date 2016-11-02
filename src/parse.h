@@ -127,6 +127,6 @@ string GuessOriginalLine(
 void toUpper(
   string& s);
 
-formatType ExtToFormat(const string& s);
+Format ext2format(const string& s);
 
 #endif

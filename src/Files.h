@@ -10,23 +10,20 @@
 #ifndef BRIDGE_FILES_H
 #define BRIDGE_FILES_H
 
-#include "bconst.h"
-
-#include <iostream>
-#include <iomanip>
 #include <string>
-#include <sstream>
 #include <vector>
 #include <map>
+
+#include "bconst.h"
 
 using namespace std;
 
 
-struct FileEntryType
+struct FileEntry
 {
   string fullName;
   string base;
-  formatType format;
+  Format format;
 };
 
 
@@ -34,29 +31,29 @@ class Files
 {
   private:
 
-    vector<FileTaskType> fileTasks;
+    vector<FileTask> fileTasks;
     unsigned nextNo;
 
-    bool FillEntry(
-      const string& s,
-      FileEntryType& entry) const;
+    bool fillEntry(
+      const string& text,
+      FileEntry& entry) const;
 
-    void ListToMap(
-      const vector<FileEntryType>& fileList,
-      map<string, vector<FileEntryType>>& refMap);
+    void list2map(
+      const vector<FileEntry>& fileList,
+      map<string, vector<FileEntry>>& refMap);
 
-    void BuildFileList(
+    void buildFileList(
       const string& dirName,
-      vector<FileEntryType>& fileList,
-      const formatType formatOnly = BRIDGE_FORMAT_SIZE);
+      vector<FileEntry>& fileList,
+      const Format formatOnly = BRIDGE_FORMAT_SIZE);
 
-    formatType GuessLINFormat(const string& base) const;
+    Format guessLINFormat(const string& base) const;
 
-    void ExtendTaskList(
-      const FileEntryType& in,
-      const vector<FileEntryType>& out,
+    void extendTaskList(
+      const FileEntry& in,
+      const vector<FileEntry>& out,
       const bool keepFlag,
-      const map<string, vector<FileEntryType>>& refMap);
+      const map<string, vector<FileEntry>>& refMap);
 
 
   public:
@@ -65,15 +62,15 @@ class Files
 
     ~Files();
 
-    void Reset();
+    void reset();
 
-    void Rewind();
+    void rewind();
 
-    void Set(const OptionsType& options);
+    void set(const Options& options);
 
-    bool GetNextTask(FileTaskType& ftask);
+    bool next(FileTask& ftask);
 
-    void PrintTasks() const;
+    void print() const;
 
 };
 

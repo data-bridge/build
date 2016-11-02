@@ -274,8 +274,8 @@ void dispatch(
     freal.open(options.fileLog.name + (thrNo == 0 ? "" : STR(thrNo)));
   ostream& flog = (options.fileLog.setFlag ? freal : cout);
 
-  FileTaskType task;
-  while (files.GetNextTask(task))
+  FileTask task;
+  while (files.next(task))
   {
     if (options.verboseIO)
       flog << "Input " << task.fileInput << endl;

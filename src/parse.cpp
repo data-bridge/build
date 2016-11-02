@@ -650,7 +650,7 @@ void toUpper(
 }
 
 
-formatType ExtToFormat(const string& s)
+Format ext2format(const string& s)
 {
   string t = s;
   toUpper(t);
