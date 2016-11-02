@@ -830,10 +830,7 @@ string Auction::strPBN() const
   ss << "[Auction \"" << PLAYER_NAMES_SHORT[dealer] << "\"]\n";
 
   if (Auction::isPassedOut())
-  {
-    ss << "AP\n";
-    return ss.str();
-  }
+    return ss.str() + "AP\n";
 
   unsigned end = (numPasses == 3 ? len-3 : len);
   unsigned aNo = 1;
@@ -854,25 +851,18 @@ string Auction::strPBN() const
 	aNo++;
       }
     }
-    if (b % 4 == 3)
+    if (b != end-1 && b % 4 == 3)
       ss << "\n";
   }
 
-  string st = ss.str();
+  string st = trimTrailing(ss.str());
   if (numPasses == 3)
   {
-    if (end % 4 > 0)
-      st += " ";
-    st += "AP\n";
-  }
-  else
-  {
-    st = trimTrailing(st);
-    if (end % 4 > 0)
-      st += "\n";
+    st += (end % 4 == 0 ? "\n" : " ");
+    st += "AP";
   }
 
-  return st + alerts.str();
+  return st + "\n" + alerts.str();
 }
 
 
@@ -916,28 +906,10 @@ string Auction::strRBNCore(const bool RBNflag) const
       s << ":";
     s << "A";
   }
-  /*
-  else if (trailing > 0)
-  {
-    // Incomplete bidding
-    for (unsigned t = 0; t < trailing; t++)
-    {
-      if ((end+t) % 4 == 3)
-        s << ":";
-      s << "P";
-    }
-  }
-  */
 
-  if (RBNflag)
-  {
-    if (alerts.str() == "")
-      return s.str();
-    else
-      return s.str() + "\n" + alerts.str();
-  }
-  else
-    return s.str() + alerts.str();
+  const string astr = alerts.str();
+  const string sep = (RBNflag && astr != "" ? "\n" : "");
+  return s.str() + sep + astr;
 }
 
 
@@ -955,19 +927,16 @@ string Auction::strRBX() const
 
 string Auction::strTXT(const unsigned * lengths) const
 {
-  stringstream ss;
-
   const unsigned numSkips = static_cast<unsigned>
     ((dealer + 4 - BRIDGE_WEST) % 4);
   const unsigned wrap = 3 - numSkips;
+
+  stringstream ss;
   for (unsigned i = 0; i < numSkips; i++)
     ss << setw(lengths[i]) << "";
   
   if (Auction::isPassedOut())
-  {
-    ss << "All Pass\n";
-    return ss.str();
-  }
+    return ss.str() + "All Pass\n";
 
   unsigned end = (numPasses == 3 ? len-3 : len);
   for (unsigned b = 0; b < end; b++)
@@ -976,17 +945,14 @@ string Auction::strTXT(const unsigned * lengths) const
     if (b % 4 == wrap)
       ss << call << "\n";
     else
-      ss << setw(lengths[(b+numSkips) % 4]) << left << call;
+      ss << setw(lengths[(b+numSkips) % 4]) << left << 
+        AUCTION_NO_TO_CALL_TXT[sequence[b].no];
   }
 
   if (numPasses == 3)
-  {
-    ss << "All Pass\n";
-    return ss.str();
-  }
+    return ss.str() + "All Pass\n";
 
-  string st = ss.str();
-  st = trimTrailing(st);
+  string st = trimTrailing(ss.str());
 
   if ((end-1) % 4 != wrap)
     st += "\n";
@@ -1000,11 +966,11 @@ string Auction::strEML() const
   if (Auction::isPassedOut())
     return "Passed out\n";
 
-  stringstream ss;
-
   const unsigned numSkips = static_cast<unsigned>
     ((dealer + 4 - BRIDGE_WEST) % 4);
   const unsigned wrap = 3 - numSkips;
+
+  stringstream ss;
   for (unsigned i = 0; i < numSkips; i++)
     ss << setw(9) << "";
   
@@ -1017,13 +983,9 @@ string Auction::strEML() const
   }
 
   if (numPasses == 3)
-  {
-    ss << "(all pass)\n";
-    return ss.str();
-  }
+    return ss.str() + "(all pass)\n";
 
-  string st = ss.str();
-  st = trimTrailing(st);
+  string st = trimTrailing(ss.str());
 
   if ((end-1) % 4 != wrap)
     st += "\n";
@@ -1034,18 +996,16 @@ string Auction::strEML() const
 
 string Auction::strREC() const
 {
-  stringstream ss;
   const unsigned numSkips = static_cast<unsigned>
     ((dealer + 4 - BRIDGE_WEST) % 4);
   const unsigned wrap = 3 - numSkips;
+
+  stringstream ss;
   for (unsigned i = 0; i < numSkips; i++)
     ss << setw(9) << "";
   
   if (Auction::isPassedOut())
-  {
-    ss << "All Pass\n\n";
-    return ss.str();
-  }
+    return ss.str() + "All Pass\n\n";
 
   unsigned end = (numPasses == 3 ? len-3 : len);
   for (unsigned b = 0; b < end; b++)
@@ -1058,13 +1018,9 @@ string Auction::strREC() const
   }
 
   if (numPasses == 3)
-  {
-    ss << "All Pass\n";
-    return ss.str() + "\n";
-  }
+    return ss.str() + "All Pass\n\n";
 
-  string st = ss.str();
-  trimTrailing(st);
+  string st = trimTrailing(ss.str());
 
   if ((end-1) % 4 != wrap)
     st += "\n";
