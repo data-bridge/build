@@ -795,97 +795,80 @@ string Auction::strEMLHeader() const
 
 string Auction::strLIN() const
 {
-  stringstream s;
+  stringstream ss;
   for (unsigned b = 0; b < len; b++)
   {
     const Call& c = sequence[b];
-    s << "mb|" << AUCTION_NO_TO_CALL_LIN[c.no];
+    ss << "mb|" << AUCTION_NO_TO_CALL_LIN[c.no];
     
     if (c.alert == "")
-      s << "|";
+      ss << "|";
     else if (c.alert == "!")
-      s << "!|";
+      ss << "!|";
     else
-      s << "|an|" << c.alert << "|";
+      ss << "|an|" << c.alert << "|";
   }
-  s << "pg||";
-  return s.str();
+  ss << "pg||";
+  return ss.str();
 }
 
 
 string Auction::strLIN_RP() const
 {
-  stringstream s;
-  s << "\nmb|";
+  stringstream ss;
+  ss << "\nmb|";
   for (unsigned b = 0; b < len; b++)
-  {
-    const Call& c = sequence[b];
-    s << AUCTION_NO_TO_CALL_LIN[c.no];
-  }
-  s << "|pg||\n";
-  return s.str();
+    ss << AUCTION_NO_TO_CALL_LIN[sequence[b].no];
+  ss << "|pg||\n";
+  return ss.str();
 }
 
 
 string Auction::strPBN() const
 {
-  stringstream s, alerts;
+  stringstream ss, alerts;
+  ss << "[Auction \"" << PLAYER_NAMES_SHORT[dealer] << "\"]\n";
+
   if (Auction::isPassedOut())
   {
-    s << "[Auction \"" << PLAYER_NAMES_SHORT[dealer] << "\"]\nAP\n";
-    return s.str();
+    ss << "AP\n";
+    return ss.str();
   }
 
-  s << "[Auction \"" << PLAYER_NAMES_SHORT[dealer] << "\"]\n";
-  
-  unsigned trailing = 0;
-  unsigned end = len-1;
-  while (sequence[end].no == 0 && sequence[end].alert == "")
-    trailing++, end--;
-
-if (trailing != numPasses)
-  THROW("NumPasses PBN");
-
-  if (trailing > 0 && trailing < 3)
-    end = len-1;
-    
+  unsigned end = (numPasses == 3 ? len-3 : len);
   unsigned aNo = 1;
-  for (unsigned b = 0; b <= end; b++)
+  for (unsigned b = 0; b < end; b++)
   {
     const Call& c = sequence[b];
     if (b % 4 > 0)
-      s << " ";
-    s << AUCTION_NO_TO_CALL_PBN[c.no];
+      ss << " ";
+    ss << AUCTION_NO_TO_CALL_PBN[c.no];
     if (c.alert != "")
     {
       if (c.alert == "!")
-        s << " $15";
+        ss << " $15";
       else
       {
-        s << " =" << aNo << "=";
+        ss << " =" << aNo << "=";
 	alerts << "[Note \"" << aNo << ":" << c.alert << "\"]\n";
 	aNo++;
       }
     }
     if (b % 4 == 3)
-      s << "\n";
+      ss << "\n";
   }
 
-  string st = s.str();
-  if (trailing == 3)
+  string st = ss.str();
+  if (numPasses == 3)
   {
-    if (end % 4 != 3)
+    if (end % 4 > 0)
       st += " ";
     st += "AP\n";
   }
   else
   {
-    // TODO: General function to trim trailing spaces
-    int pos = static_cast<int>(st.length()) - 1;
-    while (pos >= 0 && st.at(static_cast<unsigned>(pos)) == ' ')
-      pos--;
-    st = st.substr(0, static_cast<unsigned>(pos)+1);
-    if (end % 4 != 3)
+    st = trimTrailing(st);
+    if (end % 4 > 0)
       st += "\n";
   }
 
@@ -901,16 +884,9 @@ string Auction::strRBNCore(const bool RBNflag) const
   if (Auction::isPassedOut())
     return s.str() + "A";
 
-  unsigned trailing = 0;
-  unsigned end = len-1;
-  while (sequence[end].no == 0 && sequence[end].alert == "")
-    trailing++, end--;
-if (trailing != numPasses)
-  THROW("NumPasses RBN");
-
-    
+  unsigned end = (numPasses == 3 ? len-3 : len);
   unsigned aNo = 1;
-  for (unsigned b = 0; b <= end; b++)
+  for (unsigned b = 0; b < end; b++)
   {
     const Call& c = sequence[b];
     if (c.no == 1)
@@ -930,16 +906,17 @@ if (trailing != numPasses)
         alerts << aNo << "{" << c.alert << "}";
       aNo++;
     }
-    if (b != end && b % 4 == 3)
+    if (b != end-1 && b % 4 == 3)
       s << ":";
   }
 
-  if (trailing == 3)
+  if (numPasses == 3)
   {
-    if (end % 4 == 3)
+    if (end % 4 == 0)
       s << ":";
     s << "A";
   }
+  /*
   else if (trailing > 0)
   {
     // Incomplete bidding
@@ -950,6 +927,7 @@ if (trailing != numPasses)
       s << "P";
     }
   }
+  */
 
   if (RBNflag)
   {
@@ -977,55 +955,40 @@ string Auction::strRBX() const
 
 string Auction::strTXT(const unsigned * lengths) const
 {
-  stringstream s;
+  stringstream ss;
 
   const unsigned numSkips = static_cast<unsigned>
     ((dealer + 4 - BRIDGE_WEST) % 4);
   const unsigned wrap = 3 - numSkips;
   for (unsigned i = 0; i < numSkips; i++)
-    s << setw(lengths[i]) << "";
+    ss << setw(lengths[i]) << "";
   
   if (Auction::isPassedOut())
   {
-    s << "All Pass\n";
-    return s.str();
+    ss << "All Pass\n";
+    return ss.str();
   }
 
-  unsigned trailing = 0;
-  unsigned end = len-1;
-  while (sequence[end].no == 0 && sequence[end].alert == "")
-    trailing++, end--;
-if (trailing != numPasses)
-  THROW("NumPasses TXT");
-
-  if (trailing > 0 && trailing < 3)
-    end = len-1;
-    
-  for (unsigned b = 0; b <= end; b++)
+  unsigned end = (numPasses == 3 ? len-3 : len);
+  for (unsigned b = 0; b < end; b++)
   {
-    const Call& c = sequence[b];
-    stringstream bid;
-    bid << AUCTION_NO_TO_CALL_TXT[c.no];
+    const string& call = AUCTION_NO_TO_CALL_TXT[sequence[b].no];
     if (b % 4 == wrap)
-      s << bid.str() << "\n";
+      ss << call << "\n";
     else
-      s << setw(lengths[(b+numSkips) % 4]) << left << bid.str();
+      ss << setw(lengths[(b+numSkips) % 4]) << left << call;
   }
 
-  if (trailing == 3)
+  if (numPasses == 3)
   {
-    s << "All Pass\n";
-    return s.str();
+    ss << "All Pass\n";
+    return ss.str();
   }
 
-  string st = s.str();
-  // TODO: General function to trim trailing spaces
-  int pos = static_cast<int>(st.length()) - 1;
-  while (pos >= 0 && st.at(static_cast<unsigned>(pos)) == ' ')
-    pos--;
-  st = st.substr(0, static_cast<unsigned>(pos)+1);
+  string st = ss.str();
+  st = trimTrailing(st);
 
-  if (end % 4 != wrap)
+  if ((end-1) % 4 != wrap)
     st += "\n";
 
   return st;
@@ -1034,57 +997,35 @@ if (trailing != numPasses)
 
 string Auction::strEML() const
 {
-  stringstream s;
-
   if (Auction::isPassedOut())
-  {
-    s << "Passed out\n";
-    return s.str();
-  }
+    return "Passed out\n";
+
+  stringstream ss;
 
   const unsigned numSkips = static_cast<unsigned>
     ((dealer + 4 - BRIDGE_WEST) % 4);
   const unsigned wrap = 3 - numSkips;
   for (unsigned i = 0; i < numSkips; i++)
-    s << setw(9) << "";
+    ss << setw(9) << "";
   
-  unsigned trailing = 0;
-  unsigned end = len-1;
-  while (sequence[end].no == 0 && sequence[end].alert == "")
-    trailing++, end--;
-if (trailing != numPasses)
-  THROW("NumPasses EML");
-    
-  if (trailing > 0 && trailing < 3)
-    end = len-1;
-    
-  for (unsigned b = 0; b <= end; b++)
+  unsigned end = (numPasses == 3 ? len-3 : len);
+  for (unsigned b = 0; b < end; b++)
   {
-    const Call& c = sequence[b];
-    stringstream bid;
-    bid << AUCTION_NO_TO_CALL_EML[c.no];
-    s << setw(9) << left << bid.str();
+    ss << setw(9) << left << AUCTION_NO_TO_CALL_EML[sequence[b].no];
     if (b % 4 == wrap)
-      s << "\n";
+      ss << "\n";
   }
 
-  if (trailing == 3)
+  if (numPasses == 3)
   {
-    s << "(all pass)\n";
-    return s.str();
+    ss << "(all pass)\n";
+    return ss.str();
   }
 
-  string st = s.str();
-  if (trailing > 0)
-  {
-    // TODO: General function to trim trailing spaces
-    int pos = static_cast<int>(st.length()) - 1;
-    while (pos >= 0 && st.at(static_cast<unsigned>(pos)) == ' ')
-      pos--;
-    st = st.substr(0, static_cast<unsigned>(pos)+1);
-  }
+  string st = ss.str();
+  st = trimTrailing(st);
 
-  if (end % 4 != wrap)
+  if ((end-1) % 4 != wrap)
     st += "\n";
 
   return st;
@@ -1093,57 +1034,39 @@ if (trailing != numPasses)
 
 string Auction::strREC() const
 {
-  stringstream s;
+  stringstream ss;
   const unsigned numSkips = static_cast<unsigned>
     ((dealer + 4 - BRIDGE_WEST) % 4);
   const unsigned wrap = 3 - numSkips;
   for (unsigned i = 0; i < numSkips; i++)
-    s << setw(9) << "";
+    ss << setw(9) << "";
   
   if (Auction::isPassedOut())
   {
-    s << "All Pass\n\n";
-    return s.str();
+    ss << "All Pass\n\n";
+    return ss.str();
   }
 
-  unsigned trailing = 0;
-  unsigned end = len-1;
-  while (sequence[end].no == 0 && sequence[end].alert == "")
-    trailing++, end--;
-if (trailing != numPasses)
-  THROW("NumPasses REC");
-    
-  if (trailing > 0 && trailing < 3)
-    end = len-1;
-    
-  for (unsigned b = 0; b <= end; b++)
+  unsigned end = (numPasses == 3 ? len-3 : len);
+  for (unsigned b = 0; b < end; b++)
   {
-    const Call& c = sequence[b];
-    stringstream bid;
-    bid << AUCTION_NO_TO_CALL_TXT[c.no];
+    const string& call = AUCTION_NO_TO_CALL_TXT[sequence[b].no];
     if (b % 4 == wrap)
-      s << bid.str() << "\n";
+      ss << call << "\n";
     else
-      s << setw(9) << left << bid.str();
+      ss << setw(9) << left << call;
   }
 
-  if (trailing == 3)
+  if (numPasses == 3)
   {
-    s << "All Pass\n";
-    return s.str() + "\n";
+    ss << "All Pass\n";
+    return ss.str() + "\n";
   }
 
-  string st = s.str();
-  if (st.at(st.length()-1) == ' ')
-  {
-    // TODO: General function to trim trailing spaces
-    int pos = static_cast<int>(st.length()) - 1;
-    while (pos >= 0 && st.at(static_cast<unsigned>(pos)) == ' ')
-      pos--;
-    st = st.substr(0, static_cast<unsigned>(pos)+1);
-  }
+  string st = ss.str();
+  trimTrailing(st);
 
-  if (end % 4 != wrap)
+  if ((end-1) % 4 != wrap)
     st += "\n";
 
   return st + "\n";
