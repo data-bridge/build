@@ -961,7 +961,7 @@ string Segment::NumberAsString(
     case BRIDGE_FORMAT_LIN_RP:
     case BRIDGE_FORMAT_LIN_VG:
     case BRIDGE_FORMAT_LIN_TRN:
-      st << activeBoard->RoomAsString(extNo, f);
+      st << activeBoard->strRoom(extNo, f);
       return st.str();
 
     case BRIDGE_FORMAT_PBN:

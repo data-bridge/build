@@ -389,10 +389,10 @@ void writeRECBoardLevel(
   const string bstr = segment->NumberAsString(f, writeInfo.bno);
   const string vstr = board->VulAsString(f);
 
-  const string west = board->WestAsString(f);
-  const string north = board->NorthAsString(f);
-  const string east = board->EastAsString(f);
-  const string south = board->SouthAsString(f);
+  const string west = board->strPlayer(BRIDGE_WEST, f);
+  const string north = board->strPlayer(BRIDGE_NORTH, f);
+  const string east = board->strPlayer(BRIDGE_EAST, f);
+  const string south = board->strPlayer(BRIDGE_SOUTH, f);
 
   // Convert deal, auction and play from \n to vectors.
   vector<string> deal;

@@ -480,10 +480,10 @@ void writeEMLBoardLevel(
   chunk[EML_SCORING] = segment->ScoringAsString(f);
   chunk[EML_BOARD] = segment->NumberAsString(f, writeInfo.bno);
 
-  chunk[EML_WEST] = board->WestAsString(f);
-  chunk[EML_NORTH] = board->NorthAsString(f);
-  chunk[EML_EAST] = board->EastAsString(f);
-  chunk[EML_SOUTH] = board->SouthAsString(f);
+  chunk[EML_WEST] = board->strPlayer(BRIDGE_WEST, f);
+  chunk[EML_NORTH] = board->strPlayer(BRIDGE_NORTH, f);
+  chunk[EML_EAST] = board->strPlayer(BRIDGE_EAST, f);
+  chunk[EML_SOUTH] = board->strPlayer(BRIDGE_SOUTH, f);
 
   chunk[EML_DEAL] = board->DealAsString(BRIDGE_WEST, f);
   chunk[EML_DEALER] = board->DealerAsString(f);

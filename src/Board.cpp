@@ -725,11 +725,11 @@ string Board::ClaimAsString(
 }
 
 
-string Board::PlayerAsString(
-  const playerType p,
-  const formatType f) const
+string Board::strPlayer(
+  const Player player,
+  const Format format) const
 {
-  return players[numActive].strPlayer(p, f);
+  return players[numActive].strPlayer(player, format);
 }
 
 
@@ -755,6 +755,7 @@ string Board::PlayersAsDeltaString(
 string Board::WestAsString(
   const formatType f) const
 {
+assert(false);
   return players[numActive].strPlayer(BRIDGE_WEST, f);
 }
 
@@ -762,6 +763,7 @@ string Board::WestAsString(
 string Board::NorthAsString(
   const formatType f) const
 {
+assert(false);
   return players[numActive].strPlayer(BRIDGE_NORTH, f);
 }
 
@@ -769,6 +771,7 @@ string Board::NorthAsString(
 string Board::EastAsString(
   const formatType f) const
 {
+assert(false);
   return players[numActive].strPlayer(BRIDGE_EAST, f);
 }
 
@@ -776,6 +779,7 @@ string Board::EastAsString(
 string Board::SouthAsString(
   const formatType f) const
 {
+assert(false);
   return players[numActive].strPlayer(BRIDGE_SOUTH, f);
 }
 
@@ -806,10 +810,10 @@ string Board::ResultAsString(
 }
 
 
-string Board::RoomAsString(
+string Board::strRoom(
   const unsigned no,
-  const formatType f) const
+  const Format format) const
 {
-  return players[numActive].strRoom(no, f);
+  return players[numActive].strRoom(no, format);
 }
 

@@ -194,10 +194,10 @@ void writePBNBoardLevel(
   else
     fstr << "[Board \"#\"]\n";
 
-  fstr << board->PlayerAsString(BRIDGE_WEST, f);
-  fstr << board->PlayerAsString(BRIDGE_NORTH, f);
-  fstr << board->PlayerAsString(BRIDGE_EAST, f);
-  fstr << board->PlayerAsString(BRIDGE_SOUTH, f);
+  fstr << board->strPlayer(BRIDGE_WEST, f);
+  fstr << board->strPlayer(BRIDGE_NORTH, f);
+  fstr << board->strPlayer(BRIDGE_EAST, f);
+  fstr << board->strPlayer(BRIDGE_SOUTH, f);
 
   fstr << board->DealerAsString(f);
   fstr << board->VulAsString(f);
@@ -229,7 +229,7 @@ void writePBNBoardLevel(
     fstr << "[VisitTeam \"#\"]\n";
   }
 
-  fstr << board->RoomAsString(0, f);
+  fstr << board->strRoom(0, f);
   fstr << board->ScoreAsString(f, segment->ScoringIsIMPs());
   fstr << board->TableauAsString(f);
 

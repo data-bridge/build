@@ -315,9 +315,9 @@ class Board
     string ClaimAsString(
       const formatType f) const;
     
-    string PlayerAsString(
-      const playerType p,
-      const formatType f) const;
+    string strPlayer(
+      const Player player,
+      const Format format) const;
     
     string PlayersAsString(
       const formatType f) const;
@@ -349,9 +349,9 @@ class Board
       const formatType f,
       const string& team) const;
 
-    string RoomAsString(
+    string strRoom(
       const unsigned no,
-      const formatType f) const;
+      const Format format) const;
 };
 
 #endif
