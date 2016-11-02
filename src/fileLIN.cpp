@@ -174,7 +174,7 @@ void writeLINBoardLevel(
   fstr << segment->NumberAsBoardString(f, writeInfo.bno);
   fstr << board->strVul(f);
 
-  board->CalculateScore();
+  board->calculateScore();
 
   fstr << board->strAuction(f);
   fstr << board->PlayAsString(f);

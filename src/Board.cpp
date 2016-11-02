@@ -8,8 +8,6 @@
 
 
 #include <regex>
-#include <iterator>
-#include <map>
 #include <assert.h>
 
 #include "bconst.h"
@@ -64,9 +62,9 @@ void Board::newInstance()
 
   // Default, may change.
   if (numActive == 0)
-    Board::SetRoom("Open", 0, BRIDGE_FORMAT_PBN);
+    Board::setRoom("Open", BRIDGE_FORMAT_PBN);
   else if (numActive == 1)
-    Board::SetRoom("Closed", 1, BRIDGE_FORMAT_PBN);
+    Board::setRoom("Closed", BRIDGE_FORMAT_PBN);
 
   if (numActive == 0)
     return;
@@ -138,12 +136,6 @@ void Board::setVul(
 }
 
 
-playerType Board::GetDealer() const
-{
-  return auction[0].getDealer();
-}
-
-
 // Deal
 
 void Board::setDeal(
@@ -156,64 +148,48 @@ void Board::setDeal(
 
   deal.set(text, format);
 
-  if (numActive == 0)
-  {
-    unsigned cards[BRIDGE_PLAYERS][BRIDGE_SUITS];
-    deal.getDDS(cards);
-
-    if (! play[0].SetHoldingDDS(cards))
-      THROW("Cannot set holding"); // TODO: Probably play already throws?
-  }
+  unsigned cards[BRIDGE_PLAYERS][BRIDGE_SUITS];
+  deal.getDDS(cards);
+  play[0].SetHoldingDDS(cards);
 
   if (format == BRIDGE_FORMAT_LIN)
     auction[numActive].setDealer(text.substr(0, 1), format);
 }
 
 
-bool Board::GetDealDDS(
-  unsigned cards[][BRIDGE_SUITS]) const
-{
-  deal.getDDS(cards);
-  return true;
-}
-
-
 // Auction
 
-bool Board::AddCall(
+void Board::addCall(
   const string& call,
   const string& alert)
 {
   auction[numActive].addCall(call, alert);
-  return true;
 }
 
 
-bool Board::AddAlert(
+void Board::addAlert(
   const unsigned alertNo,
   const string& alert)
 {
   auction[numActive].addAlert(alertNo, alert);
-  return true;
 }
 
 
-void Board::AddPasses()
+void Board::addPasses()
 {
   auction[numActive].addPasses();
 }
 
 
-bool Board::UndoLastCall()
+void Board::undoLastCall()
 {
   auction[numActive].undoLastCall();
-  return true;
 }
 
 
-bool Board::PassOut()
+void Board::passOut()
 {
-  return contract[numActive].SetPassedOut();
+  contract[numActive].SetPassedOut();
 }
 
 
@@ -226,50 +202,31 @@ void Board::setAuction(
   if (auction[numActive].hasDealerVul())
     contract[numActive].SetVul(auction[numActive].getVul());
 
-  // Doesn't bother us unduly.
-  if (! auction[numActive].getContract(contract[numActive]))
-    return;
-
-  play[numActive].SetContract(contract[numActive]);
+  // Doesn't bother us unduly if there is no contract.
+  if (auction[numActive].getContract(contract[numActive]))
+    play[numActive].SetContract(contract[numActive]);
 }
 
 
-bool Board::AuctionIsOver() const
+bool Board::auctionIsOver() const
 {
   return auction[numActive].isOver();
 }
 
 
-bool Board::AuctionIsEmpty() const
+bool Board::auctionIsEmpty() const
 {
   return auction[numActive].isEmpty();
 }
 
 
-bool Board::IsPassedOut() const
+bool Board::isPassedOut() const
 {
   return auction[numActive].isPassedOut();
 }
 
 
 // Contract
-
-bool Board::ContractIsSet() const
-{
-  return contract[numActive].ContractIsSet();
-}
-
-
-bool Board::SetContract(
-  const Vul vul,
-  const Player declarer,
-  const unsigned level,
-  const Denom denom,
-  const multiplierType mult)
-{
-  return contract[numActive].SetContract(vul, declarer, level, denom, mult);
-}
-
 
 void Board::setContract(
   const Vul vul,
@@ -297,10 +254,17 @@ void Board::setDeclarer(
 }
 
 
-bool Board::SetTricks(
-  const unsigned tricks)
+/*
+void Board::setTricks(const unsigned tricks)
 {
-  return contract[numActive].SetTricks(tricks);
+  contract[numActive].SetTricks(tricks);
+}
+*/
+
+
+bool Board::contractIsSet() const
+{
+  return contract[numActive].ContractIsSet();
 }
 
 
@@ -338,53 +302,30 @@ void Board::setScoreMP(
 
 // Play
 
-playStatus Board::AddPlay(
-  const string& str)
-{
-  return play[numActive].AddPlay(str);
-}
-
-
 void Board::setPlays(
   const string& text,
   const Format format)
 {
-  if (! play[numActive].SetPlays(text, format))
-    THROW("Cannot set play"); // TODO: Already throws?
+  play[numActive].setPlays(text, format);
 
   if (play[numActive].PlayIsOver())
     contract[numActive].SetTricks( play[numActive].GetTricks() );
 }
 
 
-bool Board::SetPlays(
-  const vector<string>& list,
-  const Format format)
-{
-  return play[numActive].SetPlays(list, format);
-}
-
-
-bool Board::UndoLastPlay()
+bool Board::undoLastPlay()
 {
   return play[numActive].UndoPlay();
 }
 
 
-bool Board::PlayIsOver() const
+bool Board::playIsOver() const
 {
   return play[numActive].PlayIsOver();
 }
 
 
-claimStatus Board::Claim(
-  const unsigned tricks)
-{
-  return play[numActive].Claim(tricks);
-}
-
-
-bool Board::ClaimIsMade() const
+bool Board::claimIsMade() const
 {
   return play[numActive].ClaimIsMade();
 }
@@ -408,7 +349,7 @@ void Board::setResult(
 }
 
 
-bool Board::ResultIsSet() const
+bool Board::resultIsSet() const
 {
   return contract[numActive].ResultIsSet();
 }
@@ -461,44 +402,37 @@ bool Board::GetPar(
 
 // Players
 
-bool Board::SetPlayers(
+void Board::setPlayers(
   const string& text,
   const Format format)
 {
   players[numActive].set(text, format);
-  return true;
 }
 
 
-bool Board::SetPlayer(
+void Board::setPlayer(
   const string& text,
   const Player player)
 {
   players[numActive].setPlayer(text, player);
-  return true;
 }
 
 
-void Board::CopyPlayers(
-  const Board& b2,
-  const unsigned inst)
+void Board::copyPlayers(const Board& board2)
 {
-  players[inst] = b2.players[inst];
+  players[numActive] = board2.players[numActive];
 }
 
 
-bool Board::SetRoom(
-  const string& s,
-  const unsigned inst,
-  const Format f)
+void Board::setRoom(
+  const string& text,
+  const Format format)
 {
-  players[inst].setRoom(s, f);
-  return true;
+  players[numActive].setRoom(text, format);
 }
 
 
-bool Board::GetValuation(
-  Valuation& valuation) const
+bool Board::getValuation(Valuation& valuation) const
 {
   // TODO
   UNUSED(valuation);
@@ -507,44 +441,45 @@ bool Board::GetValuation(
 }
 
 
-void Board::CalculateScore()
+void Board::calculateScore()
 {
   contract[numActive].CalculateScore();
 }
 
 
-bool Board::CheckBoard() const
+bool Board::checkBoard() const
 {
   // TODO
   return true;
 }
 
 
-roomType Board::GetRoom() const
+Room Board::room() const
 {
   return players[numActive].room();
 }
 
 
-bool Board::operator == (const Board& b2) const
+bool Board::operator == (const Board& board2) const
 {
-  if (len != b2.len)
+  if (len != board2.len)
     DIFF("Different number of instances");
 
-  if (deal != b2.deal)
+  // These object comparisons will actually throw exceptions, not fail.
+  if (deal != board2.deal)
     return false;
-  if (tableau != b2.tableau)
+  if (tableau != board2.tableau)
     return false;
 
   for (unsigned b = 0; b < len; b++)
   {
-    if (players[b] != b2.players[b])
+    if (players[b] != board2.players[b])
       return false;
-    if (auction[b] != b2.auction[b])
+    if (auction[b] != board2.auction[b])
       return false;
-    if (contract[b] != b2.contract[b])
+    if (contract[b] != board2.contract[b])
       return false;
-    if (play[b] != b2.play[b])
+    if (play[b] != board2.play[b])
       return false;
   }
 
@@ -552,9 +487,9 @@ bool Board::operator == (const Board& b2) const
 }
 
 
-bool Board::operator != (const Board& b2) const
+bool Board::operator != (const Board& board2) const
 {
-  return ! (* this == b2);
+  return ! (* this == board2);
 }
 
 
@@ -597,7 +532,8 @@ string Board::strAuction(const Format format) const
     unsigned lengths[BRIDGE_PLAYERS];
     for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
     {
-      Player pp = static_cast<Player>((p+3) % 4);
+      // Player pp = static_cast<Player>((p+3) % 4);
+      Player pp = PLAYER_DDS_TO_TXT[p];
       lengths[p] = players[numActive].strPlayer(pp, format).length();
       lengths[p] = Max(12u, static_cast<int>(lengths[p]+1));
     }
@@ -681,19 +617,19 @@ int Board::ScoreIMPAsInt() const
 
 string Board::LeadAsString(const Format format) const
 {
-  return play[numActive].LeadAsString(format);
+  return play[numActive].strLead(format);
 }
 
 
 string Board::PlayAsString(const Format format) const
 {
-  return play[numActive].AsString(format);
+  return play[numActive].str(format);
 }
 
 
 string Board::ClaimAsString(const Format format) const
 {
-  return play[numActive].ClaimAsString(format);
+  return play[numActive].strClaim(format);
 }
 
 

@@ -10,9 +10,9 @@
 #ifndef BRIDGE_PLAY_H
 #define BRIDGE_PLAY_H
 
-#include "bconst.h"
-#include <iostream>
 #include <string>
+
+#include "bconst.h"
 
 using namespace std;
 
@@ -49,14 +49,14 @@ class Play
 
     struct LeadInfo
     {
-      playerType leader;
-      denomType suit;
+      Player leader;
+      Denom suit;
       bool wonByDeclarer;
     };
 
     bool setDDFlag;
-    playerType declarer;
-    denomType denom;
+    Player declarer;
+    Denom denom;
 
     bool setDealFlag;
     unsigned holding[BRIDGE_PLAYERS][BRIDGE_SUITS];
@@ -74,25 +74,25 @@ class Play
 
     LeadInfo leads[BRIDGE_TRICKS];
 
-    bool AddAllPBN(const vector<string>& list);
+    bool SetPlaysPBN(const vector<string>& list);
 
-    string AsLIN() const;
-    string AsLIN_VG() const;
-    string AsLIN_TRN() const;
-    string AsLIN_RP() const;
-    string AsPBN() const;
-    string AsRBNCore() const;
-    string AsRBN() const;
-    string AsRBX() const;
-    string AsEML() const;
-    string AsTXT() const;
-    string AsREC() const;
+    string strLIN() const;
+    string strLIN_VG() const;
+    string strLIN_TRN() const;
+    string strLIN_RP() const;
+    string strPBN() const;
+    string strRBNCore() const;
+    string strRBN() const;
+    string strRBX() const;
+    string strEML() const;
+    string strTXT() const;
+    string strREC() const;
 
     void SetTables();
 
     unsigned TrickWinnerRelative() const;
 
-    string ClaimAsLIN() const;
+    string strClaimLIN() const;
 
 
   public:
@@ -110,23 +110,22 @@ class Play
       const playerType decl,
       const denomType denom);
     
-    bool SetHoldingDDS(
+    void SetHoldingDDS(
       const unsigned h[][BRIDGE_SUITS]);
 
-    playStatus AddPlay(
-      const string& str);
+    void addPlay(const string& text);
 
-    playStatus SetPlay(
+    playStatus setPlay(
       const string& str,
-      const formatType f);
+      const Format format);
     
-    bool SetPlays(
-      const string& str,
-      const formatType f);
+    void setPlays(
+      const string& text,
+      const Format format);
     
-    bool SetPlays(
-      const vector<string>& str,
-      const formatType f);
+    // bool SetPlays(
+      // const vector<string>& str,
+      // const formatType f);
     
     playStatus AddTrickPBN(
       const string& str);
@@ -145,18 +144,15 @@ class Play
 
     unsigned GetTricks() const;
 
-    bool operator == (const Play& p2) const;
+    bool operator == (const Play& play2) const;
 
-    bool operator != (const Play& p2) const;
+    bool operator != (const Play& play2) const;
 
-    string AsString(
-      const formatType f) const;
+    string str(const Format format) const;
 
-    string LeadAsString(
-      const formatType f) const;
+    string strLead(const Format format) const;
 
-    string ClaimAsString(
-      const formatType f) const;
+    string strClaim(const Format format) const;
 
 };
 

@@ -381,7 +381,7 @@ void writeRECBoardLevel(
 {
   Canvas canvas;
 
-  board->CalculateScore();
+  board->calculateScore();
 
   const string dstr = board->strDeal(BRIDGE_WEST, f);
   const string sstr = segment->ScoringAsString(f);

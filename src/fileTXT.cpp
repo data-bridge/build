@@ -531,14 +531,14 @@ void writeTXTBoardLevel(
 {
   Canvas canvas;
 
-  board->CalculateScore();
+  board->calculateScore();
 
   if (writeInfo.ino == 0)
   {
     const string dstr = board->strDeal(BRIDGE_WEST, f);
     const string bstr = segment->NumberAsString(f, writeInfo.bno);
     const string vstr = board->strVul(f);
-    const string lstr = (board->AuctionIsEmpty() ?  board->strDealer(f) : "");
+    const string lstr = (board->auctionIsEmpty() ?  board->strDealer(f) : "");
 
     // Convert deal, auction and play from \n to vectors.
     vector<string> deal;

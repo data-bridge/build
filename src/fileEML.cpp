@@ -475,7 +475,7 @@ void writeEMLBoardLevel(
   string chunk[EML_LABELS_SIZE];
   Canvas canvas;
 
-  board->CalculateScore();
+  board->calculateScore();
 
   chunk[EML_SCORING] = segment->ScoringAsString(f);
   chunk[EML_BOARD] = segment->NumberAsString(f, writeInfo.bno);

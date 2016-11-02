@@ -171,7 +171,7 @@ void writePBNBoardLevel(
   writeInfoType& writeInfo,
   const formatType f)
 {
-  board->CalculateScore();
+  board->calculateScore();
 
   if (writeInfo.bno == 0 && writeInfo.ino == 0)
   {

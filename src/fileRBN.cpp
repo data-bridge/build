@@ -172,7 +172,7 @@ void writeRBNBoardLevel(
     fstr << board->strDeal(BRIDGE_WEST, f);
   }
 
-  board->CalculateScore();
+  board->calculateScore();
 
   fstr << board->strAuction(f);
   fstr << board->strContract(f);

@@ -78,57 +78,39 @@ class Board
       const string& text,
       const Format format);
 
-    playerType GetDealer() const;
-
     // Deal
 
     void setDeal(
       const string& text,
       const Format format);
       
-    bool GetDealDDS(
-      unsigned cards[][BRIDGE_SUITS]) const;
-
     // Auction
 
-    bool AddCall(
+    void addCall(
       const string& call,
       const string& alert = "");
 
-    bool AddAlert(
+    void addAlert(
       const unsigned alertNo,
       const string& alert);
 
-    void AddPasses();
+    void addPasses();
 
-    bool UndoLastCall();
+    void undoLastCall();
 
-    bool PassOut();
+    void passOut();
 
     void setAuction(
       const string& text,
       const Format format);
 
-    bool SetAuction(
-      const vector<string>& s,
-      const formatType f);
+    bool auctionIsEmpty() const;
 
-    bool AuctionIsEmpty() const;
+    bool auctionIsOver() const;
 
-    bool AuctionIsOver() const;
-
-    bool IsPassedOut() const;
+    bool isPassedOut() const;
 
     // Contract
-
-    bool ContractIsSet() const;
-
-    bool SetContract(
-      const vulType vul,
-      const playerType declarer,
-      const unsigned level,
-      const denomType denom,
-      const multiplierType mult);
 
     void setContract(
       const Vul vul,
@@ -142,8 +124,7 @@ class Board
       const string& text,
       const formatType f);
 
-    bool SetTricks(
-      const unsigned tricks);
+    bool contractIsSet() const;
 
     void setScore(
       const string& text,
@@ -159,25 +140,15 @@ class Board
 
     // Play
 
-    playStatus AddPlay(
-      const string& str);
-
     void setPlays(
       const string& text,
       const Format format);
 
-    bool SetPlays(
-      const vector<string>& str,
-      const formatType f);
+    bool undoLastPlay();
 
-    bool UndoLastPlay();
+    bool playIsOver() const;
 
-    bool PlayIsOver() const;
-
-    claimStatus Claim(
-      const unsigned tricks);
-
-    bool ClaimIsMade() const;
+    bool claimIsMade() const;
 
     // Result
 
@@ -185,7 +156,7 @@ class Board
       const string& text,
       const Format format);
       
-    bool ResultIsSet() const;
+    bool resultIsSet() const;
 
     // Tableau
     //
@@ -214,31 +185,27 @@ class Board
 
     // Players
 
-    bool SetPlayers(
+    void setPlayers(
       const string& text,
-      const formatType f);
+      const Format format);
 
-    bool SetPlayer(
+    void setPlayer(
       const string& text,
-      const playerType player);
+      const Player player);
 
-    void CopyPlayers(
-      const Board& b2,
-      const unsigned instance);
+    void copyPlayers(const Board& board2);
 
-    bool SetRoom(
+    void setRoom(
       const string& s,
-      const unsigned instance,
       const formatType f);
 
-    bool GetValuation(
-      Valuation& valuation) const;
+    bool getValuation(Valuation& valuation) const;
 
-    void CalculateScore();
+    void calculateScore();
 
-    bool CheckBoard() const;
+    bool checkBoard() const;
 
-    roomType GetRoom() const;
+    Room room() const;
 
     bool operator == (const Board& b2) const;
 

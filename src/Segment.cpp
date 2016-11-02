@@ -131,7 +131,7 @@ void Segment::TransferHeader(
   for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
   {
     if (LINdata[intNo].players[instNo][p] != "")
-      board->SetPlayer(LINdata[intNo].players[instNo][p],
+      board->setPlayer(LINdata[intNo].players[instNo][p],
         static_cast<playerType>(p));
   }
 
@@ -365,7 +365,7 @@ void Segment::setPlayers(
   const string& text,
   const Format format)
 {
-  activeBoard->SetPlayers(text, format);
+  activeBoard->setPlayers(text, format);
 }
 
 
@@ -374,7 +374,7 @@ void Segment::setWest(
   const Format format)
 {
   UNUSED(format);
-  activeBoard->SetPlayer(text, BRIDGE_WEST);
+  activeBoard->setPlayer(text, BRIDGE_WEST);
 }
 
 
@@ -383,7 +383,7 @@ void Segment::setNorth(
   const Format format)
 {
   UNUSED(format);
-  activeBoard->SetPlayer(text, BRIDGE_NORTH);
+  activeBoard->setPlayer(text, BRIDGE_NORTH);
 }
 
 
@@ -392,7 +392,7 @@ void Segment::setEast(
   const Format format)
 {
   UNUSED(format);
-  activeBoard->SetPlayer(text, BRIDGE_EAST);
+  activeBoard->setPlayer(text, BRIDGE_EAST);
 }
 
 
@@ -401,7 +401,7 @@ void Segment::setSouth(
   const Format format)
 {
   UNUSED(format);
-  activeBoard->SetPlayer(text, BRIDGE_SOUTH);
+  activeBoard->setPlayer(text, BRIDGE_SOUTH);
 }
 
 
@@ -517,7 +517,7 @@ void Segment::SetFromHeader(const string& room)
   }
 
   if (s != ",,,")
-    activeBoard->SetPlayers(s, f);
+    activeBoard->setPlayers(s, f);
 }
 
 
@@ -599,8 +599,7 @@ void Segment::CopyPlayers()
     return;
 
   // Also copies room.
-  unsigned inst = activeBoard->getInstance();
-  activeBoard->CopyPlayers(boards[len-2].board, inst);
+  activeBoard->copyPlayers(boards[len-2].board);
 }
 
 
@@ -608,8 +607,7 @@ void Segment::setRoom(
   const string& text,
   const Format format)
 {
-  unsigned inst = activeBoard->getInstance();
-  activeBoard->SetRoom(text, inst, format); // TODO: Need inst here?
+  activeBoard->setRoom(text, format);
 }
 
 
@@ -728,7 +726,7 @@ string Segment::TitleAsLIN_RP() const
 
   bool swapFlag = false;
   activeBoard->setInstance(0);
-  if (activeBoard->GetRoom() == BRIDGE_ROOM_CLOSED)
+  if (activeBoard->room() == BRIDGE_ROOM_CLOSED)
     swapFlag = true;
 
   stringstream s;
@@ -970,7 +968,7 @@ string Segment::ContractsAsLIN(const formatType f)
     const unsigned l = p.board.count();
     p.board.setInstance(0);
     if (l == 2 && 
-        p.board.GetRoom() == BRIDGE_ROOM_CLOSED)
+        p.board.room() == BRIDGE_ROOM_CLOSED)
         // activeBoard->GetRoom() == BRIDGE_ROOM_CLOSED)
     {
       p.board.setInstance(1);
@@ -1076,7 +1074,7 @@ string Segment::PlayersAsString(const formatType f)
 
       // if (activeBoard->GetRoom() == BRIDGE_ROOM_CLOSED)
       board->setInstance(0);
-      if (board->GetRoom() == BRIDGE_ROOM_CLOSED)
+      if (board->room() == BRIDGE_ROOM_CLOSED)
       {
         board->setInstance(1);
         s1 = board->PlayersAsString(f);

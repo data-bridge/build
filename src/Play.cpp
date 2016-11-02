@@ -193,7 +193,7 @@ bool Play::SetDeclAndDenom(
 }
 
 
-bool Play::SetHoldingDDS(
+void Play::SetHoldingDDS(
   const unsigned h[][BRIDGE_SUITS])
 {
   if (setDealFlag)
@@ -205,12 +205,10 @@ bool Play::SetHoldingDDS(
   for (int p = 0; p < BRIDGE_PLAYERS; p++)
     for (int d = 0; d < BRIDGE_SUITS; d++)
       holding[p][d] = h[p][d];
-
-  return true;
 }
 
 
-playStatus Play::AddPlay(const string& str)
+void Play::addPlay(const string& str)
 {
   if (playOverFlag)
     THROW("Play is over");
@@ -289,8 +287,6 @@ playStatus Play::AddPlay(const string& str)
   {
     cardToPlay++;
   }
-
-  return PLAY_NO_ERROR;
 }
 
 
@@ -332,11 +328,7 @@ playStatus Play::AddTrickPBN(const string& str)
     if (pp >= count)
       continue;
     if (plays[pp].at(0) != '-') // - and --
-    {
-      playStatus ps = Play::AddPlay(plays[pp]);
-      if (ps != PLAY_NO_ERROR)
-        return ps;
-    }
+      Play::addPlay(plays[pp]);
   }
 
   return PLAY_NO_ERROR;
@@ -388,9 +380,7 @@ bool Play::AddAllRBN(const string& sIn)
         s << suitLed << next;
         i++;
       }
-      playStatus ps = Play::AddPlay(s.str());
-      if (ps != PLAY_NO_ERROR)
-        THROW("Play error");
+      Play::addPlay(s.str());
       b++;
     }
   }
@@ -406,42 +396,33 @@ bool Play::AddAllRBN(const string& sIn)
 }
 
 
-playStatus Play::SetPlay(
+playStatus Play::setPlay(
   const string& str,
-  const formatType f)
+  const Format format)
 {
-  switch(f)
+  switch(format)
   {
-    case BRIDGE_FORMAT_LIN:
-      THROW("Currently unimplemented format " + STR(f));
-
     case BRIDGE_FORMAT_PBN:
       return Play::AddTrickPBN(str);
 
-    case BRIDGE_FORMAT_RBN:
-    case BRIDGE_FORMAT_RBX:
-      THROW("Currently unimplemented format " + STR(f));
-
-    case BRIDGE_FORMAT_TXT:
-      THROW("Currently unimplemented format " + STR(f));
-
     default:
-      THROW("Invalid format " + STR(f));
+      THROW("Invalid format: " + STR(format));
   }
 }
 
 
-bool Play::SetPlays(
-  const string& str,
-  const formatType f)
+void Play::setPlays(
+  const string& text,
+  const Format format)
 {
-  switch(f)
+  switch(format)
   {
     case BRIDGE_FORMAT_PBN:
       {
         vector<string> lines;
-        ConvertMultilineToVector(str, lines);
-        return Play::AddAllPBN(lines);
+        ConvertMultilineToVector(text, lines);
+        Play::SetPlaysPBN(lines);
+        break;
       }
 
     case BRIDGE_FORMAT_LIN:
@@ -450,10 +431,11 @@ bool Play::SetPlays(
     case BRIDGE_FORMAT_EML:
     case BRIDGE_FORMAT_TXT:
     case BRIDGE_FORMAT_REC:
-      return Play::AddAllRBN(str);
+      Play::AddAllRBN(text);
+      break;
 
     default:
-      THROW("Invalid format " + STR(f));
+      THROW("Invalid format " + STR(format));
   }
 }
 
@@ -466,7 +448,7 @@ static bool BothAreSpaces(char lhs, char rhs)
 }
 
 
-bool Play::AddAllPBN(const vector<string>& list)
+bool Play::SetPlaysPBN(const vector<string>& list)
 {
   if (! setDDFlag)
     THROW("Declarer and denomination should be set by now");
@@ -493,6 +475,7 @@ bool Play::AddAllPBN(const vector<string>& list)
 }
 
 
+/*
 bool Play::SetPlays(
   const vector<string>& list,
   const formatType f)
@@ -504,7 +487,7 @@ assert(false);
       THROW("Currently unimplemented format " + STR(f));
 
     case BRIDGE_FORMAT_PBN:
-      return Play::AddAllPBN(list);
+      return Play::SetPlaysPBN(list);
 
     case BRIDGE_FORMAT_RBN:
     case BRIDGE_FORMAT_RBX:
@@ -517,6 +500,7 @@ assert(false);
       THROW("Invalid format " + STR(f));
   }
 }
+*/
 
 
 bool Play::UndoPlay()
@@ -599,92 +583,56 @@ unsigned Play::GetTricks() const
 }
 
 
-bool Play::operator == (const Play& p2) const
+bool Play::operator == (const Play& play2) const
 {
   // We don't require the holdings to be identical.
 
-  if (setDDFlag != p2.setDDFlag)
+  if (setDDFlag != play2.setDDFlag)
     DIFF("DD not set in same way");
-  else if (setDDFlag && (declarer != p2.declarer || denom != p2.denom))
+  if (setDDFlag && (declarer != play2.declarer || denom != play2.denom))
     DIFF("DD difference");
-  else if (setDealFlag != p2.setDealFlag)
+  if (setDealFlag != play2.setDealFlag)
     DIFF("Deal difference");
-  else if (len != p2.len)
+  if (len != play2.len)
     DIFF("Length difference");
-  else if (trickToPlay != p2.trickToPlay || cardToPlay != p2.cardToPlay)
+  if (trickToPlay != play2.trickToPlay || cardToPlay != play2.cardToPlay)
     DIFF("Progress difference");
-  else if (playOverFlag != p2.playOverFlag)
+  if (playOverFlag != play2.playOverFlag)
     DIFF("Play-over difference");
-  else if (claimMadeFlag != p2.claimMadeFlag)
+  if (claimMadeFlag != play2.claimMadeFlag)
     DIFF("Claim status difference");
-  else if (tricksDecl != p2.tricksDecl || tricksDef != p2.tricksDef)
+  if (tricksDecl != play2.tricksDecl || tricksDef != play2.tricksDef)
     DIFF("Claim difference");
 
   for (unsigned n = 0; n < len; n++)
-    if (sequence[n] != p2.sequence[n])
-      THROW("Sequence difference");
+    if (sequence[n] != play2.sequence[n])
+      DIFF("Sequence difference");
     
-  // leads are implicitly identical when the plays are identical.
+  // Leads are implicitly identical when the plays are identical.
   return true;
 }
 
 
-bool Play::operator != (const Play& p2) const
+bool Play::operator != (const Play& play2) const
 {
-  return ! (* this == p2);
+  return ! (* this == play2);
 }
 
 
-string Play::AsLIN() const
+string Play::strLIN() const
 {
-  stringstream s;
+  stringstream ss;
   for (unsigned l = 0; l < len; l++)
   {
-    s << "pc|" << PLAY_NO_TO_CARD[sequence[l]] << "|";
+    ss << "pc|" << PLAY_NO_TO_CARD[sequence[l]] << "|";
     if (l % 4 == 3)
-      s << "pg||";
+      ss << "pg||";
   }
-
-  return s.str();
+  return ss.str();
 }
 
 
-string Play::AsLIN_VG() const
-{
-  if (len == 0)
-    return "";
-
-  stringstream s;
-  for (unsigned t = 0; t <= ((len-1) >> 2); t++)
-  {
-    for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
-    {
-      unsigned pos = 4*t + p;
-      if (pos >= len)
-        break;
-      s << "pc|" << PLAY_NO_TO_CARD[sequence[pos]] << "|";
-    }
-    s << "pg||\n";
-  }
-  return s.str();
-}
-
-
-string Play::AsLIN_TRN() const
-{
-  stringstream s;
-  for (unsigned l = 0; l < len; l++)
-  {
-    s << "pc|" << PLAY_NO_TO_CARD[sequence[l]] << "|";
-    if (l % 4 == 3 && (l != len-1 || len == PLAY_NUM_CARDS))
-      s << "pg||";
-  }
-
-  return s.str();
-}
-
-
-string Play::AsLIN_RP() const
+string Play::strLIN_RP() const
 {
   if (len == 0)
     return "";
@@ -706,7 +654,41 @@ string Play::AsLIN_RP() const
 }
 
 
-string Play::AsPBN() const
+string Play::strLIN_VG() const
+{
+  if (len == 0)
+    return "";
+
+  stringstream s;
+  for (unsigned t = 0; t <= ((len-1) >> 2); t++)
+  {
+    for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
+    {
+      unsigned pos = 4*t + p;
+      if (pos >= len)
+        break;
+      s << "pc|" << PLAY_NO_TO_CARD[sequence[pos]] << "|";
+    }
+    s << "pg||\n";
+  }
+  return s.str();
+}
+
+
+string Play::strLIN_TRN() const
+{
+  stringstream ss;
+  for (unsigned l = 0; l < len; l++)
+  {
+    ss << "pc|" << PLAY_NO_TO_CARD[sequence[l]] << "|";
+    if (l % 4 == 3 && (l != len-1 || len == PLAY_NUM_CARDS))
+      ss << "pg||";
+  }
+  return ss.str();
+}
+
+
+string Play::strPBN() const
 {
   if (len == 0)
     return "";
@@ -762,7 +744,7 @@ string Play::AsPBN() const
 }
 
 
-string Play::AsRBNCore() const
+string Play::strRBNCore() const
 {
   stringstream s;
   for (unsigned l = 0; l < len; l++)
@@ -782,61 +764,25 @@ string Play::AsRBNCore() const
 }
 
 
-string Play::AsRBN() const
+string Play::strRBN() const
 {
   if (len == 0)
     return "";
   else
-    return "P " + Play::AsRBNCore() + "\n";
+    return "P " + Play::strRBNCore() + "\n";
 }
 
 
-string Play::AsRBX() const
+string Play::strRBX() const
 {
   if (len == 0)
     return "";
   else
-    return "P{" + Play::AsRBNCore() + "}";
+    return "P{" + Play::strRBNCore() + "}";
 }
 
 
-string Play::AsEML() const
-{
-  stringstream s;
-  s << " ";
-  for (unsigned l = 0; l < (len+3) >> 2; l++)
-    s << setw(3) << l+1;
-  s << "\n";
-
-  stringstream ps[BRIDGE_PLAYERS];
-  for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
-    ps[p] << PLAYER_NAMES_SHORT[(p+3) % 4];
-
-  for (unsigned l = 0; l < len; l++)
-  {
-    unsigned t = l >> 2;
-    unsigned pEML = (static_cast<unsigned>(leads[t].leader) + 1u + l) % 4;
-    if (t > 0 && l % 4 == 0)
-      ps[pEML] << "-";
-    else
-      ps[pEML] << " ";
-
-    if (l % 4 == 0)
-      ps[pEML] << setw(2) << PLAY_NO_TO_CARD[sequence[l]];
-    else if (PLAY_NO_TO_INFO[sequence[l]].suit != 
-        static_cast<unsigned>(leads[l >> 2].suit))
-      ps[pEML] << setw(2) << PLAY_NO_TO_CARD[sequence[l]];
-    else
-      ps[pEML] << setw(2) << PLAY_CARDS[PLAY_NO_TO_INFO[sequence[l]].rank];
-  }
-
-  for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
-    s << ps[p].str() << "\n";
-  return s.str();
-}
-
-
-string Play::AsTXT() const
+string Play::strTXT() const
 {
   if (len == 0)
     return "";
@@ -900,7 +846,43 @@ string Play::AsTXT() const
 }
 
 
-string Play::AsREC() const
+string Play::strEML() const
+{
+  stringstream s;
+  s << " ";
+  for (unsigned l = 0; l < (len+3) >> 2; l++)
+    s << setw(3) << l+1;
+  s << "\n";
+
+  stringstream ps[BRIDGE_PLAYERS];
+  for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
+    ps[p] << PLAYER_NAMES_SHORT[(p+3) % 4];
+
+  for (unsigned l = 0; l < len; l++)
+  {
+    unsigned t = l >> 2;
+    unsigned pEML = (static_cast<unsigned>(leads[t].leader) + 1u + l) % 4;
+    if (t > 0 && l % 4 == 0)
+      ps[pEML] << "-";
+    else
+      ps[pEML] << " ";
+
+    if (l % 4 == 0)
+      ps[pEML] << setw(2) << PLAY_NO_TO_CARD[sequence[l]];
+    else if (PLAY_NO_TO_INFO[sequence[l]].suit != 
+        static_cast<unsigned>(leads[l >> 2].suit))
+      ps[pEML] << setw(2) << PLAY_NO_TO_CARD[sequence[l]];
+    else
+      ps[pEML] << setw(2) << PLAY_CARDS[PLAY_NO_TO_INFO[sequence[l]].rank];
+  }
+
+  for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
+    s << ps[p].str() << "\n";
+  return s.str();
+}
+
+
+string Play::strREC() const
 {
   if (len == 0)
     return "";
@@ -939,72 +921,50 @@ string Play::AsREC() const
 }
 
 
-string Play::AsString(const formatType f) const
+string Play::str(const Format format) const
 {
-  switch(f)
+  switch(format)
   {
     case BRIDGE_FORMAT_LIN:
-      return Play::AsLIN();
-
-    case BRIDGE_FORMAT_LIN_VG:
-      return Play::AsLIN_VG();
-
-    case BRIDGE_FORMAT_LIN_TRN:
-      return Play::AsLIN_TRN();
+      return Play::strLIN();
 
     case BRIDGE_FORMAT_LIN_RP:
-      return Play::AsLIN_RP();
+      return Play::strLIN_RP();
+
+    case BRIDGE_FORMAT_LIN_VG:
+      return Play::strLIN_VG();
+
+    case BRIDGE_FORMAT_LIN_TRN:
+      return Play::strLIN_TRN();
 
     case BRIDGE_FORMAT_PBN:
-      return Play::AsPBN();
+      return Play::strPBN();
 
     case BRIDGE_FORMAT_RBN:
-      return Play::AsRBN();
+      return Play::strRBN();
 
     case BRIDGE_FORMAT_RBX:
-      return Play::AsRBX();
-
-    case BRIDGE_FORMAT_EML:
-      return Play::AsEML();
+      return Play::strRBX();
 
     case BRIDGE_FORMAT_TXT:
-      return Play::AsTXT();
+      return Play::strTXT();
+
+    case BRIDGE_FORMAT_EML:
+      return Play::strEML();
 
     case BRIDGE_FORMAT_REC:
-      return Play::AsREC();
+      return Play::strREC();
 
     default:
-      THROW("Invalid format " + STR(f));
+      THROW("Invalid format: " + STR(format));
   }
 }
 
 
-string Play::ClaimAsLIN() const
+string Play::strLead(const Format format) const
 {
-  if (! claimMadeFlag)
-    return "";
-
-  stringstream s;
-  s << "mc|" << tricksDecl << "|";
-
-  return s.str();
-  
-}
-
-
-string Play::LeadAsString(const formatType f) const
-{
-  switch(f)
+  switch(format)
   {
-    case BRIDGE_FORMAT_LIN:
-      THROW("Currently unimplemented format " + STR(f));
-
-    case BRIDGE_FORMAT_PBN:
-      THROW("Currently unimplemented format " + STR(f));
-
-    case BRIDGE_FORMAT_RBN:
-      THROW("Currently unimplemented format " + STR(f));
-
     case BRIDGE_FORMAT_EML:
       if (len == 0)
         return "Opening Lead:";
@@ -1017,28 +977,32 @@ string Play::LeadAsString(const formatType f) const
       else
         return "Opening lead: " + PLAY_NO_TO_CARD[sequence[0]];
 
-    case BRIDGE_FORMAT_TXT:
-      THROW("Currently unimplemented format " + STR(f));
-
     default:
-      THROW("Invalid format " + STR(f));
+      THROW("Invalid format: " + STR(format));
   }
 }
 
 
-string Play::ClaimAsString(const formatType f) const
+string Play::strClaimLIN() const
 {
-  switch(f)
-  {
-    // case BRIDGE_FORMAT_LIN_VG:
-      // return Play::ClaimAsLIN() + "\n";
+  if (! claimMadeFlag)
+    return "";
 
+  return "mc|" + STR(tricksDecl) + "|";
+  
+}
+
+
+string Play::strClaim(const Format format) const
+{
+  switch(format)
+  {
     case BRIDGE_FORMAT_LIN:
-      return Play::ClaimAsLIN() + "pg||\n";
+      return Play::strClaimLIN() + "pg||\n";
 
     case BRIDGE_FORMAT_LIN_RP:
       if (claimMadeFlag)
-        return Play::ClaimAsLIN() + "pg||\n\n";
+        return Play::strClaimLIN() + "pg||\n\n";
       else
         return "\n";
 
@@ -1046,25 +1010,16 @@ string Play::ClaimAsString(const formatType f) const
       if (len == PLAY_NUM_CARDS)
         return "\n\n";
       else
-        return Play::ClaimAsLIN() + "pg||\n\n";
+        return Play::strClaimLIN() + "pg||\n\n";
 
     case BRIDGE_FORMAT_LIN_TRN:
       if (len == PLAY_NUM_CARDS)
         return "\n";
       else
-        return Play::ClaimAsLIN() + "pg||\n";
-
-    case BRIDGE_FORMAT_PBN:
-      THROW("Currently unimplemented format " + STR(f));
-
-    case BRIDGE_FORMAT_RBN:
-      THROW("Currently unimplemented format " + STR(f));
-
-    case BRIDGE_FORMAT_TXT:
-      THROW("Currently unimplemented format " + STR(f));
+        return Play::strClaimLIN() + "pg||\n";
 
     default:
-      THROW("Invalid format " + STR(f));
+      THROW("Invalid format: " + STR(format));
   }
 }
 
