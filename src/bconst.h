@@ -29,7 +29,7 @@ using namespace std;
 
 // Bridge file formats.
 
-enum formatType
+enum Format
 {
   BRIDGE_FORMAT_LIN = 0,
   BRIDGE_FORMAT_LIN_RP = 1, // A la Pavlicek
@@ -45,8 +45,6 @@ enum formatType
   BRIDGE_FORMAT_PAR = 11, // Not a real file format -- eliminate?
   BRIDGE_FORMAT_SIZE = 12
 };
-
-typedef formatType Format;
 
 
 const string FORMAT_NAMES[BRIDGE_FORMAT_SIZE] =
@@ -82,7 +80,7 @@ const string FORMAT_EXTENSIONS[BRIDGE_FORMAT_SIZE] =
 };
 
 
-const vector<formatType> FORMAT_ACTIVE =
+const vector<Format> FORMAT_ACTIVE =
 {
   BRIDGE_FORMAT_LIN,
   BRIDGE_FORMAT_LIN_RP,
@@ -219,7 +217,7 @@ struct OptionsType
   FileOptionType fileLog; // -l, --logfile
 
   bool formatSetFlag; // -f, --format
-  formatType format;
+  Format format;
 
   unsigned numThreads;
 
@@ -277,6 +275,8 @@ enum multiplierType
   BRIDGE_MULT_DOUBLED = 1,
   BRIDGE_MULT_REDOUBLED = 2
 };
+
+typedef multiplierType Multiplier;
 
 // This is the same encoding as in DDS.
 

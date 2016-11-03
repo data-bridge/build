@@ -118,11 +118,11 @@ class Board
 
     void setContract(
       const string& text,
-      const formatType f);
+      const Format format);
 
     void setDeclarer(
       const string& text,
-      const formatType f);
+      const Format format);
 
     bool contractIsSet() const;
 
@@ -162,25 +162,25 @@ class Board
     //
     void setTableau(
       const string& text,
-      const formatType f);
+      const Format format);
 
     bool SetTableauEntry(
-      const playerType p,
-      const denomType d,
-      const unsigned t);
+      const Player player,
+      const Denom denom,
+      const unsigned tricks);
 
     unsigned GetTableauEntry(
-      const playerType p,
-      const denomType d) const;
+      const Player player,
+      const Denom denom) const;
 
     bool GetPar(
-      playerType dealer,
-      vulType v,
+      Player dealer,
+      Vul v,
       string& text) const;
 
     bool GetPar(
-      playerType dealer,
-      vulType v,
+      Player dealer,
+      Vul v,
       list<Contract>& text) const;
 
     // Players
@@ -197,7 +197,7 @@ class Board
 
     void setRoom(
       const string& s,
-      const formatType f);
+      const Format format);
 
     bool getValuation(Valuation& valuation) const;
 

@@ -104,82 +104,82 @@ class Segment
 
     void setTitle(
       const string& t,
-      const formatType f);
+      const Format format);
 
     void setDate(
       const string& d,
-      const formatType f);
+      const Format format);
 
     void setLocation(
       const string& l,
-      const formatType f);
+      const Format format);
 
     void setEvent(
       const string& e,
-      const formatType f);
+      const Format format);
 
     void setSession(
       const string& s,
-      const formatType f);
+      const Format format);
 
     void setScoring(
       const string& s,
-      const formatType f);
+      const Format format);
 
     void setTeams(
       const string& s,
-      const formatType f);
+      const Format format);
 
     void setFirstTeam(
       const string& s,
-      const formatType f);
+      const Format format);
 
     void setSecondTeam(
       const string& s,
-      const formatType f);
+      const Format format);
 
     void setPlayers(
       const string& s,
-      const formatType f);
+      const Format format);
 
     void setWest(
       const string& s,
-      const formatType f);
+      const Format format);
 
     void setNorth(
       const string& s,
-      const formatType f);
+      const Format format);
 
     void setEast(
       const string& s,
-      const formatType f);
+      const Format format);
 
     void setSouth(
       const string& s,
-      const formatType f);
+      const Format format);
 
     void setResultsList(
       const string& s,
-      const formatType f);
+      const Format format);
 
     void setPlayersList(
       const string& s,
-      const formatType f);
+      const Format format);
 
     void SetFromHeader(
       const string& room);
 
     void setPlayersHeader(
       const string& s,
-      const formatType f);
+      const Format format);
 
     void setScoresList(
       const string& s,
-      const formatType f);
+      const Format format);
 
     void setBoardsList(
       const string& s,
-      const formatType f);
+      const Format format);
 
     void CopyPlayers();
 
@@ -200,59 +200,59 @@ class Segment
     bool operator != (const Segment& s2) const;
 
     string TitleAsString(
-      const formatType f) const;
+      const Format format) const;
 
     string DateAsString(
-      const formatType f) const;
+      const Format format) const;
 
     string LocationAsString(
-      const formatType f) const;
+      const Format format) const;
 
     string EventAsString(
-      const formatType f) const;
+      const Format format) const;
 
     string SessionAsString(
-      const formatType f) const;
+      const Format format) const;
 
     string ScoringAsString(
-      const formatType f) const;
+      const Format format) const;
 
      string TeamsAsString(
-      const formatType f) const;
+      const Format format) const;
 
      string TeamsAsString(
       const int score1,
       const int score2,
-      const formatType f) const;
+      const Format format) const;
 
      string FirstTeamAsString(
-      const formatType f) const;
+      const Format format) const;
 
      string SecondTeamAsString(
-      const formatType f) const;
+      const Format format) const;
 
      string NumberAsString(
-      const formatType f,
+      const Format format,
       const unsigned intNo) const;
 
      string NumberAsBoardString(
-      const formatType f,
+      const Format format,
       const unsigned intNo) const;
 
      string ContractsAsLIN(
-      const formatType f);
+      const Format format);
 
      string ContractsAsString(
-      const formatType f);
+      const Format format);
 
      string PlayersAsString(
-      const formatType f);
+      const Format format);
 
      string ScoresAsString(
-      const formatType f) const;
+      const Format format) const;
 
      string BoardsAsString(
-      const formatType f) const;
+      const Format format) const;
 };
 
 #endif

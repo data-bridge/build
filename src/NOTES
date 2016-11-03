@@ -1,3 +1,5 @@
+When multi-threading, exceptions still go to stdout?
+
 Put the fix file into a class?
 
 TXT header lines: Should compare these better.
@@ -63,8 +65,6 @@ Then write a script to set combinations
 
 Auction:
 Include alerts =1= I think.
-
-Use ParsePlayer instead of e.g. Auction::ParseRBNDealer()
 
 Read into BBO.exe
 

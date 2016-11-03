@@ -48,7 +48,7 @@ void Group::setFormat(const Format formatIn)
 }
 
 
-formatType Group::format() const
+Format Group::format() const
 {
   return formatVal;
 }

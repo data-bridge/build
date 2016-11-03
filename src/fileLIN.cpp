@@ -8,6 +8,7 @@
 
 
 #include <iostream>
+#include <sstream>
 #include <fstream>
 #include <regex>
 #include <map>
@@ -148,13 +149,13 @@ bool readLINChunk(
 void writeLINSegmentLevel(
   ofstream& fstr,
   Segment * segment,
-  const formatType f)
+  const Format format)
 {
-  fstr << segment->TitleAsString(f);
-  fstr << segment->ContractsAsString(f);
-  fstr << segment->PlayersAsString(f);
-  fstr << segment->ScoresAsString(f);
-  fstr << segment->BoardsAsString(f);
+  fstr << segment->TitleAsString(format);
+  fstr << segment->ContractsAsString(format);
+  fstr << segment->PlayersAsString(format);
+  fstr << segment->ScoresAsString(format);
+  fstr << segment->BoardsAsString(format);
 }
 
 
@@ -163,21 +164,21 @@ void writeLINBoardLevel(
   Segment * segment,
   Board * board,
   writeInfoType& writeInfo,
-  const formatType f)
+  const Format format)
 {
-  fstr << segment->NumberAsString(f, writeInfo.bno);
+  fstr << segment->NumberAsString(format, writeInfo.bno);
 
-  if (f == BRIDGE_FORMAT_LIN || f == BRIDGE_FORMAT_LIN_TRN)
-    fstr << board->PlayersAsString(f);
+  if (format == BRIDGE_FORMAT_LIN || format == BRIDGE_FORMAT_LIN_TRN)
+    fstr << board->PlayersAsString(format);
 
-  fstr << board->strDeal(f);
-  fstr << segment->NumberAsBoardString(f, writeInfo.bno);
-  fstr << board->strVul(f);
+  fstr << board->strDeal(format);
+  fstr << segment->NumberAsBoardString(format, writeInfo.bno);
+  fstr << board->strVul(format);
 
   board->calculateScore();
 
-  fstr << board->strAuction(f);
-  fstr << board->PlayAsString(f);
-  fstr << board->ClaimAsString(f);
+  fstr << board->strAuction(format);
+  fstr << board->PlayAsString(format);
+  fstr << board->ClaimAsString(format);
 }
 

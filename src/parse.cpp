@@ -157,6 +157,14 @@ bool StringToUnsigned(
 }
 
 
+bool str2unsigned(
+  const string& s,
+  unsigned& res)
+{
+  return StringToUnsigned(s, res);
+}
+
+
 bool StringToNonzeroUnsigned(
   const string& s,
   unsigned& res)

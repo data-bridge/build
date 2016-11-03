@@ -34,6 +34,6 @@ void writeEMLBoardLevel(
   Segment * segment,
   Board * board,
   writeInfoType& writeInfo,
-  const formatType f);
+  const Format format);
 
 #endif

@@ -8,6 +8,7 @@
 
 
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <regex>
 #include "Segment.h"
@@ -493,7 +494,7 @@ void Segment::SetFromHeader(const string& room)
     return;
 
   int r = (room != "" && room.substr(0, 1) == "c" ? 1 : 0);
-  const formatType f = BRIDGE_FORMAT_LIN;
+  const Format f = BRIDGE_FORMAT_LIN;
 
   activeBoard->setContract(LINdata[activeNo].contract[r], f);
 
@@ -765,7 +766,7 @@ string Segment::TitleAsLIN_TRN() const
 }
 
 
-string Segment::TitleAsString(const formatType f) const
+string Segment::TitleAsString(const Format f) const
 {
   // In LIN this is the entire vg field.
 
@@ -803,19 +804,19 @@ string Segment::TitleAsString(const formatType f) const
 }
 
 
-string Segment::DateAsString(const formatType f) const
+string Segment::DateAsString(const Format f) const
 {
   return seg.date.str(f);
 }
 
 
-string Segment::LocationAsString(const formatType f) const
+string Segment::LocationAsString(const Format f) const
 {
   return seg.location.str(f);
 }
 
 
-string Segment::EventAsString(const formatType f) const
+string Segment::EventAsString(const Format f) const
 {
   stringstream st;
   switch(f)
@@ -849,21 +850,21 @@ string Segment::EventAsString(const formatType f) const
 
 
 string Segment::SessionAsString(
-  const formatType f) const
+  const Format f) const
 {
   return seg.session.asString(f);
 }
 
 
 string Segment::ScoringAsString(
-  const formatType f) const
+  const Format f) const
 {
   return seg.scoring.str(f);
 }
 
 
 string Segment::TeamsAsString(
-  const formatType f) const
+  const Format f) const
 {
   return seg.teams.str(f);
 }
@@ -872,28 +873,28 @@ string Segment::TeamsAsString(
 string Segment::TeamsAsString(
   const int score1,
   const int score2,
-  const formatType f) const
+  const Format f) const
 {
   return seg.teams.str(f, score1, score2);
 }
 
 
 string Segment::FirstTeamAsString(
-  const formatType f) const
+  const Format f) const
 {
   return seg.teams.strFirst(f);
 }
 
 
 string Segment::SecondTeamAsString(
-  const formatType f) const
+  const Format f) const
 {
   return seg.teams.strSecond(f);
 }
 
 
 string Segment::NumberAsString(
-  const formatType f,
+  const Format f,
   const unsigned intNo) const
 {
   unsigned extNo = Segment::GetExtBoardNo(intNo);
@@ -943,7 +944,7 @@ string Segment::NumberAsString(
 
 
 string Segment::NumberAsBoardString(
-  const formatType f,
+  const Format f,
   const unsigned intNo) const
 {
   if (f != BRIDGE_FORMAT_LIN && f != BRIDGE_FORMAT_LIN_TRN)
@@ -959,7 +960,7 @@ string Segment::NumberAsBoardString(
 }
 
 
-string Segment::ContractsAsLIN(const formatType f)
+string Segment::ContractsAsLIN(const Format f)
 {
   stringstream s;
   s << "rs|";
@@ -1004,7 +1005,7 @@ string Segment::ContractsAsLIN(const formatType f)
 }
 
 
-string Segment::ContractsAsString(const formatType f) 
+string Segment::ContractsAsString(const Format f) 
 {
   switch(f)
   {
@@ -1020,7 +1021,7 @@ string Segment::ContractsAsString(const formatType f)
 }
 
 
-string Segment::PlayersAsString(const formatType f) 
+string Segment::PlayersAsString(const Format f) 
 {
   string s1, s2;
   Board * board;
@@ -1103,7 +1104,7 @@ string Segment::PlayersAsString(const formatType f)
 }
 
 
-string Segment::ScoresAsString(const formatType f) const
+string Segment::ScoresAsString(const Format f) const
 {
   string s;
 
@@ -1127,7 +1128,7 @@ string Segment::ScoresAsString(const formatType f) const
 }
 
 
-string Segment::BoardsAsString(const formatType f) const
+string Segment::BoardsAsString(const Format f) const
 {
   stringstream s;
   string st;

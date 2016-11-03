@@ -140,15 +140,15 @@ bool readRBXChunk(
 void writeRBNSegmentLevel(
   ofstream& fstr,
   Segment * segment,
-  const formatType f)
+  const Format format)
 {
-  fstr << segment->TitleAsString(f);
-  fstr << segment->DateAsString(f);
-  fstr << segment->LocationAsString(f);
-  fstr << segment->EventAsString(f);
-  fstr << segment->SessionAsString(f);
-  fstr << segment->ScoringAsString(f);
-  fstr << segment->TeamsAsString(f);
+  fstr << segment->TitleAsString(format);
+  fstr << segment->DateAsString(format);
+  fstr << segment->LocationAsString(format);
+  fstr << segment->EventAsString(format);
+  fstr << segment->SessionAsString(format);
+  fstr << segment->ScoringAsString(format);
+  fstr << segment->TeamsAsString(format);
 }
 
 
@@ -157,9 +157,9 @@ void writeRBNBoardLevel(
   Segment * segment,
   Board * board,
   writeInfoType& writeInfo,
-  const formatType f)
+  const Format format)
 {
-  string names = board->PlayersAsString(f);
+  string names = board->PlayersAsString(format);
   if (names != writeInfo.namesOld[writeInfo.ino])
   {
     fstr << names;
@@ -168,16 +168,16 @@ void writeRBNBoardLevel(
         
   if (writeInfo.ino == 0)
   {
-    fstr << segment->NumberAsString(f, writeInfo.bno);
-    fstr << board->strDeal(BRIDGE_WEST, f);
+    fstr << segment->NumberAsString(format, writeInfo.bno);
+    fstr << board->strDeal(BRIDGE_WEST, format);
   }
 
   board->calculateScore();
 
-  fstr << board->strAuction(f);
-  fstr << board->strContract(f);
-  fstr << board->PlayAsString(f);
-  fstr << board->ResultAsString(f, segment->ScoringIsIMPs());
+  fstr << board->strAuction(format);
+  fstr << board->strContract(format);
+  fstr << board->PlayAsString(format);
+  fstr << board->ResultAsString(format, segment->ScoringIsIMPs());
   fstr << "\n";
 }
 

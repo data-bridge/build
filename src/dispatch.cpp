@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <sstream>
 #include <fstream>
 #include <regex>
 #include <assert.h>
@@ -73,15 +74,15 @@ using namespace std;
 struct FormatFunctionsType
 {
   bool (* readChunk)(ifstream&, unsigned&, vector<string>&, bool&);
-  void (* writeSeg)(ofstream&, Segment *, formatType);
+  void (* writeSeg)(ofstream&, Segment *, Format);
   void (* writeBoard)(ofstream&, Segment *, Board *, 
-    writeInfoType&, const formatType);
+    writeInfoType&, const Format);
 };
 
 FormatFunctionsType formatFncs[BRIDGE_FORMAT_SIZE];
 
-typedef void (Segment::*SegPtr)(const string& s, const formatType f);
-typedef void (Board::*BoardPtr)(const string& s, const formatType f);
+typedef void (Segment::*SegPtr)(const string& s, const Format format);
+typedef void (Board::*BoardPtr)(const string& s, const Format format);
 
 SegPtr segPtr[BRIDGE_FORMAT_LABELS_SIZE];
 BoardPtr boardPtr[BRIDGE_FORMAT_LABELS_SIZE];
@@ -97,17 +98,17 @@ struct Fix
 void writeDummySegmentLevel(
   ofstream& fstr,
   Segment * segment,
-  const formatType f);
+  const Format format);
 
 void GuessDealerAndVul(
   vector<string>& chunk, 
   const unsigned b,
-  const formatType f);
+  const Format format);
 
 void GuessDealerAndVul(
   vector<string>& chunk, 
   const string& s,
-  const formatType f);
+  const Format format);
 
 static void readFix(
   const string& fname,
@@ -115,12 +116,12 @@ static void readFix(
 
 static bool readFormattedFile(
   const string& fname,
-  const formatType f,
+  const Format format,
   Group& group,
   const OptionsType& options);
 
 static void tryFormatMethod(
-  const formatType f,
+  const Format format,
   const string& text,
   Segment * segment,
   Board * board,
@@ -129,12 +130,12 @@ static void tryFormatMethod(
 static void writeHeader(
   ofstream& fstr,
   Group& group,
-  const formatType f);
+  const Format format);
 
 static bool writeFormattedFile(
   Group& group,
   const string& fname,
-  const formatType f);
+  const Format format);
 
 static void setFormatTables();
 
@@ -146,11 +147,11 @@ static void SetInterface();
 void writeDummySegmentLevel(
   ofstream& fstr,
   Segment * segment,
-  const formatType f)
+  const Format format)
 {
   UNUSED(fstr);
   UNUSED(segment);
-  UNUSED(f);
+  UNUSED(format);
 }
 
 
@@ -345,13 +346,13 @@ void dispatch(
 void GuessDealerAndVul(
   vector<string>& chunk, 
   const unsigned b,
-  const formatType f)
+  const Format format)
 {
   // This is not quite fool-proof, as there are LIN files where
   // the board numbers don't match...
 
-  if (f == BRIDGE_FORMAT_RBN ||
-      f == BRIDGE_FORMAT_RBX)
+  if (format == BRIDGE_FORMAT_RBN ||
+      format == BRIDGE_FORMAT_RBX)
   {
     chunk[BRIDGE_FORMAT_DEALER] = PLAYER_NAMES_SHORT[BOARD_TO_DEALER[b % 4]];
     chunk[BRIDGE_FORMAT_VULNERABLE] = VUL_NAMES_PBN[BOARD_TO_VUL[b % 16]];
@@ -362,13 +363,13 @@ void GuessDealerAndVul(
 void GuessDealerAndVul(
   vector<string>& chunk, 
   const string& s,
-  const formatType f)
+  const Format format)
 {
   unsigned u;
   if (! StringToNonzeroUnsigned(s, u))
     return;
 
-  GuessDealerAndVul(chunk, u, f);
+  GuessDealerAndVul(chunk, u, format);
 }
 
 
@@ -439,7 +440,7 @@ static void fixChunk(
 
 static bool readFormattedFile(
   const string& fname,
-  const formatType f,
+  const Format format,
   Group& group,
   const OptionsType& options)
 {
@@ -454,7 +455,7 @@ static bool readFormattedFile(
   readFix(fname, fix);
 
   group.setName(fname);
-  group.setFormat(f);
+  group.setFormat(format);
 
   vector<string> chunk(BRIDGE_FORMAT_LABELS_SIZE);
 
@@ -475,7 +476,7 @@ static bool readFormattedFile(
     lnoOld = lno;
     try
     {
-      if (! (* formatFncs[f].readChunk)(fstr, lno, chunk, newSegFlag))
+      if (! (* formatFncs[format].readChunk)(fstr, lno, chunk, newSegFlag))
       {
         if (fstr.eof())
           break;
@@ -531,7 +532,7 @@ static bool readFormattedFile(
 
     if (chunk[BRIDGE_FORMAT_BOARD_NO] != "" &&
         chunk[BRIDGE_FORMAT_BOARD_NO] != lastBoard &&
-        (f != BRIDGE_FORMAT_LIN ||
+        (format != BRIDGE_FORMAT_LIN ||
         lastBoard == "" ||
         chunk[BRIDGE_FORMAT_BOARD_NO].substr(1) != lastBoard.substr(1)))
     {
@@ -554,9 +555,9 @@ static bool readFormattedFile(
     {
       // Guess dealer and vul from the board number.
       if (chunk[BRIDGE_FORMAT_BOARD_NO] == "")
-        GuessDealerAndVul(chunk, segment->GetActiveExtBoardNo(), f);
+        GuessDealerAndVul(chunk, segment->GetActiveExtBoardNo(), format);
       else
-        GuessDealerAndVul(chunk, chunk[BRIDGE_FORMAT_BOARD_NO], f);
+        GuessDealerAndVul(chunk, chunk[BRIDGE_FORMAT_BOARD_NO], format);
     }
 
     unsigned i;
@@ -566,13 +567,13 @@ static bool readFormattedFile(
       {
         if (chunk[i] == "")
         {
-          if (i == BRIDGE_FORMAT_CONTRACT && f == BRIDGE_FORMAT_LIN)
+          if (i == BRIDGE_FORMAT_CONTRACT && format == BRIDGE_FORMAT_LIN)
             segment->SetFromHeader(chunk[BRIDGE_FORMAT_BOARD_NO]);
 
           continue;
         }
 
-        tryFormatMethod(f, chunk[i], segment, board, i);
+        tryFormatMethod(format, chunk[i], segment, board, i);
       }
     }
     catch (Bexcept& bex)
@@ -644,20 +645,20 @@ static void tryFormatMethod(
 static void writeHeader(
   ofstream& fstr,
   Group& group,
-  const formatType f)
+  const Format format)
 {
   const string g = GuessOriginalLine(group.name(), group.count());
   if (g == "")
     return;
 
-  if (f == BRIDGE_FORMAT_RBX)
+  if (format == BRIDGE_FORMAT_RBX)
   {
     fstr << "%{RBX " << g << "}";
     fstr << "%{www.rpbridge.net Richard Pavlicek}";
   }
   else
   {
-    fstr << "% " << FORMAT_EXTENSIONS[f] << " " << g << "\n";
+    fstr << "% " << FORMAT_EXTENSIONS[format] << " " << g << "\n";
     fstr << "% www.rpbridge.net Richard Pavlicek\n";
   }
 }
@@ -666,7 +667,7 @@ static void writeHeader(
 static bool writeFormattedFile(
   Group& group,
   const string& fname,
-  const formatType f)
+  const Format format)
 {
   ofstream fstr(fname.c_str());
   if (! fstr.is_open())
@@ -678,11 +679,11 @@ static bool writeFormattedFile(
   writeInfo.score1 = 0;
   writeInfo.score2 = 0;
 
-  writeHeader(fstr, group, f);
+  writeHeader(fstr, group, format);
 
   for (auto &segment: group)
   {
-    (* formatFncs[f].writeSeg)(fstr, &segment, f);
+    (* formatFncs[format].writeSeg)(fstr, &segment, format);
 
     writeInfo.numBoards = segment.GetLength();
     for (unsigned b = 0; b < writeInfo.numBoards; b++)
@@ -701,7 +702,8 @@ static bool writeFormattedFile(
       {
         board->setInstance(i);
         writeInfo.ino = i;
-        (* formatFncs[f].writeBoard)(fstr, &segment, board, writeInfo, f);
+        (* formatFncs[format].writeBoard)
+          (fstr, &segment, board, writeInfo, format);
       }
     }
   }

@@ -7,6 +7,9 @@
 */
 
 
+#include <iostream>
+#include <iomanip>
+#include <sstream>
 #include <vector>
 #include <algorithm>
 
@@ -475,7 +478,7 @@ bool Tableau::getPar(
     else
       s << " ";
 
-    s << contract.AsString(BRIDGE_FORMAT_PAR);
+    s << contract.str(BRIDGE_FORMAT_PAR);
   }
   s << "\n";
 
@@ -504,7 +507,7 @@ bool Tableau::getPar(
   if (side == -1)
   {
     Contract contract;
-    contract.SetPassedOut();
+    contract.passOut();
     clist.clear();
     clist.push_back(contract);
     return true;
@@ -932,11 +935,11 @@ bool Tableau::addContract(
   else
     declarer = (side == 0 ? BRIDGE_SOUTH : BRIDGE_WEST);
 
-  if (! contract.SetContract(vul, declarer, level, denom, mult))
-    return false;
+  // Will throw exception on failure
+  contract.setContract(vul, declarer, level, denom, mult);
 
-  if (! contract.SetTricks(tricks))
-    return false;
+  // Will throw exception on failure
+  contract.setTricks(tricks);
   
   clist.push_back(contract);
   return true;
@@ -955,12 +958,12 @@ bool Tableau::addSpecialSac(
   const unsigned level = (no-1) / 5;
   const multiplierType mult = BRIDGE_MULT_DOUBLED;
 
-  if (! contract.SetContract(vul, sacker, level, denom, mult))
-    return false;
+  // Will throw exception on failure
+  contract.setContract(vul, sacker, level, denom, mult);
 
-  if (! contract.SetTricks(
-      static_cast<unsigned>(static_cast<int>(level) + delta)))
-    return false;
+  // Will throw exception on failure
+  contract.setTricks(
+      static_cast<unsigned>(static_cast<int>(level) + delta));
   
   clist.push_back(contract);
   return true;

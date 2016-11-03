@@ -7,6 +7,9 @@
 */
 
 
+#include <iostream>
+#include <iomanip>
+#include <sstream>
 #include <regex>
 #include <assert.h>
 
@@ -71,7 +74,7 @@ void Board::newInstance()
 
   // Reuse data from first instance.
   auction[numActive].copyDealerVul(auction[0]);
-  contract[numActive].SetVul(auction[0].getVul());
+  contract[numActive].setVul(auction[0].getVul());
 
   if (deal.isSet())
   {
@@ -132,7 +135,7 @@ void Board::setVul(
 {
   auction[0].setVul(text, format);
 
-  contract[numActive].SetVul(auction[0].getVul());
+  contract[numActive].setVul(auction[0].getVul());
 }
 
 
@@ -189,7 +192,7 @@ void Board::undoLastCall()
 
 void Board::passOut()
 {
-  contract[numActive].SetPassedOut();
+  contract[numActive].passOut();
 }
 
 
@@ -200,7 +203,7 @@ void Board::setAuction(
   auction[numActive].addAuction(text, format);
 
   if (auction[numActive].hasDealerVul())
-    contract[numActive].SetVul(auction[numActive].getVul());
+    contract[numActive].setVul(auction[numActive].getVul());
 
   // Doesn't bother us unduly if there is no contract.
   if (auction[numActive].getContract(contract[numActive]))
@@ -232,7 +235,7 @@ void Board::setContract(
   const Vul vul,
   const string& cstring)
 {
-  contract[numActive].SetContract(vul, cstring);
+  contract[numActive].setContract(vul, cstring);
 }
 
 
@@ -240,7 +243,7 @@ void Board::setContract(
   const string& text,
   const Format format)
 {
-  contract[numActive].SetContract(text, format);
+  contract[numActive].setContract(text, format);
 
   play[numActive].setContract(contract[numActive]);
 }
@@ -250,7 +253,8 @@ void Board::setDeclarer(
   const string& text,
   const Format format)
 {
-  contract[numActive].SetDeclarer(text, format);
+  UNUSED(format);
+  contract[numActive].setDeclarer(text);
 }
 
 
@@ -264,7 +268,7 @@ void Board::setTricks(const unsigned tricks)
 
 bool Board::contractIsSet() const
 {
-  return contract[numActive].ContractIsSet();
+  return contract[numActive].isSet();
 }
 
 
@@ -309,7 +313,7 @@ void Board::setPlays(
   play[numActive].setPlays(text, format);
 
   if (play[numActive].isOver())
-    contract[numActive].SetTricks( play[numActive].getTricks() );
+    contract[numActive].setTricks( play[numActive].getTricks() );
 }
 
 
@@ -338,19 +342,18 @@ void Board::setResult(
   const string& text,
   const Format format)
 {
-  if (! contract[numActive].SetResult(text, format))
-    THROW("Cannot set result"); // TODO: Already throws?
+  contract[numActive].setResult(text, format);
 
-  if (contract[numActive].IsPassedOut())
+  if (contract[numActive].isPassedOut())
     return;
 
-  play[numActive].makeClaim(contract[numActive].GetTricks());
+  play[numActive].makeClaim(contract[numActive].getTricks());
 }
 
 
 bool Board::resultIsSet() const
 {
-  return contract[numActive].ResultIsSet();
+  return contract[numActive].hasResult();
 }
 
 
@@ -442,7 +445,7 @@ bool Board::getValuation(Valuation& valuation) const
 
 void Board::calculateScore()
 {
-  contract[numActive].CalculateScore();
+  contract[numActive].calculateScore();
 }
 
 
@@ -545,19 +548,19 @@ string Board::strAuction(const Format format) const
 
 string Board::strContract(const Format format) const
 {
-  return contract[numActive].AsString(format);
+  return contract[numActive].str(format);
 }
 
 
 string Board::strDeclarer(const Format format) const
 {
-  return contract[numActive].DeclarerAsString(format);
+  return contract[numActive].strDeclarer(format);
 }
 
 
 string Board::strTricks(const Format format) const
 {
-  return contract[numActive].TricksAsString(format);
+  return contract[numActive].strTricks(format);
 }
 
 
@@ -567,11 +570,10 @@ string Board::ScoreAsString(
 {
   if (numActive != 1 || 
      ! scoringIsIMPs ||
-     ! contract[0].ResultIsSet())
-    return contract[numActive].ScoreAsString(format);
+     ! contract[0].hasResult())
+    return contract[numActive].strScore(format);
   else
-    return contract[numActive].ScoreAsString(format, 
-      contract[0].GetScore());
+    return contract[numActive].strScore(format, contract[0].getScore());
 }
 
 
@@ -600,17 +602,16 @@ string Board::ScoreIMPAsString(
   if (! showFlag)
     return "Points:       ";
 
-  return contract[numActive].ScoreIMPAsString(format, 
-    contract[0].GetScore());
+  return contract[numActive].strScoreIMP(format, contract[0].getScore());
 }
 
 
 int Board::ScoreIMPAsInt() const
 {
-  if (numActive != 1 || ! contract[0].ResultIsSet())
+  if (numActive != 1 || ! contract[0].hasResult())
     return 0;
   else
-    return contract[numActive].ScoreIMPAsInt(contract[0].GetScore());
+    return contract[numActive].IMPScore(contract[0].getScore());
 }
 
 
@@ -666,11 +667,10 @@ string Board::ResultAsString(
 {
   if (numActive != 1 || 
      ! scoringIsIMPs ||
-     ! contract[0].ResultIsSet())
-    return contract[numActive].ResultAsString(format);
+     ! contract[0].hasResult())
+    return contract[numActive].strResult(format);
   else
-    return contract[numActive].ResultAsString(format, 
-      contract[0].GetScore());
+    return contract[numActive].strResult(format, contract[0].getScore());
 }
 
 
@@ -678,13 +678,11 @@ string Board::ResultAsString(
   const Format format,
   const string& team) const
 {
-  if (numActive != 1 || 
-     ! contract[0].ResultIsSet())
-    return contract[numActive].ResultAsString(format);
+  if (numActive != 1 || ! contract[0].hasResult())
+    return contract[numActive].strResult(format);
   else
     return 
-      contract[numActive].ResultAsString(format, 
-        contract[0].GetScore(), team);
+      contract[numActive].strResult(format, contract[0].getScore(), team);
 }
 
 

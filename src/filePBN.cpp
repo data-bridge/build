@@ -28,7 +28,7 @@ map<string, formatLabelType> PBNmap;
 void writePBNSegmentLevel(
   ofstream& fstr,
   Segment * segment,
-  const formatType f);
+  const Format format);
 
 
 void setPBNTables()
@@ -156,11 +156,11 @@ bool readPBNChunk(
 void writePBNSegmentLevel(
   ofstream& fstr,
   Segment * segment,
-  const formatType f)
+  const Format format)
 {
   UNUSED(fstr);
   UNUSED(segment);
-  UNUSED(f);
+  UNUSED(format);
 }
 
 
@@ -169,20 +169,20 @@ void writePBNBoardLevel(
   Segment * segment,
   Board * board,
   writeInfoType& writeInfo,
-  const formatType f)
+  const Format format)
 {
   board->calculateScore();
 
   if (writeInfo.bno == 0 && writeInfo.ino == 0)
   {
-    fstr << segment->EventAsString(f);
-    fstr << segment->LocationAsString(f);
-    fstr << segment->DateAsString(f);
+    fstr << segment->EventAsString(format);
+    fstr << segment->LocationAsString(format);
+    fstr << segment->DateAsString(format);
   }
   else
   {
     fstr << "[Event \"#\"]\n";
-    if (segment->LocationAsString(f) == "[Site \"\"]\n")
+    if (segment->LocationAsString(format) == "[Site \"\"]\n")
       fstr << "[Site \"\"]\n";
     else
       fstr << "[Site \"#\"]\n";
@@ -190,36 +190,36 @@ void writePBNBoardLevel(
   }
 
   if (writeInfo.ino == 0)
-    fstr << segment->NumberAsString(f, writeInfo.bno);
+    fstr << segment->NumberAsString(format, writeInfo.bno);
   else
     fstr << "[Board \"#\"]\n";
 
-  fstr << board->strPlayer(BRIDGE_WEST, f);
-  fstr << board->strPlayer(BRIDGE_NORTH, f);
-  fstr << board->strPlayer(BRIDGE_EAST, f);
-  fstr << board->strPlayer(BRIDGE_SOUTH, f);
+  fstr << board->strPlayer(BRIDGE_WEST, format);
+  fstr << board->strPlayer(BRIDGE_NORTH, format);
+  fstr << board->strPlayer(BRIDGE_EAST, format);
+  fstr << board->strPlayer(BRIDGE_SOUTH, format);
 
-  fstr << board->strDealer(f);
-  fstr << board->strVul(f);
-  fstr << board->strDeal(BRIDGE_WEST, f);
+  fstr << board->strDealer(format);
+  fstr << board->strVul(format);
+  fstr << board->strDeal(BRIDGE_WEST, format);
 
   if (writeInfo.bno == 0 && writeInfo.ino == 0)
-    fstr << segment->ScoringAsString(f);
+    fstr << segment->ScoringAsString(format);
   else
     fstr << "[Scoring \"#\"]\n";
 
-  fstr << board->strDeclarer(f);
-  fstr << board->strContract(f);
-  fstr << board->ResultAsString(f, false);
-  fstr << board->strAuction(f);
-  fstr << board->PlayAsString(f);
+  fstr << board->strDeclarer(format);
+  fstr << board->strContract(format);
+  fstr << board->ResultAsString(format, false);
+  fstr << board->strAuction(format);
+  fstr << board->PlayAsString(format);
 
   if (writeInfo.bno == 0 && writeInfo.ino == 0)
   {
-    fstr << segment->TitleAsString(f);
-    fstr << segment->SessionAsString(f);
-    fstr << segment->FirstTeamAsString(f);
-    fstr << segment->SecondTeamAsString(f);
+    fstr << segment->TitleAsString(format);
+    fstr << segment->SessionAsString(format);
+    fstr << segment->FirstTeamAsString(format);
+    fstr << segment->SecondTeamAsString(format);
   }
   else
   {
@@ -229,9 +229,9 @@ void writePBNBoardLevel(
     fstr << "[VisitTeam \"#\"]\n";
   }
 
-  fstr << board->strRoom(0, f);
-  fstr << board->ScoreAsString(f, segment->ScoringIsIMPs());
-  fstr << board->strTableau(f);
+  fstr << board->strRoom(0, format);
+  fstr << board->ScoreAsString(format, segment->ScoringIsIMPs());
+  fstr << board->strTableau(format);
 
   fstr << "\n";
 }

@@ -131,8 +131,8 @@ bool isRecordComment(
 void validate(
   const string& fileOut,
   const string& fileRef,
-  const formatType fOrig,
-  const formatType fRef,
+  const Format fOrig,
+  const Format fRef,
   const OptionsType& options,
   ValStats& vstats);
   // ValStatType vstats[][BRIDGE_FORMAT_LABELS_SIZE]);

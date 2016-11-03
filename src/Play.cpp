@@ -7,6 +7,9 @@
 */
 
 
+#include <iostream>
+#include <iomanip>
+#include <sstream>
 #include <map>
 #include <algorithm>
 #include <thread>
@@ -183,10 +186,10 @@ void Play::setDeclAndDenom(
 
 void Play::setContract(const Contract& contract)
 {
-  if (! contract.ContractIsSet() || contract.IsPassedOut())
+  if (! contract.isSet() || contract.isPassedOut())
     return;
 
-  Play::setDeclAndDenom(contract.GetDeclarer(), contract.GetDenom());
+  Play::setDeclAndDenom(contract.getDeclarer(), contract.getDenom());
 }
 
 

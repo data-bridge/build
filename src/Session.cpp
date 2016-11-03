@@ -75,7 +75,7 @@ void Session::reset()
 }
 
 
-StageType Session::charToType(const char c) const
+Stage Session::charToType(const char c) const
 {
   switch(c)
   {
@@ -105,7 +105,7 @@ StageType Session::charToType(const char c) const
 }
 
 
-StageType Session::stringToType(
+Stage Session::stringToType(
   const string& t,
   unsigned& rOf) const
 {
@@ -148,7 +148,7 @@ StageType Session::stringToType(
 
 void Session::setPart1(const string& t)
 {
-  StageType r;
+  Stage r;
   unsigned u;
   size_t l = t.length();
 
@@ -286,7 +286,7 @@ void Session::setPart2(const string& t)
 
 void Session::set(
   const string& t,
-  const formatType f)
+  const Format f)
 {
   size_t pos;
   string s;
@@ -538,9 +538,9 @@ string Session::asTXT() const
 }
 
 
-string Session::asString(const formatType f) const
+string Session::asString(const Format format) const
 {
-  switch(f)
+  switch(format)
   {
     case BRIDGE_FORMAT_LIN:
       return Session::asLIN();
@@ -561,7 +561,7 @@ string Session::asString(const formatType f) const
       return Session::asTXT();
 
     default:
-      THROW("No such format");
+      THROW("Invalid format: " + STR(format));
   }
 }
 

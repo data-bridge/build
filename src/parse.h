@@ -48,6 +48,10 @@ bool StringToUnsigned(
   const string& s,
   unsigned& res);
 
+bool str2unsigned(
+  const string& s,
+  unsigned& res);
+
 bool str2int(
   const string& s,
   int& res);

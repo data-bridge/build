@@ -7,6 +7,9 @@
 */
 
 
+#include <iostream>
+#include <iomanip>
+#include <sstream>
 #include <map>
 #include <regex>
 #include <thread>
@@ -676,7 +679,7 @@ bool Auction::getContract(Contract& contract) const
     return false;
 
   if (activeCNo == 0)
-    contract.SetPassedOut();
+    contract.passOut();
   else
   {
     const unsigned level = (activeCNo + 2) / 5;
@@ -699,7 +702,7 @@ bool Auction::getContract(Contract& contract) const
     if (denom != 4)
       denom = 3 - denom;
 
-    contract.SetContract(
+    contract.setContract(
       vul,
       declarer,
       level,

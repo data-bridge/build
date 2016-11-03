@@ -322,7 +322,7 @@ string Teams::str(
 
 
 string Teams::strFirst(
-  const formatType format) const
+  const Format format) const
 {
   switch(format)
   {

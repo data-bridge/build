@@ -71,8 +71,8 @@ class Deal
     bool isSet() const;
 
     void set(
-      const string& s,
-      const formatType);
+      const string& text,
+      const Format format);
 
     void getDDS(unsigned cards[][BRIDGE_SUITS]) const;
 

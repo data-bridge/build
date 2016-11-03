@@ -54,7 +54,7 @@ void Location::setWithSeparator(
 
 void Location::set(
   const string& text,
-  const formatType format)
+  const Format format)
 {
   switch(format)
   {

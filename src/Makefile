@@ -99,7 +99,7 @@ clean:
 
 # DO NOT DELETE
 
-Auction.obj: Auction.h bconst.h Contract.h parse.h portab.h Bexcept.h Bdiff.h
+Auction.obj: Auction.h bconst.h Contract.h parse.h Bexcept.h Bdiff.h
 Bexcept.obj: Bexcept.h
 Bdiff.obj: Bdiff.h
 Board.obj: bconst.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
@@ -108,46 +108,49 @@ Canvas.obj: Canvas.h
 Contract.obj: Contract.h bconst.h parse.h portab.h Bexcept.h Bdiff.h
 Date.obj: Date.h bconst.h parse.h Bexcept.h Bdiff.h
 Deal.obj: Deal.h bconst.h parse.h Bexcept.h Bdiff.h
-Files.obj: Files.h bconst.h portab.h parse.h
+Files.obj: Files.h bconst.h parse.h
 Group.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
-Group.obj: Teams.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
-Group.obj: Play.h Bdiff.h
+Group.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
+Group.obj: Contract.h Play.h Bdiff.h
 Location.obj: Location.h bconst.h Bexcept.h Bdiff.h
-Play.obj: Play.h bconst.h Contract.h Bexcept.h Bdiff.h parse.h portab.h
+Play.obj: Play.h bconst.h Contract.h parse.h Bexcept.h Bdiff.h
 Players.obj: Players.h bconst.h parse.h Bexcept.h Bdiff.h
 Scoring.obj: Scoring.h bconst.h Bexcept.h Bdiff.h
 Segment.obj: Segment.h Date.h bconst.h Location.h Session.h Scoring.h Teams.h
-Segment.obj: Board.h Deal.h Tableau.h Players.h Auction.h Contract.h Play.h
-Segment.obj: portab.h parse.h Bexcept.h Bdiff.h
+Segment.obj: Team.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
+Segment.obj: Play.h portab.h parse.h Bexcept.h Bdiff.h
 Session.obj: Session.h bconst.h parse.h Bdiff.h Bexcept.h
 Tableau.obj: Tableau.h bconst.h Contract.h parse.h Bexcept.h Bdiff.h
-Teams.obj: bconst.h Teams.h Bexcept.h Bdiff.h parse.h portab.h
-Timer.obj: Timer.h bconst.h
+Team.obj: Team.h bconst.h parse.h Bexcept.h Bdiff.h
+Teams.obj: Teams.h Team.h bconst.h parse.h Bexcept.h Bdiff.h
+Timer.obj: Timer.h
+Timers.obj: Timers.h Timer.h bconst.h
 Valuation.obj: Valuation.h
 args.obj: bconst.h args.h
 dispatch.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h
-dispatch.obj: Scoring.h Teams.h Board.h Deal.h Tableau.h Players.h Auction.h
-dispatch.obj: Contract.h Play.h dispatch.h Files.h Timer.h ValStats.h
-dispatch.obj: ValProfile.h validate.h fileLIN.h filePBN.h fileRBN.h fileTXT.h
-dispatch.obj: fileEML.h fileREC.h parse.h portab.h Bexcept.h Bdiff.h
+dispatch.obj: Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h Players.h
+dispatch.obj: Auction.h Contract.h Play.h dispatch.h Files.h Timers.h Timer.h
+dispatch.obj: ValStats.h ValProfile.h validate.h fileLIN.h filePBN.h
+dispatch.obj: fileRBN.h fileTXT.h fileEML.h fileREC.h parse.h portab.h
+dispatch.obj: Bexcept.h Bdiff.h
 fileEML.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
-fileEML.obj: Teams.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
-fileEML.obj: Play.h Canvas.h fileEML.h parse.h
+fileEML.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
+fileEML.obj: Contract.h Play.h Canvas.h fileEML.h parse.h
 filePBN.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
-filePBN.obj: Teams.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
-filePBN.obj: Play.h filePBN.h portab.h Bexcept.h
+filePBN.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
+filePBN.obj: Contract.h Play.h filePBN.h portab.h Bexcept.h
 fileRBN.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
-fileRBN.obj: Teams.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
-fileRBN.obj: Play.h Bexcept.h fileRBN.h parse.h
+fileRBN.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
+fileRBN.obj: Contract.h Play.h Bexcept.h fileRBN.h parse.h
 fileTXT.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
-fileTXT.obj: Teams.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
-fileTXT.obj: Play.h Canvas.h fileTXT.h parse.h
+fileTXT.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
+fileTXT.obj: Contract.h Play.h Canvas.h fileTXT.h parse.h
 fileLIN.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
-fileLIN.obj: Teams.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
-fileLIN.obj: Play.h fileLIN.h Bexcept.h
+fileLIN.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
+fileLIN.obj: Contract.h Play.h fileLIN.h Bexcept.h
 fileREC.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
-fileREC.obj: Teams.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
-fileREC.obj: Play.h Canvas.h fileREC.h parse.h Bexcept.h
+fileREC.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
+fileREC.obj: Contract.h Play.h Canvas.h fileREC.h parse.h Bexcept.h
 parse.obj: parse.h bconst.h portab.h
 ValProfile.obj: ValProfile.h valint.h
 ValStats.obj: ValStats.h ValProfile.h bconst.h valint.h
@@ -166,7 +169,7 @@ validateEML.obj: validate.h ValStats.h ValProfile.h bconst.h valint.h
 validateEML.obj: validateEML.h parse.h portab.h
 validateREC.obj: validate.h ValStats.h ValProfile.h bconst.h valint.h
 validateREC.obj: validateREC.h parse.h
-reader.obj: args.h dispatch.h Files.h bconst.h Timer.h ValStats.h
+reader.obj: args.h bconst.h dispatch.h Files.h Timers.h Timer.h ValStats.h
 reader.obj: ValProfile.h
-reader.obj: args.h dispatch.h Files.h bconst.h Timer.h ValStats.h
+reader.obj: args.h bconst.h dispatch.h Files.h Timers.h Timer.h ValStats.h
 reader.obj: ValProfile.h

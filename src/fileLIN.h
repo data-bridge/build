@@ -28,13 +28,13 @@ bool readLINChunk(
 void writeLINSegmentLevel(
   ofstream& fstr,
   Segment * segment,
-  const formatType f);
+  const Format format);
 
 void writeLINBoardLevel(
   ofstream& fstr,
   Segment * segment,
   Board * board,
   writeInfoType& writeInfo,
-  const formatType f);
+  const Format format);
 
 #endif

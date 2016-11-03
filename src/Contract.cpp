@@ -7,6 +7,9 @@
 */
 
 
+#include <iostream>
+#include <iomanip>
+#include <sstream>
 #include <map>
 #include <thread>
 #include <mutex>
@@ -145,23 +148,23 @@ static unsigned IMPlookup[501];
 
 static bool setContractTables = false;
 
-struct entryType
+struct Entry
 {
-  contractType contract;
+  ContractInternal contract;
   int tricksRelative;
 };
 
-static map<string, entryType> CONTRACT_STRING_TO_PARTS;
+static map<string, Entry> CONTRACT_STRING_TO_PARTS;
 
 
 Contract::Contract()
 {
-  Contract::Reset();
+  Contract::reset();
   if (! setContractTables)
   {
     mtx.lock();
     if (! setContractTables)
-      Contract::SetTables();
+      Contract::setTables();
     setContractTables = true;
     mtx.unlock();
   }
@@ -173,7 +176,7 @@ Contract::~Contract()
 }
 
 
-void Contract::Reset()
+void Contract::reset()
 {
   setContractFlag = false;
   setVulFlag = false;
@@ -181,9 +184,9 @@ void Contract::Reset()
 }
 
 
-void Contract::SetTables()
+void Contract::setTables()
 {
-  entryType e;
+  Entry e;
   for (e.contract.level = 1; e.contract.level <= 7; e.contract.level++)
   {
     stringstream s1;
@@ -257,51 +260,79 @@ void Contract::SetTables()
 }
 
 
-bool Contract::ContractIsSet() const
+bool Contract::isSet() const
 {
   return setContractFlag;
 }
 
 
-bool Contract::ResultIsSet() const
+bool Contract::hasResult() const
 {
   return setResultFlag;
 }
 
 
-bool Contract::SetPassedOut()
+void Contract::passOut()
 {
   if (setContractFlag)
-    return (contract.level == 0);
-  else
   {
-    setContractFlag = true;
-    contract.level = 0;
+    if (contract.level != 0)
+      THROW("Contract already set");
+    return;
+  }
+
+  setContractFlag = true;
+  contract.level = 0;
+  setResultFlag = true;
+  tricksRelative = 0;
+  score = 0;
+}
+
+
+void Contract::setContractByString(const string& text)
+{
+  if (text == "P" || text == "Pass")
+  {
+    Contract::passOut();
+    return;
+  }
+
+  auto it = CONTRACT_STRING_TO_PARTS.find(text);
+  if (it == CONTRACT_STRING_TO_PARTS.end())
+    THROW("Invalid string: '" + text + "'");
+
+  setContractFlag = true;
+  Entry entry = it->second;
+  contract = entry.contract;
+  if (entry.tricksRelative != 7)
+  {
     setResultFlag = true;
-    tricksRelative = 0;
-    score = 0;
-    return true;
+    tricksRelative = entry.tricksRelative;
+    Contract::calculateScore();
   }
 }
 
 
-bool Contract::SetContract(
-  const vulType vulIn,
-  const playerType declarer,
+void Contract::setContract(
+  const Vul vulIn,
+  const Player declarer,
   const unsigned level,
-  const denomType denom,
-  const multiplierType mult)
+  const Denom denom,
+  const Multiplier mult)
 {
   if (setContractFlag)
   {
     if (contract.level == 0)
-      return (contract.level == level);
-    else
-      return (vul == vulIn &&
-        contract.declarer == declarer &&
-        contract.level == level &&
-	contract.denom == denom &&
-	contract.mult == mult);
+    {
+      if (contract.level != level)
+        THROW("Contract already passed out");
+    }
+    else if (vul != vulIn ||
+        contract.declarer != declarer ||
+        contract.level != level ||
+	contract.denom != denom ||
+	contract.mult != mult)
+      THROW("Contract already set differently");
   }
   else if (level == 0)
     THROW("level must be > 0");
@@ -314,57 +345,64 @@ bool Contract::SetContract(
     contract.level = level;
     contract.denom = denom;
     contract.mult = mult;
-    return true;
   }
 }
 
 
-bool Contract::SetContract(
-  const vulType vulIn,
+void Contract::setContract(
+  const Vul vulIn,
   const string& cstring)
 {
-  if (! Contract::SetContract(cstring))
-    return false;
-
+  Contract::setContractByString(cstring);
   setVulFlag = true;
   vul = vulIn;
-  return true;
 }
 
 
-bool Contract::SetContract(const string& text)
-{
-  if (text == "P" || text == "Pass")
-    return Contract::SetPassedOut();
-
-  auto it = CONTRACT_STRING_TO_PARTS.find(text);
-  if (it == CONTRACT_STRING_TO_PARTS.end())
-  {
-    THROW("Invalid string: '" + text + "'");
-  }
-  else
-  {
-    setContractFlag = true;
-    entryType entry = CONTRACT_STRING_TO_PARTS[text];
-    contract = entry.contract;
-    if (entry.tricksRelative != 7)
-    {
-      setResultFlag = true;
-      tricksRelative = entry.tricksRelative;
-      Contract::CalculateScore();
-    }
-
-    return true;
-  }
-}
-
-
-bool Contract::SetContract(
-  const string& text,
-  const formatType f)
+void Contract::setContractTXT(const string& text)
 {
   string mod, wd;
-  switch(f)
+  if (text.find(" ") == string::npos)
+  {
+    Contract::setContractByString(text);
+    return;
+  }
+
+  if (! ReadNextWord(text, 0, mod))
+  {
+    Contract::setContractByString(text);
+    return;
+  }
+
+  if (! ReadLastWord(text, wd))
+  {
+    Contract::setContractByString(text);
+    return;
+  }
+
+  if (wd == "North")
+    mod += "N";
+  else if (wd == "East")
+    mod += "E";
+  else if (wd == "South")
+    mod += "S";
+  else if (wd == "West")
+    mod += "W";
+  else 
+  {
+    Contract::setContractByString(text);
+    return;
+  }
+
+  Contract::setContractByString(mod);
+}
+
+
+void Contract::setContract(
+  const string& text,
+  const Format format)
+{
+  switch(format)
   {
     case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_PBN:
@@ -372,58 +410,28 @@ bool Contract::SetContract(
     case BRIDGE_FORMAT_RBX:
     case BRIDGE_FORMAT_EML:
     case BRIDGE_FORMAT_REC:
-      return Contract::SetContract(text);
+      Contract::setContractByString(text);
+      break;
 
     case BRIDGE_FORMAT_TXT:
-      if (text.find(" ") == string::npos)
-        return Contract::SetContract(text);
-
-      if (! ReadNextWord(text, 0, mod))
-        return Contract::SetContract(text);
-
-      if (! ReadLastWord(text, wd))
-        return Contract::SetContract(text);
-
-      if (wd == "North")
-        mod += "N";
-      else if (wd == "East")
-        mod += "E";
-      else if (wd == "South")
-        mod += "S";
-      else if (wd == "West")
-        mod += "W";
-      else 
-        return Contract::SetContract(text);
-
-      return Contract::SetContract(mod);
+      Contract::setContractTXT(text);
+      break;
 
     default:
-      THROW("Other score formats not implemented");
+      THROW("Invalid format: " + STR(format));
   }
 }
 
 
-bool Contract::SetDeclarer(
-  const string& d,
-  const formatType f)
+void Contract::setDeclarer(const string& text)
 {
-  UNUSED(f);
-  if (d == "N")
-    contract.declarer = BRIDGE_NORTH;
-  else if (d == "E")
-    contract.declarer = BRIDGE_EAST;
-  else if (d == "S")
-    contract.declarer = BRIDGE_SOUTH;
-  else if (d == "W")
-    contract.declarer = BRIDGE_WEST;
-  else
+  contract.declarer = str2player(text);
+  if (contract.declarer == BRIDGE_PLAYER_SIZE)
     THROW("Invalid declarer");
-
-  return true;
 }
 
 
-void Contract::SetVul(const Vul v)
+void Contract::setVul(const Vul v)
 {
   if (setVulFlag && vul != v)
     THROW("Vulnerability already set differently");
@@ -433,27 +441,37 @@ void Contract::SetVul(const Vul v)
 }
 
 
-bool Contract::SetTricks(
-  const unsigned tricksIn)
+bool Contract::isPassedOut() const
+{
+  if (setResultFlag)
+    return (contract.level == 0);
+  else
+    return false;
+}
+
+
+void Contract::setTricks(const unsigned tricksIn)
 {
   int trel = static_cast<int>(tricksIn) -
     static_cast<int>(contract.level + 6);
 
   if (setResultFlag)
-    return (tricksRelative == trel);
+  {
+    if (tricksRelative != trel)
+      THROW("Tricks already set differently");
+  }
   else if (! setContractFlag)
     THROW("Cannot set tricks before a contract is entered");
   else
   {
     setResultFlag = true;
     tricksRelative = trel;
-    Contract::CalculateScore();
-    return true;
+    Contract::calculateScore();
   }
 }
 
 
-unsigned Contract::GetTricks() const
+unsigned Contract::getTricks() const
 {
   // No checking.
   return static_cast<unsigned>
@@ -461,12 +479,101 @@ unsigned Contract::GetTricks() const
 }
 
 
-bool Contract::setScore(
+void Contract::textToTricks(const string& text)
+{
+  unsigned u;
+  if (! str2unsigned(text, u))
+    THROW("Not an unsigned result: " + text);
+  Contract::setTricks(u);
+}
+
+
+void Contract::setResultTXT(const string& text)
+{
+  unsigned u;
+  string wd1, wd2;
+
+  if (! ReadNextWord(text, 0, wd1))
+    THROW("No first word");
+
+  if (! ReadNextWord(text, 5, wd2))
+    THROW("No second word");
+
+  if (! str2upos(wd2, u))
+    THROW("Second word is not a valid number");
+
+  if (wd1 == "Down")
+    u = static_cast<unsigned>(static_cast<int>(contract.level + 6 - u));
+  else if (wd1 == "Made")
+    u += 6;
+  else
+    THROW("First word is invalid");
+
+  Contract::setTricks(u);
+}
+
+
+void Contract::setResultEML(const string& text)
+{
+  int i;
+  unsigned u;
+
+  if (! str2int(text, i))
+    THROW("Not an integer result");
+
+  if (i > 0)
+    u = static_cast<unsigned>(i + 6); // Possible Pavlicek error?
+  else
+    u = static_cast<unsigned>(i + static_cast<int>(contract.level + 6));
+
+  Contract::setTricks(u);
+}
+
+
+void Contract::setResult(
   const string& text,
-  const Format f)
+  const Format format)
+{
+  switch(format)
+  {
+    case BRIDGE_FORMAT_LIN:
+    case BRIDGE_FORMAT_PBN:
+      Contract::textToTricks(text);
+      break;
+
+    case BRIDGE_FORMAT_RBN:
+    case BRIDGE_FORMAT_RBX:
+      if ((text == "P" || text.substr(0, 2) == "P:"))
+      {
+        if (! Contract::isPassedOut())
+          THROW("Contract is not passed out");
+        break;
+      }
+
+      Contract::textToTricks(text);
+      break;
+      
+    case BRIDGE_FORMAT_TXT:
+    case BRIDGE_FORMAT_REC:
+      Contract::setResultTXT(text);
+      break;
+
+    case BRIDGE_FORMAT_EML:
+      Contract::setResultEML(text);
+      break;
+
+    default:
+      THROW("Invalid format: " + STR(format));
+  }
+}
+
+
+void Contract::setScore(
+  const string& text,
+  const Format format)
 {
   int s;
-  if (f == BRIDGE_FORMAT_PBN)
+  if (format == BRIDGE_FORMAT_PBN)
   {
     // Recognize "NS 50" and "EW 50".
     string pp = text.substr(0, 3);
@@ -483,7 +590,7 @@ bool Contract::setScore(
         THROW("Invalid score");
 
       score = sign * s;
-      return true;
+      return;
     }
   }
 
@@ -491,64 +598,10 @@ bool Contract::setScore(
     THROW("Invalid score");
 
   score = s;
-  return true;
 }
 
 
-bool Contract::SetResult(
-  const string& text,
-  const formatType f)
-{
-  // Maybe the usual switch.
-  //
-  unsigned u;
-
-  if (f == BRIDGE_FORMAT_EML)
-  {
-    int i;
-    if (! str2int(text, i))
-      THROW("Not an integer result");
-
-    if (i > 0)
-      u = static_cast<unsigned>(i + 6); // Possible Pavlicek error?
-    else
-      u = static_cast<unsigned>(i + static_cast<int>(contract.level + 6));
-  }
-  else if (f == BRIDGE_FORMAT_TXT ||
-      f == BRIDGE_FORMAT_REC)
-  {
-    // Ignore everything but the number of tricks.
-    string wd1, wd2;
-    if (! ReadNextWord(text, 0, wd1))
-      return false;
-
-    if (! ReadNextWord(text, 5, wd2))
-      return false;
-
-    if (! StringToNonzeroUnsigned(wd2, u))
-      return false;
-
-    if (wd1 == "Down")
-      u = static_cast<unsigned>( static_cast<int>(contract.level + 6 - u));
-    else if (wd1 == "Made")
-      u += 6;
-    else
-      return false;
-      
-  }
-  else if ((f == BRIDGE_FORMAT_RBN || f == BRIDGE_FORMAT_RBX) && 
-      (text == "P" || text.substr(0, 2) == "P:"))
-  {
-    return Contract::IsPassedOut();
-  }
-  else if (! StringToUnsigned(text, u))
-    THROW("Not an unsigned result: " + text);
-
-  return Contract::SetTricks(u);
-}
-
-
-void Contract::CalculateScore()
+void Contract::calculateScore()
 {
   if (! setContractFlag)
     return;
@@ -604,22 +657,29 @@ void Contract::CalculateScore()
 }
 
 
-bool Contract::IsPassedOut() const
+Player Contract::getDeclarer() const
 {
-  if (setResultFlag)
-    return (contract.level == 0);
-  else
-    return false;
+  if (! setContractFlag || contract.level == 0)
+    return BRIDGE_NORTH_SOUTH; // Error
+  return contract.declarer;
 }
 
 
-int Contract::GetScore() const
+Denom Contract::getDenom() const
+{
+  if (! setContractFlag || contract.level == 0)
+    return BRIDGE_NOTRUMP; // Not recognizable as error!
+  return contract.denom;
+}
+
+
+int Contract::getScore() const
 {
   return score;
 }
 
 
-int Contract::ConvertDiffToIMPs(const int d) const
+int Contract::diffToIMPs(const int d) const
 {
   int v, sign;
   if (d < 0)
@@ -686,23 +746,7 @@ bool Contract::operator != (const Contract& c2) const
 }
 
 
-playerType Contract::GetDeclarer() const
-{
-  if (! setContractFlag || contract.level == 0)
-    return BRIDGE_NORTH_SOUTH; // Error
-  return contract.declarer;
-}
-
-
-denomType Contract::GetDenom() const
-{
-  if (! setContractFlag || contract.level == 0)
-    return BRIDGE_NOTRUMP; // Not recognizable as error!
-  return contract.denom;
-}
-
-
-string Contract::AsLIN() const
+string Contract::strLIN() const
 {
   if (! setContractFlag)
     return "";
@@ -710,21 +754,21 @@ string Contract::AsLIN() const
   if (contract.level == 0)
     return "P";
 
-  stringstream s;
-  s << 
+  stringstream ss;
+  ss << 
     contract.level <<
     DENOM_NAMES_SHORT[contract.denom] <<
     PLAYER_NAMES_SHORT[contract.declarer] << 
     MULT_NUM_TO_LIN_TAG[contract.mult];
 
   if (setResultFlag)
-    s << LEVEL_SHIFT_TO_TAG[tricksRelative + 13];
+    ss << LEVEL_SHIFT_TO_TAG[tricksRelative + 13];
 
-  return s.str();
+  return ss.str();
 }
 
 
-string Contract::AsPBN() const
+string Contract::strPBN() const
 {
   if (! setContractFlag)
     return "";
@@ -732,18 +776,18 @@ string Contract::AsPBN() const
   if (contract.level == 0)
     return "[Contract \"Pass\"]\n";
 
-  stringstream s;
-  s << "[Contract \"" <<
+  stringstream ss;
+  ss << "[Contract \"" <<
     contract.level <<
     DENOM_NAMES_SHORT_PBN[contract.denom] <<
     MULT_NUM_TO_PBN_TAG[contract.mult] <<
     "\"]\n";
 
-  return s.str();
+  return ss.str();
 }
 
 
-string Contract::AsRBNCore() const
+string Contract::strRBNCore() const
 {
   if (! setContractFlag)
     return "";
@@ -763,25 +807,25 @@ string Contract::AsRBNCore() const
 }
 
 
-string Contract::AsRBN() const
+string Contract::strRBN() const
 {
-  const string s = Contract::AsRBNCore();
-  if (s == "")
+  const string st = Contract::strRBNCore();
+  if (st == "")
     return "";
-  return "C " + s + "\n";
+  return "C " + st + "\n";
 }
 
 
-string Contract::AsRBX() const
+string Contract::strRBX() const
 {
-  const string s = Contract::AsRBNCore();
-  if (s == "")
+  const string st = Contract::strRBNCore();
+  if (st == "")
     return "";
-  return "C{" + s + "}";
+  return "C{" + st + "}";
 }
 
 
-string Contract::AsTXT() const
+string Contract::strTXT() const
 {
   if (! setContractFlag)
     return "";
@@ -789,17 +833,17 @@ string Contract::AsTXT() const
   if (contract.level == 0)
     return "";
 
-  stringstream s;
-  s << contract.level << 
+  stringstream ss;
+  ss << contract.level << 
     DENOM_NAMES_SHORT_PBN[contract.denom] << 
     MULT_NUM_TO_LIN_TAG[contract.mult] << " " <<
     PLAYER_NAMES_LONG[contract.declarer] << "\n";
 
-  return s.str();
+  return ss.str();
 }
 
 
-string Contract::AsPar() const
+string Contract::strPar() const
 {
   if (! setContractFlag || ! setResultFlag)
     return "";
@@ -807,8 +851,8 @@ string Contract::AsPar() const
   if (contract.level == 0)
     return "pass";
 
-  stringstream s;
-  s << 
+  stringstream ss;
+  ss << 
     contract.level <<
     DENOM_NAMES_SHORT[contract.denom] <<
     MULT_NUM_TO_PAR_TAG[contract.mult] << 
@@ -816,462 +860,422 @@ string Contract::AsPar() const
     PLAYER_NAMES_SHORT[contract.declarer] << 
     LEVEL_SHIFT_TO_TAG[tricksRelative + 13];
 
-  return s.str();
+  return ss.str();
 }
 
 
-string Contract::AsString(const formatType f) const
+string Contract::str(const Format format) const
 {
-  switch(f)
+  switch(format)
   {
     case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_LIN_RP:
     case BRIDGE_FORMAT_LIN_VG:
     case BRIDGE_FORMAT_LIN_TRN:
-      return Contract::AsLIN();
+      return Contract::strLIN();
 
     case BRIDGE_FORMAT_PBN:
-      return Contract::AsPBN();
+      return Contract::strPBN();
 
     case BRIDGE_FORMAT_RBN:
-      return Contract::AsRBN();
+      return Contract::strRBN();
 
     case BRIDGE_FORMAT_RBX:
-      return Contract::AsRBX();
+      return Contract::strRBX();
 
     case BRIDGE_FORMAT_TXT:
-      return Contract::AsTXT();
+      return Contract::strTXT();
 
     case BRIDGE_FORMAT_PAR:
-      return Contract::AsPar();
+      return Contract::strPar();
 
-    case BRIDGE_FORMAT_SIZE:
     default:
-      return "";
+      THROW("Invalid format: " + STR(format));
   }
 }
 
 
-string Contract::DeclarerAsPBN() const
+string Contract::strDeclarer(const Format format) const
 {
-  if (! setResultFlag)
-    return "";
-  else if (contract.level == 0)
-    return "[Declarer \"\"]\n";
-
-  stringstream s;
-  s << 
-    "[Declarer \"" << 
-    PLAYER_NAMES_SHORT[contract.declarer] << 
-    "\"]\n";
-  
-  return s.str();
-}
-
-
-string Contract::DeclarerAsString(const formatType f) const
-{
-  switch(f)
+  switch(format)
   {
     case BRIDGE_FORMAT_PBN:
-      return Contract::DeclarerAsPBN();
+      if (! setResultFlag)
+        return "";
+      else if (contract.level == 0)
+        return "[Declarer \"\"]\n";
+
+      return "[Declarer \"" + 
+          PLAYER_NAMES_SHORT[contract.declarer] + "\"]\n";
 
     default:
-      THROW("Other declarer formats not implemented");
+      THROW("Invalid format: " + STR(format));
   }
 }
 
 
-string Contract::VulAsRBN() const
-{
-  return VUL_RBN_TAG[vul];
-}
-
-
-string Contract::VulAsString(const formatType f) const
+string Contract::strVul(const Format format) const
 {
   if (! setVulFlag)
-    THROW("Vulnerability not yet");
+    THROW("Vulnerability not set");
 
-  switch(f)
+  switch(format)
   {
     case BRIDGE_FORMAT_RBN:
     case BRIDGE_FORMAT_RBX:
-      return Contract::VulAsRBN();
+      return VUL_RBN_TAG[vul];
 
     default:
-      THROW("Other vulnerability formats not implemented");
+      THROW("Invalid format: " + STR(format));
   }
 }
 
 
-string Contract::TricksAsPBN() const
+string Contract::strTricks(const Format format) const
 {
-  if (! setResultFlag || contract.level == 0)
-    return "";
-
-  stringstream s;
-  s << "[Result \"" << Contract::GetTricks() << "\"]\n";
-  
-  return s.str();
-}
-
-
-string Contract::TricksAsString(const formatType f) const
-{
-  switch(f)
+  switch(format)
   {
     case BRIDGE_FORMAT_PBN:
-      return Contract::TricksAsPBN();
+      if (! setResultFlag || contract.level == 0)
+        return "";
+      else
+        return "[Result \"" + STR(Contract::getTricks()) + "\"]\n";
 
     default:
-      THROW("Other tricks formats not implemented");
+      THROW("Invalid format: " + STR(format));
   }
 }
 
 
-string Contract::ScoreAsPBN() const
+string Contract::strScorePBN() const
 {
   if (! setResultFlag || score == 0)
     return "";
 
-  stringstream s;
   if (score > 0)
-    s << "[Score \"NS " << score << "\"]\n";
+    return "[Score \"NS " + STR(score) + "\"]\n";
   else
-    s << "[Score \"EW " << -score << "\"]\n";
-  
-  return s.str();
+    return "[Score \"EW " + STR(-score) + "\"]\n";
 }
 
 
-string Contract::ScoreAsPBN(const int refScore) const
+string Contract::strScorePBN(const int refScore) const
 {
-  stringstream s;
-  s << Contract::ScoreAsPBN();
+  stringstream ss;
+  ss << Contract::strScorePBN();
 
-  int IMPs = Contract::ConvertDiffToIMPs(score - refScore);
+  int IMPs = Contract::diffToIMPs(score - refScore);
   if (IMPs > 0)
-    s << "[ScoreIMP \"NS " << IMPs << "\"]\n";
+    ss << "[ScoreIMP \"NS " << IMPs << "\"]\n";
   else if (IMPs == 0)
-    s << "[ScoreIMP \"0\"]\n";
+    ss << "[ScoreIMP \"0\"]\n";
   else
-    s << "[ScoreIMP \"EW " << -IMPs << "\"]\n";
+    ss << "[ScoreIMP \"EW " << -IMPs << "\"]\n";
   
-  return s.str();
+  return ss.str();
 }
 
 
-string Contract::ScoreAsEML() const
+string Contract::strScoreREC() const
 {
-  stringstream s;
-  s << "Score: " << score << ",  IMPs:";
-  return s.str();
+  stringstream ss;
+  ss << "Score: " << setw(13) << left << showpos << score;
+  return ss.str();
 }
 
 
-string Contract::ScoreAsEML(const int refScore) const
+string Contract::strScoreEML() const
 {
-  stringstream s;
-  s << Contract::ScoreAsEML();
-
-  int IMPs = Contract::ConvertDiffToIMPs(score - refScore);
-  s << setw(7) << setprecision(2) << fixed << static_cast<double>(IMPs);
-  return s.str();
+  return "Score: " + STR(score) + ",  IMPs:";
 }
 
 
-string Contract::ScoreAsREC() const
+string Contract::strScoreEML(const int refScore) const
 {
-  stringstream s;
-  s << "Score: " << setw(13) << left << showpos << score;
-  return s.str();
+  stringstream ss;
+  ss << Contract::strScoreEML();
+
+  int IMPs = Contract::diffToIMPs(score - refScore);
+  ss << setw(7) << setprecision(2) << fixed << static_cast<double>(IMPs);
+  return ss.str();
 }
 
 
-string Contract::ScoreAsTXT() const
+string Contract::strScoreTXT() const
 {
   if (! setContractFlag || ! setResultFlag)
     return "";
 
-  stringstream s;
-  s << "Score   : " << score << "\n";
-  return s.str();
+  return "Score   : " + STR(score) + "\n";
 }
 
 
-string Contract::ScoreAsString(const formatType f) const
+string Contract::strScore(const Format format) const
 {
-  switch(f)
+  switch(format)
   {
     case BRIDGE_FORMAT_PBN:
-      return Contract::ScoreAsPBN();
-
-    case BRIDGE_FORMAT_EML:
-      return Contract::ScoreAsEML();
+      return Contract::strScorePBN();
 
     case BRIDGE_FORMAT_TXT:
-      return Contract::ScoreAsTXT();
-
-    case BRIDGE_FORMAT_REC:
-      return Contract::ScoreAsREC();
-
-    default:
-      THROW("Other score formats not implemented");
-  }
-}
-
-
-string Contract::ScoreIMPAsREC(const int refScore) const
-{
-  stringstream s;
-  s << "Points:";
-  int IMPs = Contract::ConvertDiffToIMPs(score - refScore);
-  if (IMPs == 0)
-    s << setw(7) << right << "=";
-  else
-    s << setw(7) << right << showpos << IMPs;
-  return s.str(); 
-}
-
-
-string Contract::ScoreIMPAsString(
-  const formatType f,
-  const int refScore) const
-{
-  switch(f)
-  {
-    case BRIDGE_FORMAT_REC:
-      return Contract::ScoreIMPAsREC(refScore);
-
-    default:
-      THROW("Other score formats not implemented");
-  }
-}
-
-
-int Contract::ScoreIMPAsInt(const int refScore) const
-{
-  return Contract::ConvertDiffToIMPs(score - refScore);
-}
-
-
-string Contract::ScoreAsString(
-  const formatType f,
-  const int refScore) const
-{
-  switch(f)
-  {
-    case BRIDGE_FORMAT_PBN:
-      return Contract::ScoreAsPBN(refScore);
+      return Contract::strScoreTXT();
 
     case BRIDGE_FORMAT_EML:
-      return Contract::ScoreAsEML(refScore);
+      return Contract::strScoreEML();
+
+    case BRIDGE_FORMAT_REC:
+      return Contract::strScoreREC();
 
     default:
-      THROW("Other score formats not implemented");
+      THROW("Invalid format: " + STR(format));
   }
 }
 
 
-string Contract::ResultAsStringPBN() const
+string Contract::strScore(
+  const Format format,
+  const int refScore) const
 {
-  stringstream s;
-  if (Contract::IsPassedOut())
-    s << "[Result \"\"]\n";
-  else
-    s << "[Result \"" << Contract::GetTricks() << "\"]\n";
+  switch(format)
+  {
+    case BRIDGE_FORMAT_PBN:
+      return Contract::strScorePBN(refScore);
 
-  return s.str();
+    case BRIDGE_FORMAT_EML:
+      return Contract::strScoreEML(refScore);
+
+    default:
+      THROW("Invalid format: " + STR(format));
+  }
 }
 
 
-string Contract::ResultAsStringRBNCore() const
+string Contract::strScoreIMP(
+  const Format format,
+  const int refScore) const
 {
-  stringstream s;
-  if (Contract::IsPassedOut())
+  stringstream ss;
+  int IMPs;
+  switch(format)
+  {
+    case BRIDGE_FORMAT_REC:
+      ss << "Points:";
+      IMPs = Contract::diffToIMPs(score - refScore);
+      if (IMPs == 0)
+        ss << setw(7) << right << "=";
+      else
+        ss << setw(7) << right << showpos << IMPs;
+      return ss.str(); 
+
+    default:
+      THROW("Invalid format: " + STR(format));
+  }
+}
+
+
+string Contract::strResultPBN() const
+{
+  stringstream ss;
+  if (Contract::isPassedOut())
+    ss << "[Result \"\"]\n";
+  else
+    ss << "[Result \"" << Contract::getTricks() << "\"]\n";
+
+  return ss.str();
+}
+
+
+string Contract::strResultRBNCore() const
+{
+  stringstream ss;
+  if (Contract::isPassedOut())
     return "P";
 
-  s << Contract::GetTricks();
+  ss << Contract::getTricks();
   if (score > 0)
-    s << "+";
-  s << score;
-  return s.str();
+    ss << "+";
+  ss << score;
+  return ss.str();
 }
 
 
-string Contract::ResultAsStringRBN() const
+string Contract::strResultRBNCore(const int refScore) const
 {
-  return "R " + Contract::ResultAsStringRBNCore();
-}
-
-
-string Contract::ResultAsStringRBX() const
-{
-  return "R{" + Contract::ResultAsStringRBNCore() + "}";
-}
-
-
-string Contract::ResultAsStringRBNCore(const int refScore) const
-{
-  stringstream s;
-  s << Contract::ResultAsStringRBNCore() << ":";
-  int IMPs = Contract::ConvertDiffToIMPs(score - refScore);
+  stringstream ss;
+  ss << Contract::strResultRBNCore() << ":";
+  int IMPs = Contract::diffToIMPs(score - refScore);
   if (IMPs > 0)
-    s << "+" << IMPs;
+    ss << "+" << IMPs;
   else if (IMPs == 0)
-    s << "=";
+    ss << "=";
   else
-    s << IMPs;
-  return s.str();
+    ss << IMPs;
+  return ss.str();
 }
 
 
-string Contract::ResultAsStringRBN(const int refScore) const
+string Contract::strResultRBN() const
 {
-  return "R " + Contract::ResultAsStringRBNCore(refScore) + "\n";
+  return "R " + Contract::strResultRBNCore();
 }
 
 
-string Contract::ResultAsStringRBX(const int refScore) const
+string Contract::strResultRBN(const int refScore) const
 {
-  return "R{" + Contract::ResultAsStringRBNCore(refScore) + "}";
+  return "R " + Contract::strResultRBNCore(refScore) + "\n";
 }
 
 
-string Contract::ResultAsStringEML() const
+string Contract::strResultRBX() const
 {
-  stringstream s;
-  // Pavlicek bug?
-  if (tricksRelative < 0)
-    s << "Result: " << tricksRelative;
-  else
-    s << "Result: +" << 
-      static_cast<int>(contract.level) + tricksRelative;
-  return s.str();
+  return "R{" + Contract::strResultRBNCore() + "}";
 }
 
 
-string Contract::ResultAsStringTXT() const
+string Contract::strResultRBX(const int refScore) const
+{
+  return "R{" + Contract::strResultRBNCore(refScore) + "}";
+}
+
+
+string Contract::strResultTXT() const
 {
   if (contract.level == 0)
     return "Passed out";
 
-  stringstream s;
+  stringstream ss;
   if (tricksRelative < 0)
-    s << "Down " << -tricksRelative << " -- ";
+    ss << "Down " << -tricksRelative << " -- ";
   else
-    s << "Made " << 
+    ss << "Made " << 
       static_cast<int>(contract.level) + tricksRelative << " -- ";
 
   if (score > 0)
-    s << "NS +" << score;
+    ss << "NS +" << score;
   else
-    s << "EW +" << -score;
-  return s.str();
+    ss << "EW +" << -score;
+  return ss.str();
 }
 
 
-string Contract::ResultAsStringTXT(
+string Contract::strResultTXT(
   const int refScore,
   const string& team) const
 {
-  stringstream s;
-  s << Contract::ResultAsStringTXT();
+  stringstream ss;
+  ss << Contract::strResultTXT();
 
-  int IMPs = Contract::ConvertDiffToIMPs(score - refScore);
+  int IMPs = Contract::diffToIMPs(score - refScore);
   if (IMPs == 0)
-    s << " -- Tie";
+    ss << " -- Tie";
   else if (IMPs > 0)
-    s << " -- " << team << " +" << IMPs << " IMP";
+    ss << " -- " << team << " +" << IMPs << " IMP";
   else
-    s << " -- " << team << " +" << -IMPs << " IMP";
+    ss << " -- " << team << " +" << -IMPs << " IMP";
 
   if (IMPs != 0 && IMPs != 1 && IMPs != -1)
-    s << "s";
-  return s.str() + "\n";
+    ss << "s";
+  return ss.str() + "\n";
 }
 
 
-string Contract::ResultAsStringREC() const
+string Contract::strResultEML() const
 {
-  stringstream s;
+  stringstream ss;
+  // Pavlicek bug?
   if (tricksRelative < 0)
-    s << "Result: Down " << -tricksRelative;
+    ss << "Result: " << tricksRelative;
   else
-    s << "Result: Made " << 
-      static_cast<int>(contract.level) + tricksRelative;
-  return s.str();
+    ss << "Result: +" << static_cast<int>(contract.level) + tricksRelative;
+  return ss.str();
 }
 
 
-string Contract::ResultAsString(const formatType f) const
+string Contract::strResultREC() const
+{
+  stringstream ss;
+  if (tricksRelative < 0)
+    ss << "Result: Down " << -tricksRelative;
+  else
+    ss << "Result: Made " << 
+      static_cast<int>(contract.level) + tricksRelative;
+  return ss.str();
+}
+
+
+string Contract::strResult(const Format format) const
 {
   if (! setResultFlag)
     return "";
 
-  switch(f)
+  switch(format)
   {
     case BRIDGE_FORMAT_PBN:
-      return Contract::ResultAsStringPBN();
+      return Contract::strResultPBN();
 
     case BRIDGE_FORMAT_RBN:
-      return Contract::ResultAsStringRBN() + "\n";
+      return Contract::strResultRBN() + "\n";
 
     case BRIDGE_FORMAT_RBX:
-      return Contract::ResultAsStringRBX();
-
-    case BRIDGE_FORMAT_EML:
-      return Contract::ResultAsStringEML();
+      return Contract::strResultRBX();
 
     case BRIDGE_FORMAT_TXT:
-      return Contract::ResultAsStringTXT() + "\n";
+      return Contract::strResultTXT() + "\n";
+
+    case BRIDGE_FORMAT_EML:
+      return Contract::strResultEML();
 
     case BRIDGE_FORMAT_REC:
-      return Contract::ResultAsStringREC();
+      return Contract::strResultREC();
 
     default:
-      THROW("Other score formats not implemented");
+      THROW("Invalid format: " + STR(format));
   }
 }
 
 
-string Contract::ResultAsString(
-  const formatType f,
+string Contract::strResult(
+  const Format format,
   const int refScore) const
 {
   if (! setResultFlag)
     return "";
 
-  switch(f)
+  switch(format)
   {
     case BRIDGE_FORMAT_RBN:
-      return Contract::ResultAsStringRBN(refScore);
+      return Contract::strResultRBN(refScore);
 
     case BRIDGE_FORMAT_RBX:
-      return Contract::ResultAsStringRBX(refScore);
+      return Contract::strResultRBX(refScore);
 
     default:
-      THROW("Other score formats not implemented");
+      THROW("Invalid format: " + STR(format));
   }
 }
 
 
-string Contract::ResultAsString(
-  const formatType f,
+string Contract::strResult(
+  const Format format,
   const int refScore,
   const string& team) const
 {
   if (! setResultFlag)
     return "";
 
-  switch(f)
+  switch(format)
   {
     case BRIDGE_FORMAT_TXT:
-      return Contract::ResultAsStringTXT(refScore, team);
+      return Contract::strResultTXT(refScore, team);
 
     default:
-      THROW("Other score formats not implemented");
+      THROW("Invalid format: " + STR(format));
   }
+}
+
+
+int Contract::IMPScore(const int refScore) const
+{
+  return Contract::diffToIMPs(score - refScore);
 }
 

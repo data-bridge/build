@@ -119,7 +119,7 @@ void Files::list2map(
 }
 
 
-formatType Files::guessLINFormat(const string& base) const
+Format Files::guessLINFormat(const string& base) const
 {
  // Guess the specific LIN output dialect from the filename.
 

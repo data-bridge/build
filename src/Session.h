@@ -11,6 +11,7 @@
 #define BRIDGE_SESSION_H
 
 #include <string>
+
 #include "bconst.h"
 
 using namespace std;
@@ -18,7 +19,7 @@ using namespace std;
 
 // Private to Session, but needs to be here...
 
-enum StageType
+enum Stage
 {
   BRIDGE_SESSION_FINAL = 0,
   BRIDGE_SESSION_PLAYOFF = 1,
@@ -35,7 +36,7 @@ class Session
   private:
 
     string general1;
-    StageType stage;
+    Stage stage;
     unsigned roundOf;
     string extension;
 
@@ -43,9 +44,9 @@ class Session
     unsigned sessionNo;
     string sessExt;
 
-    StageType charToType(const char c) const;
+    Stage charToType(const char c) const;
 
-    StageType stringToType(
+    Stage stringToType(
       const string& t,
       unsigned& rOf) const;
 
@@ -70,16 +71,16 @@ class Session
     void reset();
 
     void set(
-      const string& t,
-      const formatType f);
+      const string& text,
+      const Format format);
 
     bool isRBNPart(const string& t) const;
 
-    bool operator == (const Session& s2) const;
+    bool operator == (const Session& session2) const;
 
-    bool operator != (const Session& s2) const;
+    bool operator != (const Session& session2) const;
 
-    string asString(const formatType f) const;
+    string asString(const Format format) const;
 };
 
 #endif

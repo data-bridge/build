@@ -10,23 +10,19 @@
 #ifndef BRIDGE_CONTRACT_H
 #define BRIDGE_CONTRACT_H
 
-#include <iostream>
-#include <iomanip>
 #include <string>
-#include <sstream>
-#include <list>
-
-using namespace std;
 
 #include "bconst.h"
 
+using namespace std;
 
-struct contractType
+
+struct ContractInternal
 {
-  playerType declarer;
+  Player declarer;
   unsigned level;
-  denomType denom;
-  multiplierType mult;
+  Denom denom;
+  Multiplier mult;
 };
 
 
@@ -39,50 +35,51 @@ class Contract
     bool setResultFlag;
 
     vulType vul;
-    contractType contract;
+    ContractInternal contract;
     int tricksRelative;
     int score;
 
-    void SetTables();
+    void setTables();
 
-    int ConvertDiffToIMPs(const int d) const;
+    void setContractByString(const string& text);
 
-    string DeclarerAsPBN() const;
+    void setContractTXT(const string& text);
 
-    string VulAsRBN() const;
+    void textToTricks(const string& text);
 
-    string TricksAsPBN() const;
+    int diffToIMPs(const int d) const;
 
-    string ScoreAsPBN() const;
-    string ScoreAsPBN(const int refScore) const;
-    string ScoreAsEML() const;
-    string ScoreAsEML(const int refScore) const;
-    string ScoreAsTXT() const;
-    string ScoreAsREC() const;
+    void setResultTXT(const string& text);
+    void setResultEML(const string& text);
 
-    string ResultAsStringPBN() const;
-    string ResultAsStringRBNCore() const;
-    string ResultAsStringRBN() const;
-    string ResultAsStringRBX() const;
-    string ResultAsStringRBNCore(const int refScore) const;
-    string ResultAsStringRBN(const int refScore) const;
-    string ResultAsStringRBX(const int refScore) const;
-    string ResultAsStringEML() const;
-    string ResultAsStringTXT() const;
-    string ResultAsStringTXT(
+    string strLIN() const;
+    string strPBN() const;
+    string strRBNCore() const;
+    string strRBN() const;
+    string strRBX() const;
+    string strTXT() const;
+    string strPar() const;
+
+    string strScorePBN() const;
+    string strScorePBN(const int refScore) const;
+    string strScoreEML() const;
+    string strScoreEML(const int refScore) const;
+    string strScoreTXT() const;
+    string strScoreREC() const;
+
+    string strResultPBN() const;
+    string strResultRBNCore() const;
+    string strResultRBN() const;
+    string strResultRBX() const;
+    string strResultRBNCore(const int refScore) const;
+    string strResultRBN(const int refScore) const;
+    string strResultRBX(const int refScore) const;
+    string strResultEML() const;
+    string strResultTXT() const;
+    string strResultTXT(
       const int refScore,
       const string& team) const;
-    string ResultAsStringREC() const;
-
-    string AsLIN() const;
-    string AsPBN() const;
-    string AsRBNCore() const;
-    string AsRBN() const;
-    string AsRBX() const;
-    string AsTXT() const;
-    string AsPar() const;
-
-    string ScoreIMPAsREC(const int refScore) const;
+    string strResultREC() const;
 
 
   public:
@@ -91,96 +88,88 @@ class Contract
 
     ~Contract();
 
-    void Reset();
+    void reset();
 
-    bool ContractIsSet() const;
+    bool isSet() const;
 
-    bool ResultIsSet() const;
+    bool hasResult() const;
 
-    bool SetPassedOut();
+    void passOut();
 
-    bool SetContract(
-      const vulType vul,
-      const playerType declarer,
+    void setContract(
+      const Vul vul,
+      const Player declarer,
       const unsigned level,
-      const denomType denom,
-      const multiplierType mult);
+      const Denom denom,
+      const Multiplier mult);
 
-    bool SetContract(
-      const vulType vul,
+    void setContract(
+      const Vul vul,
       const string& cstring);
 
-    bool SetContract(const string& text);
-
-    bool SetContract(
+    void setContract(
       const string& text,
-      const formatType f);
+      const Format format);
 
-    bool SetDeclarer(
+    void setDeclarer(const string& text);
+
+    void setVul(const Vul vul);
+
+    bool isPassedOut() const;	
+
+    void setTricks(const unsigned tricks);
+
+    unsigned getTricks() const;
+
+    void setResult(
       const string& text,
-      const formatType f);
+      const Format format);
 
-    void SetVul(const Vul vul);
-
-    bool SetTricks(
-      const unsigned tricks);
-
-    unsigned GetTricks() const;
-
-    bool SetResult(
+    void setScore(
       const string& text,
-      const formatType f);
+      const Format format);
 
-    bool setScore(
-      const string& text,
-      const Format f);
+    void calculateScore();
 
-    bool IsPassedOut() const;	
+    int getScore() const;
 
-    int GetScore() const;
+    Player getDeclarer() const;
+
+    Denom getDenom() const;
 
     bool operator == (const Contract& c2) const;
 
     bool operator != (const Contract& c2) const;
 
-    playerType GetDeclarer() const;
+    string str(const Format format) const;
+    string strDeclarer(const Format format) const;
+    string strVul(const Format format) const;
+    string strTricks(const Format format) const;
 
-    denomType GetDenom() const;
+    string strScore(
+      const Format format) const;
 
-    void CalculateScore();
-
-    string AsString(
-      const formatType f = BRIDGE_FORMAT_LIN) const;
-
-    string DeclarerAsString(const formatType f) const;
-
-    string VulAsString(const formatType f) const;
-
-    string TricksAsString(const formatType f) const;
-
-    string ScoreAsString(const formatType f) const;
-
-    int ScoreIMPAsInt(const int refSCore) const;
-
-    string ScoreAsString(
-      const formatType f,
+    string strScore(
+      const Format format,
       const int refScore) const;
 
-    string ScoreIMPAsString(
-      const formatType f,
+    string strScoreIMP(
+      const Format format,
       const int refScore) const;
 
-    string ResultAsString(
-      const formatType f) const;
+    string strResult(
+      const Format format) const;
 
-    string ResultAsString(
-      const formatType f,
+    string strResult(
+      const Format format,
       const int refScore) const;
 
-    string ResultAsString(
-      const formatType f,
+    string strResult(
+      const Format format,
       const int refScore,
       const string& team) const;
+
+    int IMPScore(const int refSCore) const;
 };
 
 #endif

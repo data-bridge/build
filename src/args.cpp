@@ -332,7 +332,7 @@ void readArgs(
 
           matchFlag = true;
           options.formatSetFlag = true;
-          options.format = static_cast<formatType>(i);
+          options.format = static_cast<Format>(i);
           break;
         }
 

@@ -8,6 +8,7 @@
 
 
 #include <iostream>
+#include <sstream>
 #include <fstream>
 
 #include "Group.h"
@@ -470,29 +471,29 @@ void writeEMLBoardLevel(
   Segment * segment,
   Board * board,
   writeInfoType& writeInfo,
-  const formatType f)
+  const Format format)
 {
   string chunk[EML_LABELS_SIZE];
   Canvas canvas;
 
   board->calculateScore();
 
-  chunk[EML_SCORING] = segment->ScoringAsString(f);
-  chunk[EML_BOARD] = segment->NumberAsString(f, writeInfo.bno);
+  chunk[EML_SCORING] = segment->ScoringAsString(format);
+  chunk[EML_BOARD] = segment->NumberAsString(format, writeInfo.bno);
 
-  chunk[EML_WEST] = board->strPlayer(BRIDGE_WEST, f);
-  chunk[EML_NORTH] = board->strPlayer(BRIDGE_NORTH, f);
-  chunk[EML_EAST] = board->strPlayer(BRIDGE_EAST, f);
-  chunk[EML_SOUTH] = board->strPlayer(BRIDGE_SOUTH, f);
+  chunk[EML_WEST] = board->strPlayer(BRIDGE_WEST, format);
+  chunk[EML_NORTH] = board->strPlayer(BRIDGE_NORTH, format);
+  chunk[EML_EAST] = board->strPlayer(BRIDGE_EAST, format);
+  chunk[EML_SOUTH] = board->strPlayer(BRIDGE_SOUTH, format);
 
-  chunk[EML_DEAL] = board->strDeal(BRIDGE_WEST, f);
-  chunk[EML_DEALER] = board->strDealer(f);
-  chunk[EML_VULNERABLE] = board->strVul(f);
-  chunk[EML_AUCTION] = board->strAuction(f);
-  chunk[EML_LEAD] = board->LeadAsString(f);
-  chunk[EML_PLAY] = board->PlayAsString(f);
-  chunk[EML_RESULT] = board->ResultAsString(f, false);
-  chunk[EML_SCORE] = board->ScoreAsString(f, segment->ScoringIsIMPs());
+  chunk[EML_DEAL] = board->strDeal(BRIDGE_WEST, format);
+  chunk[EML_DEALER] = board->strDealer(format);
+  chunk[EML_VULNERABLE] = board->strVul(format);
+  chunk[EML_AUCTION] = board->strAuction(format);
+  chunk[EML_LEAD] = board->LeadAsString(format);
+  chunk[EML_PLAY] = board->PlayAsString(format);
+  chunk[EML_RESULT] = board->ResultAsString(format, false);
+  chunk[EML_SCORE] = board->ScoreAsString(format, segment->ScoringIsIMPs());
 
   // Convert deal, auction and play from \n to vectors.
   vector<string> deal, auction, play;

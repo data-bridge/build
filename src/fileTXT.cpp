@@ -8,6 +8,7 @@
 
 
 #include <iostream>
+#include <sstream>
 #include <fstream>
 #include <regex>
 
@@ -504,7 +505,7 @@ bool readTXTChunk(
 void writeTXTSegmentLevel(
   ofstream& fstr,
   Segment * segment,
-  const formatType f)
+  const Format format)
 {
   // if (segment->CarryExists())
   if (segment->GetExtBoardNo(0) != 1 || segment->CarryExists())
@@ -513,12 +514,12 @@ void writeTXTSegmentLevel(
       fstr << TXTdashes << "\n";
   }
 
-  fstr << "\n" << segment->TitleAsString(f) << "\n";
-  fstr << segment->DateAsString(f);
-  fstr << segment->LocationAsString(f);
-  fstr << segment->EventAsString(f);
-  fstr << segment->SessionAsString(f);
-  fstr << segment->TeamsAsString(f) << "\n\n";
+  fstr << "\n" << segment->TitleAsString(format) << "\n";
+  fstr << segment->DateAsString(format);
+  fstr << segment->LocationAsString(format);
+  fstr << segment->EventAsString(format);
+  fstr << segment->SessionAsString(format);
+  fstr << segment->TeamsAsString(format) << "\n\n";
 }
 
 
@@ -527,7 +528,7 @@ void writeTXTBoardLevel(
   Segment * segment,
   Board * board,
   writeInfoType& writeInfo,
-  const formatType f)
+  const Format format)
 {
   Canvas canvas;
 
@@ -535,10 +536,10 @@ void writeTXTBoardLevel(
 
   if (writeInfo.ino == 0)
   {
-    const string dstr = board->strDeal(BRIDGE_WEST, f);
-    const string bstr = segment->NumberAsString(f, writeInfo.bno);
-    const string vstr = board->strVul(f);
-    const string lstr = (board->auctionIsEmpty() ?  board->strDealer(f) : "");
+    const string dstr = board->strDeal(BRIDGE_WEST, format);
+    const string bstr = segment->NumberAsString(format, writeInfo.bno);
+    const string vstr = board->strVul(format);
+    const string lstr = (board->auctionIsEmpty() ?  board->strDealer(format) : "");
 
     // Convert deal, auction and play from \n to vectors.
     vector<string> deal;
@@ -551,25 +552,25 @@ void writeTXTBoardLevel(
     canvas.setLine(vstr, 14, 0);
     fstr << canvas.str() << "\n";
 
-    fstr << board->PlayersAsString(f);
-    fstr << board->strAuction(f) << "\n";
-    fstr << board->strContract(f);
-    fstr << board->PlayAsString(f);
+    fstr << board->PlayersAsString(format);
+    fstr << board->strAuction(format) << "\n";
+    fstr << board->strContract(format);
+    fstr << board->PlayAsString(format);
 
-    fstr << board->ResultAsString(f, false) << "\n";
+    fstr << board->ResultAsString(format, false) << "\n";
   }
   else
   {
-    const string p = board->PlayersAsString(f);
+    const string p = board->PlayersAsString(format);
     // Pavlicek bug?
     if (p == "")
       fstr << "\n";
     else
-      fstr << board->PlayersAsString(f);
+      fstr << board->PlayersAsString(format);
 
-    fstr << board->strAuction(f) << "\n";
-    fstr << board->strContract(f);
-    fstr << board->PlayAsString(f);
+    fstr << board->strAuction(format) << "\n";
+    fstr << board->strContract(format);
+    fstr << board->PlayAsString(format);
 
     int s = board->ScoreIMPAsInt();
     // bool swapFlag = (board->GetRoom() == BRIDGE_ROOM_OPEN);
@@ -578,17 +579,17 @@ void writeTXTBoardLevel(
     if (s > 0)
     {
       writeInfo.score2 += (s > 0 ? s : -s);
-      tWin = segment->SecondTeamAsString(f);
+      tWin = segment->SecondTeamAsString(format);
     }
     else
     {
       writeInfo.score1 += (s > 0 ? s : -s);
-      tWin = segment->FirstTeamAsString(f);
+      tWin = segment->FirstTeamAsString(format);
     }
 
-    fstr << board->ResultAsString(f, tWin) << "\n";
+    fstr << board->ResultAsString(format, tWin) << "\n";
     fstr << 
-      segment->TeamsAsString(writeInfo.score1, writeInfo.score2, f) << "\n";
+      segment->TeamsAsString(writeInfo.score1, writeInfo.score2, format) << "\n";
     if (writeInfo.bno != writeInfo.numBoards-1)
       fstr << TXTdashes << "\n\n";
   }

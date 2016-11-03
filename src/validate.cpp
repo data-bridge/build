@@ -165,8 +165,8 @@ bool valProgress(
 void validate(
   const string& fileOut,
   const string& fileRef,
-  const formatType formatOrig,
-  const formatType formatRef,
+  const Format formatOrig,
+  const Format formatRef,
   const OptionsType& options,
   ValStats& vstats)
 {

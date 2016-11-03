@@ -8,6 +8,7 @@
 
 
 #include <iostream>
+#include <sstream>
 #include <fstream>
 #include <regex>
 
@@ -377,22 +378,22 @@ void writeRECBoardLevel(
   Segment * segment,
   Board * board,
   writeInfoType& writeInfo,
-  const formatType f)
+  const Format format)
 {
   Canvas canvas;
 
   board->calculateScore();
 
-  const string dstr = board->strDeal(BRIDGE_WEST, f);
-  const string sstr = segment->ScoringAsString(f);
-  const string estr = board->strDealer(f);
-  const string bstr = segment->NumberAsString(f, writeInfo.bno);
-  const string vstr = board->strVul(f);
+  const string dstr = board->strDeal(BRIDGE_WEST, format);
+  const string sstr = segment->ScoringAsString(format);
+  const string estr = board->strDealer(format);
+  const string bstr = segment->NumberAsString(format, writeInfo.bno);
+  const string vstr = board->strVul(format);
 
-  const string west = board->strPlayer(BRIDGE_WEST, f);
-  const string north = board->strPlayer(BRIDGE_NORTH, f);
-  const string east = board->strPlayer(BRIDGE_EAST, f);
-  const string south = board->strPlayer(BRIDGE_SOUTH, f);
+  const string west = board->strPlayer(BRIDGE_WEST, format);
+  const string north = board->strPlayer(BRIDGE_NORTH, format);
+  const string east = board->strPlayer(BRIDGE_EAST, format);
+  const string south = board->strPlayer(BRIDGE_SOUTH, format);
 
   // Convert deal, auction and play from \n to vectors.
   vector<string> deal;
@@ -413,14 +414,14 @@ void writeRECBoardLevel(
 
   fstr << canvas.str(true) << "\n";
 
-  fstr << board->PlayersAsString(f) << "\n";
-  fstr << board->strAuction(f);
+  fstr << board->PlayersAsString(format) << "\n";
+  fstr << board->strAuction(format);
 
-  fstr << board->LeadAsString(f) << "    ";
-  fstr << board->ResultAsString(f, false) << "\n";
-  fstr << board->ScoreAsString(f, false);
-  fstr << board->ScoreIMPAsString(f, writeInfo.ino == 1) << "\n\n";
+  fstr << board->LeadAsString(format) << "    ";
+  fstr << board->ResultAsString(format, false) << "\n";
+  fstr << board->ScoreAsString(format, false);
+  fstr << board->ScoreIMPAsString(format, writeInfo.ino == 1) << "\n\n";
 
-  fstr << board->PlayAsString(f);
+  fstr << board->PlayAsString(format);
 }
 
