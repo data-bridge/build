@@ -31,8 +31,8 @@ bool writeEML(
 
 void writeEMLBoardLevel(
   ofstream& fstr,
-  Segment * segment,
-  Board * board,
+  Segment& segment,
+  Board& board,
   writeInfoType& writeInfo,
   const Format format);
 

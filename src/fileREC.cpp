@@ -375,25 +375,25 @@ bool readRECChunk(
 
 void writeRECBoardLevel(
   ofstream& fstr,
-  Segment * segment,
-  Board * board,
+  Segment& segment,
+  Board& board,
   writeInfoType& writeInfo,
   const Format format)
 {
   Canvas canvas;
 
-  board->calculateScore();
+  board.calculateScore();
 
-  const string dstr = board->strDeal(BRIDGE_WEST, format);
-  const string sstr = segment->ScoringAsString(format);
-  const string estr = board->strDealer(format);
-  const string bstr = segment->NumberAsString(format, writeInfo.bno);
-  const string vstr = board->strVul(format);
+  const string dstr = board.strDeal(BRIDGE_WEST, format);
+  const string sstr = segment.ScoringAsString(format);
+  const string estr = board.strDealer(format);
+  const string bstr = segment.NumberAsString(format, writeInfo.bno);
+  const string vstr = board.strVul(format);
 
-  const string west = board->strPlayer(BRIDGE_WEST, format);
-  const string north = board->strPlayer(BRIDGE_NORTH, format);
-  const string east = board->strPlayer(BRIDGE_EAST, format);
-  const string south = board->strPlayer(BRIDGE_SOUTH, format);
+  const string west = board.strPlayer(BRIDGE_WEST, format);
+  const string north = board.strPlayer(BRIDGE_NORTH, format);
+  const string east = board.strPlayer(BRIDGE_EAST, format);
+  const string south = board.strPlayer(BRIDGE_SOUTH, format);
 
   // Convert deal, auction and play from \n to vectors.
   vector<string> deal;
@@ -414,14 +414,14 @@ void writeRECBoardLevel(
 
   fstr << canvas.str(true) << "\n";
 
-  fstr << board->strPlayers(format) << "\n";
-  fstr << board->strAuction(format);
+  fstr << board.strPlayers(format) << "\n";
+  fstr << board.strAuction(format);
 
-  fstr << board->strLead(format) << "    ";
-  fstr << board->strResult(format, false) << "\n";
-  fstr << board->strScore(format, false);
-  fstr << board->strScoreIMP(format, writeInfo.ino == 1) << "\n\n";
+  fstr << board.strLead(format) << "    ";
+  fstr << board.strResult(format, false) << "\n";
+  fstr << board.strScore(format, false);
+  fstr << board.strScoreIMP(format, writeInfo.ino == 1) << "\n\n";
 
-  fstr << board->strPlay(format);
+  fstr << board.strPlay(format);
 }
 

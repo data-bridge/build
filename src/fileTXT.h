@@ -31,13 +31,13 @@ bool writeTXT(
 
 void writeTXTSegmentLevel(
   ofstream& fstr,
-  Segment * segment,
+  Segment& segment,
   const Format format);
 
 void writeTXTBoardLevel(
   ofstream& fstr,
-  Segment * segment,
-  Board * board,
+  Segment& segment,
+  Board& board,
   writeInfoType& writeInfo,
   const Format format);
 

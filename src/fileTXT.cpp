@@ -504,42 +504,42 @@ bool readTXTChunk(
 
 void writeTXTSegmentLevel(
   ofstream& fstr,
-  Segment * segment,
+  Segment& segment,
   const Format format)
 {
   // if (segment->CarryExists())
-  if (segment->GetExtBoardNo(0) != 1 || segment->CarryExists())
+  if (segment.getExtBoardNo(0) != 1 || segment.hasCarry())
   {
     // Pavlicek bug.
       fstr << TXTdashes << "\n";
   }
 
-  fstr << "\n" << segment->TitleAsString(format) << "\n";
-  fstr << segment->DateAsString(format);
-  fstr << segment->LocationAsString(format);
-  fstr << segment->EventAsString(format);
-  fstr << segment->SessionAsString(format);
-  fstr << segment->TeamsAsString(format) << "\n\n";
+  fstr << "\n" << segment.TitleAsString(format) << "\n";
+  fstr << segment.DateAsString(format);
+  fstr << segment.LocationAsString(format);
+  fstr << segment.EventAsString(format);
+  fstr << segment.SessionAsString(format);
+  fstr << segment.TeamsAsString(format) << "\n\n";
 }
 
 
 void writeTXTBoardLevel(
   ofstream& fstr,
-  Segment * segment,
-  Board * board,
+  Segment& segment,
+  Board& board,
   writeInfoType& writeInfo,
   const Format format)
 {
   Canvas canvas;
 
-  board->calculateScore();
+  board.calculateScore();
 
   if (writeInfo.ino == 0)
   {
-    const string dstr = board->strDeal(BRIDGE_WEST, format);
-    const string bstr = segment->NumberAsString(format, writeInfo.bno);
-    const string vstr = board->strVul(format);
-    const string lstr = (board->auctionIsEmpty() ?  board->strDealer(format) : "");
+    const string dstr = board.strDeal(BRIDGE_WEST, format);
+    const string bstr = segment.NumberAsString(format, writeInfo.bno);
+    const string vstr = board.strVul(format);
+    const string lstr = (board.auctionIsEmpty() ?  board.strDealer(format) : "");
 
     // Convert deal, auction and play from \n to vectors.
     vector<string> deal;
@@ -552,44 +552,42 @@ void writeTXTBoardLevel(
     canvas.setLine(vstr, 14, 0);
     fstr << canvas.str() << "\n";
 
-    fstr << board->strPlayers(format);
-    fstr << board->strAuction(format) << "\n";
-    fstr << board->strContract(format);
-    fstr << board->strPlay(format);
+    fstr << board.strPlayers(format);
+    fstr << board.strAuction(format) << "\n";
+    fstr << board.strContract(format);
+    fstr << board.strPlay(format);
 
-    fstr << board->strResult(format, false) << "\n";
+    fstr << board.strResult(format, false) << "\n";
   }
   else
   {
-    const string p = board->strPlayers(format);
+    const string p = board.strPlayers(format);
     // Pavlicek bug?
     if (p == "")
       fstr << "\n";
     else
-      fstr << board->strPlayers(format); // p?!
+      fstr << board.strPlayers(format); // p?!
 
-    fstr << board->strAuction(format) << "\n";
-    fstr << board->strContract(format);
-    fstr << board->strPlay(format);
+    fstr << board.strAuction(format) << "\n";
+    fstr << board.strContract(format);
+    fstr << board.strPlay(format);
 
-    int s = board->IMPScore();
-    // bool swapFlag = (board->GetRoom() == BRIDGE_ROOM_OPEN);
+    int s = board.IMPScore();
     string tWin;
-    // if ((s > 0 && ! swapFlag) || (s < 0 && swapFlag))
     if (s > 0)
     {
       writeInfo.score2 += (s > 0 ? s : -s);
-      tWin = segment->SecondTeamAsString(format);
+      tWin = segment.SecondTeamAsString(format);
     }
     else
     {
       writeInfo.score1 += (s > 0 ? s : -s);
-      tWin = segment->FirstTeamAsString(format);
+      tWin = segment.FirstTeamAsString(format);
     }
 
-    fstr << board->strResult(format, tWin) << "\n";
+    fstr << board.strResult(format, tWin) << "\n";
     fstr << 
-      segment->TeamsAsString(writeInfo.score1, writeInfo.score2, format) << "\n";
+      segment.TeamsAsString(writeInfo.score1, writeInfo.score2, format) << "\n";
     if (writeInfo.bno != writeInfo.numBoards-1)
       fstr << TXTdashes << "\n\n";
   }

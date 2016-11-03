@@ -10,6 +10,8 @@
 #ifndef BRIDGE_SEGMENT_H
 #define BRIDGE_SEGMENT_H
 
+#include <string>
+
 #include "Date.h"
 #include "Location.h"
 #include "Session.h"
@@ -17,15 +19,15 @@
 #include "Teams.h"
 #include "Board.h"
 #include "bconst.h"
-#include <string>
 
 using namespace std;
 
 
-enum segOutputType
+struct BoardPair
 {
-  SEGMENT_FORCE = 0,
-  SEGMENT_DELTA = 1
+  unsigned no; // Internal Segment number
+  unsigned extNo; // Externally seen number
+  Board board;
 };
 
 
@@ -33,28 +35,16 @@ class Segment
 {
   private:
 
-    struct sdata
-    {
-      string title;
-      Date date;
-      Location location;
-      string event;
-      Session session;
-      Scoring scoring;
-      Teams teams;
-    };
-
-    struct boardPairType
-    {
-      unsigned no; // Internal Segment number
-      unsigned extNo; // Externally seen number
-      Board board;
-    };
-
-    sdata seg;
+    string title;
+    Date date;
+    Location location;
+    string event;
+    Session session;
+    Scoring scoring;
+    Teams teams;
 
     unsigned len;
-    vector<boardPairType> boards;
+    vector<BoardPair> boards;
     unsigned bmin;
     unsigned bmax;
     unsigned bInmin;
@@ -67,7 +57,7 @@ class Segment
     unsigned LINcount;
 
 
-    void SetTitleLIN(const string& text);
+    void setTitleLIN(const string& text);
 
     string TitleAsLINCommon(const bool swapFlag = false) const;
     string TitleAsLIN() const;
@@ -83,105 +73,110 @@ class Segment
 
     ~Segment();
 
-    void Reset();
+    vector<BoardPair>::iterator begin() { return boards.begin(); }
 
-    Board * GetBoard(const unsigned no);
+    vector<BoardPair>::iterator end() { return boards.end(); }
 
-    Board * AcquireBoard(const unsigned no);
+    void reset();
 
-    unsigned GetExtBoardNo(const unsigned no) const;
+    Board * getBoard(const unsigned intNo);
 
-    unsigned GetActiveExtBoardNo() const;
+    Board * acquireBoard(const unsigned intNo);
 
-    void TransferHeader(const unsigned no);
-    void TransferHeader(
+    void setBoard(const unsigned intNo);
+
+    unsigned getExtBoardNo(const unsigned intNo) const;
+
+    unsigned getActiveExtBoardNo() const;
+
+    void loadFromHeader(
       const unsigned intNo,
       const unsigned instNo);
 
-    unsigned GetLength() const;
+    unsigned size() const;
 
     unsigned count() const;
 
     void setTitle(
-      const string& t,
+      const string& text,
       const Format format);
 
     void setDate(
-      const string& d,
+      const string& text,
       const Format format);
 
     void setLocation(
-      const string& l,
+      const string& text,
       const Format format);
 
     void setEvent(
-      const string& e,
+      const string& text,
       const Format format);
 
     void setSession(
-      const string& s,
+      const string& text,
       const Format format);
 
     void setScoring(
-      const string& s,
+      const string& text,
       const Format format);
 
     void setTeams(
-      const string& s,
+      const string& text,
       const Format format);
 
     void setFirstTeam(
-      const string& s,
+      const string& text,
       const Format format);
 
     void setSecondTeam(
-      const string& s,
+      const string& text,
       const Format format);
 
     void setPlayers(
-      const string& s,
+      const string& text,
       const Format format);
 
     void setWest(
-      const string& s,
+      const string& text,
       const Format format);
 
     void setNorth(
-      const string& s,
+      const string& text,
       const Format format);
 
     void setEast(
-      const string& s,
+      const string& text,
       const Format format);
 
     void setSouth(
-      const string& s,
+      const string& text,
       const Format format);
 
     void setResultsList(
-      const string& s,
+      const string& text,
       const Format format);
 
     void setPlayersList(
-      const string& s,
+      const string& text,
       const Format format);
 
-    void SetFromHeader(
+    void loadSpecificsFromHeader(
       const string& room);
 
     void setPlayersHeader(
-      const string& s,
+      const string& text,
       const Format format);
 
     void setScoresList(
-      const string& s,
+      const string& text,
       const Format format);
 
     void setBoardsList(
-      const string& s,
+      const string& text,
       const Format format);
 
-    void CopyPlayers();
+    void copyPlayers();
 
     void setRoom(
       const string& text,
@@ -191,9 +186,9 @@ class Segment
       const string& text,
       const Format format);
 
-    bool ScoringIsIMPs() const;
+    bool scoringIsIMPs() const;
 
-    bool CarryExists() const;
+    bool hasCarry() const;
 
     bool operator == (const Segment& s2) const;
 

@@ -74,8 +74,8 @@ using namespace std;
 struct FormatFunctionsType
 {
   bool (* readChunk)(ifstream&, unsigned&, vector<string>&, bool&);
-  void (* writeSeg)(ofstream&, Segment *, Format);
-  void (* writeBoard)(ofstream&, Segment *, Board *, 
+  void (* writeSeg)(ofstream&, Segment&, Format);
+  void (* writeBoard)(ofstream&, Segment&, Board&, 
     writeInfoType&, const Format);
 };
 
@@ -97,7 +97,7 @@ struct Fix
 
 void writeDummySegmentLevel(
   ofstream& fstr,
-  Segment * segment,
+  Segment& segment,
   const Format format);
 
 void GuessDealerAndVul(
@@ -146,7 +146,7 @@ static void SetInterface();
 
 void writeDummySegmentLevel(
   ofstream& fstr,
-  Segment * segment,
+  Segment& segment,
   const Format format)
 {
   UNUSED(fstr);
@@ -538,7 +538,7 @@ static bool readFormattedFile(
     {
       // New board.
       lastBoard = chunk[BRIDGE_FORMAT_BOARD_NO];
-      board = segment->AcquireBoard(bno);
+      board = segment->acquireBoard(bno);
       bno++;
 
       if (board == nullptr)
@@ -549,13 +549,13 @@ static bool readFormattedFile(
     }
 
     board->newInstance();
-    segment->CopyPlayers();
+    segment->copyPlayers();
 
     if (chunk[BRIDGE_FORMAT_AUCTION] == "")
     {
       // Guess dealer and vul from the board number.
       if (chunk[BRIDGE_FORMAT_BOARD_NO] == "")
-        GuessDealerAndVul(chunk, segment->GetActiveExtBoardNo(), format);
+        GuessDealerAndVul(chunk, segment->getActiveExtBoardNo(), format);
       else
         GuessDealerAndVul(chunk, chunk[BRIDGE_FORMAT_BOARD_NO], format);
     }
@@ -568,7 +568,7 @@ static bool readFormattedFile(
         if (chunk[i] == "")
         {
           if (i == BRIDGE_FORMAT_CONTRACT && format == BRIDGE_FORMAT_LIN)
-            segment->SetFromHeader(chunk[BRIDGE_FORMAT_BOARD_NO]);
+            segment->loadSpecificsFromHeader(chunk[BRIDGE_FORMAT_BOARD_NO]);
 
           continue;
         }
@@ -683,27 +683,34 @@ static bool writeFormattedFile(
 
   for (auto &segment: group)
   {
-    (* formatFncs[format].writeSeg)(fstr, &segment, format);
+    (* formatFncs[format].writeSeg)(fstr, segment, format);
 
-    writeInfo.numBoards = segment.GetLength();
-    for (unsigned b = 0; b < writeInfo.numBoards; b++)
+    writeInfo.numBoards = segment.size();
+    // for (unsigned b = 0; b < writeInfo.numBoards; b++)
+    for (auto &bpair: segment)
     {
-      Board * board = segment.GetBoard(b);
-      if (board == nullptr)
-      {
-        fstr.close();
-        THROW("Invalid board");
-      }
+      // Board * board = segment.getBoard(b);
+      Board& board = bpair.board;
+      segment.setBoard(bpair.no);
 
-      writeInfo.bno = b;
-      writeInfo.numInst = board->count();
+      // if (board == nullptr)
+      // {
+        // fstr.close();
+        // THROW("Invalid board");
+      // }
+
+      // writeInfo.bno = b;
+      writeInfo.bno = bpair.no;
+      // writeInfo.numInst = board->count();
+      writeInfo.numInst = board.count();
 
       for (unsigned i = 0; i < writeInfo.numInst; i++)
       {
-        board->setInstance(i);
+        // board->setInstance(i);
+        board.setInstance(i);
         writeInfo.ino = i;
         (* formatFncs[format].writeBoard)
-          (fstr, &segment, board, writeInfo, format);
+          (fstr, segment, board, writeInfo, format);
       }
     }
   }
