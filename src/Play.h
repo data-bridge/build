@@ -74,8 +74,23 @@ class Play
 
     LeadInfo leads[BRIDGE_TRICKS];
 
-    bool SetPlaysPBN(const vector<string>& list);
 
+    void setTables();
+
+    void setDeclAndDenom(
+      const Player decl,
+      const Denom denom);
+    
+    unsigned trickWinnerRelative() const;
+
+    void addPlay(const string& text);
+
+    void addTrickPBN(const string& text); // Currently unused
+    
+    void setPlaysPBN(const vector<string>& list);
+
+    void setPlaysRBN(const string& text);
+    
     string strLIN() const;
     string strLIN_VG() const;
     string strLIN_TRN() const;
@@ -88,10 +103,6 @@ class Play
     string strTXT() const;
     string strREC() const;
 
-    void SetTables();
-
-    unsigned TrickWinnerRelative() const;
-
     string strClaimLIN() const;
 
 
@@ -101,44 +112,25 @@ class Play
 
     ~Play();
 
-    void Reset();
+    void reset();
 
-    bool SetContract(
-      const Contract& contract);
+    void setContract(const Contract& contract);
     
-    bool SetDeclAndDenom(
-      const playerType decl,
-      const denomType denom);
-    
-    void SetHoldingDDS(
-      const unsigned h[][BRIDGE_SUITS]);
+    void setHoldingDDS(const unsigned h[][BRIDGE_SUITS]);
 
-    void addPlay(const string& text);
-
-    playStatus setPlay(
-      const string& str,
-      const Format format);
-    
     void setPlays(
       const string& text,
       const Format format);
     
-    playStatus AddTrickPBN(
-      const string& str);
-    
-    bool AddAllRBN(
-      const string& str);
-    
-    bool UndoPlay();
+    void undoPlay();
 
-    bool PlayIsOver() const;
+    bool isOver() const;
 
-    claimStatus Claim(
-      const unsigned tricks);
+    void makeClaim(const unsigned tricks);
     
-    bool ClaimIsMade() const;
+    bool hasClaim() const;
 
-    unsigned GetTricks() const;
+    unsigned getTricks() const;
 
     bool operator == (const Play& play2) const;
 

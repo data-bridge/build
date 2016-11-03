@@ -42,7 +42,7 @@ static const char PLAY_DENOMS[2 * BRIDGE_SUITS] =
   'S', 'H', 'D', 'C', 's', 'h', 'd', 'c'
 };
 
-struct cardInfoType
+struct CardInfo
 {
   unsigned no;
   unsigned bitValue;
@@ -53,25 +53,25 @@ struct cardInfoType
 static string PLAY_NO_TO_CARD[PLAY_NUM_CARDS];
 static string PLAY_NO_TO_CARD_TXT[PLAY_NUM_CARDS];
 
-static map<string, cardInfoType> PLAY_CARD_TO_INFO; // All syntaxes
+static map<string, CardInfo> PLAY_CARD_TO_INFO; // All syntaxes
 
-static cardInfoType PLAY_NO_TO_INFO[PLAY_NUM_CARDS];
+static CardInfo PLAY_NO_TO_INFO[PLAY_NUM_CARDS];
 
 static unsigned TRICK_RANKS[BRIDGE_DENOMS][BRIDGE_SUITS][PLAY_NUM_CARDS];
 
 static bool setPlayTables = false;
 
-static bool BothAreSpaces(char lhs, char rhs);
+static bool bothAreSpaces(char lhs, char rhs);
 
 
 Play::Play()
 {
-  Play::Reset();
+  Play::reset();
   if (! setPlayTables)
   {
     mtx.lock();
     if (! setPlayTables)
-      Play::SetTables();
+      Play::setTables();
     setPlayTables = true;
     mtx.unlock();
   }
@@ -83,7 +83,7 @@ Play::~Play()
 }
 
 
-void Play::Reset()
+void Play::reset()
 {
   setDDFlag = false;
 
@@ -102,7 +102,7 @@ void Play::Reset()
 }
 
 
-void Play::SetTables()
+void Play::setTables()
 {
   for (unsigned d = 0; d < 2 * BRIDGE_DENOMS; d++)
   {
@@ -155,44 +155,42 @@ void Play::SetTables()
 }
 
 
-bool Play::SetContract(const Contract& contract)
-{
-  if (! contract.ContractIsSet() || contract.IsPassedOut())
-    return true;
-
-  return Play::SetDeclAndDenom(contract.GetDeclarer(), contract.GetDenom());
-}
-
-
-bool Play::SetDeclAndDenom(
-  const playerType declIn,
-  const denomType denomIn)
+void Play::setDeclAndDenom(
+  const Player declIn,
+  const Denom denomIn)
 {
   if (setDDFlag)
   {
     if (declIn == declarer && denomIn == denom)
-      return true;
+      return;
 
-    THROW("Declarer and denomination reset, " + 
+    THROW("Declarer and denomination reset: " + 
       STR(declIn) + STR(denomIn) + " " + STR(declarer) + STR(denomIn));
   }
 
   if (declIn >= BRIDGE_NORTH_SOUTH)
-    THROW("Invalid declarer " + STR(declIn));
+    THROW("Invalid declarer: " + STR(declIn));
 
   if (denomIn >  BRIDGE_NOTRUMP)
-    THROW("Invalid denomination " + STR(denomIn));
+    THROW("Invalid denomination: " + STR(denomIn));
 
   setDDFlag = true;
   declarer = declIn;
   denom = denomIn;
-  leads[0].leader = static_cast<playerType>((declarer + 1) % 4);
-  return true;
+  leads[0].leader = static_cast<Player>((declarer + 1) % 4);
 }
 
 
-void Play::SetHoldingDDS(
-  const unsigned h[][BRIDGE_SUITS])
+void Play::setContract(const Contract& contract)
+{
+  if (! contract.ContractIsSet() || contract.IsPassedOut())
+    return;
+
+  Play::setDeclAndDenom(contract.GetDeclarer(), contract.GetDenom());
+}
+
+
+void Play::setHoldingDDS(const unsigned h[][BRIDGE_SUITS])
 {
   if (setDealFlag)
     THROW("Holding already set");
@@ -206,7 +204,49 @@ void Play::SetHoldingDDS(
 }
 
 
-void Play::addPlay(const string& str)
+unsigned Play::trickWinnerRelative() const
+{
+  unsigned winner = 0;
+  const unsigned start = trickToPlay << 2;
+  const unsigned * rp = TRICK_RANKS[denom][leads[trickToPlay].suit];
+  unsigned highest = rp[sequence[start]];
+
+  for (unsigned p = 1; p < BRIDGE_PLAYERS; p++)
+  {
+    if (rp[sequence[start+p]] > highest)
+    {
+      winner = p;
+      highest = rp[sequence[start+p]];
+    }
+  }
+  return winner;
+}
+
+
+void Play::addTrickPBN(const string& text)
+{
+  // In PBN the cards are given starting with the opening leader,
+  // even for later tricks.
+
+  string plays[BRIDGE_PLAYERS];
+  unsigned count;
+  if (! getWords(text, plays, 4, count))
+    THROW("Not a valid PBN play line: " + text);
+
+  unsigned offset = static_cast<unsigned>
+    ((leads[trickToPlay].leader + 4 - leads[0].leader) % 4);
+  for (unsigned p = offset; p < offset+count; p++)
+  {
+    unsigned pp = p % 4;
+    if (pp >= count)
+      continue;
+    if (plays[pp].at(0) != '-') // - and --
+      Play::addPlay(plays[pp]);
+  }
+}
+
+
+void Play::addPlay(const string& text)
 {
   if (playOverFlag)
     THROW("Play is over");
@@ -214,23 +254,23 @@ void Play::addPlay(const string& str)
   if (! setDealFlag)
     THROW("Holding not set");
 
-  auto it = PLAY_CARD_TO_INFO.find(str);
+  auto it = PLAY_CARD_TO_INFO.find(text);
   if (it == PLAY_CARD_TO_INFO.end())
-    THROW("Invalid card " + str);
+    THROW("Invalid card: " + text);
 
-  const cardInfoType& INFO = PLAY_CARD_TO_INFO[str];
+  const CardInfo& info = it->second;
 
-  playerType leader = leads[trickToPlay].leader;
-  playerType player = static_cast<playerType>
+  Player leader = leads[trickToPlay].leader;
+  Player player = static_cast<Player>
     ((static_cast<unsigned>(leader) + cardToPlay) % 4);
 
-  if ((holding[player][INFO.suit] & INFO.bitValue) == 0)
-    THROW("Card " + str + " not held (possibly held earlier)");
+  if ((holding[player][info.suit] & info.bitValue) == 0)
+    THROW("Card " + text + " not held (possibly held earlier)");
 
   if (cardToPlay > 0 && 
-      INFO.suit != static_cast<unsigned>(leads[trickToPlay].suit) &&
+      info.suit != static_cast<unsigned>(leads[trickToPlay].suit) &&
       holding[player][leads[trickToPlay].suit] > 0)
-    THROW("Revoke " + str);
+    THROW("Revoke: " + text);
 
   // So now it is OK to play the card.
 
@@ -241,19 +281,19 @@ void Play::addPlay(const string& str)
   }
 
   // Add the card to the play list.
-  sequence[len] = INFO.no;
+  sequence[len] = info.no;
   len++;
 
   // Remove the card from the holding.
-  holding[player][INFO.suit] ^= INFO.bitValue;
+  holding[player][info.suit] ^= info.bitValue;
 
   if (cardToPlay == 0)
-    leads[trickToPlay].suit = static_cast<denomType>(INFO.suit);
+    leads[trickToPlay].suit = static_cast<Denom>(info.suit);
 
   if (cardToPlay == 3)
   {
     // Trick over.
-    unsigned relWinner = Play::TrickWinnerRelative();
+    unsigned relWinner = Play::trickWinnerRelative();
     unsigned absWinner = 
       (static_cast<unsigned>(leads[trickToPlay].leader) + relWinner) % 4;
 
@@ -267,7 +307,7 @@ void Play::addPlay(const string& str)
     }
     else
     {
-      leads[trickToPlay].leader = static_cast<playerType>(absWinner);
+      leads[trickToPlay].leader = static_cast<Player>(absWinner);
     }
 
     if ((static_cast<unsigned>(declarer) + absWinner) % 2 == 0)
@@ -288,54 +328,41 @@ void Play::addPlay(const string& str)
 }
 
 
-unsigned Play::TrickWinnerRelative() const
+static bool bothAreSpaces(char lhs, char rhs)
 {
-  unsigned winner = 0;
-  unsigned start = trickToPlay << 2;
-  const unsigned * rp = TRICK_RANKS[denom][leads[trickToPlay].suit];
-  unsigned highest = rp[sequence[start]];
-
-  for (unsigned p = 1; p < BRIDGE_PLAYERS; p++)
-  {
-    if (rp[sequence[start+p]] > highest)
-    {
-      winner = p;
-      highest = rp[sequence[start+p]];
-    }
-  }
-
-  return winner;
+  // stackoverflow.com/questions/8362094/
+  // replace-multiple-spaces-with-one-space-in-a-string
+  return (lhs == rhs) && (lhs == ' ');
 }
 
 
-playStatus Play::AddTrickPBN(const string& str)
+void Play::setPlaysPBN(const vector<string>& list)
 {
-  // In PBN the cards are given starting with the opening leader,
-  // even for later tricks.
+  if (! setDDFlag)
+    THROW("Declarer and denomination should be set by now");
 
-  string plays[BRIDGE_PLAYERS];
-  unsigned count;
-  if (! getWords(str, plays, 4, count))
-    THROW("Not a valid PBN play line " + str);
+  Player opldr;
+  if (! ParsePlayer(list[0].at(0), opldr))
+    THROW("Not an opening leader");
 
-  unsigned offset = static_cast<unsigned>
-    ((leads[trickToPlay].leader + 4 - leads[0].leader) % 4);
-  for (unsigned p = offset; p < offset+count; p++)
+  if ((declarer + 1) % 4 != opldr)
+    THROW("Wrong opening leader");
+
+  for (unsigned i = 1; i < list.size(); i++)
   {
-    unsigned pp = p % 4;
-    if (pp >= count)
-      continue;
-    if (plays[pp].at(0) != '-') // - and --
-      Play::addPlay(plays[pp]);
-  }
+    // Compress adjacent spaces just to be sure.
+    string s = list[i];
+    auto new_end = unique(s.begin(), s.end(), bothAreSpaces);
+    s.erase(new_end, s.end());
 
-  return PLAY_NO_ERROR;
+    Play::addTrickPBN(s);
+  }
 }
 
 
-bool Play::AddAllRBN(const string& sIn)
+void Play::setPlaysRBN(const string& text)
 {
-  string str = sIn;
+  string str = text;
   if (str.length() < 2)
     THROW("String too short: " + str);
 
@@ -357,7 +384,7 @@ bool Play::AddAllRBN(const string& sIn)
       THROW("Bad RBN trick " + trick);
 
     const char suitLed = trick.at(0); // Might be invalid
-    stringstream s;
+    stringstream ss;
     unsigned i = 0;
     unsigned b = 0;
     while (i < l)
@@ -365,47 +392,26 @@ bool Play::AddAllRBN(const string& sIn)
       if (b >= BRIDGE_PLAYERS)
         THROW("Too many plays in trick " + trick);
 
-      s.str("");
+      ss.str("");
       char next = trick.at(i);
       if (next == PLAY_DENOMS[0] || next == PLAY_DENOMS[1] ||
           next == PLAY_DENOMS[2] || next == PLAY_DENOMS[3])
       {
-        s << next << trick.at(i+1);
+        ss << next << trick.at(i+1);
         i += 2;
       }
       else
       {
-        s << suitLed << next;
+        ss << suitLed << next;
         i++;
       }
-      Play::addPlay(s.str());
+      Play::addPlay(ss.str());
       b++;
     }
   }
 
   if (playOverFlag)
-  {
-    if (Play::Claim(tricksDecl) != PLAY_CLAIM_NO_ERROR)
-      THROW("Claim error");
-  }
-
-
-  return true;
-}
-
-
-playStatus Play::setPlay(
-  const string& str,
-  const Format format)
-{
-  switch(format)
-  {
-    case BRIDGE_FORMAT_PBN:
-      return Play::AddTrickPBN(str);
-
-    default:
-      THROW("Invalid format: " + STR(format));
-  }
+    Play::makeClaim(tricksDecl);
 }
 
 
@@ -419,7 +425,7 @@ void Play::setPlays(
       {
         vector<string> lines;
         ConvertMultilineToVector(text, lines);
-        Play::SetPlaysPBN(lines);
+        Play::setPlaysPBN(lines);
         break;
       }
 
@@ -429,51 +435,16 @@ void Play::setPlays(
     case BRIDGE_FORMAT_EML:
     case BRIDGE_FORMAT_TXT:
     case BRIDGE_FORMAT_REC:
-      Play::AddAllRBN(text);
+      Play::setPlaysRBN(text);
       break;
 
     default:
-      THROW("Invalid format " + STR(format));
+      THROW("Invalid format: " + STR(format));
   }
 }
 
 
-static bool BothAreSpaces(char lhs, char rhs)
-{
-  // stackoverflow.com/questions/8362094/
-  // replace-multiple-spaces-with-one-space-in-a-string
-  return (lhs == rhs) && (lhs == ' ');
-}
-
-
-bool Play::SetPlaysPBN(const vector<string>& list)
-{
-  if (! setDDFlag)
-    THROW("Declarer and denomination should be set by now");
-
-  playerType opldr;
-  if (! ParsePlayer(list[0].at(0), opldr))
-    THROW("Not an opening leader");
-
-  if ((declarer + 1) % 4 != opldr)
-    THROW("Wrong opening leader");
-
-  for (unsigned i = 1; i < list.size(); i++)
-  {
-    // Compress adjacent spaces just to be sure.
-    string s = list[i];
-    auto new_end = unique(s.begin(), s.end(), BothAreSpaces);
-    s.erase(new_end, s.end());
-
-    if (Play::AddTrickPBN(s) != PLAY_NO_ERROR)
-      return false;
-  }
-
-  return true;
-}
-
-
-bool Play::UndoPlay()
+void Play::undoPlay()
 {
   if (playOverFlag)
     THROW("Cannot undo play after play is over");
@@ -498,56 +469,54 @@ bool Play::UndoPlay()
   len--;
 
   string str = PLAY_NO_TO_CARD[cardUndone];
-  cardInfoType& info = PLAY_CARD_TO_INFO[str];
-  playerType pUndone = static_cast<playerType>
+  CardInfo& info = PLAY_CARD_TO_INFO[str];
+  Player pUndone = static_cast<Player>
     ((static_cast<unsigned>(leads[trickToPlay].leader) + cardToPlay) % 4);
   holding[pUndone][info.suit] ^= info.bitValue;
-
-  return true;
 }
 
 
-bool Play::PlayIsOver() const
+bool Play::isOver() const
 {
   return playOverFlag;
 }
 
 
-claimStatus Play::Claim(const unsigned tricks)
+void Play::makeClaim(const unsigned tricks)
 {
   if (claimMadeFlag)
   {
     if (tricksDecl == tricks)
-      return PLAY_CLAIM_NO_ERROR;
+      return;
     else
-      return PLAY_CLAIM_ALREADY;
+      THROW("Other claim already made");
   }
   else if (playOverFlag)
   {
     if (tricksDecl == tricks)
     {
       claimMadeFlag = true;
-      return PLAY_CLAIM_NO_ERROR;
+      return;
     }
     else
-      return PLAY_CLAIM_PLAY_OVER;
+      THROW("Claim when play is already over");
   }
   else
   {
     playOverFlag = true;
     claimMadeFlag = true;
     tricksDecl = tricks;
-    return PLAY_CLAIM_NO_ERROR;
   }
 }
 
-bool Play::ClaimIsMade() const
+
+bool Play::hasClaim() const
 {
   return claimMadeFlag;
 }
 
 
-unsigned Play::GetTricks() const
+unsigned Play::getTricks() const
 {
   return tricksDecl;
 }
@@ -604,23 +573,20 @@ string Play::strLIN() const
 
 string Play::strLIN_RP() const
 {
-  if (len == 0)
-    return "";
-
-  stringstream s;
-  for (unsigned t = 0; t <= ((len-1) >> 2); t++)
+  stringstream ss;
+  for (unsigned t = 0; t < ((len+3) >> 2); t++)
   {
-    s << "pc|";
+    ss << "pc|";
     for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
     {
       unsigned pos = 4*t + p;
       if (pos >= len)
         break;
-      s << PLAY_NO_TO_CARD[sequence[pos]];
+      ss << PLAY_NO_TO_CARD[sequence[pos]];
     }
-    s << "|pg||\n";
+    ss << "|pg||\n";
   }
-  return s.str();
+  return ss.str();
 }
 
 
@@ -629,19 +595,19 @@ string Play::strLIN_VG() const
   if (len == 0)
     return "";
 
-  stringstream s;
-  for (unsigned t = 0; t <= ((len-1) >> 2); t++)
+  stringstream ss;
+  for (unsigned t = 0; t < ((len+3) >> 2); t++)
   {
     for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
     {
       unsigned pos = 4*t + p;
       if (pos >= len)
         break;
-      s << "pc|" << PLAY_NO_TO_CARD[sequence[pos]] << "|";
+      ss << "pc|" << PLAY_NO_TO_CARD[sequence[pos]] << "|";
     }
-    s << "pg||\n";
+    ss << "pg||\n";
   }
-  return s.str();
+  return ss.str();
 }
 
 
@@ -662,10 +628,10 @@ string Play::strPBN() const
 {
   if (len == 0)
     return "";
-  stringstream s;
 
-  playerType openingLeader = leads[0].leader;
-  s << "[Play \"" << PLAYER_NAMES_SHORT[openingLeader] << "\"]\n";
+  stringstream ss;
+  Player openingLeader = leads[0].leader;
+  ss << "[Play \"" << PLAYER_NAMES_SHORT[openingLeader] << "\"]\n";
   for (unsigned t = 0; t < trickToPlay; t++)
   {
     unsigned offset = t << 2;
@@ -674,11 +640,16 @@ string Play::strPBN() const
       unsigned p = offset + (static_cast<unsigned>(openingLeader) + 4u - 
         static_cast<unsigned>(leads[t].leader) + c) % 4;
       if (c > 0)
-        s << " ";
-      s << PLAY_NO_TO_CARD[sequence[p]];
+        ss << " ";
+      ss << PLAY_NO_TO_CARD[sequence[p]];
     }
-    s << "\n";
+    ss << "\n";
   }
+
+  // The incomplete last trick is different with Pavlicek:
+  // He uses a double dash (--), not a single dash (-).
+  // He uses trailing (double) dashes, whereas PBN probably does not.
+  // He also uses a * even if all cards have been played (PBN does not).
 
   if (len > trickToPlay << 2)
   {
@@ -690,47 +661,46 @@ string Play::strPBN() const
         offset + (static_cast<unsigned>(openingLeader) + 4u - 
           static_cast<unsigned>(leads[trickToPlay].leader) + c) % 4;
       if (c > 0)
-        s << " ";
+        ss << " ";
       if (p < len)
       {
-        s << PLAY_NO_TO_CARD[sequence[p]];
+        ss << PLAY_NO_TO_CARD[sequence[p]];
         num--;
       }
-      // TODO
-      // PBN uses single dash, and probably not trailing dashes.
-      else // if (num > 0)
-        s << "--";
-        // s << "- ";
+      else
+        ss << "--";
+      // For PBN behavior:  
+      // else if (num > 0) 
+      //   ss << "- ";
     }
-    s << "\n";
+    ss << "\n";
   }
 
-  // TODO
-  // PBN only uses * if not all cards have been played.
+  // For PBN behavior:
   // if (claimMadeFlag)
-    s << "*\n";
+  ss << "*\n";
 
-  return s.str();
+  return ss.str();
 }
 
 
 string Play::strRBNCore() const
 {
-  stringstream s;
+  stringstream ss;
   for (unsigned l = 0; l < len; l++)
   {
     if (l % 4 == 0)
-      s << PLAY_NO_TO_CARD[sequence[l]];
+      ss << PLAY_NO_TO_CARD[sequence[l]];
     else if (PLAY_NO_TO_INFO[sequence[l]].suit != 
         static_cast<unsigned>(leads[l >> 2].suit))
-      s << PLAY_NO_TO_CARD[sequence[l]];
+      ss << PLAY_NO_TO_CARD[sequence[l]];
     else
-      s << PLAY_CARDS[PLAY_NO_TO_INFO[sequence[l]].rank];
+      ss << PLAY_CARDS[PLAY_NO_TO_INFO[sequence[l]].rank];
 
     if (l % 4 == 3 && l != len-1)
-      s << ":";
+      ss << ":";
   }
-  return s.str();
+  return ss.str();
 }
 
 
@@ -757,27 +727,26 @@ string Play::strTXT() const
   if (len == 0)
     return "";
 
-  stringstream s;
+  stringstream ss;
   if (len == 1)
   {
-    s << "Lead: " << PLAY_NO_TO_CARD_TXT[sequence[0]] << "\n";
-    return s.str();
+    ss << "Lead: " << PLAY_NO_TO_CARD_TXT[sequence[0]] << "\n";
+    return ss.str();
   }
 
+  ss << setw(5) << "Trick" <<
+    setw(7) << "Lead" <<
+    setw(7) << "2nd" <<
+    setw(7) << "3rd" <<
+    setw(7) << "4th" << "\n";
 
-  s << setw(5) << "Trick" <<
-       setw(7) << "Lead" <<
-       setw(7) << "2nd" <<
-       setw(7) << "3rd" <<
-       setw(7) << "4th" << "\n";
-
-  for (unsigned t = 0; t <= ((len-1) >> 2); t++)
+  for (unsigned t = 0; t < ((len+3) >> 2); t++)
   {
-    s << t+1 << ". " << PLAYER_NAMES_SHORT[leads[t].leader];
+    ss << t+1 << ". " << PLAYER_NAMES_SHORT[leads[t].leader];
     if (t >= 9)
-      s << "   ";
+      ss << "   ";
     else
-      s << "    ";
+      ss << "    ";
 
     for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
     {
@@ -785,44 +754,35 @@ string Play::strTXT() const
       if (pp >= len)
         break;
 
-      if (p == 0)
-      {
-        if (pp == len-1)
-          s << PLAY_NO_TO_CARD_TXT[sequence[pp]];
-        else
-          s << setw(8) << left << PLAY_NO_TO_CARD_TXT[sequence[pp]];
-      }
-      else if (PLAY_NO_TO_INFO[sequence[pp]].suit != 
-          static_cast<unsigned>(leads[t].suit))
-      {
+      // Pavlicek?
+      const unsigned width = (p == 0 ? 8u : 7u);
+
+      // Full card when lead or when other suit than lead.
+      const string st = (p == 0 || 
+          PLAY_NO_TO_INFO[sequence[pp]].suit != 
+          static_cast<unsigned>(leads[t].suit) ?
+          PLAY_NO_TO_CARD_TXT[sequence[pp]] :
+          PLAY_CARDS_TXT[PLAY_NO_TO_INFO[sequence[pp]].rank]);
+
         if (p == 3 || pp == len-1)
-          s << PLAY_NO_TO_CARD_TXT[sequence[pp]];
+          ss << st;
         else
-          s << setw(7) << left << PLAY_NO_TO_CARD_TXT[sequence[pp]];
-      }
-      else
-      {
-        if (p == 3 || pp == len-1)
-          s << PLAY_CARDS_TXT[PLAY_NO_TO_INFO[sequence[pp]].rank];
-        else
-          s << setw(7) << left <<
-              PLAY_CARDS_TXT[PLAY_NO_TO_INFO[sequence[pp]].rank];
-      }
+          ss << setw(width) << left << st;
     }
-    s << "\n";
+    ss << "\n";
   }
 
-  return s.str();
+  return ss.str();
 }
 
 
 string Play::strEML() const
 {
-  stringstream s;
-  s << " ";
+  stringstream ss;
+  ss << " ";
   for (unsigned l = 0; l < (len+3) >> 2; l++)
-    s << setw(3) << l+1;
-  s << "\n";
+    ss << setw(3) << l+1;
+  ss << "\n";
 
   stringstream ps[BRIDGE_PLAYERS];
   for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
@@ -847,8 +807,8 @@ string Play::strEML() const
   }
 
   for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
-    s << ps[p].str() << "\n";
-  return s.str();
+    ss << ps[p].str() << "\n";
+  return ss.str();
 }
 
 
@@ -857,11 +817,11 @@ string Play::strREC() const
   if (len == 0)
     return "";
 
-  stringstream s;
+  stringstream ss;
 
-  for (unsigned t = 0; t <= ((len-1) >> 2); t++)
+  for (unsigned t = 0; t < ((len+3) >> 2); t++)
   {
-    s << setw(2) << right << t+1 << "  " << 
+    ss << setw(2) << right << t+1 << "  " << 
         setw(6) << left << PLAYER_NAMES_LONG[leads[t].leader];
 
     for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
@@ -871,23 +831,23 @@ string Play::strREC() const
         break;
 
       if (p == 0)
-        s << setw(3) << right << PLAY_NO_TO_CARD[sequence[pp]];
+        ss << setw(3) << right << PLAY_NO_TO_CARD[sequence[pp]];
       else if (PLAY_NO_TO_INFO[sequence[pp]].suit != 
           static_cast<unsigned>(leads[t].suit))
       {
-        s << setw(3) << right << PLAY_NO_TO_CARD[sequence[pp]];
+        ss << setw(3) << right << PLAY_NO_TO_CARD[sequence[pp]];
       }
       else
-        s << setw(3) << right << 
+        ss << setw(3) << right << 
             PLAY_CARDS[PLAY_NO_TO_INFO[sequence[pp]].rank];
 
       if (p != 3 && pp != len-1)
-        s << ",";
+        ss << ",";
     }
-    s << "\n";
+    ss << "\n";
   }
 
-  return s.str() + "\n";
+  return ss.str() + "\n";
 }
 
 

@@ -77,7 +77,7 @@ void Board::newInstance()
   {
     unsigned cards[BRIDGE_PLAYERS][BRIDGE_SUITS];
     deal.getDDS(cards);
-    play[numActive].SetHoldingDDS(cards);
+    play[numActive].setHoldingDDS(cards);
   }
 }
 
@@ -150,7 +150,7 @@ void Board::setDeal(
 
   unsigned cards[BRIDGE_PLAYERS][BRIDGE_SUITS];
   deal.getDDS(cards);
-  play[0].SetHoldingDDS(cards);
+  play[0].setHoldingDDS(cards);
 
   if (format == BRIDGE_FORMAT_LIN)
     auction[numActive].setDealer(text.substr(0, 1), format);
@@ -204,7 +204,7 @@ void Board::setAuction(
 
   // Doesn't bother us unduly if there is no contract.
   if (auction[numActive].getContract(contract[numActive]))
-    play[numActive].SetContract(contract[numActive]);
+    play[numActive].setContract(contract[numActive]);
 }
 
 
@@ -242,7 +242,7 @@ void Board::setContract(
 {
   contract[numActive].SetContract(text, format);
 
-  play[numActive].SetContract(contract[numActive]);
+  play[numActive].setContract(contract[numActive]);
 }
 
 
@@ -308,26 +308,27 @@ void Board::setPlays(
 {
   play[numActive].setPlays(text, format);
 
-  if (play[numActive].PlayIsOver())
-    contract[numActive].SetTricks( play[numActive].GetTricks() );
+  if (play[numActive].isOver())
+    contract[numActive].SetTricks( play[numActive].getTricks() );
 }
 
 
 bool Board::undoLastPlay()
 {
-  return play[numActive].UndoPlay();
+  play[numActive].undoPlay();
+  return true;
 }
 
 
 bool Board::playIsOver() const
 {
-  return play[numActive].PlayIsOver();
+  return play[numActive].isOver();
 }
 
 
 bool Board::claimIsMade() const
 {
-  return play[numActive].ClaimIsMade();
+  return play[numActive].hasClaim();
 }
 
 
@@ -343,9 +344,7 @@ void Board::setResult(
   if (contract[numActive].IsPassedOut())
     return;
 
-  if (play[numActive].Claim(contract[numActive].GetTricks()) !=
-      PLAY_CLAIM_NO_ERROR)
-    THROW("Bad claim"); // TODO: Already throws?
+  play[numActive].makeClaim(contract[numActive].GetTricks());
 }
 
 
