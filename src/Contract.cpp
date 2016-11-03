@@ -16,7 +16,6 @@
 
 #include "Contract.h"
 #include "parse.h"
-#include "portab.h"
 #include "Bexcept.h"
 #include "Bdiff.h"
 

@@ -12,15 +12,14 @@
 #include "bconst.h"
 
 
-void usage(
- const char base[]);
+void usage(const char base[]);
 
-void printOptions();
+void printOptions(const Options& options);
 
 void readArgs(
   int argc,
   char * argv[],
-  OptionsType& options);
+  Options& options);
 
 #endif
 

@@ -16,13 +16,13 @@
 #include <string.h>
 #include <limits.h>
 
-#include "bconst.h"
 #include "args.h"
+#include "bconst.h"
 
 using namespace std;
 
 
-struct optEntry
+struct OptEntry
 {
   string shortName;
   string longName;
@@ -31,7 +31,7 @@ struct optEntry
 
 #define BRIDGE_NUM_OPTIONS 10
 
-static const optEntry optList[BRIDGE_NUM_OPTIONS] =
+static const OptEntry optList[BRIDGE_NUM_OPTIONS] =
 {
   {"i", "infile", 1},
   {"I", "indir", 1},
@@ -54,10 +54,10 @@ static int getNextArgToken(
 static void setDefaults();
 
 static void printFileOption(
-  const FileOptionType& fopt,
+  const FileOption& fopt,
   const string& text);
 
-static void checkArgs();
+static void checkArgs(const Options& options);
 
 
 void usage(
@@ -100,8 +100,8 @@ void usage(
 }
 
 
-int nextToken = 1;
-char * optarg;
+static int nextToken = 1;
+static char * optarg;
 
 static int getNextArgToken(
   int argc,
@@ -150,7 +150,7 @@ static int getNextArgToken(
 }
 
 
-static void setDefaults(OptionsType& options)
+static void setDefaults(Options& options)
 {
   options.fileInput = {false, ""};
   options.dirInput = {false, ""};
@@ -174,7 +174,7 @@ static void setDefaults(OptionsType& options)
 
 
 static void printFileOption(
-  const FileOptionType& fopt,
+  const FileOption& fopt,
   const string& text)
 {
   cout << setw(12) << text;
@@ -185,7 +185,7 @@ static void printFileOption(
 }
 
 
-void printOptions(const OptionsType& options)
+void printOptions(const Options& options)
 {
   cout << left;
   printFileOption(options.fileInput, "infile");
@@ -211,7 +211,7 @@ void printOptions(const OptionsType& options)
 }
 
 
-static void checkArgs(const OptionsType& options)
+static void checkArgs(const Options& options)
 {
   if (options.fileInput.setFlag && options.dirInput.setFlag)
   {
@@ -268,7 +268,7 @@ static void checkArgs(const OptionsType& options)
 void readArgs(
   int argc,
   char * argv[],
-  OptionsType& options)
+  Options& options)
 {
   for (unsigned i = 0; i < BRIDGE_NUM_OPTIONS; i++)
   {

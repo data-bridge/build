@@ -197,7 +197,7 @@ struct writeInfoType
 
 // Input options.
 
-struct FileOptionType
+struct FileOption
 {
   bool setFlag;
   string name;
@@ -205,16 +205,16 @@ struct FileOptionType
 
 struct OptionsType
 {
-  FileOptionType fileInput; // -i, --infile
-  FileOptionType dirInput; // -I, --indir
+  FileOption fileInput; // -i, --infile
+  FileOption dirInput; // -I, --indir
 
-  FileOptionType fileOutput; // -o, --outfile
-  FileOptionType dirOutput; // -O, --outdir
+  FileOption fileOutput; // -o, --outfile
+  FileOption dirOutput; // -O, --outdir
 
-  FileOptionType fileRef; // -r, --reffile
-  FileOptionType dirRef; // -R, --refdir
+  FileOption fileRef; // -r, --reffile
+  FileOption dirRef; // -R, --refdir
 
-  FileOptionType fileLog; // -l, --logfile
+  FileOption fileLog; // -l, --logfile
 
   bool formatSetFlag; // -f, --format
   Format format;
