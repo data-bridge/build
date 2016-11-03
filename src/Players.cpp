@@ -332,12 +332,6 @@ string Players::str(const Format format) const
       return Players::strLIN();
     
     case BRIDGE_FORMAT_LIN_TRN:
-      // TODO: Clean up, do we need closedFlag?
-      // if (closedFlag && roomVal != BRIDGE_ROOM_CLOSED)
-        // exit(0);
-      // if (roomVal == BRIDGE_ROOM_CLOSED && ! closedFlag)
-        // exit(0);
-
       if (roomVal == BRIDGE_ROOM_CLOSED)
         return "pn|,,,," + Players::strLIN() + "|";
       else

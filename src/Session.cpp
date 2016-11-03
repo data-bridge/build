@@ -7,7 +7,6 @@
 */
 
 
-#include <iomanip>
 #include <sstream>
 #include <regex>
 
@@ -75,7 +74,7 @@ void Session::reset()
 }
 
 
-Stage Session::charToType(const char c) const
+Stage Session::charToStage(const char c) const
 {
   switch(c)
   {
@@ -105,38 +104,38 @@ Stage Session::charToType(const char c) const
 }
 
 
-Stage Session::stringToType(
-  const string& t,
+Stage Session::stringToStage(
+  const string& text,
   unsigned& rOf) const
 {
-  string s = t;
-  toUpper(s);
+  string st = text;
+  toUpper(st);
 
-  if (s == "FINAL")
+  if (st == "FINAL")
     return BRIDGE_SESSION_FINAL;
-  else if (s == "PLAYOFF")
+  else if (st == "PLAYOFF")
     return BRIDGE_SESSION_PLAYOFF;
-  else if (s == "SEMIFINAL")
+  else if (st == "SEMIFINAL")
     return BRIDGE_SESSION_SEMIFINAL;
-  else if (s == "QUARTERFINAL")
+  else if (st == "QUARTERFINAL")
     return BRIDGE_SESSION_QUARTERFINAL;
-  else if (s == "QUALIFYING")
+  else if (st == "QUALIFYING")
     return BRIDGE_SESSION_INITIAL;
-  else if (s.at(0) != 'R' || s.length() <= 1)
+  else if (st.at(0) != 'R' || st.length() <= 1)
     return BRIDGE_SESSION_UNDEFINED;
 
   regex re("^ROUND OF (.+)");
   smatch match;
-  if (regex_search(s, match, re) && match.size() >= 1)
+  if (regex_search(st, match, re) && match.size() >= 1)
   {
-    if (! StringToNonzeroUnsigned(match.str(1), rOf))
+    if (! str2upos(match.str(1), rOf))
       return BRIDGE_SESSION_UNDEFINED;
     else
       return BRIDGE_SESSION_ROUND_OF;
   }
 
-  const string rest = s.substr(1, string::npos);
-  if (! StringToNonzeroUnsigned(rest, rOf))
+  const string rest = st.substr(1);
+  if (! str2upos(rest, rOf))
     return BRIDGE_SESSION_UNDEFINED;
 
   if (rOf > 1024)
@@ -146,50 +145,50 @@ Stage Session::stringToType(
 }
 
 
-void Session::setPart1(const string& t)
+void Session::setPart1(const string& text)
 {
+  size_t l = text.length();
   Stage r;
   unsigned u;
-  size_t l = t.length();
 
   if (l == 0)
     return;
   else if (l == 1 || l == 2)
   {
-    if ((r = Session::charToType(t.at(0))) == BRIDGE_SESSION_UNDEFINED)
+    if ((r = Session::charToStage(text.at(0))) == BRIDGE_SESSION_UNDEFINED)
     {
-      general1 = t;
+      general1 = text;
       stage = BRIDGE_SESSION_UNDEFINED;
     }
     else
     {
       stage = r;
-      extension = t.substr(1);
+      extension = text.substr(1);
     }
     return;
   }
 
   string ext = "";
-  string s = t;
-  if (s.at(l-1) != ' ' && s.at(l-2) == ' ')
+  string st = text;
+  if (st.at(l-1) != ' ' && st.at(l-2) == ' ')
   {
     // Might be Semifinal B, R64 B, Round of 32 B etc.
     // Undocumented Pavlicek extension!
-    ext = s.substr(l-1);
-    s = s.substr(0, l-2);
+    ext = st.substr(l-1);
+    st = st.substr(0, l-2);
   }
-  else if (s.at(0) == 'R' && s.at(l-1) != ' ' && 
-      (s.at(l-1) < '0' || s.at(l-1) > '9') &&
-      s.at(l-2) >= '0' && s.at(l-2) <= '9')
+  else if (st.at(0) == 'R' && st.at(l-1) != ' ' && 
+      (st.at(l-1) < '0' || st.at(l-1) > '9') &&
+      st.at(l-2) >= '0' && st.at(l-2) <= '9')
   {
     // Might be R32B.  Undocumented Pavlicek extension!
-    ext = s.substr(l-1);
-    s = s.substr(0, l-1);
+    ext = st.substr(l-1);
+    st = st.substr(0, l-1);
   }
 
-  if ((r = Session::stringToType(s, u)) == BRIDGE_SESSION_UNDEFINED)
+  if ((r = Session::stringToStage(st, u)) == BRIDGE_SESSION_UNDEFINED)
   {
-    general1 = s + ext;
+    general1 = st + ext;
     stage = BRIDGE_SESSION_UNDEFINED;
   }
   else if (r == BRIDGE_SESSION_ROUND_OF)
@@ -206,165 +205,151 @@ void Session::setPart1(const string& t)
 }
 
 
-void Session::setPart2(const string& t)
+void Session::setPart2Numeric(
+  const string& possNumber,
+  const string& text)
 {
   unsigned u;
-  if (t.length() <= 6)
+  if (! str2upos(possNumber, u))
   {
-    if (! StringToNonzeroUnsigned(t, u))
-    {
-      general2 = t;
-      sessionNo = 0;
-    }
-    else
-    {
-      general2 = "";
-      sessionNo = u;
-    }
+    general2 = text;
+    sessionNo = 0;
+  }
+  else
+  {
+    general2 = "";
+    sessionNo = u;
+  }
+}
+
+
+void Session::setPart2(const string& text)
+{
+  unsigned u;
+  if (text.length() <= 6)
+  {
+    Session::setPart2Numeric(text, text);
     return;
   }
 
-  if (StringToNonzeroUnsigned(t, u))
+  if (str2upos(text, u))
   {
     // Could be "5 (overtime)", for example.
     general2 = "";
     sessionNo = u;
 
     unsigned pos = 0;
-    while (pos < t.length() && t.at(pos) != ' ')
+    while (pos < text.length() && text.at(pos) != ' ')
       pos++;
-    if (pos == t.length())
+    if (pos == text.length())
       return;
 
-    while (pos < t.length() && t.at(pos) == ' ')
+    while (pos < text.length() && text.at(pos) == ' ')
       pos++;
-    if (pos == t.length())
+    if (pos == text.length())
       return;
 
-    sessExt = t.substr(pos);
+    sessExt = text.substr(pos);
     return;
   }
 
   regex re("^Segment (.+)");
-  smatch match;
-  if (regex_search(t, match, re) && match.size() >= 1)
-  {
-    if (! StringToNonzeroUnsigned(match.str(1), u))
-    {
-      general2 = t;
-      sessionNo = 0;
-    }
-    else
-    {
-      general2 = "";
-      sessionNo = u;
-    }
-    return;
-  }
-
   regex rer("^Round (.+)");
-  if (regex_search(t, match, rer) && match.size() >= 1)
+  smatch match;
+  if (regex_search(text, match, re) && match.size() >= 1)
   {
-    if (! StringToNonzeroUnsigned(match.str(1), u))
-    {
-      general2 = t;
-      sessionNo = 0;
-    }
-    else
-    {
-      general2 = "";
-      sessionNo = u;
-    }
+    Session::setPart2Numeric(match.str(1), text);
+  }
+  else if (regex_search(text, match, rer) && match.size() >= 1)
+  {
+    Session::setPart2Numeric(match.str(1), text);
   }
   else
   {
-    general2 = t;
+    general2 = text;
     sessionNo = 0;
   }
 }
 
 
-void Session::set(
-  const string& t,
-  const Format f)
+void Session::setSeparated(
+  const string& text,
+  const string& separator)
 {
+  const size_t l = separator.length();
   size_t pos;
-  string s;
+  string st;
 
-  switch(f)
+  if ((pos = text.find(separator, 0)) == string::npos || 
+      text.length() < pos+1+l)
   {
-    case BRIDGE_FORMAT_LIN:
-      THROW("Cannot set LIN session format");
-    
+    general1 = text;
+    stage = BRIDGE_SESSION_UNDEFINED;
+    general2 = "";
+    sessionNo = 0;
+    return;
+  }
+
+  st = text.substr(0, pos);
+  Session::setPart1(st);
+
+  st = text.substr(pos+l);
+  Session::setPart2(st);
+}
+
+
+void Session::set(
+  const string& text,
+  const Format format)
+{
+
+  switch(format)
+  {
     case BRIDGE_FORMAT_PBN:
     case BRIDGE_FORMAT_RBN:
     case BRIDGE_FORMAT_RBX:
-      if ((pos = t.find(":", 0)) == string::npos || t.length() < pos+2)
-      {
-        general1 = t;
-        stage = BRIDGE_SESSION_UNDEFINED;
-        general2 = "";
-        sessionNo = 0;
-        return;
-      }
-
-      s = t.substr(0, pos);
-      Session::setPart1(s);
-
-      s = t.substr(pos+1, string::npos);
-      Session::setPart2(s);
+      Session::setSeparated(text, ":");
       return;
     
     case BRIDGE_FORMAT_TXT:
-      if ((pos = t.find(", ", 0)) == string::npos || t.length() < pos+3)
-      {
-        general1 = t;
-        stage = BRIDGE_SESSION_UNDEFINED;
-        return;
-      }
-
-      s = t.substr(0, pos);
-      Session::setPart1(s);
-
-      s = t.substr(pos+2, string::npos);
-      Session::setPart2(s);
+      Session::setSeparated(text, ", ");
       return;
     
     default:
-      THROW("Invalid format " + STR(f));
+      THROW("Invalid format: " + STR(format));
   }
 }
 
 
-bool Session::isRBNPart(const string& t) const
+bool Session::isStage(const string& text) const
 {
   unsigned u;
-  return (Session::stringToType(t, u) != BRIDGE_SESSION_UNDEFINED);
+  return (Session::stringToStage(text, u) != BRIDGE_SESSION_UNDEFINED);
 }
 
 
-bool Session::operator == (const Session& s2) const
+bool Session::operator == (const Session& session2) const
 {
-  if (stage != s2.stage)
+  if (stage != session2.stage)
     DIFF("Session stage differs");
 
   if (stage == BRIDGE_SESSION_UNDEFINED)
   {
-    if (general1 != s2.general1)
+    if (general1 != session2.general1)
       DIFF("General session 1 differs");
   }
   else if (stage == BRIDGE_SESSION_ROUND_OF)
   {
-    if (roundOf != s2.roundOf)
+    if (roundOf != session2.roundOf)
       DIFF("Session round-of differs");
   }
 
-  if (general2 != s2.general2)
+  if (general2 != session2.general2)
     DIFF("General session 2 differs");
 
   if (general2 == "")
   {
-    if (sessionNo != s2.sessionNo)
+    if (sessionNo != session2.sessionNo)
       DIFF("Session number differs");
   }
 
@@ -372,193 +357,171 @@ bool Session::operator == (const Session& s2) const
 }
 
 
-bool Session::operator != (const Session& s2) const
+bool Session::operator != (const Session& session2) const
 {
-  return ! (* this == s2);
+  return ! (* this == session2);
 }
 
 
-string Session::asLIN() const
+string Session::strLIN() const
 {
   // This is a fudge.  We are putting RBN tags in the LIN header.
   if (stage == BRIDGE_SESSION_UNDEFINED)
     return "";
 
-  stringstream s;
+  stringstream ss;
   if (stage != BRIDGE_SESSION_ROUND_OF)
-    s << STAGE_NAMES_SHORT[stage];
+    ss << STAGE_NAMES_SHORT[stage];
   else
-    s << STAGE_NAMES_SHORT[stage] << roundOf;
+    ss << STAGE_NAMES_SHORT[stage] << roundOf;
 
   if (sessionNo > 0)
-    s << ":" << sessionNo;
+    ss << ":" << sessionNo;
   else if (general2 != "")
-    s << ":" << general2;
+    ss << ":" << general2;
 
-  return s.str();
+  return ss.str();
 }
 
 
-string Session::asLIN_RP() const
+string Session::strLIN_RP() const
 {
   // This is a fudge.  We are putting RBN tags in the LIN header.
   if (stage == BRIDGE_SESSION_UNDEFINED)
     return ",";
 
-  stringstream s;
+  stringstream ss;
 
   // This is an odd Pavlicek choice.
   if (stage != BRIDGE_SESSION_ROUND_OF && extension != "")
   {
-    s << "," << STAGE_NAMES_SHORT[stage] << extension;
+    ss << "," << STAGE_NAMES_SHORT[stage] << extension;
   }
   else if (stage == BRIDGE_SESSION_ROUND_OF)
   {
     if (extension != "" && roundOf >= 64)
-      s << ",R" << roundOf << " " << extension;
+      ss << ",R" << roundOf << " " << extension;
     else
-      s << ",R" << roundOf << extension;
+      ss << ",R" << roundOf << extension;
   }
   else
   {
     // For some reason Pavlicek doesn't do this for Rxy.
-    s << " " << STAGE_NAMES[stage] << extension << ",";
+    ss << " " << STAGE_NAMES[stage] << extension << ",";
     if (sessionNo > 0)
     {
-      s << SESSION_NAMES[stage] << " " << sessionNo;
+      ss << SESSION_NAMES[stage] << " " << sessionNo;
       if (sessExt != "")
-        s << " " << sessExt;
+        ss << " " << sessExt;
     }
     else
-      s << general2;
+      ss << general2;
   }
 
-  return s.str();
+  return ss.str();
 }
 
 
-string Session::asPBN() const
+string Session::strPBN() const
 {
   if (general1 == "" && stage == BRIDGE_SESSION_UNDEFINED)
     return "";
 
-  stringstream s;
-  s << "[Stage \"";
+  return "[Stage \"" + Session::strRBNCore() + "\"]\n";
+}
+
+
+string Session::strRBNCore() const
+{
+  stringstream ss;
   if (stage == BRIDGE_SESSION_UNDEFINED)
-    s << general1;
+    ss << general1;
   else if (stage != BRIDGE_SESSION_ROUND_OF)
-    s << STAGE_NAMES_SHORT[stage] << extension;
+    ss << STAGE_NAMES_SHORT[stage] << extension;
   else if (extension != "" && roundOf >= 64)
     // Pavlicek...
-    s << STAGE_NAMES_SHORT[stage] << roundOf << " " << extension;
+    ss << STAGE_NAMES_SHORT[stage] << roundOf << " " << extension;
   else
-    s << STAGE_NAMES_SHORT[stage] << roundOf << extension;
+    ss << STAGE_NAMES_SHORT[stage] << roundOf << extension;
 
   if (sessionNo > 0)
   {
-    s << ":" << sessionNo;
+    ss << ":" << sessionNo;
     if (sessExt != "")
-      s << " " << sessExt;
+      ss << " " << sessExt;
   }
   else if (general2 != "")
-    s << ":" << general2;
+    ss << ":" << general2;
 
-  return s.str() + "\"]\n";
+  return ss.str();
 }
 
 
-string Session::asRBNCore() const
+string Session::strRBN() const
 {
-  // TODO: Could also be used in asPBN
-  stringstream s;
+  return "S " + Session::strRBNCore() + "\n";
+}
+
+
+string Session::strRBX() const
+{
+  return "S{" + Session::strRBNCore() + "}";
+}
+
+
+string Session::strTXT() const
+{
+  stringstream ss;
   if (stage == BRIDGE_SESSION_UNDEFINED)
-    s << general1;
-  else if (stage != BRIDGE_SESSION_ROUND_OF)
-    s << STAGE_NAMES_SHORT[stage] << extension;
-  else if (extension != "" && roundOf >= 64)
-    // Pavlicek...
-    s << STAGE_NAMES_SHORT[stage] << roundOf << " " << extension;
-  else
-    s << STAGE_NAMES_SHORT[stage] << roundOf << extension;
-
-  if (sessionNo > 0)
-  {
-    s << ":" << sessionNo;
-    if (sessExt != "")
-      s << " " << sessExt;
-  }
-  else if (general2 != "")
-    s << ":" << general2;
-
-  return s.str();
-}
-
-
-string Session::asRBN() const
-{
-  return "S " + Session::asRBNCore() + "\n";
-}
-
-
-string Session::asRBX() const
-{
-  return "S{" + Session::asRBNCore() + "}";
-}
-
-
-string Session::asTXT() const
-{
-  stringstream s;
-  if (stage == BRIDGE_SESSION_UNDEFINED)
-    s << general1;
+    ss << general1;
   else if (stage != BRIDGE_SESSION_ROUND_OF)
   {
-    s << STAGE_NAMES[stage];
+    ss << STAGE_NAMES[stage];
     if (extension != "")
-      s << " " << extension;
+      ss << " " << extension;
   }
   else if (extension != "" && roundOf >= 64)
     // Pavlicek...
-    s << STAGE_NAMES[stage] << roundOf << " " << extension;
+    ss << STAGE_NAMES[stage] << roundOf << " " << extension;
   else
-    s << STAGE_NAMES[stage] << roundOf << extension;
+    ss << STAGE_NAMES[stage] << roundOf << extension;
 
   if (sessionNo > 0)
   {
     if (sessExt == "")
-      s << ", " << SESSION_NAMES[stage] << " " << sessionNo;
+      ss << ", " << SESSION_NAMES[stage] << " " << sessionNo;
     else
       // Pavlicek bug?
-      s << ", " << sessionNo << " " << sessExt;
+      ss << ", " << sessionNo << " " << sessExt;
   }
   else if (general2 != "")
-    s << ", " << general2;
+    ss << ", " << general2;
 
-  return s.str() + "\n";
+  return ss.str() + "\n";
 }
 
 
-string Session::asString(const Format format) const
+string Session::str(const Format format) const
 {
   switch(format)
   {
     case BRIDGE_FORMAT_LIN:
-      return Session::asLIN();
+      return Session::strLIN();
 
     case BRIDGE_FORMAT_LIN_RP:
-      return Session::asLIN_RP();
+      return Session::strLIN_RP();
 
     case BRIDGE_FORMAT_PBN:
-      return Session::asPBN();
+      return Session::strPBN();
 
     case BRIDGE_FORMAT_RBN:
-      return Session::asRBN();
+      return Session::strRBN();
 
     case BRIDGE_FORMAT_RBX:
-      return Session::asRBX();
+      return Session::strRBX();
 
     case BRIDGE_FORMAT_TXT:
-      return Session::asTXT();
+      return Session::strTXT();
 
     default:
       THROW("Invalid format: " + STR(format));

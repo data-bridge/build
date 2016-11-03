@@ -181,7 +181,7 @@ void Segment::SetTitleLIN(const string& t)
   smatch match1, match2;
   if (regex_search(v[0], match1, re1) && 
       match1.size() >= 2 &&
-      seg.session.isRBNPart(match1.str(2)) &&
+      seg.session.isStage(match1.str(2)) &&
       (regex_search(v[1], match2, re2) ||
        regex_search(v[1], match2, re3) ||
        regex_search(v[1], match2, re8) ||
@@ -712,7 +712,7 @@ string Segment::TitleAsLIN_EXT() const
   s << seg.title << "%" <<
       seg.date.str(BRIDGE_FORMAT_LIN) << "%" <<
       seg.location.str(BRIDGE_FORMAT_LIN) << "%" <<
-      seg.session.asString(BRIDGE_FORMAT_LIN) << "%" <<
+      seg.session.str(BRIDGE_FORMAT_LIN) << "%" <<
       seg.event << "%" <<
       seg.scoring.str(BRIDGE_FORMAT_LIN) << 
       ",IMPs,P,";
@@ -732,7 +732,7 @@ string Segment::TitleAsLIN_RP() const
 
   stringstream s;
   s << "vg|" << seg.title << 
-      seg.session.asString(BRIDGE_FORMAT_LIN_RP) << "," <<
+      seg.session.str(BRIDGE_FORMAT_LIN_RP) << "," <<
       seg.scoring.str(BRIDGE_FORMAT_LIN) << ",";
   s << Segment::TitleAsLINCommon(swapFlag) << "pf|y|\n";
   return s.str();
@@ -757,7 +757,7 @@ string Segment::TitleAsLIN_TRN() const
   s << seg.title << "%" <<
       seg.date.str(BRIDGE_FORMAT_LIN) << "%" <<
       seg.location.str(BRIDGE_FORMAT_LIN) << "%" <<
-      seg.session.asString(BRIDGE_FORMAT_LIN) << "%" <<
+      seg.session.str(BRIDGE_FORMAT_LIN) << "%" <<
       seg.event << "%" <<
       seg.scoring.str(BRIDGE_FORMAT_LIN) << 
       ",IMPs,P,";
@@ -849,24 +849,21 @@ string Segment::EventAsString(const Format f) const
 }
 
 
-string Segment::SessionAsString(
-  const Format f) const
+string Segment::SessionAsString(const Format format) const
 {
-  return seg.session.asString(f);
+  return seg.session.str(format);
 }
 
 
-string Segment::ScoringAsString(
-  const Format f) const
+string Segment::ScoringAsString(const Format format) const
 {
-  return seg.scoring.str(f);
+  return seg.scoring.str(format);
 }
 
 
-string Segment::TeamsAsString(
-  const Format f) const
+string Segment::TeamsAsString(const Format format) const
 {
-  return seg.teams.str(f);
+  return seg.teams.str(format);
 }
 
 

@@ -44,22 +44,29 @@ class Session
     unsigned sessionNo;
     string sessExt;
 
-    Stage charToType(const char c) const;
+    Stage charToStage(const char c) const;
 
-    Stage stringToType(
-      const string& t,
+    Stage stringToStage(
+      const string& text,
       unsigned& rOf) const;
 
-    void setPart1(const string& t);
-    void setPart2(const string& t);
+    void setPart1(const string& text);
+    void setPart2Numeric(
+      const string& possNumber,
+      const string& text);
+    void setPart2(const string& text);
 
-    string asLIN() const;
-    string asLIN_RP() const;
-    string asPBN() const;
-    string asRBNCore() const;
-    string asRBN() const;
-    string asRBX() const;
-    string asTXT() const;
+    void setSeparated(
+      const string& text,
+      const string& separator);
+
+    string strLIN() const;
+    string strLIN_RP() const;
+    string strPBN() const;
+    string strRBNCore() const;
+    string strRBN() const;
+    string strRBX() const;
+    string strTXT() const;
 
 
   public:
@@ -74,13 +81,13 @@ class Session
       const string& text,
       const Format format);
 
-    bool isRBNPart(const string& t) const;
+    bool isStage(const string& text) const;
 
     bool operator == (const Session& session2) const;
 
     bool operator != (const Session& session2) const;
 
-    string asString(const Format format) const;
+    string str(const Format format) const;
 };
 
 #endif
