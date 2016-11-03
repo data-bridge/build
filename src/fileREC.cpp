@@ -414,14 +414,14 @@ void writeRECBoardLevel(
 
   fstr << canvas.str(true) << "\n";
 
-  fstr << board->PlayersAsString(format) << "\n";
+  fstr << board->strPlayers(format) << "\n";
   fstr << board->strAuction(format);
 
-  fstr << board->LeadAsString(format) << "    ";
-  fstr << board->ResultAsString(format, false) << "\n";
-  fstr << board->ScoreAsString(format, false);
-  fstr << board->ScoreIMPAsString(format, writeInfo.ino == 1) << "\n\n";
+  fstr << board->strLead(format) << "    ";
+  fstr << board->strResult(format, false) << "\n";
+  fstr << board->strScore(format, false);
+  fstr << board->strScoreIMP(format, writeInfo.ino == 1) << "\n\n";
 
-  fstr << board->PlayAsString(format);
+  fstr << board->strPlay(format);
 }
 

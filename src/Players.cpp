@@ -320,9 +320,7 @@ string Players::strREC() const
 }
 
 
-string Players::str(
-  const Format format,
-  const bool closedFlag) const
+string Players::str(const Format format) const
 {
   switch(format)
   {
@@ -335,12 +333,12 @@ string Players::str(
     
     case BRIDGE_FORMAT_LIN_TRN:
       // TODO: Clean up, do we need closedFlag?
-      if (closedFlag && roomVal != BRIDGE_ROOM_CLOSED)
-        exit(0);
-      if (roomVal == BRIDGE_ROOM_CLOSED && ! closedFlag)
-        exit(0);
+      // if (closedFlag && roomVal != BRIDGE_ROOM_CLOSED)
+        // exit(0);
+      // if (roomVal == BRIDGE_ROOM_CLOSED && ! closedFlag)
+        // exit(0);
 
-      if (closedFlag)
+      if (roomVal == BRIDGE_ROOM_CLOSED)
         return "pn|,,,," + Players::strLIN() + "|";
       else
         return "pn|" + Players::strLIN() + "|";

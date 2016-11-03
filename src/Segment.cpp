@@ -1035,7 +1035,7 @@ string Segment::PlayersAsString(const Format f)
         for (unsigned i = 0; i < p.board.count(); i++)
         {
           p.board.setInstance(i);
-          s1 += p.board.PlayersAsDeltaString(refBoard, f);
+          s1 += p.board.strPlayersDelta(refBoard, f);
           refBoard = &p.board;
         }
       }
@@ -1050,14 +1050,14 @@ string Segment::PlayersAsString(const Format f)
       if (board->count() == 1)
       {
         board->setInstance(0);
-        s1 = board->PlayersAsString(f);
+        s1 = board->strPlayers(f);
         return "pn|" + s1 + ",South,West,North,East|pg||\n";
       }
 
       board->setInstance(0);
-      s1 = board->PlayersAsString(f);
+      s1 = board->strPlayers(f);
       board->setInstance(1);
-      s2 = board->PlayersAsString(f);
+      s2 = board->strPlayers(f);
 
       if (f == BRIDGE_FORMAT_LIN_TRN)
       {
@@ -1078,16 +1078,16 @@ string Segment::PlayersAsString(const Format f)
       if (board->room() == BRIDGE_ROOM_CLOSED)
       {
         board->setInstance(1);
-        s1 = board->PlayersAsString(f);
+        s1 = board->strPlayers(f);
         board->setInstance(0);
-        s2 = board->PlayersAsString(f);
+        s2 = board->strPlayers(f);
       }
       else
       {
         board->setInstance(0);
-        s1 = board->PlayersAsString(f);
+        s1 = board->strPlayers(f);
         board->setInstance(1);
-        s2 = board->PlayersAsString(f);
+        s2 = board->strPlayers(f);
       }
 
       if (f == BRIDGE_FORMAT_LIN_TRN)
@@ -1113,7 +1113,7 @@ string Segment::ScoresAsString(const Format f) const
     case BRIDGE_FORMAT_LIN:
       s = "mp|";
       for (auto &p: boards)
-        s += p.board.GivenScoreAsString(f);
+        s += p.board.strGivenScore(f);
       s.pop_back(); // Remove trailing comma
       return s + "|\n";
 

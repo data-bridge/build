@@ -552,27 +552,27 @@ void writeTXTBoardLevel(
     canvas.setLine(vstr, 14, 0);
     fstr << canvas.str() << "\n";
 
-    fstr << board->PlayersAsString(format);
+    fstr << board->strPlayers(format);
     fstr << board->strAuction(format) << "\n";
     fstr << board->strContract(format);
-    fstr << board->PlayAsString(format);
+    fstr << board->strPlay(format);
 
-    fstr << board->ResultAsString(format, false) << "\n";
+    fstr << board->strResult(format, false) << "\n";
   }
   else
   {
-    const string p = board->PlayersAsString(format);
+    const string p = board->strPlayers(format);
     // Pavlicek bug?
     if (p == "")
       fstr << "\n";
     else
-      fstr << board->PlayersAsString(format);
+      fstr << board->strPlayers(format); // p?!
 
     fstr << board->strAuction(format) << "\n";
     fstr << board->strContract(format);
-    fstr << board->PlayAsString(format);
+    fstr << board->strPlay(format);
 
-    int s = board->ScoreIMPAsInt();
+    int s = board->IMPScore();
     // bool swapFlag = (board->GetRoom() == BRIDGE_ROOM_OPEN);
     string tWin;
     // if ((s > 0 && ! swapFlag) || (s < 0 && swapFlag))
@@ -587,7 +587,7 @@ void writeTXTBoardLevel(
       tWin = segment->FirstTeamAsString(format);
     }
 
-    fstr << board->ResultAsString(format, tWin) << "\n";
+    fstr << board->strResult(format, tWin) << "\n";
     fstr << 
       segment->TeamsAsString(writeInfo.score1, writeInfo.score2, format) << "\n";
     if (writeInfo.bno != writeInfo.numBoards-1)

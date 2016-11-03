@@ -210,9 +210,9 @@ void writePBNBoardLevel(
 
   fstr << board->strDeclarer(format);
   fstr << board->strContract(format);
-  fstr << board->ResultAsString(format, false);
+  fstr << board->strResult(format, false);
   fstr << board->strAuction(format);
-  fstr << board->PlayAsString(format);
+  fstr << board->strPlay(format);
 
   if (writeInfo.bno == 0 && writeInfo.ino == 0)
   {
@@ -230,7 +230,7 @@ void writePBNBoardLevel(
   }
 
   fstr << board->strRoom(0, format);
-  fstr << board->ScoreAsString(format, segment->ScoringIsIMPs());
+  fstr << board->strScore(format, segment->ScoringIsIMPs());
   fstr << board->strTableau(format);
 
   fstr << "\n";

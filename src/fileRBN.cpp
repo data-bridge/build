@@ -159,7 +159,7 @@ void writeRBNBoardLevel(
   writeInfoType& writeInfo,
   const Format format)
 {
-  string names = board->PlayersAsString(format);
+  string names = board->strPlayers(format);
   if (names != writeInfo.namesOld[writeInfo.ino])
   {
     fstr << names;
@@ -176,8 +176,8 @@ void writeRBNBoardLevel(
 
   fstr << board->strAuction(format);
   fstr << board->strContract(format);
-  fstr << board->PlayAsString(format);
-  fstr << board->ResultAsString(format, segment->ScoringIsIMPs());
+  fstr << board->strPlay(format);
+  fstr << board->strResult(format, segment->ScoringIsIMPs());
   fstr << "\n";
 }
 

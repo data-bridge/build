@@ -71,9 +71,7 @@ class Players
 
     bool operator != (const Players& players2) const;
 
-    string str(
-      const Format format,
-      const bool closedFlag = false) const;
+    string str(const Format format) const;
 
     string strDelta(
       const Players& refPlayers,

@@ -138,17 +138,19 @@ class Board
       const string& text,
       const Format format);
 
+    void calculateScore();
+
     // Play
 
     void setPlays(
       const string& text,
       const Format format);
 
-    bool undoLastPlay();
+    void undoLastPlay();
 
     bool playIsOver() const;
 
-    bool claimIsMade() const;
+    bool hasClaim() const;
 
     // Result
 
@@ -156,7 +158,7 @@ class Board
       const string& text,
       const Format format);
       
-    bool resultIsSet() const;
+    bool hasResult() const;
 
     // Tableau
     //
@@ -164,23 +166,23 @@ class Board
       const string& text,
       const Format format);
 
-    bool SetTableauEntry(
+    bool setTableauEntry(
       const Player player,
       const Denom denom,
       const unsigned tricks);
 
-    unsigned GetTableauEntry(
+    unsigned getTableauEntry(
       const Player player,
       const Denom denom) const;
 
-    bool GetPar(
+    bool getPar(
       Player dealer,
-      Vul v,
+      Vul vul,
       string& text) const;
 
-    bool GetPar(
+    bool getPar(
       Player dealer,
-      Vul v,
+      Vul vul,
       list<Contract>& text) const;
 
     // Players
@@ -200,8 +202,6 @@ class Board
       const Format format);
 
     bool getValuation(Valuation& valuation) const;
-
-    void calculateScore();
 
     bool checkBoard() const;
 
@@ -223,41 +223,39 @@ class Board
     string strDeclarer(const Format format) const;
     string strTricks(const Format format) const;
 
-    string ScoreAsString(
+    string strScore(
       const Format format,
       const bool scoringIsIMPs) const;
 
-    string ScoreIMPAsString(
+    string strGivenScore(const Format format) const;
+
+    string strScoreIMP(
       const Format format,
       const bool showFlag) const;
 
-    string GivenScoreAsString(const Format format) const;
+    int IMPScore() const;
 
-    int ScoreIMPAsInt() const;
-
-    string LeadAsString(const Format format) const;
-
-    string PlayAsString(const Format format) const;
-
-    string ClaimAsString(const Format format) const;
+    string strLead(const Format format) const;
+    string strPlay(const Format format) const;
+    string strClaim(const Format format) const;
     
     string strPlayer(
       const Player player,
       const Format format) const;
     
-    string PlayersAsString(const Format format) const;
+    string strPlayers(const Format format) const;
     
-    string PlayersAsDeltaString(
+    string strPlayersDelta(
       Board * refBoard,
       const Format format) const;
     
     string ResultAsString(const Format format) const;
     
-    string ResultAsString(
+    string strResult(
       const Format format,
       const bool scoringIsIMPs) const;
 
-    string ResultAsString(
+    string strResult(
       const Format format,
       const string& team) const;
 

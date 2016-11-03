@@ -205,7 +205,7 @@ void Board::setAuction(
   if (auction[numActive].hasDealerVul())
     contract[numActive].setVul(auction[numActive].getVul());
 
-  // Doesn't bother us unduly if there is no contract.
+  // Doesn't bother us unduly if there is no contract here.
   if (auction[numActive].getContract(contract[numActive]))
     play[numActive].setContract(contract[numActive]);
 }
@@ -258,14 +258,6 @@ void Board::setDeclarer(
 }
 
 
-/*
-void Board::setTricks(const unsigned tricks)
-{
-  contract[numActive].SetTricks(tricks);
-}
-*/
-
-
 bool Board::contractIsSet() const
 {
   return contract[numActive].isSet();
@@ -304,6 +296,12 @@ void Board::setScoreMP(
 }
 
 
+void Board::calculateScore()
+{
+  contract[numActive].calculateScore();
+}
+
+
 // Play
 
 void Board::setPlays(
@@ -317,10 +315,9 @@ void Board::setPlays(
 }
 
 
-bool Board::undoLastPlay()
+void Board::undoLastPlay()
 {
   play[numActive].undoPlay();
-  return true;
 }
 
 
@@ -330,7 +327,7 @@ bool Board::playIsOver() const
 }
 
 
-bool Board::claimIsMade() const
+bool Board::hasClaim() const
 {
   return play[numActive].hasClaim();
 }
@@ -344,14 +341,12 @@ void Board::setResult(
 {
   contract[numActive].setResult(text, format);
 
-  if (contract[numActive].isPassedOut())
-    return;
-
-  play[numActive].makeClaim(contract[numActive].getTricks());
+  if (! contract[numActive].isPassedOut())
+    play[numActive].makeClaim(contract[numActive].getTricks());
 }
 
 
-bool Board::resultIsSet() const
+bool Board::hasResult() const
 {
   return contract[numActive].hasResult();
 }
@@ -367,7 +362,7 @@ void Board::setTableau(
 }
 
 
-bool Board::SetTableauEntry(
+bool Board::setTableauEntry(
   const Player player,
   const Denom denom,
   const unsigned tricks)
@@ -376,7 +371,7 @@ bool Board::SetTableauEntry(
 }
 
 
-unsigned Board::GetTableauEntry(
+unsigned Board::getTableauEntry(
   const Player player,
   const Denom denom) const
 {
@@ -384,21 +379,21 @@ unsigned Board::GetTableauEntry(
 }
 
 
-bool Board::GetPar(
+bool Board::getPar(
   Player dealer,
-  Vul v,
+  Vul vul,
   string& text) const
 {
-  return tableau.getPar(dealer, v, text);
+  return tableau.getPar(dealer, vul, text);
 }
 
 
-bool Board::GetPar(
+bool Board::getPar(
   Player dealer,
-  Vul v,
+  Vul vul,
   list<Contract>& text) const
 {
-  return tableau.getPar(dealer, v, text);
+  return tableau.getPar(dealer, vul, text);
 }
 
 
@@ -440,12 +435,6 @@ bool Board::getValuation(Valuation& valuation) const
   UNUSED(valuation);
   assert(false);
   return true;
-}
-
-
-void Board::calculateScore()
-{
-  contract[numActive].calculateScore();
 }
 
 
@@ -564,7 +553,7 @@ string Board::strTricks(const Format format) const
 }
 
 
-string Board::ScoreAsString(
+string Board::strScore(
   const Format format,
   const bool scoringIsIMPs) const
 {
@@ -577,8 +566,7 @@ string Board::ScoreAsString(
 }
 
 
-string Board::GivenScoreAsString(
-  const Format format) const
+string Board::strGivenScore(const Format format) const
 {
   UNUSED(format);
   stringstream s;
@@ -592,7 +580,7 @@ string Board::GivenScoreAsString(
 }
 
 
-string Board::ScoreIMPAsString(
+string Board::strScoreIMP(
   const Format format,
   const bool showFlag) const
 {
@@ -606,7 +594,7 @@ string Board::ScoreIMPAsString(
 }
 
 
-int Board::ScoreIMPAsInt() const
+int Board::IMPScore() const
 {
   if (numActive != 1 || ! contract[0].hasResult())
     return 0;
@@ -615,19 +603,19 @@ int Board::ScoreIMPAsInt() const
 }
 
 
-string Board::LeadAsString(const Format format) const
+string Board::strLead(const Format format) const
 {
   return play[numActive].strLead(format);
 }
 
 
-string Board::PlayAsString(const Format format) const
+string Board::strPlay(const Format format) const
 {
   return play[numActive].str(format);
 }
 
 
-string Board::ClaimAsString(const Format format) const
+string Board::strClaim(const Format format) const
 {
   return play[numActive].strClaim(format);
 }
@@ -641,15 +629,14 @@ string Board::strPlayer(
 }
 
 
-string Board::PlayersAsString(
+string Board::strPlayers(
   const Format format) const
 {
-  // TODO: Not a reliable indicator of open/closed.
-  return players[numActive].str(format, numActive == 1);
+  return players[numActive].str(format);
 }
 
 
-string Board::PlayersAsDeltaString(
+string Board::strPlayersDelta(
   Board * refBoard,
   const Format format) const
 {
@@ -661,7 +648,7 @@ string Board::PlayersAsDeltaString(
 }
 
 
-string Board::ResultAsString(
+string Board::strResult(
   const Format format,
   const bool scoringIsIMPs) const
 {
@@ -674,7 +661,7 @@ string Board::ResultAsString(
 }
 
 
-string Board::ResultAsString(
+string Board::strResult(
   const Format format,
   const string& team) const
 {

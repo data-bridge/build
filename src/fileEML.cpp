@@ -490,10 +490,10 @@ void writeEMLBoardLevel(
   chunk[EML_DEALER] = board->strDealer(format);
   chunk[EML_VULNERABLE] = board->strVul(format);
   chunk[EML_AUCTION] = board->strAuction(format);
-  chunk[EML_LEAD] = board->LeadAsString(format);
-  chunk[EML_PLAY] = board->PlayAsString(format);
-  chunk[EML_RESULT] = board->ResultAsString(format, false);
-  chunk[EML_SCORE] = board->ScoreAsString(format, segment->ScoringIsIMPs());
+  chunk[EML_LEAD] = board->strLead(format);
+  chunk[EML_PLAY] = board->strPlay(format);
+  chunk[EML_RESULT] = board->strResult(format, false);
+  chunk[EML_SCORE] = board->strScore(format, segment->ScoringIsIMPs());
 
   // Convert deal, auction and play from \n to vectors.
   vector<string> deal, auction, play;

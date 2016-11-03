@@ -169,7 +169,7 @@ void writeLINBoardLevel(
   fstr << segment->NumberAsString(format, writeInfo.bno);
 
   if (format == BRIDGE_FORMAT_LIN || format == BRIDGE_FORMAT_LIN_TRN)
-    fstr << board->PlayersAsString(format);
+    fstr << board->strPlayers(format);
 
   fstr << board->strDeal(format);
   fstr << segment->NumberAsBoardString(format, writeInfo.bno);
@@ -178,7 +178,7 @@ void writeLINBoardLevel(
   board->calculateScore();
 
   fstr << board->strAuction(format);
-  fstr << board->PlayAsString(format);
-  fstr << board->ClaimAsString(format);
+  fstr << board->strPlay(format);
+  fstr << board->strClaim(format);
 }
 
