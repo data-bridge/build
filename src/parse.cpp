@@ -17,6 +17,7 @@
 #include <iterator>
 #include <algorithm>
 #include <regex>
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -25,12 +26,11 @@
 using namespace std;
 
 
-
 // tokenize splits a string into tokens separated by delimiter.
 // http://stackoverflow.com/questions/236129/split-a-string-in-c
 
 void tokenize(
-  const string& str, 
+  const string& text, 
   vector<string>& tokens,
   const string& delimiters)
 {
@@ -38,17 +38,17 @@ void tokenize(
 
   while (true)
   {
-    pos = str.find_first_of(delimiters, lastPos);
+    pos = text.find_first_of(delimiters, lastPos);
     if (pos == std::string::npos)
     {
-      pos = str.length();
-      tokens.push_back(string(str.data()+lastPos, 
+      pos = text.length();
+      tokens.push_back(string(text.data()+lastPos, 
         static_cast<string::size_type>(pos - lastPos)));
       break;
     }
     else
     {
-      tokens.push_back(string(str.data()+lastPos,
+      tokens.push_back(string(text.data()+lastPos,
         static_cast<string::size_type>(pos - lastPos)));
     }
     lastPos = pos + 1;
@@ -57,33 +57,33 @@ void tokenize(
 
 
 unsigned countDelimiters(
-  const string& str,
+  const string& text,
   const string& delimiters)
 {
   int c = 0;
   for (unsigned i = 0; i < delimiters.length(); i++)
-    c += count(str.begin(), str.end(), delimiters.at(i));
+    c += count(text.begin(), text.end(), delimiters.at(i));
   return static_cast<unsigned>(c);
 }
 
 
 void splitIntoWords(
-  const string& line,
+  const string& text,
   vector<string>& words)
 {
   // Split into words (split on \s+, effectively).
   unsigned pos = 0;
   unsigned startPos = 0;
   bool isSpace = true;
-  const unsigned l = line.length();
+  const unsigned l = text.length();
 
   while (pos < l)
   {
-    if (line.at(pos) == ' ')
+    if (text.at(pos) == ' ')
     {
       if (! isSpace)
       {
-        words.push_back(line.substr(startPos, pos-startPos));
+        words.push_back(text.substr(startPos, pos-startPos));
         isSpace = true;
       }
     }
@@ -96,28 +96,20 @@ void splitIntoWords(
   }
 
   if (! isSpace)
-    words.push_back(line.substr(startPos, pos-startPos));
-}
-
-
-string RevStr(const string& s)
-{
-  string t = s;
-  reverse(t.begin(), t.end());
-  return t;
+    words.push_back(text.substr(startPos, pos-startPos));
 }
 
 
 // getWords splits on one or more whitespaces
 
 bool getWords(
-  const string& str,
+  const string& text,
   string words[],
   const int maxCount,
   unsigned& actualCount)
 {
   regex whitespace("(\\S+)");
-  auto wordsBegin = sregex_iterator(str.begin(), str.end(), whitespace);
+  auto wordsBegin = sregex_iterator(text.begin(), text.end(), whitespace);
   auto wordsEnd = sregex_iterator();
 
   if (distance(wordsBegin, wordsEnd) > maxCount)
@@ -131,14 +123,14 @@ bool getWords(
 }
 
 
-bool StringToUnsigned(
-  const string& s,
+bool str2unsigned(
+  const string& text,
   unsigned& res)
 {
   unsigned u;
   try
   {
-    u = stoul(s, nullptr, 0);
+    u = stoul(text, nullptr, 0);
   }
   catch (const invalid_argument& ia)
   {
@@ -156,22 +148,14 @@ bool StringToUnsigned(
 }
 
 
-bool str2unsigned(
-  const string& s,
-  unsigned& res)
-{
-  return StringToUnsigned(s, res);
-}
-
-
-bool StringToNonzeroUnsigned(
-  const string& s,
+bool str2upos(
+  const string& text,
   unsigned& res)
 {
   unsigned u;
   try
   {
-    u = stoul(s, nullptr, 10);
+    u = stoul(text, nullptr, 10);
   }
   catch (const invalid_argument& ia)
   {
@@ -192,24 +176,16 @@ bool StringToNonzeroUnsigned(
 }
 
 
-bool str2upos(
-  const string& s,
-  unsigned& res)
-{
-  return StringToNonzeroUnsigned(s, res);
-}
-
-
 bool str2int(
-  const string& s,
+  const string& text,
   int& res)
 {
   int i;
   size_t pos;
   try
   {
-    i = stoi(s, &pos);
-    if (pos != s.size())
+    i = stoi(text, &pos);
+    if (pos != text.size())
       return false;
 
   }
@@ -230,15 +206,15 @@ bool str2int(
 
 
 bool str2float(
-  const string& s,
+  const string& text,
   float& res)
 {
   float f;
   size_t pos;
   try
   {
-    f = static_cast<float>(stod(s, &pos));
-    if (pos != s.size())
+    f = static_cast<float>(stod(text, &pos));
+    if (pos != text.size())
       return false;
   }
   catch (const invalid_argument& ia)
@@ -257,43 +233,37 @@ bool str2float(
 }
 
 
-unsigned StringToMonth(const string& m)
+unsigned str2month(const string& text)
 {
-  string s = m;
-  toUpper(s);
+  string st = text;
+  toUpper(st);
 
-  if (s == "JANUARY")
+  if (st == "JANUARY")
     return 1;
-  else if (s == "FEBRUARY")
+  else if (st == "FEBRUARY")
     return 2;
-  else if (s == "MARCH")
+  else if (st == "MARCH")
     return 3;
-  else if (s == "APRIL")
+  else if (st == "APRIL")
     return 4;
-  else if (s == "MAY")
+  else if (st == "MAY")
     return 5;
-  else if (s == "JUNE")
+  else if (st == "JUNE")
     return 6;
-  else if (s == "JULY")
+  else if (st == "JULY")
     return 7;
-  else if (s == "AUGUST")
+  else if (st == "AUGUST")
     return 8;
-  else if (s == "SEPTEMBER")
+  else if (st == "SEPTEMBER")
     return 9;
-  else if (s == "OCTOBER")
+  else if (st == "OCTOBER")
     return 10;
-  else if (s == "NOVEMBER")
+  else if (st == "NOVEMBER")
     return 11;
-  else if (s == "DECEMBER")
+  else if (st == "DECEMBER")
     return 12;
   else
     return 0;
-}
-
-
-unsigned str2month(const string& m)
-{
-  return StringToMonth(m);
 }
 
 
@@ -333,15 +303,89 @@ Vul str2vul(const string& text)
 }
 
 
-unsigned GobbleLeadingSpace(string& s)
+void str2lines(
+  const string& text,
+  vector<string>& lines)
 {
+  size_t l = text.size();
+  size_t p = 0;
+  while (p < l)
+  {
+    size_t found = text.find("\n", p);
+    lines.push_back(text.substr(p, found-p));
+    if (found == string::npos)
+      return;
+
+    p = found+1;
+  }
+}
+
+
+bool char2player(
+  const char c,
+  Player& player)
+{
+  switch(c)
+  {
+    case 'N':
+      player = BRIDGE_NORTH;
+      break;
+    case 'E':
+      player = BRIDGE_EAST;
+      break;
+    case 'S':
+      player = BRIDGE_SOUTH;
+      break;
+    case 'W':
+      player = BRIDGE_WEST;
+      break;
+    default:
+      return false;
+  }
+  return true;
+}
+
+
+Format ext2format(const string& text)
+{
+  string st = text;
+  toUpper(st);
+
+  if (st == "LIN")
+    return BRIDGE_FORMAT_LIN;
+  else if (st == "PBN")
+    return BRIDGE_FORMAT_PBN;
+  else if (st == "RBN")
+    return BRIDGE_FORMAT_RBN;
+  else if (st == "RBX")
+    return BRIDGE_FORMAT_RBX;
+  else if (st == "TXT") // Lower-case txt is usually something else
+    return BRIDGE_FORMAT_TXT;
+  else if (st == "EML")
+    return BRIDGE_FORMAT_EML;
+  else if (st == "REC")
+    return BRIDGE_FORMAT_REC;
+  else
+    return BRIDGE_FORMAT_SIZE;
+}
+
+void toUpper(
+  string& text)
+{
+  for (unsigned i = 0; i < text.size(); i++)
+    text.at(i) = static_cast<char>(toupper(static_cast<int>(text.at(i))));
+}
+
+
+unsigned trimLeading(string& text)
+{
+  const unsigned l = text.length();
   unsigned pos = 0;
-  unsigned l = s.length();
-  while (pos < l && s.at(pos) == ' ')
+  while (pos < l && text.at(pos) == ' ')
     pos++;
 
   if (pos > 0)
-    s.erase(0, pos);
+    text.erase(0, pos);
   return pos;
 }
 
@@ -359,171 +403,153 @@ string trimTrailing(const string& str)
 }
 
 
-bool GetNextWord(
-  string& s,
+bool getNextWord(
+  string& text,
   string& word)
 {
   // Consumes from s!
+  const unsigned l = text.length();
   unsigned pos = 0;
-  unsigned l = s.length();
-  while (pos < l && s.at(pos) != ' ')
+  while (pos < l && text.at(pos) != ' ')
     pos++;
   
   if (pos == 0)
     return false;
   else if (pos == l)
   {
-    word = s;
-    s = "";
+    word = text;
+    text = "";
     return true;
   }
   else
   {
-    word = s.substr(0, pos);
-    s.erase(0, pos+1);
+    word = text.substr(0, pos);
+    text.erase(0, pos+1);
     return true;
   }
 }
 
 
-bool getNextWord(
-  string& text,
-  string& word)
-{
-  return GetNextWord(text, word);
-}
-
-
-bool ReadNextWord(
-  const string& s,
+bool readNextWord(
+  const string& text,
   const unsigned startPos,
   string& word)
 {
-  unsigned l = s.length();
+  unsigned l = text.length();
   unsigned pos = startPos;
-  while (pos < l && s.at(pos) != ' ')
+  while (pos < l && text.at(pos) != ' ')
     pos++;
   
   if (pos == startPos)
     return false;
-  else if (pos == l)
-  {
-    word = s.substr(startPos, pos-startPos);
-    return true;
-  }
   else
   {
-    word = s.substr(startPos, pos-startPos);
+    word = text.substr(startPos, pos-startPos);
     return true;
   }
 }
 
 
-bool ReadNextWord(
-  const string& s,
+bool readNextWord(
+  const string& text,
   const unsigned startPos,
   const unsigned stopPosInclusive,
   string& word)
 {
-  unsigned l = s.length();
+  const unsigned l = text.length();
   unsigned pos = startPos;
-  while (pos < l && pos <= stopPosInclusive && s.at(pos) != ' ')
+  while (pos < l && pos <= stopPosInclusive && text.at(pos) != ' ')
     pos++;
   
   if (pos == startPos)
     return false;
-  else if (pos == l)
-  {
-    word = s.substr(startPos, pos-startPos);
-    return true;
-  }
   else
   {
-    word = s.substr(startPos, pos-startPos);
+    word = text.substr(startPos, pos-startPos);
     return true;
   }
 }
 
 
-bool ReadAllWords(
-  const string& s,
+bool readAllWords(
+  const string& text,
   const unsigned startPos,
   const unsigned stopPosInclusive,
   string& word)
 {
-  unsigned l = s.length();
-  if (l == 0 || l < startPos || s.at(startPos) == ' ')
+  const unsigned l = text.length();
+  if (l == 0 || l < startPos || text.at(startPos) == ' ')
     return false;
 
   unsigned pos = Min(l-1, stopPosInclusive);
-  while (pos > startPos && s.at(pos) == ' ')
+  while (pos > startPos && text.at(pos) == ' ')
     pos--;
   
-  if (s.at(pos) == ' ')
+  if (text.at(pos) == ' ')
     return false;
   else
   {
-    word = s.substr(startPos, pos+1-startPos);
+    word = text.substr(startPos, pos+1-startPos);
     return true;
   }
 }
 
 
-bool ReadAllWordsOverlong(
-  const string& s,
+bool readAllWordsOverlong(
+  const string& text,
   const unsigned startPos,
   const unsigned stopPosInclusive,
   string& word)
 {
-  unsigned l = s.length();
+  const unsigned l = text.length();
   if (l == 0 || l < startPos)
     return false;
 
   // Skip over leading spaces.
   unsigned spos = startPos;
-  while (spos < l && s.at(spos) == ' ')
+  while (spos < l && text.at(spos) == ' ')
     spos++;
   if (spos == l)
     return false;
 
   // Spill over end until end of a word is reached.
   unsigned pos = Min(l-1, stopPosInclusive);
-  while (pos < l && s.at(pos) != ' ')
+  while (pos < l && text.at(pos) != ' ')
     pos++;
 
   if (pos == l)
     pos--;
   else
   {
-    while (pos > spos && s.at(pos) == ' ')
+    while (pos > spos && text.at(pos) == ' ')
       pos--;
   }
   
-  word = s.substr(spos, pos+1-spos);
+  word = text.substr(spos, pos+1-spos);
   return true;
 }
 
 
-bool ReadNextSpacedWord(
-  const string& s,
+bool readNextSpacedWord(
+  const string& text,
   const unsigned startPos,
   string& word)
 {
-  stringstream t;
-  unsigned l = s.length();
+  const unsigned l = text.length();
+  stringstream ss;
   unsigned pos;
   bool oneFlag = false; // Lot of ado to turn 10 into T
   for (pos = startPos; pos < l; pos++)
   {
-    const char c = s.at(pos);
-    if (pos > 0 && c == ' ' && s.at(pos-1) == ' ')
+    const char c = text.at(pos);
+    if (pos > 0 && c == ' ' && text.at(pos-1) == ' ')
       break;
     else if (c == '1')
     {
       if (oneFlag)
       {
         // Wasn't 10 after all
-        t << "11";
+        ss << "11";
         oneFlag = false;
       }
       else
@@ -533,105 +559,54 @@ bool ReadNextSpacedWord(
     {
       if (oneFlag)
       {
-        t << "1";
+        ss << "1";
         oneFlag = false;
       }
     }
     else if (oneFlag)
     {
       if (c == '0')
-        t << "T";
+        ss << "T";
       else
-        t << "1" << c;
+        ss << "1" << c;
       oneFlag = false;
     }
     else
-      t << c;
+      ss << c;
   }
 
   if (pos == startPos)
     return false;
 
-  word = t.str();
+  word = ss.str();
   return true;
 }
 
 
-bool ReadLastWord(
-  const string& s,
+bool readLastWord(
+  const string& text,
   string& word)
 {
-  int pos = static_cast<int>(s.length()) - 1;
-  while (pos >= 0 && s.at(static_cast<unsigned>(pos)) != ' ')
+  int pos = static_cast<int>(text.length()) - 1;
+  while (pos >= 0 && text.at(static_cast<unsigned>(pos)) != ' ')
     pos--;
   
-  if (pos == static_cast<int>(s.length()) - 1)
+  if (pos == static_cast<int>(text.length()) - 1)
     return false;
   else if (pos < 0)
   {
-    word = s;
+    word = text;
     return true;
   }
   else
   {
-    word = s.substr(static_cast<unsigned>(pos)+1);
+    word = text.substr(static_cast<unsigned>(pos)+1);
     return true;
   }
 }
 
 
-bool ParsePlayer(
-  const char c,
-  Player& p)
-{
-  switch(c)
-  {
-    case 'N':
-      p = BRIDGE_NORTH;
-      break;
-    case 'E':
-      p = BRIDGE_EAST;
-      break;
-    case 'S':
-      p = BRIDGE_SOUTH;
-      break;
-    case 'W':
-      p = BRIDGE_WEST;
-      break;
-    default:
-      return false;
-  }
-  return true;
-}
-
-
-void ConvertMultilineToVector(
-  const string& sin,
-  vector<string>& sout)
-{
-  size_t l = sin.size();
-  size_t p = 0;
-  while (p < l)
-  {
-    size_t found = sin.find("\n", p);
-    sout.push_back(sin.substr(p, found-p));
-    if (found == string::npos)
-      return;
-
-    p = found+1;
-  }
-}
-
-
-void str2lines(
-  const string& sin,
-  vector<string>& sout)
-{
-  ConvertMultilineToVector(sin, sout);
-}
-
-
-string GuessOriginalLine(
+string guessOriginalLine(
   const string& fname,
   const unsigned count)
 {
@@ -646,37 +621,5 @@ string GuessOriginalLine(
 
   return base.substr(0, 3) + ".RBN " + STR(count+1) + " records " + 
     STR(count/2) + " deals";
-}
-
-
-void toUpper(
-  string& s)
-{
-  for (unsigned i = 0; i < s.size(); i++)
-    s.at(i) = static_cast<char>(toupper(static_cast<int>(s.at(i))));
-}
-
-
-Format ext2format(const string& s)
-{
-  string t = s;
-  toUpper(t);
-
-  if (t == "LIN")
-    return BRIDGE_FORMAT_LIN;
-  else if (t == "PBN")
-    return BRIDGE_FORMAT_PBN;
-  else if (t == "RBN")
-    return BRIDGE_FORMAT_RBN;
-  else if (t == "RBX")
-    return BRIDGE_FORMAT_RBX;
-  else if (s == "TXT") // Lower-case txt is usually something else
-    return BRIDGE_FORMAT_TXT;
-  else if (t == "EML")
-    return BRIDGE_FORMAT_EML;
-  else if (t == "REC")
-    return BRIDGE_FORMAT_REC;
-  else
-    return BRIDGE_FORMAT_SIZE;
 }
 

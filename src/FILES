@@ -13,14 +13,7 @@
     37     61    519 fileREC.h
     44     73    631 fileTXT.h
 
-   610   1397  10699 parse.cpp
-   118    218   2048 parse.h
-
     81    146   1495 reader.cpp
-
-   389    760   6447 bconst.h
-
-    77    156   1408 portab.h
 
    579   1473  13180 validate.cpp
     67    146   1223 validateEML.cpp
@@ -69,4 +62,6 @@ OK, except possibly for coverage:
 * ValStats
 
 * args
+* bconst.h
 * dirent
+* parse

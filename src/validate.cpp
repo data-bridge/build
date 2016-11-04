@@ -52,14 +52,14 @@ bool isRecordComment(
   if (! regex_search(lineOut, match, re))
     return false;
 
-  if (! StringToUnsigned(match.str(1), r1)) return false;
-  if (! StringToUnsigned(match.str(2), d1)) return false;
+  if (! str2unsigned(match.str(1), r1)) return false;
+  if (! str2unsigned(match.str(2), d1)) return false;
 
   if (! regex_search(lineRef, match, re))
     return false;
 
-  if (! StringToUnsigned(match.str(1), r2)) return false;
-  if (! StringToUnsigned(match.str(2), d2)) return false;
+  if (! str2unsigned(match.str(1), r2)) return false;
+  if (! str2unsigned(match.str(2), d2)) return false;
 
   if (r2 <= r1 || d2 <= d1)
     return false;
@@ -105,13 +105,13 @@ static void readRefFix(
     if (line.empty() || line.at(0) == '%')
       continue;
 
-    if (! GetNextWord(line, s))
+    if (! getNextWord(line, s))
       THROW("Ref file " + refName + ": Syntax error in '" + line + "'");
 
-    if (! StringToUnsigned(s, rf.lno))
+    if (! str2unsigned(s, rf.lno))
       THROW("Ref file " + refName + ": Bad number in '" + line + "'");
       
-    if (! GetNextWord(line, s))
+    if (! getNextWord(line, s))
       THROW("Ref file " + refName + ": Syntax error in '" + line + "'");
 
     if (s == "insert")
@@ -133,9 +133,9 @@ static void readRefFix(
     else if (s == "delete")
     {
       rf.type = BRIDGE_REF_DELETE;
-      if (GetNextWord(line, s))
+      if (getNextWord(line, s))
       {
-        if (! StringToUnsigned(s, rf.count))
+        if (! str2unsigned(s, rf.count))
           THROW("Ref file " + refName + ": Bad number in '" + line + "'");
       }
       else

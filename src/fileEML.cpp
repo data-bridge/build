@@ -143,7 +143,7 @@ static bool getEMLCanvasWest(
   while (westLine < canvas.size())
   {
     if (canvas[westLine].size() >= pos+1 &&
-        ReadNextWord(canvas[westLine], pos, wd) && 
+        readNextWord(canvas[westLine], pos, wd) && 
         wd == "W")
     {
       cardStart = pos+3;
@@ -167,7 +167,7 @@ static bool getEMLCanvasOffset(
   string wd = "";
   while (resultLine < canvas.size())
   {
-    if (ReadNextWord(canvas[resultLine], 42, wd) && wd == "Result:")
+    if (readNextWord(canvas[resultLine], 42, wd) && wd == "Result:")
       break;
     resultLine++;
   }
@@ -190,35 +190,35 @@ static bool getEMLSimpleFields(
   const unsigned resultLine,
   vector<string>& chunk)
 {
-  if (! ReadNextWord(canvas[0], 0, chunk[BRIDGE_FORMAT_SCORING]))
+  if (! readNextWord(canvas[0], 0, chunk[BRIDGE_FORMAT_SCORING]))
     return false;
 
-  if (! ReadAllWords(canvas[1], 16, 23, chunk[BRIDGE_FORMAT_NORTH]))
+  if (! readAllWords(canvas[1], 16, 23, chunk[BRIDGE_FORMAT_NORTH]))
     chunk[BRIDGE_FORMAT_NORTH] = "";
-  if (! ReadAllWords(canvas[7], 4, 11, chunk[BRIDGE_FORMAT_WEST]))
+  if (! readAllWords(canvas[7], 4, 11, chunk[BRIDGE_FORMAT_WEST]))
     chunk[BRIDGE_FORMAT_WEST] = "";
-  if (! ReadAllWords(canvas[7], 27, 34, chunk[BRIDGE_FORMAT_EAST]))
+  if (! readAllWords(canvas[7], 27, 34, chunk[BRIDGE_FORMAT_EAST]))
     chunk[BRIDGE_FORMAT_EAST] = "";
-  if (! ReadAllWords(canvas[13], 16, 23, chunk[BRIDGE_FORMAT_SOUTH]))
+  if (! readAllWords(canvas[13], 16, 23, chunk[BRIDGE_FORMAT_SOUTH]))
     chunk[BRIDGE_FORMAT_SOUTH] = "";
 
-  if (! ReadNextWord(canvas[0], 54, chunk[BRIDGE_FORMAT_BOARD_NO]))
+  if (! readNextWord(canvas[0], 54, chunk[BRIDGE_FORMAT_BOARD_NO]))
     return false;
-  if (! ReadNextWord(canvas[1], 5, chunk[BRIDGE_FORMAT_DEALER]))
+  if (! readNextWord(canvas[1], 5, chunk[BRIDGE_FORMAT_DEALER]))
     return false;
-  if (! ReadNextWord(canvas[2], 5, chunk[BRIDGE_FORMAT_VULNERABLE]))
-    return false;
-
-  if (! ReadNextWord(canvas[resultLine], 50, chunk[BRIDGE_FORMAT_RESULT]))
+  if (! readNextWord(canvas[2], 5, chunk[BRIDGE_FORMAT_VULNERABLE]))
     return false;
 
-  if (! ReadNextWord(canvas[resultLine+1], 49, chunk[BRIDGE_FORMAT_SCORE]))
+  if (! readNextWord(canvas[resultLine], 50, chunk[BRIDGE_FORMAT_RESULT]))
+    return false;
+
+  if (! readNextWord(canvas[resultLine+1], 49, chunk[BRIDGE_FORMAT_SCORE]))
     return false;
   chunk[BRIDGE_FORMAT_SCORE].pop_back(); // Drop trailing comma
 
   if (canvas[resultLine+1].back() != ':')
   {
-    if (! ReadLastWord(canvas[resultLine+1], chunk[BRIDGE_FORMAT_SCORE_IMP]))
+    if (! readLastWord(canvas[resultLine+1], chunk[BRIDGE_FORMAT_SCORE_IMP]))
       return false;
   }
   return true;
@@ -234,28 +234,28 @@ static bool getEMLDeal(
   stringstream d;
   d << "W:";
 
-  if (! ReadNextWord(canvas[8], 6, sts)) sts = "";
-  if (! ReadNextWord(canvas[9], 6, sth)) sth = "";
-  if (! ReadNextWord(canvas[10], 6, std)) std = "";
-  if (! ReadNextWord(canvas[11], 6, stc)) stc = "";
+  if (! readNextWord(canvas[8], 6, sts)) sts = "";
+  if (! readNextWord(canvas[9], 6, sth)) sth = "";
+  if (! readNextWord(canvas[10], 6, std)) std = "";
+  if (! readNextWord(canvas[11], 6, stc)) stc = "";
   d << sts << "." << sth <<  "." << std << "." << stc << " ";
 
-  if (! ReadNextWord(canvas[2], 18, sts)) sts = "";
-  if (! ReadNextWord(canvas[3], 18, sth)) sth = "";
-  if (! ReadNextWord(canvas[4], 18, std)) std = "";
-  if (! ReadNextWord(canvas[5], 18, stc)) stc = "";
+  if (! readNextWord(canvas[2], 18, sts)) sts = "";
+  if (! readNextWord(canvas[3], 18, sth)) sth = "";
+  if (! readNextWord(canvas[4], 18, std)) std = "";
+  if (! readNextWord(canvas[5], 18, stc)) stc = "";
   d << sts << "." << sth <<  "." << std << "." << stc << " ";
 
-  if (! ReadNextWord(canvas[8], 29, sts)) sts = "";
-  if (! ReadNextWord(canvas[9], 29, sth)) sth = "";
-  if (! ReadNextWord(canvas[10], 29, std)) std = "";
-  if (! ReadNextWord(canvas[11], 29, stc)) stc = "";
+  if (! readNextWord(canvas[8], 29, sts)) sts = "";
+  if (! readNextWord(canvas[9], 29, sth)) sth = "";
+  if (! readNextWord(canvas[10], 29, std)) std = "";
+  if (! readNextWord(canvas[11], 29, stc)) stc = "";
   d << sts << "." << sth <<  "." << std << "." << stc << " ";
 
-  if (! ReadNextWord(canvas[14], 18, sts)) sts = "";
-  if (! ReadNextWord(canvas[15], 18, sth)) sth = "";
-  if (! ReadNextWord(canvas[16], 18, std)) std = "";
-  if (! ReadNextWord(canvas[17], 18, stc)) stc = "";
+  if (! readNextWord(canvas[14], 18, sts)) sts = "";
+  if (! readNextWord(canvas[15], 18, sth)) sth = "";
+  if (! readNextWord(canvas[16], 18, std)) std = "";
+  if (! readNextWord(canvas[17], 18, stc)) stc = "";
   d << sts << "." << sth <<  "." << std << "." << stc;
 
 
@@ -288,7 +288,7 @@ static bool getEMLAuction(
   {
     for (unsigned beg = (l == 5 ? firstStart : 42); beg < 75; beg += 9)
     {
-      if (! ReadNextWord(canvas[l], beg, wd))
+      if (! readNextWord(canvas[l], beg, wd))
       {
         if (l == resultLine-2 || l == resultLine-3)
           break;
@@ -337,7 +337,7 @@ static bool getEMLPlay(
   string p1, p2, p3, p4;
 
   string opld;
-  if (! ReadNextWord(canvas[resultLine-1], 56, opld))
+  if (! readNextWord(canvas[resultLine-1], 56, opld))
   {
     if (playIsPresent)
       return false;
@@ -364,7 +364,7 @@ static bool getEMLPlay(
       for (h = 0; h < 4; h++)
       {
         if (canvas[westLine+h].size() >= cardStart+1 &&
-            ReadNextWord(canvas[westLine+h], cardStart-1, cardStart, wd) &&
+            readNextWord(canvas[westLine+h], cardStart-1, cardStart, wd) &&
             wd == opld)
         {
           found = true;
@@ -404,7 +404,7 @@ static bool getEMLPlay(
         d << canvas[l].at(pos0);
       else
       {
-        if (! ReadNextWord(canvas[l], pos0-1, pos0, wd))
+        if (! readNextWord(canvas[l], pos0-1, pos0, wd))
           return false;
         d << wd;
         
@@ -497,9 +497,9 @@ void writeEMLBoardLevel(
 
   // Convert deal, auction and play from \n to vectors.
   vector<string> deal, auction, play;
-  ConvertMultilineToVector(chunk[EML_DEAL], deal);
-  ConvertMultilineToVector(chunk[EML_AUCTION], auction);
-  ConvertMultilineToVector(chunk[EML_PLAY], play);
+  str2lines(chunk[EML_DEAL], deal);
+  str2lines(chunk[EML_AUCTION], auction);
+  str2lines(chunk[EML_PLAY], play);
 
   // Height of auction determines dimensions.
   // It seems we leave out the play if that makes the canvas too large.

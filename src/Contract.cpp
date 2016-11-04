@@ -367,13 +367,13 @@ void Contract::setContractTXT(const string& text)
     return;
   }
 
-  if (! ReadNextWord(text, 0, mod))
+  if (! readNextWord(text, 0, mod))
   {
     Contract::setContractByString(text);
     return;
   }
 
-  if (! ReadLastWord(text, wd))
+  if (! readLastWord(text, wd))
   {
     Contract::setContractByString(text);
     return;
@@ -492,10 +492,10 @@ void Contract::setResultTXT(const string& text)
   unsigned u;
   string wd1, wd2;
 
-  if (! ReadNextWord(text, 0, wd1))
+  if (! readNextWord(text, 0, wd1))
     THROW("No first word");
 
-  if (! ReadNextWord(text, 5, wd2))
+  if (! readNextWord(text, 5, wd2))
     THROW("No second word");
 
   if (! str2upos(wd2, u))

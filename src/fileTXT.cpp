@@ -83,7 +83,7 @@ static bool readTXTCanvas(
 
       string& prevLine = canvas.back();
       string wd;
-      if (ReadNextWord(prevLine, 0, wd) && 
+      if (readNextWord(prevLine, 0, wd) && 
           (wd == "Down" || wd == "Made" || wd == "Passed"))
       {
         int seen = count(prevLine.begin(), prevLine.end(), ' ');
@@ -157,25 +157,25 @@ static bool getTXTCanvasOffset(
   if (ll > 13 && ll < 36 && canvas[aline].substr(12, 2) == "C ")
     return true;
 
-  if (ReadAllWordsOverlong(canvas[aline], n, n+11, 
+  if (readAllWordsOverlong(canvas[aline], n, n+11, 
       chunk[BRIDGE_FORMAT_WEST])) 
     n += Max(12, chunk[BRIDGE_FORMAT_WEST].length()+1);
   else
     n += 12;
 
-  if (ReadAllWordsOverlong(canvas[aline], n, n+11, 
+  if (readAllWordsOverlong(canvas[aline], n, n+11, 
       chunk[BRIDGE_FORMAT_NORTH])) 
     n += Max(12, chunk[BRIDGE_FORMAT_NORTH].length()+1);
   else
     n += 12;
 
-  if (ReadAllWordsOverlong(canvas[aline], n, n+11, 
+  if (readAllWordsOverlong(canvas[aline], n, n+11, 
       chunk[BRIDGE_FORMAT_EAST])) 
     n += Max(12, chunk[BRIDGE_FORMAT_EAST].length()+1);
   else
     n += 12;
 
-  (void) ReadAllWordsOverlong(canvas[aline], n, n+11, 
+  (void) readAllWordsOverlong(canvas[aline], n, n+11, 
       chunk[BRIDGE_FORMAT_SOUTH]);
 
   return true;
@@ -197,7 +197,7 @@ static bool getTXTFields(
     // Guess the number of header lines.
     bline = 6;
     string tmp;
-    while (bline != 0 && ! ReadNextWord(canvas[bline], 0, tmp))
+    while (bline != 0 && ! readNextWord(canvas[bline], 0, tmp))
       bline--;
 
     if (bline == 6)
@@ -226,16 +226,16 @@ static bool getTXTFields(
 
   if (aline > 11)
   {
-    if (! ReadNextWord(canvas[bline], 0, chunk[BRIDGE_FORMAT_BOARD_NO])) 
+    if (! readNextWord(canvas[bline], 0, chunk[BRIDGE_FORMAT_BOARD_NO])) 
       return false;
     chunk[BRIDGE_FORMAT_BOARD_NO].pop_back(); // Drop trailing point
 
     // Attempt to read dealer.  Pavlicek only puts a dealer
     // when the auction is not given.
 
-    (void) ReadNextWord(canvas[bline+13], 0, chunk[BRIDGE_FORMAT_DEALER]);
+    (void) readNextWord(canvas[bline+13], 0, chunk[BRIDGE_FORMAT_DEALER]);
 
-    if (! ReadNextWord(canvas[bline+14], 0, chunk[BRIDGE_FORMAT_VULNERABLE])) 
+    if (! readNextWord(canvas[bline+14], 0, chunk[BRIDGE_FORMAT_VULNERABLE])) 
       return false;
 
     if (! getTXTDeal(canvas, bline, chunk)) 
@@ -264,7 +264,7 @@ static bool getTXTFields(
     }
     else if (wd == "Lead:")
     {
-      if (! ReadLastWord(canvas[cline], wd))
+      if (! readLastWord(canvas[cline], wd))
         return false;
       if (wd.size() == 3 && wd.substr(1, 2) == "10")
         chunk[BRIDGE_FORMAT_PLAY] = wd.substr(0, 1) + "T";
@@ -293,28 +293,28 @@ static bool getTXTDeal(
   stringstream d;
   d << "W:";
 
-  if (! ReadNextSpacedWord(canvas[offset+6], 2, sts)) sts = "";
-  if (! ReadNextSpacedWord(canvas[offset+7], 2, sth)) sth = "";
-  if (! ReadNextSpacedWord(canvas[offset+8], 2, std)) std = "";
-  if (! ReadNextSpacedWord(canvas[offset+9], 2, stc)) stc = "";
+  if (! readNextSpacedWord(canvas[offset+6], 2, sts)) sts = "";
+  if (! readNextSpacedWord(canvas[offset+7], 2, sth)) sth = "";
+  if (! readNextSpacedWord(canvas[offset+8], 2, std)) std = "";
+  if (! readNextSpacedWord(canvas[offset+9], 2, stc)) stc = "";
   d << sts << "." << sth <<  "." << std << "." << stc << " ";
 
-  if (! ReadNextSpacedWord(canvas[offset+1], 14, sts)) sts = "";
-  if (! ReadNextSpacedWord(canvas[offset+2], 14, sth)) sth = "";
-  if (! ReadNextSpacedWord(canvas[offset+3], 14, std)) std = "";
-  if (! ReadNextSpacedWord(canvas[offset+4], 14, stc)) stc = "";
+  if (! readNextSpacedWord(canvas[offset+1], 14, sts)) sts = "";
+  if (! readNextSpacedWord(canvas[offset+2], 14, sth)) sth = "";
+  if (! readNextSpacedWord(canvas[offset+3], 14, std)) std = "";
+  if (! readNextSpacedWord(canvas[offset+4], 14, stc)) stc = "";
   d << sts << "." << sth <<  "." << std << "." << stc << " ";
 
-  if (! ReadNextSpacedWord(canvas[offset+6], 26, sts)) sts = "";
-  if (! ReadNextSpacedWord(canvas[offset+7], 26, sth)) sth = "";
-  if (! ReadNextSpacedWord(canvas[offset+8], 26, std)) std = "";
-  if (! ReadNextSpacedWord(canvas[offset+9], 26, stc)) stc = "";
+  if (! readNextSpacedWord(canvas[offset+6], 26, sts)) sts = "";
+  if (! readNextSpacedWord(canvas[offset+7], 26, sth)) sth = "";
+  if (! readNextSpacedWord(canvas[offset+8], 26, std)) std = "";
+  if (! readNextSpacedWord(canvas[offset+9], 26, stc)) stc = "";
   d << sts << "." << sth <<  "." << std << "." << stc << " ";
 
-  if (! ReadNextSpacedWord(canvas[offset+11], 14, sts)) sts = "";
-  if (! ReadNextSpacedWord(canvas[offset+12], 14, sth)) sth = "";
-  if (! ReadNextSpacedWord(canvas[offset+13], 14, std)) std = "";
-  if (! ReadNextSpacedWord(canvas[offset+14], 14, stc)) stc = "";
+  if (! readNextSpacedWord(canvas[offset+11], 14, sts)) sts = "";
+  if (! readNextSpacedWord(canvas[offset+12], 14, sth)) sth = "";
+  if (! readNextSpacedWord(canvas[offset+13], 14, std)) std = "";
+  if (! readNextSpacedWord(canvas[offset+14], 14, stc)) stc = "";
   d << sts << "." << sth <<  "." << std << "." << stc;
 
   // Turn -- (void) into nothing.
@@ -342,7 +342,7 @@ static bool getTXTAuction(
 
   // The auction fields are normally 12 characters wide.
   // With long names this may run over, but hopefully not by too much.
-  unsigned firstStart = GobbleLeadingSpace(canvas[offset]);
+  unsigned firstStart = trimLeading(canvas[offset]);
 
   if (firstStart == l0)
     return false;
@@ -366,9 +366,9 @@ static bool getTXTAuction(
 
     }
 
-    while (GetNextWord(canvas[l], wd))
+    while (getNextWord(canvas[l], wd))
     {
-      GobbleLeadingSpace(canvas[l]);
+      trimLeading(canvas[l]);
 
       if (no > 0 && no % 4 == 0)
         d << ":";
@@ -454,7 +454,7 @@ static bool getTXTPlay(
       if (p > 20)
         p--; // WTF?
 
-      if (! ReadNextWord(canvas[l], p, wd))
+      if (! readNextWord(canvas[l], p, wd))
       {
         done = true;
         break;
@@ -543,7 +543,7 @@ void writeTXTBoardLevel(
 
     // Convert deal, auction and play from \n to vectors.
     vector<string> deal;
-    ConvertMultilineToVector(dstr, deal);
+    str2lines(dstr, deal);
 
     canvas.resize(15, 80);
     canvas.setRectangle(deal, 0, 0);

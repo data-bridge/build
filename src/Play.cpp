@@ -345,7 +345,7 @@ void Play::setPlaysPBN(const vector<string>& list)
     THROW("Declarer and denomination should be set by now");
 
   Player opldr;
-  if (! ParsePlayer(list[0].at(0), opldr))
+  if (! char2player(list[0].at(0), opldr))
     THROW("Not an opening leader");
 
   if ((declarer + 1) % 4 != opldr)
@@ -427,7 +427,7 @@ void Play::setPlays(
     case BRIDGE_FORMAT_PBN:
       {
         vector<string> lines;
-        ConvertMultilineToVector(text, lines);
+        str2lines(text, lines);
         Play::setPlaysPBN(lines);
         break;
       }

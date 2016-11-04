@@ -30,7 +30,7 @@ static bool isRECPlay(const string& line)
     return false;
 
   unsigned u;
-  if (! StringToNonzeroUnsigned(words[0], u))
+  if (! str2upos(words[0], u))
     return false;
   if (u > 13)
     return false;
@@ -77,9 +77,9 @@ static bool isRECNorthLine(
     return false;
 
   string pOut, pRef;
-  if (! ReadAllWords(lineOut, 12, 23, pOut))
+  if (! readAllWords(lineOut, 12, 23, pOut))
     return false;
-  if (! ReadAllWords(lineRef, 12, 23, pRef))
+  if (! readAllWords(lineRef, 12, 23, pRef))
     return false;
 
   const unsigned lOut = pOut.length();
@@ -104,9 +104,9 @@ static bool isRECEWLine(
     return false;
 
   string pOut, pRef;
-  if (! ReadAllWords(lineOut, 0, 11, pOut))
+  if (! readAllWords(lineOut, 0, 11, pOut))
     return false;
-  if (! ReadAllWords(lineRef, 0, 11, pRef))
+  if (! readAllWords(lineRef, 0, 11, pRef))
     return false;
 
   unsigned lOut = pOut.length();
@@ -114,9 +114,9 @@ static bool isRECEWLine(
       (lOut >= pRef.length() || pRef.substr(0, lOut) != pOut))
     return false;
 
-  if (! ReadAllWords(lineOut, 24, 35, pOut))
+  if (! readAllWords(lineOut, 24, 35, pOut))
     return false;
-  if (! ReadAllWords(lineRef, 24, 35, pRef))
+  if (! readAllWords(lineRef, 24, 35, pRef))
     return false;
 
   lOut = pOut.length();
@@ -142,9 +142,9 @@ static bool isRECSouthLine(
     return false;
 
   string pOut, pRef;
-  if (! ReadAllWords(lineOut, 12, 23, pOut))
+  if (! readAllWords(lineOut, 12, 23, pOut))
     return false;
-  if (! ReadAllWords(lineRef, 12, 23, pRef))
+  if (! readAllWords(lineRef, 12, 23, pRef))
     return false;
 
   const unsigned lOut = pOut.length();

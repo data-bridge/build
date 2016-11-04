@@ -365,7 +365,7 @@ void GuessDealerAndVul(
   const Format format)
 {
   unsigned u;
-  if (! StringToNonzeroUnsigned(s, u))
+  if (! str2upos(s, u))
     return;
 
   GuessDealerAndVul(chunk, u, format);
@@ -396,7 +396,7 @@ static void readFix(
     if (! regex_search(line, match, rep) || match.size() < 3)
       THROW("Fix file " + fixName + ": Syntax error in '" + line + "'");
 
-    if (! StringToUnsigned(match.str(1), newFix.no))
+    if (! str2unsigned(match.str(1), newFix.no))
       THROW("Fix file " + fixName + ": Bad number in '" + line + "'");
 
     bool found = false;
@@ -646,7 +646,7 @@ static void writeHeader(
   Group& group,
   const Format format)
 {
-  const string g = GuessOriginalLine(group.name(), group.count());
+  const string g = guessOriginalLine(group.name(), group.count());
   if (g == "")
     return;
 

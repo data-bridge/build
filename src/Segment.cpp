@@ -204,7 +204,7 @@ void Segment::setTitleLIN(const string& t)
 
   if (v[4] == "")
     bInmax = 0;
-  else if (! StringToNonzeroUnsigned(v[4], bInmax))
+  else if (! str2upos(v[4], bInmax))
     THROW("Not a board number");
 
   // Teams (5-8): Synthesize an RBN-like team line (a bit wasteful).

@@ -535,7 +535,7 @@ void Auction::addAuctionPBN(const vector<string>& list)
     {
       unsigned ano;
       words[i+1].erase(0, 1);
-      if (! StringToNonzeroUnsigned(words[i+1], ano))
+      if (! str2upos(words[i+1], ano))
         THROW("Not an alert number");
 
       if (ano > alerts.size()-1)

@@ -104,11 +104,11 @@ static bool getRECCanvasOffset(
       continue;
 
     const unsigned st = (line.at(0) == ' ' ? 1u : 0u);
-    if (! ReadNextWord(line, st, wd))
+    if (! readNextWord(line, st, wd))
       continue;
 
     unsigned u;
-    if (StringToNonzeroUnsigned(wd, u))
+    if (str2upos(wd, u))
       break;
   }
 
@@ -130,35 +130,35 @@ static void getRECFields(
     THROW("Some deal lines are too short");
   }
 
-  if (! ReadNextWord(canvas[0], 0, chunk[BRIDGE_FORMAT_SCORING])) 
+  if (! readNextWord(canvas[0], 0, chunk[BRIDGE_FORMAT_SCORING])) 
     THROW("Couldn't read format: '" + chunk[BRIDGE_FORMAT_SCORING] + "'");
 
-  if (! ReadNextWord(canvas[0], 29, chunk[BRIDGE_FORMAT_DEALER])) 
+  if (! readNextWord(canvas[0], 29, chunk[BRIDGE_FORMAT_DEALER])) 
     THROW("Couldn't read dealer: '" + chunk[BRIDGE_FORMAT_DEALER] + "'");
 
-  if (! ReadNextWord(canvas[1], 6, chunk[BRIDGE_FORMAT_BOARD_NO])) 
+  if (! readNextWord(canvas[1], 6, chunk[BRIDGE_FORMAT_BOARD_NO])) 
     THROW("Couldn't read board: '" + chunk[BRIDGE_FORMAT_BOARD_NO] + "'");
 
-  if (! ReadNextWord(canvas[1], 29, chunk[BRIDGE_FORMAT_VULNERABLE])) 
+  if (! readNextWord(canvas[1], 29, chunk[BRIDGE_FORMAT_VULNERABLE])) 
     THROW("Couldn't read vul: '" + chunk[BRIDGE_FORMAT_VULNERABLE] + "'");
 
-  if (! ReadAllWords(canvas[3], 0, 11, chunk[BRIDGE_FORMAT_WEST])) 
+  if (! readAllWords(canvas[3], 0, 11, chunk[BRIDGE_FORMAT_WEST])) 
     THROW("Couldn't read West: '" + chunk[BRIDGE_FORMAT_WEST] + "'");
   // Let's hope West doesn't sit West :-)
   if (chunk[BRIDGE_FORMAT_WEST] == "West")
     chunk[BRIDGE_FORMAT_WEST] = "";
 
-  if (! ReadAllWords(canvas[0], 12, 23, chunk[BRIDGE_FORMAT_NORTH])) 
+  if (! readAllWords(canvas[0], 12, 23, chunk[BRIDGE_FORMAT_NORTH])) 
     THROW("Couldn't read North: '" + chunk[BRIDGE_FORMAT_NORTH] + "'");
   if (chunk[BRIDGE_FORMAT_NORTH] == "North")
     chunk[BRIDGE_FORMAT_NORTH] = "";
 
-  if (! ReadAllWords(canvas[3], 24, 35, chunk[BRIDGE_FORMAT_EAST])) 
+  if (! readAllWords(canvas[3], 24, 35, chunk[BRIDGE_FORMAT_EAST])) 
     THROW("Couldn't read East: '" + chunk[BRIDGE_FORMAT_EAST] + "'");
   if (chunk[BRIDGE_FORMAT_EAST] == "East")
     chunk[BRIDGE_FORMAT_EAST] = "";
 
-  if (! ReadAllWords(canvas[6], 12, 23, chunk[BRIDGE_FORMAT_SOUTH])) 
+  if (! readAllWords(canvas[6], 12, 23, chunk[BRIDGE_FORMAT_SOUTH])) 
     THROW("Couldn't read South: '" + chunk[BRIDGE_FORMAT_SOUTH] + "'");
   if (chunk[BRIDGE_FORMAT_SOUTH] == "South")
     chunk[BRIDGE_FORMAT_SOUTH] = "";
@@ -196,28 +196,28 @@ static void getRECDeal(
   stringstream d;
   d << "W:";
 
-  if (! ReadNextWord(canvas[4], 2, 11, sts)) sts = "";
-  if (! ReadNextWord(canvas[5], 2, 11, sth)) sth = "";
-  if (! ReadNextWord(canvas[6], 2, 11, std)) std = "";
-  if (! ReadNextWord(canvas[7], 2, 11, stc)) stc = "";
+  if (! readNextWord(canvas[4], 2, 11, sts)) sts = "";
+  if (! readNextWord(canvas[5], 2, 11, sth)) sth = "";
+  if (! readNextWord(canvas[6], 2, 11, std)) std = "";
+  if (! readNextWord(canvas[7], 2, 11, stc)) stc = "";
   d << sts << "." << sth <<  "." << std << "." << stc << " ";
 
-  if (! ReadNextWord(canvas[1], 14, 23, sts)) sts = "";
-  if (! ReadNextWord(canvas[2], 14, 23, sth)) sth = "";
-  if (! ReadNextWord(canvas[3], 14, 23, std)) std = "";
-  if (! ReadNextWord(canvas[4], 14, 23, stc)) stc = "";
+  if (! readNextWord(canvas[1], 14, 23, sts)) sts = "";
+  if (! readNextWord(canvas[2], 14, 23, sth)) sth = "";
+  if (! readNextWord(canvas[3], 14, 23, std)) std = "";
+  if (! readNextWord(canvas[4], 14, 23, stc)) stc = "";
   d << sts << "." << sth <<  "." << std << "." << stc << " ";
 
-  if (! ReadNextWord(canvas[4], 26, sts)) sts = "";
-  if (! ReadNextWord(canvas[5], 26, sth)) sth = "";
-  if (! ReadNextWord(canvas[6], 26, std)) std = "";
-  if (! ReadNextWord(canvas[7], 26, stc)) stc = "";
+  if (! readNextWord(canvas[4], 26, sts)) sts = "";
+  if (! readNextWord(canvas[5], 26, sth)) sth = "";
+  if (! readNextWord(canvas[6], 26, std)) std = "";
+  if (! readNextWord(canvas[7], 26, stc)) stc = "";
   d << sts << "." << sth <<  "." << std << "." << stc << " ";
 
-  if (! ReadNextWord(canvas[7], 14, 23, sts)) sts = "";
-  if (! ReadNextWord(canvas[8], 14, 23, sth)) sth = "";
-  if (! ReadNextWord(canvas[9], 14, 23, std)) std = "";
-  if (! ReadNextWord(canvas[10], 14, 23, stc)) stc = "";
+  if (! readNextWord(canvas[7], 14, 23, sts)) sts = "";
+  if (! readNextWord(canvas[8], 14, 23, sth)) sth = "";
+  if (! readNextWord(canvas[9], 14, 23, std)) std = "";
+  if (! readNextWord(canvas[10], 14, 23, stc)) stc = "";
   d << sts << "." << sth <<  "." << std << "." << stc;
 
   // Void is shown as empty in REC.
@@ -255,7 +255,7 @@ static void getRECAuction(
   {
     for (unsigned beg = (l == offset ? firstStart : 0); beg < 32; beg += 9)
     {
-      if (! ReadNextWord(canvas[l], beg, wd) || wd == "Opening")
+      if (! readNextWord(canvas[l], beg, wd) || wd == "Opening")
       {
         done = true;
         break;
@@ -397,7 +397,7 @@ void writeRECBoardLevel(
 
   // Convert deal, auction and play from \n to vectors.
   vector<string> deal;
-  ConvertMultilineToVector(dstr, deal);
+  str2lines(dstr, deal);
 
   canvas.resize(11, 80);
   canvas.setRectangle(deal, 0, 0);
