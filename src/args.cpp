@@ -31,7 +31,7 @@ struct OptEntry
 
 #define BRIDGE_NUM_OPTIONS 10
 
-static const OptEntry optList[BRIDGE_NUM_OPTIONS] =
+static const OptEntry OPT_LIST[BRIDGE_NUM_OPTIONS] =
 {
   {"i", "infile", 1},
   {"I", "indir", 1},
@@ -129,9 +129,9 @@ static int getNextArgToken(
 
   for (unsigned i = 0; i < BRIDGE_NUM_OPTIONS; i++)
   {
-    if (str == optList[i].shortName || str == optList[i].longName)
+    if (str == OPT_LIST[i].shortName || str == OPT_LIST[i].longName)
     {
-      if (optList[i].numArgs == 1)
+      if (OPT_LIST[i].numArgs == 1)
       {
         if (nextToken+1 >= argc)
           return -1;
@@ -272,9 +272,9 @@ void readArgs(
 {
   for (unsigned i = 0; i < BRIDGE_NUM_OPTIONS; i++)
   {
-    shortOptsAll += optList[i].shortName;
-    if (optList[i].numArgs)
-      shortOptsWithArg += optList[i].shortName;
+    shortOptsAll += OPT_LIST[i].shortName;
+    if (OPT_LIST[i].numArgs)
+      shortOptsWithArg += OPT_LIST[i].shortName;
   }
 
   if (argc == 1)

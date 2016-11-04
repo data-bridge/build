@@ -1,4 +1,5 @@
 When multi-threading, exceptions still go to stdout?
+Maybe put errors to cerr.
 
 Put the fix file into a class?
 
@@ -6,13 +7,7 @@ TXT header lines: Should compare these better.
 
 Eliminate valint.h?
 
-08.10.16
---------
-Maybe put errors to cerr.
-
-Move increasingly to .fix and away from validate "fixes"
-
-Check that there is never > 1 segment.
+Check that there is never > 1 segment in RP files.
 
 
 02.10.16

@@ -862,51 +862,6 @@ string Segment::strNumberBoard(
 }
 
 
-/*
-string Segment::strContractsLIN(const Format format)
-{
- // TODO: Clean up
-  stringstream s;
-  s << "rs|";
-  for (auto &p: boards)
-  {
-    const unsigned l = p.board.count();
-    if (l == 2 && p.board.roomFirst() == BRIDGE_ROOM_CLOSED)
-    {
-      p.board.setInstance(1);
-      s << p.board.strContract(format) << ",";
-      p.board.setInstance(0);
-      s << p.board.strContract(format) << ",";
-    }
-    else
-    {
-      for (unsigned i = 0; i < l; i++)
-      {
-        p.board.setInstance(i);
-        s << p.board.strContract(format) << ",";
-      }
-    }
-
-    if (l == 1)
-    {
-      if (LINcount == 0)
-        s << ",";
-      else
-        // Occurs in Vugraph pairs tournaments.
-        s << LINdata[p.no].contract[1] << ",";
-    }
-  }
-
-  string st = s.str();
-  if (format == BRIDGE_FORMAT_LIN ||
-      format == BRIDGE_FORMAT_LIN_RP || 
-      format == BRIDGE_FORMAT_LIN_VG)
-    st.pop_back(); // Remove trailing comma
-  return st + "|\n";
-}
-*/
-
-
 string Segment::strContracts(const Format format) 
 {
   string st = "rs|";

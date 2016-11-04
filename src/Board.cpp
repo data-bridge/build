@@ -644,6 +644,14 @@ string Board::strPlayer(
 
 
 string Board::strPlayers(
+  const unsigned instNo,
+  const Format format) const
+{
+  return players[instNo].str(format);
+}
+
+
+string Board::strPlayers(
   const Format format,
   Board * refBoard) const
 {
@@ -687,17 +695,17 @@ string Board::strPlayers(
       else
         return "pn|" + st1 + "," + st2 + "|pg||\n\n";
 
+    case BRIDGE_FORMAT_PBN:
+    case BRIDGE_FORMAT_RBN:
+    case BRIDGE_FORMAT_RBX:
+    case BRIDGE_FORMAT_TXT:
+    case BRIDGE_FORMAT_EML:
+    case BRIDGE_FORMAT_REC:
+      return players[numActive].str(format);
+
     default:
       THROW("Invalid format: " + STR(format));
   }
-}
-
-
-string Board::strPlayers(
-  const unsigned instNo,
-  const Format format) const
-{
-  return players[instNo].str(format);
 }
 
 

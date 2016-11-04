@@ -18,9 +18,6 @@
 
     81    146   1495 reader.cpp
 
-  1251   2924  26385 Segment.cpp
-   257    483   4866 Segment.h
-
    389    760   6447 bconst.h
 
     77    156   1408 portab.h
@@ -61,6 +58,7 @@ OK, except possibly for coverage:
 * Play
 * Players (str: 1 TODO)
 * Scoring
+* Segment
 * Session
 * Tableau
 * Team
