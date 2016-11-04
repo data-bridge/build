@@ -921,7 +921,7 @@ bool Tableau::addContract(
   Player declarer;
   const unsigned level = (no+4) / 5;
   const Denom denom = static_cast<Denom>(DENOM_PAR_TO_DDS[dno]);
-  const multiplierType mult = (delta < 0 ? 
+  const Multiplier mult = (delta < 0 ? 
     BRIDGE_MULT_DOUBLED : BRIDGE_MULT_UNDOUBLED);
 
   const unsigned ta = table[denom][side];
@@ -956,7 +956,7 @@ bool Tableau::addSpecialSac(
 {
   Contract contract;
   const unsigned level = (no-1) / 5;
-  const multiplierType mult = BRIDGE_MULT_DOUBLED;
+  const Multiplier mult = BRIDGE_MULT_DOUBLED;
 
   // Will throw exception on failure
   contract.setContract(vul, sacker, level, denom, mult);

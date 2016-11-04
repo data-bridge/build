@@ -30,21 +30,20 @@
 #include "fileREC.h"
 
 #include "parse.h"
-#include "portab.h"
 #include "Bexcept.h"
 #include "Bdiff.h"
 
 
 // Modulo 4, so West for Board "0" (4, 8, ...) etc.
 //
-static const playerType BOARD_TO_DEALER[4] = 
+static const Player BOARD_TO_DEALER[4] = 
 {
   BRIDGE_WEST, BRIDGE_NORTH, BRIDGE_EAST, BRIDGE_SOUTH
 };
 
 // Modulo 16, so EW for Board "0" (16, 32, ...) etc.
 
-static const vulType BOARD_TO_VUL[16] =
+static const Vul BOARD_TO_VUL[16] =
 {
   BRIDGE_VUL_EAST_WEST, 
   BRIDGE_VUL_NONE, 
@@ -76,7 +75,7 @@ struct FormatFunctionsType
   bool (* readChunk)(ifstream&, unsigned&, vector<string>&, bool&);
   void (* writeSeg)(ofstream&, Segment&, Format);
   void (* writeBoard)(ofstream&, Segment&, Board&, 
-    writeInfoType&, const Format);
+    WriteInfo&, const Format);
 };
 
 FormatFunctionsType formatFncs[BRIDGE_FORMAT_SIZE];
@@ -90,7 +89,7 @@ BoardPtr boardPtr[BRIDGE_FORMAT_LABELS_SIZE];
 struct Fix
 {
   unsigned no;
-  formatLabelType field;
+  Label field;
   string value;
 };
 
@@ -118,7 +117,7 @@ static bool readFormattedFile(
   const string& fname,
   const Format format,
   Group& group,
-  const OptionsType& options);
+  const Options& options);
 
 static void tryFormatMethod(
   const Format format,
@@ -265,7 +264,7 @@ void setTables()
 void dispatch(
   const int thrNo,
   Files& files,
-  const OptionsType& options,
+  const Options& options,
   ValStats& vstats,
   Timers& timers)
 {
@@ -404,7 +403,7 @@ static void readFix(
     unsigned i;
     for (i = 0; i <= BRIDGE_FORMAT_LABELS_SIZE; i++)
     {
-      if (formatLabelNames[i] == match.str(2))
+      if (LABEL_NAMES[i] == match.str(2))
       {
         found = true;
         break;
@@ -414,7 +413,7 @@ static void readFix(
     if (! found)
       THROW("Fix file " + fixName + ": Unknown label in '" + line + "'");
 
-    newFix.field = static_cast<formatLabelType>(i);
+    newFix.field = static_cast<Label>(i);
     newFix.value = match.str(3);
 
     fix.push_back(newFix);
@@ -442,7 +441,7 @@ static bool readFormattedFile(
   const string& fname,
   const Format format,
   Group& group,
-  const OptionsType& options)
+  const Options& options)
 {
   ifstream fstr(fname.c_str());
   if (! fstr.is_open())
@@ -505,7 +504,7 @@ static bool readFormattedFile(
         {
           if (chunk[i] != "")
           {
-            cout << setw(15) << formatLabelNames[i] <<
+            cout << setw(15) << LABEL_NAMES[i] <<
                 " (" << setw(2) << i << "), '" <<
                 chunk[i] << "'" << endl;
           }
@@ -586,7 +585,7 @@ static bool readFormattedFile(
         else
           cout << "Line numbers " << lnoOld+2 << " to " << lno-1;
         cout << ", chunk " << chunkNo-1 << ", bno " << bno-1 << endl;
-        cout << "label " << formatLabelNames[i] << 
+        cout << "label " << LABEL_NAMES[i] << 
             " (" << i << "), '" <<
             chunk[i] << "'" << endl << endl;
       }
@@ -600,7 +599,7 @@ static bool readFormattedFile(
         {
           if (chunk[i] != "")
           {
-            cout << setw(15) << formatLabelNames[i] <<
+            cout << setw(15) << LABEL_NAMES[i] <<
                 " (" << setw(2) << i << "), '" <<
                 chunk[i] << "'" << endl;
           }
@@ -673,7 +672,7 @@ static bool writeFormattedFile(
   if (! fstr.is_open())
     THROW("Cannot write to: " + fname);
 
-  writeInfoType writeInfo;
+  WriteInfo writeInfo;
   writeInfo.namesOld[0] = "";
   writeInfo.namesOld[1] = "";
   writeInfo.score1 = 0;
@@ -725,7 +724,7 @@ static bool writeFormattedFile(
 void mergeResults(
   vector<ValStats>& vstats,
   vector<Timers>& timers,
-  const OptionsType& options)
+  const Options& options)
 {
   if (options.numThreads == 1)
     return;

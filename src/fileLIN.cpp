@@ -22,7 +22,7 @@
 using namespace std;
 
 
-map<string, formatLabelType> LINmap;
+map<string, Label> LINmap;
 
 
 void setLINTables()
@@ -163,7 +163,7 @@ void writeLINBoardLevel(
   ofstream& fstr,
   Segment& segment,
   Board& board,
-  writeInfoType& writeInfo,
+  WriteInfo& writeInfo,
   const Format format)
 {
   fstr << segment.strNumber(writeInfo.bno, format);

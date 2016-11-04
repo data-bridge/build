@@ -24,13 +24,13 @@ void setTables();
 void dispatch(
   const int thrNo, 
   Files& files,
-  const OptionsType& options,
+  const Options& options,
   ValStats& vstats,
   Timers& timers);
 
 void mergeResults(
   vector<ValStats>& vstats,
   vector<Timers>& timer,
-  const OptionsType& options);
+  const Options& options);
 
 #endif

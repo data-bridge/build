@@ -16,13 +16,12 @@
 #include "Segment.h"
 #include "Board.h"
 #include "filePBN.h"
-#include "portab.h"
 #include "Bexcept.h"
 
 using namespace std;
 
 
-map<string, formatLabelType> PBNmap;
+map<string, Label> PBNmap;
 
 
 void writePBNSegmentLevel(
@@ -168,7 +167,7 @@ void writePBNBoardLevel(
   ofstream& fstr,
   Segment& segment,
   Board& board,
-  writeInfoType& writeInfo,
+  WriteInfo& writeInfo,
   const Format format)
 {
   board.calculateScore();

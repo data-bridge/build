@@ -15,6 +15,7 @@
 
 using namespace std;
 
+
 #define MAXNOOFCORES 12
 
 #define BRIDGE_PLAYERS 4
@@ -97,7 +98,7 @@ const vector<Format> FORMAT_ACTIVE =
 
 // Bridge format labels.
 
-enum formatLabelType
+enum Label
 {
   BRIDGE_FORMAT_TITLE = 0,
   BRIDGE_FORMAT_DATE = 1,
@@ -138,7 +139,7 @@ enum formatLabelType
   BRIDGE_FORMAT_LABELS_SIZE = 33
 };
 
-const string formatLabelNames[] =
+const string LABEL_NAMES[] =
 {
   "Title",
   "Date",
@@ -181,7 +182,7 @@ const string formatLabelNames[] =
 
 // Useful for write functions.
 
-struct writeInfoType
+struct WriteInfo
 {
   unsigned bno;
   unsigned ino;
@@ -203,7 +204,7 @@ struct FileOption
   string name;
 };
 
-struct OptionsType
+struct Options
 {
   FileOption fileInput; // -i, --infile
   FileOption dirInput; // -I, --indir
@@ -229,8 +230,6 @@ struct OptionsType
   bool verboseValDetails;
 };
 
-typedef OptionsType Options;
-
 
 struct FileOutputTask
 {
@@ -252,13 +251,10 @@ struct FileTask
 };
 
 
-#define STR(x) \
-        static_cast<ostringstream*>(&(ostringstream() << x))->str()
-
 
 // This is the same encoding as in DDS.
 
-enum vulType
+enum Vul
 {
   BRIDGE_VUL_NONE = 0,
   BRIDGE_VUL_BOTH = 1,
@@ -267,20 +263,16 @@ enum vulType
   BRIDGE_VUL_SIZE = 4
 };
 
-typedef vulType Vul;
-
-enum multiplierType
+enum Multiplier
 {
   BRIDGE_MULT_UNDOUBLED = 0,
   BRIDGE_MULT_DOUBLED = 1,
   BRIDGE_MULT_REDOUBLED = 2
 };
 
-typedef multiplierType Multiplier;
-
 // This is the same encoding as in DDS.
 
-enum playerType
+enum Player
 {
   BRIDGE_NORTH = 0,
   BRIDGE_EAST = 1,
@@ -291,8 +283,6 @@ enum playerType
   BRIDGE_PLAYER_NONE = 6,
   BRIDGE_PLAYER_SIZE = 7
 };
-
-typedef playerType Player;
 
 
 const string PLAYER_NAMES_LONG[BRIDGE_PLAYER_SIZE] =
@@ -305,17 +295,17 @@ const string PLAYER_NAMES_SHORT[BRIDGE_PLAYER_SIZE] =
   "N", "E", "S", "W", "NS", "EW", "-"
 };
 
-const playerType PLAYER_LIN_TO_DDS[BRIDGE_PLAYERS] =
+const Player PLAYER_LIN_TO_DDS[BRIDGE_PLAYERS] =
 {
   BRIDGE_SOUTH, BRIDGE_WEST, BRIDGE_NORTH, BRIDGE_EAST
 };
 
-const playerType PLAYER_DDS_TO_LIN[BRIDGE_PLAYERS] =
+const Player PLAYER_DDS_TO_LIN[BRIDGE_PLAYERS] =
 {
   BRIDGE_SOUTH, BRIDGE_WEST, BRIDGE_NORTH, BRIDGE_EAST
 };
 
-const playerType PLAYER_DDS_TO_TXT[BRIDGE_PLAYERS] =
+const Player PLAYER_DDS_TO_TXT[BRIDGE_PLAYERS] =
 {
   BRIDGE_WEST, BRIDGE_NORTH, BRIDGE_EAST, BRIDGE_SOUTH
 };
@@ -325,19 +315,19 @@ const unsigned PLAYER_DDS_TO_LIN_DEALER[BRIDGE_PLAYERS] =
   3, 4, 1, 2
 };
 
-const playerType PLAYER_LIN_DEALER_TO_DDS[BRIDGE_PLAYERS+1] =
+const Player PLAYER_LIN_DEALER_TO_DDS[BRIDGE_PLAYERS+1] =
 {
   BRIDGE_PLAYER_SIZE, BRIDGE_SOUTH, BRIDGE_WEST, BRIDGE_NORTH, BRIDGE_EAST 
 };
 
-const playerType PLAYER_RBN_TO_DDS[BRIDGE_PLAYERS] =
+const Player PLAYER_RBN_TO_DDS[BRIDGE_PLAYERS] =
 {
   BRIDGE_NORTH, BRIDGE_SOUTH, BRIDGE_EAST, BRIDGE_WEST
 };
 
 // This is the same encoding as in DDS.
 
-enum denomType
+enum Denom
 {
   BRIDGE_SPADES = 0,
   BRIDGE_HEARTS = 1,
@@ -346,9 +336,7 @@ enum denomType
   BRIDGE_NOTRUMP = 4
 };
 
-typedef denomType Denom;
-
-const denomType DENOM_RBN_TO_DDS[BRIDGE_DENOMS] =
+const Denom DENOM_RBN_TO_DDS[BRIDGE_DENOMS] =
 {
   BRIDGE_NOTRUMP, 
   BRIDGE_SPADES, 
@@ -399,15 +387,12 @@ const string VUL_NAMES_TXT[BRIDGE_SUITS] =
   "None", "Both", "N-S", "E-W"
 };
 
-enum roomType
+enum Room
 {
   BRIDGE_ROOM_OPEN = 0,
   BRIDGE_ROOM_CLOSED = 1,
   BRIDGE_ROOM_UNDEFINED = 2
 };
-
-typedef roomType Room;
-
 
 const string DATE_MONTHS[] =
 {
@@ -425,6 +410,17 @@ const string DATE_MONTHS[] =
   "November",
   "December"
 };
+
+
+#define STR(x) \
+        static_cast<ostringstream*>(&(ostringstream() << x))->str()
+
+// http://stackoverflow.com/a/4030983/211160
+// Use to indicate a variable is being intentionally not referred to (which
+// usually generates a compiler warning)
+#ifndef UNUSED
+  #define UNUSED(x) ((void)(true ? 0 : ((x), void(), 0)))
+#endif
 
 #endif
 

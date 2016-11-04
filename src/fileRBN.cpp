@@ -20,7 +20,7 @@
 using namespace std;
 
 
-formatLabelType RBNmap[128];
+Label RBNmap[128];
 
 
 void setRBNTables()
@@ -72,7 +72,7 @@ bool readRBNChunk(
     if (c == '%')
       continue;
 
-    const formatLabelType labelNo = RBNmap[static_cast<int>(c)];
+    const Label labelNo = RBNmap[static_cast<int>(c)];
     if (labelNo == BRIDGE_FORMAT_LABELS_SIZE)
       THROW("Illegal RBN label in line:\n" + line);
 
@@ -120,7 +120,7 @@ bool readRBXChunk(
     if (c == '%')
       continue;
 
-    const formatLabelType labelNo = RBNmap[static_cast<int>(c)];
+    const Label labelNo = RBNmap[static_cast<int>(c)];
     if (labelNo == BRIDGE_FORMAT_LABELS_SIZE)
       THROW("Illegal RBX label in line:\n" + line);
 
@@ -156,7 +156,7 @@ void writeRBNBoardLevel(
   ofstream& fstr,
   Segment& segment,
   Board& board,
-  writeInfoType& writeInfo,
+  WriteInfo& writeInfo,
   const Format format)
 {
   string names = board.strPlayers(format);

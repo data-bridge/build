@@ -34,7 +34,7 @@ class Contract
     bool setVulFlag;
     bool setResultFlag;
 
-    vulType vul;
+    Vul vul;
     ContractInternal contract;
     int tricksRelative;
     int score;

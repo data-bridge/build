@@ -167,7 +167,7 @@ void validate(
   const string& fileRef,
   const Format formatOrig,
   const Format formatRef,
-  const OptionsType& options,
+  const Options& options,
   ValStats& vstats)
 {
   ifstream fostr(fileOut.c_str());

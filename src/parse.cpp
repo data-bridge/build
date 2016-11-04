@@ -21,7 +21,6 @@
 #include <stdlib.h>
 
 #include "parse.h"
-#include "portab.h"
 
 using namespace std;
 
@@ -583,7 +582,7 @@ bool ReadLastWord(
 
 bool ParsePlayer(
   const char c,
-  playerType& p)
+  Player& p)
 {
   switch(c)
   {

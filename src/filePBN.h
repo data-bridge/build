@@ -29,7 +29,7 @@ void writePBNBoardLevel(
   ofstream& fstr,
   Segment& segment,
   Board& board,
-  writeInfoType& writeInfo,
+  WriteInfo& writeInfo,
   const Format format);
 
 #endif

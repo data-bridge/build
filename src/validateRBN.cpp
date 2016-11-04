@@ -20,7 +20,6 @@
 #include "valint.h"
 #include "validateRBN.h"
 #include "parse.h"
-#include "portab.h"
 
 
 bool isRBNMissing(

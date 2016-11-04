@@ -19,7 +19,6 @@
 #include "valint.h"
 #include "validateEML.h"
 #include "parse.h"
-#include "portab.h"
 
 
 static bool isEMLPlayLine(

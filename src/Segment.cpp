@@ -13,7 +13,6 @@
 #include <regex>
 
 #include "Segment.h"
-#include "portab.h"
 #include "parse.h"
 #include "Bexcept.h"
 #include "Bdiff.h"

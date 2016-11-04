@@ -17,113 +17,6 @@
 using namespace std;
 
 
-/*
-// Types of differences that can occur.
-
-enum ValDiffs
-{
-  // This group of errors covers different or missing headers.
-  // These are to expected in conversions, as not all file formats
-  // contain the complete information.
-  BRIDGE_VAL_TITLE = 0,
-  BRIDGE_VAL_DATE = 1,
-  BRIDGE_VAL_LOCATION = 2,
-  BRIDGE_VAL_EVENT = 3,
-  BRIDGE_VAL_SESSION = 4,
-  BRIDGE_VAL_BOARDS_HEADER = 5,
-  BRIDGE_VAL_SCORING = 6,
-  BRIDGE_VAL_TEAMS = 7,
-  BRIDGE_VAL_NAMES_SHORT = 8,
-  BRIDGE_VAL_TXT_DASHES = 9,
-  BRIDGE_VAL_VG_CHAT = 10,
-
-  // These are Pavlicek bugs.
-  BRIDGE_VAL_TXT_ALL_PASS = 11,
-  BRIDGE_VAL_LIN_EXCLAIM = 12,
-  BRIDGE_VAL_LIN_PLAY_NL = 13,
-  BRIDGE_VAL_PLAY_SHORT = 14,
-  BRIDGE_VAL_REC_MADE_32 = 15,
-  BRIDGE_VAL_TXT_RESULT = 16,
-  BRIDGE_VAL_RECORD_NUMBER = 17,
-
-  // These are real errors.
-  BRIDGE_VAL_ERROR = 18,
-  BRIDGE_VAL_OUT_SHORT = 19,
-  BRIDGE_VAL_REF_SHORT = 20,
-  BRIDGE_VAL_SIZE = 21
-};
-
-const string valNames[] =
-{
-  "Title",
-  "Date",
-  "Location",
-  "Event",
-  "Session",
-  "Board numbers",
-  "Scoring",
-  "Teams",
-  "Names-short",
-  "TXT-dashes",
-  "VG-chat",
-
-  "All-pass",
-  "Lin-!",
-  "Play-newline",
-  "Play-short",
-  "Made-32",
-  "TXT-result",
-  "Rec-comment",
-
-  "Error",
-  "Out-short",
-  "Ref-short"
-};
-
-const string valNamesShort[] =
-{
-  "T",
-  "D",
-  "L",
-  "E",
-  "S",
-  "Bnos",
-  "F",
-  "K",
-  "Nsht",
-  "Dash",
-  "Chat",
-
-  "Apass",
-  "Alert",
-  "Pline",
-  "Psht",
-  "R32",
-  "RTXT",
-  "Comm",
-
-  "Error",
-  "Osht",
-  "Rsht"
-};
-
-
-// File-level stats.
-
-struct ValStatType
-{
-  unsigned numFiles;
-
-  unsigned numIdentical;
-  unsigned numExpectedDiffs;
-  unsigned numPavlicekBugs;
-  unsigned numErrors;
-
-  unsigned details[BRIDGE_VAL_SIZE];
-};
-*/
-
-
 bool isRecordComment(
   const string& lineOut,
   const string& lineRef);
@@ -133,14 +26,7 @@ void validate(
   const string& fileRef,
   const Format fOrig,
   const Format fRef,
-  const OptionsType& options,
+  const Options& options,
   ValStats& vstats);
-  // ValStatType vstats[][BRIDGE_FORMAT_LABELS_SIZE]);
-
-/*
-void printOverallStats(
-  const ValStatType vstats[][BRIDGE_FORMAT_LABELS_SIZE],
-  const bool detailsFlag);
-  */
 
 #endif

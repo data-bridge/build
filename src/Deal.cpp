@@ -45,7 +45,7 @@ static bool setDealTables = false;
 static string HOLDING_TO_SUIT[MAX_HOLDING+1];
 static string HOLDING_TO_SUIT_TXT[MAX_HOLDING+1];
 static map<string, unsigned> SUIT_TO_HOLDING;
-static map<string, playerType> PLAYER_TO_DDS;
+static map<string, Player> PLAYER_TO_DDS;
 
 
 Deal::Deal()
@@ -95,7 +95,7 @@ void Deal::setTables()
   }
 
   for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
-    PLAYER_TO_DDS[PLAYER_NAMES_SHORT[p]] = static_cast<playerType>(p);
+    PLAYER_TO_DDS[PLAYER_NAMES_SHORT[p]] = static_cast<Player>(p);
 }
 
 
@@ -183,7 +183,7 @@ void Deal::setLIN(const string& text)
     if (countDelimiters(tokens[plin], "SHDC") != 4)
       THROW("Not 4 suits");
 
-    const playerType p = PLAYER_LIN_TO_DDS[plin];
+    const Player p = PLAYER_LIN_TO_DDS[plin];
     Deal::setHand(tokens[plin], "SHDC", 1, holding[p]);
 
     for (unsigned s = 0; s < BRIDGE_SUITS; s++)
@@ -486,7 +486,7 @@ string Deal::strEML() const
 
 
 string Deal::strRECDetail(
-  const playerType midPlayer,
+  const Player midPlayer,
   const unsigned LRsuit,
   const unsigned mSuit) const
 {

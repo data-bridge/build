@@ -16,7 +16,6 @@
 #include "bconst.h"
 #include "Board.h"
 #include "Valuation.h"
-#include "portab.h"
 #include "parse.h"
 #include "Bexcept.h"
 #include "Bdiff.h"

@@ -33,13 +33,13 @@ class Auction
 
     bool setDVFlag;
     Player dealer;
-    vulType vul;
+    Vul vul;
 
     unsigned len;
     unsigned lenMax;
     vector<Call> sequence;
     unsigned numPasses;
-    multiplierType multiplier;
+    Multiplier multiplier;
     unsigned activeCNo; // Contract number
     unsigned activeBNo; // Number in auction list
 

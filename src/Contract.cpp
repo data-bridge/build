@@ -63,7 +63,7 @@ static const string DENOM_SUPERSET_TAG[6] =
   "C", "D", "H", "S", "N", "NT"
 };
 
-static const denomType DENOM_SUPERSET_NUM[6] =
+static const Denom DENOM_SUPERSET_NUM[6] =
 {
   BRIDGE_CLUBS, BRIDGE_DIAMONDS, BRIDGE_HEARTS, BRIDGE_SPADES,
   BRIDGE_NOTRUMP, BRIDGE_NOTRUMP
@@ -94,7 +94,7 @@ static const string MULT_SUPERSET_TAG[6] =
   "", "x", "xx", "X", "XX", "R"
 };
 
-static const multiplierType MULT_SUPERSET_NUM[6] =
+static const Multiplier MULT_SUPERSET_NUM[6] =
 {
   BRIDGE_MULT_UNDOUBLED,
   BRIDGE_MULT_DOUBLED,
@@ -205,7 +205,7 @@ void Contract::setTables()
 
         for (unsigned decl = 0; decl < BRIDGE_PLAYERS; decl++)
 	{
-	  e.contract.declarer = static_cast<playerType>(decl);
+	  e.contract.declarer = static_cast<Player>(decl);
 	  stringstream s4;
 	  s4 << s3.str() << PLAYER_NAMES_SHORT[decl];
 

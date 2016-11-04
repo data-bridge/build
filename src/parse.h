@@ -114,7 +114,7 @@ bool ReadLastWord(
 
 bool ParsePlayer(
   const char c,
-  playerType& p);
+  Player& p);
 
 void ConvertMultilineToVector(
   const string& sin,

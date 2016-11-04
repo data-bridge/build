@@ -470,7 +470,7 @@ void writeEMLBoardLevel(
   ofstream& fstr,
   Segment& segment,
   Board& board,
-  writeInfoType& writeInfo,
+  WriteInfo& writeInfo,
   const Format format)
 {
   string chunk[EML_LABELS_SIZE];
