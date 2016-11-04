@@ -188,13 +188,11 @@ void validate(
   running.ref.line = "";
   running.out.lno = 0;
   running.ref.lno = 0;
-  bool keepLineOut = false;
-  bool keepLineRef = false;
   unsigned headerStartTXT = 4; // If comments and no dash line
 
-  while (keepLineRef || valProgress(frstr, running.ref))
+  while (valProgress(frstr, running.ref))
   {
-    if (! keepLineOut && ! valProgress(fostr, running.out))
+    if (! valProgress(fostr, running.out))
     {
       prof.log(BRIDGE_VAL_OUT_SHORT, running);
       break;
@@ -210,8 +208,6 @@ void validate(
           prof.log(BRIDGE_VAL_ERROR, running);
           if (! valProgress(fostr, running.out))
             THROW("Next line is not there");
-          keepLineRef = false;
-          keepLineOut = false;
           continue;
         }
 
@@ -240,11 +236,7 @@ void validate(
       headerStartTXT = running.out.lno+2;
 
     if (running.ref.line == running.out.line)
-    {
-      keepLineRef = false;
-      keepLineOut = false;
       continue;
-    }
 
     // General: % line numbers (Pavlicek error).
     if (formatRef != BRIDGE_FORMAT_RBX &&
@@ -309,9 +301,6 @@ void validate(
     }
 
     prof.log(BRIDGE_VAL_ERROR, running);
-
-    keepLineOut = false;
-    keepLineRef = false;
   }
 
   if (valProgress(fostr, running.out))

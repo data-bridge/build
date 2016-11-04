@@ -1,7 +1,10 @@
 When multi-threading, exceptions still go to stdout?
 Maybe put errors to cerr.
 
-Put the fix file into a class?
+Put the fix file into a class? (dispatch.cpp, readFix())
+
+readFormattedFile: Can read into Buffer.cpp, methods
+eof, 
 
 TXT header lines: Should compare these better.
 
