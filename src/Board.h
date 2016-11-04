@@ -51,6 +51,11 @@ class Board
     LINData LINdata;
     bool LINset;
 
+    string strPlayersDelta(
+      Board * refBoard,
+      const unsigned instNo,
+      const Format format) const;
+    
 
   public:
 
@@ -206,6 +211,7 @@ class Board
     bool checkBoard() const;
 
     Room room() const;
+    Room roomFirst() const;
 
     bool operator == (const Board& b2) const;
 
@@ -220,6 +226,9 @@ class Board
     string strTableau(const Format format) const;
     string strAuction(const Format format) const;
     string strContract(const Format format) const;
+    string strContract(
+      const unsigned instNo,
+      const Format format) const;
     string strDeclarer(const Format format) const;
     string strTricks(const Format format) const;
 
@@ -243,14 +252,17 @@ class Board
       const Player player,
       const Format format) const;
     
-    string strPlayers(const Format format) const;
-    
-    string strPlayersDelta(
-      Board * refBoard,
+    string strPlayers(
+      const unsigned instNo,
       const Format format) const;
+    string strPlayers(
+      const Format format,
+      Board * refBoard = nullptr) const;
     
-    string ResultAsString(const Format format) const;
-    
+    string strContracts(
+      const string& contractFromHeader,
+      const Format format) const;
+
     string strResult(
       const Format format,
       const bool scoringIsIMPs) const;

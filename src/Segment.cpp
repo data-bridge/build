@@ -862,6 +862,7 @@ string Segment::strNumberBoard(
 }
 
 
+/*
 string Segment::strContractsLIN(const Format format)
 {
  // TODO: Clean up
@@ -870,9 +871,7 @@ string Segment::strContractsLIN(const Format format)
   for (auto &p: boards)
   {
     const unsigned l = p.board.count();
-    p.board.setInstance(0);
-    if (l == 2 && 
-        p.board.room() == BRIDGE_ROOM_CLOSED)
+    if (l == 2 && p.board.roomFirst() == BRIDGE_ROOM_CLOSED)
     {
       p.board.setInstance(1);
       s << p.board.strContract(format) << ",";
@@ -905,17 +904,31 @@ string Segment::strContractsLIN(const Format format)
     st.pop_back(); // Remove trailing comma
   return st + "|\n";
 }
+*/
 
 
 string Segment::strContracts(const Format format) 
 {
+  string st = "rs|";
+
   switch(format)
   {
     case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_LIN_RP:
     case BRIDGE_FORMAT_LIN_VG:
     case BRIDGE_FORMAT_LIN_TRN:
-      return Segment::strContractsLIN(format);
+      for (auto &p: boards)
+      {
+        const string contractFromHeader = 
+          (LINcount == 0 ? "" : LINdata[p.no].contract[1]);
+        st += p.board.strContracts(contractFromHeader, format);
+      }
+
+      if (format == BRIDGE_FORMAT_LIN ||
+          format == BRIDGE_FORMAT_LIN_RP || 
+          format == BRIDGE_FORMAT_LIN_VG)
+        st.pop_back(); // Remove trailing comma
+      return st + "|\n";
 
     default:
       THROW("Invalid format: " + STR(format));
@@ -925,81 +938,30 @@ string Segment::strContracts(const Format format)
 
 string Segment::strPlayers(const Format format) 
 {
-  // TODO: Clean up
-  string st1, st2;
   Board * board;
   Board * refBoard = nullptr;
+  string st;
+
   switch(format)
   {
     case BRIDGE_FORMAT_LIN:
-      st1 = "pw|";
+      st = "pw|";
       for (auto &p: boards)
       {
-        for (unsigned i = 0; i < p.board.count(); i++)
-        {
-          p.board.setInstance(i);
-          st1 += p.board.strPlayersDelta(refBoard, format);
-          refBoard = &p.board;
-        }
+        st += p.board.strPlayers(format, refBoard);
+        refBoard = &p.board;
       }
-      st1.pop_back();
-      return st1 + "|\n";
+      st.pop_back();
+      return st + "|\n";
 
     case BRIDGE_FORMAT_LIN_VG:
       board = Segment::getBoard(0);
-      if (board == nullptr)
-        return "";
-
-      if (board->count() == 1)
-      {
-        board->setInstance(0);
-        st1 = board->strPlayers(format);
-        return "pn|" + st1 + ",South,West,North,East|pg||\n";
-      }
-
-      board->setInstance(0);
-      st1 = board->strPlayers(format);
-      board->setInstance(1);
-      st2 = board->strPlayers(format);
-
-      if (format == BRIDGE_FORMAT_LIN_TRN)
-      {
-        st1.pop_back(); // Trailing |, leading pn|,,,,
-        return st1 + "," + st2.substr(7) + "\npg||\n";
-      }
-      else
-        return "pn|" + st1 + "," + st2 + "|pg||\n";
+      return board->strPlayers(format);
 
     case BRIDGE_FORMAT_LIN_RP:
     case BRIDGE_FORMAT_LIN_TRN:
       board = Segment::getBoard(0);
-      if (board == nullptr || board->count() != 2)
-        return "";
-
-      // if (activeBoard->GetRoom() == BRIDGE_ROOM_CLOSED)
-      board->setInstance(0);
-      if (board->room() == BRIDGE_ROOM_CLOSED)
-      {
-        board->setInstance(1);
-        st1 = board->strPlayers(format);
-        board->setInstance(0);
-        st2 = board->strPlayers(format);
-      }
-      else
-      {
-        board->setInstance(0);
-        st1 = board->strPlayers(format);
-        board->setInstance(1);
-        st2 = board->strPlayers(format);
-      }
-
-      if (format == BRIDGE_FORMAT_LIN_TRN)
-      {
-        st1.pop_back(); // Trailing |, leading pn|,,,,
-        return st1 + "," + st2.substr(7) + "\npg||\n";
-      }
-      else
-        return "pn|" + st1 + "," + st2 + "|pg||\n\n";
+      return board->strPlayers(format);
 
     default:
       THROW("Invalid format: " + STR(format));

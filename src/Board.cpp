@@ -451,6 +451,12 @@ Room Board::room() const
 }
 
 
+Room Board::roomFirst() const
+{
+  return players[0].room();
+}
+
+
 bool Board::operator == (const Board& board2) const
 {
   if (len != board2.len)
@@ -538,6 +544,14 @@ string Board::strAuction(const Format format) const
 string Board::strContract(const Format format) const
 {
   return contract[numActive].str(format);
+}
+
+
+string Board::strContract(
+  const unsigned instNo,
+  const Format format) const
+{
+  return contract[instNo].str(format);
 }
 
 
@@ -630,21 +644,105 @@ string Board::strPlayer(
 
 
 string Board::strPlayers(
+  const Format format,
+  Board * refBoard) const
+{
+  string st1, st2;
+  switch(format)
+  {
+    case BRIDGE_FORMAT_LIN:
+      for (unsigned i = 0; i < len; i++)
+        st1 += Board::strPlayersDelta(refBoard, i, format);
+      return st1;
+
+    case BRIDGE_FORMAT_LIN_VG:
+      st1 = Board::strPlayers(0, format);
+      if (len == 1)
+        st2 = "South,West,North,East";
+      else
+        st2 = Board::strPlayers(1, format);
+      return "pn|" + st1 + "," + st2 + "|pg||\n";
+
+    case BRIDGE_FORMAT_LIN_RP:
+    case BRIDGE_FORMAT_LIN_TRN:
+      if (len != 2)
+        return "";
+
+      if (Board::roomFirst() == BRIDGE_ROOM_CLOSED)
+      {
+        st1 = Board::strPlayers(1, format);
+        st2 = Board::strPlayers(0, format);
+      }
+      else
+      {
+        st1 = Board::strPlayers(0, format);
+        st2 = Board::strPlayers(1, format);
+      }
+
+      if (format == BRIDGE_FORMAT_LIN_TRN)
+      {
+        st1.pop_back(); // Trailing |, leading pn|,,,,
+        return st1 + "," + st2.substr(7) + "\npg||\n";
+      }
+      else
+        return "pn|" + st1 + "," + st2 + "|pg||\n\n";
+
+    default:
+      THROW("Invalid format: " + STR(format));
+  }
+}
+
+
+string Board::strPlayers(
+  const unsigned instNo,
   const Format format) const
 {
-  return players[numActive].str(format);
+  return players[instNo].str(format);
 }
 
 
 string Board::strPlayersDelta(
   Board * refBoard,
+  const unsigned instNo,
   const Format format) const
 {
   if (refBoard == nullptr)
-    return players[numActive].str(BRIDGE_FORMAT_LIN_RP);
+    return players[instNo].str(BRIDGE_FORMAT_LIN_RP);
   else
-    return players[numActive].strDelta(refBoard->players[numActive], 
-      format);
+    return players[instNo].strDelta(refBoard->players[instNo], format);
+}
+
+
+string Board::strContracts(
+  const string& contractFromHeader,
+  const Format format) const
+{
+  string st = "";
+
+  switch(format)
+  {
+    case BRIDGE_FORMAT_LIN:
+    case BRIDGE_FORMAT_LIN_RP:
+    case BRIDGE_FORMAT_LIN_VG:
+    case BRIDGE_FORMAT_LIN_TRN:
+      if (len == 2 && Board::roomFirst() == BRIDGE_ROOM_CLOSED)
+      {
+        st += Board::strContract(1, format) + ",";
+        st += Board::strContract(0, format) + ",";
+      }
+      else
+      {
+        for (unsigned i = 0; i < len; i++)
+          st += Board::strContract(i, format) + ",";
+      }
+
+      if (len == 1)
+        st += contractFromHeader + ",";
+      return st;
+
+    default:
+      THROW("Invalid format: " + STR(format));
+  }
 }
 
 
