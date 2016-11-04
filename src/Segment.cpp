@@ -82,6 +82,9 @@ Board * Segment::acquireBoard(const unsigned intNo)
   activeBoard = &boards[len-1].board;
   activeNo = intNo;
 
+  if (activeBoard == nullptr)
+    THROW("Could not make board: " + STR(intNo));
+
   return activeBoard;
 }
 

@@ -70,7 +70,7 @@ static const Vul BOARD_TO_VUL[16] =
 
 using namespace std;
 
-struct FormatFunctionsType
+struct FormatFunctions
 {
   bool (* readChunk)(ifstream&, unsigned&, vector<string>&, bool&);
   void (* writeSeg)(ofstream&, Segment&, Format);
@@ -78,7 +78,7 @@ struct FormatFunctionsType
     WriteInfo&, const Format);
 };
 
-FormatFunctionsType formatFncs[BRIDGE_FORMAT_SIZE];
+FormatFunctions formatFncs[BRIDGE_FORMAT_SIZE];
 
 typedef void (Segment::*SegPtr)(const string& s, const Format format);
 typedef void (Board::*BoardPtr)(const string& s, const Format format);
@@ -89,7 +89,7 @@ BoardPtr boardPtr[BRIDGE_FORMAT_LABELS_SIZE];
 struct Fix
 {
   unsigned no;
-  Label field;
+  Label label;
   string value;
 };
 
@@ -99,12 +99,12 @@ void writeDummySegmentLevel(
   Segment& segment,
   const Format format);
 
-void GuessDealerAndVul(
+void guessDealerAndVul(
   vector<string>& chunk, 
   const unsigned b,
   const Format format);
 
-void GuessDealerAndVul(
+void guessDealerAndVul(
   vector<string>& chunk, 
   const string& s,
   const Format format);
@@ -112,6 +112,8 @@ void GuessDealerAndVul(
 static void readFix(
   const string& fname,
   vector<Fix>& fix);
+
+static void printChunk(const vector<string>& chunk);
 
 static bool readFormattedFile(
   const string& fname,
@@ -138,9 +140,9 @@ static bool writeFormattedFile(
 
 static void setFormatTables();
 
-static void SetIO();
+static void setIO();
 
-static void SetInterface();
+static void setInterface();
 
 
 void writeDummySegmentLevel(
@@ -334,15 +336,13 @@ void dispatch(
       }
 
       if (task.removeOutputFlag)
-      {
-        // delete t.fileOutput: TODO
-      }
+        remove(t.fileOutput.c_str());
     }
   }
 }
 
 
-void GuessDealerAndVul(
+void guessDealerAndVul(
   vector<string>& chunk, 
   const unsigned b,
   const Format format)
@@ -359,7 +359,7 @@ void GuessDealerAndVul(
 }
 
 
-void GuessDealerAndVul(
+void guessDealerAndVul(
   vector<string>& chunk, 
   const string& s,
   const Format format)
@@ -368,7 +368,7 @@ void GuessDealerAndVul(
   if (! str2upos(s, u))
     return;
 
-  GuessDealerAndVul(chunk, u, format);
+  guessDealerAndVul(chunk, u, format);
 }
 
 
@@ -413,7 +413,7 @@ static void readFix(
     if (! found)
       THROW("Fix file " + fixName + ": Unknown label in '" + line + "'");
 
-    newFix.field = static_cast<Label>(i);
+    newFix.label = static_cast<Label>(i);
     newFix.value = match.str(3);
 
     fix.push_back(newFix);
@@ -428,12 +428,52 @@ static void fixChunk(
   bool& newSegFlag,
   vector<Fix>& fix)
 {
-  if (fix[0].field == BRIDGE_FORMAT_LABELS_SIZE)
+  if (fix[0].label == BRIDGE_FORMAT_LABELS_SIZE)
     newSegFlag = (fix[0].value != "0");
   else
-    chunk[fix[0].field] = fix[0].value;
+    chunk[fix[0].label] = fix[0].value;
 
   fix.erase(fix.begin());
+}
+
+
+static void printChunk(const vector<string>& chunk)
+{
+  cout << endl;
+  for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
+  {
+    if (chunk[i] != "")
+    {
+      cout << setw(15) << LABEL_NAMES[i] <<
+          " (" << setw(2) << i << "), '" <<
+          chunk[i] << "'" << endl;
+    }
+  }
+}
+
+
+struct Counts
+{
+  unsigned segno;
+  unsigned chunkno;
+  unsigned bno;
+  unsigned lno;
+  unsigned lnoOld;
+};
+
+
+static void printCounts(
+  const string& fname,
+  Counts& counts)
+{
+  cout << "Input file:   " << fname << endl;
+  cout << "Segment:      " << counts.segno << endl;
+  cout << "Board:        " << counts.bno << endl;
+  if (counts.lnoOld+1 > counts.lno-1)
+    cout << "Line number:  " << counts.lnoOld << endl;
+  else
+    cout << "Line numbers: " << counts.lnoOld+2 << " to " << 
+      counts.lno-1 << endl << endl;
 }
 
 
@@ -459,23 +499,25 @@ static bool readFormattedFile(
   vector<string> chunk(BRIDGE_FORMAT_LABELS_SIZE);
 
   Segment * segment = nullptr;
-  unsigned segno = 0;
   bool newSegFlag = false;
 
   Board * board = nullptr;
-  unsigned bno = 0;
   string lastBoard = "";
-  unsigned chunkNo = 0;
 
-  unsigned lno = 0;
-  unsigned lnoOld;
+  Counts counts;
+  counts.segno = 0;
+  counts.chunkno = 0;
+  counts.bno = 0;
+  counts.lno = 0;
+  counts.lnoOld = 0;
 
   while (true)
   {
-    lnoOld = lno;
+    counts.lnoOld = counts.lno;
     try
     {
-      if (! (* formatFncs[format].readChunk)(fstr, lno, chunk, newSegFlag))
+      if (! (* formatFncs[format].readChunk)
+          (fstr, counts.lno, chunk, newSegFlag))
       {
         if (fstr.eof())
           break;
@@ -486,47 +528,27 @@ static bool readFormattedFile(
     catch (Bexcept& bex)
     {
       if (options.verboseThrow)
-      {
-        cout << "Input file " << fname << endl;
-        if (lnoOld+1 > lno-1)
-          cout << "Line number " << lnoOld << endl;
-        else
-          cout << "Line numbers " << lnoOld+2 << " to " << lno-1 << 
-              ", chunk " << chunkNo << endl << endl;
-      }
+        printCounts(fname, counts);
 
       bex.print();
 
       if (options.verboseBatch)
-      {
-        cout << endl;
-        for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
-        {
-          if (chunk[i] != "")
-          {
-            cout << setw(15) << LABEL_NAMES[i] <<
-                " (" << setw(2) << i << "), '" <<
-                chunk[i] << "'" << endl;
-          }
-        }
-      }
+        printChunk(chunk);
 
-      cout << endl;
       fstr.close();
       return false;
     }
 
-    while (fix.size() > 0 && fix[0].no == chunkNo)
+    while (fix.size() > 0 && fix[0].no == counts.chunkno)
       fixChunk(chunk, newSegFlag, fix);
 
-    chunkNo++;
+    counts.chunkno++;
 
     if (newSegFlag || segment == nullptr)
     {
-      // segment = group.make(segno);
       segment = group.make();
-      segno++;
-      bno = 0;
+      counts.segno++;
+      counts.bno = 0;
     }
 
     if (chunk[BRIDGE_FORMAT_BOARD_NO] != "" &&
@@ -537,14 +559,8 @@ static bool readFormattedFile(
     {
       // New board.
       lastBoard = chunk[BRIDGE_FORMAT_BOARD_NO];
-      board = segment->acquireBoard(bno);
-      bno++;
-
-      if (board == nullptr)
-      {
-        fstr.close();
-        THROW("Unknown error");
-      }
+      board = segment->acquireBoard(counts.bno);
+      counts.bno++;
     }
 
     board->newInstance();
@@ -554,9 +570,9 @@ static bool readFormattedFile(
     {
       // Guess dealer and vul from the board number.
       if (chunk[BRIDGE_FORMAT_BOARD_NO] == "")
-        GuessDealerAndVul(chunk, segment->getActiveExtBoardNo(), format);
+        guessDealerAndVul(chunk, segment->getActiveExtBoardNo(), format);
       else
-        GuessDealerAndVul(chunk, chunk[BRIDGE_FORMAT_BOARD_NO], format);
+        guessDealerAndVul(chunk, chunk[BRIDGE_FORMAT_BOARD_NO], format);
     }
 
     unsigned i;
@@ -579,42 +595,19 @@ static bool readFormattedFile(
     {
       if (options.verboseThrow)
       {
-        cout << "Input file " << fname << endl;
-        if (lnoOld+1 > lno-1)
-          cout << "Line number " << lnoOld;
-        else
-          cout << "Line numbers " << lnoOld+2 << " to " << lno-1;
-        cout << ", chunk " << chunkNo-1 << ", bno " << bno-1 << endl;
-        cout << "label " << LABEL_NAMES[i] << 
-            " (" << i << "), '" <<
+        printCounts(fname, counts);
+        cout << "label " << LABEL_NAMES[i] << " (" << i << "), '" <<
             chunk[i] << "'" << endl << endl;
       }
 
       bex.print();
 
       if (options.verboseBatch)
-      {
-        cout << endl;
-        for (i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
-        {
-          if (chunk[i] != "")
-          {
-            cout << setw(15) << LABEL_NAMES[i] <<
-                " (" << setw(2) << i << "), '" <<
-                chunk[i] << "'" << endl;
-          }
-        }
-      }
+        printChunk(chunk);
 
-      cout << endl;
       fstr.close();
       return false;
     }
-
-
-    // Have to wait until after the methods with this.
-    // Only applies to LIN.
-    // segment->TransferHeader(bno-1, board->GetInstance());
 
     if (fstr.eof())
       break;
@@ -633,9 +626,7 @@ static void tryFormatMethod(
   const unsigned label)
 {
   if (label <= BRIDGE_FORMAT_ROOM)
-  {
     (segment->*segPtr[label])(text, format);
-  }
   else 
     (board->*boardPtr[label])(text, format);
 }
@@ -685,27 +676,16 @@ static bool writeFormattedFile(
     (* formatFncs[format].writeSeg)(fstr, segment, format);
 
     writeInfo.numBoards = segment.size();
-    // for (unsigned b = 0; b < writeInfo.numBoards; b++)
     for (auto &bpair: segment)
     {
-      // Board * board = segment.getBoard(b);
       Board& board = bpair.board;
       segment.setBoard(bpair.no);
 
-      // if (board == nullptr)
-      // {
-        // fstr.close();
-        // THROW("Invalid board");
-      // }
-
-      // writeInfo.bno = b;
       writeInfo.bno = bpair.no;
-      // writeInfo.numInst = board->count();
       writeInfo.numInst = board.count();
 
       for (unsigned i = 0; i < writeInfo.numInst; i++)
       {
-        // board->setInstance(i);
         board.setInstance(i);
         writeInfo.ino = i;
         (* formatFncs[format].writeBoard)
