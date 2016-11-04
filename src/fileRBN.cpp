@@ -142,13 +142,13 @@ void writeRBNSegmentLevel(
   Segment& segment,
   const Format format)
 {
-  fstr << segment.TitleAsString(format);
-  fstr << segment.DateAsString(format);
-  fstr << segment.LocationAsString(format);
-  fstr << segment.EventAsString(format);
-  fstr << segment.SessionAsString(format);
-  fstr << segment.ScoringAsString(format);
-  fstr << segment.TeamsAsString(format);
+  fstr << segment.strTitle(format);
+  fstr << segment.strDate(format);
+  fstr << segment.strLocation(format);
+  fstr << segment.strEvent(format);
+  fstr << segment.strSession(format);
+  fstr << segment.strScoring(format);
+  fstr << segment.strTeams(format);
 }
 
 
@@ -168,7 +168,7 @@ void writeRBNBoardLevel(
         
   if (writeInfo.ino == 0)
   {
-    fstr << segment.NumberAsString(format, writeInfo.bno);
+    fstr << segment.strNumber(writeInfo.bno, format);
     fstr << board.strDeal(BRIDGE_WEST, format);
   }
 

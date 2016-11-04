@@ -385,9 +385,9 @@ void writeRECBoardLevel(
   board.calculateScore();
 
   const string dstr = board.strDeal(BRIDGE_WEST, format);
-  const string sstr = segment.ScoringAsString(format);
+  const string sstr = segment.strScoring(format);
   const string estr = board.strDealer(format);
-  const string bstr = segment.NumberAsString(format, writeInfo.bno);
+  const string bstr = segment.strNumber(writeInfo.bno, format);
   const string vstr = board.strVul(format);
 
   const string west = board.strPlayer(BRIDGE_WEST, format);

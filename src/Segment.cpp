@@ -108,7 +108,7 @@ unsigned Segment::getExtBoardNo(const unsigned intNo) const
     if (p.no == intNo)
       return p.extNo;
   }
-  return 0;
+  THROW("Bad internal board number: " + STR(intNo));
 }
 
 
@@ -161,6 +161,7 @@ void Segment::setTitleLIN(const string& t)
   // Fields 3 and 4 are board ranges (ignored and re-generated).
   // Fields 5 through 8 are team tags.
 
+  // TODO: Clean up
   int seen = std::count(t.begin(), t.end(), ',');
   if (seen != 8)
     THROW("LIN vg needs exactly 8 commas.");
@@ -675,150 +676,97 @@ bool Segment::operator != (const Segment& segment2) const
 }
 
 
-string Segment::TitleAsLINCommon(const bool swapFlag) const
+string Segment::strTitleLINCore(const bool swapFlag) const
 {
-  stringstream s;
+  stringstream ss;
   if (bmin == 0)
-    s << ",";
+    ss << ",";
   else
-    s << bmin << ",";
+    ss << bmin << ",";
 
   if (bmax == 0)
-    s << ",";
+    ss << ",";
   else
-    s << bmax << ",";
+    ss << bmax << ",";
 
-  s << teams.str(BRIDGE_FORMAT_LIN, swapFlag) << "|";
-  return s.str();
+  ss << teams.str(BRIDGE_FORMAT_LIN, swapFlag) << "|";
+  return ss.str();
 }
 
 
-string Segment::TitleAsLIN() const
+string Segment::strTitleLIN() const
 {
-  stringstream s;
-  s << "vg|" << title << "," << 
-      event << "," <<
-      scoring.str(BRIDGE_FORMAT_LIN) << ",";
-  s << Segment::TitleAsLINCommon() << "\n";
-  return s.str();
+  return "vg|" + title + "," +
+      event + "," +
+      scoring.str(BRIDGE_FORMAT_LIN) + "," +
+      Segment::strTitleLINCore() + "\n";
 }
 
 
-string Segment::TitleAsLIN_EXT() const
+string Segment::strTitleLIN_RP() const
 {
-  // BBO hands played at own table (not tournaments).
-  stringstream s;
-  s << title << "%" <<
-      date.str(BRIDGE_FORMAT_LIN) << "%" <<
-      location.str(BRIDGE_FORMAT_LIN) << "%" <<
-      session.str(BRIDGE_FORMAT_LIN) << "%" <<
-      event << "%" <<
-      scoring.str(BRIDGE_FORMAT_LIN) << 
-      ",IMPs,P,";
-  s << Segment::TitleAsLINCommon();
-  return s.str() + "\n";
-}
-
-
-string Segment::TitleAsLIN_RP() const
-{
-  // BBO hands from Pavlicek.
-
   bool swapFlag = false;
   activeBoard->setInstance(0);
   if (activeBoard->room() == BRIDGE_ROOM_CLOSED)
     swapFlag = true;
 
-  stringstream s;
-  s << "vg|" << title << 
-      session.str(BRIDGE_FORMAT_LIN_RP) << "," <<
-      scoring.str(BRIDGE_FORMAT_LIN) << ",";
-  s << Segment::TitleAsLINCommon(swapFlag) << "pf|y|\n";
-  return s.str();
+  return "vg|" + title +
+      session.str(BRIDGE_FORMAT_LIN_RP) + "," +
+      scoring.str(BRIDGE_FORMAT_LIN) + "," +
+      Segment::strTitleLINCore(swapFlag) + "pf|y|\n";
 }
 
 
-string Segment::TitleAsLIN_VG() const
-{
-  // BBO hands from Vugraph.
-  stringstream s;
-  s << "vg|" << title << ",I,I,";
-
-  s << Segment::TitleAsLINCommon();
-  return s.str() + "\n";
-}
-
-
-string Segment::TitleAsLIN_TRN() const
-{
-  // BBO hands played in own tournaments.
-  stringstream s;
-  s << title << "%" <<
-      date.str(BRIDGE_FORMAT_LIN) << "%" <<
-      location.str(BRIDGE_FORMAT_LIN) << "%" <<
-      session.str(BRIDGE_FORMAT_LIN) << "%" <<
-      event << "%" <<
-      scoring.str(BRIDGE_FORMAT_LIN) << 
-      ",IMPs,P,";
-  s << Segment::TitleAsLINCommon();
-  return s.str() + "\n";
-}
-
-
-string Segment::TitleAsString(const Format f) const
+string Segment::strTitle(const Format format) const
 {
   // In LIN this is the entire vg field.
 
-  stringstream st;
-  switch(f)
+  switch(format)
   {
     case BRIDGE_FORMAT_LIN:
-    case BRIDGE_FORMAT_LIN_TRN:
     case BRIDGE_FORMAT_LIN_VG:
-      return Segment::TitleAsLIN();
+    case BRIDGE_FORMAT_LIN_TRN:
+      return Segment::strTitleLIN();
 
     case BRIDGE_FORMAT_LIN_RP:
-      return Segment::TitleAsLIN_RP();
+      return Segment::strTitleLIN_RP();
 
     case BRIDGE_FORMAT_PBN:
       if (title == "")
         return "";
-      st << "[Description \"" << title << "\"]\n";
-      return st.str();
+      else
+      return "[Description \"" + title + "\"]\n";
 
     case BRIDGE_FORMAT_RBN:
-      st << "T " << title << "\n";
-      return st.str();
+      return "T " + title + "\n";
 
     case BRIDGE_FORMAT_RBX:
-      st << "T{" << title << "}";
-      return st.str();
+      return "T{" + title + "}";
 
     case BRIDGE_FORMAT_TXT:
       return title + "\n";
 
     default:
-      THROW("Invalid format " + STR(f));
+      THROW("Invalid format " + STR(format));
   }
 }
 
 
-string Segment::DateAsString(const Format f) const
+string Segment::strDate(const Format format) const
 {
-  return date.str(f);
+  return date.str(format);
 }
 
 
-string Segment::LocationAsString(const Format f) const
+string Segment::strLocation(const Format format) const
 {
-  return location.str(f);
+  return location.str(format);
 }
 
 
-string Segment::EventAsString(const Format f) const
+string Segment::strEvent(const Format format) const
 {
-  stringstream st;
-  switch(f)
+  switch(format)
   {
     case BRIDGE_FORMAT_LIN:
       if (event == "")
@@ -828,127 +776,124 @@ string Segment::EventAsString(const Format f) const
     case BRIDGE_FORMAT_PBN:
       if (event == "")
         return "";
-      st << "[Event \"" + event + "\"]\n";
-      return st.str();
+      return "[Event \"" + event + "\"]\n";
 
     case BRIDGE_FORMAT_RBN:
-      st << "E " << event << "\n";
-      return st.str();
+      return "E " + event + "\n";
 
     case BRIDGE_FORMAT_RBX:
-      st << "E{" << event << "}";
-      return st.str();
+      return "E{" + event + "}";
 
     case BRIDGE_FORMAT_TXT:
       return event + "\n";
 
     default:
-      THROW("Invalid format " + STR(f));
+      THROW("Invalid format: " + STR(format));
   }
 }
 
 
-string Segment::SessionAsString(const Format format) const
+string Segment::strSession(const Format format) const
 {
   return session.str(format);
 }
 
 
-string Segment::ScoringAsString(const Format format) const
+string Segment::strScoring(const Format format) const
 {
   return scoring.str(format);
 }
 
 
-string Segment::TeamsAsString(const Format format) const
+string Segment::strTeams(const Format format) const
 {
   return teams.str(format);
 }
 
 
-string Segment::TeamsAsString(
+string Segment::strTeams(
   const int score1,
   const int score2,
-  const Format f) const
+  const Format format) const
 {
-  return teams.str(f, score1, score2);
+  return teams.str(score1, score2, format);
 }
 
 
-string Segment::FirstTeamAsString(
-  const Format f) const
+string Segment::strFirstTeam(const Format format) const
 {
-  return teams.strFirst(f);
+  return teams.strFirst(format);
 }
 
 
-string Segment::SecondTeamAsString(
-  const Format f) const
+string Segment::strSecondTeam(const Format format) const
 {
-  return teams.strSecond(f);
+  return teams.strSecond(format);
 }
 
 
-string Segment::NumberAsString(
-  const Format f,
-  const unsigned intNo) const
+string Segment::strNumber(
+  const unsigned intNo,
+  const Format format) const
 {
   unsigned extNo = Segment::getExtBoardNo(intNo);
-  if (extNo == 0)
-    return "";
 
-  stringstream st;
-  switch(f)
+  stringstream ss;
+  switch(format)
   {
     case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_LIN_RP:
     case BRIDGE_FORMAT_LIN_VG:
     case BRIDGE_FORMAT_LIN_TRN:
-      st << activeBoard->strRoom(extNo, f);
-      return st.str();
+// TODO
+if (format == BRIDGE_FORMAT_LIN)
+  THROW("LIN");
+if (format == BRIDGE_FORMAT_LIN_TRN)
+  THROW("TRN");
+      ss << activeBoard->strRoom(extNo, format);
+      return ss.str();
 
     case BRIDGE_FORMAT_PBN:
-      st << "[Board \"" << extNo << "\"]\n";
-      return st.str();
+      ss << "[Board \"" << extNo << "\"]\n";
+      return ss.str();
 
     case BRIDGE_FORMAT_RBN:
-      st << "B " << extNo << "\n";
-      return st.str();
+      ss << "B " << extNo << "\n";
+      return ss.str();
 
     case BRIDGE_FORMAT_RBX:
-      st << "B{" << extNo << "}";
-      return st.str();
+      ss << "B{" << extNo << "}";
+      return ss.str();
 
     case BRIDGE_FORMAT_EML:
       if (! scoring.isIMPs())
         return "";
-      st << "Teams Board " << extNo;
-      return st.str();
+      ss << "Teams Board " << extNo;
+      return ss.str();
 
     case BRIDGE_FORMAT_TXT:
-      st << extNo << ".";
-      return st.str();
+      ss << extNo << ".";
+      return ss.str();
 
     case BRIDGE_FORMAT_REC:
-      st << "Board " << extNo;
-      return st.str();
+      ss << "Board " << extNo;
+      return ss.str();
 
     default:
-      THROW("Invalid format " + STR(f));
+      THROW("Invalid format: " + STR(format));
   }
 }
 
 
-string Segment::NumberAsBoardString(
-  const Format f,
-  const unsigned intNo) const
+string Segment::strNumberBoard(
+  const unsigned intNo,
+  const Format format) const
 {
-  if (f != BRIDGE_FORMAT_LIN && f != BRIDGE_FORMAT_LIN_TRN)
+  // TODO: Merge?
+  if (format != BRIDGE_FORMAT_LIN && format != BRIDGE_FORMAT_LIN_TRN)
     return "";
 
   unsigned extNo = Segment::getExtBoardNo(intNo);
-  if (extNo == 0)
-    return "";
   
   stringstream st;
   st << "ah|Board " << extNo << "|";
@@ -956,8 +901,9 @@ string Segment::NumberAsBoardString(
 }
 
 
-string Segment::ContractsAsLIN(const Format f)
+string Segment::strContractsLIN(const Format format)
 {
+ // TODO: Clean up
   stringstream s;
   s << "rs|";
   for (auto &p: boards)
@@ -966,19 +912,18 @@ string Segment::ContractsAsLIN(const Format f)
     p.board.setInstance(0);
     if (l == 2 && 
         p.board.room() == BRIDGE_ROOM_CLOSED)
-        // activeBoard->GetRoom() == BRIDGE_ROOM_CLOSED)
     {
       p.board.setInstance(1);
-      s << p.board.strContract(f) << ",";
+      s << p.board.strContract(format) << ",";
       p.board.setInstance(0);
-      s << p.board.strContract(f) << ",";
+      s << p.board.strContract(format) << ",";
     }
     else
     {
       for (unsigned i = 0; i < l; i++)
       {
         p.board.setInstance(i);
-        s << p.board.strContract(f) << ",";
+        s << p.board.strContract(format) << ",";
       }
     }
 
@@ -993,50 +938,51 @@ string Segment::ContractsAsLIN(const Format f)
   }
 
   string st = s.str();
-  if (f == BRIDGE_FORMAT_LIN ||
-      f == BRIDGE_FORMAT_LIN_RP || 
-      f == BRIDGE_FORMAT_LIN_VG)
+  if (format == BRIDGE_FORMAT_LIN ||
+      format == BRIDGE_FORMAT_LIN_RP || 
+      format == BRIDGE_FORMAT_LIN_VG)
     st.pop_back(); // Remove trailing comma
   return st + "|\n";
 }
 
 
-string Segment::ContractsAsString(const Format f) 
+string Segment::strContracts(const Format format) 
 {
-  switch(f)
+  switch(format)
   {
     case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_LIN_RP:
     case BRIDGE_FORMAT_LIN_VG:
     case BRIDGE_FORMAT_LIN_TRN:
-      return Segment::ContractsAsLIN(f);
+      return Segment::strContractsLIN(format);
 
     default:
-      THROW("Invalid format " + STR(f));
+      THROW("Invalid format: " + STR(format));
   }
 }
 
 
-string Segment::PlayersAsString(const Format f) 
+string Segment::strPlayers(const Format format) 
 {
-  string s1, s2;
+  // TODO: Clean up
+  string st1, st2;
   Board * board;
   Board * refBoard = nullptr;
-  switch(f)
+  switch(format)
   {
     case BRIDGE_FORMAT_LIN:
-      s1 = "pw|";
+      st1 = "pw|";
       for (auto &p: boards)
       {
         for (unsigned i = 0; i < p.board.count(); i++)
         {
           p.board.setInstance(i);
-          s1 += p.board.strPlayersDelta(refBoard, f);
+          st1 += p.board.strPlayersDelta(refBoard, format);
           refBoard = &p.board;
         }
       }
-      s1.pop_back();
-      return s1 + "|\n";
+      st1.pop_back();
+      return st1 + "|\n";
 
     case BRIDGE_FORMAT_LIN_VG:
       board = Segment::getBoard(0);
@@ -1046,22 +992,22 @@ string Segment::PlayersAsString(const Format f)
       if (board->count() == 1)
       {
         board->setInstance(0);
-        s1 = board->strPlayers(f);
-        return "pn|" + s1 + ",South,West,North,East|pg||\n";
+        st1 = board->strPlayers(format);
+        return "pn|" + st1 + ",South,West,North,East|pg||\n";
       }
 
       board->setInstance(0);
-      s1 = board->strPlayers(f);
+      st1 = board->strPlayers(format);
       board->setInstance(1);
-      s2 = board->strPlayers(f);
+      st2 = board->strPlayers(format);
 
-      if (f == BRIDGE_FORMAT_LIN_TRN)
+      if (format == BRIDGE_FORMAT_LIN_TRN)
       {
-        s1.pop_back(); // Trailing |, leading pn|,,,,
-        return s1 + "," + s2.substr(7) + "\npg||\n";
+        st1.pop_back(); // Trailing |, leading pn|,,,,
+        return st1 + "," + st2.substr(7) + "\npg||\n";
       }
       else
-        return "pn|" + s1 + "," + s2 + "|pg||\n";
+        return "pn|" + st1 + "," + st2 + "|pg||\n";
 
     case BRIDGE_FORMAT_LIN_RP:
     case BRIDGE_FORMAT_LIN_TRN:
@@ -1074,44 +1020,44 @@ string Segment::PlayersAsString(const Format f)
       if (board->room() == BRIDGE_ROOM_CLOSED)
       {
         board->setInstance(1);
-        s1 = board->strPlayers(f);
+        st1 = board->strPlayers(format);
         board->setInstance(0);
-        s2 = board->strPlayers(f);
+        st2 = board->strPlayers(format);
       }
       else
       {
         board->setInstance(0);
-        s1 = board->strPlayers(f);
+        st1 = board->strPlayers(format);
         board->setInstance(1);
-        s2 = board->strPlayers(f);
+        st2 = board->strPlayers(format);
       }
 
-      if (f == BRIDGE_FORMAT_LIN_TRN)
+      if (format == BRIDGE_FORMAT_LIN_TRN)
       {
-        s1.pop_back(); // Trailing |, leading pn|,,,,
-        return s1 + "," + s2.substr(7) + "\npg||\n";
+        st1.pop_back(); // Trailing |, leading pn|,,,,
+        return st1 + "," + st2.substr(7) + "\npg||\n";
       }
       else
-        return "pn|" + s1 + "," + s2 + "|pg||\n\n";
+        return "pn|" + st1 + "," + st2 + "|pg||\n\n";
 
     default:
-      THROW("Invalid format " + STR(f));
+      THROW("Invalid format: " + STR(format));
   }
 }
 
 
-string Segment::ScoresAsString(const Format f) const
+string Segment::strScores(const Format format) const
 {
-  string s;
+  string st;
 
-  switch(f)
+  switch(format)
   {
     case BRIDGE_FORMAT_LIN:
-      s = "mp|";
+      st = "mp|";
       for (auto &p: boards)
-        s += p.board.strGivenScore(f);
-      s.pop_back(); // Remove trailing comma
-      return s + "|\n";
+        st += p.board.strGivenScore(format);
+      st.pop_back(); // Remove trailing comma
+      return st + "|\n";
 
     case BRIDGE_FORMAT_LIN_RP:
     case BRIDGE_FORMAT_LIN_VG:
@@ -1119,24 +1065,24 @@ string Segment::ScoresAsString(const Format f) const
       return "";
 
     default:
-      THROW("Invalid format " + STR(f));
+      THROW("Invalid format: " + STR(format));
   }
 }
 
 
-string Segment::BoardsAsString(const Format f) const
+string Segment::strBoards(const Format format) const
 {
-  stringstream s;
+  stringstream ss;
   string st;
 
-  switch(f)
+  switch(format)
   {
     case BRIDGE_FORMAT_LIN:
-      s << "bn|";
+      ss << "bn|";
       for (auto &p: boards)
-        s << p.extNo << ",";
+        ss << p.extNo << ",";
 
-      st = s.str();
+      st = ss.str();
       st.pop_back(); // Remove trailing comma
       return st + "|\npg||\n";
 
@@ -1146,7 +1092,7 @@ string Segment::BoardsAsString(const Format f) const
       return "";
 
     default:
-      THROW("Invalid format " + STR(f));
+      THROW("Invalid format: " + STR(format));
   }
 }
 

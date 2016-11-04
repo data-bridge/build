@@ -306,9 +306,9 @@ string Teams::str(
 
 
 string Teams::str(
-  const Format format,
   const int score1,
-  const int score2) const
+  const int score2,
+  const Format format) const
 {
   switch(format)
   {

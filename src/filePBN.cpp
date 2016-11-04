@@ -175,14 +175,14 @@ void writePBNBoardLevel(
 
   if (writeInfo.bno == 0 && writeInfo.ino == 0)
   {
-    fstr << segment.EventAsString(format);
-    fstr << segment.LocationAsString(format);
-    fstr << segment.DateAsString(format);
+    fstr << segment.strEvent(format);
+    fstr << segment.strLocation(format);
+    fstr << segment.strDate(format);
   }
   else
   {
     fstr << "[Event \"#\"]\n";
-    if (segment.LocationAsString(format) == "[Site \"\"]\n")
+    if (segment.strLocation(format) == "[Site \"\"]\n")
       fstr << "[Site \"\"]\n";
     else
       fstr << "[Site \"#\"]\n";
@@ -190,7 +190,7 @@ void writePBNBoardLevel(
   }
 
   if (writeInfo.ino == 0)
-    fstr << segment.NumberAsString(format, writeInfo.bno);
+    fstr << segment.strNumber(writeInfo.bno, format);
   else
     fstr << "[Board \"#\"]\n";
 
@@ -204,7 +204,7 @@ void writePBNBoardLevel(
   fstr << board.strDeal(BRIDGE_WEST, format);
 
   if (writeInfo.bno == 0 && writeInfo.ino == 0)
-    fstr << segment.ScoringAsString(format);
+    fstr << segment.strScoring(format);
   else
     fstr << "[Scoring \"#\"]\n";
 
@@ -216,10 +216,10 @@ void writePBNBoardLevel(
 
   if (writeInfo.bno == 0 && writeInfo.ino == 0)
   {
-    fstr << segment.TitleAsString(format);
-    fstr << segment.SessionAsString(format);
-    fstr << segment.FirstTeamAsString(format);
-    fstr << segment.SecondTeamAsString(format);
+    fstr << segment.strTitle(format);
+    fstr << segment.strSession(format);
+    fstr << segment.strFirstTeam(format);
+    fstr << segment.strSecondTeam(format);
   }
   else
   {

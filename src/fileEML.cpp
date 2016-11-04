@@ -478,8 +478,8 @@ void writeEMLBoardLevel(
 
   board.calculateScore();
 
-  chunk[EML_SCORING] = segment.ScoringAsString(format);
-  chunk[EML_BOARD] = segment.NumberAsString(format, writeInfo.bno);
+  chunk[EML_SCORING] = segment.strScoring(format);
+  chunk[EML_BOARD] = segment.strNumber(writeInfo.bno, format);
 
   chunk[EML_WEST] = board.strPlayer(BRIDGE_WEST, format);
   chunk[EML_NORTH] = board.strPlayer(BRIDGE_NORTH, format);

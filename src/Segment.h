@@ -59,12 +59,10 @@ class Segment
 
     void setTitleLIN(const string& text);
 
-    string TitleAsLINCommon(const bool swapFlag = false) const;
-    string TitleAsLIN() const;
-    string TitleAsLIN_RP() const;
-    string TitleAsLIN_VG() const;
-    string TitleAsLIN_TRN() const;
-    string TitleAsLIN_EXT() const;
+    string strTitleLINCore(const bool swapFlag = false) const;
+    string strTitleLIN() const;
+    string strTitleLIN_RP() const;
+    string strContractsLIN(const Format format);
 
 
   public:
@@ -194,60 +192,34 @@ class Segment
 
     bool operator != (const Segment& s2) const;
 
-    string TitleAsString(
-      const Format format) const;
+    string strTitle(const Format format) const;
+    string strDate(const Format format) const;
+    string strLocation(const Format format) const;
+    string strEvent(const Format format) const;
+    string strSession(const Format format) const;
+    string strScoring(const Format format) const;
+    string strTeams(const Format format) const;
 
-    string DateAsString(
-      const Format format) const;
-
-    string LocationAsString(
-      const Format format) const;
-
-    string EventAsString(
-      const Format format) const;
-
-    string SessionAsString(
-      const Format format) const;
-
-    string ScoringAsString(
-      const Format format) const;
-
-     string TeamsAsString(
-      const Format format) const;
-
-     string TeamsAsString(
+    string strTeams(
       const int score1,
       const int score2,
       const Format format) const;
 
-     string FirstTeamAsString(
+    string strFirstTeam(const Format format) const;
+    string strSecondTeam(const Format format) const;
+
+    string strNumber(
+      const unsigned intNo,
       const Format format) const;
 
-     string SecondTeamAsString(
+    string strNumberBoard(
+      const unsigned intNo,
       const Format format) const;
 
-     string NumberAsString(
-      const Format format,
-      const unsigned intNo) const;
-
-     string NumberAsBoardString(
-      const Format format,
-      const unsigned intNo) const;
-
-     string ContractsAsLIN(
-      const Format format);
-
-     string ContractsAsString(
-      const Format format);
-
-     string PlayersAsString(
-      const Format format);
-
-     string ScoresAsString(
-      const Format format) const;
-
-     string BoardsAsString(
-      const Format format) const;
+    string strContracts(const Format format);
+    string strPlayers(const Format format);
+    string strScores(const Format format) const;
+    string strBoards(const Format format) const;
 };
 
 #endif

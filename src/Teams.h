@@ -74,9 +74,9 @@ class Teams
       const bool swapFlag = false) const;
 
     string str(
-      const Format format,
       const int score1,
-      const int score2) const;
+      const int score2,
+      const Format format) const;
 
     string strFirst(const Format format) const;
 

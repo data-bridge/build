@@ -514,12 +514,12 @@ void writeTXTSegmentLevel(
       fstr << TXTdashes << "\n";
   }
 
-  fstr << "\n" << segment.TitleAsString(format) << "\n";
-  fstr << segment.DateAsString(format);
-  fstr << segment.LocationAsString(format);
-  fstr << segment.EventAsString(format);
-  fstr << segment.SessionAsString(format);
-  fstr << segment.TeamsAsString(format) << "\n\n";
+  fstr << "\n" << segment.strTitle(format) << "\n";
+  fstr << segment.strDate(format);
+  fstr << segment.strLocation(format);
+  fstr << segment.strEvent(format);
+  fstr << segment.strSession(format);
+  fstr << segment.strTeams(format) << "\n\n";
 }
 
 
@@ -537,7 +537,7 @@ void writeTXTBoardLevel(
   if (writeInfo.ino == 0)
   {
     const string dstr = board.strDeal(BRIDGE_WEST, format);
-    const string bstr = segment.NumberAsString(format, writeInfo.bno);
+    const string bstr = segment.strNumber(writeInfo.bno, format);
     const string vstr = board.strVul(format);
     const string lstr = (board.auctionIsEmpty() ?  board.strDealer(format) : "");
 
@@ -577,17 +577,17 @@ void writeTXTBoardLevel(
     if (s > 0)
     {
       writeInfo.score2 += (s > 0 ? s : -s);
-      tWin = segment.SecondTeamAsString(format);
+      tWin = segment.strSecondTeam(format);
     }
     else
     {
       writeInfo.score1 += (s > 0 ? s : -s);
-      tWin = segment.FirstTeamAsString(format);
+      tWin = segment.strFirstTeam(format);
     }
 
     fstr << board.strResult(format, tWin) << "\n";
     fstr << 
-      segment.TeamsAsString(writeInfo.score1, writeInfo.score2, format) << "\n";
+      segment.strTeams(writeInfo.score1, writeInfo.score2, format) << "\n";
     if (writeInfo.bno != writeInfo.numBoards-1)
       fstr << TXTdashes << "\n\n";
   }
