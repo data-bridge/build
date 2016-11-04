@@ -30,7 +30,7 @@ bool writeEML(
   const string& fname);
 
 void writeEMLBoardLevel(
-  ofstream& fstr,
+  string& st,
   Segment& segment,
   Board& board,
   WriteInfo& writeInfo,

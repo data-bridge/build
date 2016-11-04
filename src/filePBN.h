@@ -26,7 +26,7 @@ bool readPBNChunk(
   bool& newSegFlag);
 
 void writePBNBoardLevel(
-  ofstream& fstr,
+  string& st,
   Segment& segment,
   Board& board,
   WriteInfo& writeInfo,

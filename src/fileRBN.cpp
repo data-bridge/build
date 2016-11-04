@@ -138,22 +138,22 @@ bool readRBXChunk(
 
 
 void writeRBNSegmentLevel(
-  ofstream& fstr,
+  string& st,
   Segment& segment,
   const Format format)
 {
-  fstr << segment.strTitle(format);
-  fstr << segment.strDate(format);
-  fstr << segment.strLocation(format);
-  fstr << segment.strEvent(format);
-  fstr << segment.strSession(format);
-  fstr << segment.strScoring(format);
-  fstr << segment.strTeams(format);
+  st += segment.strTitle(format);
+  st += segment.strDate(format);
+  st += segment.strLocation(format);
+  st += segment.strEvent(format);
+  st += segment.strSession(format);
+  st += segment.strScoring(format);
+  st += segment.strTeams(format);
 }
 
 
 void writeRBNBoardLevel(
-  ofstream& fstr,
+  string& st,
   Segment& segment,
   Board& board,
   WriteInfo& writeInfo,
@@ -162,22 +162,22 @@ void writeRBNBoardLevel(
   string names = board.strPlayers(format);
   if (names != writeInfo.namesOld[writeInfo.ino])
   {
-    fstr << names;
+    st += names;
     writeInfo.namesOld[writeInfo.ino] = names;
   }
         
   if (writeInfo.ino == 0)
   {
-    fstr << segment.strNumber(writeInfo.bno, format);
-    fstr << board.strDeal(BRIDGE_WEST, format);
+    st += segment.strNumber(writeInfo.bno, format);
+    st += board.strDeal(BRIDGE_WEST, format);
   }
 
   board.calculateScore();
 
-  fstr << board.strAuction(format);
-  fstr << board.strContract(format);
-  fstr << board.strPlay(format);
-  fstr << board.strResult(format, segment.scoringIsIMPs());
-  fstr << "\n";
+  st += board.strAuction(format);
+  st += board.strContract(format);
+  st += board.strPlay(format);
+  st += board.strResult(format, segment.scoringIsIMPs());
+  st += "\n";
 }
 

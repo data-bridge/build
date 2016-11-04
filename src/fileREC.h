@@ -28,7 +28,7 @@ bool writeREC(
   const string& fname);
 
 void writeRECBoardLevel(
-  ofstream& fstr,
+  string& st,
   Segment& segment,
   Board& board,
   WriteInfo& writeInfo,

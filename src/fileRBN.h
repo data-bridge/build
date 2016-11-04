@@ -36,12 +36,12 @@ bool writeRBN(
   const string& fname);
 
 void writeRBNSegmentLevel(
-  ofstream& fstr,
+  string& st,
   Segment& segment,
   const Format format);
 
 void writeRBNBoardLevel(
-  ofstream& fstr,
+  string& st,
   Segment& segment,
   Board& board,
   WriteInfo& writeInfo,

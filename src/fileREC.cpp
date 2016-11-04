@@ -374,7 +374,7 @@ bool readRECChunk(
 
 
 void writeRECBoardLevel(
-  ofstream& fstr,
+  string& st,
   Segment& segment,
   Board& board,
   WriteInfo& writeInfo,
@@ -412,16 +412,16 @@ void writeRECBoardLevel(
   canvas.setLine(east, 3, 24);
   canvas.setLine(south, 6, 12);
 
-  fstr << canvas.str(true) << "\n";
+  st += canvas.str(true) + "\n";
 
-  fstr << board.strPlayers(format) << "\n";
-  fstr << board.strAuction(format);
+  st += board.strPlayers(format) + "\n";
+  st += board.strAuction(format);
 
-  fstr << board.strLead(format) << "    ";
-  fstr << board.strResult(format, false) << "\n";
-  fstr << board.strScore(format, false);
-  fstr << board.strScoreIMP(format, writeInfo.ino == 1) << "\n\n";
+  st += board.strLead(format) + "    ";
+  st += board.strResult(format, false) + "\n";
+  st += board.strScore(format, false);
+  st += board.strScoreIMP(format, writeInfo.ino == 1) + "\n\n";
 
-  fstr << board.strPlay(format);
+  st += board.strPlay(format);
 }
 

@@ -467,7 +467,7 @@ bool readEMLChunk(
 
 
 void writeEMLBoardLevel(
-  ofstream& fstr,
+  string& st,
   Segment& segment,
   Board& board,
   WriteInfo& writeInfo,
@@ -542,11 +542,11 @@ void writeEMLBoardLevel(
     canvas.setLine(chunk[EML_SCORE], a+5, 42);
   }
 
-  fstr << canvas.str() << "\n";
+  st += canvas.str() + "\n";
 
   if (writeInfo.ino < writeInfo.numInst-1)
-    fstr << EMLdashes << "\n\n";
+    st += EMLdashes + "\n\n";
   else if (writeInfo.bno < writeInfo.numBoards-1)
-    fstr << EMLequals << "\n\n";
+    st += EMLequals + "\n\n";
 }
 

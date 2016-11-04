@@ -503,28 +503,27 @@ bool readTXTChunk(
 
 
 void writeTXTSegmentLevel(
-  ofstream& fstr,
+  string& st,
   Segment& segment,
   const Format format)
 {
-  // if (segment->CarryExists())
   if (segment.getExtBoardNo(0) != 1 || segment.hasCarry())
   {
     // Pavlicek bug.
-      fstr << TXTdashes << "\n";
+    st += TXTdashes + "\n";
   }
 
-  fstr << "\n" << segment.strTitle(format) << "\n";
-  fstr << segment.strDate(format);
-  fstr << segment.strLocation(format);
-  fstr << segment.strEvent(format);
-  fstr << segment.strSession(format);
-  fstr << segment.strTeams(format) << "\n\n";
+  st += "\n" + segment.strTitle(format) + "\n";
+  st += segment.strDate(format);
+  st += segment.strLocation(format);
+  st += segment.strEvent(format);
+  st += segment.strSession(format);
+  st += segment.strTeams(format) + "\n\n";
 }
 
 
 void writeTXTBoardLevel(
-  ofstream& fstr,
+  string& st,
   Segment& segment,
   Board& board,
   WriteInfo& writeInfo,
@@ -550,27 +549,27 @@ void writeTXTBoardLevel(
     canvas.setLine(bstr, 0, 0);
     canvas.setLine(lstr, 13, 0);
     canvas.setLine(vstr, 14, 0);
-    fstr << canvas.str() << "\n";
+    st += canvas.str() + "\n";
 
-    fstr << board.strPlayers(format);
-    fstr << board.strAuction(format) << "\n";
-    fstr << board.strContract(format);
-    fstr << board.strPlay(format);
+    st += board.strPlayers(format);
+    st += board.strAuction(format) + "\n";
+    st += board.strContract(format);
+    st += board.strPlay(format);
 
-    fstr << board.strResult(format, false) << "\n";
+    st += board.strResult(format, false) + "\n";
   }
   else
   {
     const string p = board.strPlayers(format);
     // Pavlicek bug?
     if (p == "")
-      fstr << "\n";
+      st += "\n";
     else
-      fstr << board.strPlayers(format); // p?!
+      st += board.strPlayers(format); // p?!
 
-    fstr << board.strAuction(format) << "\n";
-    fstr << board.strContract(format);
-    fstr << board.strPlay(format);
+    st += board.strAuction(format) + "\n";
+    st += board.strContract(format);
+    st += board.strPlay(format);
 
     int s = board.IMPScore();
     string tWin;
@@ -585,11 +584,11 @@ void writeTXTBoardLevel(
       tWin = segment.strFirstTeam(format);
     }
 
-    fstr << board.strResult(format, tWin) << "\n";
-    fstr << 
-      segment.strTeams(writeInfo.score1, writeInfo.score2, format) << "\n";
+    st += board.strResult(format, tWin) + "\n";
+    st += 
+      segment.strTeams(writeInfo.score1, writeInfo.score2, format) + "\n";
     if (writeInfo.bno != writeInfo.numBoards-1)
-      fstr << TXTdashes << "\n\n";
+      st += TXTdashes + "\n\n";
   }
 }
 

@@ -30,12 +30,12 @@ bool writeTXT(
   const string& fname);
 
 void writeTXTSegmentLevel(
-  ofstream& fstr,
+  string& st,
   Segment& segment,
   const Format format);
 
 void writeTXTBoardLevel(
-  ofstream& fstr,
+  string& st,
   Segment& segment,
   Board& board,
   WriteInfo& writeInfo,

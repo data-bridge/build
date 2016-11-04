@@ -147,38 +147,38 @@ bool readLINChunk(
 
 
 void writeLINSegmentLevel(
-  ofstream& fstr,
+  string& st,
   Segment& segment,
   const Format format)
 {
-  fstr << segment.strTitle(format);
-  fstr << segment.strContracts(format);
-  fstr << segment.strPlayers(format);
-  fstr << segment.strScores(format);
-  fstr << segment.strBoards(format);
+  st += segment.strTitle(format);
+  st += segment.strContracts(format);
+  st += segment.strPlayers(format);
+  st += segment.strScores(format);
+  st += segment.strBoards(format);
 }
 
 
 void writeLINBoardLevel(
-  ofstream& fstr,
+  string& st,
   Segment& segment,
   Board& board,
   WriteInfo& writeInfo,
   const Format format)
 {
-  fstr << segment.strNumber(writeInfo.bno, format);
+  st += segment.strNumber(writeInfo.bno, format);
 
   if (format == BRIDGE_FORMAT_LIN || format == BRIDGE_FORMAT_LIN_TRN)
-    fstr << board.strPlayers(format);
+    st += board.strPlayers(format);
 
-  fstr << board.strDeal(format);
-  fstr << segment.strNumberBoard(writeInfo.bno, format);
-  fstr << board.strVul(format);
+  st += board.strDeal(format);
+  st += segment.strNumberBoard(writeInfo.bno, format);
+  st += board.strVul(format);
 
   board.calculateScore();
 
-  fstr << board.strAuction(format);
-  fstr << board.strPlay(format);
-  fstr << board.strClaim(format);
+  st += board.strAuction(format);
+  st += board.strPlay(format);
+  st += board.strClaim(format);
 }
 

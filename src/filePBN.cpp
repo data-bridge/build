@@ -153,18 +153,18 @@ bool readPBNChunk(
 
 
 void writePBNSegmentLevel(
-  ofstream& fstr,
+  string& st,
   Segment& segment,
   const Format format)
 {
-  UNUSED(fstr);
+  UNUSED(st);
   UNUSED(segment);
   UNUSED(format);
 }
 
 
 void writePBNBoardLevel(
-  ofstream& fstr,
+  string& st,
   Segment& segment,
   Board& board,
   WriteInfo& writeInfo,
@@ -174,64 +174,64 @@ void writePBNBoardLevel(
 
   if (writeInfo.bno == 0 && writeInfo.ino == 0)
   {
-    fstr << segment.strEvent(format);
-    fstr << segment.strLocation(format);
-    fstr << segment.strDate(format);
+    st += segment.strEvent(format);
+    st += segment.strLocation(format);
+    st += segment.strDate(format);
   }
   else
   {
-    fstr << "[Event \"#\"]\n";
+    st += "[Event \"#\"]\n";
     if (segment.strLocation(format) == "[Site \"\"]\n")
-      fstr << "[Site \"\"]\n";
+      st += "[Site \"\"]\n";
     else
-      fstr << "[Site \"#\"]\n";
-    fstr << "[Date \"#\"]\n";
+      st += "[Site \"#\"]\n";
+    st += "[Date \"#\"]\n";
   }
 
   if (writeInfo.ino == 0)
-    fstr << segment.strNumber(writeInfo.bno, format);
+    st += segment.strNumber(writeInfo.bno, format);
   else
-    fstr << "[Board \"#\"]\n";
+    st += "[Board \"#\"]\n";
 
-  fstr << board.strPlayer(BRIDGE_WEST, format);
-  fstr << board.strPlayer(BRIDGE_NORTH, format);
-  fstr << board.strPlayer(BRIDGE_EAST, format);
-  fstr << board.strPlayer(BRIDGE_SOUTH, format);
+  st += board.strPlayer(BRIDGE_WEST, format);
+  st += board.strPlayer(BRIDGE_NORTH, format);
+  st += board.strPlayer(BRIDGE_EAST, format);
+  st += board.strPlayer(BRIDGE_SOUTH, format);
 
-  fstr << board.strDealer(format);
-  fstr << board.strVul(format);
-  fstr << board.strDeal(BRIDGE_WEST, format);
+  st += board.strDealer(format);
+  st += board.strVul(format);
+  st += board.strDeal(BRIDGE_WEST, format);
 
   if (writeInfo.bno == 0 && writeInfo.ino == 0)
-    fstr << segment.strScoring(format);
+    st += segment.strScoring(format);
   else
-    fstr << "[Scoring \"#\"]\n";
+    st += "[Scoring \"#\"]\n";
 
-  fstr << board.strDeclarer(format);
-  fstr << board.strContract(format);
-  fstr << board.strResult(format, false);
-  fstr << board.strAuction(format);
-  fstr << board.strPlay(format);
+  st += board.strDeclarer(format);
+  st += board.strContract(format);
+  st += board.strResult(format, false);
+  st += board.strAuction(format);
+  st += board.strPlay(format);
 
   if (writeInfo.bno == 0 && writeInfo.ino == 0)
   {
-    fstr << segment.strTitle(format);
-    fstr << segment.strSession(format);
-    fstr << segment.strFirstTeam(format);
-    fstr << segment.strSecondTeam(format);
+    st += segment.strTitle(format);
+    st += segment.strSession(format);
+    st += segment.strFirstTeam(format);
+    st += segment.strSecondTeam(format);
   }
   else
   {
-    fstr << "[Description \"#\"]\n";
-    fstr << "[Stage \"#\"]\n";
-    fstr << "[HomeTeam \"#\"]\n";
-    fstr << "[VisitTeam \"#\"]\n";
+    st += "[Description \"#\"]\n";
+    st += "[Stage \"#\"]\n";
+    st += "[HomeTeam \"#\"]\n";
+    st += "[VisitTeam \"#\"]\n";
   }
 
-  fstr << board.strRoom(0, format);
-  fstr << board.strScore(format, segment.scoringIsIMPs());
-  fstr << board.strTableau(format);
+  st += board.strRoom(0, format);
+  st += board.strScore(format, segment.scoringIsIMPs());
+  st += board.strTableau(format);
 
-  fstr << "\n";
+  st += "\n";
 }
 

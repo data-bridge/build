@@ -15,6 +15,8 @@
 #include <fstream>
 #include <regex>
 #include <assert.h>
+#include <cstdio>
+#include <stdio.h>
 
 #include "Group.h"
 #include "Segment.h"
@@ -73,8 +75,8 @@ using namespace std;
 struct FormatFunctions
 {
   bool (* readChunk)(ifstream&, unsigned&, vector<string>&, bool&);
-  void (* writeSeg)(ofstream&, Segment&, Format);
-  void (* writeBoard)(ofstream&, Segment&, Board&, 
+  void (* writeSeg)(string&, Segment&, Format);
+  void (* writeBoard)(string&, Segment&, Board&, 
     WriteInfo&, const Format);
 };
 
@@ -95,7 +97,7 @@ struct Fix
 
 
 void writeDummySegmentLevel(
-  ofstream& fstr,
+  string& st,
   Segment& segment,
   const Format format);
 
@@ -144,13 +146,17 @@ static void setIO();
 
 static void setInterface();
 
+void writeFast(
+  const string& fname,
+  const string& text);
+
 
 void writeDummySegmentLevel(
-  ofstream& fstr,
+  string& st,
   Segment& segment,
   const Format format)
 {
-  UNUSED(fstr);
+  UNUSED(st);
   UNUSED(segment);
   UNUSED(format);
 }
@@ -633,23 +639,24 @@ static void tryFormatMethod(
 
 
 static void writeHeader(
-  ofstream& fstr,
+  string& st,
   Group& group,
   const Format format)
 {
+  st = "";
   const string g = guessOriginalLine(group.name(), group.count());
   if (g == "")
     return;
 
   if (format == BRIDGE_FORMAT_RBX)
   {
-    fstr << "%{RBX " << g << "}";
-    fstr << "%{www.rpbridge.net Richard Pavlicek}";
+    st += "%{RBX " + g + "}";
+    st += "%{www.rpbridge.net Richard Pavlicek}";
   }
   else
   {
-    fstr << "% " << FORMAT_EXTENSIONS[format] << " " << g << "\n";
-    fstr << "% www.rpbridge.net Richard Pavlicek\n";
+    st += "% " + FORMAT_EXTENSIONS[format] + " " + g + "\n";
+    st += "% www.rpbridge.net Richard Pavlicek\n";
   }
 }
 
@@ -659,21 +666,19 @@ static bool writeFormattedFile(
   const string& fname,
   const Format format)
 {
-  ofstream fstr(fname.c_str());
-  if (! fstr.is_open())
-    THROW("Cannot write to: " + fname);
-
   WriteInfo writeInfo;
   writeInfo.namesOld[0] = "";
   writeInfo.namesOld[1] = "";
   writeInfo.score1 = 0;
   writeInfo.score2 = 0;
 
-  writeHeader(fstr, group, format);
+  string st;
+  st.reserve(100000);
+  writeHeader(st, group, format);
 
   for (auto &segment: group)
   {
-    (* formatFncs[format].writeSeg)(fstr, segment, format);
+    (* formatFncs[format].writeSeg)(st, segment, format);
 
     writeInfo.numBoards = segment.size();
     for (auto &bpair: segment)
@@ -689,17 +694,15 @@ static bool writeFormattedFile(
         board.setInstance(i);
         writeInfo.ino = i;
         (* formatFncs[format].writeBoard)
-          (fstr, segment, board, writeInfo, format);
+          (st, segment, board, writeInfo, format);
       }
     }
   }
 
-  fstr.close();
+  writeFast(fname, st);
   return true;
 }
 
-
-#include <cstdio>
 
 void mergeResults(
   vector<ValStats>& vstats,
@@ -742,3 +745,16 @@ void mergeResults(
   fbase.close();
 }
 
+
+// http://stackoverflow.com/questions/11563963/
+//   writing-a-binary-file-in-c-very-fast
+
+void writeFast(
+  const string& fname,
+  const string& text)
+{
+  FILE* pFile;
+  pFile = fopen(fname.c_str(), "wb");
+  fwrite(text.c_str(), 1, text.length(), pFile);
+  fclose(pFile);
+}
