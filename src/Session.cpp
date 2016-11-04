@@ -328,6 +328,37 @@ bool Session::isStage(const string& text) const
 }
 
 
+bool Session::isSegmentLike(const string& text) const
+{
+  regex re1("^Segment\\s+\\d+$");
+  regex re2("^Round\\s+\\d+$");
+  regex re3("^Segment\\s+\\d+ \\(overtime\\)$");
+
+  smatch match;
+  return (
+      regex_search(text, match, re1) ||
+      regex_search(text, match, re2) ||
+      regex_search(text, match, re3) ||
+      text == "Overtime");
+}
+
+
+bool Session::isRoundOfLike(const string& text) const
+{
+  regex re1("^R(\\d+)$");
+  regex re2("^R(\\d+)[ABCD]$");
+  regex re3("^R(\\d+) [ABCD]$");
+  regex re4("^[QS][ABCD]$");
+  smatch match;
+
+  return (
+      regex_search(text, match, re1) ||
+      regex_search(text, match, re2) ||
+      regex_search(text, match, re3) ||
+      regex_search(text, match, re4));
+}
+
+
 bool Session::operator == (const Session& session2) const
 {
   if (stage != session2.stage)

@@ -83,6 +83,10 @@ class Session
 
     bool isStage(const string& text) const;
 
+    bool isSegmentLike(const string& text) const;
+
+    bool isRoundOfLike(const string& text) const;
+
     bool operator == (const Session& session2) const;
 
     bool operator != (const Session& session2) const;

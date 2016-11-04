@@ -146,7 +146,6 @@ void Segment::loadFromHeader(
 void Segment::setTitleLIN(const string& t)
 {
   // We figure out which of the LIN formats is used.
-  //
   // We cater to several uses of the first three fields:
   //
   //           own table   own MP    own tourney   Vugraph    RBN-generated
@@ -154,14 +153,7 @@ void Segment::setTitleLIN(const string& t)
   // 1         IMPs        BBO       BBO           DOSB-...   S(2)
   // 2         P           P         I             I          I
   // scoring   I           P         I             I          I
-  //
-  // Field #0 may have the form text%date%location%session
-  // when we generate it.  Otherwise we lose RBN information.
-  //
-  // Fields 3 and 4 are board ranges (ignored and re-generated).
-  // Fields 5 through 8 are team tags.
 
-  // TODO: Clean up
   int seen = std::count(t.begin(), t.end(), ',');
   if (seen != 8)
     THROW("LIN vg needs exactly 8 commas.");
@@ -170,72 +162,42 @@ void Segment::setTitleLIN(const string& t)
   v.clear();
   tokenize(t, v, ",");
 
-  // Try to pick out the RBN-generated line.
-  bool eventFlag = true;
-  regex re1("^(.+)\\s+(\\w+)$");
-  regex re2("^Segment\\s+\\d+$");
-  regex re3("^Round\\s+\\d+$");
-  regex re4("^R(\\d+)$");
-  regex re5("^R(\\d+)[ABCD]$");
-  regex re6("^R(\\d+) [ABCD]$");
-  regex re7("^[QS][ABCD]$");
-  regex re8("^Segment\\s+\\d+ \\(overtime\\)$");
-  // This has become a mess.  It should be tested in Session.cpp
-  smatch match1, match2;
-  if (regex_search(v[0], match1, re1) && 
-      match1.size() >= 2 &&
-      session.isStage(match1.str(2)) &&
-      (regex_search(v[1], match2, re2) ||
-       regex_search(v[1], match2, re3) ||
-       regex_search(v[1], match2, re8) ||
-       v[1] == "Overtime"))
+  // Pick out the RBN-generated line.
+  regex re("^(.+)\\s+(\\w+)$");
+  smatch match;
+  if (regex_search(v[0], match, re) && 
+      match.size() >= 2 &&
+      session.isStage(match.str(2)) &&
+      session.isSegmentLike(v[1]))
   {
-    Segment::setTitle(match1.str(1), BRIDGE_FORMAT_RBN);
+    Segment::setTitle(match.str(1), BRIDGE_FORMAT_RBN);
 
     // Make a synthetic RBN-like session line (a bit wasteful).
     stringstream s;
-    s << match1.str(2) << ":" << v[1];
+    s << match.str(2) << ":" << v[1];
     Segment::setSession(s.str(), BRIDGE_FORMAT_RBN);
     event = "";
-    eventFlag = false;
   }
-  else if (regex_search(v[1], match2, re4) ||
-           regex_search(v[1], match2, re5) ||
-           regex_search(v[1], match2, re6) ||
-           regex_search(v[1], match2, re7))
+  else if (session.isRoundOfLike(v[1]))
   {
     Segment::setTitle(v[0], BRIDGE_FORMAT_RBN);
     Segment::setSession(v[1], BRIDGE_FORMAT_RBN);
     event = "";
-    eventFlag = false;
   }
-
-  // See whether the title line contains extra information.
-  seen = std::count(t.begin(), t.end(), '%');
-  if (seen == 3)
+  else
   {
-    vector<string> vv(4);
-    vv.clear();
-    tokenize(v[0], vv, "%");
-
-    Segment::setTitle(vv[0], BRIDGE_FORMAT_RBN);
-    Segment::setDate(vv[1], BRIDGE_FORMAT_RBN);
-    Segment::setLocation(vv[2], BRIDGE_FORMAT_RBN);
-    Segment::setSession(vv[3], BRIDGE_FORMAT_RBN);
-    Segment::setEvent(v[1], BRIDGE_FORMAT_RBN);
-  }
-  else if (eventFlag)
-  {
+    // Simple case.
     Segment::setTitle(v[0], BRIDGE_FORMAT_RBN);
     Segment::setEvent(v[1], BRIDGE_FORMAT_RBN);
   }
 
-
+  // Scoring (2).
   if (v[2] == "P" && v[1] != "IMPs")
     Segment::setScoring("P", BRIDGE_FORMAT_LIN);
   else
     Segment::setScoring("I", BRIDGE_FORMAT_LIN);
     
+  // Board numbers (3-4).
   if (v[3] == "")
     bInmin = 0;
   else if (! str2upos(v[3], bInmin))
@@ -246,7 +208,7 @@ void Segment::setTitleLIN(const string& t)
   else if (! StringToNonzeroUnsigned(v[4], bInmax))
     THROW("Not a board number");
 
-  // Synthesize an RBN-like team line (a bit wasteful).
+  // Teams (5-8): Synthesize an RBN-like team line (a bit wasteful).
   stringstream s;
   s << v[5] << ":" << v[7];
   if (v[6] != "" || v[8] != "")
@@ -254,7 +216,6 @@ void Segment::setTitleLIN(const string& t)
     s << ":" << (v[6] == "" ? 0 : v[6]);
     s << ":" << (v[8] == "" ? 0 : v[8]);
   }
-
   Segment::setTeams(s.str(), BRIDGE_FORMAT_LIN);
 }
 
