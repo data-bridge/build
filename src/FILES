@@ -1,20 +1,3 @@
-   731   1821  18033 dispatch.cpp
-    26     43    383 dispatch.h
-   551   1518  13444 fileEML.cpp
-   183    475   4435 fileLIN.cpp
-   232    588   5893 filePBN.cpp
-   183    431   4155 fileRBN.cpp
-   426   1305  10722 fileREC.cpp
-   598   1673  14360 fileTXT.cpp
-    39     63    541 fileEML.h
-    40     66    575 fileLIN.h
-    35     56    485 filePBN.h
-    50     83    732 fileRBN.h
-    37     61    519 fileREC.h
-    44     73    631 fileTXT.h
-
-    81    146   1495 reader.cpp
-
    579   1473  13180 validate.cpp
     67    146   1223 validateEML.cpp
    296    717   6575 validateLIN.cpp
@@ -30,10 +13,6 @@
     23     35    322 validateREC.h
     24     38    353 validateTXT.h
     49     86    721 valint.h
-
-    27     28    233 Valuation.cpp
-    30     32    281 Valuation.h
-
 
 OK, except possibly for coverage:
 
@@ -60,8 +39,12 @@ OK, except possibly for coverage:
 * Timers
 * ValProfile
 * ValStats
+* Valuation
 
 * args
 * bconst.h
 * dirent
+* dispatch
+* file*
 * parse
+* reader

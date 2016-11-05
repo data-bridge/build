@@ -10,7 +10,7 @@
 #include <iostream>
 #include <fstream>
 #include <regex>
-#include <map>
+#include <unordered_map>
 
 #include "Group.h"
 #include "Segment.h"
@@ -21,7 +21,7 @@
 using namespace std;
 
 
-map<string, Label> PBNmap;
+unordered_map<string, Label> PBNmap;
 
 
 void writePBNSegmentLevel(

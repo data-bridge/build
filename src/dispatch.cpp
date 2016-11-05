@@ -535,6 +535,7 @@ static bool readFormattedFile(
       (* formatFncs[format].readChunk)(fstr, counts.lno, chunk, newSegFlag);
       if (chunk[BRIDGE_FORMAT_BOARD_NO] == "" && 
           chunk[BRIDGE_FORMAT_RESULT] == "" &&
+          chunk[BRIDGE_FORMAT_AUCTION] == "" &&
           fstr.eof())
         break;
     }

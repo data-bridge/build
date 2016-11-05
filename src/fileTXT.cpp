@@ -499,7 +499,7 @@ void writeTXTSegmentLevel(
   if (segment.getExtBoardNo(0) != 1 || segment.hasCarry())
   {
     // Pavlicek bug.
-    TXTdashes + "\n";
+    st += TXTdashes + "\n";
   }
 
   st += "\n" + segment.strTitle(format) + "\n";
