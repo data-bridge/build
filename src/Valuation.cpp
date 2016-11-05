@@ -12,7 +12,7 @@
 
 Valuation::Valuation()
 {
-  Valuation::Reset();
+  Valuation::reset();
 }
 
 
@@ -21,7 +21,7 @@ Valuation::~Valuation()
 }
 
 
-void Valuation::Reset()
+void Valuation::reset()
 {
 }
 

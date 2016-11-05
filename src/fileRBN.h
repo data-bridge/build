@@ -19,13 +19,13 @@ class Group;
 
 void setRBNTables();
 
-bool readRBNChunk(
+void readRBNChunk(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& chunk,
   bool& newSegFlag);
 
-bool readRBXChunk(
+void readRBXChunk(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& chunk,

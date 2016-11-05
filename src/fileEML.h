@@ -19,7 +19,7 @@ class Group;
 
 void setEMLTables();
 
-bool readEMLChunk(
+void readEMLChunk(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& chunk,

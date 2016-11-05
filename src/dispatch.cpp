@@ -74,7 +74,7 @@ using namespace std;
 
 struct FormatFunctions
 {
-  bool (* readChunk)(ifstream&, unsigned&, vector<string>&, bool&);
+  void (* readChunk)(ifstream&, unsigned&, vector<string>&, bool&);
   void (* writeSeg)(string&, Segment&, Format);
   void (* writeBoard)(string&, Segment&, Board&, 
     WriteInfo&, const Format);
@@ -95,11 +95,26 @@ struct Fix
   string value;
 };
 
+struct Counts
+{
+  unsigned segno;
+  unsigned chunkno;
+  unsigned bno;
+  unsigned lno;
+  unsigned lnoOld;
+};
+
 
 void writeDummySegmentLevel(
   string& st,
   Segment& segment,
   const Format format);
+
+static void setFormatTables();
+
+static void setIO();
+
+static void setInterface();
 
 void guessDealerAndVul(
   vector<string>& chunk, 
@@ -115,7 +130,16 @@ static void readFix(
   const string& fname,
   vector<Fix>& fix);
 
+static void fixChunk(
+  vector<string>& chunk,
+  bool& newSegFlag,
+  vector<Fix>& fix);
+
 static void printChunk(const vector<string>& chunk);
+
+static void printCounts(
+  const string& fname,
+  Counts& counts);
 
 static bool readFormattedFile(
   const string& fname,
@@ -139,12 +163,6 @@ static bool writeFormattedFile(
   Group& group,
   const string& fname,
   const Format format);
-
-static void setFormatTables();
-
-static void setIO();
-
-static void setInterface();
 
 void writeFast(
   const string& fname,
@@ -336,6 +354,8 @@ void dispatch(
         }
         catch(Bexcept& bex)
         {
+          flog << "Files " << task.fileInput << " -> " <<
+            t.fileOutput << endl;
           bex.print();
         }
         timers.stop(BRIDGE_TIMER_VALIDATE, task.formatInput);
@@ -458,16 +478,6 @@ static void printChunk(const vector<string>& chunk)
 }
 
 
-struct Counts
-{
-  unsigned segno;
-  unsigned chunkno;
-  unsigned bno;
-  unsigned lno;
-  unsigned lnoOld;
-};
-
-
 static void printCounts(
   const string& fname,
   Counts& counts)
@@ -522,14 +532,11 @@ static bool readFormattedFile(
     counts.lnoOld = counts.lno;
     try
     {
-      if (! (* formatFncs[format].readChunk)
-          (fstr, counts.lno, chunk, newSegFlag))
-      {
-        if (fstr.eof())
-          break;
-        else
-          THROW("Early end");
-      }
+      (* formatFncs[format].readChunk)(fstr, counts.lno, chunk, newSegFlag);
+      if (chunk[BRIDGE_FORMAT_BOARD_NO] == "" && 
+          chunk[BRIDGE_FORMAT_RESULT] == "" &&
+          fstr.eof())
+        break;
     }
     catch (Bexcept& bex)
     {
@@ -644,6 +651,7 @@ static void writeHeader(
   const Format format)
 {
   st = "";
+  string tmp;
   const string g = guessOriginalLine(group.name(), group.count());
   if (g == "")
     return;
@@ -758,3 +766,4 @@ void writeFast(
   fwrite(text.c_str(), 1, text.length(), pFile);
   fclose(pFile);
 }
+

@@ -19,7 +19,7 @@ class Group;
 
 void setPBNTables();
 
-bool readPBNChunk(
+void readPBNChunk(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& chunk,

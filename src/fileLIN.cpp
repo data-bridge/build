@@ -51,7 +51,7 @@ void setLINTables()
 }
 
 
-bool readLINChunk(
+void readLINChunk(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& chunk,
@@ -142,7 +142,8 @@ bool readLINChunk(
 
   if (alerts.str() != "")
     chunk[BRIDGE_FORMAT_AUCTION] += "\n" + alerts.str();
-  return qxSeen;
+  if (! qxSeen)
+    THROW("No deal found");
 }
 
 
@@ -169,7 +170,9 @@ void writeLINBoardLevel(
   st += segment.strNumber(writeInfo.bno, format);
 
   if (format == BRIDGE_FORMAT_LIN || format == BRIDGE_FORMAT_LIN_TRN)
+  {
     st += board.strPlayers(format);
+  }
 
   st += board.strDeal(format);
   st += segment.strNumberBoard(writeInfo.bno, format);

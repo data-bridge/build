@@ -17,7 +17,7 @@ using namespace std;
 class Group;
 
 
-bool readRECChunk(
+void readRECChunk(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& chunk,

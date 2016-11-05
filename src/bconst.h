@@ -422,5 +422,10 @@ const string DATE_MONTHS[] =
   #define UNUSED(x) ((void)(true ? 0 : ((x), void(), 0)))
 #endif
 
+// Macro to help in concatening strings for output.
+
+#define CONCAT(tp, tmp, ext) \
+  tmp = ext; strcpy(tp, tmp.c_str()); tp += tmp.length()
+
 #endif
 

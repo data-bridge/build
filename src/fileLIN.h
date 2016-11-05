@@ -19,7 +19,7 @@ class Group;
 
 void setLINTables();
 
-bool readLINChunk(
+void readLINChunk(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& chunk,

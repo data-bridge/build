@@ -23,7 +23,7 @@ class Valuation
 
     ~Valuation();
 
-    void Reset();
+    void reset();
 
 };
 

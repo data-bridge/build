@@ -350,7 +350,7 @@ static void getRECPlay(
 }
 
 
-bool readRECChunk(
+void readRECChunk(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& chunk,
@@ -369,7 +369,6 @@ bool readRECChunk(
 
   bool playExists = getRECCanvasOffset(canvas, playLine);
   getRECFields(canvas, playLine, playExists, chunk);
-  return true;
 }
 
 

@@ -19,7 +19,7 @@ class Group;
 
 void setTXTTables();
 
-bool readTXTChunk(
+void readTXTChunk(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& chunk,

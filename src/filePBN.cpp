@@ -63,7 +63,7 @@ void setPBNTables()
 }
 
 
-bool readPBNChunk(
+void readPBNChunk(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& chunk,
@@ -81,7 +81,7 @@ bool readPBNChunk(
   {
     lno++;
     if (line.empty())
-      return true;
+      return;
 
     if (line.at(0) == '%' || line.at(0) == '*')
       continue;
@@ -148,7 +148,6 @@ bool readPBNChunk(
       }
     }
   }
-  return false;
 }
 
 

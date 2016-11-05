@@ -17,35 +17,16 @@
 #include "Canvas.h"
 #include "fileEML.h"
 #include "parse.h"
+#include "Bexcept.h"
 
 using namespace std;
 
 
-enum EMLlabel
-{
-  EML_SCORING = 0,
-  EML_WEST = 1,
-  EML_NORTH = 2,
-  EML_EAST = 3,
-  EML_SOUTH = 4,
-  EML_BOARD = 5,
-  EML_DEAL = 6,
-  EML_DEALER = 7,
-  EML_VULNERABLE = 8,
-  EML_AUCTION = 9,
-  EML_LEAD = 10,
-  EML_PLAY = 11,
-  EML_RESULT = 12,
-  EML_SCORE = 13,
-  EML_SCORE_IMP = 14,
-  EML_LABELS_SIZE = 15
-};
-
-string EMLdashes, EMLequals;
-string EMLshortDashes, EMLshortEquals;
+static string EMLdashes, EMLequals;
+static string EMLshortDashes, EMLshortEquals;
 
 
-static bool readEMLCanvas(
+static void readEMLCanvas(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& canvas);
@@ -57,23 +38,23 @@ static bool getEMLCanvasWest(
   unsigned& westLine,
   unsigned& cardStart);
 
-static bool getEMLCanvasOffset(
+static void getEMLCanvasOffset(
   const vector<string>& canvas,
   unsigned& resultLine,
   bool& playIsPresent,
   unsigned& westLine);
 
-static bool getEMLSimpleFields(
+static void getEMLSimpleFields(
   const vector<string>& canvas,
   const unsigned resultLine,
   vector<string>& chunk);
 
-static bool getEMLAuction(
+static void getEMLAuction(
   const vector<string>& canvas,
   const unsigned resultLine,
   vector<string>& chunk);
 
-static bool getEMLPlay(
+static void getEMLPlay(
   const vector<string>& canvas,
   const bool playIsPresent,
   const unsigned resultLine,
@@ -99,7 +80,7 @@ void setEMLTables()
 }
 
 
-static bool readEMLCanvas(
+static void readEMLCanvas(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& canvas)
@@ -126,7 +107,9 @@ static bool readEMLCanvas(
 
     canvas.push_back(line);
   }
-  return (canvas.size() >= 17);
+
+  if (canvas.size() < 17)
+    THROW("Canvas too short");
 }
 
 
@@ -156,7 +139,7 @@ static bool getEMLCanvasWest(
 }
 
 
-static bool getEMLCanvasOffset(
+static void getEMLCanvasOffset(
   const vector<string>& canvas,
   unsigned& resultLine,
   unsigned& westLine,
@@ -173,7 +156,7 @@ static bool getEMLCanvasOffset(
   }
 
   if (wd != "Result:")
-    return false;
+    THROW("Cannot find result");
 
   if (getEMLCanvasWest(canvas, 42, resultLine, westLine, cardStart))
     playIsPresent = true;
@@ -181,17 +164,16 @@ static bool getEMLCanvasOffset(
     playIsPresent = true;
   else
     playIsPresent = false;
-  return true;
 }
 
 
-static bool getEMLSimpleFields(
+static void getEMLSimpleFields(
   const vector<string>& canvas,
   const unsigned resultLine,
   vector<string>& chunk)
 {
   if (! readNextWord(canvas[0], 0, chunk[BRIDGE_FORMAT_SCORING]))
-    return false;
+    THROW("Cannot find scoring");
 
   if (! readAllWords(canvas[1], 16, 23, chunk[BRIDGE_FORMAT_NORTH]))
     chunk[BRIDGE_FORMAT_NORTH] = "";
@@ -203,29 +185,28 @@ static bool getEMLSimpleFields(
     chunk[BRIDGE_FORMAT_SOUTH] = "";
 
   if (! readNextWord(canvas[0], 54, chunk[BRIDGE_FORMAT_BOARD_NO]))
-    return false;
+    THROW("Cannot find board number");
   if (! readNextWord(canvas[1], 5, chunk[BRIDGE_FORMAT_DEALER]))
-    return false;
+    THROW("Cannot find dealer");
   if (! readNextWord(canvas[2], 5, chunk[BRIDGE_FORMAT_VULNERABLE]))
-    return false;
+    THROW("Cannot find vulnerability");
 
   if (! readNextWord(canvas[resultLine], 50, chunk[BRIDGE_FORMAT_RESULT]))
-    return false;
+    THROW("Cannot find result");
 
   if (! readNextWord(canvas[resultLine+1], 49, chunk[BRIDGE_FORMAT_SCORE]))
-    return false;
+    THROW("Cannot find score");
   chunk[BRIDGE_FORMAT_SCORE].pop_back(); // Drop trailing comma
 
   if (canvas[resultLine+1].back() != ':')
   {
     if (! readLastWord(canvas[resultLine+1], chunk[BRIDGE_FORMAT_SCORE_IMP]))
-      return false;
+      THROW("Cannot find IMP result");
   }
-  return true;
 }
 
 
-static bool getEMLDeal(
+static void getEMLDeal(
   const vector<string>& canvas,
   vector<string>& chunk)
 {
@@ -258,13 +239,11 @@ static bool getEMLDeal(
   if (! readNextWord(canvas[17], 18, stc)) stc = "";
   d << sts << "." << sth <<  "." << std << "." << stc;
 
-
   chunk[BRIDGE_FORMAT_DEAL] = d.str();
-  return true;
 }
 
 
-static bool getEMLAuction(
+static void getEMLAuction(
   const vector<string>& canvas,
   const unsigned resultLine,
   vector<string>& chunk)
@@ -274,13 +253,13 @@ static bool getEMLAuction(
 
   unsigned firstStart = 42;
   if (canvas[5].size() < firstStart)
-    return true;
+    return;
 
   while (firstStart < 75 && canvas[5].at(firstStart) == ' ')
     firstStart += 9;
 
   if (firstStart >= 75)
-    return false;
+    THROW("Cannot locate auction");
 
   string wd;
   unsigned no = 0;
@@ -293,7 +272,7 @@ static bool getEMLAuction(
         if (l == resultLine-2 || l == resultLine-3)
           break;
         else
-          return false;
+          THROW("Early end of auction");
       }
       if (no > 0 && no % 4 == 0)
         d << ":";
@@ -319,11 +298,10 @@ static bool getEMLAuction(
   }
 
   chunk[BRIDGE_FORMAT_AUCTION] = d.str();
-  return true;
 }
 
 
-static bool getEMLPlay(
+static void getEMLPlay(
   const vector<string>& canvas,
   const bool playIsPresent,
   const unsigned resultLine,
@@ -340,15 +318,15 @@ static bool getEMLPlay(
   if (! readNextWord(canvas[resultLine-1], 56, opld))
   {
     if (playIsPresent)
-      return false;
+      THROW("Cannot locate play");
     else
-      return true;
+      return;
   }
 
   if (! playIsPresent)
   {
     chunk[BRIDGE_FORMAT_PLAY] = opld;
-    return true;
+    return;
   }
 
   string wd;
@@ -373,7 +351,7 @@ static bool getEMLPlay(
       }
 
       if (! found)
-        return false;
+        THROW("Cannot locate opening lead");
     }
     else
     {
@@ -389,7 +367,7 @@ static bool getEMLPlay(
       }
 
       if (! found)
-        return false;
+        THROW("Cannot find the dash for the opening lead");
     }
 
     for (unsigned p = 0; p < 4; p++)
@@ -405,7 +383,7 @@ static bool getEMLPlay(
       else
       {
         if (! readNextWord(canvas[l], pos0-1, pos0, wd))
-          return false;
+          THROW("Cannot find next play");
         d << wd;
         
       }
@@ -417,11 +395,10 @@ static bool getEMLPlay(
   }
       
   chunk[BRIDGE_FORMAT_PLAY] = d.str();
-  return true;
 }
 
 
-bool readEMLChunk(
+void readEMLChunk(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& chunk,
@@ -431,8 +408,7 @@ bool readEMLChunk(
 
   // First get all the lines of a hand.
   vector<string> canvas;
-  if (! readEMLCanvas(fstr, lno, canvas))
-    return false;
+  readEMLCanvas(fstr, lno, canvas);
   
   // Then parse them into the chunk structure.
   for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
@@ -442,27 +418,20 @@ bool readEMLChunk(
   unsigned westLine = 0;
   unsigned cardStart = 0;
   bool playIsPresent = false;
-  if (! getEMLCanvasOffset(canvas, openingLine, 
-      westLine, playIsPresent, cardStart))
-    return false;
+  getEMLCanvasOffset(canvas, openingLine, 
+      westLine, playIsPresent, cardStart);
 
-  if (! getEMLSimpleFields(canvas, openingLine, chunk))
-    return false;
+  getEMLSimpleFields(canvas, openingLine, chunk);
 
   // Synthesize an RBN-style deal.
-  if (! getEMLDeal(canvas, chunk))
-    return false;
+  getEMLDeal(canvas, chunk);
 
   // Synthesize an RBN-style string of bids.
-  if (! getEMLAuction(canvas, openingLine, chunk))
-    return false;
+  getEMLAuction(canvas, openingLine, chunk);
 
   // Synthesize an RBN-style string of plays.
-  if (! getEMLPlay(canvas, playIsPresent, openingLine, 
-      westLine, cardStart, chunk))
-    return false;
-
-  return true;
+  getEMLPlay(canvas, playIsPresent, openingLine, 
+      westLine, cardStart, chunk);
 }
 
 
@@ -473,33 +442,15 @@ void writeEMLBoardLevel(
   WriteInfo& writeInfo,
   const Format format)
 {
-  string chunk[EML_LABELS_SIZE];
   Canvas canvas;
 
   board.calculateScore();
 
-  chunk[EML_SCORING] = segment.strScoring(format);
-  chunk[EML_BOARD] = segment.strNumber(writeInfo.bno, format);
-
-  chunk[EML_WEST] = board.strPlayer(BRIDGE_WEST, format);
-  chunk[EML_NORTH] = board.strPlayer(BRIDGE_NORTH, format);
-  chunk[EML_EAST] = board.strPlayer(BRIDGE_EAST, format);
-  chunk[EML_SOUTH] = board.strPlayer(BRIDGE_SOUTH, format);
-
-  chunk[EML_DEAL] = board.strDeal(BRIDGE_WEST, format);
-  chunk[EML_DEALER] = board.strDealer(format);
-  chunk[EML_VULNERABLE] = board.strVul(format);
-  chunk[EML_AUCTION] = board.strAuction(format);
-  chunk[EML_LEAD] = board.strLead(format);
-  chunk[EML_PLAY] = board.strPlay(format);
-  chunk[EML_RESULT] = board.strResult(format, false);
-  chunk[EML_SCORE] = board.strScore(format, segment.scoringIsIMPs());
-
   // Convert deal, auction and play from \n to vectors.
   vector<string> deal, auction, play;
-  str2lines(chunk[EML_DEAL], deal);
-  str2lines(chunk[EML_AUCTION], auction);
-  str2lines(chunk[EML_PLAY], play);
+  str2lines(board.strDeal(BRIDGE_WEST, format), deal);
+  str2lines(board.strAuction(format), auction);
+  str2lines(board.strPlay(format), play);
 
   // Height of auction determines dimensions.
   // It seems we leave out the play if that makes the canvas too large.
@@ -517,30 +468,30 @@ void writeEMLBoardLevel(
   if (playFlag)
     canvas.setRectangle(play, alstart, acstart);
 
-  canvas.setLine(chunk[EML_SCORING], 0, 0);
-  canvas.setLine(chunk[EML_WEST], 7, 4);
-  canvas.setLine(chunk[EML_NORTH], 1, 16);
-  canvas.setLine(chunk[EML_EAST], 7, 27);
-  canvas.setLine(chunk[EML_SOUTH], 13, 16);
-  canvas.setLine(chunk[EML_WEST], 3, 42);
-  canvas.setLine(chunk[EML_NORTH], 3, 51);
-  canvas.setLine(chunk[EML_EAST], 3, 60);
-  canvas.setLine(chunk[EML_SOUTH], 3, 69);
-  canvas.setLine(chunk[EML_BOARD], 0, 42);
+  canvas.setLine(segment.strScoring(format), 0, 0);
+  canvas.setLine(board.strPlayer(BRIDGE_WEST, format), 7, 4);
+  canvas.setLine(board.strPlayer(BRIDGE_NORTH, format), 1, 16);
+  canvas.setLine(board.strPlayer(BRIDGE_EAST, format), 7, 27);
+  canvas.setLine(board.strPlayer(BRIDGE_SOUTH, format), 13, 16);
+  canvas.setLine(board.strPlayer(BRIDGE_WEST, format), 3, 42);
+  canvas.setLine(board.strPlayer(BRIDGE_NORTH, format), 3, 51);
+  canvas.setLine(board.strPlayer(BRIDGE_EAST, format), 3, 60);
+  canvas.setLine(board.strPlayer(BRIDGE_SOUTH, format), 3, 69);
+  canvas.setLine(segment.strNumber(writeInfo.bno, format), 0, 42);
 
-  canvas.setLine(chunk[EML_DEALER], 1, 0);
-  canvas.setLine(chunk[EML_VULNERABLE], 2, 0);
-  if (chunk[EML_LEAD] == "Opening Lead:")
-  {
-    canvas.setLine(chunk[EML_RESULT], a+3, 42);
-    canvas.setLine(chunk[EML_SCORE], a+4, 42);
-  }
+  canvas.setLine(board.strDealer(format), 1, 0);
+  canvas.setLine(board.strVul(format), 2, 0);
+  const string l = board.strLead(format);
+  unsigned p;
+  if (l == "Opening Lead:")
+    p = a+3;
   else
   {
-    canvas.setLine(chunk[EML_LEAD], a+3, 42);
-    canvas.setLine(chunk[EML_RESULT], a+4, 42);
-    canvas.setLine(chunk[EML_SCORE], a+5, 42);
+    canvas.setLine(l, a+3, 42);
+    p = a+4;
   }
+  canvas.setLine(board.strResult(format, false), p, 42);
+  canvas.setLine(board.strScore(format, segment.scoringIsIMPs()), p+1, 42);
 
   st += canvas.str() + "\n";
 

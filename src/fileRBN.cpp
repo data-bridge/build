@@ -51,7 +51,7 @@ void setRBNTables()
 }
 
 
-bool readRBNChunk(
+void readRBNChunk(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& chunk,
@@ -66,7 +66,7 @@ bool readRBNChunk(
   {
     lno++;
     if (line.empty())
-      return true;
+      return;
     
     const char c = line.at(0);
     if (c == '%')
@@ -89,11 +89,10 @@ bool readRBNChunk(
     else
       chunk[labelNo] = line.substr(2);
   }
-  return false;
 }
 
 
-bool readRBXChunk(
+void readRBXChunk(
   ifstream& fstr,
   unsigned& lno,
   vector<string>& chunk,
@@ -105,7 +104,7 @@ bool readRBXChunk(
     chunk[i] = "";
 
   if (! getline(fstr, line))
-    return false;
+    return;
 
   lno++;
   regex re("^(.)\\{([^\\}]*)\\}");
@@ -132,8 +131,6 @@ bool readRBXChunk(
 
     chunk[labelNo] = value;
   }
-
-  return (line.size() == 0);
 }
 
 
