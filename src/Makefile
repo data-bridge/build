@@ -5,6 +5,7 @@ SOURCE_FILES 	=		\
         Bexcept.cpp             \
         Bdiff.cpp               \
         Board.cpp               \
+	Buffer.cpp		\
 	Canvas.cpp		\
 	Contract.cpp		\
 	Date.cpp		\

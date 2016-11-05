@@ -321,6 +321,12 @@ void str2lines(
 }
 
 
+string chars2str(char * buffer, unsigned buflen)
+{
+  return string(buffer, buflen);
+}
+
+
 bool char2player(
   const char c,
   Player& player)

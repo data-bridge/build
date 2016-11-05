@@ -62,6 +62,10 @@ void str2lines(
   const string& sin,
   vector<string>& sout);
 
+string chars2str(
+  char * buffer,
+  unsigned buflen);
+
 bool char2player(
   const char c,
   Player& p);

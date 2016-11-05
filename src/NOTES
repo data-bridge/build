@@ -1,10 +1,9 @@
+In dispatch
+* Move from map in fileRBN and fileLIN to manual search?
+* Move detailed parsing down into classes?
+
 When multi-threading, exceptions still go to stdout?
 Maybe put errors to cerr.
-
-Put the fix file into a class? (dispatch.cpp, readFix())
-
-readFormattedFile: Can read into Buffer.cpp, methods
-eof, 
 
 TXT header lines: Should compare these better.
 
@@ -37,15 +36,9 @@ Use raw strings for regexes?
 
 In diff, regex out the % numbers and then compare the whole remaining line
 
-
-There is probably a fifth LIN output format with my %%%% headers.
-LIN_EXT or so.  In this case take advantage of file names too 
-(tournament name, date).
+Remove LIN_EXT
 
 Parse VG LIN headers for some recognizable format.
-
-
-Maybe combine the enum and the string on top of each file*.cpp
 
 options
 -------
@@ -78,8 +71,6 @@ Read these in, apply before crying wolf
 Support PBN ##
 
 Generate stats on all sizes needed for database, incl #cards per play
-
-Look at iterators: (1) auto, (2) it-> instead of new lookup?
 
 Should somehow recognize complete duplicates
 
