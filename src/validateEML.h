@@ -20,6 +20,7 @@ using namespace std;
 bool validateEML(
   ifstream& frstr,
   ValExample& running,
+  ValState& valState,
   ValProfile& prof);
 
 #endif

@@ -161,10 +161,7 @@ bool validateREC(
   ifstream& frstr,
   ifstream& fostr,
   ValExample& running,
-  Buffer& bufferRef,
-  Buffer& bufferOut,
-  LineData& bref,
-  LineData& bout,
+  ValState& valState,
   ValProfile& prof)
 {
   if (running.ref.line == "")
@@ -177,14 +174,14 @@ bool validateREC(
       if (! valProgress(fostr, running.out))
       {
         prof.log(BRIDGE_VAL_OUT_SHORT, running);
-        if (bufferOut.next(bout))
+        if (valState.bufferOut.next(valState.dataOut))
           THROW("bufferOut ends too late");
         return false;
       }
 
-      if (! bufferOut.next(bout))
+      if (! valState.bufferOut.next(valState.dataOut))
         THROW("bufferOut ends too soon");
-      if (bout.line != running.out.line)
+      if (valState.dataOut.line != running.out.line)
         THROW("Out lines differ");
     }
 
@@ -207,14 +204,14 @@ bool validateREC(
       if (! valProgress(frstr, running.ref))
       {
         prof.log(BRIDGE_VAL_REF_SHORT, running);
-        if (bufferRef.next(bref))
+        if (valState.bufferRef.next(valState.dataRef))
           THROW("bufferRef ends too late");
         return false;
       }
 
-      if (! bufferRef.next(bref))
+      if (! valState.bufferRef.next(valState.dataRef))
         THROW("bufferRef ends too soon");
-      if (bref.line != running.ref.line)
+      if (valState.dataRef.line != running.ref.line)
         THROW("Ref lines differ");
     }
 
@@ -252,27 +249,27 @@ bool validateREC(
     if (! valProgress(fostr, running.out))
     {
       prof.log(BRIDGE_VAL_OUT_SHORT, running);
-      if (bufferOut.next(bout))
+      if (valState.bufferOut.next(valState.dataOut))
         THROW("bufferOut ends too late");
       return false;
     }
 
-    if (! bufferOut.next(bout))
+    if (! valState.bufferOut.next(valState.dataOut))
       THROW("bufferOut ends too soon");
-    if (bout.line != running.out.line)
+    if (valState.dataOut.line != running.out.line)
       THROW("Out lines differ");
 
     if (! valProgress(frstr, running.ref))
     {
       prof.log(BRIDGE_VAL_REF_SHORT, running);
-      if (bufferRef.next(bref))
+      if (valState.bufferRef.next(valState.dataRef))
         THROW("bufferRef ends too late");
       return false;
     }
 
-    if (! bufferRef.next(bref))
+    if (! valState.bufferRef.next(valState.dataRef))
       THROW("bufferRef ends too soon");
-    if (bref.line != running.ref.line)
+    if (valState.dataRef.line != running.ref.line)
       THROW("Ref lines differ");
 
     return true;

@@ -124,7 +124,6 @@ static bool LINtoList(
 static bool isLINHeaderLine(
   const ValExample& running, 
   ValProfile& prof)
-  // ValFileStats& stats)
 {
   vector<string> vOut(9), vRef(9);
   if (! LINtoList(running.out.line, vOut, "vg|", 8))
@@ -133,24 +132,19 @@ static bool isLINHeaderLine(
     return false;
 
   if (vOut[0] != vRef[0])
-    // valError(stats, running, BRIDGE_VAL_TITLE);
     prof.log(BRIDGE_VAL_TITLE, running);
 
   if (vOut[1] != vRef[1])
-    // valError(stats, running, BRIDGE_VAL_SESSION);
     prof.log(BRIDGE_VAL_SESSION, running);
 
   if (vOut[2] != vRef[2])
-    // valError(stats, running, BRIDGE_VAL_SCORING);
     prof.log(BRIDGE_VAL_SCORING, running);
 
   if (vOut[3] != vRef[4] || vOut[4] != vRef[4])
-    // valError(stats, running, BRIDGE_VAL_SCORING);
     prof.log(BRIDGE_VAL_SCORING, running);
 
   if (vOut[5] != vRef[5] || vOut[6] != vRef[6] ||
       vOut[7] != vRef[7] || vOut[8] != vRef[8])
-    // valError(stats, running, BRIDGE_VAL_TEAMS);
     prof.log(BRIDGE_VAL_TEAMS, running);
 
   return true;
@@ -160,7 +154,6 @@ static bool isLINHeaderLine(
 static bool isLINPlayerLine(
   const ValExample& running, 
   ValProfile& prof)
-  // ValFileStats& stats)
 {
   vector<string> vOut(8), vRef(8);
   if (! LINtoList(running.out.line, vOut, "pn|", 7))
@@ -177,7 +170,6 @@ static bool isLINPlayerLine(
     if (lOut >= vRef[i].length() ||
         vRef[i].substr(0, lOut) != vOut[i])
     {
-      // valError(stats, running, BRIDGE_VAL_NAMES_SHORT);
       prof.log(BRIDGE_VAL_NAMES_SHORT, running);
       return false;
     }
@@ -222,10 +214,7 @@ bool validateLIN_RP(
   ifstream& frstr,
   ifstream& fostr,
   ValExample& running,
-  Buffer& bufferRef,
-  Buffer& bufferOut,
-  LineData& bref,
-  LineData& bout,
+  ValState& valState,
   ValProfile& prof)
 {
   string expectLine;
@@ -235,14 +224,14 @@ bool validateLIN_RP(
     if (! valProgress(fostr, running.out))
     {
       prof.log(BRIDGE_VAL_OUT_SHORT, running);
-      if (bufferOut.next(bout))
+      if (valState.bufferOut.next(valState.dataOut))
         THROW("bufferOut ends too late");
       return false;
     }
 
-    if (! bufferOut.next(bout))
+    if (! valState.bufferOut.next(valState.dataOut))
       THROW("bufferOut ends too soon");
-    if (running.out.line != bout.line)
+    if (running.out.line != valState.dataOut.line)
       THROW("Out lines differ");
 
     if (running.out.line == expectLine)
@@ -258,14 +247,14 @@ bool validateLIN_RP(
     if (! valProgress(frstr, running.ref))
     {
       prof.log(BRIDGE_VAL_REF_SHORT, running);
-      if (bufferRef.next(bref))
+      if (valState.bufferRef.next(valState.dataRef))
         THROW("bufferRef ends too late");
       return false;
     }
 
-    if (! bufferRef.next(bref))
+    if (! valState.bufferRef.next(valState.dataRef))
       THROW("bufferRef ends too soon");
-    if (running.ref.line != bref.line)
+    if (running.ref.line != valState.dataRef.line)
       THROW("Ref lines differ");
 
     if (running.ref.line == expectLine)
@@ -301,14 +290,14 @@ bool validateLIN_RP(
         if (! valProgress(frstr, running.ref))
         {
           prof.log(BRIDGE_VAL_REF_SHORT, running);
-          if (bufferRef.next(bref))
+          if (valState.bufferRef.next(valState.dataRef))
             THROW("bufferRef ends too late");
           return false;
         }
 
-        if (! bufferRef.next(bref))
+        if (! valState.bufferRef.next(valState.dataRef))
           THROW("bufferRef ends too soon");
-        if (running.ref.line != bref.line)
+        if (running.ref.line != valState.dataRef.line)
           THROW("Ref lines differ");
       }
       while (isLINPlay(running.ref.line));

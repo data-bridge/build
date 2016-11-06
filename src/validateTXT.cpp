@@ -26,10 +26,7 @@ bool isTXTHeader(
   ifstream& frstr,
   ifstream& fostr,
   ValExample& running, 
-  Buffer& bufferRef,
-  Buffer& bufferOut,
-  LineData& bref,
-  LineData& bout,
+  ValState& valState,
   const unsigned & headerStartTXT, 
   ValProfile& prof);
 
@@ -202,10 +199,7 @@ bool isTXTHeader(
   ifstream& frstr,
   ifstream& fostr,
   ValExample& running, 
-  Buffer& bufferRef,
-  Buffer& bufferOut,
-  LineData& bref,
-  LineData& bout,
+  ValState& valState,
   const unsigned & headerStartTXT, 
   ValProfile& prof)
 {
@@ -223,14 +217,14 @@ bool isTXTHeader(
     if (! valProgress(fostr, running.out))
     {
       prof.log(BRIDGE_VAL_OUT_SHORT, running);
-      if (bufferOut.next(bout))
+      if (valState.bufferOut.next(valState.dataOut))
         THROW("bufferOut ends too late");
       return false;
     }
 
-    if (! bufferOut.next(bout))
+    if (! valState.bufferOut.next(valState.dataOut))
       THROW("bufferOut ends too soon");
-    if (bout.line != running.out.line)
+    if (valState.dataOut.line != running.out.line)
       THROW("Out lines differ");
   }
 
@@ -253,14 +247,14 @@ bool isTXTHeader(
     if (! valProgress(frstr, running.ref))
     {
       prof.log(BRIDGE_VAL_REF_SHORT, running);
-      if (bufferRef.next(bref))
+      if (valState.bufferRef.next(valState.dataRef))
         THROW("bufferRef ends too late");
       return false;
     }
 
-    if (! bufferRef.next(bref))
+    if (! valState.bufferRef.next(valState.dataRef))
       THROW("bufferRef ends too soon");
-    if (bref.line != running.ref.line)
+    if (valState.dataRef.line != running.ref.line)
     {
       // cout << "WARNING: Ref lines differ" << endl;
       // cout << "Ref '" << running.ref.line << "'" << endl;
@@ -279,14 +273,14 @@ bool isTXTHeader(
       if (! valProgress(frstr, running.ref))
       {
         prof.log(BRIDGE_VAL_REF_SHORT, running);
-        if (bufferRef.next(bref))
+        if (valState.bufferRef.next(valState.dataRef))
           THROW("bufferRef ends too late");
         return false;
       }
 
-      if (! bufferRef.next(bref))
+      if (! valState.bufferRef.next(valState.dataRef))
         THROW("bufferRef ends too soon");
-      if (bref.line != running.ref.line)
+      if (valState.dataRef.line != running.ref.line)
         THROW("Ref lines differ");
 
       i++;
@@ -314,10 +308,7 @@ bool validateTXT(
   ifstream& frstr,
   ifstream& fostr,
   ValExample& running,
-  Buffer& bufferRef,
-  Buffer& bufferOut,
-  LineData& bref,
-  LineData& bout,
+  ValState& valState,
   const unsigned& headerStartTXT,
   ValProfile& prof)
 {
@@ -332,16 +323,16 @@ bool validateTXT(
     if (expectPasses > 0 && ! valProgress(frstr, running.ref))
     {
       prof.log(BRIDGE_VAL_OUT_SHORT, running);
-      if (bufferRef.next(bref))
+      if (valState.bufferRef.next(valState.dataRef))
         THROW("bufferRef ends too late");
       return false;
     }
 
     if (expectPasses > 0)
     {
-      if (! bufferRef.next(bref))
+      if (! valState.bufferRef.next(valState.dataRef))
         THROW("bufferRef ends too soon");
-      if (bref.line != running.ref.line)
+      if (valState.dataRef.line != running.ref.line)
         THROW("Ref lines differ");
     }
 
@@ -360,14 +351,14 @@ bool validateTXT(
     if (! valProgress(frstr, running.ref))
     {
       prof.log(BRIDGE_VAL_REF_SHORT, running);
-      if (bufferRef.next(bref))
+      if (valState.bufferRef.next(valState.dataRef))
         THROW("bufferRef ends too late");
       return false;
     }
 
-    if (! bufferRef.next(bref))
+    if (! valState.bufferRef.next(valState.dataRef))
       THROW("bufferRef ends too soon");
-    if (bref.line != running.ref.line)
+    if (valState.dataRef.line != running.ref.line)
       THROW("Ref lines differ");
 
     if (running.ref.line != "")
@@ -382,15 +373,15 @@ bool validateTXT(
     if (! valProgress(frstr, running.ref))
     {
       prof.log(BRIDGE_VAL_REF_SHORT, running);
-      if (bufferRef.next(bref))
+      if (valState.bufferRef.next(valState.dataRef))
         THROW("bufferRef ends too late");
       return false;
     }
     prof.log(BRIDGE_VAL_PLAY_SHORT, running);
 
-    if (! bufferRef.next(bref))
+    if (! valState.bufferRef.next(valState.dataRef))
       THROW("bufferRef ends too soon");
-    if (bref.line != running.ref.line)
+    if (valState.dataRef.line != running.ref.line)
       THROW("Ref lines differ");
   }
 
@@ -409,7 +400,6 @@ bool validateTXT(
       running.ref.line == "Trick   Lead    2nd    3rd    4th")
   {
     // Play is missing from output, but lead is stated.
-    // valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
     prof.log(BRIDGE_VAL_PLAY_SHORT, running);
     return true;
   }
@@ -418,7 +408,6 @@ bool validateTXT(
       isTXTResult(running.ref.line) &&
       areTXTSimilarResults(running.out.line, running.ref.line))
   {
-    // valError(stats, running, BRIDGE_VAL_TXT_RESULT);
     prof.log(BRIDGE_VAL_TXT_RESULT, running);
     return true;
   }
@@ -427,19 +416,17 @@ bool validateTXT(
   {
     if (isTXTRunningScore(running.ref.line))
     {
-      // valError(stats, running, BRIDGE_VAL_TEAMS);
       prof.log(BRIDGE_VAL_TEAMS, running);
       return true;
     }
     else if (running.out.lno <= headerStartTXT + 6)
     {
-      if (! isTXTHeader(frstr, fostr, running, bufferRef, bufferOut, bref, bout, headerStartTXT, prof))
+      if (! isTXTHeader(frstr, fostr, running, valState, headerStartTXT, prof))
         return false;
       else if (running.out.line == running.ref.line)
         return true;
       else
       {
-        // valError(stats, running, BRIDGE_VAL_TEAMS);
         prof.log(BRIDGE_VAL_TEAMS, running);
         return false;
       }
@@ -467,7 +454,6 @@ bool validateTXT(
 
     if (! diffSeen)
     {
-      // valError(stats, running, BRIDGE_VAL_NAMES_SHORT);
       prof.log(BRIDGE_VAL_NAMES_SHORT, running);
       return true;
     }

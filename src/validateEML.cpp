@@ -52,10 +52,12 @@ static bool isEMLPlayLine(
 bool validateEML(
   ifstream& frstr,
   ValExample& running,
+  ValState& valState,
   ValProfile& prof)
 {
   UNUSED(frstr);
-  if (isEMLPlayLine(running.out.line, running.ref.line))
+  // if (isEMLPlayLine(running.out.line, running.ref.line))
+  if (isEMLPlayLine(valState.dataOut.line, valState.dataRef.line))
   {
     prof.log(BRIDGE_VAL_PLAY_SHORT, running);
     return true;

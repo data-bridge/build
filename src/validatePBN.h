@@ -20,10 +20,7 @@ bool validatePBN(
   ifstream& frstr,
   ifstream& fostr,
   ValExample& running,
-  Buffer& bufferRef,
-  Buffer& bufferOut,
-  LineData& bref,
-  LineData& bout,
+  ValState& valState,
   ValProfile& prof);
 
 #endif

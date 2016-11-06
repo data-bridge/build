@@ -21,22 +21,18 @@ bool validatePBN(
   ifstream& frstr,
   ifstream& fostr,
   ValExample& running,
-  Buffer& bufferRef,
-  Buffer& bufferOut,
-  LineData& bref,
-  LineData& bout,
+  ValState& valState,
   ValProfile& prof)
 {
-  UNUSED(bufferOut);
   UNUSED(fostr);
   if (running.out.line == "*")
   {
     // Could be the Pavlicek bug where play is shortened.
     while (running.ref.line != "*" && valProgress(frstr, running.ref))
     {
-      if (! bufferRef.next(bref))
+      if (! valState.bufferRef.next(valState.dataRef))
         THROW("bufferRef ends too soon");
-      if (running.ref.line != bref.line)
+      if (running.ref.line != valState.dataRef.line)
         THROW("Ref lines differ");
     }
 
@@ -52,19 +48,20 @@ bool validatePBN(
     }
   }
 
-  const unsigned lo = bout.len;
-  const unsigned lr = bref.len;
+  const unsigned lo = valState.dataOut.len;
+  const unsigned lr = valState.dataRef.len;
 
   if (lo == 11 && lr == 11 &&
-      bout.type != BRIDGE_BUFFER_STRUCTURED &&
-      bref.type != BRIDGE_BUFFER_STRUCTURED)
+      valState.dataOut.type != BRIDGE_BUFFER_STRUCTURED &&
+      valState.dataRef.type != BRIDGE_BUFFER_STRUCTURED)
   {
     // Could be a short play line, "S4 -- -- --" (Pavlicek notation!).
-    unsigned poso = bout.line.find('-');
+    unsigned poso = valState.dataOut.line.find('-');
     
     if (poso > 0 && poso < lo)
     {
-      if (bref.line.substr(0, poso) == bout.line.substr(0, poso))
+      if (valState.dataRef.line.substr(0, poso) == 
+          valState.dataOut.line.substr(0, poso))
       {
         prof.log(BRIDGE_VAL_PLAY_SHORT, running);
         return true;
@@ -77,19 +74,22 @@ bool validatePBN(
     }
   }
 
-  if (bref.type == BRIDGE_BUFFER_STRUCTURED &&
-      bout.type == BRIDGE_BUFFER_STRUCTURED &&
-      bref.label == bout.label)
+  if (valState.dataRef.type == BRIDGE_BUFFER_STRUCTURED &&
+      valState.dataOut.type == BRIDGE_BUFFER_STRUCTURED &&
+      valState.dataRef.label == valState.dataOut.label)
   {
-    if (bref.label == "West" || bref.label == "North" ||
-       bref.label == "East" || bref.label == "South" ||
-       bref.label == "Site" || bref.label == "Stage")
+    if (valState.dataRef.label == "West" || 
+        valState.dataRef.label == "North" ||
+        valState.dataRef.label == "East" || 
+        valState.dataRef.label == "South" ||
+        valState.dataRef.label == "Site" || 
+        valState.dataRef.label == "Stage")
     {
-      const unsigned lRef = bref.value.length();
-      const unsigned lOut = bout.value.length();
+      const unsigned lRef = valState.dataRef.value.length();
+      const unsigned lOut = valState.dataOut.value.length();
 
       if (lOut > lRef ||
-          bref.value.substr(0, lOut) != bout.value)
+          valState.dataRef.value.substr(0, lOut) != valState.dataOut.value)
       {
         prof.log(BRIDGE_VAL_NAMES_SHORT, running);
         return false;
@@ -104,7 +104,7 @@ bool validatePBN(
     }
   }
 
-  if (bref.type != BRIDGE_BUFFER_STRUCTURED)
+  if (valState.dataRef.type != BRIDGE_BUFFER_STRUCTURED)
   {
     prof.log(BRIDGE_VAL_ERROR, running);
     return false;
@@ -112,11 +112,11 @@ bool validatePBN(
 
   while (1)
   {
-    if (bref.type != BRIDGE_BUFFER_STRUCTURED)
+    if (valState.dataRef.type != BRIDGE_BUFFER_STRUCTURED)
       return false;
 
-    const string refField = bref.label;
-    const string refValue = bref.value;
+    const string refField = valState.dataRef.label;
+    const string refValue = valState.dataRef.value;
 
     if (refField == "Event")
       prof.log(BRIDGE_VAL_EVENT, running);
@@ -133,7 +133,8 @@ bool validatePBN(
     else if (refField == "Play")
     {
       // Play may be completely absent.
-      if (bref.type == BRIDGE_BUFFER_STRUCTURED && bref.label == "Play")
+      if (valState.dataRef.type == BRIDGE_BUFFER_STRUCTURED && 
+          valState.dataRef.label == "Play")
         return false;
 
       while (1)
@@ -141,24 +142,24 @@ bool validatePBN(
         if (! valProgress(frstr, running.ref))
         {
           prof.log(BRIDGE_VAL_REF_SHORT, running);
-          if (bufferRef.next(bref))
+          if (valState.bufferRef.next(valState.dataRef))
             THROW("bufferRef ends too late");
           return false;
         }
 
-        if (! bufferRef.next(bref))
+        if (! valState.bufferRef.next(valState.dataRef))
           THROW("bufferRef ends too soon");
-        if (running.ref.line != bref.line)
+        if (running.ref.line != valState.dataRef.line)
           THROW("Ref lines differ");
 
-        if (bref.len == 0)
+        if (valState.dataRef.len == 0)
         {
           prof.log(BRIDGE_VAL_ERROR, running);
           return false;
         }
 
         prof.log(BRIDGE_VAL_PLAY_SHORT, running);
-        if (bref.type == BRIDGE_BUFFER_STRUCTURED)
+        if (valState.dataRef.type == BRIDGE_BUFFER_STRUCTURED)
           break;
       }
 
@@ -168,36 +169,37 @@ bool validatePBN(
       break;
 
     // May in fact have the same field in the output, but shorter.
-    if (bout.type != BRIDGE_BUFFER_STRUCTURED)
+    if (valState.dataOut.type != BRIDGE_BUFFER_STRUCTURED)
       continue;
 
     if (! valProgress(frstr, running.ref))
     {
       prof.log(BRIDGE_VAL_REF_SHORT, running);
-      if (bufferRef.next(bref))
+      if (valState.bufferRef.next(valState.dataRef))
         THROW("bufferRef ends too late");
       return false;
     }
 
-    if (! bufferRef.next(bref))
+    if (! valState.bufferRef.next(valState.dataRef))
       THROW("bufferRef ends too soon");
-    if (running.ref.line != bref.line)
+    if (running.ref.line != valState.dataRef.line)
       THROW("Ref lines differ");
 
-    if (bout.label != bref.label)
+    if (valState.dataOut.label != valState.dataRef.label)
       continue;
 
-    if (bout.value == bref.value)
+    if (valState.dataOut.value == valState.dataRef.value)
       return true;
-    else if (bref.label == "Site" && bout.value == "")
+    else if (valState.dataRef.label == "Site" && 
+        valState.dataOut.value == "")
       return true;
-    else if (bref.label == "Stage")
+    else if (valState.dataRef.label == "Stage")
     {
-      const unsigned lRef = bref.value.length();
-      const unsigned lOut = bout.value.length();
+      const unsigned lRef = valState.dataRef.value.length();
+      const unsigned lOut = valState.dataOut.value.length();
 
       if (lOut > lRef ||
-          bref.value.substr(0, lOut) != bout.value)
+          valState.dataRef.value.substr(0, lOut) != valState.dataOut.value)
       {
         prof.log(BRIDGE_VAL_NAMES_SHORT, running);
         return false;

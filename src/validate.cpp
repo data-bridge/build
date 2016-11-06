@@ -171,13 +171,12 @@ void validate(
   const Options& options,
   ValStats& vstats)
 {
-  Buffer bufferOut;
-  bufferOut.read(fileOut, formatRef);
-  bufferOut.fix(fileOut, formatRef);
+  ValState valState;
+  valState.bufferOut.read(fileOut, formatRef);
+  valState.bufferOut.fix(fileOut, formatRef);
 
-  Buffer bufferRef;
-  bufferRef.read(fileRef, formatRef);
-  bufferRef.fix(fileRef, formatRef);
+  valState.bufferRef.read(fileRef, formatRef);
+  valState.bufferRef.fix(fileRef, formatRef);
 
   ifstream fostr(fileOut.c_str());
   if (! fostr.is_open())
@@ -198,22 +197,21 @@ void validate(
   running.out.lno = 0;
   running.ref.lno = 0;
   unsigned headerStartTXT = 4; // If comments and no dash line
-  LineData bref, bout;
 
   while (valProgress(frstr, running.ref))
   {
-    if (! bufferRef.next(bref))
+    if (! valState.bufferRef.next(valState.dataRef))
       THROW("bufferRef ends too soon");
  
     if (! valProgress(fostr, running.out))
     {
       prof.log(BRIDGE_VAL_OUT_SHORT, running);
-      if ( bufferOut.next(bout))
+      if (valState.bufferOut.next(valState.dataOut))
         THROW("bufferOut ends too late");
       break;
     }
 
-    if (! bufferOut.next(bout))
+    if (! valState.bufferOut.next(valState.dataOut))
       THROW("bufferOut ends too soon");
 
     if (refFix.size() > 0 && refFix[0].lno == running.ref.lno)
@@ -233,11 +231,11 @@ void validate(
         if (! valProgress(fostr, running.out))
           THROW("Next line is not there");
 
-        if (! bufferOut.next(bout))
+        if (! valState.bufferOut.next(valState.dataOut))
           THROW("bufferOut ends too soon");
 
         // As bufferRef already had the line, need to skip.
-        if (! bufferRef.next(bref))
+        if (! valState.bufferRef.next(valState.dataRef))
           THROW("bufferRef ends too soon");
       }
       else if (refFix[0].type == BRIDGE_REF_REPLACE)
@@ -256,13 +254,13 @@ void validate(
       refFix.erase(refFix.begin());
     }
 
-    if (bref.line != running.ref.line)
+    if (valState.dataRef.line != running.ref.line)
       THROW("Different lines, '" + running.ref.line + "', '" +
-        bref.line + "'\n");
+        valState.dataRef.line + "'\n");
 
-    if (bout.line != running.out.line)
+    if (valState.dataOut.line != running.out.line)
       THROW("Different lines, '" + running.out.line + "', '" +
-        bout.line + "'\n");
+        valState.dataOut.line + "'\n");
 
     if (formatRef == BRIDGE_FORMAT_TXT &&
         running.out.line.substr(0, 5) == "-----")
@@ -280,7 +278,7 @@ void validate(
     }
     else if (formatRef == BRIDGE_FORMAT_LIN_RP)
     {
-      if (validateLIN_RP(frstr, fostr, running, bufferRef, bufferOut, bref, bout, prof))
+      if (validateLIN_RP(frstr, fostr, running, valState, prof))
       {
         // Fix is already recorded in stats.
         continue;
@@ -292,42 +290,42 @@ void validate(
     }
     else if (formatRef == BRIDGE_FORMAT_PBN)
     {
-      if (validatePBN(frstr, fostr, running, bufferRef, bufferOut, bref, bout, prof))
+      if (validatePBN(frstr, fostr, running, valState, prof))
         continue;
       else if (fostr.eof() || frstr.eof())
         break;
     }
     else if (formatRef == BRIDGE_FORMAT_RBN)
     {
-      if (validateRBN(frstr, running, bufferRef, bufferOut, bref, bout, prof))
+      if (validateRBN(frstr, running, valState, prof))
         continue;
       else if (fostr.eof() || frstr.eof())
         break;
     }
     else if (formatRef == BRIDGE_FORMAT_RBX)
     {
-      if (validateRBX(frstr, running, bufferRef, bufferOut, bref, bout, prof))
+      if (validateRBX(frstr, running, valState, prof))
         continue;
       else if (fostr.eof() || frstr.eof())
         break;
     }
     else if (formatRef == BRIDGE_FORMAT_TXT)
     {
-      if (validateTXT(frstr, fostr, running, bufferRef, bufferOut, bref, bout, headerStartTXT, prof))
+      if (validateTXT(frstr, fostr, running, valState, headerStartTXT, prof))
         continue;
       else if (fostr.eof() || frstr.eof())
         break;
     }
     else if (formatRef == BRIDGE_FORMAT_EML)
     {
-      if (validateEML(frstr, running, prof))
+      if (validateEML(frstr, running, valState, prof))
         continue;
       else if (fostr.eof() || frstr.eof())
         break;
     }
     else if (formatRef == BRIDGE_FORMAT_REC)
     {
-      if (validateREC(frstr, fostr, running, bufferRef, bufferOut, bref, bout, prof))
+      if (validateREC(frstr, fostr, running, valState, prof))
         continue;
       else if (fostr.eof() || frstr.eof())
         break;
@@ -338,12 +336,12 @@ void validate(
 
   if (valProgress(fostr, running.out))
   {
-    if (! bufferOut.next(bout))
+    if (! valState.bufferOut.next(valState.dataOut))
       THROW("bufferOut ends too soon");
     prof.log(BRIDGE_VAL_REF_SHORT, running);
   }
 
-  if (bufferOut.next(bout))
+  if (valState.bufferOut.next(valState.dataOut))
     THROW("bufferOut ends too late");
 
 

@@ -21,10 +21,7 @@ bool validateTXT(
   ifstream& frstr,
   ifstream& fostr,
   ValExample& running,
-  Buffer& bufferRef,
-  Buffer& bufferOut,
-  LineData& bref,
-  LineData& bout,
+  ValState& valState,
   const unsigned& emptyState,
   ValProfile& prof);
 
