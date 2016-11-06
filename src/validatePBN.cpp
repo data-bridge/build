@@ -81,17 +81,23 @@ bool validatePBN(
   const unsigned lr = running.ref.line.length();
 
   if (lo == 11 && lr == 11 &&
-      running.out.line.at(0) != '[' &&
-      running.ref.line.at(0) != '[')
+      bout.type != BRIDGE_BUFFER_STRUCTURED &&
+      bref.type != BRIDGE_BUFFER_STRUCTURED)
+      // running.out.line.at(0) != '[' &&
+      // running.ref.line.at(0) != '[')
   {
   if (lo != bout.len)
     THROW("Different out length");
   if (lr != bref.len)
     THROW("Different out length");
+
     // Could be a short play line, "S4 -- -- --" (Pavlicek notation!).
     unsigned poso = 0;
     while (poso < lo && running.out.line.at(poso) != '-')
       poso++;
+unsigned p2 = bout.line.find('-');
+if (p2 != poso)
+  THROW("Different find");
     
     if (poso > 0 && poso < lo)
     {
@@ -167,7 +173,20 @@ bool validatePBN(
       // Play may be completely absent.
       if (running.out.line.length() < 6 ||
           running.out.line.substr(0, 6) == "[Play ")
+      {
+if (bref.type != BRIDGE_BUFFER_STRUCTURED ||
+    bref.label != "Play")
+{
+  THROW("Play yes-no");
+}
         return false;
+      }
+
+if (bref.type == BRIDGE_BUFFER_STRUCTURED &&
+    bref.label == "Play")
+{
+  THROW("Play no-yes");
+}
       
       while (1)
       {
@@ -186,11 +205,28 @@ bool validatePBN(
 
         if (running.ref.line.length() == 0)
         {
+if (bref.len > 0)
+  THROW("len 0-not");
           prof.log(BRIDGE_VAL_ERROR, running);
           return false;
         }
+        else
+        {
+          if (bref.len == 0)
+            THROW("len not-0");
+        }
 
         prof.log(BRIDGE_VAL_PLAY_SHORT, running);
+if (running.ref.line.substr(0, 1) == "[")
+{
+  if (bref.type != BRIDGE_BUFFER_STRUCTURED)
+    THROW("false-true");
+}
+if (running.ref.line.substr(0, 1) != "[")
+{
+  if (bref.type == BRIDGE_BUFFER_STRUCTURED)
+    THROW("true-false");
+}
         if (running.ref.line.substr(0, 1) == "[")
           break;
       }
