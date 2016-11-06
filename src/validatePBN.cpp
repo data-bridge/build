@@ -82,10 +82,10 @@ bool validatePBN(
       running.out.line.at(0) != '[' &&
       running.ref.line.at(0) != '[')
   {
-  // if (lo != bout.len)
-    // THROW("Different out length");
-  // if (lr != bref.len)
-    // THROW("Different out length");
+  if (lo != bout.len)
+    THROW("Different out length");
+  if (lr != bref.len)
+    THROW("Different out length");
     // Could be a short play line, "S4 -- -- --" (Pavlicek notation!).
     unsigned poso = 0;
     while (poso < lo && running.out.line.at(poso) != '-')
@@ -115,19 +115,19 @@ bool validatePBN(
   {
     if (! regex_search(running.ref.line, match, re))
     {
-      // if (bref.type == BRIDGE_BUFFER_STRUCTURED)
-        // THROW("Structured");
+      if (bref.type == BRIDGE_BUFFER_STRUCTURED)
+        THROW("Structured");
       return false;
     }
 
     const string refField = match.str(1);
     const string refValue = match.str(2);
-// if (bref.type != BRIDGE_BUFFER_STRUCTURED)
-  // THROW("Not structured");
-// if (refField != bref.label)
-  // THROW("Different ref labels");
-// if (refValue != bref.value)
-  // THROW("Different ref values");
+if (bref.type != BRIDGE_BUFFER_STRUCTURED)
+  THROW("Not structured");
+if (refField != bref.label)
+  THROW("Different ref labels");
+if (refValue != bref.value)
+  THROW("Different ref values");
 
     if (refField == "Event")
       prof.log(BRIDGE_VAL_EVENT, running);
@@ -195,7 +195,18 @@ bool validatePBN(
     // May in fact have the same field in the output, but shorter.
     smatch matchOut;
     if (! regex_search(running.out.line, matchOut, re))
+    {
+      if (bout.type == BRIDGE_BUFFER_STRUCTURED)
+        THROW("Structured");
       continue;
+    }
+
+    if (bout.type != BRIDGE_BUFFER_STRUCTURED)
+      THROW("Unstructured");
+if (matchOut.str(1) != bout.label)
+  THROW("Different out labels");
+if (matchOut.str(2) != bout.value)
+  THROW("Different out values");
 
     if (matchOut.str(1) != refField)
       continue;

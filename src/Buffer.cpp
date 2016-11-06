@@ -77,6 +77,7 @@ void Buffer::readBinaryFile(const string& fname)
       lineData.len = static_cast<unsigned>(p-prev);
       lineData.line = leftover + 
         chars2str(prev, lineData.len);
+      lineData.len += leftover.size();
       lineData.no = ++no;
 
       lines.push_back(lineData);
@@ -327,6 +328,7 @@ bool Buffer::fix(
     else if (refFix[rno].type == BRIDGE_REF_REPLACE)
     {
       ld.line = refFix[rno].value;
+      ld.len = ld.line.length();
       Buffer::classify(ld, format);
     }
     else if (refFix[rno].type == BRIDGE_REF_DELETE)
