@@ -23,6 +23,8 @@ bool validateTXT(
   ValExample& running,
   Buffer& bufferRef,
   Buffer& bufferOut,
+  LineData& bref,
+  LineData& bout,
   const unsigned& emptyState,
   ValProfile& prof);
 

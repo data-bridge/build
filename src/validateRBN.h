@@ -21,6 +21,8 @@ bool validateRBN(
   ValExample& running,
   Buffer& bufferRef,
   Buffer& bufferOut,
+  LineData& bref,
+  LineData& bout,
   ValProfile& prof);
 
 bool validateRBX(
@@ -28,6 +30,8 @@ bool validateRBX(
   ValExample& running,
   Buffer& bufferRef,
   Buffer& bufferOut,
+  LineData& bref,
+  LineData& bout,
   ValProfile& prof);
 
 #endif

@@ -224,10 +224,11 @@ bool validateLIN_RP(
   ValExample& running,
   Buffer& bufferRef,
   Buffer& bufferOut,
+  LineData& bref,
+  LineData& bout,
   ValProfile& prof)
 {
   string expectLine;
-  LineData bref, bout;
 
   if (isLINLongRefLine(running.out.line, running.ref.line, expectLine))
   {

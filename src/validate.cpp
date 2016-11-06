@@ -280,7 +280,7 @@ void validate(
     }
     else if (formatRef == BRIDGE_FORMAT_LIN_RP)
     {
-      if (validateLIN_RP(frstr, fostr, running, bufferRef, bufferOut, prof))
+      if (validateLIN_RP(frstr, fostr, running, bufferRef, bufferOut, bref, bout, prof))
       {
         // Fix is already recorded in stats.
         continue;
@@ -292,28 +292,28 @@ void validate(
     }
     else if (formatRef == BRIDGE_FORMAT_PBN)
     {
-      if (validatePBN(frstr, fostr, running, bufferRef, bufferOut, prof))
+      if (validatePBN(frstr, fostr, running, bufferRef, bufferOut, bref, bout, prof))
         continue;
       else if (fostr.eof() || frstr.eof())
         break;
     }
     else if (formatRef == BRIDGE_FORMAT_RBN)
     {
-      if (validateRBN(frstr, running, bufferRef, bufferOut, prof))
+      if (validateRBN(frstr, running, bufferRef, bufferOut, bref, bout, prof))
         continue;
       else if (fostr.eof() || frstr.eof())
         break;
     }
     else if (formatRef == BRIDGE_FORMAT_RBX)
     {
-      if (validateRBX(frstr, running, bufferRef, bufferOut, prof))
+      if (validateRBX(frstr, running, bufferRef, bufferOut, bref, bout, prof))
         continue;
       else if (fostr.eof() || frstr.eof())
         break;
     }
     else if (formatRef == BRIDGE_FORMAT_TXT)
     {
-      if (validateTXT(frstr, fostr, running, bufferRef, bufferOut, headerStartTXT, prof))
+      if (validateTXT(frstr, fostr, running, bufferRef, bufferOut, bref, bout, headerStartTXT, prof))
         continue;
       else if (fostr.eof() || frstr.eof())
         break;
@@ -327,7 +327,7 @@ void validate(
     }
     else if (formatRef == BRIDGE_FORMAT_REC)
     {
-      if (validateREC(frstr, fostr, running, bufferRef, bufferOut, prof))
+      if (validateREC(frstr, fostr, running, bufferRef, bufferOut, bref, bout, prof))
         continue;
       else if (fostr.eof() || frstr.eof())
         break;

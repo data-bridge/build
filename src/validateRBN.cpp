@@ -28,6 +28,8 @@ bool isRBNMissing(
   ValExample& running,
   Buffer& bufferRef,
   Buffer& bufferOut,
+  LineData& bref,
+  LineData& bout,
   ValProfile& prof,
   char& rf);
 
@@ -45,10 +47,13 @@ bool isRBNMissing(
   ValExample& running,
   Buffer& bufferRef,
   Buffer& bufferOut,
+  LineData& bref,
+  LineData& bout,
   ValProfile& prof,
   char& rf)
 {
   UNUSED(bufferOut);
+  UNUSED(bout);
 
   char of;
 
@@ -60,7 +65,6 @@ bool isRBNMissing(
 
   of = running.out.line.at(0);
   rf = running.ref.line.at(0);
-  LineData bref, bout;
 
   if (of != rf)
   {
@@ -176,13 +180,15 @@ bool validateRBN(
   ValExample& running,
   Buffer& bufferRef,
   Buffer& bufferOut,
+  LineData& bref,
+  LineData& bout,
   ValProfile& prof)
 {
   char rf = ' ';
-  if (isRBNMissing(frstr, running, bufferRef, bufferOut, prof, rf))
+  if (isRBNMissing(frstr, running, bufferRef, bufferOut, bref, bout, prof, rf))
     return true;
 
-  LineData bref;
+  UNUSED(bout);
   if (rf == 'K')
   {
     prof.log(BRIDGE_VAL_TEAMS, running);
@@ -250,11 +256,15 @@ bool validateRBX(
   ValExample& running,
   Buffer& bufferRef,
   Buffer& bufferOut,
+  LineData& bref,
+  LineData& bout,
   ValProfile& prof)
 {
   UNUSED(frstr);
   UNUSED(bufferRef);
   UNUSED(bufferOut);
+  UNUSED(bref);
+  UNUSED(bout);
 
   vector<string> vOut, vRef;
   if (! splitRBXToVector(running.out.line, vOut))

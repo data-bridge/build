@@ -48,9 +48,10 @@ bool validatePBN(
   ValExample& running,
   Buffer& bufferRef,
   Buffer& bufferOut,
+  LineData& bref,
+  LineData& bout,
   ValProfile& prof)
 {
-  LineData bref, bout;
   if (running.out.line == "*")
   {
     // Could be the Pavlicek bug where play is shortened.

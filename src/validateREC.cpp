@@ -163,9 +163,10 @@ bool validateREC(
   ValExample& running,
   Buffer& bufferRef,
   Buffer& bufferOut,
+  LineData& bref,
+  LineData& bout,
   ValProfile& prof)
 {
-  LineData bref, bout;
   if (running.ref.line == "")
   {
     while (isRECPlay(running.out.line))

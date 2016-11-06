@@ -22,6 +22,8 @@ bool validatePBN(
   ValExample& running,
   Buffer& bufferRef,
   Buffer& bufferOut,
+  LineData& bref,
+  LineData& bout,
   ValProfile& prof);
 
 #endif

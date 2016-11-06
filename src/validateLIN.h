@@ -23,6 +23,8 @@ bool validateLIN_RP(
   ValExample& running,
   Buffer& bufferRef,
   Buffer& bufferOut,
+  LineData& bref,
+  LineData& bout,
   ValProfile& prof);
 
 #endif

@@ -28,6 +28,8 @@ bool isTXTHeader(
   ValExample& running, 
   Buffer& bufferRef,
   Buffer& bufferOut,
+  LineData& bref,
+  LineData& bout,
   const unsigned & headerStartTXT, 
   ValProfile& prof);
 
@@ -202,13 +204,14 @@ bool isTXTHeader(
   ValExample& running, 
   Buffer& bufferRef,
   Buffer& bufferOut,
+  LineData& bref,
+  LineData& bout,
   const unsigned & headerStartTXT, 
   ValProfile& prof)
 {
   // Make a list of output header lines (absolute position known).
   vector<string> listOut(7);
   listOut.clear();
-  LineData bref, bout;
 
   for (unsigned i = running.out.lno; i <= headerStartTXT+6; i++)
   {
@@ -313,6 +316,8 @@ bool validateTXT(
   ValExample& running,
   Buffer& bufferRef,
   Buffer& bufferOut,
+  LineData& bref,
+  LineData& bout,
   const unsigned& headerStartTXT,
   ValProfile& prof)
 {
@@ -320,7 +325,6 @@ bool validateTXT(
   // lines (as there is no contextual information in a TXT file).
   // It will mis-allocate if only some of the header lines are missing.
 
-  LineData bref, bout;
   unsigned expectPasses;
   if (isTXTAllPass(running.out.line, running.ref.line, expectPasses))
   {
@@ -429,7 +433,7 @@ bool validateTXT(
     }
     else if (running.out.lno <= headerStartTXT + 6)
     {
-      if (! isTXTHeader(frstr, fostr, running, bufferRef, bufferOut, headerStartTXT, prof))
+      if (! isTXTHeader(frstr, fostr, running, bufferRef, bufferOut, bref, bout, headerStartTXT, prof))
         return false;
       else if (running.out.line == running.ref.line)
         return true;
