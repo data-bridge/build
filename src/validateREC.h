@@ -11,6 +11,7 @@
 
 #include <string>
 
+#include "Buffer.h"
 #include "ValProfile.h"
 
 
@@ -21,7 +22,8 @@ bool validateREC(
   ifstream& frstr,
   ifstream& fostr,
   ValExample& running,
+  Buffer& bufferRef,
+  Buffer& bufferOut,
   ValProfile& prof);
-  // ValFileStats& stats);
 
 #endif

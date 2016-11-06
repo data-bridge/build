@@ -11,9 +11,6 @@ Eliminate valint.h?
 
 Check that there is never > 1 segment in RP files.
 
-
-02.10.16
---------
 Code cleanup
 - camelCase
 - no globals
@@ -30,7 +27,7 @@ Add g++ makefile for Ubuntu
 Try the g++ trick to get unused methods
 Update makefiles (file lists)
 
-Add automated comparisons of results
+Add == comparison (read written file back into, compare groups as ==)
 
 Use raw strings for regexes?
 
@@ -46,11 +43,9 @@ options
 
 -S stats on lengths
 -N name file
--g generate suggestions for new tables
 
 -A analyse DD
 -p play analyze DD
-
 
 Then write a script to set combinations
 
@@ -74,12 +69,24 @@ Generate stats on all sizes needed for database, incl #cards per play
 
 Should somehow recognize complete duplicates
 
-Tableau: Call DDS
-Trace: (1) old trace, can count mistakes
-(2) new trace, can compare within suit and between suits,
-probably friend of Deal.  Need new DDS function?
-
+Valuation
+---------
 Board: Valuation
+
+Double-dummy
+------------
+
+* Tableau: Call DDS
+* Trace: 
+  - (1) old trace, can count mistakes
+  - (2) new trace, can compare within suit and between suits,
+    probably friend of Deal.  Need new DDS function?
+
+How to multi-thread the DDS calls?
+Threads consume single boards from segments (all instances).
+
+Database
+--------
 
 Be able to store
 - Play trace, including error types
@@ -89,16 +96,12 @@ Be able to store
 - Systems, and some characteristics
 - Defenses, and some characteristics
 
-How to multi-thread the DDS calls?
-Threads consume single boards from segments (all instances).
-
 Generate each of the tables in an sqlite DB as txt
 
 Ingest them into sqlite in a separate program
 
 some kind of "make" ("scour") looks for new or changed files.
 Output proposed deltas to DB
-
 
 Syntax for .bsf files
 ---------------------

@@ -53,12 +53,10 @@ bool validateEML(
   ifstream& frstr,
   ValExample& running,
   ValProfile& prof)
-  // ValFileStats& stats)
 {
   UNUSED(frstr);
   if (isEMLPlayLine(running.out.line, running.ref.line))
   {
-    // valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
     prof.log(BRIDGE_VAL_PLAY_SHORT, running);
     return true;
   }

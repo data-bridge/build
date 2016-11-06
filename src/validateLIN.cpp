@@ -19,6 +19,7 @@
 #include "valint.h"
 #include "validateLIN.h"
 #include "parse.h"
+#include "Bexcept.h"
 
 
 static bool isLINLongRefLine(
@@ -221,24 +222,32 @@ bool validateLIN_RP(
   ifstream& frstr,
   ifstream& fostr,
   ValExample& running,
+  Buffer& bufferRef,
+  Buffer& bufferOut,
   ValProfile& prof)
-  // ValFileStats& stats)
 {
   string expectLine;
+  LineData bref, bout;
+
   if (isLINLongRefLine(running.out.line, running.ref.line, expectLine))
   {
     if (! valProgress(fostr, running.out))
     {
       prof.log(BRIDGE_VAL_OUT_SHORT, running);
-      // valError(stats, running, BRIDGE_VAL_OUT_SHORT);
+      if (bufferOut.next(bout))
+        THROW("bufferOut ends too late");
       return false;
     }
+
+    if (! bufferOut.next(bout))
+      THROW("bufferOut ends too soon");
+    if (running.out.line != bout.line)
+      THROW("Out lines differ");
 
     if (running.out.line == expectLine)
     {
       // No newline when no play (Pavlicek error).
       prof.log(BRIDGE_VAL_LIN_PLAY_NL, running);
-      // valError(stats, running, BRIDGE_VAL_LIN_PLAY_NL);
       return true;
     }
   }
@@ -247,15 +256,20 @@ bool validateLIN_RP(
   {
     if (! valProgress(frstr, running.ref))
     {
-      // valError(stats, running, BRIDGE_VAL_REF_SHORT);
       prof.log(BRIDGE_VAL_REF_SHORT, running);
+      if (bufferRef.next(bref))
+        THROW("bufferRef ends too late");
       return false;
     }
+
+    if (! bufferRef.next(bref))
+      THROW("bufferRef ends too soon");
+    if (running.ref.line != bref.line)
+      THROW("Ref lines differ");
 
     if (running.ref.line == expectLine)
     {
       // No newline when no play (Pavlicek error).
-      // valError(stats, running, BRIDGE_VAL_LIN_PLAY_NL);
       prof.log(BRIDGE_VAL_LIN_PLAY_NL, running);
       return true;
     }
@@ -270,14 +284,12 @@ bool validateLIN_RP(
     {
       if (isLINPlaySubstr(running))
       {
-        // valError(stats, running, BRIDGE_VAL_ERROR);
         prof.log(BRIDGE_VAL_ERROR, running);
         return false;
       }
       else
       {
         prof.log(BRIDGE_VAL_PLAY_SHORT, running);
-        // valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
         return true;
       }
     }
@@ -287,22 +299,26 @@ bool validateLIN_RP(
       {
         if (! valProgress(frstr, running.ref))
         {
-          // valError(stats, running, BRIDGE_VAL_REF_SHORT);
           prof.log(BRIDGE_VAL_REF_SHORT, running);
+          if (bufferRef.next(bref))
+            THROW("bufferRef ends too late");
           return false;
         }
+
+        if (! bufferRef.next(bref))
+          THROW("bufferRef ends too soon");
+        if (running.ref.line != bref.line)
+          THROW("Ref lines differ");
       }
       while (isLINPlay(running.ref.line));
 
       if (running.out.line == running.ref.line)
       {
-        // valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
         prof.log(BRIDGE_VAL_PLAY_SHORT, running);
         return true;
       }
       else
       {
-        // valError(stats, running, BRIDGE_VAL_ERROR);
         prof.log(BRIDGE_VAL_ERROR, running);
         return false;
       }

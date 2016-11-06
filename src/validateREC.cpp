@@ -19,6 +19,7 @@
 #include "valint.h"
 #include "validateREC.h"
 #include "parse.h"
+#include "Bexcept.h"
 
 
 static bool isRECPlay(const string& line)
@@ -160,30 +161,36 @@ bool validateREC(
   ifstream& frstr,
   ifstream& fostr,
   ValExample& running,
+  Buffer& bufferRef,
+  Buffer& bufferOut,
   ValProfile& prof)
-  // ValFileStats& stats)
 {
+  LineData bref, bout;
   if (running.ref.line == "")
   {
     while (isRECPlay(running.out.line))
     {
       // Extra play line in output (not in ref!) (Pavlicek error).
-      // valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
       prof.log(BRIDGE_VAL_PLAY_SHORT, running);
 
       if (! valProgress(fostr, running.out))
       {
-        // valError(stats, running, BRIDGE_VAL_OUT_SHORT);
         prof.log(BRIDGE_VAL_OUT_SHORT, running);
+        if (bufferOut.next(bout))
+          THROW("bufferOut ends too late");
         return false;
       }
+
+      if (! bufferOut.next(bout))
+        THROW("bufferOut ends too soon");
+      if (bout.line != running.out.line)
+        THROW("Out lines differ");
     }
 
     if (running.out.line == running.ref.line)
       return true;
     else
     {
-      // valError(stats, running, BRIDGE_VAL_ERROR);
       prof.log(BRIDGE_VAL_ERROR, running);
       return false;
     }
@@ -194,22 +201,26 @@ bool validateREC(
     while (isRECPlay(running.ref.line))
     {
       // The other way round.
-      // valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
       prof.log(BRIDGE_VAL_PLAY_SHORT, running);
 
       if (! valProgress(frstr, running.ref))
       {
-        // valError(stats, running, BRIDGE_VAL_REF_SHORT);
         prof.log(BRIDGE_VAL_REF_SHORT, running);
+        if (bufferRef.next(bref))
+          THROW("bufferRef ends too late");
         return false;
       }
+
+      if (! bufferRef.next(bref))
+        THROW("bufferRef ends too soon");
+      if (bref.line != running.ref.line)
+        THROW("Ref lines differ");
     }
 
     if (running.out.line == running.ref.line)
       return true;
     else
     {
-      // valError(stats, running, BRIDGE_VAL_ERROR);
       prof.log(BRIDGE_VAL_ERROR, running);
       return false;
     }
@@ -222,13 +233,11 @@ bool validateREC(
     if (lOut >= running.ref.line.length() ||
         running.ref.line.substr(0, lOut) != running.out.line)
     {
-      // valError(stats, running, BRIDGE_VAL_ERROR);
       prof.log(BRIDGE_VAL_ERROR, running);
       return false;
     }
     else
     {
-      // valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
       prof.log(BRIDGE_VAL_PLAY_SHORT, running);
       return true;
     }
@@ -236,40 +245,49 @@ bool validateREC(
   else if (isRECJustMade(running.out.line, running.ref.line))
   {
     // "Won 32" (Pavlicek error, should be "Made 0" or so.
-    // valError(stats, running, BRIDGE_VAL_REC_MADE_32);
     prof.log(BRIDGE_VAL_REC_MADE_32, running);
 
     // The next line (Score, Points) is then also different.
     if (! valProgress(fostr, running.out))
     {
-      // valError(stats, running, BRIDGE_VAL_OUT_SHORT);
       prof.log(BRIDGE_VAL_OUT_SHORT, running);
+      if (bufferOut.next(bout))
+        THROW("bufferOut ends too late");
       return false;
     }
 
+    if (! bufferOut.next(bout))
+      THROW("bufferOut ends too soon");
+    if (bout.line != running.out.line)
+      THROW("Out lines differ");
+
     if (! valProgress(frstr, running.ref))
     {
-      // valError(stats, running, BRIDGE_VAL_REF_SHORT);
       prof.log(BRIDGE_VAL_REF_SHORT, running);
+      if (bufferRef.next(bref))
+        THROW("bufferRef ends too late");
       return false;
     }
+
+    if (! bufferRef.next(bref))
+      THROW("bufferRef ends too soon");
+    if (bref.line != running.ref.line)
+      THROW("Ref lines differ");
+
     return true;
   }
   else if (isRECNorthLine(running.out.line, running.ref.line))
   {
-    // valError(stats, running, BRIDGE_VAL_NAMES_SHORT);
     prof.log(BRIDGE_VAL_NAMES_SHORT, running);
     return true;
   }
   else if (isRECEWLine(running.out.line, running.ref.line))
   {
-    // valError(stats, running, BRIDGE_VAL_NAMES_SHORT);
     prof.log(BRIDGE_VAL_NAMES_SHORT, running);
     return true;
   }
   else if (isRECSouthLine(running.out.line, running.ref.line))
   {
-    // valError(stats, running, BRIDGE_VAL_NAMES_SHORT);
     prof.log(BRIDGE_VAL_NAMES_SHORT, running);
     return true;
   }

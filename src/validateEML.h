@@ -9,6 +9,7 @@
 #ifndef BRIDGE_VALEML_H
 #define BRIDGE_VALEML_H
 
+#include "Buffer.h"
 #include "ValProfile.h"
 
 #include <string>
@@ -20,6 +21,5 @@ bool validateEML(
   ifstream& frstr,
   ValExample& running,
   ValProfile& prof);
-  // ValFileStats& stats);
 
 #endif

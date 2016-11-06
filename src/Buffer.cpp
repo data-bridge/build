@@ -7,6 +7,7 @@
 */
 
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <sstream>
 #include <regex>
@@ -36,7 +37,7 @@ void Buffer::reset()
 {
   len = 0;
   current = 0;
-  lines.resize(CHUNK_SIZE);
+  lines.reserve(CHUNK_SIZE);
 }
 
 
@@ -58,6 +59,7 @@ void Buffer::readBinaryFile(const string& fname)
   LineData lineData;
   unsigned no = 0;
   string leftover = "";
+  lines.clear();
 
   while (int bytes_read = ::read(fd, buf, BUFFER_SIZE))
   {
@@ -69,8 +71,8 @@ void Buffer::readBinaryFile(const string& fname)
 
     char * prev = buf;
     char * p = buf;
-    while (p = (char *) memchr(p, '\n', 
-      static_cast<size_t>((buf + bytes_read) - p)))
+    while ((p = (char *) memchr(prev, '\n', 
+      static_cast<size_t>((buf + bytes_read) - prev))) != nullptr)
     {
       lineData.len = static_cast<unsigned>(p-prev);
       lineData.line = leftover + 
@@ -78,7 +80,7 @@ void Buffer::readBinaryFile(const string& fname)
       lineData.no = ++no;
 
       lines.push_back(lineData);
-      prev = p;
+      prev = p+1;
       leftover = "";
     }
     leftover = chars2str(prev, 
@@ -92,7 +94,7 @@ void Buffer::readBinaryFile(const string& fname)
 
 bool Buffer::isLIN(LineData& ld)
 {
-  if (ld.line.substr(2, 1) != "|")
+  if (ld.len < 3 || ld.line.substr(2, 1) != "|")
     return false;
 
   ld.type = BRIDGE_BUFFER_STRUCTURED;
@@ -120,8 +122,10 @@ bool Buffer::isPBN(LineData& ld)
   pos = ld.line.find("\"", pos);
   if (pos == ld.len-2)
     return false;
-
-  ld.value = ld.line.substr(pos+1, len-2-pos);
+  if (pos+3 >= ld.len)
+    ld.value = "";
+  else
+    ld.value = ld.line.substr(pos+1, ld.len-pos-3);
   return true;
 }
 
@@ -223,6 +227,7 @@ bool Buffer::read(
 
   for (auto &ld: lines)
     Buffer::classify(ld, format);
+  return true;
 }
 
 
@@ -329,12 +334,16 @@ bool Buffer::fix(
       if (i + refFix[rno].count > len)
         THROW("Too large deletion");
 
-      i += refFix[rno].count;
+      lines.erase(lines.begin() + static_cast<int>(i), 
+          lines.begin() + static_cast<int>(refFix[rno].count + i));
+      len -= refFix[rno].count;
     }
     else
       THROW("Bad reference line type");
 
     rno++;
+    if (rno == refFix.size())
+      break;
   }
   return true;
 }
@@ -350,10 +359,14 @@ bool Buffer::advance()
 }
 
 
-void Buffer::getRecord(ValSide& vside) const
+bool Buffer::next(LineData& vside)
 {
-  vside.line = lines[current].line;
-  vside.lno = lines[current].no;
+  if (current > len-1)
+    return false;
+
+  vside = lines[current];
+  current++;
+  return true;
 }
 
 
@@ -362,6 +375,11 @@ string Buffer::getLine() const
   return lines[current].line;
 }
 
+
+unsigned Buffer::getNumber() const
+{
+  return lines[current].no;
+}
 
 LineType Buffer::getType() const
 {
@@ -379,4 +397,28 @@ string Buffer::getValue() const
 {
   return lines[current].value;
 }
-  
+
+
+void Buffer::print() const
+{
+  cout << setw(4) << right << "No" <<
+    setw(6) << "Type" << setw(4) << "Len" << left << " " <<
+    setw(12) << "Label" << "Value" << endl;
+
+  for (auto &ld: lines)
+  {
+    if (ld.type == BRIDGE_BUFFER_STRUCTURED)
+    {
+      cout << setw(4) << right << ld.no <<
+        setw(6) << ld.type << setw(4) << ld.len << left << " " <<
+        setw(12) << ld.label << ld.value << endl;
+    }
+    else
+    {
+      cout << setw(4) << right << ld.no <<
+        setw(6) << ld.type << setw(4) << ld.len << left << " " <<
+        setw(12) << "" << ld.line << endl;
+    }
+  }
+}
+

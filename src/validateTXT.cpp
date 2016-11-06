@@ -19,11 +19,15 @@
 #include "valint.h"
 #include "validateTXT.h"
 #include "parse.h"
+#include "Bexcept.h"
+
 
 bool isTXTHeader(
   ifstream& frstr,
   ifstream& fostr,
   ValExample& running, 
+  Buffer& bufferRef,
+  Buffer& bufferOut,
   const unsigned & headerStartTXT, 
   ValProfile& prof);
 
@@ -196,13 +200,15 @@ bool isTXTHeader(
   ifstream& frstr,
   ifstream& fostr,
   ValExample& running, 
+  Buffer& bufferRef,
+  Buffer& bufferOut,
   const unsigned & headerStartTXT, 
   ValProfile& prof)
-  // ValFileStats& stats)
 {
   // Make a list of output header lines (absolute position known).
   vector<string> listOut(7);
   listOut.clear();
+  LineData bref, bout;
 
   for (unsigned i = running.out.lno; i <= headerStartTXT+6; i++)
   {
@@ -213,16 +219,21 @@ bool isTXTHeader(
 
     if (! valProgress(fostr, running.out))
     {
-      // valError(stats, running, BRIDGE_VAL_OUT_SHORT);
       prof.log(BRIDGE_VAL_OUT_SHORT, running);
+      if (bufferOut.next(bout))
+        THROW("bufferOut ends too late");
       return false;
     }
+
+    if (! bufferOut.next(bout))
+      THROW("bufferOut ends too soon");
+    if (bout.line != running.out.line)
+      THROW("Out lines differ");
   }
 
   // Reading the rest of the out header should leave us at an empty line.
   if (running.out.line != "")
   {
-    // valError(stats, running, BRIDGE_VAL_ERROR);
     prof.log(BRIDGE_VAL_ERROR, running);
     return false;
   }
@@ -238,9 +249,19 @@ bool isTXTHeader(
     listRef.push_back(running.ref.line);
     if (! valProgress(frstr, running.ref))
     {
-      // valError(stats, running, BRIDGE_VAL_REF_SHORT);
       prof.log(BRIDGE_VAL_REF_SHORT, running);
+      if (bufferRef.next(bref))
+        THROW("bufferRef ends too late");
       return false;
+    }
+
+    if (! bufferRef.next(bref))
+      THROW("bufferRef ends too soon");
+    if (bref.line != running.ref.line)
+    {
+      // cout << "WARNING: Ref lines differ" << endl;
+      // cout << "Ref '" << running.ref.line << "'" << endl;
+      // cout << "New '" << bref.line << "'" << endl;
     }
 
     if (i == headerStartTXT)
@@ -248,17 +269,23 @@ bool isTXTHeader(
       // Expect a newline.
       if (running.ref.line != "")
       {
-        // valError(stats, running, BRIDGE_VAL_ERROR);
         prof.log(BRIDGE_VAL_ERROR, running);
         return false;
       }
 
       if (! valProgress(frstr, running.ref))
       {
-        // valError(stats, running, BRIDGE_VAL_REF_SHORT);
         prof.log(BRIDGE_VAL_REF_SHORT, running);
+        if (bufferRef.next(bref))
+          THROW("bufferRef ends too late");
         return false;
       }
+
+      if (! bufferRef.next(bref))
+        THROW("bufferRef ends too soon");
+      if (bref.line != running.ref.line)
+        THROW("Ref lines differ");
+
       i++;
     }
     i++;
@@ -272,7 +299,6 @@ bool isTXTHeader(
       continue;
     else if (listOut[i] != listRef[r])
     {
-      // valError(stats, running, headerErrorType[i]);
       prof.log(headerErrorType[i], running);
     }
     r++;
@@ -285,28 +311,38 @@ bool validateTXT(
   ifstream& frstr,
   ifstream& fostr,
   ValExample& running,
+  Buffer& bufferRef,
+  Buffer& bufferOut,
   const unsigned& headerStartTXT,
   ValProfile& prof)
-  // ValFileStats& stats)
 {
   // emptyState is a bit of a kludge to attempt to detect the empty
   // lines (as there is no contextual information in a TXT file).
   // It will mis-allocate if only some of the header lines are missing.
 
+  LineData bref, bout;
   unsigned expectPasses;
   if (isTXTAllPass(running.out.line, running.ref.line, expectPasses))
   {
     // Reference does not have "All Pass" (Pavlicek error).
     if (expectPasses > 0 && ! valProgress(frstr, running.ref))
     {
-      // valError(stats, running, BRIDGE_VAL_OUT_SHORT);
       prof.log(BRIDGE_VAL_OUT_SHORT, running);
+      if (bufferRef.next(bref))
+        THROW("bufferRef ends too late");
       return false;
+    }
+
+    if (expectPasses > 0)
+    {
+      if (! bufferRef.next(bref))
+        THROW("bufferRef ends too soon");
+      if (bref.line != running.ref.line)
+        THROW("Ref lines differ");
     }
 
     if (expectPasses == 0 || isTXTPasses(running.ref.line, expectPasses))
     {
-      // valError(stats, running, BRIDGE_VAL_TXT_ALL_PASS);
       prof.log(BRIDGE_VAL_TXT_ALL_PASS, running);
       return true;
     }
@@ -319,15 +355,20 @@ bool validateTXT(
   {
     if (! valProgress(frstr, running.ref))
     {
-      // valError(stats, running, BRIDGE_VAL_REF_SHORT);
       prof.log(BRIDGE_VAL_REF_SHORT, running);
+      if (bufferRef.next(bref))
+        THROW("bufferRef ends too late");
       return false;
     }
+
+    if (! bufferRef.next(bref))
+      THROW("bufferRef ends too soon");
+    if (bref.line != running.ref.line)
+      THROW("Ref lines differ");
 
     if (running.ref.line != "")
       return false;
 
-    // valError(stats, running, BRIDGE_VAL_TXT_DASHES);
     prof.log(BRIDGE_VAL_TXT_DASHES, running);
     return true;
   }
@@ -336,17 +377,21 @@ bool validateTXT(
   {
     if (! valProgress(frstr, running.ref))
     {
-      // valError(stats, running, BRIDGE_VAL_REF_SHORT);
       prof.log(BRIDGE_VAL_REF_SHORT, running);
+      if (bufferRef.next(bref))
+        THROW("bufferRef ends too late");
       return false;
     }
-    // valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
     prof.log(BRIDGE_VAL_PLAY_SHORT, running);
+
+    if (! bufferRef.next(bref))
+      THROW("bufferRef ends too soon");
+    if (bref.line != running.ref.line)
+      THROW("Ref lines differ");
   }
 
   if (frstr.eof())
   {
-    // valError(stats, running, BRIDGE_VAL_REF_SHORT);
     prof.log(BRIDGE_VAL_REF_SHORT, running);
     return false;
   }
@@ -384,7 +429,7 @@ bool validateTXT(
     }
     else if (running.out.lno <= headerStartTXT + 6)
     {
-      if (! isTXTHeader(frstr, fostr, running, headerStartTXT, prof))
+      if (! isTXTHeader(frstr, fostr, running, bufferRef, bufferOut, headerStartTXT, prof))
         return false;
       else if (running.out.line == running.ref.line)
         return true;

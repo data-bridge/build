@@ -11,6 +11,8 @@
 
 #include <string>
 
+#include "Buffer.h"
+
 using namespace std;
 
 
@@ -18,7 +20,8 @@ bool validatePBN(
   ifstream& frstr,
   ifstream& fostr,
   ValExample& running,
+  Buffer& bufferRef,
+  Buffer& bufferOut,
   ValProfile& prof);
-  // ValFileStats& stats);
 
 #endif

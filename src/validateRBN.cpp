@@ -20,11 +20,14 @@
 #include "valint.h"
 #include "validateRBN.h"
 #include "parse.h"
+#include "Bexcept.h"
 
 
 bool isRBNMissing(
   ifstream& frstr,
   ValExample& running,
+  Buffer& bufferRef,
+  Buffer& bufferOut,
   ValProfile& prof,
   char& rf);
 
@@ -40,9 +43,13 @@ bool splitRBXToVector(
 bool isRBNMissing(
   ifstream& frstr,
   ValExample& running,
+  Buffer& bufferRef,
+  Buffer& bufferOut,
   ValProfile& prof,
   char& rf)
 {
+  UNUSED(bufferOut);
+
   char of;
 
   unsigned lOut = running.out.line.length();
@@ -53,6 +60,7 @@ bool isRBNMissing(
 
   of = running.out.line.at(0);
   rf = running.ref.line.at(0);
+  LineData bref, bout;
 
   if (of != rf)
   {
@@ -60,15 +68,20 @@ bool isRBNMissing(
     {
       if (! valProgress(frstr, running.ref))
       {
-        // valError(stats, running, BRIDGE_VAL_REF_SHORT);
         prof.log(BRIDGE_VAL_REF_SHORT, running);
+        if (bufferRef.next(bref))
+          THROW("bufferRef ends too late");
         return false;
       }
+
+      if (! bufferRef.next(bref))
+        THROW("bufferRef ends too soon");
+      if (running.ref.line != bref.line)
+        THROW("Ref lines differ");
 
       rf = running.ref.line.at(0);
       if (rf != of)
       {
-        // valError(stats, running, BRIDGE_VAL_ERROR);
         prof.log(BRIDGE_VAL_ERROR, running);
         return false;
       }
@@ -84,7 +97,6 @@ bool isRBNMissing(
     case 'T':
       if (lOut > 2)
         return false;
-      // valError(stats, running, BRIDGE_VAL_TITLE);
       prof.log(BRIDGE_VAL_TITLE, running);
       return true;
 
@@ -162,24 +174,31 @@ bool areRBNNames(
 bool validateRBN(
   ifstream& frstr,
   ValExample& running,
+  Buffer& bufferRef,
+  Buffer& bufferOut,
   ValProfile& prof)
-  // ValFileStats& stats)
 {
   char rf = ' ';
-  if (isRBNMissing(frstr, running, prof, rf))
+  if (isRBNMissing(frstr, running, bufferRef, bufferOut, prof, rf))
     return true;
 
+  LineData bref;
   if (rf == 'K')
   {
-    // valError(stats, running, BRIDGE_VAL_TEAMS);
     prof.log(BRIDGE_VAL_TEAMS, running);
 
     if (! valProgress(frstr, running.ref))
     {
-      // valError(stats, running, BRIDGE_VAL_REF_SHORT);
       prof.log(BRIDGE_VAL_REF_SHORT, running);
+      if (bufferRef.next(bref))
+        THROW("bufferRef ends too late");
       return false;
     }
+
+    if (! bufferRef.next(bref))
+      THROW("bufferRef ends too soon");
+    if (bref.line != running.ref.line)
+      THROW("Ref lines differ");
   }
 
   if (running.ref.line.length() > 0 && running.out.line.length() > 0)
@@ -190,7 +209,6 @@ bool validateRBN(
         return true;
       else
       {
-        // valError(stats, running, BRIDGE_VAL_ERROR);
         prof.log(BRIDGE_VAL_ERROR, running);
         return false;
       }
@@ -201,7 +219,6 @@ bool validateRBN(
     return true;
   else
   {
-    // valError(stats, running, BRIDGE_VAL_ERROR);
     prof.log(BRIDGE_VAL_ERROR, running);
     return false;
   }
@@ -231,15 +248,17 @@ bool splitRBXToVector(
 bool validateRBX(
   ifstream& frstr,
   ValExample& running,
+  Buffer& bufferRef,
+  Buffer& bufferOut,
   ValProfile& prof)
-  // ValFileStats& stats)
 {
   UNUSED(frstr);
+  UNUSED(bufferRef);
+  UNUSED(bufferOut);
 
   vector<string> vOut, vRef;
   if (! splitRBXToVector(running.out.line, vOut))
   {
-    // valError(stats, running, BRIDGE_VAL_ERROR);
     prof.log(BRIDGE_VAL_ERROR, running);
     return false;
   }

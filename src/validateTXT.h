@@ -9,6 +9,7 @@
 #ifndef BRIDGE_VALTXT_H
 #define BRIDGE_VALTXT_H
 
+#include "Buffer.h"
 #include "ValProfile.h"
 
 #include <string>
@@ -20,8 +21,9 @@ bool validateTXT(
   ifstream& frstr,
   ifstream& fostr,
   ValExample& running,
+  Buffer& bufferRef,
+  Buffer& bufferOut,
   const unsigned& emptyState,
   ValProfile& prof);
-  // ValFileStats& stats);
 
 #endif

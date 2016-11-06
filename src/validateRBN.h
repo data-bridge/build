@@ -11,19 +11,23 @@
 
 #include <string>
 
+#include "Buffer.h"
+
 using namespace std;
 
 
 bool validateRBN(
   ifstream& frstr,
   ValExample& running,
+  Buffer& bufferRef,
+  Buffer& bufferOut,
   ValProfile& prof);
-  // ValFileStats& stats);
 
 bool validateRBX(
   ifstream& frstr,
   ValExample& running,
+  Buffer& bufferRef,
+  Buffer& bufferOut,
   ValProfile& prof);
-  // ValFileStats& stats);
 
 #endif

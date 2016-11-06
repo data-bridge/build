@@ -11,6 +11,7 @@
 
 #include <string>
 
+#include "Buffer.h"
 #include "ValProfile.h"
 
 using namespace std;
@@ -20,7 +21,8 @@ bool validateLIN_RP(
   ifstream& frstr,
   ifstream& fostr,
   ValExample& running,
+  Buffer& bufferRef,
+  Buffer& bufferOut,
   ValProfile& prof);
-  // ValFileStats& stats);
 
 #endif

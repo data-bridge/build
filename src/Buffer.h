@@ -28,6 +28,16 @@ enum LineType
   BRIDGE_BUFFER_SIZE = 5
 };
 
+struct LineData
+{
+  string line;
+  unsigned len;
+  unsigned no;
+  LineType type;
+  string label;
+  string value;
+};
+
 
 class Buffer
 {
@@ -46,16 +56,6 @@ class Buffer
       FixType type;
       string value;
       unsigned count;
-    };
-
-    struct LineData
-    {
-      string line;
-      unsigned len;
-      unsigned no;
-      LineType type;
-      string label;
-      string value;
     };
 
     vector<LineData> lines;
@@ -97,9 +97,13 @@ class Buffer
 
     bool advance();
 
-    void getRecord(ValSide& vside) const;
+    bool next(LineData& lineData);
 
     string getLine() const;
+
+    unsigned getNumber() const;
+
+    unsigned getLength() const;
 
     LineType getType() const;
 
@@ -107,6 +111,7 @@ class Buffer
 
     string getValue() const;
 
+    void print() const;
 };
 
 #endif
