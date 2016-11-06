@@ -52,6 +52,8 @@ bool validatePBN(
   LineData& bout,
   ValProfile& prof)
 {
+  UNUSED(bufferOut);
+  UNUSED(fostr);
   if (running.out.line == "*")
   {
     // Could be the Pavlicek bug where play is shortened.
@@ -96,38 +98,57 @@ bool validatePBN(
       if (running.ref.line.substr(0, poso) ==
           running.out.line.substr(0, poso))
       {
-        // valError(stats, running, BRIDGE_VAL_PLAY_SHORT);
         prof.log(BRIDGE_VAL_PLAY_SHORT, running);
         return true;
       }
       else
       {
-        // valError(stats, running, BRIDGE_VAL_ERROR);
         prof.log(BRIDGE_VAL_ERROR, running);
         return false;
       }
     }
   }
 
-  regex re("^\\[(\\w+)\\s+\"(.*)\"\\]$");
-  smatch match;
-  while (1)
+  if (bref.type == BRIDGE_BUFFER_STRUCTURED &&
+      bout.type == BRIDGE_BUFFER_STRUCTURED &&
+      bref.label == bout.label)
   {
-    if (! regex_search(running.ref.line, match, re))
+    if (bref.label == "West" || bref.label == "North" ||
+       bref.label == "East" || bref.label == "South" ||
+       bref.label == "Site" || bref.label == "Stage")
     {
-      if (bref.type == BRIDGE_BUFFER_STRUCTURED)
-        THROW("Structured");
+      const unsigned lRef = bref.value.length();
+      const unsigned lOut = bout.value.length();
+
+      if (lOut > lRef ||
+          bref.value.substr(0, lOut) != bout.value)
+      {
+        prof.log(BRIDGE_VAL_NAMES_SHORT, running);
+        return false;
+      }
+
+      return true;
+    }
+    else
+    {
+      prof.log(BRIDGE_VAL_ERROR, running);
       return false;
     }
+  }
 
-    const string refField = match.str(1);
-    const string refValue = match.str(2);
-if (bref.type != BRIDGE_BUFFER_STRUCTURED)
-  THROW("Not structured");
-if (refField != bref.label)
-  THROW("Different ref labels");
-if (refValue != bref.value)
-  THROW("Different ref values");
+  if (bref.type != BRIDGE_BUFFER_STRUCTURED)
+  {
+    prof.log(BRIDGE_VAL_ERROR, running);
+    return false;
+  }
+
+  while (1)
+  {
+    if (bref.type != BRIDGE_BUFFER_STRUCTURED)
+      return false;
+
+    const string refField = bref.label;
+    const string refValue = bref.value;
 
     if (refField == "Event")
       prof.log(BRIDGE_VAL_EVENT, running);
@@ -179,6 +200,10 @@ if (refValue != bref.value)
     else
       break;
 
+    // May in fact have the same field in the output, but shorter.
+    if (bout.type != BRIDGE_BUFFER_STRUCTURED)
+      continue;
+
     if (! valProgress(frstr, running.ref))
     {
       prof.log(BRIDGE_VAL_REF_SHORT, running);
@@ -192,79 +217,33 @@ if (refValue != bref.value)
     if (running.ref.line != bref.line)
       THROW("Ref lines differ");
 
-    // May in fact have the same field in the output, but shorter.
-    smatch matchOut;
-    if (! regex_search(running.out.line, matchOut, re))
-    {
-      if (bout.type == BRIDGE_BUFFER_STRUCTURED)
-        THROW("Structured");
-      continue;
-    }
-
-    if (bout.type != BRIDGE_BUFFER_STRUCTURED)
-      THROW("Unstructured");
-if (matchOut.str(1) != bout.label)
-  THROW("Different out labels");
-if (matchOut.str(2) != bout.value)
-  THROW("Different out values");
-
-    if (matchOut.str(1) != refField)
+    if (bout.label != bref.label)
       continue;
 
-    const unsigned lRef = refValue.length();
-    const unsigned lOut = matchOut.str(2).length();
-
-    if (lOut > lRef ||
-        refValue.substr(0, lOut) != matchOut.str(2))
+    if (bout.value == bref.value)
+      return true;
+    else if (bref.label == "Site" && bout.value == "")
+      return true;
+    else if (bref.label == "Stage")
     {
-      prof.log(BRIDGE_VAL_ERROR, running);
-      return false;
-    }
+      const unsigned lRef = bref.value.length();
+      const unsigned lOut = bout.value.length();
 
-    if (! valProgress(fostr, running.out))
-    {
-      prof.log(BRIDGE_VAL_OUT_SHORT, running);
-      if (bufferOut.next(bout))
-        THROW("bufferOut ends too late");
-      return false;
-    }
+      if (lOut > lRef ||
+          bref.value.substr(0, lOut) != bout.value)
+      {
+        prof.log(BRIDGE_VAL_NAMES_SHORT, running);
+        return false;
+      }
 
-    if (! bufferOut.next(bout))
-      THROW("bufferOut ends too soon");
-    if (running.out.line != bout.line)
-      THROW("Out lines differ");
-  }
-
-  if (running.ref.line == running.out.line)
-    return true;
-
-  if (isPBNSite(running.out.line, running.ref.line))
-  {
-    // valError(stats, running, BRIDGE_VAL_LOCATION);
-    prof.log(BRIDGE_VAL_LOCATION, running);
-    return true;
-  }
-
-  const string label = match.str(1);
-  smatch matchOut;
-  if (! regex_search(running.out.line, matchOut, re))
-    return false;
-  if (label != matchOut.str(1))
-    return false;
-
-  if (label == "West" || label == "North" ||
-      label == "East" || label == "South")
-  {
-    const unsigned lOut = matchOut.str(2).length();
-    if (lOut < match.str(2).length() &&
-        match.str(2).substr(0, lOut) == matchOut.str(2))
-    {
-      // valError(stats, running, BRIDGE_VAL_NAMES_SHORT);
-      prof.log(BRIDGE_VAL_NAMES_SHORT, running);
       return true;
     }
+
+    prof.log(BRIDGE_VAL_ERROR, running);
+    return false;
   }
 
+  prof.log(BRIDGE_VAL_ERROR, running);
   return false;
 }
 
