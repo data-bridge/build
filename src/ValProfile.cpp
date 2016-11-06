@@ -52,6 +52,24 @@ void ValProfile::log(
 }
 
 
+void ValProfile::log(
+  const ValError label,
+  const ValState& valState)
+{
+  // Only keep the first example of each kind.
+  if (example[label].out.line == "" && example[label].ref.line == "")
+  {
+    example[label].out.line = valState.dataOut.line;
+    example[label].out.lno = valState.dataOut.no;
+
+    example[label].ref.line = valState.dataRef.line;
+    example[label].ref.lno = valState.dataRef.no;
+  }
+
+  count[label]++;
+}
+
+
 bool ValProfile::labelIsSet(const unsigned label) const
 {
   return (count[label] > 0);

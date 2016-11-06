@@ -14,20 +14,10 @@
 #include <iostream>
 #include <vector>
 
+#include "validate.h"
+
 using namespace std;
 
-
-struct ValSide
-{
-  string line;
-  unsigned lno;
-};
-
-struct ValExample
-{
-  ValSide out;
-  ValSide ref;
-};
 
 enum ValError
 {
@@ -82,6 +72,10 @@ class ValProfile
     void log(
       const ValError label,
       const ValExample& running);
+
+    void log(
+      const ValError label,
+      const ValState& valState);
 
     bool labelIsSet(const unsigned label) const;
 

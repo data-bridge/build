@@ -12,6 +12,8 @@
 #include <string>
 
 #include "Buffer.h"
+#include "validate.h"
+#include "ValProfile.h"
 
 using namespace std;
 

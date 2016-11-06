@@ -9,58 +9,43 @@
 // The functions in this file help to parse files.
 
 
-#include <iostream>
-#include <iomanip>
-#include <sstream>
-#include <fstream>
-#include <regex>
-
 #include "validate.h"
 #include "valint.h"
 #include "validateEML.h"
-#include "parse.h"
-
-
-static bool isEMLPlayLine(
-   const string& lineOut,
-   const string& lineRef)
-{
-  const unsigned lOut = lineOut.length();
-  const unsigned lRef = lineRef.length();
-
-  if (lOut < 42 || lOut > lRef)
-    return false;
-
-  // A bit thin -- could look more carefully.
-  
-  if (lineOut == lineRef.substr(0, lOut))
-    return true;
-
-  if (lRef > 75)
-  {
-    // The reference play may be shifted in by 3.
-    string outShort = lineOut;
-    outShort.erase(38, 3);
-    if (outShort == lineRef.substr(0, lOut-3))
-      return true;
-  }
-
-  return false;
-}
 
 
 bool validateEML(
-  ifstream& frstr,
-  ValExample& running,
   ValState& valState,
   ValProfile& prof)
 {
-  UNUSED(frstr);
-  // if (isEMLPlayLine(running.out.line, running.ref.line))
-  if (isEMLPlayLine(valState.dataOut.line, valState.dataRef.line))
+  if (valState.dataOut.len < 42)
+    return false;
+
+  // A bit thin -- could look more carefully.
+
+  if (refContainsOut(valState))
   {
-    prof.log(BRIDGE_VAL_PLAY_SHORT, running);
+    prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
     return true;
+  }
+  
+  if (valState.dataOut.line == 
+      valState.dataRef.line.substr(0, valState.dataOut.len))
+  {
+    prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
+    return true;
+  }
+
+  if (valState.dataRef.len > 75)
+  {
+    // The reference play may be shifted in by 3.
+    string outShort = valState.dataOut.line;
+    outShort.erase(38, 3);
+    if (outShort == valState.dataRef.line.substr(0, valState.dataOut.len-3))
+    {
+      prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
+      return true;
+    }
   }
 
   return false;

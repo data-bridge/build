@@ -318,7 +318,8 @@ void validate(
     }
     else if (formatRef == BRIDGE_FORMAT_EML)
     {
-      if (validateEML(frstr, running, valState, prof))
+      // if (validateEML(frstr, running, valState, prof))
+      if (validateEML(valState, prof))
         continue;
       else if (fostr.eof() || frstr.eof())
         break;
@@ -352,5 +353,18 @@ void validate(
 
   fostr.close();
   frstr.close();
+}
+
+
+bool refContainsOut(const ValState& valState)
+{
+  if (valState.dataOut.len > valState.dataRef.len)
+    return false;
+
+  if (valState.dataOut.line == 
+      valState.dataRef.line.substr(0, valState.dataOut.len))
+    return true;
+  else
+    return false;
 }
 

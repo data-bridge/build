@@ -11,11 +11,15 @@
 
 #include <string>
 
+// #include "ValStats.h"
 #include "Buffer.h"
-#include "ValStats.h"
 #include "bconst.h"
 
 using namespace std;
+
+class ValStats;
+class Buffer;
+
 
 struct ValState
 {
@@ -38,5 +42,7 @@ void validate(
   const Format fRef,
   const Options& options,
   ValStats& vstats);
+
+bool refContainsOut(const ValState& valState);
 
 #endif
