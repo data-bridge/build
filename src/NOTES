@@ -2,6 +2,9 @@ In dispatch
 * Move from map in fileRBN and fileLIN to manual search?
 * Move detailed parsing down into classes?
 
+In Buffer, maybe do the splitting of RBX already.
+Then we can do away completely with validateRBX.
+
 When multi-threading, exceptions still go to stdout?
 Maybe put errors to cerr.
 

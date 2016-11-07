@@ -48,14 +48,18 @@ bool isRBNMissing(
 {
   char of;
 
-  unsigned lOut = running.out.line.length();
-  unsigned lRef = running.ref.line.length();
+  // unsigned lOut = running.out.line.length();
+  // unsigned lRef = running.ref.line.length();
+  unsigned lOut = valState.dataOut.len;
+  unsigned lRef = valState.dataRef.len;
 
   if (lOut == 0 || lRef == 0)
     return false;
 
-  of = running.out.line.at(0);
-  rf = running.ref.line.at(0);
+  // of = running.out.line.at(0);
+  // rf = running.ref.line.at(0);
+  of = valState.dataOut.line.at(0);
+  rf = valState.dataRef.line.at(0);
 
   if (of != rf)
   {
@@ -63,7 +67,7 @@ bool isRBNMissing(
     {
       if (! valProgress(frstr, running.ref))
       {
-        prof.log(BRIDGE_VAL_REF_SHORT, running);
+        prof.log(BRIDGE_VAL_REF_SHORT, valState);
         if (valState.bufferRef.next(valState.dataRef))
           THROW("bufferRef ends too late");
         return false;
@@ -74,14 +78,16 @@ bool isRBNMissing(
       if (running.ref.line != valState.dataRef.line)
         THROW("Ref lines differ");
 
-      rf = running.ref.line.at(0);
+      // rf = running.ref.line.at(0);
+      rf = valState.dataRef.line.at(0);
       if (rf != of)
       {
-        prof.log(BRIDGE_VAL_ERROR, running);
+        prof.log(BRIDGE_VAL_ERROR, valState);
         return false;
       }
 
-      return (running.ref.line == running.out.line);
+      // return (running.ref.line == running.out.line);
+      return (valState.dataRef.line == valState.dataOut.line);
     }
 
     return false;
@@ -92,38 +98,41 @@ bool isRBNMissing(
     case 'T':
       if (lOut > 2)
         return false;
-      prof.log(BRIDGE_VAL_TITLE, running);
+      prof.log(BRIDGE_VAL_TITLE, valState);
       return true;
 
     case 'D':
       if (lOut > 2)
         return false;
-      prof.log(BRIDGE_VAL_DATE, running);
+      prof.log(BRIDGE_VAL_DATE, valState);
       return true;
         
     case 'L':
       if (lOut > 2)
         return false;
-      prof.log(BRIDGE_VAL_LOCATION, running);
+      prof.log(BRIDGE_VAL_LOCATION, valState);
       return true;
         
     case 'E':
       if (lOut > 2)
         return false;
-      prof.log(BRIDGE_VAL_EVENT, running);
+      prof.log(BRIDGE_VAL_EVENT, valState);
       return true;
         
     case 'S':
-      if (lOut >= lRef || 
-          running.ref.line.substr(0, lOut) != running.out.line)
-      prof.log(BRIDGE_VAL_SESSION, running);
+      if (! refContainsOut(valState))
+      // if (lOut >= lRef || 
+          // running.ref.line.substr(0, lOut) != running.out.line)
+        return false;
+      prof.log(BRIDGE_VAL_SESSION, valState);
       return true;
 
     case 'P':
-      if (lOut >= lRef || 
-          running.ref.line.substr(0, lOut) != running.out.line)
+      if (! refContainsOut(valState))
+      // if (lOut >= lRef || 
+          // running.ref.line.substr(0, lOut) != running.out.line)
         return false;
-      prof.log(BRIDGE_VAL_PLAY_SHORT, running);
+      prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
       return true;
 
     default:
@@ -171,7 +180,7 @@ bool validateRBN(
 
   if (rf == 'K')
   {
-    prof.log(BRIDGE_VAL_TEAMS, running);
+    prof.log(BRIDGE_VAL_TEAMS, valState);
 
     if (! valProgress(frstr, running.ref))
     {
@@ -187,25 +196,30 @@ bool validateRBN(
       THROW("Ref lines differ");
   }
 
-  if (running.ref.line.length() > 0 && running.out.line.length() > 0)
+  // if (running.ref.line.length() > 0 && running.out.line.length() > 0)
+  if (valState.dataRef.type != BRIDGE_BUFFER_EMPTY && 
+      valState.dataOut.type != BRIDGE_BUFFER_EMPTY)
   {
-    if (running.ref.line.at(0) == 'N' && running.out.line.at(0) == 'N')
+    // if (running.ref.line.at(0) == 'N' && running.out.line.at(0) == 'N')
+    if (valState.dataRef.label == "N" && valState.dataOut.label == "N")
     {
-      if (areRBNNames(running.ref.line, running.out.line))
+      // if (areRBNNames(running.ref.line, running.out.line))
+      if (areRBNNames(valState.dataRef.line, valState.dataOut.line))
         return true;
       else
       {
-        prof.log(BRIDGE_VAL_ERROR, running);
+        prof.log(BRIDGE_VAL_ERROR, valState);
         return false;
       }
     }
   }
  
-  if (running.out.line == running.ref.line)
+  // if (running.out.line == running.ref.line)
+  if (valState.dataOut.line == valState.dataRef.line)
     return true;
   else
   {
-    prof.log(BRIDGE_VAL_ERROR, running);
+    prof.log(BRIDGE_VAL_ERROR, valState);
     return false;
   }
 }
@@ -238,19 +252,20 @@ bool validateRBX(
   ValProfile& prof)
 {
   UNUSED(frstr);
-  UNUSED(valState);
+  UNUSED(running);
 
   vector<string> vOut, vRef;
-  if (! splitRBXToVector(running.out.line, vOut))
+  // if (! splitRBXToVector(running.out.line, vOut))
+  if (! splitRBXToVector(valState.dataOut.line, vOut))
   {
-    prof.log(BRIDGE_VAL_ERROR, running);
+    prof.log(BRIDGE_VAL_ERROR, valState);
     return false;
   }
 
-  if (! splitRBXToVector(running.ref.line, vRef))
+  // if (! splitRBXToVector(running.ref.line, vRef))
+  if (! splitRBXToVector(valState.dataRef.line, vRef))
   {
-    // valError(stats, running, BRIDGE_VAL_ERROR);
-    prof.log(BRIDGE_VAL_ERROR, running);
+    prof.log(BRIDGE_VAL_ERROR, valState);
     return false;
   }
 
@@ -259,7 +274,7 @@ bool validateRBX(
   {
     if (j >= vOut.size())
     {
-      prof.log(BRIDGE_VAL_ERROR, running);
+      prof.log(BRIDGE_VAL_ERROR, valState);
       return false;
     }
 
@@ -271,18 +286,18 @@ bool validateRBX(
       if (vRef[i] == "K")
       {
         // j stays unchanged
-        prof.log(BRIDGE_VAL_TEAMS, running);
+        prof.log(BRIDGE_VAL_TEAMS, valState);
         continue;
       }
       else if (vRef[i] == "P" && vOut[j] == "R" && vRef[i+2] == "R")
       {
         // Play may be missing completely (e.g., coming from EML).
-        prof.log(BRIDGE_VAL_PLAY_SHORT, running);
+        prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
         continue;
       }
       else
       {
-        prof.log(BRIDGE_VAL_ERROR, running);
+        prof.log(BRIDGE_VAL_ERROR, valState);
         return false;
       }
     }
@@ -295,7 +310,7 @@ bool validateRBX(
     {
       if (lOut >= lRef || vRef[i+1].substr(0, lOut) != vOut[j+1])
         return false;
-      prof.log(BRIDGE_VAL_PLAY_SHORT, running);
+      prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
     }
     else if (vRef[i] == "%")
     {
@@ -303,11 +318,11 @@ bool validateRBX(
       string llOut = "% " + vOut[j+1];
       string llRef = "% " + vRef[i+1];
       if (isRecordComment(llOut, llRef))
-        prof.log(BRIDGE_VAL_RECORD_NUMBER, running);
+        prof.log(BRIDGE_VAL_RECORD_NUMBER, valState);
       else
       {
         // valError(stats, running, BRIDGE_VAL_ERROR);
-        prof.log(BRIDGE_VAL_ERROR, running);
+        prof.log(BRIDGE_VAL_ERROR, valState);
         return false;
       }
     }
@@ -318,7 +333,7 @@ bool validateRBX(
       if (lOut >= lRef || 
           vRef[i+1].substr(0, lOut) != vOut[j+1])
         return false;
-      prof.log(BRIDGE_VAL_SESSION, running);
+      prof.log(BRIDGE_VAL_SESSION, valState);
     }
     else if (vOut[j+1] != "")
       return false;
@@ -326,25 +341,25 @@ bool validateRBX(
     {
       if (lOut > 0)
         return false;
-      prof.log(BRIDGE_VAL_TITLE, running);
+      prof.log(BRIDGE_VAL_TITLE, valState);
     }
     else if (vRef[i] == "D")
     {
       if (lOut > 0)
         return false;
-      prof.log(BRIDGE_VAL_DATE, running);
+      prof.log(BRIDGE_VAL_DATE, valState);
     }
     else if (vRef[i] == "L")
     {
       if (lOut > 0)
         return false;
-      prof.log(BRIDGE_VAL_LOCATION, running);
+      prof.log(BRIDGE_VAL_LOCATION, valState);
     }
     else if (vRef[i] == "E")
     {
       if (lOut > 0)
         return false;
-      prof.log(BRIDGE_VAL_EVENT, running);
+      prof.log(BRIDGE_VAL_EVENT, valState);
     }
     else
       return false;
