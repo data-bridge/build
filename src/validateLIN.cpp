@@ -123,29 +123,34 @@ static bool LINtoList(
 
 static bool isLINHeaderLine(
   const ValExample& running, 
+  const ValState& valState,
   ValProfile& prof)
 {
+  UNUSED(running);
+
   vector<string> vOut(9), vRef(9);
-  if (! LINtoList(running.out.line, vOut, "vg|", 8))
+  // if (! LINtoList(running.out.line, vOut, "vg|", 8))
+  if (! LINtoList(valState.dataOut.line, vOut, "vg|", 8))
     return false;
-  if (! LINtoList(running.ref.line, vRef, "vg|", 8))
+  // if (! LINtoList(running.ref.line, vRef, "vg|", 8))
+  if (! LINtoList(valState.dataRef.line, vRef, "vg|", 8))
     return false;
 
   if (vOut[0] != vRef[0])
-    prof.log(BRIDGE_VAL_TITLE, running);
+    prof.log(BRIDGE_VAL_TITLE, valState);
 
   if (vOut[1] != vRef[1])
-    prof.log(BRIDGE_VAL_SESSION, running);
+    prof.log(BRIDGE_VAL_SESSION, valState);
 
   if (vOut[2] != vRef[2])
-    prof.log(BRIDGE_VAL_SCORING, running);
+    prof.log(BRIDGE_VAL_SCORING, valState);
 
   if (vOut[3] != vRef[4] || vOut[4] != vRef[4])
-    prof.log(BRIDGE_VAL_SCORING, running);
+    prof.log(BRIDGE_VAL_SCORING, valState);
 
   if (vOut[5] != vRef[5] || vOut[6] != vRef[6] ||
       vOut[7] != vRef[7] || vOut[8] != vRef[8])
-    prof.log(BRIDGE_VAL_TEAMS, running);
+    prof.log(BRIDGE_VAL_TEAMS, valState);
 
   return true;
 }
@@ -153,12 +158,17 @@ static bool isLINHeaderLine(
 
 static bool isLINPlayerLine(
   const ValExample& running, 
+  const ValState& valState,
   ValProfile& prof)
 {
+  UNUSED(running);
+
   vector<string> vOut(8), vRef(8);
-  if (! LINtoList(running.out.line, vOut, "pn|", 7))
+  // if (! LINtoList(running.out.line, vOut, "pn|", 7))
+  if (! LINtoList(valState.dataOut.line, vOut, "pn|", 7))
     return false;
-  if (! LINtoList(running.ref.line, vRef, "pn|", 7))
+  // if (! LINtoList(running.ref.line, vRef, "pn|", 7))
+  if (! LINtoList(valState.dataRef.line, vRef, "pn|", 7))
     return false;
 
   for (unsigned i = 0; i < 8; i++)
@@ -170,7 +180,7 @@ static bool isLINPlayerLine(
     if (lOut >= vRef[i].length() ||
         vRef[i].substr(0, lOut) != vOut[i])
     {
-      prof.log(BRIDGE_VAL_NAMES_SHORT, running);
+      prof.log(BRIDGE_VAL_NAMES_SHORT, valState);
       return false;
     }
   }
@@ -187,24 +197,34 @@ static bool isLINPlay(const string& line)
 
 
 static bool isLINPlaySubstr(
-  const ValExample& running)
+  const ValExample& running,
+  const ValState& valState)
 {
-  const unsigned lOut = running.out.line.length();
-  const unsigned lRef = running.ref.line.length();
+  UNUSED(running);
+
+  // const unsigned lOut = running.out.line.length();
+  // const unsigned lRef = running.ref.line.length();
+  const unsigned lOut = valState.dataOut.len;
+  const unsigned lRef = valState.dataRef.len;
 
   size_t poso = 3;
-  while (poso < lRef && running.out.line.at(poso) != '|')
+  // find!
+  // while (poso < lRef && running.out.line.at(poso) != '|')
+  while (poso < lRef && valState.dataOut.line.at(poso) != '|')
     poso++;
 
   size_t posr = 3;
-  while (posr < lRef && running.ref.line.at(posr) != '|')
+  // while (posr < lRef && running.ref.line.at(posr) != '|')
+  while (posr < lRef && valState.dataRef.line.at(posr) != '|')
     posr++;
 
   if (poso >= posr)
     return false;
 
-  const string os = running.out.line.substr(3, poso);
-  const string rs = running.ref.line.substr(3, poso);
+  // const string os = running.out.line.substr(3, poso);
+  // const string rs = running.ref.line.substr(3, poso);
+  const string os = valState.dataOut.line.substr(3, poso);
+  const string rs = valState.dataRef.line.substr(3, poso);
 
   return (os == rs);
 }
@@ -219,7 +239,9 @@ bool validateLIN_RP(
 {
   string expectLine;
 
-  if (isLINLongRefLine(running.out.line, running.ref.line, expectLine))
+  // if (isLINLongRefLine(running.out.line, running.ref.line, expectLine))
+  if (isLINLongRefLine(valState.dataOut.line,
+      valState.dataRef.line, expectLine))
   {
     if (! valProgress(fostr, running.out))
     {
@@ -234,14 +256,17 @@ bool validateLIN_RP(
     if (running.out.line != valState.dataOut.line)
       THROW("Out lines differ");
 
-    if (running.out.line == expectLine)
+    // if (running.out.line == expectLine)
+    if (valState.dataOut.line == expectLine)
     {
       // No newline when no play (Pavlicek error).
-      prof.log(BRIDGE_VAL_LIN_PLAY_NL, running);
+      prof.log(BRIDGE_VAL_LIN_PLAY_NL, valState);
       return true;
     }
   }
-  else if (isLINLongOutLine(running.out.line, running.ref.line, 
+  // else if (isLINLongOutLine(running.out.line, running.ref.line, 
+      // expectLine))
+  else if (isLINLongOutLine(valState.dataOut.line, valState.dataRef.line,
       expectLine))
   {
     if (! valProgress(frstr, running.ref))
@@ -257,29 +282,32 @@ bool validateLIN_RP(
     if (running.ref.line != valState.dataRef.line)
       THROW("Ref lines differ");
 
-    if (running.ref.line == expectLine)
+    // if (running.ref.line == expectLine)
+    if (valState.dataRef.line == expectLine)
     {
       // No newline when no play (Pavlicek error).
-      prof.log(BRIDGE_VAL_LIN_PLAY_NL, running);
+      prof.log(BRIDGE_VAL_LIN_PLAY_NL, valState);
       return true;
     }
   }
-  else if (isLINHeaderLine(running, prof))
+  else if (isLINHeaderLine(running, valState, prof))
     return true;
-  else if (isLINPlayerLine(running, prof))
+  else if (isLINPlayerLine(running, valState, prof))
     return true;
-  else if (isLINPlay(running.ref.line))
+  // else if (isLINPlay(running.ref.line))
+  else if (isLINPlay(valState.dataRef.line))
   {
-    if (isLINPlay(running.out.line))
+    // if (isLINPlay(running.out.line))
+    if (isLINPlay(valState.dataOut.line))
     {
-      if (isLINPlaySubstr(running))
+      if (isLINPlaySubstr(running, valState))
       {
-        prof.log(BRIDGE_VAL_ERROR, running);
+        prof.log(BRIDGE_VAL_ERROR, valState);
         return false;
       }
       else
       {
-        prof.log(BRIDGE_VAL_PLAY_SHORT, running);
+        prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
         return true;
       }
     }
@@ -300,16 +328,18 @@ bool validateLIN_RP(
         if (running.ref.line != valState.dataRef.line)
           THROW("Ref lines differ");
       }
-      while (isLINPlay(running.ref.line));
+      // while (isLINPlay(running.ref.line));
+      while (isLINPlay(valState.dataRef.line));
 
-      if (running.out.line == running.ref.line)
+      // if (running.out.line == running.ref.line)
+      if (valState.dataOut.line == valState.dataRef.line)
       {
-        prof.log(BRIDGE_VAL_PLAY_SHORT, running);
+        prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
         return true;
       }
       else
       {
-        prof.log(BRIDGE_VAL_ERROR, running);
+        prof.log(BRIDGE_VAL_ERROR, valState);
         return false;
       }
     }
