@@ -104,8 +104,4 @@ struct LineData
 };
 
 
-bool valProgress(
-  ifstream& fstr,
-  ValSide& side);
-
 #endif

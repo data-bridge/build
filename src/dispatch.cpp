@@ -327,7 +327,7 @@ void dispatch(
       if (options.verboseIO)
         flog << "Output " << t.fileOutput << endl;
 
-      timers.start(BRIDGE_TIMER_WRITE, task.formatInput);
+      timers.start(BRIDGE_TIMER_WRITE, t.formatOutput);
       try
       {
         if (! writeFormattedFile(group, t.fileOutput, t.formatOutput))
@@ -338,7 +338,7 @@ void dispatch(
         bex.print();
         continue;
       }
-      timers.stop(BRIDGE_TIMER_WRITE, task.formatInput);
+      timers.stop(BRIDGE_TIMER_WRITE, t.formatOutput);
 
       if (t.refFlag)
       {
@@ -346,7 +346,7 @@ void dispatch(
           flog << "Validating " << t.fileOutput <<
               " against " << t.fileRef << endl;
 
-        timers.start(BRIDGE_TIMER_VALIDATE, task.formatInput);
+        timers.start(BRIDGE_TIMER_VALIDATE, t.formatOutput);
         try
         {
           validate(t.fileOutput, t.fileRef,
@@ -358,7 +358,7 @@ void dispatch(
             t.fileOutput << endl;
           bex.print();
         }
-        timers.stop(BRIDGE_TIMER_VALIDATE, task.formatInput);
+        timers.stop(BRIDGE_TIMER_VALIDATE, t.formatOutput);
       }
 
       if (task.removeOutputFlag)

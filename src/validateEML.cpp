@@ -29,12 +29,14 @@ bool validateEML(
     return true;
   }
   
+  /*
   if (valState.dataOut.line == 
       valState.dataRef.line.substr(0, valState.dataOut.len))
   {
     prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
     return true;
   }
+  */
 
   if (valState.dataRef.len > 75)
   {
