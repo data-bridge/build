@@ -207,12 +207,12 @@ bool isTXTHeader(
   vector<string> listOut(7);
   listOut.clear();
 
-  for (unsigned i = running.out.lno; i <= headerStartTXT+6; i++)
+  for (unsigned i = valState.dataOut.no; i <= headerStartTXT+6; i++)
   {
     // +0 is empty by construction, +1 must be empty.
     if (i <= headerStartTXT+1)
       continue;
-    listOut[i-headerStartTXT] = running.out.line;
+    listOut[i-headerStartTXT] = valState.dataOut.line;
 
     if (! valProgress(fostr, running.out))
     {
@@ -229,7 +229,7 @@ bool isTXTHeader(
   }
 
   // Reading the rest of the out header should leave us at an empty line.
-  if (running.out.line != "")
+  if (valState.dataOut.type != BRIDGE_BUFFER_EMPTY)
   {
     prof.log(BRIDGE_VAL_ERROR, running);
     return false;
@@ -240,10 +240,10 @@ bool isTXTHeader(
   vector<string> listRef;
   listRef.clear();
 
-  unsigned i = running.out.lno;
-  while (running.ref.line != "")
+  unsigned i = valState.dataOut.no;
+  while (valState.dataRef.type != BRIDGE_BUFFER_EMPTY)
   {
-    listRef.push_back(running.ref.line);
+    listRef.push_back(valState.dataRef.line);
     if (! valProgress(frstr, running.ref))
     {
       prof.log(BRIDGE_VAL_REF_SHORT, running);
@@ -264,9 +264,9 @@ bool isTXTHeader(
     if (i == headerStartTXT)
     {
       // Expect a newline.
-      if (running.ref.line != "")
+      if (valState.dataRef.type != BRIDGE_BUFFER_EMPTY)
       {
-        prof.log(BRIDGE_VAL_ERROR, running);
+        prof.log(BRIDGE_VAL_ERROR, valState);
         return false;
       }
 
@@ -296,7 +296,7 @@ bool isTXTHeader(
       continue;
     else if (listOut[i] != listRef[r])
     {
-      prof.log(headerErrorType[i], running);
+      prof.log(headerErrorType[i], valState);
     }
     r++;
   }
@@ -317,12 +317,13 @@ bool validateTXT(
   // It will mis-allocate if only some of the header lines are missing.
 
   unsigned expectPasses;
-  if (isTXTAllPass(running.out.line, running.ref.line, expectPasses))
+  if (isTXTAllPass(valState.dataOut.line,
+      valState.dataRef.line, expectPasses))
   {
     // Reference does not have "All Pass" (Pavlicek error).
     if (expectPasses > 0 && ! valProgress(frstr, running.ref))
     {
-      prof.log(BRIDGE_VAL_OUT_SHORT, running);
+      prof.log(BRIDGE_VAL_OUT_SHORT, valState);
       if (valState.bufferRef.next(valState.dataRef))
         THROW("bufferRef ends too late");
       return false;
@@ -336,21 +337,20 @@ bool validateTXT(
         THROW("Ref lines differ");
     }
 
-    if (expectPasses == 0 || isTXTPasses(running.ref.line, expectPasses))
+    if (expectPasses == 0 || isTXTPasses(valState.dataRef.line, expectPasses))
     {
-      prof.log(BRIDGE_VAL_TXT_ALL_PASS, running);
+      prof.log(BRIDGE_VAL_TXT_ALL_PASS, valState);
       return true;
     }
     else
       return false;
   }
-  else if (running.out.line == "" &&
-      running.ref.line.length() == 41 &&
-      running.ref.line.substr(0, 5) == "-----")
+  else if (valState.dataOut.type == BRIDGE_BUFFER_EMPTY &&
+      valState.dataRef.type == BRIDGE_BUFFER_DASHES)
   {
     if (! valProgress(frstr, running.ref))
     {
-      prof.log(BRIDGE_VAL_REF_SHORT, running);
+      prof.log(BRIDGE_VAL_REF_SHORT, valState);
       if (valState.bufferRef.next(valState.dataRef))
         THROW("bufferRef ends too late");
       return false;
@@ -361,23 +361,24 @@ bool validateTXT(
     if (valState.dataRef.line != running.ref.line)
       THROW("Ref lines differ");
 
-    if (running.ref.line != "")
+    if (valState.dataRef.type != BRIDGE_BUFFER_EMPTY)
       return false;
 
     prof.log(BRIDGE_VAL_TXT_DASHES, running);
     return true;
   }
 
-  while (isTXTPlay(running.ref.line) && ! isTXTPlay(running.out.line))
+  while (isTXTPlay(valState.dataRef.line) && 
+      ! isTXTPlay(valState.dataOut.line))
   {
     if (! valProgress(frstr, running.ref))
     {
-      prof.log(BRIDGE_VAL_REF_SHORT, running);
+      prof.log(BRIDGE_VAL_REF_SHORT, valState);
       if (valState.bufferRef.next(valState.dataRef))
         THROW("bufferRef ends too late");
       return false;
     }
-    prof.log(BRIDGE_VAL_PLAY_SHORT, running);
+    prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
 
     if (! valState.bufferRef.next(valState.dataRef))
       THROW("bufferRef ends too soon");
@@ -385,76 +386,72 @@ bool validateTXT(
       THROW("Ref lines differ");
   }
 
-  if (frstr.eof())
-  {
-    prof.log(BRIDGE_VAL_REF_SHORT, running);
-    return false;
-  }
-
-  if (running.out.line == running.ref.line)
+  if (valState.dataOut.line == valState.dataRef.line)
     return true;
 
-  if ((running.out.line.length() == 8 ||
-       running.out.line.length() == 9) &&
-      running.out.line.substr(0, 6) == "Lead: " &&
-      running.ref.line == "Trick   Lead    2nd    3rd    4th")
+  if ((valState.dataOut.len == 8 ||
+      valState.dataOut.len == 9) &&
+      valState.dataOut.line.substr(0, 6) == "Lead: " &&
+      valState.dataRef.line == "Trick   Lead    2nd    3rd    4th")
   {
-    // Play is missing from output, but lead is stated.
-    prof.log(BRIDGE_VAL_PLAY_SHORT, running);
+    prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
     return true;
   }
 
-  if (isTXTResult(running.out.line) &&
-      isTXTResult(running.ref.line) &&
-      areTXTSimilarResults(running.out.line, running.ref.line))
+  if (isTXTResult(valState.dataOut.line) &&
+      isTXTResult(valState.dataRef.line) &&
+      areTXTSimilarResults(valState.dataOut.line, 
+        valState.dataRef.line))
   {
-    prof.log(BRIDGE_VAL_TXT_RESULT, running);
+    prof.log(BRIDGE_VAL_TXT_RESULT, valState);
     return true;
   }
 
-  if (running.out.line == "")
+  if (valState.dataOut.type == BRIDGE_BUFFER_EMPTY)
   {
-    if (isTXTRunningScore(running.ref.line))
+    if (isTXTRunningScore(valState.dataRef.line))
     {
-      prof.log(BRIDGE_VAL_TEAMS, running);
+      prof.log(BRIDGE_VAL_TEAMS, valState);
       return true;
     }
-    else if (running.out.lno <= headerStartTXT + 6)
+    // else if (running.out.lno <= headerStartTXT + 6)
+    else if (valState.dataOut.no <= headerStartTXT + 6)
     {
       if (! isTXTHeader(frstr, fostr, running, valState, headerStartTXT, prof))
         return false;
-      else if (running.out.line == running.ref.line)
+      // else if (running.out.line == running.ref.line)
+      else if (valState.dataOut.line == valState.dataRef.line)
         return true;
       else
       {
-        prof.log(BRIDGE_VAL_TEAMS, running);
+        prof.log(BRIDGE_VAL_TEAMS, valState);
         return false;
       }
     }
   }
-  else if (running.out.lno > headerStartTXT+6)
+  else if (valState.dataOut.no > headerStartTXT+6)
   {
     // This is tricky, as both the numbers and positions of words
     // can differ.  We combine two heuristics.
     // The first one assumes the names are in-place with no shifts.
     // The second one assumes the number of words is the same.
 
-    unsigned lo = running.out.line.length();
-    unsigned lr = running.ref.line.length();
+    unsigned lo = valState.dataOut.len;
+    unsigned lr = valState.dataRef.len;
     if (lo > lr)
       return false;
 
     bool diffSeen = false;
     for (unsigned i = 0; ! diffSeen && i < lo; i++)
     {
-      char c = running.out.line.at(i);
-      if (c != ' ' && c != running.ref.line.at(i))
+      char c = valState.dataOut.line.at(i);
+      if (c != ' ' && c != valState.dataRef.line.at(i))
         diffSeen = true;
     }
 
     if (! diffSeen)
     {
-      prof.log(BRIDGE_VAL_NAMES_SHORT, running);
+      prof.log(BRIDGE_VAL_NAMES_SHORT, valState);
       return true;
     }
 
@@ -462,8 +459,8 @@ bool validateTXT(
     vector<string> vOut, vRef;
     vOut.clear();
     vRef.clear();
-    splitIntoWords(running.out.line, vOut);
-    splitIntoWords(running.ref.line, vRef);
+    splitIntoWords(valState.dataOut.line, vOut);
+    splitIntoWords(valState.dataRef.line, vRef);
     if (vOut.size() != vRef.size())
       return false;
 
@@ -479,8 +476,7 @@ bool validateTXT(
         return false;
       }
     }
-    // valError(stats, running, BRIDGE_VAL_NAMES_SHORT);
-    prof.log(BRIDGE_VAL_NAMES_SHORT, running);
+    prof.log(BRIDGE_VAL_NAMES_SHORT, valState);
     return true;
   }
 
