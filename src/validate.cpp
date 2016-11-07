@@ -85,6 +85,7 @@ struct RefFix
 };
 
 
+/*
 static void readRefFix(
   const string& fname,
   vector<RefFix>& refFix)
@@ -149,6 +150,7 @@ static void readRefFix(
   }
   refstr.close();
 }
+*/
 
 
 bool valProgress(
@@ -178,186 +180,81 @@ void validate(
   valState.bufferRef.read(fileRef, formatRef);
   valState.bufferRef.fix(fileRef, formatRef);
 
-  ifstream fostr(fileOut.c_str());
-  if (! fostr.is_open())
-    THROW("Cannot read from: " + fileOut);
-
-  ifstream frstr(fileRef.c_str());
-  if (! frstr.is_open())
-    THROW("Cannot read from: " + fileRef);
-
-  vector<RefFix> refFix;
-  readRefFix(fileRef.c_str(), refFix);
-
   ValProfile prof;
 
-  ValExample running;
-  running.out.line = "";
-  running.ref.line = "";
-  running.out.lno = 0;
-  running.ref.lno = 0;
   unsigned headerStartTXT = 4; // If comments and no dash line
 
-  while (valProgress(frstr, running.ref))
+  while (valState.bufferRef.next(valState.dataRef))
   {
-    if (! valState.bufferRef.next(valState.dataRef))
-      THROW("bufferRef ends too soon");
- 
-    if (! valProgress(fostr, running.out))
+    if (! valState.bufferOut.next(valState.dataOut))
     {
-      prof.log(BRIDGE_VAL_OUT_SHORT, running);
-      if (valState.bufferOut.next(valState.dataOut))
-        THROW("bufferOut ends too late");
+      prof.log(BRIDGE_VAL_OUT_SHORT, valState);
       break;
     }
 
-    if (! valState.bufferOut.next(valState.dataOut))
-      THROW("bufferOut ends too soon");
-
-    if (refFix.size() > 0 && refFix[0].lno == running.ref.lno)
-    {
-      if (refFix[0].type == BRIDGE_REF_INSERT)
-      {
-        if (refFix[0].value != running.out.line)
-        {
-          // This will mess up everything that follows...
-          prof.log(BRIDGE_VAL_ERROR, running);
-          if (! valProgress(fostr, running.out))
-            THROW("Next line is not there");
-          continue;
-        }
-
-        // Get the next out line to compare with the ref line.
-        if (! valProgress(fostr, running.out))
-          THROW("Next line is not there");
-
-        if (! valState.bufferOut.next(valState.dataOut))
-          THROW("bufferOut ends too soon");
-
-        // As bufferRef already had the line, need to skip.
-        if (! valState.bufferRef.next(valState.dataRef))
-          THROW("bufferRef ends too soon");
-      }
-      else if (refFix[0].type == BRIDGE_REF_REPLACE)
-      {
-        running.ref.line = refFix[0].value;
-      }
-      else
-      {
-        for (unsigned i = 0; i < refFix[0].count; i++)
-        {
-          if (! valProgress(frstr, running.ref))
-            THROW("Skip line is not there");
-        }
-      }
-
-      refFix.erase(refFix.begin());
-    }
-
-    if (valState.dataRef.line != running.ref.line)
-      THROW("Different lines, '" + running.ref.line + "', '" +
-        valState.dataRef.line + "'\n");
-
-    if (valState.dataOut.line != running.out.line)
-      THROW("Different lines, '" + running.out.line + "', '" +
-        valState.dataOut.line + "'\n");
-
-    // if (formatRef == BRIDGE_FORMAT_TXT &&
-        // running.out.line.substr(0, 5) == "-----")
-      // headerStartTXT = running.out.lno+2;
     if (formatRef == BRIDGE_FORMAT_TXT &&
         valState.dataOut.type == BRIDGE_BUFFER_DASHES)
-      headerStartTXT = running.out.lno+2;
+      headerStartTXT = valState.dataOut.no + 2;
 
-    // if (running.ref.line == running.out.line)
     if (valState.dataRef.line == valState.dataOut.line)
       continue;
 
     // General: % line numbers (Pavlicek error).
     if (formatRef != BRIDGE_FORMAT_RBX &&
         isRecordComment(valState.dataOut.line, valState.dataRef.line))
-        // isRecordComment(running.out.line, running.ref.line))
     {
       prof.log(BRIDGE_VAL_RECORD_NUMBER, valState);
       continue;
     }
     else if (formatRef == BRIDGE_FORMAT_LIN_RP)
     {
-      if (validateLIN_RP(frstr, fostr, running, valState, prof))
+      if (validateLIN_RP(valState, prof))
       {
         // Fix is already recorded in stats.
         continue;
       }
-      else if (fostr.eof() || frstr.eof())
-        break;
-
-      // If not, fall through to general error.
     }
     else if (formatRef == BRIDGE_FORMAT_PBN)
     {
-      if (validatePBN(frstr, fostr, running, valState, prof))
+      if (validatePBN(valState, prof))
         continue;
-      else if (fostr.eof() || frstr.eof())
-        break;
     }
     else if (formatRef == BRIDGE_FORMAT_RBN)
     {
-      if (validateRBN(frstr, running, valState, prof))
+      if (validateRBN(valState, prof))
         continue;
-      else if (fostr.eof() || frstr.eof())
-        break;
     }
     else if (formatRef == BRIDGE_FORMAT_RBX)
     {
-      if (validateRBX(frstr, running, valState, prof))
+      if (validateRBX(valState, prof))
         continue;
-      else if (fostr.eof() || frstr.eof())
-        break;
     }
     else if (formatRef == BRIDGE_FORMAT_TXT)
     {
-      if (validateTXT(frstr, fostr, running, valState, headerStartTXT, prof))
+      if (validateTXT(valState, headerStartTXT, prof))
         continue;
-      else if (fostr.eof() || frstr.eof())
-        break;
     }
     else if (formatRef == BRIDGE_FORMAT_EML)
     {
-      // if (validateEML(frstr, running, valState, prof))
       if (validateEML(valState, prof))
         continue;
-      else if (fostr.eof() || frstr.eof())
-        break;
     }
     else if (formatRef == BRIDGE_FORMAT_REC)
     {
-      if (validateREC(frstr, fostr, running, valState, prof))
+      if (validateREC(valState, prof))
         continue;
-      else if (fostr.eof() || frstr.eof())
-        break;
     }
 
-    prof.log(BRIDGE_VAL_ERROR, running);
-  }
-
-  if (valProgress(fostr, running.out))
-  {
-    if (! valState.bufferOut.next(valState.dataOut))
-      THROW("bufferOut ends too soon");
-    prof.log(BRIDGE_VAL_REF_SHORT, running);
+    prof.log(BRIDGE_VAL_ERROR, valState);
   }
 
   if (valState.bufferOut.next(valState.dataOut))
-    THROW("bufferOut ends too late");
-
+    prof.log(BRIDGE_VAL_REF_SHORT, valState);
 
   if (options.verboseValDetails)
     prof.print(cout);
 
   vstats.add(formatOrig, formatRef, prof);
-
-  fostr.close();
-  frstr.close();
 }
 
 

@@ -19,9 +19,6 @@ using namespace std;
 
 
 bool validateREC(
-  ifstream& frstr,
-  ifstream& fostr,
-  ValExample& running,
   ValState& valState,
   ValProfile& prof);
 

@@ -24,8 +24,6 @@
 
 
 bool isRBNMissing(
-  ifstream& frstr,
-  ValExample& running,
   ValState& valState,
   ValProfile& prof,
   char& rf);
@@ -40,24 +38,18 @@ bool splitRBXToVector(
 
 
 bool isRBNMissing(
-  ifstream& frstr,
-  ValExample& running,
   ValState& valState,
   ValProfile& prof,
   char& rf)
 {
   char of;
 
-  // unsigned lOut = running.out.line.length();
-  // unsigned lRef = running.ref.line.length();
   unsigned lOut = valState.dataOut.len;
   unsigned lRef = valState.dataRef.len;
 
   if (lOut == 0 || lRef == 0)
     return false;
 
-  // of = running.out.line.at(0);
-  // rf = running.ref.line.at(0);
   of = valState.dataOut.line.at(0);
   rf = valState.dataRef.line.at(0);
 
@@ -65,20 +57,12 @@ bool isRBNMissing(
   {
     if (rf == 'P' && of == 'R')
     {
-      if (! valProgress(frstr, running.ref))
+      if (! valState.bufferRef.next(valState.dataRef))
       {
         prof.log(BRIDGE_VAL_REF_SHORT, valState);
-        if (valState.bufferRef.next(valState.dataRef))
-          THROW("bufferRef ends too late");
         return false;
       }
 
-      if (! valState.bufferRef.next(valState.dataRef))
-        THROW("bufferRef ends too soon");
-      if (running.ref.line != valState.dataRef.line)
-        THROW("Ref lines differ");
-
-      // rf = running.ref.line.at(0);
       rf = valState.dataRef.line.at(0);
       if (rf != of)
       {
@@ -86,7 +70,6 @@ bool isRBNMissing(
         return false;
       }
 
-      // return (running.ref.line == running.out.line);
       return (valState.dataRef.line == valState.dataOut.line);
     }
 
@@ -121,16 +104,12 @@ bool isRBNMissing(
         
     case 'S':
       if (! refContainsOut(valState))
-      // if (lOut >= lRef || 
-          // running.ref.line.substr(0, lOut) != running.out.line)
         return false;
       prof.log(BRIDGE_VAL_SESSION, valState);
       return true;
 
     case 'P':
       if (! refContainsOut(valState))
-      // if (lOut >= lRef || 
-          // running.ref.line.substr(0, lOut) != running.out.line)
         return false;
       prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
       return true;
@@ -169,41 +148,29 @@ bool areRBNNames(
 
 
 bool validateRBN(
-  ifstream& frstr,
-  ValExample& running,
   ValState& valState,
   ValProfile& prof)
 {
   char rf = ' ';
-  if (isRBNMissing(frstr, running, valState, prof, rf))
+  if (isRBNMissing(valState, prof, rf))
     return true;
 
   if (rf == 'K')
   {
     prof.log(BRIDGE_VAL_TEAMS, valState);
 
-    if (! valProgress(frstr, running.ref))
+    if (! valState.bufferRef.next(valState.dataRef))
     {
-      prof.log(BRIDGE_VAL_REF_SHORT, running);
-      if (valState.bufferRef.next(valState.dataRef))
-        THROW("bufferRef ends too late");
+      prof.log(BRIDGE_VAL_REF_SHORT, valState);
       return false;
     }
-
-    if (! valState.bufferRef.next(valState.dataRef))
-      THROW("bufferRef ends too soon");
-    if (valState.dataRef.line != running.ref.line)
-      THROW("Ref lines differ");
   }
 
-  // if (running.ref.line.length() > 0 && running.out.line.length() > 0)
   if (valState.dataRef.type != BRIDGE_BUFFER_EMPTY && 
       valState.dataOut.type != BRIDGE_BUFFER_EMPTY)
   {
-    // if (running.ref.line.at(0) == 'N' && running.out.line.at(0) == 'N')
     if (valState.dataRef.label == "N" && valState.dataOut.label == "N")
     {
-      // if (areRBNNames(running.ref.line, running.out.line))
       if (areRBNNames(valState.dataRef.line, valState.dataOut.line))
         return true;
       else
@@ -214,7 +181,6 @@ bool validateRBN(
     }
   }
  
-  // if (running.out.line == running.ref.line)
   if (valState.dataOut.line == valState.dataRef.line)
     return true;
   else
@@ -246,23 +212,17 @@ bool splitRBXToVector(
 
 
 bool validateRBX(
-  ifstream& frstr,
-  ValExample& running,
   ValState& valState,
   ValProfile& prof)
 {
-  UNUSED(frstr);
-  UNUSED(running);
 
   vector<string> vOut, vRef;
-  // if (! splitRBXToVector(running.out.line, vOut))
   if (! splitRBXToVector(valState.dataOut.line, vOut))
   {
     prof.log(BRIDGE_VAL_ERROR, valState);
     return false;
   }
 
-  // if (! splitRBXToVector(running.ref.line, vRef))
   if (! splitRBXToVector(valState.dataRef.line, vRef))
   {
     prof.log(BRIDGE_VAL_ERROR, valState);
@@ -321,7 +281,6 @@ bool validateRBX(
         prof.log(BRIDGE_VAL_RECORD_NUMBER, valState);
       else
       {
-        // valError(stats, running, BRIDGE_VAL_ERROR);
         prof.log(BRIDGE_VAL_ERROR, valState);
         return false;
       }

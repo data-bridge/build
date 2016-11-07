@@ -18,9 +18,6 @@ using namespace std;
 
 
 bool validateTXT(
-  ifstream& frstr,
-  ifstream& fostr,
-  ValExample& running,
   ValState& valState,
   const unsigned& emptyState,
   ValProfile& prof);

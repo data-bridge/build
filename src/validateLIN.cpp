@@ -122,17 +122,12 @@ static bool LINtoList(
 
 
 static bool isLINHeaderLine(
-  const ValExample& running, 
   const ValState& valState,
   ValProfile& prof)
 {
-  UNUSED(running);
-
   vector<string> vOut(9), vRef(9);
-  // if (! LINtoList(running.out.line, vOut, "vg|", 8))
   if (! LINtoList(valState.dataOut.line, vOut, "vg|", 8))
     return false;
-  // if (! LINtoList(running.ref.line, vRef, "vg|", 8))
   if (! LINtoList(valState.dataRef.line, vRef, "vg|", 8))
     return false;
 
@@ -157,17 +152,12 @@ static bool isLINHeaderLine(
 
 
 static bool isLINPlayerLine(
-  const ValExample& running, 
   const ValState& valState,
   ValProfile& prof)
 {
-  UNUSED(running);
-
   vector<string> vOut(8), vRef(8);
-  // if (! LINtoList(running.out.line, vOut, "pn|", 7))
   if (! LINtoList(valState.dataOut.line, vOut, "pn|", 7))
     return false;
-  // if (! LINtoList(running.ref.line, vRef, "pn|", 7))
   if (! LINtoList(valState.dataRef.line, vRef, "pn|", 7))
     return false;
 
@@ -197,32 +187,23 @@ static bool isLINPlay(const string& line)
 
 
 static bool isLINPlaySubstr(
-  const ValExample& running,
   const ValState& valState)
 {
-  UNUSED(running);
-
-  // const unsigned lOut = running.out.line.length();
-  // const unsigned lRef = running.ref.line.length();
   const unsigned lOut = valState.dataOut.len;
   const unsigned lRef = valState.dataRef.len;
 
   size_t poso = 3;
   // find!
-  // while (poso < lRef && running.out.line.at(poso) != '|')
   while (poso < lRef && valState.dataOut.line.at(poso) != '|')
     poso++;
 
   size_t posr = 3;
-  // while (posr < lRef && running.ref.line.at(posr) != '|')
   while (posr < lRef && valState.dataRef.line.at(posr) != '|')
     posr++;
 
   if (poso >= posr)
     return false;
 
-  // const string os = running.out.line.substr(3, poso);
-  // const string rs = running.ref.line.substr(3, poso);
   const string os = valState.dataOut.line.substr(3, poso);
   const string rs = valState.dataRef.line.substr(3, poso);
 
@@ -231,32 +212,20 @@ static bool isLINPlaySubstr(
 
 
 bool validateLIN_RP(
-  ifstream& frstr,
-  ifstream& fostr,
-  ValExample& running,
   ValState& valState,
   ValProfile& prof)
 {
   string expectLine;
 
-  // if (isLINLongRefLine(running.out.line, running.ref.line, expectLine))
   if (isLINLongRefLine(valState.dataOut.line,
       valState.dataRef.line, expectLine))
   {
-    if (! valProgress(fostr, running.out))
+    if (! valState.bufferOut.next(valState.dataOut))
     {
-      prof.log(BRIDGE_VAL_OUT_SHORT, running);
-      if (valState.bufferOut.next(valState.dataOut))
-        THROW("bufferOut ends too late");
+      prof.log(BRIDGE_VAL_OUT_SHORT, valState);
       return false;
     }
 
-    if (! valState.bufferOut.next(valState.dataOut))
-      THROW("bufferOut ends too soon");
-    if (running.out.line != valState.dataOut.line)
-      THROW("Out lines differ");
-
-    // if (running.out.line == expectLine)
     if (valState.dataOut.line == expectLine)
     {
       // No newline when no play (Pavlicek error).
@@ -264,25 +233,15 @@ bool validateLIN_RP(
       return true;
     }
   }
-  // else if (isLINLongOutLine(running.out.line, running.ref.line, 
-      // expectLine))
   else if (isLINLongOutLine(valState.dataOut.line, valState.dataRef.line,
       expectLine))
   {
-    if (! valProgress(frstr, running.ref))
+    if (! valState.bufferRef.next(valState.dataRef))
     {
-      prof.log(BRIDGE_VAL_REF_SHORT, running);
-      if (valState.bufferRef.next(valState.dataRef))
-        THROW("bufferRef ends too late");
+      prof.log(BRIDGE_VAL_REF_SHORT, valState);
       return false;
     }
 
-    if (! valState.bufferRef.next(valState.dataRef))
-      THROW("bufferRef ends too soon");
-    if (running.ref.line != valState.dataRef.line)
-      THROW("Ref lines differ");
-
-    // if (running.ref.line == expectLine)
     if (valState.dataRef.line == expectLine)
     {
       // No newline when no play (Pavlicek error).
@@ -290,17 +249,15 @@ bool validateLIN_RP(
       return true;
     }
   }
-  else if (isLINHeaderLine(running, valState, prof))
+  else if (isLINHeaderLine(valState, prof))
     return true;
-  else if (isLINPlayerLine(running, valState, prof))
+  else if (isLINPlayerLine(valState, prof))
     return true;
-  // else if (isLINPlay(running.ref.line))
   else if (isLINPlay(valState.dataRef.line))
   {
-    // if (isLINPlay(running.out.line))
     if (isLINPlay(valState.dataOut.line))
     {
-      if (isLINPlaySubstr(running, valState))
+      if (isLINPlaySubstr(valState))
       {
         prof.log(BRIDGE_VAL_ERROR, valState);
         return false;
@@ -315,23 +272,14 @@ bool validateLIN_RP(
     {
       do
       {
-        if (! valProgress(frstr, running.ref))
+        if (! valState.bufferRef.next(valState.dataRef))
         {
-          prof.log(BRIDGE_VAL_REF_SHORT, running);
-          if (valState.bufferRef.next(valState.dataRef))
-            THROW("bufferRef ends too late");
+          prof.log(BRIDGE_VAL_REF_SHORT, valState);
           return false;
         }
-
-        if (! valState.bufferRef.next(valState.dataRef))
-          THROW("bufferRef ends too soon");
-        if (running.ref.line != valState.dataRef.line)
-          THROW("Ref lines differ");
       }
-      // while (isLINPlay(running.ref.line));
       while (isLINPlay(valState.dataRef.line));
 
-      // if (running.out.line == running.ref.line)
       if (valState.dataOut.line == valState.dataRef.line)
       {
         prof.log(BRIDGE_VAL_PLAY_SHORT, valState);

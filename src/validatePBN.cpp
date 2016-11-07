@@ -18,32 +18,27 @@
 
 
 bool validatePBN(
-  ifstream& frstr,
-  ifstream& fostr,
-  ValExample& running,
   ValState& valState,
   ValProfile& prof)
 {
-  UNUSED(fostr);
-  if (running.out.line == "*")
+  if (valState.dataOut.line == "*")
   {
     // Could be the Pavlicek bug where play is shortened.
-    while (running.ref.line != "*" && valProgress(frstr, running.ref))
+    while (valState.dataRef.line != "*" && 
+        valState.bufferRef.next(valState.dataRef))
     {
-      if (! valState.bufferRef.next(valState.dataRef))
-        THROW("bufferRef ends too soon");
-      if (running.ref.line != valState.dataRef.line)
-        THROW("Ref lines differ");
     }
 
+    /*
     if (frstr.eof())
     {
-      prof.log(BRIDGE_VAL_REF_SHORT, running);
+      prof.log(BRIDGE_VAL_REF_SHORT, valState);
       return false;
     }
     else
+    */
     {
-      prof.log(BRIDGE_VAL_PLAY_SHORT, running);
+      prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
       return true;
     }
   }
@@ -63,12 +58,12 @@ bool validatePBN(
       if (valState.dataRef.line.substr(0, poso) == 
           valState.dataOut.line.substr(0, poso))
       {
-        prof.log(BRIDGE_VAL_PLAY_SHORT, running);
+        prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
         return true;
       }
       else
       {
-        prof.log(BRIDGE_VAL_ERROR, running);
+        prof.log(BRIDGE_VAL_ERROR, valState);
         return false;
       }
     }
@@ -91,7 +86,7 @@ bool validatePBN(
       if (lOut > lRef ||
           valState.dataRef.value.substr(0, lOut) != valState.dataOut.value)
       {
-        prof.log(BRIDGE_VAL_NAMES_SHORT, running);
+        prof.log(BRIDGE_VAL_NAMES_SHORT, valState);
         return false;
       }
 
@@ -99,14 +94,14 @@ bool validatePBN(
     }
     else
     {
-      prof.log(BRIDGE_VAL_ERROR, running);
+      prof.log(BRIDGE_VAL_ERROR, valState);
       return false;
     }
   }
 
   if (valState.dataRef.type != BRIDGE_BUFFER_STRUCTURED)
   {
-    prof.log(BRIDGE_VAL_ERROR, running);
+    prof.log(BRIDGE_VAL_ERROR, valState);
     return false;
   }
 
@@ -119,17 +114,17 @@ bool validatePBN(
     const string refValue = valState.dataRef.value;
 
     if (refField == "Event")
-      prof.log(BRIDGE_VAL_EVENT, running);
+      prof.log(BRIDGE_VAL_EVENT, valState);
     else if (refField == "Date")
-      prof.log(BRIDGE_VAL_DATE, running);
+      prof.log(BRIDGE_VAL_DATE, valState);
     else if (refField == "Description")
-      prof.log(BRIDGE_VAL_TITLE, running);
+      prof.log(BRIDGE_VAL_TITLE, valState);
     else if (refField == "Stage")
-      prof.log(BRIDGE_VAL_SESSION, running);
+      prof.log(BRIDGE_VAL_SESSION, valState);
     else if (refField == "HomeTeam")
-      prof.log(BRIDGE_VAL_TEAMS, running);
+      prof.log(BRIDGE_VAL_TEAMS, valState);
     else if (refField == "VisitTeam")
-      prof.log(BRIDGE_VAL_TEAMS, running);
+      prof.log(BRIDGE_VAL_TEAMS, valState);
     else if (refField == "Play")
     {
       // Play may be completely absent.
@@ -139,26 +134,19 @@ bool validatePBN(
 
       while (1)
       {
-        if (! valProgress(frstr, running.ref))
+        if (! valState.bufferRef.next(valState.dataRef))
         {
-          prof.log(BRIDGE_VAL_REF_SHORT, running);
-          if (valState.bufferRef.next(valState.dataRef))
-            THROW("bufferRef ends too late");
+          prof.log(BRIDGE_VAL_REF_SHORT, valState);
           return false;
         }
-
-        if (! valState.bufferRef.next(valState.dataRef))
-          THROW("bufferRef ends too soon");
-        if (running.ref.line != valState.dataRef.line)
-          THROW("Ref lines differ");
 
         if (valState.dataRef.len == 0)
         {
-          prof.log(BRIDGE_VAL_ERROR, running);
+          prof.log(BRIDGE_VAL_ERROR, valState);
           return false;
         }
 
-        prof.log(BRIDGE_VAL_PLAY_SHORT, running);
+        prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
         if (valState.dataRef.type == BRIDGE_BUFFER_STRUCTURED)
           break;
       }
@@ -172,18 +160,11 @@ bool validatePBN(
     if (valState.dataOut.type != BRIDGE_BUFFER_STRUCTURED)
       continue;
 
-    if (! valProgress(frstr, running.ref))
+    if (! valState.bufferRef.next(valState.dataRef))
     {
-      prof.log(BRIDGE_VAL_REF_SHORT, running);
-      if (valState.bufferRef.next(valState.dataRef))
-        THROW("bufferRef ends too late");
+      prof.log(BRIDGE_VAL_REF_SHORT, valState);
       return false;
     }
-
-    if (! valState.bufferRef.next(valState.dataRef))
-      THROW("bufferRef ends too soon");
-    if (running.ref.line != valState.dataRef.line)
-      THROW("Ref lines differ");
 
     if (valState.dataOut.label != valState.dataRef.label)
       continue;
@@ -201,18 +182,18 @@ bool validatePBN(
       if (lOut > lRef ||
           valState.dataRef.value.substr(0, lOut) != valState.dataOut.value)
       {
-        prof.log(BRIDGE_VAL_NAMES_SHORT, running);
+        prof.log(BRIDGE_VAL_NAMES_SHORT, valState);
         return false;
       }
 
       return true;
     }
 
-    prof.log(BRIDGE_VAL_ERROR, running);
+    prof.log(BRIDGE_VAL_ERROR, valState);
     return false;
   }
 
-  prof.log(BRIDGE_VAL_ERROR, running);
+  prof.log(BRIDGE_VAL_ERROR, valState);
   return false;
 }
 

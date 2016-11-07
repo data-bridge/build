@@ -158,36 +158,23 @@ static bool isRECSouthLine(
 
 
 bool validateREC(
-  ifstream& frstr,
-  ifstream& fostr,
-  ValExample& running,
   ValState& valState,
   ValProfile& prof)
 {
-  // if (running.ref.line == "")
   if (valState.dataRef.type == BRIDGE_BUFFER_EMPTY)
   {
-    // while (isRECPlay(running.out.line))
     while (isRECPlay(valState.dataOut.line))
     {
       // Extra play line in output (not in ref!) (Pavlicek error).
       prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
 
-      if (! valProgress(fostr, running.out))
+      if (! valState.bufferOut.next(valState.dataOut))
       {
-        prof.log(BRIDGE_VAL_OUT_SHORT, running);
-        if (valState.bufferOut.next(valState.dataOut))
-          THROW("bufferOut ends too late");
+        prof.log(BRIDGE_VAL_OUT_SHORT, valState);
         return false;
       }
-
-      if (! valState.bufferOut.next(valState.dataOut))
-        THROW("bufferOut ends too soon");
-      if (valState.dataOut.line != running.out.line)
-        THROW("Out lines differ");
     }
 
-    // if (running.out.line == running.ref.line)
     if (valState.dataRef.line == valState.dataOut.line)
       return true;
     else
@@ -197,30 +184,20 @@ bool validateREC(
     }
   }
 
-  // if (running.out.line == "")
   if (valState.dataOut.type == BRIDGE_BUFFER_EMPTY)
   {
-    // while (isRECPlay(running.ref.line))
     while (isRECPlay(valState.dataRef.line))
     {
       // The other way round.
       prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
 
-      if (! valProgress(frstr, running.ref))
+      if (! valState.bufferRef.next(valState.dataRef))
       {
-        prof.log(BRIDGE_VAL_REF_SHORT, running);
-        if (valState.bufferRef.next(valState.dataRef))
-          THROW("bufferRef ends too late");
+        prof.log(BRIDGE_VAL_REF_SHORT, valState);
         return false;
       }
-
-      if (! valState.bufferRef.next(valState.dataRef))
-        THROW("bufferRef ends too soon");
-      if (valState.dataRef.line != running.ref.line)
-        THROW("Ref lines differ");
     }
 
-    // if (running.out.line == running.ref.line)
     if (valState.dataRef.line == valState.dataOut.line)
       return true;
     else
@@ -231,7 +208,6 @@ bool validateREC(
   }
 
 
-  // if (isRECPlay(running.out.line) && isRECPlay(running.ref.line))
   if (isRECPlay(valState.dataOut.line) && 
       isRECPlay(valState.dataRef.line))
   {
@@ -241,62 +217,41 @@ bool validateREC(
       return true;
     }
     else
-    // unsigned lOut = running.out.line.length();
-    // if (lOut >= running.ref.line.length() ||
-        // running.ref.line.substr(0, lOut) != running.out.line)
     {
       prof.log(BRIDGE_VAL_ERROR, valState);
       return false;
     }
   }
-  // else if (isRECJustMade(running.out.line, running.ref.line))
   else if (isRECJustMade(valState.dataOut.line, valState.dataRef.line))
   {
     // "Won 32" (Pavlicek error, should be "Made 0" or so.
     prof.log(BRIDGE_VAL_REC_MADE_32, valState);
 
     // The next line (Score, Points) is then also different.
-    if (! valProgress(fostr, running.out))
-    {
-      prof.log(BRIDGE_VAL_OUT_SHORT, running);
-      if (valState.bufferOut.next(valState.dataOut))
-        THROW("bufferOut ends too late");
-      return false;
-    }
-
     if (! valState.bufferOut.next(valState.dataOut))
-      THROW("bufferOut ends too soon");
-    if (valState.dataOut.line != running.out.line)
-      THROW("Out lines differ");
-
-    if (! valProgress(frstr, running.ref))
     {
-      prof.log(BRIDGE_VAL_REF_SHORT, running);
-      if (valState.bufferRef.next(valState.dataRef))
-        THROW("bufferRef ends too late");
+      prof.log(BRIDGE_VAL_OUT_SHORT, valState);
       return false;
     }
 
     if (! valState.bufferRef.next(valState.dataRef))
-      THROW("bufferRef ends too soon");
-    if (valState.dataRef.line != running.ref.line)
-      THROW("Ref lines differ");
+    {
+      prof.log(BRIDGE_VAL_REF_SHORT, valState);
+      return false;
+    }
 
     return true;
   }
-  // else if (isRECNorthLine(running.out.line, running.ref.line))
   else if (isRECNorthLine(valState.dataOut.line, valState.dataRef.line))
   {
     prof.log(BRIDGE_VAL_NAMES_SHORT, valState);
     return true;
   }
-  // else if (isRECEWLine(running.out.line, running.ref.line))
   else if (isRECEWLine(valState.dataOut.line, valState.dataRef.line))
   {
     prof.log(BRIDGE_VAL_NAMES_SHORT, valState);
     return true;
   }
-  // else if (isRECSouthLine(running.out.line, running.ref.line))
   else if (isRECSouthLine(valState.dataOut.line, valState.dataRef.line))
   {
     prof.log(BRIDGE_VAL_NAMES_SHORT, valState);

@@ -17,14 +17,10 @@ using namespace std;
 
 
 bool validateRBN(
-  ifstream& frstr,
-  ValExample& running,
   ValState& valState,
   ValProfile& prof);
 
 bool validateRBX(
-  ifstream& frstr,
-  ValExample& running,
   ValState& valState,
   ValProfile& prof);
 
