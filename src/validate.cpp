@@ -262,18 +262,23 @@ void validate(
       THROW("Different lines, '" + running.out.line + "', '" +
         valState.dataOut.line + "'\n");
 
+    // if (formatRef == BRIDGE_FORMAT_TXT &&
+        // running.out.line.substr(0, 5) == "-----")
+      // headerStartTXT = running.out.lno+2;
     if (formatRef == BRIDGE_FORMAT_TXT &&
-        running.out.line.substr(0, 5) == "-----")
+        valState.dataOut.type == BRIDGE_BUFFER_DASHES)
       headerStartTXT = running.out.lno+2;
 
-    if (running.ref.line == running.out.line)
+    // if (running.ref.line == running.out.line)
+    if (valState.dataRef.line == valState.dataOut.line)
       continue;
 
     // General: % line numbers (Pavlicek error).
     if (formatRef != BRIDGE_FORMAT_RBX &&
-        isRecordComment(running.out.line, running.ref.line))
+        isRecordComment(valState.dataOut.line, valState.dataRef.line))
+        // isRecordComment(running.out.line, running.ref.line))
     {
-      prof.log(BRIDGE_VAL_RECORD_NUMBER, running);
+      prof.log(BRIDGE_VAL_RECORD_NUMBER, valState);
       continue;
     }
     else if (formatRef == BRIDGE_FORMAT_LIN_RP)
