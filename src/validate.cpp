@@ -149,7 +149,7 @@ void validate(
 
 bool refContainsOut(const ValState& valState)
 {
-  if (valState.dataOut.len > valState.dataRef.len)
+  if (valState.dataOut.len >= valState.dataRef.len)
     return false;
 
   if (valState.dataOut.line == 

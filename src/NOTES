@@ -1,3 +1,11 @@
+A problem is that EML files are intercepted by the file system!
+
+Buffer
+* Enable loading from string as well
+* From dispatch, load with string
+* Move dispatch to this buffer as well (readFormatted etc)
+* validate must also accept loaded buffer as input, as one option
+
 In dispatch
 * Move from map in fileRBN and fileLIN to manual search?
 * Move detailed parsing down into classes?

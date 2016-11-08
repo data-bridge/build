@@ -54,7 +54,7 @@ void Buffer::readBinaryFile(const string& fname)
   // FDADVICE_SEQUENTIAL
   // posix_fadvise(fd, 0, 0, 1);  
 
-  const size_t BUFFER_SIZE = 16*1024;
+  const size_t BUFFER_SIZE = 64*1024;
   char buf[BUFFER_SIZE + 1];
   LineData lineData;
   unsigned no = 0;

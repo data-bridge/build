@@ -27,3 +27,8 @@
 *.rec
 *.fix
 *.ref
+*.psess
+*.csv
+*.vsp
+*.vspx
+*.log
