@@ -1,8 +1,8 @@
 A problem is that EML files are intercepted by the file system!
 
+Split output files into tmp/LIN, tmp/EML etc.
+
 Buffer
-* Enable loading from string as well
-* From dispatch, load with string
 * Move dispatch to this buffer as well (readFormatted etc)
 * validate must also accept loaded buffer as input, as one option
 

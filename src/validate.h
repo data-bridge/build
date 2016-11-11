@@ -53,4 +53,12 @@ void validate(
 
 bool refContainsOut(const ValState& valState);
 
+bool firstContainsSecond(
+  const LineData& first,
+  const LineData& second);
+
+bool firstContainsSecond(
+  const string& first,
+  const string& second);
+
 #endif

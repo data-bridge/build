@@ -198,3 +198,31 @@ bool refContainsOut(const ValState& valState)
     return false;
 }
 
+
+bool firstContainsSecond(
+  const LineData& first,
+  const LineData& second)
+{
+  if (second.len >= first.len)
+    return false;
+
+  if (second.line == first.line.substr(0, second.len))
+    return true;
+  else
+    return false;
+}
+
+
+bool firstContainsSecond(
+  const string& first,
+  const string& second)
+{
+  if (second.length() >= first.length())
+    return false;
+
+  if (second == first.substr(0, second.length()))
+    return true;
+  else
+    return false;
+}
+

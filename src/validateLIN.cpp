@@ -9,11 +9,11 @@
 // The functions in this file help to parse files.
 
 
-#include <iostream>
-#include <iomanip>
-#include <sstream>
-#include <fstream>
-#include <regex>
+// #include <iostream>
+// #include <iomanip>
+// #include <sstream>
+// #include <fstream>
+// #include <regex>
 
 #include "validate.h"
 #include "valint.h"
@@ -22,75 +22,29 @@
 #include "Bexcept.h"
 
 
-static bool isLINLongRefLine(
-  const string& lineOut, 
-  const string& lineRef, 
+static bool firstContainsSecondLIN(
+  const LineData& first,
+  const LineData& second,
   string& expectLine)
 {
-  const unsigned lOut = lineOut.length();
-  const unsigned lRef = lineRef.length();
-
-  if (lOut >= lRef)
+  if ((first.label != "mb" && first.label != "pf") || 
+      first.label != second.label)
     return false;
 
-  const string sOut = lineOut.substr(0, 3);
-  const string sRef = lineRef.substr(0, 3);
-
-  if ((sOut != "mb|" && sOut != "pf|") || sOut != sRef)
-    return false;
-
-  if (lineRef.substr(0, lOut) == lineOut)
+  if (firstContainsSecond(first, second))
   {
-    expectLine = lineRef.substr(lOut);
+    expectLine = first.line.substr(second.len);
     return true;
   }
 
-  // Can lop off "pg||" at end of lineOut and try again.
-  if (lineOut.substr(lOut-4) != "pg||")
+  // If we can lop off "pg||" at the end, try again.
+  if (second.line.substr(second.len-4) != "pg||")
     return false;
 
-  if (lineOut.substr(0, lOut-4) == lineRef.substr(0, lOut-4))
+  if (second.line.substr(0, second.len-4) == 
+      first.line.substr(0, second.len-4))
   {
-    expectLine = lineRef.substr(lOut-4);
-    return true;
-  }
-  else
-    return false;
-}
-
-
-// TODO: Surely we can combine these two functions
-
-static bool isLINLongOutLine(
-  const string& lineOut, 
-  const string& lineRef, 
-  string& expectLine)
-{
-  const unsigned lOut = lineOut.length();
-  const unsigned lRef = lineRef.length();
-
-  if (lRef >= lOut)
-    return false;
-
-  const string sOut = lineOut.substr(0, 3);
-  const string sRef = lineRef.substr(0, 3);
-
-  if ((sOut != "mb|" && sOut != "pf|") || sOut != sRef)
-    return false;
-
-  if (lineOut.substr(0, lRef) == lineRef)
-  {
-    expectLine = lineOut.substr(lRef);
-    return true;
-  }
-
-  // Can lop off "pg||" at end of lineRef and try again.
-  if (lineRef.substr(lRef-4) != "pg||")
-    return false;
-
-  if (lineRef.substr(0, lRef-4) == lineOut.substr(0, lRef-4))
-  {
-    expectLine = lineOut.substr(lRef-4);
+    expectLine = first.line.substr(second.len-4);
     return true;
   }
   else
@@ -101,22 +55,18 @@ static bool isLINLongOutLine(
 static bool LINtoList(
   const string& line,
   vector<string>& list,
-  const string& tag,
   const int numFields)
 {
-  if (line.length() < 5 || line.substr(0, 3) != tag)
-    return false;
-
-  string piece = line.substr(3);
-  piece = piece.substr(0, piece.find("|"));
-
   // A LIN vg line must have exactly 8 commas.
   // For a pn line it is 7.
-  if (count(piece.begin(), piece.end(), ',') != numFields)
+  if (count(line.begin(), line.end(), ',') != numFields)
     return false;
 
   list.clear();
-  tokenize(piece, list, ",");
+  if (line.substr(line.length()-5) == "|pg||")
+    tokenize(line.substr(0, line.length()-5), list, ",");
+  else
+    tokenize(line, list, ",");
   return true;
 }
 
@@ -125,10 +75,14 @@ static bool isLINHeaderLine(
   const ValState& valState,
   ValProfile& prof)
 {
-  vector<string> vOut(9), vRef(9);
-  if (! LINtoList(valState.dataOut.line, vOut, "vg|", 8))
+  if (valState.dataRef.label != "vg" ||
+      valState.dataOut.label != "vg")
     return false;
-  if (! LINtoList(valState.dataRef.line, vRef, "vg|", 8))
+
+  vector<string> vOut(9), vRef(9);
+  if (! LINtoList(valState.dataOut.value, vOut, 8))
+    return false;
+  if (! LINtoList(valState.dataRef.value, vRef, 8))
     return false;
 
   if (vOut[0] != vRef[0])
@@ -155,10 +109,14 @@ static bool isLINPlayerLine(
   const ValState& valState,
   ValProfile& prof)
 {
-  vector<string> vOut(8), vRef(8);
-  if (! LINtoList(valState.dataOut.line, vOut, "pn|", 7))
+  if (valState.dataRef.label != "pn" ||
+      valState.dataOut.label != "pn")
     return false;
-  if (! LINtoList(valState.dataRef.line, vRef, "pn|", 7))
+
+  vector<string> vOut(8), vRef(8);
+  if (! LINtoList(valState.dataOut.value, vOut, 7))
+    return false;
+  if (! LINtoList(valState.dataRef.value, vRef, 7))
     return false;
 
   for (unsigned i = 0; i < 8; i++)
@@ -166,48 +124,36 @@ static bool isLINPlayerLine(
     if (vOut[i] == vRef[i])
       continue;
 
-    const unsigned lOut = vOut[i].length();
-    if (lOut >= vRef[i].length() ||
-        vRef[i].substr(0, lOut) != vOut[i])
-    {
+    if (firstContainsSecond(vRef[i], vOut[i]))
       prof.log(BRIDGE_VAL_NAMES_SHORT, valState);
+    else
       return false;
-    }
   }
   return true;
 }
 
 
-static bool isLINPlay(const string& line)
+static bool isLINPlayLine(
+  const ValState& valState,
+  ValProfile& prof)
 {
-  regex re("^pc\\|\\w+\\|pg\\|\\|$");
-  smatch match;
-  return regex_search(line, match, re);
-}
-
-
-static bool isLINPlaySubstr(
-  const ValState& valState)
-{
-  const unsigned lOut = valState.dataOut.len;
-  const unsigned lRef = valState.dataRef.len;
-
-  size_t poso = 3;
-  // find!
-  while (poso < lRef && valState.dataOut.line.at(poso) != '|')
-    poso++;
-
-  size_t posr = 3;
-  while (posr < lRef && valState.dataRef.line.at(posr) != '|')
-    posr++;
-
-  if (poso >= posr)
+  if (valState.dataRef.label != "pc" ||
+      valState.dataOut.label != "pc")
     return false;
 
-  const string os = valState.dataOut.line.substr(3, poso);
-  const string rs = valState.dataRef.line.substr(3, poso);
+  vector<string> vOut(1), vRef(1);
+  if (! LINtoList(valState.dataOut.value, vOut, 0))
+    return false;
+  if (! LINtoList(valState.dataRef.value, vRef, 0))
+    return false;
 
-  return (os == rs);
+  if (firstContainsSecond(vRef[0], vOut[0]))
+  {
+    prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
+    return true;
+  }
+  else
+    return false;
 }
 
 
@@ -215,10 +161,13 @@ bool validateLIN_RP(
   ValState& valState,
   ValProfile& prof)
 {
-  string expectLine;
+  if (valState.dataRef.type != BRIDGE_BUFFER_STRUCTURED ||
+      valState.dataOut.type != BRIDGE_BUFFER_STRUCTURED)
+    return false;
 
-  if (isLINLongRefLine(valState.dataOut.line,
-      valState.dataRef.line, expectLine))
+  string expectLine;
+  if (firstContainsSecondLIN(valState.dataRef, valState.dataOut, 
+      expectLine))
   {
     if (! valState.bufferOut.next(valState.dataOut))
     {
@@ -232,8 +181,11 @@ bool validateLIN_RP(
       prof.log(BRIDGE_VAL_LIN_PLAY_NL, valState);
       return true;
     }
+    else
+      return false;
   }
-  else if (isLINLongOutLine(valState.dataOut.line, valState.dataRef.line,
+
+  if (firstContainsSecondLIN(valState.dataOut, valState.dataRef, 
       expectLine))
   {
     if (! valState.bufferRef.next(valState.dataRef))
@@ -248,51 +200,47 @@ bool validateLIN_RP(
       prof.log(BRIDGE_VAL_LIN_PLAY_NL, valState);
       return true;
     }
-  }
-  else if (isLINHeaderLine(valState, prof))
-    return true;
-  else if (isLINPlayerLine(valState, prof))
-    return true;
-  else if (isLINPlay(valState.dataRef.line))
-  {
-    if (isLINPlay(valState.dataOut.line))
-    {
-      if (isLINPlaySubstr(valState))
-      {
-        prof.log(BRIDGE_VAL_ERROR, valState);
-        return false;
-      }
-      else
-      {
-        prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
-        return true;
-      }
-    }
     else
-    {
-      do
-      {
-        if (! valState.bufferRef.next(valState.dataRef))
-        {
-          prof.log(BRIDGE_VAL_REF_SHORT, valState);
-          return false;
-        }
-      }
-      while (isLINPlay(valState.dataRef.line));
-
-      if (valState.dataOut.line == valState.dataRef.line)
-      {
-        prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
-        return true;
-      }
-      else
-      {
-        prof.log(BRIDGE_VAL_ERROR, valState);
-        return false;
-      }
-    }
+      return false;
   }
 
-  return false;
+  if (isLINHeaderLine(valState, prof))
+    return true;
+
+  if (isLINPlayerLine(valState, prof))
+    return true;
+
+  if (isLINPlayLine(valState, prof))
+    return true;
+
+  if (valState.dataRef.label != "pc")
+    return false;
+
+  if (valState.dataOut.label == "pc")
+  {
+    prof.log(BRIDGE_VAL_ERROR, valState);
+    return false;
+  }
+
+  do
+  {
+    if (! valState.bufferRef.next(valState.dataRef))
+    {
+      prof.log(BRIDGE_VAL_REF_SHORT, valState);
+      return false;
+    }
+  }
+  while (valState.dataRef.label == "pc");
+
+  if (valState.dataOut.line == valState.dataRef.line)
+  {
+    prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
+    return true;
+  }
+  else
+  {
+    prof.log(BRIDGE_VAL_ERROR, valState);
+    return false;
+  }
 }
 
