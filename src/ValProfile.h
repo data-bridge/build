@@ -57,6 +57,18 @@ class ValProfile
 {
   private:
 
+    struct ValSide
+    {
+      string line;
+      unsigned lno;
+    };
+
+    struct ValExample
+    {
+      ValSide out;
+      ValSide ref;
+    };
+
     vector<ValExample> example;
     vector<unsigned> count;
 
@@ -68,10 +80,6 @@ class ValProfile
     ~ValProfile();
 
     void reset();
-
-    void log(
-      const ValError label,
-      const ValExample& running);
 
     void log(
       const ValError label,

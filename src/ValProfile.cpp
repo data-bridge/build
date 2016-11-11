@@ -42,18 +42,6 @@ void ValProfile::reset()
 
 void ValProfile::log(
   const ValError label,
-  const ValExample& running)
-{
-  // Only keep the first example of each kind.
-  if (example[label].out.line == "" && example[label].ref.line == "")
-    example[label] = running;
-
-  count[label]++;
-}
-
-
-void ValProfile::log(
-  const ValError label,
   const ValState& valState)
 {
   // Only keep the first example of each kind.

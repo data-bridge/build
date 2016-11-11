@@ -9,12 +9,6 @@
 // The functions in this file help to parse files.
 
 
-// #include <iostream>
-// #include <iomanip>
-// #include <sstream>
-// #include <fstream>
-// #include <regex>
-
 #include "validate.h"
 #include "valint.h"
 #include "validateLIN.h"
@@ -170,10 +164,7 @@ bool validateLIN_RP(
       expectLine))
   {
     if (! valState.bufferOut.next(valState.dataOut))
-    {
-      prof.log(BRIDGE_VAL_OUT_SHORT, valState);
       return false;
-    }
 
     if (valState.dataOut.line == expectLine)
     {
@@ -189,10 +180,7 @@ bool validateLIN_RP(
       expectLine))
   {
     if (! valState.bufferRef.next(valState.dataRef))
-    {
-      prof.log(BRIDGE_VAL_REF_SHORT, valState);
       return false;
-    }
 
     if (valState.dataRef.line == expectLine)
     {
@@ -213,24 +201,14 @@ bool validateLIN_RP(
   if (isLINPlayLine(valState, prof))
     return true;
 
-  if (valState.dataRef.label != "pc")
-    return false;
-
   if (valState.dataOut.label == "pc")
-  {
-    prof.log(BRIDGE_VAL_ERROR, valState);
     return false;
-  }
 
-  do
+  while (valState.dataRef.label == "pc")
   {
     if (! valState.bufferRef.next(valState.dataRef))
-    {
-      prof.log(BRIDGE_VAL_REF_SHORT, valState);
       return false;
-    }
   }
-  while (valState.dataRef.label == "pc");
 
   if (valState.dataOut.line == valState.dataRef.line)
   {
@@ -238,9 +216,6 @@ bool validateLIN_RP(
     return true;
   }
   else
-  {
-    prof.log(BRIDGE_VAL_ERROR, valState);
     return false;
-  }
 }
 

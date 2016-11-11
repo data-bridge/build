@@ -71,18 +71,6 @@ const string ValErrorNameShort[] =
 };
 
 
-struct ValSide
-{
-  string line;
-  unsigned lno;
-};
-
-struct ValExample
-{
-  ValSide out;
-  ValSide ref;
-};
-
 enum LineType
 {
   BRIDGE_BUFFER_STRUCTURED = 0,
