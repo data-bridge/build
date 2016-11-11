@@ -85,8 +85,8 @@ bool validatePBN(
       return false;
   }
 
-  if (valState.dataRef.type != BRIDGE_BUFFER_STRUCTURED)
-    return false;
+  if (valState.dataOut.type != BRIDGE_BUFFER_STRUCTURED)
+    THROW("Out unstructured");
 
   while (1)
   {
@@ -108,75 +108,41 @@ bool validatePBN(
       prof.log(BRIDGE_VAL_TEAMS, valState);
     else if (refField == "VisitTeam")
       prof.log(BRIDGE_VAL_TEAMS, valState);
-    else if (refField == "Play")
-    {
-      // Play may be completely absent.
-      if (valState.dataRef.type == BRIDGE_BUFFER_STRUCTURED && 
-          valState.dataRef.label == "Play")
-        return false;
-
-      while (1)
-      {
-        if (! valState.bufferRef.next(valState.dataRef))
-        {
-          prof.log(BRIDGE_VAL_REF_SHORT, valState);
-          return false;
-        }
-
-        if (valState.dataRef.len == 0)
-        {
-          prof.log(BRIDGE_VAL_ERROR, valState);
-          return false;
-        }
-
-        prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
-        if (valState.dataRef.type == BRIDGE_BUFFER_STRUCTURED)
-          break;
-      }
-
-      return true;
-    }
     else
       break;
 
-    // May in fact have the same field in the output, but shorter.
-    if (valState.dataOut.type != BRIDGE_BUFFER_STRUCTURED)
-      continue;
-
     if (! valState.bufferRef.next(valState.dataRef))
-    {
-      prof.log(BRIDGE_VAL_REF_SHORT, valState);
       return false;
-    }
 
     if (valState.dataOut.label != valState.dataRef.label)
       continue;
 
     if (valState.dataOut.value == valState.dataRef.value)
       return true;
-    else if (valState.dataRef.label == "Site" && 
-        valState.dataOut.value == "")
-      return true;
+    else if (valState.dataRef.label == "Site")
+    {
+      if (refContainsOutValue(valState))
+      {
+        prof.log(BRIDGE_VAL_LOCATION, valState);
+        return true;
+      }
+      else
+        return false;
+    }
     else if (valState.dataRef.label == "Stage")
     {
-      const unsigned lRef = valState.dataRef.value.length();
-      const unsigned lOut = valState.dataOut.value.length();
-
-      if (lOut > lRef ||
-          valState.dataRef.value.substr(0, lOut) != valState.dataOut.value)
+      if (refContainsOutValue(valState))
       {
-        prof.log(BRIDGE_VAL_NAMES_SHORT, valState);
-        return false;
+        prof.log(BRIDGE_VAL_SESSION, valState);
+        return true;
       }
-
-      return true;
+      else
+        return false;
     }
 
-    prof.log(BRIDGE_VAL_ERROR, valState);
     return false;
   }
 
-  prof.log(BRIDGE_VAL_ERROR, valState);
   return false;
 }
 

@@ -1,6 +1,7 @@
 A problem is that EML files are intercepted by the file system!
 
 Split output files into tmp/LIN, tmp/EML etc.
+Should not be possible that LIN->LIN generates session errors.
 
 Buffer
 * Move dispatch to this buffer as well (readFormatted etc)
