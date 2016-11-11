@@ -26,6 +26,14 @@
 using namespace std;
 
 
+static void validateCore(
+  ValState& valState,
+  const Format formatOrig,
+  const Format formatRef,
+  const Options& options,
+  ValStats& vstats);
+
+
 bool isRecordComment(
   const string& lineOut,
   const string& lineRef)
@@ -55,21 +63,13 @@ bool isRecordComment(
 }
 
 
-void validate(
-  const string& fileOut,
-  const string& fileRef,
+static void validateCore(
+  ValState& valState,
   const Format formatOrig,
   const Format formatRef,
   const Options& options,
   ValStats& vstats)
 {
-  ValState valState;
-  valState.bufferOut.read(fileOut, formatRef);
-  valState.bufferOut.fix(fileOut, formatRef);
-
-  valState.bufferRef.read(fileRef, formatRef);
-  valState.bufferRef.fix(fileRef, formatRef);
-
   ValProfile prof;
 
   unsigned headerStartTXT = 4; // If comments and no dash line
@@ -144,6 +144,45 @@ void validate(
     prof.print(cout);
 
   vstats.add(formatOrig, formatRef, prof);
+}
+
+
+void validate(
+  const string& fileOut,
+  const string& fileRef,
+  const Format formatOrig,
+  const Format formatRef,
+  const Options& options,
+  ValStats& vstats)
+{
+  ValState valState;
+  valState.bufferOut.read(fileOut, formatRef);
+  valState.bufferOut.fix(fileOut, formatRef);
+
+  valState.bufferRef.read(fileRef, formatRef);
+  valState.bufferRef.fix(fileRef, formatRef);
+
+  validateCore(valState, formatOrig, formatRef, options, vstats);
+}
+
+
+void validate(
+  const string& strOut,
+  const string& fileOut,
+  const string& fileRef,
+  const Format formatOrig,
+  const Format formatRef,
+  const Options& options,
+  ValStats& vstats)
+{
+  ValState valState;
+  valState.bufferOut.split(strOut, formatRef);
+  valState.bufferOut.fix(fileOut, formatRef);
+
+  valState.bufferRef.read(fileRef, formatRef);
+  valState.bufferRef.fix(fileRef, formatRef);
+
+  validateCore(valState, formatOrig, formatRef, options, vstats);
 }
 
 

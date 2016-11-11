@@ -232,6 +232,37 @@ bool Buffer::read(
 }
 
 
+bool Buffer::split(
+  const string& st,
+  const Format format)
+{
+  LineData lineData;
+  size_t l = st.size();
+  size_t p = 0;
+  len = 0;
+
+  while (p < l)
+  {
+    size_t found = st.find("\n", p);
+    lineData.line = st.substr(p, found-p);
+    lineData.len = lineData.line.length();
+    lineData.no = ++len;
+    lines.push_back(lineData);
+    if (found == string::npos)
+      break;
+
+    p = found+1;
+  }
+
+  if (len == 0)
+    return false;
+
+  for (auto &ld: lines)
+    Buffer::classify(ld, format);
+  return true;
+}
+
+
 void Buffer::readRefFix(
   const string& fname,
   vector<RefFix>& refFix)

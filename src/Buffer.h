@@ -71,6 +71,10 @@ class Buffer
       const string& fname,
       const Format format);
 
+    bool split(
+      const string& st,
+      const Format format);
+
     bool fix(
       const string& fname,
       const Format format);

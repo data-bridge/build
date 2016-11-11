@@ -162,6 +162,7 @@ static void writeHeader(
 static bool writeFormattedFile(
   Group& group,
   const string& fname,
+  string& text,
   const Format format);
 
 void writeFast(
@@ -328,9 +329,11 @@ void dispatch(
         flog << "Output " << t.fileOutput << endl;
 
       timers.start(BRIDGE_TIMER_WRITE, t.formatOutput);
+      string text;
+      text.reserve(100000);
       try
       {
-        if (! writeFormattedFile(group, t.fileOutput, t.formatOutput))
+        if (! writeFormattedFile(group, t.fileOutput, text, t.formatOutput))
           THROW("something blew up");
       }
       catch (Bexcept& bex)
@@ -349,7 +352,7 @@ void dispatch(
         timers.start(BRIDGE_TIMER_VALIDATE, t.formatOutput);
         try
         {
-          validate(t.fileOutput, t.fileRef,
+          validate(text, t.fileOutput, t.fileRef,
             task.formatInput, t.formatOutput, options, vstats);
         }
         catch(Bexcept& bex)
@@ -673,6 +676,7 @@ static void writeHeader(
 static bool writeFormattedFile(
   Group& group,
   const string& fname,
+  string &text,
   const Format format)
 {
   WriteInfo writeInfo;
@@ -681,13 +685,11 @@ static bool writeFormattedFile(
   writeInfo.score1 = 0;
   writeInfo.score2 = 0;
 
-  string st;
-  st.reserve(100000);
-  writeHeader(st, group, format);
+  writeHeader(text, group, format);
 
   for (auto &segment: group)
   {
-    (* formatFncs[format].writeSeg)(st, segment, format);
+    (* formatFncs[format].writeSeg)(text, segment, format);
 
     writeInfo.numBoards = segment.size();
     for (auto &bpair: segment)
@@ -703,12 +705,12 @@ static bool writeFormattedFile(
         board.setInstance(i);
         writeInfo.ino = i;
         (* formatFncs[format].writeBoard)
-          (st, segment, board, writeInfo, format);
+          (text, segment, board, writeInfo, format);
       }
     }
   }
 
-  writeFast(fname, st);
+  writeFast(fname, text);
   return true;
 }
 

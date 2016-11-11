@@ -42,6 +42,15 @@ void validate(
   const Options& options,
   ValStats& vstats);
 
+void validate(
+  const string& strOut,
+  const string& fileOut,
+  const string& fileRef,
+  const Format fOrig,
+  const Format fRef,
+  const Options& options,
+  ValStats& vstats);
+
 bool refContainsOut(const ValState& valState);
 
 #endif
