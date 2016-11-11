@@ -20,6 +20,8 @@ TXT header lines: Should compare these better.
 
 Eliminate valint.h?
 
+Print examples of each problem (small or large).
+
 Check that there is never > 1 segment in RP files.
 
 Code cleanup

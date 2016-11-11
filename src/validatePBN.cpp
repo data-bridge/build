@@ -29,18 +29,8 @@ bool validatePBN(
     {
     }
 
-    /*
-    if (frstr.eof())
-    {
-      prof.log(BRIDGE_VAL_REF_SHORT, valState);
-      return false;
-    }
-    else
-    */
-    {
-      prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
-      return true;
-    }
+    prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
+    return true;
   }
 
   const unsigned lo = valState.dataOut.len;
@@ -82,13 +72,18 @@ bool validatePBN(
     {
       const unsigned lRef = valState.dataRef.value.length();
       const unsigned lOut = valState.dataOut.value.length();
+bool nn = refContainsOutValue(valState);
 
       if (lOut > lRef ||
           valState.dataRef.value.substr(0, lOut) != valState.dataOut.value)
       {
+if (nn)
+  THROW("Conflict 1");
         prof.log(BRIDGE_VAL_NAMES_SHORT, valState);
         return false;
       }
+if (! nn)
+  THROW("Conflict 2");
 
       return true;
     }

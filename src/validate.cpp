@@ -199,6 +199,19 @@ bool refContainsOut(const ValState& valState)
 }
 
 
+bool refContainsOutValue(const ValState& valState)
+{
+  if (valState.dataOut.len >= valState.dataRef.len)
+    return false;
+
+  if (valState.dataOut.value == 
+      valState.dataRef.value.substr(0, valState.dataOut.value.length()))
+    return true;
+  else
+    return false;
+}
+
+
 bool firstContainsSecond(
   const LineData& first,
   const LineData& second)
