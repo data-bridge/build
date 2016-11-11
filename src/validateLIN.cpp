@@ -140,7 +140,7 @@ static bool isLINHeaderLine(
   if (vOut[2] != vRef[2])
     prof.log(BRIDGE_VAL_SCORING, valState);
 
-  if (vOut[3] != vRef[4] || vOut[4] != vRef[4])
+  if (vOut[3] != vRef[3] || vOut[4] != vRef[4])
     prof.log(BRIDGE_VAL_SCORING, valState);
 
   if (vOut[5] != vRef[5] || vOut[6] != vRef[6] ||

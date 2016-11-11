@@ -301,6 +301,8 @@ void dispatch(
   ostream& flog = (options.fileLog.setFlag ? freal : cout);
 
   FileTask task;
+  string text;
+  text.reserve(100000);
   while (files.next(task))
   {
     if (options.verboseIO)
@@ -329,10 +331,9 @@ void dispatch(
         flog << "Output " << t.fileOutput << endl;
 
       timers.start(BRIDGE_TIMER_WRITE, t.formatOutput);
-      string text;
-      text.reserve(100000);
       try
       {
+        text = "";
         if (! writeFormattedFile(group, t.fileOutput, text, t.formatOutput))
           THROW("something blew up");
       }
