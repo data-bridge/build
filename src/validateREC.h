@@ -9,11 +9,8 @@
 #ifndef BRIDGE_VALREC_H
 #define BRIDGE_VALREC_H
 
-#include <string>
 
-#include "Buffer.h"
 #include "ValProfile.h"
-
 
 using namespace std;
 

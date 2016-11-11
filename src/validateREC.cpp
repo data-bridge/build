@@ -9,12 +9,6 @@
 // The functions in this file help to parse files.
 
 
-#include <iostream>
-#include <iomanip>
-#include <sstream>
-#include <fstream>
-#include <regex>
-
 #include "validate.h"
 #include "valint.h"
 #include "validateREC.h"
@@ -65,6 +59,22 @@ static bool isRECJustMade(
 }
 
 
+static bool isRECPlayer(
+  const string& lineOut, 
+  const string& lineRef,
+  const unsigned startPos,
+  const unsigned endPosIncl)
+{
+  string pOut, pRef;
+  if (! readAllWords(lineOut, startPos, endPosIncl, pOut))
+    return false;
+  if (! readAllWords(lineRef, startPos, endPosIncl, pRef))
+    return false;
+
+  return (pRef == pOut || firstContainsSecond(pRef, pOut));
+}
+
+
 static bool isRECNorthLine(
   const string &lineOut, 
   const string &lineRef)
@@ -77,18 +87,7 @@ static bool isRECNorthLine(
   if (lineOut.substr(0, 3) != "IMP" || lineRef.substr(0, 3) != "IMP")
     return false;
 
-  string pOut, pRef;
-  if (! readAllWords(lineOut, 12, 23, pOut))
-    return false;
-  if (! readAllWords(lineRef, 12, 23, pRef))
-    return false;
-
-  const unsigned lOut = pOut.length();
-  if (lOut >= pRef.length() ||
-      pRef.substr(0, lOut) != pOut)
-    return false;
-
-  return true;
+  return isRECPlayer(lineOut, lineRef, 12, 23);
 }
 
 
@@ -104,28 +103,9 @@ static bool isRECEWLine(
   if (lineOut.at(12) != 'D' || lineRef.at(12) != 'D')
     return false;
 
-  string pOut, pRef;
-  if (! readAllWords(lineOut, 0, 11, pOut))
+  if (! isRECPlayer(lineOut, lineRef, 0, 11))
     return false;
-  if (! readAllWords(lineRef, 0, 11, pRef))
-    return false;
-
-  unsigned lOut = pOut.length();
-  if (pRef != pOut &&
-      (lOut >= pRef.length() || pRef.substr(0, lOut) != pOut))
-    return false;
-
-  if (! readAllWords(lineOut, 24, 35, pOut))
-    return false;
-  if (! readAllWords(lineRef, 24, 35, pRef))
-    return false;
-
-  lOut = pOut.length();
-  if (pRef != pOut &&
-      (lOut >= pRef.length() || pRef.substr(0, lOut) != pOut))
-    return false;
-
-  return true;
+  return isRECPlayer(lineOut, lineRef, 24, 35);
 }
 
 
@@ -142,18 +122,7 @@ static bool isRECSouthLine(
       lineRef.at(0) != 'D' || lineRef.at(24) != 'D')
     return false;
 
-  string pOut, pRef;
-  if (! readAllWords(lineOut, 12, 23, pOut))
-    return false;
-  if (! readAllWords(lineRef, 12, 23, pRef))
-    return false;
-
-  const unsigned lOut = pOut.length();
-  if (lOut >= pRef.length() ||
-      pRef.substr(0, lOut) != pOut)
-    return false;
-
-  return true;
+  return isRECPlayer(lineOut, lineRef, 12, 23);
 }
 
 
