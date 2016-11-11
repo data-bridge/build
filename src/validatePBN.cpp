@@ -7,14 +7,7 @@
 */
 
 
-#include <iostream>
-#include <fstream>
-
-#include "validate.h"
-#include "valint.h"
 #include "validatePBN.h"
-#include "parse.h"
-#include "Bexcept.h"
 
 
 bool validatePBN(
@@ -56,82 +49,34 @@ bool validatePBN(
     }
   }
 
-  if (valState.dataRef.type == BRIDGE_BUFFER_STRUCTURED &&
-      valState.dataOut.type == BRIDGE_BUFFER_STRUCTURED &&
-      valState.dataRef.label == valState.dataOut.label)
-  {
-    if ((valState.dataRef.label == "West" || 
-         valState.dataRef.label == "North" ||
-         valState.dataRef.label == "East" || 
-         valState.dataRef.label == "South") &&
-         refContainsOutValue(valState))
-    {
-      prof.log(BRIDGE_VAL_NAMES_SHORT, valState);
-      return true;
-    }
-    else if (valState.dataRef.label == "Site" &&
-      refContainsOutValue(valState))
-    {
-      prof.log(BRIDGE_VAL_LOCATION, valState);
-      return true;
-    }
-    else if (valState.dataRef.label == "Stage" &&
-      refContainsOutValue(valState))
-    {
-      prof.log(BRIDGE_VAL_SESSION, valState);
-      return true;
-    }
-    else
-      return false;
-  }
-
-  if (valState.dataOut.type != BRIDGE_BUFFER_STRUCTURED)
-    THROW("Out unstructured");
+  if (valState.dataRef.type != BRIDGE_BUFFER_STRUCTURED ||
+      valState.dataOut.type != BRIDGE_BUFFER_STRUCTURED)
+    return false;
 
   while (1)
   {
-    if (valState.dataRef.type != BRIDGE_BUFFER_STRUCTURED)
-      return false;
-
-    const string refField = valState.dataRef.label;
-    const string refValue = valState.dataRef.value;
-
-    if (refField == "Event")
-      prof.log(BRIDGE_VAL_EVENT, valState);
-    else if (refField == "Date")
-      prof.log(BRIDGE_VAL_DATE, valState);
-    else if (refField == "Description")
-      prof.log(BRIDGE_VAL_TITLE, valState);
-    else if (refField == "Stage")
-      prof.log(BRIDGE_VAL_SESSION, valState);
-    else if (refField == "HomeTeam")
-      prof.log(BRIDGE_VAL_TEAMS, valState);
-    else if (refField == "VisitTeam")
-      prof.log(BRIDGE_VAL_TEAMS, valState);
-    else
-      break;
-
-    if (! valState.bufferRef.next(valState.dataRef))
-      return false;
-
-    if (valState.dataOut.label != valState.dataRef.label)
-      continue;
-
-    if (valState.dataOut.value == valState.dataRef.value)
-      return true;
-    else if (valState.dataRef.label == "Site")
+    if (valState.dataRef.label == valState.dataOut.label)
     {
-      if (refContainsOutValue(valState))
+      if (valState.dataOut.value == valState.dataRef.value)
+        return true;
+
+      if ((valState.dataRef.label == "West" || 
+           valState.dataRef.label == "North" ||
+           valState.dataRef.label == "East" || 
+           valState.dataRef.label == "South") &&
+           refContainsOutValue(valState))
+      {
+        prof.log(BRIDGE_VAL_NAMES_SHORT, valState);
+        return true;
+      }
+      else if (valState.dataRef.label == "Site" &&
+        refContainsOutValue(valState))
       {
         prof.log(BRIDGE_VAL_LOCATION, valState);
         return true;
       }
-      else
-        return false;
-    }
-    else if (valState.dataRef.label == "Stage")
-    {
-      if (refContainsOutValue(valState))
+      else if (valState.dataRef.label == "Stage" &&
+        refContainsOutValue(valState))
       {
         prof.log(BRIDGE_VAL_SESSION, valState);
         return true;
@@ -140,7 +85,27 @@ bool validatePBN(
         return false;
     }
 
-    return false;
+    ValError ve;
+    if (valState.dataRef.label == "Event")
+      ve = BRIDGE_VAL_EVENT;
+    else if (valState.dataRef.label == "Date")
+      ve = BRIDGE_VAL_DATE;
+    else if (valState.dataRef.label == "Description")
+      ve = BRIDGE_VAL_TITLE;
+    else if (valState.dataRef.label == "Stage")
+      ve = BRIDGE_VAL_SESSION;
+    else if (valState.dataRef.label == "HomeTeam")
+      ve = BRIDGE_VAL_TEAMS;
+    else if (valState.dataRef.label == "VisitTeam")
+      ve = BRIDGE_VAL_TEAMS;
+    else
+      break;
+
+    if (! valState.bufferRef.next(valState.dataRef) ||
+        valState.dataRef.type != BRIDGE_BUFFER_STRUCTURED)
+      return false;
+
+    prof.log(ve, valState);
   }
 
   return false;
