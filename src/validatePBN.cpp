@@ -52,10 +52,7 @@ bool validatePBN(
         return true;
       }
       else
-      {
-        prof.log(BRIDGE_VAL_ERROR, valState);
         return false;
-      }
     }
   }
 
@@ -63,42 +60,33 @@ bool validatePBN(
       valState.dataOut.type == BRIDGE_BUFFER_STRUCTURED &&
       valState.dataRef.label == valState.dataOut.label)
   {
-    if (valState.dataRef.label == "West" || 
-        valState.dataRef.label == "North" ||
-        valState.dataRef.label == "East" || 
-        valState.dataRef.label == "South" ||
-        valState.dataRef.label == "Site" || 
-        valState.dataRef.label == "Stage")
+    if ((valState.dataRef.label == "West" || 
+         valState.dataRef.label == "North" ||
+         valState.dataRef.label == "East" || 
+         valState.dataRef.label == "South") &&
+         refContainsOutValue(valState))
     {
-      const unsigned lRef = valState.dataRef.value.length();
-      const unsigned lOut = valState.dataOut.value.length();
-bool nn = refContainsOutValue(valState);
-
-      if (lOut > lRef ||
-          valState.dataRef.value.substr(0, lOut) != valState.dataOut.value)
-      {
-if (nn)
-  THROW("Conflict 1");
-        prof.log(BRIDGE_VAL_NAMES_SHORT, valState);
-        return false;
-      }
-if (! nn)
-  THROW("Conflict 2");
-
+      prof.log(BRIDGE_VAL_NAMES_SHORT, valState);
+      return true;
+    }
+    else if (valState.dataRef.label == "Site" &&
+      refContainsOutValue(valState))
+    {
+      prof.log(BRIDGE_VAL_LOCATION, valState);
+      return true;
+    }
+    else if (valState.dataRef.label == "Stage" &&
+      refContainsOutValue(valState))
+    {
+      prof.log(BRIDGE_VAL_SESSION, valState);
       return true;
     }
     else
-    {
-      prof.log(BRIDGE_VAL_ERROR, valState);
       return false;
-    }
   }
 
   if (valState.dataRef.type != BRIDGE_BUFFER_STRUCTURED)
-  {
-    prof.log(BRIDGE_VAL_ERROR, valState);
     return false;
-  }
 
   while (1)
   {
