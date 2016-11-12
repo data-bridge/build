@@ -91,5 +91,4 @@ struct LineData
   string value;
 };
 
-
 #endif

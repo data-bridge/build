@@ -37,6 +37,8 @@ void Buffer::reset()
 {
   len = 0;
   current = 0;
+  format = BRIDGE_FORMAT_SIZE;
+  posRBX = 0;
   lines.reserve(CHUNK_SIZE);
 }
 
@@ -160,7 +162,7 @@ bool Buffer::isRBN(LineData& ld)
 
 bool Buffer::isRBX(LineData& ld)
 {
-  if (ld.len <= 3 || ld.line.at(0) != '{' || ld.line.at(ld.len-1) != '}')
+  if (ld.len <= 3 || ld.line.at(1) != '{' || ld.line.at(ld.len-1) != '}')
     return false;
 
   ld.type = BRIDGE_BUFFER_STRUCTURED;
@@ -170,9 +172,7 @@ bool Buffer::isRBX(LineData& ld)
 }
 
 
-void Buffer::classify(
-  LineData& ld,
-  const Format format)
+void Buffer::classify(LineData& ld)
 {
   if (ld.len == 0)
   {
@@ -231,22 +231,24 @@ void Buffer::classify(
 
 bool Buffer::read(
   const string& fname,
-  const Format format)
+  const Format formatIn)
 {
+  format = formatIn;
   Buffer::readBinaryFile(fname);
   if (len == 0)
     return false;
 
   for (auto &ld: lines)
-    Buffer::classify(ld, format);
+    Buffer::classify(ld);
   return true;
 }
 
 
 bool Buffer::split(
   const string& st,
-  const Format format)
+  const Format formatIn)
 {
+  format = formatIn;
   LineData lineData;
   size_t l = st.size();
   size_t p = 0;
@@ -269,7 +271,7 @@ bool Buffer::split(
     return false;
 
   for (auto &ld: lines)
-    Buffer::classify(ld, format);
+    Buffer::classify(ld);
   return true;
 }
 
@@ -340,9 +342,7 @@ void Buffer::readRefFix(
 }
 
 
-bool Buffer::fix(
-  const string& fname,
-  const Format format)
+bool Buffer::fix(const string& fname)
 {
   vector<RefFix> refFix;
   Buffer::readRefFix(fname, refFix);
@@ -363,7 +363,7 @@ bool Buffer::fix(
       lnew.line = refFix[rno].value;
       lnew.len = lnew.line.length();
       lnew.no = 0;
-      Buffer::classify(lnew, format);
+      Buffer::classify(lnew);
       lines.insert(lines.begin() + static_cast<int>(i), lnew);
       len++;
     }
@@ -371,7 +371,7 @@ bool Buffer::fix(
     {
       ld.line = refFix[rno].value;
       ld.len = ld.line.length();
-      Buffer::classify(ld, format);
+      Buffer::classify(ld);
     }
     else if (refFix[rno].type == BRIDGE_REF_DELETE)
     {
@@ -408,38 +408,18 @@ bool Buffer::next(LineData& vside)
   if (current > len-1)
     return false;
 
-  vside = lines[current];
-  current++;
-  return true;
-}
-
-
-string Buffer::getLine() const
-{
-  return lines[current].line;
-}
-
-
-unsigned Buffer::getNumber() const
-{
-  return lines[current].no;
-}
-
-LineType Buffer::getType() const
-{
-  return lines[current].type;
-}
-
-
-string Buffer::getLabel() const
-{
-  return lines[current].label;
-}
-
-
-string Buffer::getValue() const
-{
-  return lines[current].value;
+  if (format == BRIDGE_FORMAT_RBX)
+  {
+    vside = lines[current];
+    current++;
+    return true;
+  }
+  else
+  {
+    vside = lines[current];
+    current++;
+    return true;
+  }
 }
 
 

@@ -41,6 +41,8 @@ class Buffer
     vector<LineData> lines;
     unsigned len;
     unsigned current;
+    Format format;
+    unsigned posRBX;
 
 
     void readBinaryFile(const string& fname);
@@ -50,9 +52,7 @@ class Buffer
     bool isRBN(LineData& ld);
     bool isRBX(LineData& ld);
 
-    void classify(
-      LineData& ld,
-      const Format format);
+    void classify(LineData& ld);
 
     void readRefFix(
       const string& fname,
@@ -75,25 +75,11 @@ class Buffer
       const string& st,
       const Format format);
 
-    bool fix(
-      const string& fname,
-      const Format format);
+    bool fix(const string& fname);
 
     bool advance();
 
     bool next(LineData& lineData);
-
-    string getLine() const;
-
-    unsigned getNumber() const;
-
-    unsigned getLength() const;
-
-    LineType getType() const;
-
-    string getLabel() const;
-
-    string getValue() const;
 
     void print() const;
 };

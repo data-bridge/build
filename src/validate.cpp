@@ -157,10 +157,10 @@ void validate(
 {
   ValState valState;
   valState.bufferOut.read(fileOut, formatRef);
-  valState.bufferOut.fix(fileOut, formatRef);
+  valState.bufferOut.fix(fileOut);
 
   valState.bufferRef.read(fileRef, formatRef);
-  valState.bufferRef.fix(fileRef, formatRef);
+  valState.bufferRef.fix(fileRef);
 
   validateCore(valState, formatOrig, formatRef, options, vstats);
 }
@@ -177,10 +177,10 @@ void validate(
 {
   ValState valState;
   valState.bufferOut.split(strOut, formatRef);
-  valState.bufferOut.fix(fileOut, formatRef);
+  valState.bufferOut.fix(fileOut);
 
   valState.bufferRef.read(fileRef, formatRef);
-  valState.bufferRef.fix(fileRef, formatRef);
+  valState.bufferRef.fix(fileRef);
 
   validateCore(valState, formatOrig, formatRef, options, vstats);
 }
