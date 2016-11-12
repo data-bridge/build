@@ -9,8 +9,6 @@
 // The functions in this file help to parse files.
 
 
-#include <regex>
-
 #include "validateRBN.h"
 #include "parse.h"
 
@@ -19,27 +17,62 @@ bool isRBNMissing(
   ValState& valState,
   ValProfile& prof)
 {
-  if (valState.dataOut.type == BRIDGE_BUFFER_EMPTY ||
-      valState.dataRef.type == BRIDGE_BUFFER_EMPTY)
-    return false;
-
-  if (valState.dataOut.label != valState.dataRef.label)
+  if (valState.dataRef.label == "P" && 
+      valState.dataOut.label == "R")
   {
-    if (valState.dataRef.label == "P" && 
-        valState.dataOut.label == "R")
-    {
-      if (! valState.bufferRef.next(valState.dataRef))
-        prof.log(BRIDGE_VAL_REF_SHORT, valState);
+    if (! valState.bufferRef.next(valState.dataRef))
+      return false;
 
-      if (valState.dataRef.label != valState.dataOut.label)
-        return false;
+    if (valState.dataRef.label != valState.dataOut.label)
+      return false;
 
-      return (valState.dataRef.line == valState.dataOut.line);
-    }
+    prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
+    return (valState.dataRef.line == valState.dataOut.line);
+  }
+  else if (valState.dataRef.label == "K")
+  {
+    if (! valState.bufferRef.next(valState.dataRef))
+      return false;
 
-    return false;
+    if (valState.dataRef.label != valState.dataOut.label)
+      return false;
+
+    prof.log(BRIDGE_VAL_TEAMS, valState);
+    return (valState.dataRef.line == valState.dataOut.line);
   }
 
+  return false;
+}
+
+
+bool areRBNNames(
+  const string& lineRef,
+  const string& lineOut)
+{
+  vector<string> listRef, listOut;
+  listRef.clear();
+  listOut.clear();
+  tokenize(lineRef, listRef, "+:");
+  tokenize(lineOut, listOut, "+:");
+
+  if (listRef.size() != listOut.size())
+    return false;
+
+  for (unsigned i = 0; i < listRef.size(); i++)
+  {
+    if (listRef[i] == listOut[i])
+      continue;
+    if (! firstContainsSecond(listRef[i], listOut[i]))
+      return false;
+  }
+  return true;
+}
+
+
+bool isRBNShort(
+  ValState& valState,
+  ValProfile& prof)
+{
   switch (valState.dataOut.label.at(0))
   {
     case 'T':
@@ -72,6 +105,12 @@ bool isRBNMissing(
       prof.log(BRIDGE_VAL_SESSION, valState);
       return true;
 
+    case 'N':
+      if (! areRBNNames(valState.dataRef.value, valState.dataOut.value))
+        return false;
+      prof.log(BRIDGE_VAL_NAMES_SHORT, valState);
+      return true;
+
     case 'P':
       if (! refContainsOut(valState))
         return false;
@@ -84,69 +123,23 @@ bool isRBNMissing(
 }
 
 
-bool areRBNNames(
-  const string& lineRef,
-  const string& lineOut)
-{
-  vector<string> listRef, listOut;
-  listRef.clear();
-  listOut.clear();
-  tokenize(lineRef, listRef, "+:");
-  tokenize(lineOut, listOut, "+:");
-
-  if (listRef.size() != listOut.size())
-    return false;
-
-  for (unsigned i = 0; i < listRef.size(); i++)
-  {
-    if (listRef[i] == listOut[i])
-      continue;
-    if (! firstContainsSecond(listRef[i], listOut[i]))
-      return false;
-  }
-  return true;
-}
-
-
 bool validateRBN(
   ValState& valState,
   ValProfile& prof)
 {
-  if (isRBNMissing(valState, prof))
-    return true;
-
-  if (valState.dataRef.label == "K")
-  {
-    prof.log(BRIDGE_VAL_TEAMS, valState);
-
-    if (! valState.bufferRef.next(valState.dataRef))
-    {
-      prof.log(BRIDGE_VAL_REF_SHORT, valState);
-      return false;
-    }
-  }
-
-  if (valState.dataRef.type != BRIDGE_BUFFER_EMPTY && 
-      valState.dataOut.type != BRIDGE_BUFFER_EMPTY)
-  {
-    if (valState.dataRef.label == "N" && valState.dataOut.label == "N")
-    {
-      if (areRBNNames(valState.dataRef.value, valState.dataOut.value))
-      {
-        prof.log(BRIDGE_VAL_NAMES_SHORT, valState);
-        return true;
-      }
-      else
-        return false;
-    }
-  }
- 
-  if (valState.dataOut.line == valState.dataRef.line)
-    return true;
-  else
-  {
-    prof.log(BRIDGE_VAL_ERROR, valState);
+  if (valState.dataOut.type == BRIDGE_BUFFER_EMPTY ||
+      valState.dataRef.type == BRIDGE_BUFFER_EMPTY)
     return false;
+
+  if (valState.dataOut.label != valState.dataRef.label)
+  {
+    if (isRBNMissing(valState, prof))
+      return true;
   }
+
+  if (valState.dataOut.label == valState.dataRef.label)
+    return isRBNShort(valState, prof);
+  else
+    return false;
 }
 
