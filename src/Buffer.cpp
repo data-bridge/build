@@ -133,7 +133,11 @@ bool Buffer::isPBN(LineData& ld)
 
 bool Buffer::isRBN(LineData& ld)
 {
-  if (ld.len <= 1 || ld.line.at(1) != ' ')
+  if (ld.len == 0)
+    return false;
+  else if (ld.line.at(0) == ' ')
+    return false;
+  else if (ld.len >= 2 && ld.line.at(1) != ' ')
     return false;
 
   ld.type = BRIDGE_BUFFER_STRUCTURED;
@@ -142,7 +146,14 @@ bool Buffer::isRBN(LineData& ld)
   if (ld.len > 2)
     ld.value = ld.line.substr(2);
   else
+  {
     ld.value = "";
+    if (ld.len == 1)
+    {
+      ld.line += " ";
+      ld.len = 2;
+    }
+  }
   return true;
 }
 

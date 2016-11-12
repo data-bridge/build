@@ -114,7 +114,7 @@ string Location::str(const Format format) const
     
     case BRIDGE_FORMAT_RBN:
        if (locGeneral == "")
-        return "L\n";
+        return "L \n";
       else
         return "L " + Location::strCore(":") + "\n";
     

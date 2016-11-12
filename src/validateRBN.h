@@ -11,7 +11,7 @@
 
 #include <string>
 
-#include "Buffer.h"
+#include "ValProfile.h"
 
 using namespace std;
 

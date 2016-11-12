@@ -9,66 +9,30 @@
 // The functions in this file help to parse files.
 
 
-#include <iostream>
-#include <iomanip>
-#include <sstream>
-#include <fstream>
 #include <regex>
 
-#include "ValProfile.h"
-#include "validate.h"
-#include "valint.h"
 #include "validateRBN.h"
 #include "parse.h"
-#include "Bexcept.h"
 
 
 bool isRBNMissing(
   ValState& valState,
-  ValProfile& prof,
-  char& rf);
-
-bool areRBNNames(
-  const string& lineRef,
-  const string& lineOut);
-
-bool splitRBXToVector(
-  const string& line,
-  vector<string>& list);
-
-
-bool isRBNMissing(
-  ValState& valState,
-  ValProfile& prof,
-  char& rf)
+  ValProfile& prof)
 {
-  char of;
-
-  unsigned lOut = valState.dataOut.len;
-  unsigned lRef = valState.dataRef.len;
-
-  if (lOut == 0 || lRef == 0)
+  if (valState.dataOut.type == BRIDGE_BUFFER_EMPTY ||
+      valState.dataRef.type == BRIDGE_BUFFER_EMPTY)
     return false;
 
-  of = valState.dataOut.line.at(0);
-  rf = valState.dataRef.line.at(0);
-
-  if (of != rf)
+  if (valState.dataOut.label != valState.dataRef.label)
   {
-    if (rf == 'P' && of == 'R')
+    if (valState.dataRef.label == "P" && 
+        valState.dataOut.label == "R")
     {
       if (! valState.bufferRef.next(valState.dataRef))
-      {
         prof.log(BRIDGE_VAL_REF_SHORT, valState);
-        return false;
-      }
 
-      rf = valState.dataRef.line.at(0);
-      if (rf != of)
-      {
-        prof.log(BRIDGE_VAL_ERROR, valState);
+      if (valState.dataRef.label != valState.dataOut.label)
         return false;
-      }
 
       return (valState.dataRef.line == valState.dataOut.line);
     }
@@ -76,28 +40,28 @@ bool isRBNMissing(
     return false;
   }
 
-  switch (of)
+  switch (valState.dataOut.label.at(0))
   {
     case 'T':
-      if (lOut > 2)
+      if (valState.dataOut.len > 2)
         return false;
       prof.log(BRIDGE_VAL_TITLE, valState);
       return true;
 
     case 'D':
-      if (lOut > 2)
+      if (valState.dataOut.len > 2)
         return false;
       prof.log(BRIDGE_VAL_DATE, valState);
       return true;
         
     case 'L':
-      if (lOut > 2)
+      if (valState.dataOut.len > 2)
         return false;
       prof.log(BRIDGE_VAL_LOCATION, valState);
       return true;
         
     case 'E':
-      if (lOut > 2)
+      if (valState.dataOut.len > 2)
         return false;
       prof.log(BRIDGE_VAL_EVENT, valState);
       return true;
@@ -117,7 +81,6 @@ bool isRBNMissing(
     default:
       return false;
   }
-
 }
 
 
@@ -151,11 +114,10 @@ bool validateRBN(
   ValState& valState,
   ValProfile& prof)
 {
-  char rf = ' ';
-  if (isRBNMissing(valState, prof, rf))
+  if (isRBNMissing(valState, prof))
     return true;
 
-  if (rf == 'K')
+  if (valState.dataRef.label == "K")
   {
     prof.log(BRIDGE_VAL_TEAMS, valState);
 
