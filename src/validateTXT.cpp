@@ -9,38 +9,22 @@
 // The functions in this file help to parse files.
 
 
-#include <iostream>
-#include <iomanip>
-#include <sstream>
-#include <fstream>
-#include <regex>
-
-#include "validate.h"
-#include "valint.h"
 #include "validateTXT.h"
 #include "parse.h"
-#include "Bexcept.h"
-
-
-bool isTXTHeader(
-  ValState& valState,
-  const unsigned & headerStartTXT, 
-  ValProfile& prof);
 
 
 static bool isTXTAllPass(
-  const string& lineOut,
-  const string& lineRef,
+  const ValState& valState,
   unsigned& expectPasses)
 {
   vector<string> wordsRef;
-  splitIntoWords(lineRef, wordsRef);
+  splitIntoWords(valState.dataRef.line, wordsRef);
   unsigned lRef = wordsRef.size();
   if (lRef > 4)
     return false;
 
   vector<string> wordsOut;
-  splitIntoWords(lineOut, wordsOut);
+  splitIntoWords(valState.dataOut.line, wordsOut);
   unsigned lOut = wordsOut.size();
   if (lOut < 2 || lOut+2 < lRef || lOut > lRef+1)
     return false;
@@ -53,10 +37,8 @@ static bool isTXTAllPass(
       return false;
 
   for (unsigned i = 0; i < lOut-2; i++)
-  {
     if (wordsRef[i] != wordsOut[i])
       return false;
-  }
 
   if (lOut == 2 && lRef == 4)
   {
@@ -65,13 +47,14 @@ static bool isTXTAllPass(
   }
 
   unsigned pos = 0;
-  while (pos < lineOut.length() && lineOut.at(pos) == ' ')
+  while (pos < valState.dataOut.len && 
+      valState.dataOut.line.at(pos) == ' ')
     pos++;
-  if (pos == lineOut.length())
+  if (pos == valState.dataOut.len)
     return false;
 
   expectPasses = lOut + 1 - lRef;
-  if (pos > 0 && lineOut.at(pos) == 'A')
+  if (pos > 0 && valState.dataOut.line.at(pos) == 'A')
     expectPasses++;
 
   return true;
@@ -88,10 +71,9 @@ static bool isTXTPasses(
     return false;
 
   for (unsigned i = 0; i < expectPasses; i++)
-  {
     if (wordsOut[i] != "Pass")
       return false;
-  }
+
   return true;
 }
 
@@ -117,6 +99,7 @@ static bool isTXTPlay(const string& line)
 
   return false;
 }
+
 
 static bool isTXTRunningScore(const string& line)
 {
@@ -164,17 +147,13 @@ static bool areTXTSimilarResults(
     return false;
 
   for (unsigned i = 0; i < lOut-2; i++)
-  {
     if (wordsOut[i] != wordsRef[i])
       return false;
-  }
 
   const unsigned d = lRef-lOut;
   for (unsigned i = lOut-2; i < lOut; i++)
-  {
     if (wordsOut[i] != wordsRef[i+d])
       return false;
-  }
 
   return true;
 }
@@ -209,18 +188,12 @@ bool isTXTHeader(
     listOut[i-headerStartTXT] = valState.dataOut.line;
 
     if (! valState.bufferOut.next(valState.dataOut))
-    {
-      prof.log(BRIDGE_VAL_OUT_SHORT, valState);
       return false;
-    }
   }
 
   // Reading the rest of the out header should leave us at an empty line.
   if (valState.dataOut.type != BRIDGE_BUFFER_EMPTY)
-  {
-    prof.log(BRIDGE_VAL_ERROR, valState);
     return false;
-  }
 
 
   // Make a list of reference header lines (relative).
@@ -232,25 +205,16 @@ bool isTXTHeader(
   {
     listRef.push_back(valState.dataRef.line);
     if (! valState.bufferRef.next(valState.dataRef))
-    {
-      prof.log(BRIDGE_VAL_REF_SHORT, valState);
       return false;
-    }
 
     if (i == headerStartTXT)
     {
       // Expect a newline.
       if (valState.dataRef.type != BRIDGE_BUFFER_EMPTY)
-      {
-        prof.log(BRIDGE_VAL_ERROR, valState);
         return false;
-      }
 
       if (! valState.bufferRef.next(valState.dataRef))
-      {
-        prof.log(BRIDGE_VAL_REF_SHORT, valState);
         return false;
-      }
 
       i++;
     }
@@ -264,9 +228,8 @@ bool isTXTHeader(
     if (listOut[i] == "")
       continue;
     else if (listOut[i] != listRef[r])
-    {
       prof.log(headerErrorType[i], valState);
-    }
+
     r++;
   }
   return true;
@@ -278,22 +241,15 @@ bool validateTXT(
   const unsigned& headerStartTXT,
   ValProfile& prof)
 {
-  // emptyState is a bit of a kludge to attempt to detect the empty
-  // lines (as there is no contextual information in a TXT file).
-  // It will mis-allocate if only some of the header lines are missing.
-
   unsigned expectPasses;
-  if (isTXTAllPass(valState.dataOut.line,
-      valState.dataRef.line, expectPasses))
+  if (isTXTAllPass(valState, expectPasses))
   {
     // Reference does not have "All Pass" (Pavlicek error).
     if (expectPasses > 0 && ! valState.bufferRef.next(valState.dataRef))
-    {
-      prof.log(BRIDGE_VAL_OUT_SHORT, valState);
       return false;
-    }
 
-    if (expectPasses == 0 || isTXTPasses(valState.dataRef.line, expectPasses))
+    if (expectPasses == 0 || 
+        isTXTPasses(valState.dataRef.line, expectPasses))
     {
       prof.log(BRIDGE_VAL_TXT_ALL_PASS, valState);
       return true;
@@ -301,14 +257,13 @@ bool validateTXT(
     else
       return false;
   }
-  else if (valState.dataOut.type == BRIDGE_BUFFER_EMPTY &&
+
+  if (valState.dataOut.type == BRIDGE_BUFFER_EMPTY &&
       valState.dataRef.type == BRIDGE_BUFFER_DASHES)
   {
+    // Skip over dash line.
     if (! valState.bufferRef.next(valState.dataRef))
-    {
-      prof.log(BRIDGE_VAL_REF_SHORT, valState);
       return false;
-    }
 
     if (valState.dataRef.type != BRIDGE_BUFFER_EMPTY)
       return false;
@@ -317,15 +272,15 @@ bool validateTXT(
     return true;
   }
 
-  while (isTXTPlay(valState.dataRef.line) && 
-      ! isTXTPlay(valState.dataOut.line))
+  if (! isTXTPlay(valState.dataOut.line))
   {
-    if (! valState.bufferRef.next(valState.dataRef))
+    while (isTXTPlay(valState.dataRef.line))
     {
-      prof.log(BRIDGE_VAL_REF_SHORT, valState);
-      return false;
+      if (! valState.bufferRef.next(valState.dataRef))
+        return false;
+
+      prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
     }
-    prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
   }
 
   if (valState.dataOut.line == valState.dataRef.line)
@@ -369,7 +324,8 @@ bool validateTXT(
       }
     }
   }
-  else if (valState.dataOut.no > headerStartTXT+6)
+
+  if (valState.dataOut.no > headerStartTXT+6)
   {
     // This is tricky, as both the numbers and positions of words
     // can differ.  We combine two heuristics.
@@ -409,12 +365,8 @@ bool validateTXT(
       if (vOut[i] == vRef[i])
         continue;
 
-      const unsigned lOut = vOut[i].length();
-      if (lOut >= vRef[i].length() ||
-          vRef[i].substr(0, lOut) != vOut[i])
-      {
+      if (! firstContainsSecond(vRef[i], vOut[i]))
         return false;
-      }
     }
     prof.log(BRIDGE_VAL_NAMES_SHORT, valState);
     return true;

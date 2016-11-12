@@ -1,35 +1,20 @@
-A problem is that EML files are intercepted by the file system!
-
 Split output files into tmp/LIN, tmp/EML etc.
 Should not be possible that LIN->LIN generates session errors.
+Check the output matrix for general consistency.
 
-Buffer
+Buffer: 
 * Move dispatch to this buffer as well (readFormatted etc)
-* validate must also accept loaded buffer as input, as one option
 
 In dispatch
 * Move from map in fileRBN and fileLIN to manual search?
 * Move detailed parsing down into classes?
 
-In Buffer, maybe do the splitting of RBX already.
-Then we can do away completely with validateRBX.
-
 When multi-threading, exceptions still go to stdout?
 Maybe put errors to cerr.
-
-TXT header lines: Should compare these better.
-
-Eliminate valint.h?
 
 Print examples of each problem (small or large).
 
 Check that there is never > 1 segment in RP files.
-
-Code cleanup
-- camelCase
-- no globals
-- throws
-- no dead code
 
 Tools
 - cppclean
@@ -44,8 +29,6 @@ Update makefiles (file lists)
 Add == comparison (read written file back into, compare groups as ==)
 
 Use raw strings for regexes?
-
-In diff, regex out the % numbers and then compare the whole remaining line
 
 Remove LIN_EXT
 
@@ -74,8 +57,6 @@ grep assert
 make Board checks
 
 Test on concatenated RBN file
-come up with format for accompanying fixes, .fix files
-Read these in, apply before crying wolf
 
 Support PBN ##
 
