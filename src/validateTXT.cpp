@@ -238,7 +238,6 @@ bool isTXTHeader(
 
 bool validateTXT(
   ValState& valState,
-  const unsigned& headerStartTXT,
   ValProfile& prof)
 {
   unsigned expectPasses;
@@ -304,6 +303,8 @@ bool validateTXT(
     return true;
   }
 
+  const unsigned headerStart = valState.bufferOut.previousHeaderStart();
+
   if (valState.dataOut.type == BRIDGE_BUFFER_EMPTY)
   {
     if (isTXTRunningScore(valState.dataRef.line))
@@ -311,9 +312,9 @@ bool validateTXT(
       prof.log(BRIDGE_VAL_TEAMS, valState);
       return true;
     }
-    else if (valState.dataOut.no <= headerStartTXT + 6)
+    else if (valState.dataOut.no <= headerStart+ 6)
     {
-      if (! isTXTHeader(valState, headerStartTXT, prof))
+      if (! isTXTHeader(valState, headerStart, prof))
         return false;
       else if (valState.dataOut.line == valState.dataRef.line)
         return true;
@@ -325,7 +326,7 @@ bool validateTXT(
     }
   }
 
-  if (valState.dataOut.no > headerStartTXT+6)
+  if (valState.dataOut.no > headerStart+6)
   {
     // This is tricky, as both the numbers and positions of words
     // can differ.  We combine two heuristics.

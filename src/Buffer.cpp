@@ -453,6 +453,16 @@ bool Buffer::next(LineData& vside)
 }
 
 
+unsigned Buffer::previousHeaderStart()
+{
+  unsigned u = current;
+  while (u >= 2 && lines[u].type != BRIDGE_BUFFER_DASHES)
+    u--;
+
+  return lines[u+2].no;
+}
+
+
 void Buffer::print() const
 {
   cout << setw(4) << right << "No" <<

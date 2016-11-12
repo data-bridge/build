@@ -9,17 +9,13 @@
 #ifndef BRIDGE_VALTXT_H
 #define BRIDGE_VALTXT_H
 
-#include "Buffer.h"
 #include "ValProfile.h"
-
-#include <string>
 
 using namespace std;
 
 
 bool validateTXT(
   ValState& valState,
-  const unsigned& emptyState,
   ValProfile& prof);
 
 #endif

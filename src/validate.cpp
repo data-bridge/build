@@ -72,7 +72,7 @@ static void validateCore(
 {
   ValProfile prof;
 
-  unsigned headerStartTXT = 4; // If comments and no dash line
+  // unsigned headerStartTXT = 4;
 
   while (valState.bufferRef.next(valState.dataRef))
   {
@@ -82,9 +82,9 @@ static void validateCore(
       break;
     }
 
-    if (formatRef == BRIDGE_FORMAT_TXT &&
-        valState.dataOut.type == BRIDGE_BUFFER_DASHES)
-      headerStartTXT = valState.dataOut.no + 2;
+    // if (formatRef == BRIDGE_FORMAT_TXT &&
+        // valState.dataOut.type == BRIDGE_BUFFER_DASHES)
+      // headerStartTXT = valState.dataOut.no + 2;
 
     if (valState.dataRef.line == valState.dataOut.line)
       continue;
@@ -115,7 +115,7 @@ static void validateCore(
     }
     else if (formatRef == BRIDGE_FORMAT_TXT)
     {
-      if (validateTXT(valState, headerStartTXT, prof))
+      if (validateTXT(valState, prof))
         continue;
     }
     else if (formatRef == BRIDGE_FORMAT_EML)
@@ -134,6 +134,9 @@ static void validateCore(
 
   if (valState.bufferOut.next(valState.dataOut))
     prof.log(BRIDGE_VAL_REF_SHORT, valState);
+
+  // if (valState.bufferRef.next(valState.dataRef))
+    // prof.log(BRIDGE_VAL_OUT_SHORT, valState);
 
   if (options.verboseValDetails)
     prof.print(cout);
