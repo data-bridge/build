@@ -9,11 +9,8 @@
 // The functions in this file help to parse files.
 
 
-#include "validate.h"
-#include "valint.h"
 #include "validateREC.h"
 #include "parse.h"
-#include "Bexcept.h"
 
 
 static bool isRECPlay(const string& line)
@@ -25,9 +22,7 @@ static bool isRECPlay(const string& line)
     return false;
 
   unsigned u;
-  if (! str2upos(words[0], u))
-    return false;
-  if (u > 13)
+  if (! str2upos(words[0], u) || u > 13)
     return false;
 
   for (unsigned i = 2; i < words.size(); i++)
@@ -95,11 +90,6 @@ static bool isRECEWLine(
   const string &lineOut, 
   const string &lineRef)
 {
-  if (lineOut.length() < 25 ||
-      lineRef.length() < 25 ||
-      lineOut.length() > lineRef.length())
-    return false;
-
   if (lineOut.at(12) != 'D' || lineRef.at(12) != 'D')
     return false;
 
@@ -113,9 +103,7 @@ static bool isRECSouthLine(
   const string &lineOut, 
   const string &lineRef)
 {
-  if (lineOut.length() < 25 ||
-      lineRef.length() < 25 ||
-      lineOut.length() != lineRef.length())
+  if (lineOut.length() != lineRef.length())
     return false;
 
   if (lineOut.at(0) != 'D' || lineOut.at(24) != 'D' ||
@@ -138,19 +126,9 @@ bool validateREC(
       prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
 
       if (! valState.bufferOut.next(valState.dataOut))
-      {
-        prof.log(BRIDGE_VAL_OUT_SHORT, valState);
         return false;
-      }
     }
-
-    if (valState.dataRef.line == valState.dataOut.line)
-      return true;
-    else
-    {
-      prof.log(BRIDGE_VAL_ERROR, valState);
-      return false;
-    }
+    return (valState.dataRef.line == valState.dataOut.line);
   }
 
   if (valState.dataOut.type == BRIDGE_BUFFER_EMPTY)
@@ -161,19 +139,10 @@ bool validateREC(
       prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
 
       if (! valState.bufferRef.next(valState.dataRef))
-      {
-        prof.log(BRIDGE_VAL_REF_SHORT, valState);
         return false;
-      }
     }
 
-    if (valState.dataRef.line == valState.dataOut.line)
-      return true;
-    else
-    {
-      prof.log(BRIDGE_VAL_ERROR, valState);
-      return false;
-    }
+    return (valState.dataRef.line == valState.dataOut.line);
   }
 
 
@@ -186,47 +155,45 @@ bool validateREC(
       return true;
     }
     else
-    {
-      prof.log(BRIDGE_VAL_ERROR, valState);
       return false;
-    }
   }
-  else if (isRECJustMade(valState.dataOut.line, valState.dataRef.line))
+
+  if (isRECJustMade(valState.dataOut.line, valState.dataRef.line))
   {
     // "Won 32" (Pavlicek error, should be "Made 0" or so.
     prof.log(BRIDGE_VAL_REC_MADE_32, valState);
 
     // The next line (Score, Points) is then also different.
-    if (! valState.bufferOut.next(valState.dataOut))
-    {
-      prof.log(BRIDGE_VAL_OUT_SHORT, valState);
+    if (! valState.bufferOut.next(valState.dataOut) ||
+        ! valState.bufferRef.next(valState.dataRef))
       return false;
-    }
+    else
+      return true;
+  }
 
-    if (! valState.bufferRef.next(valState.dataRef))
-    {
-      prof.log(BRIDGE_VAL_REF_SHORT, valState);
-      return false;
-    }
-
-    return true;
-  }
-  else if (isRECNorthLine(valState.dataOut.line, valState.dataRef.line))
-  {
-    prof.log(BRIDGE_VAL_NAMES_SHORT, valState);
-    return true;
-  }
-  else if (isRECEWLine(valState.dataOut.line, valState.dataRef.line))
-  {
-    prof.log(BRIDGE_VAL_NAMES_SHORT, valState);
-    return true;
-  }
-  else if (isRECSouthLine(valState.dataOut.line, valState.dataRef.line))
-  {
-    prof.log(BRIDGE_VAL_NAMES_SHORT, valState);
-    return true;
-  }
-  else
+  if (valState.dataOut.len < 25 ||
+      valState.dataRef.len < 25 ||
+      valState.dataOut.len > valState.dataRef.len)
     return false;
+
+  if (isRECNorthLine(valState.dataOut.line, valState.dataRef.line))
+  {
+    prof.log(BRIDGE_VAL_NAMES_SHORT, valState);
+    return true;
+  }
+
+  if (isRECEWLine(valState.dataOut.line, valState.dataRef.line))
+  {
+    prof.log(BRIDGE_VAL_NAMES_SHORT, valState);
+    return true;
+  }
+
+  if (isRECSouthLine(valState.dataOut.line, valState.dataRef.line))
+  {
+    prof.log(BRIDGE_VAL_NAMES_SHORT, valState);
+    return true;
+  }
+
+  return false;
 }
 

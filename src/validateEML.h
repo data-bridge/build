@@ -9,7 +9,6 @@
 #ifndef BRIDGE_VALEML_H
 #define BRIDGE_VALEML_H
 
-#include "validate.h"
 #include "ValProfile.h"
 
 using namespace std;
