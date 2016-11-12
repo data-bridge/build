@@ -30,9 +30,7 @@ struct ValState
 };
 
 
-bool isRecordComment(
-  const string& lineOut,
-  const string& lineRef);
+void setValidateTables();
 
 void validate(
   const string& fileOut,

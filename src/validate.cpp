@@ -25,6 +25,9 @@
 
 using namespace std;
 
+typedef bool (* ValPtr)(ValState&, ValProfile&);
+ValPtr valPtr[BRIDGE_FORMAT_LABELS_SIZE];
+
 
 static void validateCore(
   ValState& valState,
@@ -34,7 +37,19 @@ static void validateCore(
   ValStats& vstats);
 
 
-bool isRecordComment(
+void setValidateTables()
+{
+  valPtr[BRIDGE_FORMAT_LIN_RP] = &validateLIN_RP;
+  valPtr[BRIDGE_FORMAT_PBN] = &validatePBN;
+  valPtr[BRIDGE_FORMAT_RBN] = &validateRBN;
+  valPtr[BRIDGE_FORMAT_RBX] = &validateRBN;
+  valPtr[BRIDGE_FORMAT_TXT] = &validateTXT;
+  valPtr[BRIDGE_FORMAT_EML] = &validateEML;
+  valPtr[BRIDGE_FORMAT_REC] = &validateREC;
+}
+
+
+static bool isRecordComment(
   const string& lineOut,
   const string& lineRef)
 {
@@ -72,19 +87,10 @@ static void validateCore(
 {
   ValProfile prof;
 
-  // unsigned headerStartTXT = 4;
-
   while (valState.bufferRef.next(valState.dataRef))
   {
     if (! valState.bufferOut.next(valState.dataOut))
-    {
-      prof.log(BRIDGE_VAL_OUT_SHORT, valState);
       break;
-    }
-
-    // if (formatRef == BRIDGE_FORMAT_TXT &&
-        // valState.dataOut.type == BRIDGE_BUFFER_DASHES)
-      // headerStartTXT = valState.dataOut.no + 2;
 
     if (valState.dataRef.line == valState.dataOut.line)
       continue;
@@ -97,37 +103,8 @@ static void validateCore(
       prof.log(BRIDGE_VAL_RECORD_NUMBER, valState);
       continue;
     }
-    else if (formatRef == BRIDGE_FORMAT_LIN_RP)
-    {
-      if (validateLIN_RP(valState, prof))
-        continue;
-    }
-    else if (formatRef == BRIDGE_FORMAT_PBN)
-    {
-      if (validatePBN(valState, prof))
-        continue;
-    }
-    else if (formatRef == BRIDGE_FORMAT_RBN ||
-        formatRef == BRIDGE_FORMAT_RBX)
-    {
-      if (validateRBN(valState, prof))
-        continue;
-    }
-    else if (formatRef == BRIDGE_FORMAT_TXT)
-    {
-      if (validateTXT(valState, prof))
-        continue;
-    }
-    else if (formatRef == BRIDGE_FORMAT_EML)
-    {
-      if (validateEML(valState, prof))
-        continue;
-    }
-    else if (formatRef == BRIDGE_FORMAT_REC)
-    {
-      if (validateREC(valState, prof))
-        continue;
-    }
+    else if ((* valPtr[formatRef])(valState, prof))
+      continue;
 
     prof.log(BRIDGE_VAL_ERROR, valState);
   }
@@ -135,8 +112,8 @@ static void validateCore(
   if (valState.bufferOut.next(valState.dataOut))
     prof.log(BRIDGE_VAL_REF_SHORT, valState);
 
-  // if (valState.bufferRef.next(valState.dataRef))
-    // prof.log(BRIDGE_VAL_OUT_SHORT, valState);
+  if (valState.bufferRef.next(valState.dataRef))
+    prof.log(BRIDGE_VAL_OUT_SHORT, valState);
 
   if (options.verboseValDetails)
     prof.print(cout);

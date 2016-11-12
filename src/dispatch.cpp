@@ -285,6 +285,7 @@ void setTables()
   setFormatTables();
   setIO();
   setInterface();
+  setValidateTables();
 }
 
 
