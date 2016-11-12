@@ -101,9 +101,7 @@ bool areRBNNames(
   {
     if (listRef[i] == listOut[i])
       continue;
-    unsigned lOut = listOut[i].length();
-    if (lOut >= listRef[i].length() ||
-        listRef[i].substr(0, lOut) != listOut[i])
+    if (! firstContainsSecond(listRef[i], listOut[i]))
       return false;
   }
   return true;
@@ -133,13 +131,13 @@ bool validateRBN(
   {
     if (valState.dataRef.label == "N" && valState.dataOut.label == "N")
     {
-      if (areRBNNames(valState.dataRef.line, valState.dataOut.line))
-        return true;
-      else
+      if (areRBNNames(valState.dataRef.value, valState.dataOut.value))
       {
-        prof.log(BRIDGE_VAL_ERROR, valState);
-        return false;
+        prof.log(BRIDGE_VAL_NAMES_SHORT, valState);
+        return true;
       }
+      else
+        return false;
     }
   }
  
@@ -150,143 +148,5 @@ bool validateRBN(
     prof.log(BRIDGE_VAL_ERROR, valState);
     return false;
   }
-}
-
-
-bool splitRBXToVector(
-  const string& line,
-  vector<string>& list)
-{
-  string s = line;
-  regex re("^(.)\\{([^\\}]*)\\}");
-  smatch match;
-  list.clear();
-
-  while (regex_search(s, match, re))
-  {
-    list.push_back(match.str(1));
-    list.push_back(match.str(2));
-    s = regex_replace(s, re, string(""));
-  }
-
-  return (s == "");
-}
-
-
-bool validateRBX(
-  ValState& valState,
-  ValProfile& prof)
-{
-
-  vector<string> vOut, vRef;
-  if (! splitRBXToVector(valState.dataOut.line, vOut))
-  {
-    prof.log(BRIDGE_VAL_ERROR, valState);
-    return false;
-  }
-
-  if (! splitRBXToVector(valState.dataRef.line, vRef))
-  {
-    prof.log(BRIDGE_VAL_ERROR, valState);
-    return false;
-  }
-
-  unsigned j = 0;
-  for (unsigned i = 0; i < vRef.size(); i += 2)
-  {
-    if (j >= vOut.size())
-    {
-      prof.log(BRIDGE_VAL_ERROR, valState);
-      return false;
-    }
-
-    unsigned lOut = vOut[j+1].length();
-    unsigned lRef = vRef[i+1].length();
-
-    if (vRef[i] != vOut[j])
-    {
-      if (vRef[i] == "K")
-      {
-        // j stays unchanged
-        prof.log(BRIDGE_VAL_TEAMS, valState);
-        continue;
-      }
-      else if (vRef[i] == "P" && vOut[j] == "R" && vRef[i+2] == "R")
-      {
-        // Play may be missing completely (e.g., coming from EML).
-        prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
-        continue;
-      }
-      else
-      {
-        prof.log(BRIDGE_VAL_ERROR, valState);
-        return false;
-      }
-    }
-    else if (vRef[i+1] == vOut[j+1])
-    {
-      j += 2;
-      continue;
-    }
-    else if (vRef[i] == "P")
-    {
-      if (lOut >= lRef || vRef[i+1].substr(0, lOut) != vOut[j+1])
-        return false;
-      prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
-    }
-    else if (vRef[i] == "%")
-    {
-      // Record numbers have not been checked yet.
-      string llOut = "% " + vOut[j+1];
-      string llRef = "% " + vRef[i+1];
-      if (isRecordComment(llOut, llRef))
-        prof.log(BRIDGE_VAL_RECORD_NUMBER, valState);
-      else
-      {
-        prof.log(BRIDGE_VAL_ERROR, valState);
-        return false;
-      }
-    }
-    else if (vRef[i] == "N")
-      return areRBNNames(vRef[i+1], vOut[j+1]);
-    else if (vRef[i] == "S")
-    {
-      if (lOut >= lRef || 
-          vRef[i+1].substr(0, lOut) != vOut[j+1])
-        return false;
-      prof.log(BRIDGE_VAL_SESSION, valState);
-    }
-    else if (vOut[j+1] != "")
-      return false;
-    else if (vRef[i] == "T")
-    {
-      if (lOut > 0)
-        return false;
-      prof.log(BRIDGE_VAL_TITLE, valState);
-    }
-    else if (vRef[i] == "D")
-    {
-      if (lOut > 0)
-        return false;
-      prof.log(BRIDGE_VAL_DATE, valState);
-    }
-    else if (vRef[i] == "L")
-    {
-      if (lOut > 0)
-        return false;
-      prof.log(BRIDGE_VAL_LOCATION, valState);
-    }
-    else if (vRef[i] == "E")
-    {
-      if (lOut > 0)
-        return false;
-      prof.log(BRIDGE_VAL_EVENT, valState);
-    }
-    else
-      return false;
-
-    j += 2;
-  }
-  return true;
 }
 

@@ -408,10 +408,40 @@ bool Buffer::next(LineData& vside)
   if (current > len-1)
     return false;
 
-  if (format == BRIDGE_FORMAT_RBX)
+  if (format == BRIDGE_FORMAT_RBX &&
+      lines[current].type != BRIDGE_BUFFER_EMPTY)
   {
-    vside = lines[current];
-    current++;
+    // Turn RBX into RBN.
+    size_t e = lines[current].line.find('}', posRBX);
+    if (e <= posRBX+1 || e == string::npos)
+      THROW("Bad RBX line");
+
+    vside.label = lines[current].line.substr(posRBX, 1);
+    vside.no = lines[current].no;
+
+    if (e == posRBX+2)
+    {
+      vside.len = 2;
+      vside.line = vside.label + " ";
+      vside.value = "";
+    }
+    else
+    {
+      vside.len = e-posRBX;
+      vside.value = lines[current].line.substr(posRBX+2, vside.len-2);
+      vside.line = vside.label + " " + vside.value;
+    }
+
+    Buffer::classify(vside);
+
+    if (e == lines[current].len-1)
+    {
+      current++;
+      posRBX = 0;
+    }
+    else
+      posRBX = e+1;
+
     return true;
   }
   else

@@ -90,8 +90,7 @@ static void validateCore(
       continue;
 
     // General: % line numbers (Pavlicek error).
-    if (formatRef != BRIDGE_FORMAT_RBX &&
-        valState.dataOut.type == BRIDGE_BUFFER_COMMENT &&
+    if (valState.dataOut.type == BRIDGE_BUFFER_COMMENT &&
         valState.dataRef.type == BRIDGE_BUFFER_COMMENT &&
         isRecordComment(valState.dataOut.line, valState.dataRef.line))
     {
@@ -108,14 +107,10 @@ static void validateCore(
       if (validatePBN(valState, prof))
         continue;
     }
-    else if (formatRef == BRIDGE_FORMAT_RBN)
+    else if (formatRef == BRIDGE_FORMAT_RBN ||
+        formatRef == BRIDGE_FORMAT_RBX)
     {
       if (validateRBN(valState, prof))
-        continue;
-    }
-    else if (formatRef == BRIDGE_FORMAT_RBX)
-    {
-      if (validateRBX(valState, prof))
         continue;
     }
     else if (formatRef == BRIDGE_FORMAT_TXT)
