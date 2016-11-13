@@ -74,7 +74,7 @@ using namespace std;
 
 struct FormatFunctions
 {
-  void (* readChunk)(ifstream&, unsigned&, vector<string>&, bool&);
+  void (* readChunk)(Buffer&, unsigned&, vector<string>&, bool&);
   void (* writeSeg)(string&, Segment&, Format);
   void (* writeBoard)(string&, Segment&, Board&, 
     WriteInfo&, const Format);
@@ -538,7 +538,8 @@ if (format == BRIDGE_FORMAT_PBN ||
     format == BRIDGE_FORMAT_RBN ||
     format == BRIDGE_FORMAT_RBX ||
     format == BRIDGE_FORMAT_TXT ||
-    format == BRIDGE_FORMAT_EML)
+    format == BRIDGE_FORMAT_EML ||
+    format == BRIDGE_FORMAT_REC)
 {
   fstr.close();
   buffer.read(fname, format);
@@ -590,14 +591,23 @@ else if (format == BRIDGE_FORMAT_EML)
           chunk[BRIDGE_FORMAT_AUCTION] == "")
         break;
 }
-else
+else if (format == BRIDGE_FORMAT_REC)
 {
-      (* formatFncs[format].readChunk)(fstr, counts.lno, chunk, newSegFlag);
+  readRECChunk(buffer, counts.lno, chunk, newSegFlag);
       if (chunk[BRIDGE_FORMAT_BOARD_NO] == "" && 
           chunk[BRIDGE_FORMAT_RESULT] == "" &&
-          chunk[BRIDGE_FORMAT_AUCTION] == "" &&
-          fstr.eof())
+          chunk[BRIDGE_FORMAT_AUCTION] == "")
         break;
+}
+else
+{
+  THROW("Dead");
+      // (* formatFncs[format].readChunk)(fstr, counts.lno, chunk, newSegFlag);
+      // if (chunk[BRIDGE_FORMAT_BOARD_NO] == "" && 
+          // chunk[BRIDGE_FORMAT_RESULT] == "" &&
+          // chunk[BRIDGE_FORMAT_AUCTION] == "" &&
+          // fstr.eof())
+        // break;
 }
     }
     catch (Bexcept& bex)

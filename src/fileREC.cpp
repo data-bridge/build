@@ -7,9 +7,7 @@
 */
 
 
-#include <iostream>
 #include <sstream>
-#include <fstream>
 #include <regex>
 
 #include "Group.h"
@@ -32,7 +30,7 @@ static bool tryRECMethod(
   const string& info);
 
 static void readRECCanvas(
-  ifstream& fstr,
+  Buffer& buffer,
   unsigned& lno,
   vector<string>& canvas);
 
@@ -61,34 +59,28 @@ static void getRECPlay(
 
 
 static void readRECCanvas(
-  ifstream& fstr,
+  Buffer& buffer,
   unsigned& lno,
   vector<string>& canvas)
 {
-  string line, prevLine = "";
-  while (getline(fstr, line))
+  string line;
+  LineData lineData;
+  while (buffer.next(lineData))
   {
     lno++;
-    if (line.empty())
+    if (lineData.type == BRIDGE_BUFFER_EMPTY)
     {
-      // if (prevLine.size() >= 8 && prevLine.at(1) != ' ' && 
-          // prevLine.at(2) == ' ' && prevLine.at(3) == ' ' &&
-          // prevLine.at(4) != ' ')
-      int i = fstr.peek();
+      int i = buffer.peek();
       if (i == EOF || i == 0x49) // I
         return;
       else
         continue;
     }
-    else if (line.at(0) == '%')
+    else if (lineData.type == BRIDGE_BUFFER_COMMENT)
       continue;
 
-    canvas.push_back(line);
-    prevLine = line;
+    canvas.push_back(lineData.line);
   }
-
-  if (canvas.size() == 0)
-    THROW("Didn't read any canvas");
 }
 
 
@@ -351,18 +343,21 @@ static void getRECPlay(
 
 
 void readRECChunk(
-  ifstream& fstr,
+  Buffer& buffer,
   unsigned& lno,
   vector<string>& chunk,
   bool& newSegFlag)
 {
   // First get all the lines of a hand.
   vector<string> canvas;
-  readRECCanvas(fstr, lno, canvas);
+  readRECCanvas(buffer, lno, canvas);
   
   // Then parse them into the chunk structure.
   for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
     chunk[i] = "";
+
+  if (canvas.size() == 0)
+    return;
 
   unsigned playLine = 0;
   newSegFlag = false;
@@ -370,6 +365,7 @@ void readRECChunk(
   bool playExists = getRECCanvasOffset(canvas, playLine);
   getRECFields(canvas, playLine, playExists, chunk);
 }
+
 
 
 void writeRECBoardLevel(

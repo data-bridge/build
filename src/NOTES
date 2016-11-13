@@ -3,14 +3,7 @@ Should not be possible that LIN->LIN generates session errors.
 Check the output matrix for general consistency.
 
 Buffer: 
-* Move dispatch to this buffer as well (readFormatted etc)
 * Can move buffer init and reserve out of file*.cpp
-
-Why does filePBN read take so long still?
-
-In dispatch
-* Move from map in fileRBN and fileLIN to manual search?
-* Move detailed parsing down into classes?
 
 When multi-threading, exceptions still go to stdout?
 Maybe put errors to cerr.
@@ -40,10 +33,8 @@ Parse VG LIN headers for some recognizable format.
 options
 -------
 -b "binary compare", write to temp file, read back in, check ==
-
 -S stats on lengths
 -N name file
-
 -A analyse DD
 -p play analyze DD
 
@@ -73,7 +64,6 @@ Board: Valuation
 
 Double-dummy
 ------------
-
 * Tableau: Call DDS
 * Trace: 
   - (1) old trace, can count mistakes
@@ -85,7 +75,6 @@ Threads consume single boards from segments (all instances).
 
 Database
 --------
-
 Be able to store
 - Play trace, including error types
 - Hand to open bidding (0-4)
