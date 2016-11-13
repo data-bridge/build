@@ -229,7 +229,7 @@ static void setIO()
   formatFncs[BRIDGE_FORMAT_TXT].writeSeg = &writeTXTSegmentLevel;
   formatFncs[BRIDGE_FORMAT_TXT].writeBoard = &writeTXTBoardLevel;
 
-  formatFncs[BRIDGE_FORMAT_EML].readChunk = &readEMLChunk;
+  formatFncs[BRIDGE_FORMAT_EML].readChunk = &readRECChunk; // TODO
   formatFncs[BRIDGE_FORMAT_EML].writeSeg = &writeDummySegmentLevel;
   formatFncs[BRIDGE_FORMAT_EML].writeBoard = &writeEMLBoardLevel;
 
@@ -537,7 +537,8 @@ if (format == BRIDGE_FORMAT_PBN ||
     format == BRIDGE_FORMAT_LIN ||
     format == BRIDGE_FORMAT_RBN ||
     format == BRIDGE_FORMAT_RBX ||
-    format == BRIDGE_FORMAT_TXT)
+    format == BRIDGE_FORMAT_TXT ||
+    format == BRIDGE_FORMAT_EML)
 {
   fstr.close();
   buffer.read(fname, format);
@@ -576,6 +577,14 @@ else if (format == BRIDGE_FORMAT_RBN ||
 else if (format == BRIDGE_FORMAT_TXT)
 {
   readTXTChunk(buffer, counts.lno, chunk, newSegFlag);
+      if (chunk[BRIDGE_FORMAT_BOARD_NO] == "" && 
+          chunk[BRIDGE_FORMAT_RESULT] == "" &&
+          chunk[BRIDGE_FORMAT_AUCTION] == "")
+        break;
+}
+else if (format == BRIDGE_FORMAT_EML)
+{
+  readEMLChunk(buffer, counts.lno, chunk, newSegFlag);
       if (chunk[BRIDGE_FORMAT_BOARD_NO] == "" && 
           chunk[BRIDGE_FORMAT_RESULT] == "" &&
           chunk[BRIDGE_FORMAT_AUCTION] == "")

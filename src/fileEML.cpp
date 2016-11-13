@@ -7,9 +7,7 @@
 */
 
 
-#include <iostream>
 #include <sstream>
-#include <fstream>
 
 #include "Group.h"
 #include "Segment.h"
@@ -23,11 +21,10 @@ using namespace std;
 
 
 static string EMLdashes, EMLequals;
-static string EMLshortDashes, EMLshortEquals;
 
 
 static void readEMLCanvas(
-  ifstream& fstr,
+  Buffer& buffer,
   unsigned& lno,
   vector<string>& canvas);
 
@@ -71,45 +68,32 @@ void setEMLTables()
 
   EMLequals.resize(0);
   EMLequals.insert(0, 79, '=');
-
-  EMLshortDashes.resize(0);
-  EMLshortDashes.insert(0, 10, '-');
-
-  EMLshortEquals.resize(0);
-  EMLshortEquals.insert(0, 10, '=');
 }
 
 
 static void readEMLCanvas(
-  ifstream& fstr,
+  Buffer& buffer,
   unsigned& lno,
   vector<string>& canvas)
 {
-  string line;
-  while (getline(fstr, line))
+  LineData lineData;
+  while (buffer.next(lineData))
   {
     lno++;
-    if (line.empty())
+    if (lineData.type == BRIDGE_BUFFER_EMPTY)
     {
       // If some players aren't given, we might have an empty line.
       if (canvas.size() != 7 && canvas.size() != 13)
         continue;
     }
-    else if (line.at(0) == '%')
+    else if (lineData.type == BRIDGE_BUFFER_COMMENT)
       continue;
 
-    if (line.size() > 40)
-    {
-      const string mid = line.substr(30, 10);
-      if (mid == EMLshortDashes || mid == EMLshortEquals)
-        break;
-    }
+    if (lineData.type == BRIDGE_BUFFER_DASHES)
+      break;
 
-    canvas.push_back(line);
+    canvas.push_back(lineData.line);
   }
-
-  if (canvas.size() < 17)
-    THROW("Canvas too short");
 }
 
 
@@ -399,7 +383,7 @@ static void getEMLPlay(
 
 
 void readEMLChunk(
-  ifstream& fstr,
+  Buffer& buffer,
   unsigned& lno,
   vector<string>& chunk,
   bool& newSegFlag)
@@ -408,11 +392,16 @@ void readEMLChunk(
 
   // First get all the lines of a hand.
   vector<string> canvas;
-  readEMLCanvas(fstr, lno, canvas);
+  readEMLCanvas(buffer, lno, canvas);
   
   // Then parse them into the chunk structure.
   for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
     chunk[i] = "";
+
+  if (canvas.size() == 0)
+    return;
+  else if (canvas.size() < 17)
+    THROW("Canvas too short");
 
   unsigned openingLine = 0;
   unsigned westLine = 0;

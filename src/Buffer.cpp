@@ -186,6 +186,14 @@ void Buffer::classify(LineData& ld)
     ld.type = BRIDGE_BUFFER_DASHES;
     return;
   }
+  else if (format ==  BRIDGE_FORMAT_EML &&
+      ld.len > 50 &&
+      (ld.line.substr(30, 5) == "-----" ||
+       ld.line.substr(30, 5) == "====="))
+  {
+    ld.type = BRIDGE_BUFFER_DASHES;
+    return;
+  }
   else if (ld.line.at(0) == '%')
   {
     ld.type = BRIDGE_BUFFER_COMMENT;
