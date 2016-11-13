@@ -1,5 +1,6 @@
-Output matrix:
-- Should log input as LIN_RP
+Output matrix should log input as LIN_RP
+- Bigger job, as all the switches etc. have to be looked at...
+- In Files.cpp line 238, put LIN_RP (?)
 
 Functionality
 -------------
@@ -15,7 +16,6 @@ Test on concatenated RBN file
 Checks
 ------
 Add == comparison (read written file back into, compare groups as ==).
-Check that there is never > 1 segment in RP files.
 Make Board checks.
 Should somehow recognize complete duplicates.
 
@@ -35,9 +35,7 @@ Tools
 - include-what-you-use
 - clang static analyzer
 
-Add g++ makefile for Ubuntu
-Try the g++ trick to get unused methods
-Update makefiles (file lists)
+Add g++ makefile for Ubuntu, maybe Mac etc etc.
 
 Valuation
 ---------
