@@ -1,13 +1,10 @@
-Split output files into tmp/LIN, tmp/EML etc.
-Should not be possible that LIN->LIN generates session errors.
-Check the output matrix for general consistency.
-
-Why does writing take so long -- file system or += string?
-
-When multi-threading, exceptions still go to stdout?
-Maybe put errors to cerr.
-
-Print examples of each problem (small or large).
+Output matrix:
+- LIN -> TXT has header issues
+- LIN -> LIN has session issue
+- Should log input as LIN_RP
+- Output files should be spread correctly on directories
+- Permit not writing output files (for speed)
+- Don't output MINOR and whole inputs when no information
 
 Functionality
 -------------

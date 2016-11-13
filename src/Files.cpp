@@ -232,7 +232,7 @@ void Files::set(const Options& options)
   else
   {
     keepFlag = options.dirOutput.setFlag;
-    prefix = (keepFlag ? options.dirOutput.name + "/" : "tmp");
+    prefix = (keepFlag ? options.dirOutput.name + "/" : "tmp/");
 
     if (options.formatSetFlag)
       flist.push_back(options.format);
@@ -254,7 +254,8 @@ void Files::set(const Options& options)
 
       for (auto &f: flist)
       {
-        string oname = prefix + i.base + "." + FORMAT_NAMES[f];
+        string oname = prefix + FORMAT_NAMES[i.format] + "/" + 
+          i.base + "." + FORMAT_EXTENSIONS[f];
         Files::fillEntry(oname, oe);
         outputList.push_back(oe);
       }

@@ -171,22 +171,27 @@ static const vector<ValError> headerErrorType =
 };
 
 
+#include "Bexcept.h"
 bool isTXTHeader(
   ValState& valState,
-  const unsigned & headerStartTXT, 
+  const unsigned & headerStartOut, 
   ValProfile& prof)
 {
-  // Make a list of output header lines (absolute position known).
-  vector<string> listOut(7);
-  listOut.clear();
+  // The absolute position is known in the output.
+  // In the reference, there are two variations.
 
-  for (unsigned i = valState.dataOut.no; i <= headerStartTXT+6; i++)
+  vector<string> listOut(7), listRef(7);
+  for (unsigned i = 0; i < 7; i++)
   {
-    // +0 is empty by construction, +1 must be empty.
-    if (i <= headerStartTXT+1)
-      continue;
-    listOut[i-headerStartTXT] = valState.dataOut.line;
+    listOut[i] = "";
+    listRef[i] = "";
+  }
 
+  // Read the rest of the header, stopping at empty line before board.
+  const unsigned offsetOut = valState.dataOut.no - headerStartOut;
+  for (unsigned i = valState.dataOut.no; i <= headerStartOut+6; i++)
+  {
+    listOut[i-headerStartOut] = valState.dataOut.line;
     if (! valState.bufferOut.next(valState.dataOut))
       return false;
   }
@@ -195,42 +200,34 @@ bool isTXTHeader(
   if (valState.dataOut.type != BRIDGE_BUFFER_EMPTY)
     return false;
 
+  const unsigned headerStartRef = valState.bufferRef.previousHeaderStart();
 
-  // Make a list of reference header lines (relative).
-  vector<string> listRef;
-  listRef.clear();
-
-  unsigned i = valState.dataOut.no;
-  while (valState.dataRef.type != BRIDGE_BUFFER_EMPTY)
+  // Do the same for the reference.
+  for (unsigned i = valState.dataRef.no; i <= headerStartRef+6; i++)
   {
-    listRef.push_back(valState.dataRef.line);
-    if (! valState.bufferRef.next(valState.dataRef))
-      return false;
-
-    if (i == headerStartTXT)
+    if (i == headerStartRef+6 && 
+        valState.dataRef.type == BRIDGE_BUFFER_EMPTY)
     {
-      // Expect a newline.
-      if (valState.dataRef.type != BRIDGE_BUFFER_EMPTY)
-        return false;
-
+      // This happens in practice when the location is missing.
+      listRef.erase(listRef.begin()+6);
+      listRef.insert(listRef.begin()+3, "");
+    }
+    else
+    {
+      listRef[i-headerStartRef] = valState.dataRef.line;
       if (! valState.bufferRef.next(valState.dataRef))
         return false;
-
-      i++;
     }
-    i++;
   }
 
-  // Attempt to match them up.
-  unsigned r = 0;
-  for (i = 0; i <= 6; i++)
-  {
-    if (listOut[i] == "")
-      continue;
-    else if (listOut[i] != listRef[r])
-      prof.log(headerErrorType[i], valState);
+  // Reading the rest of the ref header should leave us at an empty line.
+  if (valState.dataRef.type != BRIDGE_BUFFER_EMPTY)
+    return false;
 
-    r++;
+  for (unsigned i = offsetOut; i < 7; i++)
+  {
+    if (listOut[i] != listRef[i])
+      prof.log(headerErrorType[i], valState);
   }
   return true;
 }
@@ -250,8 +247,7 @@ bool validateTXT(
     if (expectPasses == 0 || 
         isTXTPasses(valState.dataRef.line, expectPasses))
     {
-      prof.log(BRIDGE_VAL_TXT_ALL_PASS, valState);
-      return true;
+      prof.log(BRIDGE_VAL_TXT_ALL_PASS, valState); return true;
     }
     else
       return false;
@@ -312,17 +308,9 @@ bool validateTXT(
       prof.log(BRIDGE_VAL_TEAMS, valState);
       return true;
     }
-    else if (valState.dataOut.no <= headerStart+ 6)
+    else if (valState.dataOut.no <= headerStart+6)
     {
-      if (! isTXTHeader(valState, headerStart, prof))
-        return false;
-      else if (valState.dataOut.line == valState.dataRef.line)
-        return true;
-      else
-      {
-        prof.log(BRIDGE_VAL_TEAMS, valState);
-        return false;
-      }
+      return isTXTHeader(valState, headerStart, prof);
     }
   }
 
