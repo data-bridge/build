@@ -140,7 +140,8 @@ static bool readFormattedFile(
   const string& fname,
   const Format format,
   Group& group,
-  const Options& options);
+  const Options& options,
+  ostream& flog);
 
 static void tryFormatMethod(
   const Format format,
@@ -305,14 +306,14 @@ void dispatch(
     try
     {
       if (! readFormattedFile(task.fileInput, task.formatInput, 
-          group, options))
+          group, options, flog))
       {
         THROW("dispatch: read failed");
       }
     }
     catch (Bexcept& bex)
     {
-      bex.print();
+      bex.print(flog);
       continue;
     }
     timers.stop(BRIDGE_TIMER_READ, task.formatInput);
@@ -331,7 +332,7 @@ void dispatch(
       }
       catch (Bexcept& bex)
       {
-        bex.print();
+        bex.print(flog);
         continue;
       }
       timers.stop(BRIDGE_TIMER_WRITE, t.formatOutput);
@@ -352,7 +353,7 @@ void dispatch(
         {
           flog << "Files " << task.fileInput << " -> " <<
             t.fileOutput << endl;
-          bex.print();
+          bex.print(flog);
         }
         timers.stop(BRIDGE_TIMER_VALIDATE, t.formatOutput);
       }
@@ -493,7 +494,8 @@ static bool readFormattedFile(
   const string& fname,
   const Format format,
   Group& group,
-  const Options& options)
+  const Options& options,
+  ostream& flog)
 {
   Buffer buffer;
   buffer.read(fname, format);
@@ -542,7 +544,7 @@ static bool readFormattedFile(
       if (options.verboseThrow)
         printCounts(fname, counts);
 
-      bex.print();
+      bex.print(flog);
 
       if (options.verboseBatch)
         printChunk(chunk);
@@ -610,7 +612,7 @@ static bool readFormattedFile(
             chunk[i] << "'" << endl << endl;
       }
 
-      bex.print();
+      bex.print(flog);
 
       if (options.verboseBatch)
         printChunk(chunk);

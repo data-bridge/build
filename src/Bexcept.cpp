@@ -25,11 +25,11 @@ Bexcept::Bexcept(
 }
 
 
-void Bexcept::print() const
+void Bexcept::print(ostream& flog) const
 {
-  cout << "Exception thrown in " << file << 
+  flog << "Exception thrown in " << file << 
       ", function " << function << 
       ", line number " << line << endl;
-  cout << message << endl;
+  flog << message << endl;
 }
 
