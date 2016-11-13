@@ -171,7 +171,6 @@ static const vector<ValError> headerErrorType =
 };
 
 
-#include "Bexcept.h"
 bool isTXTHeader(
   ValState& valState,
   const unsigned & headerStartOut, 

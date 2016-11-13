@@ -107,6 +107,18 @@ bool ValStats::rowHasEntries(
 }
 
 
+bool ValStats::summRowHasEntries(
+  const ValStat stat[],
+  const unsigned summLabel) const
+{
+  for (auto &g: FORMAT_ACTIVE)
+    if (stat[g].count[summLabel])
+      return true;
+
+  return false;
+}
+
+
 void ValStats::printRow(
   ostream& fstr,
   const ValStat stat[],
@@ -139,6 +151,9 @@ void ValStats::printSummRow(
   const string& header,
   const ValSumm summLabel) const
 {
+  if (! ValStats::summRowHasEntries(stat, summLabel))
+    return;
+
   fstr << setw(7) << left << header;
   for (auto &g: FORMAT_ACTIVE)
     fstr << setw(7) << right << posOrDash(stat[g].count[summLabel]);
@@ -175,7 +190,9 @@ void ValStats::print(
         BRIDGE_VAL_ERROR, BRIDGE_VAL_SIZE);
 
     ValStats::printSummRow(fstr, stats[f], "MAJOR", BRIDGE_VAL_MAJOR);
-    fstr << "\n";
+
+    if (ValStats::summRowHasEntries(stats[f], BRIDGE_VAL_ALL))
+      fstr << "\n";
   }
 }
 

@@ -219,7 +219,25 @@ void Session::setPart2Numeric(
   {
     general2 = "";
     sessionNo = u;
+    Session::setPart2Rest(possNumber);
   }
+}
+
+
+void Session::setPart2Rest(const string& text)
+{
+  unsigned pos = 0;
+  while (pos < text.length() && text.at(pos) != ' ')
+    pos++;
+  if (pos == text.length())
+    return;
+
+  while (pos < text.length() && text.at(pos) == ' ')
+    pos++;
+  if (pos == text.length())
+    return;
+
+  sessExt = text.substr(pos);
 }
 
 
@@ -237,19 +255,7 @@ void Session::setPart2(const string& text)
     // Could be "5 (overtime)", for example.
     general2 = "";
     sessionNo = u;
-
-    unsigned pos = 0;
-    while (pos < text.length() && text.at(pos) != ' ')
-      pos++;
-    if (pos == text.length())
-      return;
-
-    while (pos < text.length() && text.at(pos) == ' ')
-      pos++;
-    if (pos == text.length())
-      return;
-
-    sessExt = text.substr(pos);
+    Session::setPart2Rest(text);
     return;
   }
 
@@ -283,8 +289,9 @@ void Session::setSeparated(
   if ((pos = text.find(separator, 0)) == string::npos || 
       text.length() < pos+1+l)
   {
-    general1 = text;
-    stage = BRIDGE_SESSION_UNDEFINED;
+    // general1 = text;
+    // stage = BRIDGE_SESSION_UNDEFINED;
+    Session::setPart1(text);
     general2 = "";
     sessionNo = 0;
     return;

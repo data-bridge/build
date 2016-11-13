@@ -49,6 +49,10 @@ class ValStats
       const ValStat stat[],
       const unsigned label) const;
 
+    bool summRowHasEntries(
+      const ValStat stat[],
+      const unsigned summLabel) const;
+
     void printRow(
       ostream& fstr,
       const ValStat vstat[],

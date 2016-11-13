@@ -54,6 +54,7 @@ class Session
     void setPart2Numeric(
       const string& possNumber,
       const string& text);
+    void setPart2Rest(const string& text);
     void setPart2(const string& text);
 
     void setSeparated(

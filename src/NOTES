@@ -1,7 +1,5 @@
 Output matrix:
-- LIN -> LIN has session issue
 - Should log input as LIN_RP
-- Don't output MINOR and whole inputs when no information
 
 Functionality
 -------------
