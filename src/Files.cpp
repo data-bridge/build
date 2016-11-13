@@ -214,12 +214,10 @@ void Files::set(const Options& options)
   vector<Format> flist;
   FileEntry oe;
   bool keepFlag;
-  string prefix;
 
   if (options.fileOutput.setFlag)
   {
     keepFlag = true;
-    prefix = "";
     Files::fillEntry(options.fileOutput.name, oe);
 
     outputList.push_back(oe);
@@ -232,7 +230,6 @@ void Files::set(const Options& options)
   else
   {
     keepFlag = options.dirOutput.setFlag;
-    prefix = (keepFlag ? options.dirOutput.name + "/" : "tmp/");
 
     if (options.formatSetFlag)
       flist.push_back(options.format);
@@ -251,12 +248,23 @@ void Files::set(const Options& options)
     for (auto &i: inputList)
     {
       outputList.clear();
+      const string iprefix = options.dirOutput.name + "/" +
+        FORMAT_NAMES[i.format] + "/" + i.base + ".";
 
       for (auto &f: flist)
       {
-        string oname = prefix + FORMAT_NAMES[i.format] + "/" + 
-          i.base + "." + FORMAT_EXTENSIONS[f];
-        Files::fillEntry(oname, oe);
+        if (keepFlag)
+        {
+          string oname = iprefix + FORMAT_EXTENSIONS[f];
+          Files::fillEntry(oname, oe);
+        }
+        else
+        {
+          oe.fullName = "";
+          oe.base = "";
+          oe.format = f;
+        }
+
         outputList.push_back(oe);
       }
 

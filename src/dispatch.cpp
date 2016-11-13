@@ -698,7 +698,8 @@ static bool writeFormattedFile(
     }
   }
 
-  writeFast(fname, text);
+  if (fname != "")
+    writeFast(fname, text);
   return true;
 }
 

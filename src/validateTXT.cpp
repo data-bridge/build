@@ -299,7 +299,7 @@ bool validateTXT(
     return true;
   }
 
-  const unsigned headerStart = valState.bufferOut.previousHeaderStart();
+  const unsigned headerStartOut = valState.bufferOut.previousHeaderStart();
 
   if (valState.dataOut.type == BRIDGE_BUFFER_EMPTY)
   {
@@ -308,13 +308,13 @@ bool validateTXT(
       prof.log(BRIDGE_VAL_TEAMS, valState);
       return true;
     }
-    else if (valState.dataOut.no <= headerStart+6)
+    else if (valState.dataOut.no <= headerStartOut+6)
     {
-      return isTXTHeader(valState, headerStart, prof);
+      return isTXTHeader(valState, headerStartOut, prof);
     }
   }
 
-  if (valState.dataOut.no > headerStart+6)
+  if (valState.dataOut.no > headerStartOut+6)
   {
     // This is tricky, as both the numbers and positions of words
     // can differ.  We combine two heuristics.
