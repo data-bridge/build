@@ -225,7 +225,7 @@ static void setIO()
   formatFncs[BRIDGE_FORMAT_RBX].writeSeg = &writeRBNSegmentLevel;
   formatFncs[BRIDGE_FORMAT_RBX].writeBoard = &writeRBNBoardLevel;
 
-  formatFncs[BRIDGE_FORMAT_TXT].readChunk = &readTXTChunk;
+  formatFncs[BRIDGE_FORMAT_TXT].readChunk = &readRECChunk; // TODO
   formatFncs[BRIDGE_FORMAT_TXT].writeSeg = &writeTXTSegmentLevel;
   formatFncs[BRIDGE_FORMAT_TXT].writeBoard = &writeTXTBoardLevel;
 
@@ -536,7 +536,8 @@ Buffer buffer;
 if (format == BRIDGE_FORMAT_PBN ||
     format == BRIDGE_FORMAT_LIN ||
     format == BRIDGE_FORMAT_RBN ||
-    format == BRIDGE_FORMAT_RBX)
+    format == BRIDGE_FORMAT_RBX ||
+    format == BRIDGE_FORMAT_TXT)
 {
   fstr.close();
   buffer.read(fname, format);
@@ -567,6 +568,14 @@ else if (format == BRIDGE_FORMAT_RBN ||
     format == BRIDGE_FORMAT_RBX)
 {
   readRBNChunk(buffer, counts.lno, chunk, newSegFlag);
+      if (chunk[BRIDGE_FORMAT_BOARD_NO] == "" && 
+          chunk[BRIDGE_FORMAT_RESULT] == "" &&
+          chunk[BRIDGE_FORMAT_AUCTION] == "")
+        break;
+}
+else if (format == BRIDGE_FORMAT_TXT)
+{
+  readTXTChunk(buffer, counts.lno, chunk, newSegFlag);
       if (chunk[BRIDGE_FORMAT_BOARD_NO] == "" && 
           chunk[BRIDGE_FORMAT_RESULT] == "" &&
           chunk[BRIDGE_FORMAT_AUCTION] == "")

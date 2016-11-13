@@ -7,9 +7,7 @@
 */
 
 
-#include <iostream>
 #include <sstream>
-#include <fstream>
 #include <regex>
 
 #include "Group.h"
@@ -23,13 +21,7 @@ using namespace std;
 
 
 string TXTdashes;
-string TXTshortDashes;
 
-
-static void readTXTCanvas(
-  ifstream& fstr,
-  unsigned& lno,
-  vector<string>& canvas);
 
 static void getTXTCanvasOffset(
   const vector<string>& canvas,
@@ -61,33 +53,33 @@ void setTXTTables()
 {
   TXTdashes.resize(0);
   TXTdashes.insert(0, 41, '-');
-
-  TXTshortDashes.resize(0);
-  TXTshortDashes.insert(0, 10, '-');
 }
 
 
 static void readTXTCanvas(
-  ifstream& fstr,
+  Buffer& buffer,
   unsigned& lno,
   vector<string>& canvas)
 {
-  string line;
+  LineData lineData;
   bool seenDeal = false;
-  while (getline(fstr, line))
+  while (buffer.next(lineData))
   {
     lno++;
-    if (line.empty())
+    if (lineData.type == BRIDGE_BUFFER_EMPTY)
     {
       if (! seenDeal)
         continue;
 
-      string& prevLine = canvas.back();
+      LineData prevData;
+      if (! buffer.previous(prevData))
+        THROW("Should not happen");
+
       string wd;
-      if (readNextWord(prevLine, 0, wd) && 
+      if (readNextWord(prevData.line, 0, wd) && 
           (wd == "Down" || wd == "Made" || wd == "Passed"))
       {
-        int seen = count(prevLine.begin(), prevLine.end(), ' ');
+        int seen = count(prevData.line.begin(), prevData.line.end(), ' ');
         if (seen > 4 || (wd == "Passed" && seen >= 3))
           // Team line still to come
           continue;
@@ -97,27 +89,23 @@ static void readTXTCanvas(
       else
         continue;
     }
-    else if (line.at(0) == '%')
+    else if (lineData.type == BRIDGE_BUFFER_COMMENT)
       continue;
 
-    if (line.size() > 25)
+    if (lineData.len > 25)
     {
-      if (line.substr(0, 4) == "West")
+      if (lineData.line.substr(0, 4) == "West")
         seenDeal = true;
-      else
+      else if (lineData.type == BRIDGE_BUFFER_DASHES)
       {
-        const string mid = line.substr(10, 10);
-        if (mid == TXTshortDashes)
-        {
-          if (seenDeal)
-            return;
-          else
-            continue;
-        }
+        if (seenDeal)
+          return;
+        else
+          continue;
       }
     }
 
-    canvas.push_back(line);
+    canvas.push_back(lineData.line);
   }
 }
 
@@ -470,18 +458,21 @@ static void getTXTPlay(
 
 
 void readTXTChunk(
-  ifstream& fstr,
+  Buffer& buffer,
   unsigned& lno,
   vector<string>& chunk,
   bool& newSegFlag)
 {
   // First get all the lines of a hand.
   vector<string> canvas;
-  readTXTCanvas(fstr, lno, canvas);
+  readTXTCanvas(buffer, lno, canvas);
   
   // Then parse them into the chunk structure.
   for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
     chunk[i] = "";
+
+  if (canvas.size() == 0)
+    return;
 
   unsigned auctionLine = 0;
   getTXTCanvasOffset(canvas, auctionLine, chunk);

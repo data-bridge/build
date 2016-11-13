@@ -6,6 +6,8 @@ Buffer:
 * Move dispatch to this buffer as well (readFormatted etc)
 * Can move buffer init and reserve out of file*.cpp
 
+Why does filePBN read take so long still?
+
 In dispatch
 * Move from map in fileRBN and fileLIN to manual search?
 * Move detailed parsing down into classes?

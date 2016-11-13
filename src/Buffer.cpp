@@ -461,6 +461,16 @@ bool Buffer::next(LineData& vside)
 }
 
 
+bool Buffer::previous(LineData& vside)
+{
+  if (current <= 1)
+    return false;
+
+  vside = lines[current-2];
+  return true;
+}
+
+
 unsigned Buffer::previousHeaderStart() const
 {
   unsigned u = current;

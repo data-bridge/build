@@ -12,6 +12,8 @@
 #include <string>
 #include <vector>
 
+#include "Buffer.h"
+
 using namespace std;
 
 class Group;
@@ -20,7 +22,7 @@ class Group;
 void setTXTTables();
 
 void readTXTChunk(
-  ifstream& fstr,
+  Buffer& buffer,
   unsigned& lno,
   vector<string>& chunk,
   bool& newSegFlag);
