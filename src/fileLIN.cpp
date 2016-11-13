@@ -7,10 +7,7 @@
 */
 
 
-#include <iostream>
 #include <sstream>
-#include <fstream>
-#include <regex>
 #include <map>
 
 #include "Group.h"
@@ -51,52 +48,71 @@ void setLINTables()
 }
 
 
+static bool nextLINPair(
+  const string& line,
+  unsigned& pos,
+  string& label,
+  string& value)
+{
+  if (pos == line.size())
+    return false;
+
+  unsigned lpos = line.find('|', pos);
+  if (lpos == string::npos)
+    return false;
+  unsigned vpos = line.find('|', lpos+1);
+  if (vpos == string::npos)
+    return false;
+
+  label = line.substr(pos, lpos-pos);
+  value = line.substr(lpos+1, vpos-lpos-1);
+  pos = vpos+1;
+  return true;
+}
+
+
 void readLINChunk(
-  ifstream& fstr,
+  Buffer& buffer,
   unsigned& lno,
   vector<string>& chunk,
   bool& newSegFlag)
 {
-  string line;
+  LineData lineData;
   newSegFlag = false;
   for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
+  {
     chunk[i] = "";
+    chunk[i].reserve(128);
+  }
 
   bool qxSeen = false;
-  regex re("^(\\w\\w)\\|([^|]*)\\|");
-  smatch match;
-
   bool doneFlag = false;
   unsigned cardCount = 0;
   stringstream alerts;
   unsigned aNo = 1;
-  while (! doneFlag && getline(fstr, line))
+  while (! doneFlag && buffer.next(lineData))
   {
     lno++;
 
-    if (! line.empty())
+    if (lineData.type != BRIDGE_BUFFER_EMPTY)
     {
-      const char c = line.at(0);
-      if (c == '%')
+      if (lineData.type == BRIDGE_BUFFER_COMMENT)
         continue;
-      else if (c == 'q')
+      else if (lineData.line.at(0) == 'q')
         qxSeen = true;
     }
 
-    int i = fstr.peek();
-    if (i == EOF || (qxSeen && i == 0x71)) // q
+    int i = buffer.peek();
+    if (i == 0x00 || (qxSeen && i == 0x71)) // q
       doneFlag = true;
 
-    if (line.empty())
+    if (lineData.type == BRIDGE_BUFFER_EMPTY)
       continue;
     
-    while (regex_search(line, match, re) && match.size() >= 2)
+    unsigned pos = 0;
+    string label, value;
+    while (nextLINPair(lineData.line, pos, label, value))
     {
-      string label = match.str(1);
-      const string value = match.str(2);
-
-      line = regex_replace(line, re, string(""));
-
       // Artificial label to disambiguate.
       if (label == "pn" && ! qxSeen)
         label = "px";
@@ -111,7 +127,7 @@ void readLINChunk(
 
       auto it = LINmap.find(label);
       if (it == LINmap.end())
-        THROW("Illegal LIN label in line '" + line + "'");
+        THROW("Illegal LIN label in line '" + lineData.line + "'");
 
       const unsigned labelNo = it->second;
       if (labelNo <= BRIDGE_FORMAT_VISITTEAM)
@@ -136,13 +152,13 @@ void readLINChunk(
       else if (chunk[labelNo] == "")
         chunk[labelNo] = value;
       else
-        THROW("Label already set in line '" + line + "'");
+        THROW("Label already set in line '" + lineData.line + "'");
     }
   }
 
   if (alerts.str() != "")
     chunk[BRIDGE_FORMAT_AUCTION] += "\n" + alerts.str();
-  if (! qxSeen)
+  if (! qxSeen && buffer.peek() != 0x00)
     THROW("No deal found");
 }
 

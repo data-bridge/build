@@ -193,27 +193,27 @@ static void setFormatTables()
 
 static void setIO()
 {
-  formatFncs[BRIDGE_FORMAT_LIN].readChunk = &readLINChunk;
+  formatFncs[BRIDGE_FORMAT_LIN].readChunk = &readRECChunk; // TODO
   formatFncs[BRIDGE_FORMAT_LIN].writeSeg = &writeLINSegmentLevel;
   formatFncs[BRIDGE_FORMAT_LIN].writeBoard = &writeLINBoardLevel;
 
-  formatFncs[BRIDGE_FORMAT_LIN_RP].readChunk = &readLINChunk;
+  formatFncs[BRIDGE_FORMAT_LIN_RP].readChunk = &readRECChunk; // TODO
   formatFncs[BRIDGE_FORMAT_LIN_RP].writeSeg = &writeLINSegmentLevel;
   formatFncs[BRIDGE_FORMAT_LIN_RP].writeBoard = &writeLINBoardLevel;
 
-  formatFncs[BRIDGE_FORMAT_LIN_VG].readChunk = &readLINChunk;
+  formatFncs[BRIDGE_FORMAT_LIN_VG].readChunk = &readRECChunk; // TODO
   formatFncs[BRIDGE_FORMAT_LIN_VG].writeSeg = &writeLINSegmentLevel;
   formatFncs[BRIDGE_FORMAT_LIN_VG].writeBoard = &writeLINBoardLevel;
 
-  formatFncs[BRIDGE_FORMAT_LIN_TRN].readChunk = &readLINChunk;
+  formatFncs[BRIDGE_FORMAT_LIN_TRN].readChunk = &readRECChunk; // TODO
   formatFncs[BRIDGE_FORMAT_LIN_TRN].writeSeg = &writeLINSegmentLevel;
   formatFncs[BRIDGE_FORMAT_LIN_TRN].writeBoard = &writeLINBoardLevel;
 
-  formatFncs[BRIDGE_FORMAT_LIN_EXT].readChunk = &readLINChunk;
+  formatFncs[BRIDGE_FORMAT_LIN_EXT].readChunk = &readRECChunk; // TODO
   formatFncs[BRIDGE_FORMAT_LIN_EXT].writeSeg = &writeLINSegmentLevel;
   formatFncs[BRIDGE_FORMAT_LIN_EXT].writeBoard = &writeLINBoardLevel;
 
-  formatFncs[BRIDGE_FORMAT_PBN].readChunk = &readLINChunk; // TODO: Fix
+  formatFncs[BRIDGE_FORMAT_PBN].readChunk = &readRECChunk; // TODO: Fix
   formatFncs[BRIDGE_FORMAT_PBN].writeSeg = &writeDummySegmentLevel;
   formatFncs[BRIDGE_FORMAT_PBN].writeBoard = &writePBNBoardLevel;
 
@@ -533,7 +533,8 @@ static bool readFormattedFile(
   counts.lnoOld = 0;
 
 Buffer buffer;
-if (format == BRIDGE_FORMAT_PBN)
+if (format == BRIDGE_FORMAT_PBN ||
+    format == BRIDGE_FORMAT_LIN)
 {
   fstr.close();
   buffer.read(fname, format);
@@ -547,6 +548,14 @@ if (format == BRIDGE_FORMAT_PBN)
 if (format == BRIDGE_FORMAT_PBN)
 {
   readPBNChunk(buffer, counts.lno, chunk, newSegFlag);
+      if (chunk[BRIDGE_FORMAT_BOARD_NO] == "" && 
+          chunk[BRIDGE_FORMAT_RESULT] == "" &&
+          chunk[BRIDGE_FORMAT_AUCTION] == "")
+        break;
+}
+else if (format == BRIDGE_FORMAT_LIN)
+{
+  readLINChunk(buffer, counts.lno, chunk, newSegFlag);
       if (chunk[BRIDGE_FORMAT_BOARD_NO] == "" && 
           chunk[BRIDGE_FORMAT_RESULT] == "" &&
           chunk[BRIDGE_FORMAT_AUCTION] == "")

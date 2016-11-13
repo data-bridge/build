@@ -20,11 +20,6 @@ using namespace std;
 
 unordered_map<string, Label> PBNmap;
 
-void writePBNSegmentLevel(
-  ofstream& fstr,
-  Segment * segment,
-  const Format format);
-
 
 void setPBNTables()
 {

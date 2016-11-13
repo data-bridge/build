@@ -453,13 +453,24 @@ bool Buffer::next(LineData& vside)
 }
 
 
-unsigned Buffer::previousHeaderStart()
+unsigned Buffer::previousHeaderStart() const
 {
   unsigned u = current;
   while (u >= 2 && lines[u].type != BRIDGE_BUFFER_DASHES)
     u--;
 
   return lines[u+2].no;
+}
+
+
+int Buffer::peek() const
+{
+  if (current > len-1)
+    return 0x00;
+  else if (lines[current].len == 0)
+    return 0x01; // Whatever
+  else 
+    return static_cast<int>(lines[current].line.at(0));
 }
 
 

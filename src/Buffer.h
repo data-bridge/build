@@ -81,7 +81,9 @@ class Buffer
 
     bool next(LineData& lineData);
 
-    unsigned previousHeaderStart();
+    unsigned previousHeaderStart() const;
+
+    int peek() const;
 
     void print() const;
 };
