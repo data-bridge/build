@@ -532,17 +532,35 @@ static bool readFormattedFile(
   counts.lno = 0;
   counts.lnoOld = 0;
 
+Buffer buffer;
+if (format == BRIDGE_FORMAT_PBN)
+{
+  fstr.close();
+  buffer.read(fname, format);
+}
+
   while (true)
   {
     counts.lnoOld = counts.lno;
     try
     {
+if (format == BRIDGE_FORMAT_PBN)
+{
+  readPBNChunk(buffer, counts.lno, chunk, newSegFlag);
+      if (chunk[BRIDGE_FORMAT_BOARD_NO] == "" && 
+          chunk[BRIDGE_FORMAT_RESULT] == "" &&
+          chunk[BRIDGE_FORMAT_AUCTION] == "")
+        break;
+}
+else
+{
       (* formatFncs[format].readChunk)(fstr, counts.lno, chunk, newSegFlag);
       if (chunk[BRIDGE_FORMAT_BOARD_NO] == "" && 
           chunk[BRIDGE_FORMAT_RESULT] == "" &&
           chunk[BRIDGE_FORMAT_AUCTION] == "" &&
           fstr.eof())
         break;
+}
     }
     catch (Bexcept& bex)
     {

@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 #include <regex>
 #include <unordered_map>
 
@@ -22,7 +23,8 @@ using namespace std;
 
 
 unordered_map<string, Label> PBNmap;
-
+vector<string> PBNnoToString;
+vector<unsigned> PBNnoToLabel;
 
 void writePBNSegmentLevel(
   ofstream& fstr,
@@ -60,6 +62,18 @@ void setPBNTables()
   PBNmap["ScoreIMP"] = BRIDGE_FORMAT_SCORE_IMP;
   PBNmap["ScoreMP"] = BRIDGE_FORMAT_SCORE_MP;
   PBNmap["OptimumResultTable"] = BRIDGE_FORMAT_DOUBLE_DUMMY;
+
+  PBNnoToString.clear();
+  PBNnoToLabel.clear();
+
+  for (auto &l: PBNmap)
+    PBNnoToString.push_back(l.first);
+
+  sort(PBNnoToString.begin(), PBNnoToString.end());
+
+  PBNnoToLabel.reserve(PBNnoToString.size());
+  for (auto &s: PBNnoToString)
+    PBNnoToLabel.push_back(static_cast<unsigned>(PBNmap[s]));
 }
 
 
@@ -119,6 +133,16 @@ void readPBNChunk(
     if (chunk[labelNo] != "")
       THROW("Label already set in line '" + line + "'");
 
+/*
+auto low = lower_bound(PBNnoToString.begin(), PBNnoToString.end(),
+  match.str(1));
+unsigned u = static_cast<unsigned>(low - PBNnoToString.begin());
+if (u >= PBNnoToString.size())
+  THROW("PBN label is illegal or not implemented: '" + line + "'");
+
+const unsigned labelNo = PBNnoToLabel[u];
+*/
+
     if (labelNo == BRIDGE_FORMAT_CONTRACT)
     {
       // Kludge to get declarer onto contract.  According to the PBN
@@ -140,6 +164,103 @@ void readPBNChunk(
     else if (match.str(2) != "#")
     {
       chunk[labelNo] = match.str(2);
+      if (labelNo <= BRIDGE_FORMAT_VISITTEAM)
+      {
+        // Kludge to avoid new segment on [Site ""].
+        if (labelNo != BRIDGE_FORMAT_LOCATION || chunk[labelNo] != "")
+          newSegFlag = true;
+      }
+    }
+  }
+}
+
+
+void readPBNChunk(
+  Buffer& buffer,
+  unsigned& lno,
+  vector<string>& chunk,
+  bool& newSegFlag)
+{
+  LineData lineData;
+  newSegFlag = false;
+  for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
+    chunk[i] = "";
+
+  bool inAuction = false;
+  bool inPlay = false;
+
+  while (buffer.next(lineData))
+  {
+    lno++;
+    if (lineData.type == BRIDGE_BUFFER_EMPTY)
+      return;
+
+    if (lineData.type == BRIDGE_BUFFER_COMMENT ||
+        lineData.line.at(0) == '*')
+      continue;
+    else if (inAuction)
+    {
+      if (lineData.type == BRIDGE_BUFFER_STRUCTURED)
+        inAuction = false;
+      else
+      {
+        chunk[BRIDGE_FORMAT_AUCTION] += lineData.line + "\n";
+        continue;
+      }
+    }
+    else if (inPlay)
+    {
+      if (lineData.type == BRIDGE_BUFFER_STRUCTURED)
+        inPlay = false;
+      else
+      {
+        chunk[BRIDGE_FORMAT_PLAY] += lineData.line + "\n";
+        continue;
+      }
+    }
+
+    if (lineData.type != BRIDGE_BUFFER_STRUCTURED)
+      THROW("PBN line does not parse: '" + lineData.line + "'");
+
+    auto it = PBNmap.find(lineData.label);
+    if (it == PBNmap.end())
+      THROW("Unknown PBN label: '" + lineData.value + "'");
+
+    const unsigned labelNo = static_cast<unsigned>(it->second);
+    if (chunk[labelNo] != "")
+      THROW("Label already set in line '" + lineData.line + "'");
+
+/*
+auto low = lower_bound(PBNnoToString.begin(), PBNnoToString.end(),
+  match.str(1));
+unsigned u = static_cast<unsigned>(low - PBNnoToString.begin());
+if (u >= PBNnoToString.size())
+  THROW("PBN label is illegal or not implemented: '" + line + "'");
+
+const unsigned labelNo = PBNnoToLabel[u];
+*/
+
+    if (labelNo == BRIDGE_FORMAT_CONTRACT)
+    {
+      // Kludge to get declarer onto contract.  According to the PBN
+      // standard, declarer should always come before contract.
+      chunk[labelNo] = lineData.value + chunk[BRIDGE_FORMAT_DECLARER];
+    }
+    else if (labelNo == BRIDGE_FORMAT_AUCTION)
+    {
+      // Multi-line.
+      chunk[BRIDGE_FORMAT_AUCTION] += lineData.value + "\n";
+      inAuction = true;
+    }
+    else if (labelNo == BRIDGE_FORMAT_PLAY)
+    {
+      // Multi-line.
+      chunk[BRIDGE_FORMAT_PLAY] += lineData.value + "\n";
+      inPlay = true;
+    }
+    else if (lineData.value != "#")
+    {
+      chunk[labelNo] = lineData.value;
       if (labelNo <= BRIDGE_FORMAT_VISITTEAM)
       {
         // Kludge to avoid new segment on [Site ""].
