@@ -2,6 +2,8 @@ Split output files into tmp/LIN, tmp/EML etc.
 Should not be possible that LIN->LIN generates session errors.
 Check the output matrix for general consistency.
 
+Why does writing take so long -- file system or += string?
+
 Buffer: 
 * Can move buffer init and reserve out of file*.cpp
 
@@ -10,8 +12,38 @@ Maybe put errors to cerr.
 
 Print examples of each problem (small or large).
 
-Check that there is never > 1 segment in RP files.
+Add == comparison (read written file back into, compare groups as ==)
 
+Remove LIN_EXT
+
+Parse VG LIN headers for some recognizable format.
+
+Checks
+------
+Check that there is never > 1 segment in RP files.
+Make Board checks.
+Should somehow recognize complete duplicates.
+
+options
+-------
+-b "binary compare", write to temp file, read back in, check ==
+-S stats on lengths (incl cards per play etc.)
+-N name file
+-A analyse DD
+-p play analyze DD
+
+Auction:
+Include alerts =1= I think.
+
+grep TODO *.cpp *.h
+grep assert
+
+Test on concatenated RBN file
+
+Support PBN ##
+
+Code quality
+------------
 Tools
 - cppclean
 - doxygen including dot
@@ -21,42 +53,6 @@ Tools
 Add g++ makefile for Ubuntu
 Try the g++ trick to get unused methods
 Update makefiles (file lists)
-
-Add == comparison (read written file back into, compare groups as ==)
-
-Use raw strings for regexes?
-
-Remove LIN_EXT
-
-Parse VG LIN headers for some recognizable format.
-
-options
--------
--b "binary compare", write to temp file, read back in, check ==
--S stats on lengths
--N name file
--A analyse DD
--p play analyze DD
-
-Then write a script to set combinations
-
-Auction:
-Include alerts =1= I think.
-
-Read into BBO.exe
-
-grep TODO *.cpp *.h
-grep assert
-
-make Board checks
-
-Test on concatenated RBN file
-
-Support PBN ##
-
-Generate stats on all sizes needed for database, incl #cards per play
-
-Should somehow recognize complete duplicates
 
 Valuation
 ---------

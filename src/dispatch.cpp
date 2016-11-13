@@ -9,14 +9,10 @@
 // The functions in this file help to parse files.
 
 
-#include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <fstream>
 #include <regex>
-#include <assert.h>
-#include <cstdio>
-#include <stdio.h>
 
 #include "Group.h"
 #include "Segment.h"
@@ -33,7 +29,6 @@
 
 #include "parse.h"
 #include "Bexcept.h"
-#include "Bdiff.h"
 
 
 // Modulo 4, so West for Board "0" (4, 8, ...) etc.
@@ -193,43 +188,43 @@ static void setFormatTables()
 
 static void setIO()
 {
-  formatFncs[BRIDGE_FORMAT_LIN].readChunk = &readRECChunk; // TODO
+  formatFncs[BRIDGE_FORMAT_LIN].readChunk = &readLINChunk;
   formatFncs[BRIDGE_FORMAT_LIN].writeSeg = &writeLINSegmentLevel;
   formatFncs[BRIDGE_FORMAT_LIN].writeBoard = &writeLINBoardLevel;
 
-  formatFncs[BRIDGE_FORMAT_LIN_RP].readChunk = &readRECChunk; // TODO
+  formatFncs[BRIDGE_FORMAT_LIN_RP].readChunk = &readLINChunk;
   formatFncs[BRIDGE_FORMAT_LIN_RP].writeSeg = &writeLINSegmentLevel;
   formatFncs[BRIDGE_FORMAT_LIN_RP].writeBoard = &writeLINBoardLevel;
 
-  formatFncs[BRIDGE_FORMAT_LIN_VG].readChunk = &readRECChunk; // TODO
+  formatFncs[BRIDGE_FORMAT_LIN_VG].readChunk = &readLINChunk;
   formatFncs[BRIDGE_FORMAT_LIN_VG].writeSeg = &writeLINSegmentLevel;
   formatFncs[BRIDGE_FORMAT_LIN_VG].writeBoard = &writeLINBoardLevel;
 
-  formatFncs[BRIDGE_FORMAT_LIN_TRN].readChunk = &readRECChunk; // TODO
+  formatFncs[BRIDGE_FORMAT_LIN_TRN].readChunk = &readLINChunk;
   formatFncs[BRIDGE_FORMAT_LIN_TRN].writeSeg = &writeLINSegmentLevel;
   formatFncs[BRIDGE_FORMAT_LIN_TRN].writeBoard = &writeLINBoardLevel;
 
-  formatFncs[BRIDGE_FORMAT_LIN_EXT].readChunk = &readRECChunk; // TODO
+  formatFncs[BRIDGE_FORMAT_LIN_EXT].readChunk = &readLINChunk;
   formatFncs[BRIDGE_FORMAT_LIN_EXT].writeSeg = &writeLINSegmentLevel;
   formatFncs[BRIDGE_FORMAT_LIN_EXT].writeBoard = &writeLINBoardLevel;
 
-  formatFncs[BRIDGE_FORMAT_PBN].readChunk = &readRECChunk; // TODO
+  formatFncs[BRIDGE_FORMAT_PBN].readChunk = &readPBNChunk;
   formatFncs[BRIDGE_FORMAT_PBN].writeSeg = &writeDummySegmentLevel;
   formatFncs[BRIDGE_FORMAT_PBN].writeBoard = &writePBNBoardLevel;
 
-  formatFncs[BRIDGE_FORMAT_RBN].readChunk = &readRECChunk; // TODO
+  formatFncs[BRIDGE_FORMAT_RBN].readChunk = &readRBNChunk;
   formatFncs[BRIDGE_FORMAT_RBN].writeSeg = &writeRBNSegmentLevel;
   formatFncs[BRIDGE_FORMAT_RBN].writeBoard = &writeRBNBoardLevel;
 
-  formatFncs[BRIDGE_FORMAT_RBX].readChunk = &readRECChunk; // TODO
+  formatFncs[BRIDGE_FORMAT_RBX].readChunk = &readRBNChunk; // !
   formatFncs[BRIDGE_FORMAT_RBX].writeSeg = &writeRBNSegmentLevel;
   formatFncs[BRIDGE_FORMAT_RBX].writeBoard = &writeRBNBoardLevel;
 
-  formatFncs[BRIDGE_FORMAT_TXT].readChunk = &readRECChunk; // TODO
+  formatFncs[BRIDGE_FORMAT_TXT].readChunk = &readTXTChunk;
   formatFncs[BRIDGE_FORMAT_TXT].writeSeg = &writeTXTSegmentLevel;
   formatFncs[BRIDGE_FORMAT_TXT].writeBoard = &writeTXTBoardLevel;
 
-  formatFncs[BRIDGE_FORMAT_EML].readChunk = &readRECChunk; // TODO
+  formatFncs[BRIDGE_FORMAT_EML].readChunk = &readEMLChunk;
   formatFncs[BRIDGE_FORMAT_EML].writeSeg = &writeDummySegmentLevel;
   formatFncs[BRIDGE_FORMAT_EML].writeBoard = &writeEMLBoardLevel;
 
@@ -504,12 +499,8 @@ static bool readFormattedFile(
   Group& group,
   const Options& options)
 {
-  ifstream fstr(fname.c_str());
-  if (! fstr.is_open())
-  {
-    cout << "No such file: " << fname << endl;
-    return false;
-  }
+  Buffer buffer;
+  buffer.read(fname, format);
 
   vector<Fix> fix;
   readFix(fname, fix);
@@ -532,83 +523,17 @@ static bool readFormattedFile(
   counts.lno = 0;
   counts.lnoOld = 0;
 
-Buffer buffer;
-if (format == BRIDGE_FORMAT_PBN ||
-    format == BRIDGE_FORMAT_LIN ||
-    format == BRIDGE_FORMAT_RBN ||
-    format == BRIDGE_FORMAT_RBX ||
-    format == BRIDGE_FORMAT_TXT ||
-    format == BRIDGE_FORMAT_EML ||
-    format == BRIDGE_FORMAT_REC)
-{
-  fstr.close();
-  buffer.read(fname, format);
-}
-
   while (true)
   {
     counts.lnoOld = counts.lno;
     try
     {
-if (format == BRIDGE_FORMAT_PBN)
-{
-  readPBNChunk(buffer, counts.lno, chunk, newSegFlag);
+      (* formatFncs[format].readChunk)
+        (buffer, counts.lno, chunk, newSegFlag);
       if (chunk[BRIDGE_FORMAT_BOARD_NO] == "" && 
           chunk[BRIDGE_FORMAT_RESULT] == "" &&
           chunk[BRIDGE_FORMAT_AUCTION] == "")
         break;
-}
-else if (format == BRIDGE_FORMAT_LIN)
-{
-  readLINChunk(buffer, counts.lno, chunk, newSegFlag);
-      if (chunk[BRIDGE_FORMAT_BOARD_NO] == "" && 
-          chunk[BRIDGE_FORMAT_RESULT] == "" &&
-          chunk[BRIDGE_FORMAT_AUCTION] == "")
-        break;
-}
-else if (format == BRIDGE_FORMAT_RBN ||
-    format == BRIDGE_FORMAT_RBX)
-{
-  readRBNChunk(buffer, counts.lno, chunk, newSegFlag);
-      if (chunk[BRIDGE_FORMAT_BOARD_NO] == "" && 
-          chunk[BRIDGE_FORMAT_RESULT] == "" &&
-          chunk[BRIDGE_FORMAT_AUCTION] == "")
-        break;
-}
-else if (format == BRIDGE_FORMAT_TXT)
-{
-  readTXTChunk(buffer, counts.lno, chunk, newSegFlag);
-      if (chunk[BRIDGE_FORMAT_BOARD_NO] == "" && 
-          chunk[BRIDGE_FORMAT_RESULT] == "" &&
-          chunk[BRIDGE_FORMAT_AUCTION] == "")
-        break;
-}
-else if (format == BRIDGE_FORMAT_EML)
-{
-  readEMLChunk(buffer, counts.lno, chunk, newSegFlag);
-      if (chunk[BRIDGE_FORMAT_BOARD_NO] == "" && 
-          chunk[BRIDGE_FORMAT_RESULT] == "" &&
-          chunk[BRIDGE_FORMAT_AUCTION] == "")
-        break;
-}
-else if (format == BRIDGE_FORMAT_REC)
-{
-  readRECChunk(buffer, counts.lno, chunk, newSegFlag);
-      if (chunk[BRIDGE_FORMAT_BOARD_NO] == "" && 
-          chunk[BRIDGE_FORMAT_RESULT] == "" &&
-          chunk[BRIDGE_FORMAT_AUCTION] == "")
-        break;
-}
-else
-{
-  THROW("Dead");
-      // (* formatFncs[format].readChunk)(fstr, counts.lno, chunk, newSegFlag);
-      // if (chunk[BRIDGE_FORMAT_BOARD_NO] == "" && 
-          // chunk[BRIDGE_FORMAT_RESULT] == "" &&
-          // chunk[BRIDGE_FORMAT_AUCTION] == "" &&
-          // fstr.eof())
-        // break;
-}
     }
     catch (Bexcept& bex)
     {
@@ -619,8 +544,6 @@ else
 
       if (options.verboseBatch)
         printChunk(chunk);
-
-      fstr.close();
       return false;
     }
 
@@ -689,16 +612,9 @@ else
 
       if (options.verboseBatch)
         printChunk(chunk);
-
-      fstr.close();
       return false;
     }
-
-    if (fstr.eof())
-      break;
   }
-
-  fstr.close();
   return true;
 }
 
