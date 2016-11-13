@@ -12,6 +12,8 @@
 #include <string>
 #include <vector>
 
+#include "Buffer.h"
+
 using namespace std;
 
 class Group;
@@ -20,13 +22,7 @@ class Group;
 void setRBNTables();
 
 void readRBNChunk(
-  ifstream& fstr,
-  unsigned& lno,
-  vector<string>& chunk,
-  bool& newSegFlag);
-
-void readRBXChunk(
-  ifstream& fstr,
+  Buffer& buffer,
   unsigned& lno,
   vector<string>& chunk,
   bool& newSegFlag);

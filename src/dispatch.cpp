@@ -213,15 +213,15 @@ static void setIO()
   formatFncs[BRIDGE_FORMAT_LIN_EXT].writeSeg = &writeLINSegmentLevel;
   formatFncs[BRIDGE_FORMAT_LIN_EXT].writeBoard = &writeLINBoardLevel;
 
-  formatFncs[BRIDGE_FORMAT_PBN].readChunk = &readRECChunk; // TODO: Fix
+  formatFncs[BRIDGE_FORMAT_PBN].readChunk = &readRECChunk; // TODO
   formatFncs[BRIDGE_FORMAT_PBN].writeSeg = &writeDummySegmentLevel;
   formatFncs[BRIDGE_FORMAT_PBN].writeBoard = &writePBNBoardLevel;
 
-  formatFncs[BRIDGE_FORMAT_RBN].readChunk = &readRBNChunk;
+  formatFncs[BRIDGE_FORMAT_RBN].readChunk = &readRECChunk; // TODO
   formatFncs[BRIDGE_FORMAT_RBN].writeSeg = &writeRBNSegmentLevel;
   formatFncs[BRIDGE_FORMAT_RBN].writeBoard = &writeRBNBoardLevel;
 
-  formatFncs[BRIDGE_FORMAT_RBX].readChunk = &readRBXChunk;
+  formatFncs[BRIDGE_FORMAT_RBX].readChunk = &readRECChunk; // TODO
   formatFncs[BRIDGE_FORMAT_RBX].writeSeg = &writeRBNSegmentLevel;
   formatFncs[BRIDGE_FORMAT_RBX].writeBoard = &writeRBNBoardLevel;
 
@@ -534,7 +534,9 @@ static bool readFormattedFile(
 
 Buffer buffer;
 if (format == BRIDGE_FORMAT_PBN ||
-    format == BRIDGE_FORMAT_LIN)
+    format == BRIDGE_FORMAT_LIN ||
+    format == BRIDGE_FORMAT_RBN ||
+    format == BRIDGE_FORMAT_RBX)
 {
   fstr.close();
   buffer.read(fname, format);
@@ -556,6 +558,15 @@ if (format == BRIDGE_FORMAT_PBN)
 else if (format == BRIDGE_FORMAT_LIN)
 {
   readLINChunk(buffer, counts.lno, chunk, newSegFlag);
+      if (chunk[BRIDGE_FORMAT_BOARD_NO] == "" && 
+          chunk[BRIDGE_FORMAT_RESULT] == "" &&
+          chunk[BRIDGE_FORMAT_AUCTION] == "")
+        break;
+}
+else if (format == BRIDGE_FORMAT_RBN ||
+    format == BRIDGE_FORMAT_RBX)
+{
+  readRBNChunk(buffer, counts.lno, chunk, newSegFlag);
       if (chunk[BRIDGE_FORMAT_BOARD_NO] == "" && 
           chunk[BRIDGE_FORMAT_RESULT] == "" &&
           chunk[BRIDGE_FORMAT_AUCTION] == "")

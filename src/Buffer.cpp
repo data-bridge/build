@@ -213,7 +213,8 @@ void Buffer::classify(LineData& ld)
       break;
 
     case BRIDGE_FORMAT_RBX:
-      if (! Buffer::isRBX(ld))
+      if (! Buffer::isRBX(ld) &&
+          ! Buffer::isRBN(ld))
         ld.type = BRIDGE_BUFFER_GENERAL;
       break;
 
@@ -412,6 +413,21 @@ bool Buffer::next(LineData& vside)
       lines[current].type != BRIDGE_BUFFER_EMPTY)
   {
     // Turn RBX into RBN.
+
+    if (posRBX >= lines[current].len)
+    {
+      // Make an empty line.
+      vside.line = "";
+      vside.len = 0;
+      vside.type = BRIDGE_BUFFER_EMPTY;
+      vside.label = "";
+      vside.value = "";
+      vside.no = lines[current].no;
+      current++;
+      posRBX = 0;
+      return true;
+    }
+
     size_t e = lines[current].line.find('}', posRBX);
     if (e <= posRBX+1 || e == string::npos)
       THROW("Bad RBX line");
@@ -433,15 +449,7 @@ bool Buffer::next(LineData& vside)
     }
 
     Buffer::classify(vside);
-
-    if (e == lines[current].len-1)
-    {
-      current++;
-      posRBX = 0;
-    }
-    else
-      posRBX = e+1;
-
+    posRBX = e+1;
     return true;
   }
   else

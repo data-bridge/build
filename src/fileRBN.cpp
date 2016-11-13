@@ -7,10 +7,6 @@
 */
 
 
-#include <iostream>
-#include <fstream>
-#include <regex>
-
 #include "Group.h"
 #include "Segment.h"
 #include "Bexcept.h"
@@ -52,84 +48,40 @@ void setRBNTables()
 
 
 void readRBNChunk(
-  ifstream& fstr,
+  Buffer& buffer,
   unsigned& lno,
   vector<string>& chunk,
   bool& newSegFlag)
 {
+  LineData lineData;
   string line;
   newSegFlag = false;
   for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
     chunk[i] = "";
 
-  while (getline(fstr, line))
+  while (buffer.next(lineData))
   {
     lno++;
-    if (line.empty())
+    if (lineData.type == BRIDGE_BUFFER_EMPTY)
       return;
     
-    const char c = line.at(0);
-    if (c == '%')
+    if (lineData.type == BRIDGE_BUFFER_COMMENT)
       continue;
+    else if (lineData.type != BRIDGE_BUFFER_STRUCTURED)
+      THROW("Not implemented yet");
 
+    const char c = lineData.label.at(0);
     const Label labelNo = RBNmap[static_cast<int>(c)];
     if (labelNo == BRIDGE_FORMAT_LABELS_SIZE)
-      THROW("Illegal RBN label in line:\n" + line);
+      THROW("Illegal RBN label in line:\n" + lineData.line);
 
     if (labelNo <= BRIDGE_FORMAT_VISITTEAM)
       newSegFlag = true;
 
     if (chunk[labelNo] != "")
-      THROW("RBN label already set in line:\n" + line);
+      THROW("RBN label already set in line:\n" + lineData.line);
 
-    if (line.length() < 2)
-      chunk[labelNo] = "";
-    else if (line.at(1) != ' ')
-      THROW("Need RBN space as second character in line:\n" + line);
-    else
-      chunk[labelNo] = line.substr(2);
-  }
-}
-
-
-void readRBXChunk(
-  ifstream& fstr,
-  unsigned& lno,
-  vector<string>& chunk,
-  bool& newSegFlag)
-{
-  string line;
-  newSegFlag = false;
-  for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
-    chunk[i] = "";
-
-  if (! getline(fstr, line))
-    return;
-
-  lno++;
-  regex re("^(.)\\{([^\\}]*)\\}");
-  smatch match;
-  while (regex_search(line, match, re) && match.size() >= 2)
-  {
-    const char c = match.str(1).at(0);
-    const string value = match.str(2);
-
-    line = regex_replace(line, re, string(""));
-
-    if (c == '%')
-      continue;
-
-    const Label labelNo = RBNmap[static_cast<int>(c)];
-    if (labelNo == BRIDGE_FORMAT_LABELS_SIZE)
-      THROW("Illegal RBX label in line:\n" + line);
-
-    if (labelNo <= BRIDGE_FORMAT_VISITTEAM)
-      newSegFlag = true;
-
-    if (chunk[labelNo] != "")
-      THROW("RBN label already set in line:\n" + line);
-
-    chunk[labelNo] = value;
+    chunk[labelNo] = lineData.value;
   }
 }
 
