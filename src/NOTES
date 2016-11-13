@@ -4,9 +4,6 @@ Check the output matrix for general consistency.
 
 Why does writing take so long -- file system or += string?
 
-Buffer: 
-* Can move buffer init and reserve out of file*.cpp
-
 When multi-threading, exceptions still go to stdout?
 Maybe put errors to cerr.
 
@@ -16,14 +13,13 @@ Add == comparison (read written file back into, compare groups as ==)
 
 Remove LIN_EXT
 
-Parse VG LIN headers for some recognizable format.
-
 Functionality
 -------------
 JEC PBN
 - support ##
 LIN VG
 - Include alerts in RBN
+- Parse headers for semantic content
 LIN shein
 LIN tourneys
 Test on concatenated RBN file

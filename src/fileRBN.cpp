@@ -55,9 +55,6 @@ void readRBNChunk(
 {
   LineData lineData;
   string line;
-  newSegFlag = false;
-  for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
-    chunk[i] = "";
 
   while (buffer.next(lineData))
   {

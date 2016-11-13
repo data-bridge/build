@@ -394,15 +394,12 @@ void readEMLChunk(
   vector<string> canvas;
   readEMLCanvas(buffer, lno, canvas);
   
-  // Then parse them into the chunk structure.
-  for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
-    chunk[i] = "";
-
   if (canvas.size() == 0)
     return;
   else if (canvas.size() < 17)
     THROW("Canvas too short");
 
+  // Then parse them into the chunk structure.
   unsigned openingLine = 0;
   unsigned westLine = 0;
   unsigned cardStart = 0;

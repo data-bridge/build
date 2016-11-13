@@ -61,13 +61,6 @@ void readPBNChunk(
   bool& newSegFlag)
 {
   LineData lineData;
-  newSegFlag = false;
-  for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
-  {
-    chunk[i] = "";
-    chunk[i].reserve(128);
-  }
-
   bool inAuction = false;
   bool inPlay = false;
 

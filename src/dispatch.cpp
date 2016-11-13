@@ -509,6 +509,8 @@ static bool readFormattedFile(
   group.setFormat(format);
 
   vector<string> chunk(BRIDGE_FORMAT_LABELS_SIZE);
+  for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
+    chunk[i].reserve(128);
 
   Segment * segment = nullptr;
   bool newSegFlag = false;
@@ -528,6 +530,10 @@ static bool readFormattedFile(
     counts.lnoOld = counts.lno;
     try
     {
+      newSegFlag = false;
+      for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
+        chunk[i] = "";
+
       (* formatFncs[format].readChunk)
         (buffer, counts.lno, chunk, newSegFlag);
       if (chunk[BRIDGE_FORMAT_BOARD_NO] == "" && 

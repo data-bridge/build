@@ -352,16 +352,13 @@ void readRECChunk(
   vector<string> canvas;
   readRECCanvas(buffer, lno, canvas);
   
-  // Then parse them into the chunk structure.
-  for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
-    chunk[i] = "";
-
   if (canvas.size() == 0)
     return;
 
   unsigned playLine = 0;
   newSegFlag = false;
 
+  // Then parse them into the chunk structure.
   bool playExists = getRECCanvasOffset(canvas, playLine);
   getRECFields(canvas, playLine, playExists, chunk);
 }

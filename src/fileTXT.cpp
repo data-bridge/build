@@ -467,13 +467,10 @@ void readTXTChunk(
   vector<string> canvas;
   readTXTCanvas(buffer, lno, canvas);
   
-  // Then parse them into the chunk structure.
-  for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
-    chunk[i] = "";
-
   if (canvas.size() == 0)
     return;
 
+  // Then parse them into the chunk structure.
   unsigned auctionLine = 0;
   getTXTCanvasOffset(canvas, auctionLine, chunk);
 

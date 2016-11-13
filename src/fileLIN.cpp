@@ -78,13 +78,6 @@ void readLINChunk(
   bool& newSegFlag)
 {
   LineData lineData;
-  newSegFlag = false;
-  for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
-  {
-    chunk[i] = "";
-    chunk[i].reserve(128);
-  }
-
   bool qxSeen = false;
   bool doneFlag = false;
   unsigned cardCount = 0;
