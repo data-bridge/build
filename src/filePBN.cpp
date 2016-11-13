@@ -7,10 +7,6 @@
 */
 
 
-#include <iostream>
-#include <fstream>
-#include <algorithm>
-#include <regex>
 #include <unordered_map>
 
 #include "Group.h"
@@ -23,8 +19,6 @@ using namespace std;
 
 
 unordered_map<string, Label> PBNmap;
-vector<string> PBNnoToString;
-vector<unsigned> PBNnoToLabel;
 
 void writePBNSegmentLevel(
   ofstream& fstr,
@@ -62,116 +56,6 @@ void setPBNTables()
   PBNmap["ScoreIMP"] = BRIDGE_FORMAT_SCORE_IMP;
   PBNmap["ScoreMP"] = BRIDGE_FORMAT_SCORE_MP;
   PBNmap["OptimumResultTable"] = BRIDGE_FORMAT_DOUBLE_DUMMY;
-
-  PBNnoToString.clear();
-  PBNnoToLabel.clear();
-
-  for (auto &l: PBNmap)
-    PBNnoToString.push_back(l.first);
-
-  sort(PBNnoToString.begin(), PBNnoToString.end());
-
-  PBNnoToLabel.reserve(PBNnoToString.size());
-  for (auto &s: PBNnoToString)
-    PBNnoToLabel.push_back(static_cast<unsigned>(PBNmap[s]));
-}
-
-
-void readPBNChunk(
-  ifstream& fstr,
-  unsigned& lno,
-  vector<string>& chunk,
-  bool& newSegFlag)
-{
-  string line;
-  newSegFlag = false;
-  for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
-    chunk[i] = "";
-
-  bool inAuction = false;
-  bool inPlay = false;
-
-  while (getline(fstr, line))
-  {
-    lno++;
-    if (line.empty())
-      return;
-
-    if (line.at(0) == '%' || line.at(0) == '*')
-      continue;
-    else if (inAuction)
-    {
-      if (line.at(0) == '[')
-        inAuction = false;
-      else
-      {
-        chunk[BRIDGE_FORMAT_AUCTION] += line + "\n";
-        continue;
-      }
-    }
-    else if (inPlay)
-    {
-      if (line.at(0) == '[')
-        inPlay = false;
-      else
-      {
-        chunk[BRIDGE_FORMAT_PLAY] += line + "\n";
-        continue;
-      }
-    }
-
-    regex re("^\\[(\\w+)\\s+\"(.*)\"\\]$");
-    smatch match;
-    if (! regex_search(line, match, re) || match.size() < 2)
-      THROW("PBN line does not parse: '" + line + "'");
-
-    auto it = PBNmap.find(match.str(1));
-    if (it == PBNmap.end())
-      THROW("PBN label is illegal or not implemented: '" + line + "'");
-
-    const unsigned labelNo = static_cast<unsigned>(it->second);
-    if (chunk[labelNo] != "")
-      THROW("Label already set in line '" + line + "'");
-
-/*
-auto low = lower_bound(PBNnoToString.begin(), PBNnoToString.end(),
-  match.str(1));
-unsigned u = static_cast<unsigned>(low - PBNnoToString.begin());
-if (u >= PBNnoToString.size())
-  THROW("PBN label is illegal or not implemented: '" + line + "'");
-
-const unsigned labelNo = PBNnoToLabel[u];
-*/
-
-    if (labelNo == BRIDGE_FORMAT_CONTRACT)
-    {
-      // Kludge to get declarer onto contract.  According to the PBN
-      // standard, declarer should always come before contract.
-      chunk[labelNo] = match.str(2) + chunk[BRIDGE_FORMAT_DECLARER];
-    }
-    else if (labelNo == BRIDGE_FORMAT_AUCTION)
-    {
-      // Multi-line.
-      chunk[BRIDGE_FORMAT_AUCTION] += match.str(2) + "\n";
-      inAuction = true;
-    }
-    else if (labelNo == BRIDGE_FORMAT_PLAY)
-    {
-      // Multi-line.
-      chunk[BRIDGE_FORMAT_PLAY] += match.str(2) + "\n";
-      inPlay = true;
-    }
-    else if (match.str(2) != "#")
-    {
-      chunk[labelNo] = match.str(2);
-      if (labelNo <= BRIDGE_FORMAT_VISITTEAM)
-      {
-        // Kludge to avoid new segment on [Site ""].
-        if (labelNo != BRIDGE_FORMAT_LOCATION || chunk[labelNo] != "")
-          newSegFlag = true;
-      }
-    }
-  }
 }
 
 
@@ -184,7 +68,10 @@ void readPBNChunk(
   LineData lineData;
   newSegFlag = false;
   for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
+  {
     chunk[i] = "";
+    chunk[i].reserve(128);
+  }
 
   bool inAuction = false;
   bool inPlay = false;
@@ -227,18 +114,9 @@ void readPBNChunk(
       THROW("Unknown PBN label: '" + lineData.value + "'");
 
     const unsigned labelNo = static_cast<unsigned>(it->second);
+
     if (chunk[labelNo] != "")
       THROW("Label already set in line '" + lineData.line + "'");
-
-/*
-auto low = lower_bound(PBNnoToString.begin(), PBNnoToString.end(),
-  match.str(1));
-unsigned u = static_cast<unsigned>(low - PBNnoToString.begin());
-if (u >= PBNnoToString.size())
-  THROW("PBN label is illegal or not implemented: '" + line + "'");
-
-const unsigned labelNo = PBNnoToLabel[u];
-*/
 
     if (labelNo == BRIDGE_FORMAT_CONTRACT)
     {

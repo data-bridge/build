@@ -4,6 +4,7 @@ Check the output matrix for general consistency.
 
 Buffer: 
 * Move dispatch to this buffer as well (readFormatted etc)
+* Can move buffer init and reserve out of file*.cpp
 
 In dispatch
 * Move from map in fileRBN and fileLIN to manual search?

@@ -22,12 +22,6 @@ class Group;
 void setPBNTables();
 
 void readPBNChunk(
-  ifstream& fstr,
-  unsigned& lno,
-  vector<string>& chunk,
-  bool& newSegFlag);
-
-void readPBNChunk(
   Buffer& buffer,
   unsigned& lno,
   vector<string>& chunk,
