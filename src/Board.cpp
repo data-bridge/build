@@ -11,7 +11,6 @@
 #include <iomanip>
 #include <sstream>
 #include <regex>
-#include <assert.h>
 
 #include "bconst.h"
 #include "Board.h"
@@ -432,7 +431,7 @@ bool Board::getValuation(Valuation& valuation) const
 {
   // TODO
   UNUSED(valuation);
-  assert(false);
+  THROW("Valuation not implemented yet");
   return true;
 }
 

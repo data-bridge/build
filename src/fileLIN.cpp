@@ -186,12 +186,13 @@ void writeLINBoardLevel(
   st += segment.strNumber(writeInfo.bno, format);
 
   if (format == BRIDGE_FORMAT_LIN || format == BRIDGE_FORMAT_LIN_TRN)
-  {
     st += board.strPlayers(format);
-  }
 
   st += board.strDeal(format);
-  st += segment.strNumberBoard(writeInfo.bno, format);
+
+  if (format == BRIDGE_FORMAT_LIN || format == BRIDGE_FORMAT_LIN_TRN)
+    st += segment.strNumber(writeInfo.bno, format);
+
   st += board.strVul(format);
 
   board.calculateScore();

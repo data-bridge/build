@@ -32,7 +32,7 @@
 
 
 // Modulo 4, so West for Board "0" (4, 8, ...) etc.
-//
+
 static const Player BOARD_TO_DEALER[4] = 
 {
   BRIDGE_WEST, BRIDGE_NORTH, BRIDGE_EAST, BRIDGE_SOUTH

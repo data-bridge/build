@@ -805,14 +805,12 @@ string Segment::strNumber(
   switch(format)
   {
     case BRIDGE_FORMAT_LIN:
+    case BRIDGE_FORMAT_LIN_TRN:
+      ss << "ah|Board " << extNo << "|";
+      return ss.str();
+
     case BRIDGE_FORMAT_LIN_RP:
     case BRIDGE_FORMAT_LIN_VG:
-    case BRIDGE_FORMAT_LIN_TRN:
-// TODO
-if (format == BRIDGE_FORMAT_LIN)
-  THROW("LIN");
-if (format == BRIDGE_FORMAT_LIN_TRN)
-  THROW("TRN");
       ss << activeBoard->strRoom(extNo, format);
       return ss.str();
 
@@ -845,22 +843,6 @@ if (format == BRIDGE_FORMAT_LIN_TRN)
     default:
       THROW("Invalid format: " + STR(format));
   }
-}
-
-
-string Segment::strNumberBoard(
-  const unsigned intNo,
-  const Format format) const
-{
-  // TODO: Merge?
-  if (format != BRIDGE_FORMAT_LIN && format != BRIDGE_FORMAT_LIN_TRN)
-    return "";
-
-  unsigned extNo = Segment::getExtBoardNo(intNo);
-  
-  stringstream st;
-  st << "ah|Board " << extNo << "|";
-  return st.str();
 }
 
 

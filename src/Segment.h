@@ -212,10 +212,6 @@ class Segment
       const unsigned intNo,
       const Format format) const;
 
-    string strNumberBoard(
-      const unsigned intNo,
-      const Format format) const;
-
     string strContracts(const Format format);
     string strPlayers(const Format format);
     string strScores(const Format format) const;
