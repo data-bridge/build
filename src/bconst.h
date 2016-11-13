@@ -36,15 +36,14 @@ enum Format
   BRIDGE_FORMAT_LIN_RP = 1, // A la Pavlicek
   BRIDGE_FORMAT_LIN_VG = 2, // A la BBO Vugraph
   BRIDGE_FORMAT_LIN_TRN = 3, // A la BBO tournament play
-  BRIDGE_FORMAT_LIN_EXT = 4, // Extended
-  BRIDGE_FORMAT_PBN = 5,
-  BRIDGE_FORMAT_RBN = 6,
-  BRIDGE_FORMAT_RBX = 7,
-  BRIDGE_FORMAT_TXT = 8,
-  BRIDGE_FORMAT_EML = 9,
-  BRIDGE_FORMAT_REC = 10,
-  BRIDGE_FORMAT_PAR = 11, // Not a real file format -- eliminate?
-  BRIDGE_FORMAT_SIZE = 12
+  BRIDGE_FORMAT_PBN = 4,
+  BRIDGE_FORMAT_RBN = 5,
+  BRIDGE_FORMAT_RBX = 6,
+  BRIDGE_FORMAT_TXT = 7,
+  BRIDGE_FORMAT_EML = 8,
+  BRIDGE_FORMAT_REC = 9,
+  BRIDGE_FORMAT_PAR = 10, // Not a real file format
+  BRIDGE_FORMAT_SIZE = 11
 };
 
 
@@ -54,7 +53,6 @@ const string FORMAT_NAMES[BRIDGE_FORMAT_SIZE] =
   "LIN-RP",
   "LIN-VG",
   "LIN-TRN",
-  "LIN-EXT",
   "PBN", 
   "RBN", 
   "RBX", 
@@ -66,7 +64,6 @@ const string FORMAT_NAMES[BRIDGE_FORMAT_SIZE] =
 
 const string FORMAT_EXTENSIONS[BRIDGE_FORMAT_SIZE] =
 {
-  "LIN",
   "LIN",
   "LIN",
   "LIN",

@@ -204,10 +204,6 @@ static void setIO()
   formatFncs[BRIDGE_FORMAT_LIN_TRN].writeSeg = &writeLINSegmentLevel;
   formatFncs[BRIDGE_FORMAT_LIN_TRN].writeBoard = &writeLINBoardLevel;
 
-  formatFncs[BRIDGE_FORMAT_LIN_EXT].readChunk = &readLINChunk;
-  formatFncs[BRIDGE_FORMAT_LIN_EXT].writeSeg = &writeLINSegmentLevel;
-  formatFncs[BRIDGE_FORMAT_LIN_EXT].writeBoard = &writeLINBoardLevel;
-
   formatFncs[BRIDGE_FORMAT_PBN].readChunk = &readPBNChunk;
   formatFncs[BRIDGE_FORMAT_PBN].writeSeg = &writeDummySegmentLevel;
   formatFncs[BRIDGE_FORMAT_PBN].writeBoard = &writePBNBoardLevel;

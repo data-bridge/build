@@ -9,10 +9,6 @@ Maybe put errors to cerr.
 
 Print examples of each problem (small or large).
 
-Add == comparison (read written file back into, compare groups as ==)
-
-Remove LIN_EXT
-
 Functionality
 -------------
 JEC PBN
@@ -26,6 +22,7 @@ Test on concatenated RBN file
 
 Checks
 ------
+Add == comparison (read written file back into, compare groups as ==).
 Check that there is never > 1 segment in RP files.
 Make Board checks.
 Should somehow recognize complete duplicates.
