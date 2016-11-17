@@ -155,7 +155,7 @@ static void writeHeader(
   Group& group,
   const Format format);
 
-static bool writeFormattedFile(
+static void writeFormattedFile(
   Group& group,
   const string& fname,
   string& text,
@@ -281,6 +281,67 @@ void setTables()
 }
 
 
+void dispatchRead(
+  const FileTask& task,
+  const Options& options,
+  Group& group,
+  ostream& flog)
+{
+  try
+  {
+    if (! readFormattedFile(task.fileInput, task.formatInput, 
+        group, options, flog))
+    {
+      THROW("dispatch: read failed");
+    }
+  }
+  catch (Bexcept& bex)
+  {
+    bex.print(flog);
+  }
+}
+
+
+void dispatchWrite(
+  const FileOutputTask& otask,
+  Group& group,
+  string& text,
+  ostream& flog)
+{
+  try
+  {
+    text = "";
+    writeFormattedFile(group, otask.fileOutput, text, otask.formatOutput);
+  }
+  catch (Bexcept& bex)
+  {
+    bex.print(flog);
+  }
+}
+
+
+void dispatchValidate(
+  const FileTask& task,
+  const FileOutputTask& otask,
+  const Options& options,
+  const string& text,
+  ValStats& vstats,
+  ostream& flog)
+{
+  try
+  {
+    validate(text, otask.fileOutput, otask.fileRef,
+      task.formatInput, otask.formatOutput, options, vstats);
+  }
+  catch(Bexcept& bex)
+  {
+    flog << "Files " << task.fileInput << " -> " <<
+      otask.fileOutput << endl;
+    bex.print(flog);
+  }
+}
+
+
 void dispatch(
   const int thrNo,
   Files& files,
@@ -303,19 +364,7 @@ void dispatch(
 
     Group group;
     timers.start(BRIDGE_TIMER_READ, task.formatInput);
-    try
-    {
-      if (! readFormattedFile(task.fileInput, task.formatInput, 
-          group, options, flog))
-      {
-        THROW("dispatch: read failed");
-      }
-    }
-    catch (Bexcept& bex)
-    {
-      bex.print(flog);
-      continue;
-    }
+    dispatchRead(task, options, group, flog);
     timers.stop(BRIDGE_TIMER_READ, task.formatInput);
 
     for (auto &t: task.taskList)
@@ -324,17 +373,7 @@ void dispatch(
         flog << "Output " << t.fileOutput << endl;
 
       timers.start(BRIDGE_TIMER_WRITE, t.formatOutput);
-      try
-      {
-        text = "";
-        if (! writeFormattedFile(group, t.fileOutput, text, t.formatOutput))
-          THROW("something blew up");
-      }
-      catch (Bexcept& bex)
-      {
-        bex.print(flog);
-        continue;
-      }
+      dispatchWrite(t, group, text, flog);
       timers.stop(BRIDGE_TIMER_WRITE, t.formatOutput);
 
       if (t.refFlag)
@@ -344,17 +383,7 @@ void dispatch(
               " against " << t.fileRef << endl;
 
         timers.start(BRIDGE_TIMER_VALIDATE, t.formatOutput);
-        try
-        {
-          validate(text, t.fileOutput, t.fileRef,
-            task.formatInput, t.formatOutput, options, vstats);
-        }
-        catch(Bexcept& bex)
-        {
-          flog << "Files " << task.fileInput << " -> " <<
-            t.fileOutput << endl;
-          bex.print(flog);
-        }
+        dispatchValidate(task, t, options, text, vstats, flog);
         timers.stop(BRIDGE_TIMER_VALIDATE, t.formatOutput);
       }
 
@@ -661,7 +690,7 @@ static void writeHeader(
 }
 
 
-static bool writeFormattedFile(
+static void writeFormattedFile(
   Group& group,
   const string& fname,
   string &text,
@@ -700,7 +729,6 @@ static bool writeFormattedFile(
 
   if (fname != "")
     writeFast(fname, text);
-  return true;
 }
 
 
