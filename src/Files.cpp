@@ -61,6 +61,10 @@ bool Files::fillEntry(
     entry.fullName = text;
     entry.base = match.str(1);
     entry.format = ext2format(match.str(2));
+
+    if (entry.format == BRIDGE_FORMAT_LIN)
+      entry.format = Files::guessLINFormat(entry.base);
+
     return (entry.format != BRIDGE_FORMAT_SIZE);
   }
   else
@@ -155,11 +159,7 @@ void Files::extendTaskList(
   {
     FileOutputTask o;
     o.fileOutput = e.fullName;
-
-    if (e.format == BRIDGE_FORMAT_LIN)
-      o.formatOutput = Files::guessLINFormat(in.base);
-    else
-      o.formatOutput = e.format;
+    o.formatOutput = e.format;
 
     o.refFlag = false;
     auto it = refMap.find(in.base);

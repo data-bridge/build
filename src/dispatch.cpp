@@ -289,8 +289,8 @@ void dispatchRead(
 {
   try
   {
-    if (! readFormattedFile(task.fileInput, task.formatInput, 
-        group, options, flog))
+    if (! readFormattedFile(task.fileInput,
+        FORMAT_INPUT_MAP[task.formatInput], group, options, flog))
     {
       THROW("dispatch: read failed");
     }

@@ -1,7 +1,3 @@
-Output matrix should log input as LIN_RP
-- Bigger job, as all the switches etc. have to be looked at...
-- In Files.cpp line 238, put LIN_RP (?)
-
 Functionality
 -------------
 JEC PBN
