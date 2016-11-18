@@ -208,8 +208,6 @@ class Board
 
     bool getValuation(Valuation& valuation) const;
 
-    bool checkBoard() const;
-
     Room room() const;
     Room roomFirst() const;
 

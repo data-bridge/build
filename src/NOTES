@@ -2,6 +2,7 @@ Functionality
 -------------
 JEC PBN
 - support ##
+- Find way to ignore OptimumResult
 LIN VG
 - Include alerts in RBN
 - Parse headers for semantic content
@@ -12,7 +13,6 @@ Test on concatenated RBN file
 Checks
 ------
 Add == comparison (read written file back into, compare groups as ==).
-Make Board checks.
 Should somehow recognize complete duplicates.
 
 options

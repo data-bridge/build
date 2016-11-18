@@ -99,7 +99,7 @@ void readPBNChunk(
 
     auto it = PBNmap.find(lineData.label);
     if (it == PBNmap.end())
-      THROW("Unknown PBN label: '" + lineData.value + "'");
+      THROW("Unknown PBN label: '" + lineData.label + "'");
 
     const unsigned labelNo = static_cast<unsigned>(it->second);
 

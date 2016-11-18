@@ -143,6 +143,14 @@ static bool readFormattedFile(
   const Options& options,
   ostream& flog);
 
+static bool readFormattedFile(
+  Buffer& buffer,
+  vector<Fix>& fix,
+  const Format format,
+  Group& group,
+  const Options& options,
+  ostream& flog);
+
 static void tryFormatMethod(
   const Format format,
   const string& text,
@@ -533,6 +541,19 @@ static bool readFormattedFile(
   readFix(fname, fix);
 
   group.setName(fname);
+
+  return readFormattedFile(buffer, fix, format, group, options, flog);
+}
+
+
+static bool readFormattedFile(
+  Buffer& buffer,
+  vector<Fix>& fix,
+  const Format format,
+  Group& group,
+  const Options& options,
+  ostream& flog)
+{
   group.setFormat(format);
 
   vector<string> chunk(BRIDGE_FORMAT_LABELS_SIZE);
@@ -571,7 +592,7 @@ static bool readFormattedFile(
     catch (Bexcept& bex)
     {
       if (options.verboseThrow)
-        printCounts(fname, counts);
+        printCounts(group.name(), counts);
 
       bex.print(flog);
 
@@ -636,7 +657,7 @@ static bool readFormattedFile(
     {
       if (options.verboseThrow)
       {
-        printCounts(fname, counts);
+        printCounts(group.name(), counts);
         cout << "label " << LABEL_NAMES[i] << " (" << i << "), '" <<
             chunk[i] << "'" << endl << endl;
       }

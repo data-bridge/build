@@ -436,13 +436,6 @@ bool Board::getValuation(Valuation& valuation) const
 }
 
 
-bool Board::checkBoard() const
-{
-  // TODO
-  return true;
-}
-
-
 Room Board::room() const
 {
   return players[numActive].room();
