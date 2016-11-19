@@ -9,6 +9,8 @@
 // The functions in this file help to parse files.
 
 
+#include <algorithm>
+
 #include "validateLIN.h"
 #include "parse.h"
 

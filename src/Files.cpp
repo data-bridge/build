@@ -12,7 +12,9 @@
 #include <thread>
 #include <mutex>
 
-#if defined(_WIN32)
+#if defined(__CYGWIN__)
+  #include "dirent.h"
+#elif defined(_WIN32)
   #include "dirent.h"
   #include <windows.h>
   #include "Shlwapi.h"

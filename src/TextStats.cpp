@@ -19,7 +19,7 @@
 
 static mutex mtx;
 static bool setTextTables = false;
-static unsigned BRIDGE_STATS_MAP[BRIDGE_FORMAT_SIZE];
+static unsigned BRIDGE_STATS_MAP[BRIDGE_FORMAT_LABELS_SIZE];
 static string BRIDGE_STATS_NAMES[BRIDGE_STATS_NUM_FIELDS];
 
 

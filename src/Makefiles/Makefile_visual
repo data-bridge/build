@@ -7,6 +7,7 @@ SOURCE_FILES 	=		\
         Board.cpp               \
 	Buffer.cpp		\
 	Canvas.cpp		\
+	CompStats.cpp		\
 	Contract.cpp		\
 	Date.cpp		\
 	Deal.cpp		\
@@ -21,6 +22,7 @@ SOURCE_FILES 	=		\
 	Tableau.cpp		\
         Team.cpp                \
         Teams.cpp               \
+	TextStats.cpp		\
         Timer.cpp               \
         Timers.cpp              \
 	Valuation.cpp		\
@@ -107,6 +109,7 @@ Board.obj: bconst.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
 Board.obj: Play.h Valuation.h parse.h Bexcept.h Bdiff.h
 Buffer.obj: Buffer.h valint.h bconst.h parse.h Bexcept.h
 Canvas.obj: Canvas.h
+CompStats.obj: CompStats.h bconst.h
 Contract.obj: Contract.h bconst.h parse.h Bexcept.h Bdiff.h
 Date.obj: Date.h bconst.h parse.h Bexcept.h Bdiff.h
 Deal.obj: Deal.h bconst.h parse.h Bexcept.h Bdiff.h
@@ -125,6 +128,7 @@ Session.obj: Session.h bconst.h parse.h Bdiff.h Bexcept.h
 Tableau.obj: Tableau.h bconst.h Contract.h parse.h Bexcept.h Bdiff.h
 Team.obj: Team.h bconst.h parse.h Bexcept.h Bdiff.h
 Teams.obj: Teams.h Team.h bconst.h parse.h Bexcept.h Bdiff.h
+TextStats.obj: TextStats.h bconst.h
 Timer.obj: Timer.h
 Timers.obj: Timers.h Timer.h bconst.h
 Valuation.obj: Valuation.h
@@ -132,9 +136,9 @@ args.obj: args.h bconst.h
 dispatch.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h
 dispatch.obj: Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h Players.h
 dispatch.obj: Auction.h Contract.h Play.h dispatch.h Files.h Timers.h Timer.h
-dispatch.obj: ValStats.h ValProfile.h validate.h Buffer.h valint.h fileLIN.h
-dispatch.obj: filePBN.h fileRBN.h fileTXT.h fileEML.h fileREC.h parse.h
-dispatch.obj: Bexcept.h
+dispatch.obj: ValStats.h ValProfile.h validate.h Buffer.h valint.h
+dispatch.obj: TextStats.h CompStats.h fileLIN.h filePBN.h fileRBN.h fileTXT.h
+dispatch.obj: fileEML.h fileREC.h parse.h Bexcept.h
 fileEML.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 fileEML.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
 fileEML.obj: Contract.h Play.h Canvas.h fileEML.h Buffer.h valint.h parse.h
@@ -175,6 +179,6 @@ validateEML.obj: bconst.h
 validateREC.obj: validateREC.h ValProfile.h validate.h Buffer.h valint.h
 validateREC.obj: bconst.h parse.h
 reader.obj: args.h bconst.h dispatch.h Files.h Timers.h Timer.h ValStats.h
-reader.obj: ValProfile.h validate.h Buffer.h valint.h
+reader.obj: ValProfile.h validate.h Buffer.h valint.h TextStats.h CompStats.h
 reader.obj: args.h bconst.h dispatch.h Files.h Timers.h Timer.h ValStats.h
-reader.obj: ValProfile.h validate.h Buffer.h valint.h
+reader.obj: ValProfile.h validate.h Buffer.h valint.h TextStats.h CompStats.h

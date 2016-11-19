@@ -42,7 +42,7 @@ class Timer
 
     void operator += (const Timer& timer2);
 
-    string str(const unsigned prec = 1) const;
+    string str(const int prec = 1) const;
 };
 
 #endif

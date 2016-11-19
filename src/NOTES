@@ -26,8 +26,8 @@ Tools
 - include-what-you-use
 - clang static analyzer
 
-Add g++ makefile for Ubuntu, maybe Mac etc etc.
-- Ubuntu
+Add makefiles for:
+- Ubuntu g++
 - mingw
 - cygwin
 - Mac clang

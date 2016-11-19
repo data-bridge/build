@@ -378,7 +378,7 @@ Format ext2format(const string& text)
 
 string basefile(const string& path)
 {
-  unsigned pos = path.find_last_of("/\\");
+  size_t pos = path.find_last_of("/\\");
   if (pos == string::npos)
     return path;
   else

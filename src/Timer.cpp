@@ -56,7 +56,7 @@ void Timer::operator += (const Timer& timer2)
 }
 
 
-string Timer::str(const unsigned prec) const 
+string Timer::str(const int prec) const 
 {
   if (no == 0)
     return "";

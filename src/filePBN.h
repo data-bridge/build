@@ -28,8 +28,8 @@ void readPBNChunk(
   bool& newSegFlag);
 
 void writePBNSegmentLevel(
-  ofstream& fstr,
-  Segment * segment,
+  string& st,
+  Segment& segment,
   const Format format);
 
 void writePBNBoardLevel(

@@ -307,7 +307,8 @@ void readArgs(
 
   setDefaults(options);
 
-  int c, m;
+  int c;
+  long m;
   unsigned mu;
   bool errFlag = false, matchFlag;
   string stmp;

@@ -768,7 +768,7 @@ bool Auction::operator != (const Auction& a2) const
 }
 
 
-string Auction::strTXTHeader(const unsigned * lengths) const
+string Auction::strTXTHeader(const int * lengths) const
 {
   stringstream ss;
   ss << left <<
@@ -923,7 +923,7 @@ string Auction::strRBX() const
 }
 
 
-string Auction::strTXT(const unsigned * lengths) const
+string Auction::strTXT(const int * lengths) const
 {
   const unsigned numSkips = static_cast<unsigned>
     ((dealer + 4 - BRIDGE_WEST) % 4);
@@ -1029,7 +1029,7 @@ string Auction::strREC() const
 
 string Auction::str(
   const Format format,
-  const unsigned * lengths) const
+  const int * lengths) const
 {
   if (! setDVFlag)
     DIFF("Dealer/vul not set");

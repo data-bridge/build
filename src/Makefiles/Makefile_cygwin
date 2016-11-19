@@ -56,6 +56,7 @@ BUILD_FILES	=		\
         Board.cpp               \
 	Buffer.cpp		\
 	Canvas.cpp		\
+	CompStats.cpp		\
 	Contract.cpp		\
 	Date.cpp		\
 	Deal.cpp		\
@@ -70,6 +71,7 @@ BUILD_FILES	=		\
 	Tableau.cpp		\
         Team.cpp                \
         Teams.cpp               \
+	TextStats.cpp		\
         Timer.cpp               \
         Timers.cpp              \
 	Valuation.cpp		\
@@ -92,6 +94,7 @@ BUILD_FILES	=		\
 	validateEML.cpp		\
 	validateREC.cpp		\
 	reader.cpp
+
 
 VOBJ_FILES 	= $(subst .cpp,.o,$(BUILD_FILES)) 
 
@@ -117,6 +120,7 @@ Board.o: bconst.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
 Board.o: Play.h Valuation.h parse.h Bexcept.h Bdiff.h
 Buffer.o: Buffer.h valint.h bconst.h parse.h Bexcept.h
 Canvas.o: Canvas.h
+CompStats.o: CompStats.h bconst.h
 Contract.o: Contract.h bconst.h parse.h Bexcept.h Bdiff.h
 Date.o: Date.h bconst.h parse.h Bexcept.h Bdiff.h
 Deal.o: Deal.h bconst.h parse.h Bexcept.h Bdiff.h
@@ -135,6 +139,7 @@ Session.o: Session.h bconst.h parse.h Bdiff.h Bexcept.h
 Tableau.o: Tableau.h bconst.h Contract.h parse.h Bexcept.h Bdiff.h
 Team.o: Team.h bconst.h parse.h Bexcept.h Bdiff.h
 Teams.o: Teams.h Team.h bconst.h parse.h Bexcept.h Bdiff.h
+TextStats.o: TextStats.h bconst.h parse.h
 Timer.o: Timer.h
 Timers.o: Timers.h Timer.h bconst.h
 Valuation.o: Valuation.h
@@ -142,8 +147,9 @@ args.o: args.h bconst.h
 dispatch.o: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 dispatch.o: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
 dispatch.o: Contract.h Play.h dispatch.h Files.h Timers.h Timer.h ValStats.h
-dispatch.o: ValProfile.h validate.h Buffer.h valint.h fileLIN.h filePBN.h
-dispatch.o: fileRBN.h fileTXT.h fileEML.h fileREC.h parse.h Bexcept.h
+dispatch.o: ValProfile.h validate.h Buffer.h valint.h TextStats.h CompStats.h
+dispatch.o: fileLIN.h filePBN.h fileRBN.h fileTXT.h fileEML.h fileREC.h
+dispatch.o: parse.h Bexcept.h Bdiff.h
 fileEML.o: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 fileEML.o: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
 fileEML.o: Contract.h Play.h Canvas.h fileEML.h Buffer.h valint.h parse.h
@@ -184,4 +190,4 @@ validateEML.o: bconst.h
 validateREC.o: validateREC.h ValProfile.h validate.h Buffer.h valint.h
 validateREC.o: bconst.h parse.h
 reader.o: args.h bconst.h dispatch.h Files.h Timers.h Timer.h ValStats.h
-reader.o: ValProfile.h validate.h Buffer.h valint.h
+reader.o: ValProfile.h validate.h Buffer.h valint.h TextStats.h CompStats.h

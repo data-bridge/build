@@ -57,10 +57,10 @@ static bool nextLINPair(
   if (pos == line.size())
     return false;
 
-  unsigned lpos = line.find('|', pos);
+  size_t lpos = line.find('|', pos);
   if (lpos == string::npos)
     return false;
-  unsigned vpos = line.find('|', lpos+1);
+  size_t vpos = line.find('|', lpos+1);
   if (vpos == string::npos)
     return false;
 

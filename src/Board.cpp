@@ -524,13 +524,14 @@ string Board::strAuction(const Format format) const
 {
   if (format == BRIDGE_FORMAT_TXT)
   {
-    unsigned lengths[BRIDGE_PLAYERS];
+    int lengths[BRIDGE_PLAYERS];
     for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
     {
       // Player pp = static_cast<Player>((p+3) % 4);
       Player pp = PLAYER_DDS_TO_TXT[p];
-      lengths[p] = players[numActive].strPlayer(pp, format).length();
-      lengths[p] = Max(12u, static_cast<int>(lengths[p]+1));
+      lengths[p] = static_cast<int>
+        (players[numActive].strPlayer(pp, format).length());
+      lengths[p] = Max(12, lengths[p]+1);
     }
     return auction[numActive].str(format, lengths);
   }

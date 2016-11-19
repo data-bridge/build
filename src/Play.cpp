@@ -759,7 +759,7 @@ string Play::strTXT() const
         break;
 
       // Pavlicek?
-      const unsigned width = (p == 0 ? 8u : 7u);
+      const int width = (p == 0 ? 8 : 7);
 
       // Full card when lead or when other suit than lead.
       const string st = (p == 0 || 

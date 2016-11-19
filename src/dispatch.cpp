@@ -101,48 +101,6 @@ struct Counts
 };
 
 
-void writeDummySegmentLevel(
-  string& st,
-  Segment& segment,
-  const Format format);
-
-static void setFormatTables();
-
-static void setIO();
-
-static void setInterface();
-
-void guessDealerAndVul(
-  vector<string>& chunk, 
-  const unsigned b,
-  const Format format);
-
-void guessDealerAndVul(
-  vector<string>& chunk, 
-  const string& s,
-  const Format format);
-
-static void readFix(
-  const string& fname,
-  vector<Fix>& fix);
-
-static void fixChunk(
-  vector<string>& chunk,
-  bool& newSegFlag,
-  vector<Fix>& fix);
-
-static void printChunk(const vector<string>& chunk);
-
-static void printCounts(
-  const string& fname,
-  Counts& counts);
-
-void logLengths(
-  Group& group,
-  TextStats& tstats,
-  const string& fname,
-  const Format format);
-
 static bool readFormattedFile(
   const string& fname,
   const Format format,
@@ -158,17 +116,15 @@ static bool readFormattedFile(
   const Options& options,
   ostream& flog);
 
-static void tryFormatMethod(
-  const Format format,
-  const string& text,
-  Segment * segment,
-  Board * board,
-  const unsigned label);
-
-static void writeHeader(
-  ofstream& fstr,
+static void logLengths(
   Group& group,
+  TextStats& tstats,
+  const string& fname,
   const Format format);
+
+static void readFix(
+  const string& fname,
+  vector<Fix>& fix);
 
 static void writeFormattedFile(
   Group& group,
@@ -176,12 +132,12 @@ static void writeFormattedFile(
   string& text,
   const Format format);
 
-void writeFast(
+static void writeFast(
   const string& fname,
   const string& text);
 
 
-void writeDummySegmentLevel(
+static void writeDummySegmentLevel(
   string& st,
   Segment& segment,
   const Format format)
@@ -296,7 +252,7 @@ void setTables()
 }
 
 
-void dispatchRead(
+static void dispatchRead(
   const FileTask& task,
   const Options& options,
   Group& group,
@@ -317,7 +273,7 @@ void dispatchRead(
 }
 
 
-void dispatchStats(
+static void dispatchStats(
   const FileTask& task,
   Group& group,
   TextStats& tstats,
@@ -334,7 +290,7 @@ void dispatchStats(
 }
 
 
-void dispatchWrite(
+static void dispatchWrite(
   const FileOutputTask& otask,
   Group& group,
   string& text,
@@ -352,7 +308,7 @@ void dispatchWrite(
 }
 
 
-void dispatchValidate(
+static void dispatchValidate(
   const FileTask& task,
   const FileOutputTask& otask,
   const Options& options,
@@ -374,7 +330,7 @@ void dispatchValidate(
 }
 
 
-void dispatchCompare(
+static void dispatchCompare(
   const Options& options,
   const string& fname,
   const Format format,
@@ -487,7 +443,7 @@ void dispatch(
 }
 
 
-void guessDealerAndVul(
+static void guessDealerAndVul(
   vector<string>& chunk, 
   const unsigned b,
   const Format format)
@@ -504,7 +460,7 @@ void guessDealerAndVul(
 }
 
 
-void guessDealerAndVul(
+static void guessDealerAndVul(
   vector<string>& chunk, 
   const string& s,
   const Format format)
@@ -609,6 +565,20 @@ static void printCounts(
   else
     cout << "Line numbers: " << counts.lnoOld+2 << " to " << 
       counts.lno-1 << endl << endl;
+}
+
+
+static void tryFormatMethod(
+  const Format format,
+  const string& text,
+  Segment * segment,
+  Board * board,
+  const unsigned label)
+{
+  if (label <= BRIDGE_FORMAT_ROOM)
+    (segment->*segPtr[label])(text, format);
+  else 
+    (board->*boardPtr[label])(text, format);
 }
 
 
@@ -760,21 +730,7 @@ static bool readFormattedFile(
 }
 
 
-static void tryFormatMethod(
-  const Format format,
-  const string& text,
-  Segment * segment,
-  Board * board,
-  const unsigned label)
-{
-  if (label <= BRIDGE_FORMAT_ROOM)
-    (segment->*segPtr[label])(text, format);
-  else 
-    (board->*boardPtr[label])(text, format);
-}
-
-
-void logLengths(
+static void logLengths(
   Group& group,
   TextStats& tstats,
   const string& fname,
@@ -938,7 +894,7 @@ void mergeResults(
 // http://stackoverflow.com/questions/11563963/
 //   writing-a-binary-file-in-c-very-fast
 
-void writeFast(
+static void writeFast(
   const string& fname,
   const string& text)
 {

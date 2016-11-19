@@ -68,7 +68,7 @@ void Timers::operator += (const Timers& timer2)
 void Timers::printTable(
   const string& header,
   const double table[][BRIDGE_FORMAT_SIZE],
-  const unsigned prec) const
+  const int prec) const
 {
   cout << setw(8) << left << header;
   for (unsigned fnc = 0; fnc < BRIDGE_TIMER_SIZE; fnc++)

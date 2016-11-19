@@ -171,7 +171,7 @@ static const vector<ValError> headerErrorType =
 };
 
 
-bool isTXTHeader(
+static bool isTXTHeader(
   ValState& valState,
   const unsigned & headerStartOut, 
   ValProfile& prof)

@@ -14,6 +14,11 @@
 #include <stdio.h>
 #include <io.h>
 #include <fcntl.h>
+#include <cstdint>
+
+#if defined(__CYGWIN__)
+  #include <unistd.h>
+#endif
 
 #include "Buffer.h"
 #include "parse.h"
@@ -73,8 +78,15 @@ void Buffer::readBinaryFile(const string& fname)
 
     char * prev = buf;
     char * p = buf;
-    while ((p = (char *) memchr(prev, '\n', 
-      static_cast<size_t>((buf + bytes_read) - prev))) != nullptr)
+    while ((p = static_cast<char *>(memchr(prev, '\n', 
+        static_cast<size_t>
+        (
+          (reinterpret_cast<long int>(buf) + 
+           static_cast<long int>(bytes_read)) -
+           reinterpret_cast<long int>(prev)
+        )
+        ))) != nullptr)
+      // static_cast<size_t>((buf + bytes_read) - prev))) != nullptr)
     {
       lineData.len = static_cast<unsigned>(p-prev);
       lineData.line = leftover + 
@@ -511,13 +523,15 @@ void Buffer::print() const
     if (ld.type == BRIDGE_BUFFER_STRUCTURED)
     {
       cout << setw(4) << right << ld.no <<
-        setw(6) << ld.type << setw(4) << ld.len << left << " " <<
+        setw(6) << static_cast<unsigned>(ld.type) << 
+        setw(4) << ld.len << left << " " <<
         setw(12) << ld.label << ld.value << endl;
     }
     else
     {
       cout << setw(4) << right << ld.no <<
-        setw(6) << ld.type << setw(4) << ld.len << left << " " <<
+        setw(6) << static_cast<unsigned>(ld.type) << 
+        setw(4) << ld.len << left << " " <<
         setw(12) << "" << ld.line << endl;
     }
   }

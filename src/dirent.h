@@ -346,11 +346,7 @@ _wopendir(
          * Note that on WinRT there's no way to convert relative paths
          * into absolute paths, so just assume its an absolute path.
          */
-#       if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
-            n = wcslen(dirname);
-#       else
-            n = GetFullPathNameW (dirname, 0, NULL, NULL);
-#       endif
+        n = GetFullPathNameW (dirname, 0, NULL, NULL);
 
         /* Allocate room for absolute directory name and search pattern */
         dirp->patt = (wchar_t*) malloc (sizeof (wchar_t) * n + 16);
@@ -364,11 +360,7 @@ _wopendir(
              * Note that on WinRT there's no way to convert relative paths
              * into absolute paths, so just assume its an absolute path.
              */
-#           if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
-                wcsncpy_s(dirp->patt, n+1, dirname, n);
-#           else
-                n = GetFullPathNameW (dirname, n, dirp->patt, NULL);
-#           endif
+            n = GetFullPathNameW (dirname, n, dirp->patt, NULL);
             if (n > 0) {
                 wchar_t *p;
 

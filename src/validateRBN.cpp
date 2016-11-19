@@ -13,7 +13,7 @@
 #include "parse.h"
 
 
-bool isRBNMissing(
+static bool isRBNMissing(
   ValState& valState,
   ValProfile& prof)
 {
@@ -45,7 +45,7 @@ bool isRBNMissing(
 }
 
 
-bool areRBNNames(
+static bool areRBNNames(
   const string& lineRef,
   const string& lineOut)
 {
@@ -69,7 +69,7 @@ bool areRBNNames(
 }
 
 
-bool isRBNShort(
+static bool isRBNShort(
   ValState& valState,
   ValProfile& prof)
 {

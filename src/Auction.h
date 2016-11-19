@@ -74,7 +74,7 @@ class Auction
       const string& text,
       const unsigned startPos = 0);
 
-    string strTXTHeader(const unsigned * lengths) const;
+    string strTXTHeader(const int * lengths) const;
     string strEMLHeader() const;
     string strLIN() const;
     string strLIN_RP() const;
@@ -83,7 +83,7 @@ class Auction
     string strRBN() const;
     string strRBX() const;
     string strEML() const;
-    string strTXT(const unsigned * lengths) const;
+    string strTXT(const int * lengths) const;
     string strREC() const;
 
 
@@ -150,7 +150,7 @@ class Auction
 
     string str(
       const Format format,
-      const unsigned * lengths = nullptr) const;
+      const int * lengths = nullptr) const;
     
     string strDealer(const Format format) const;
 
