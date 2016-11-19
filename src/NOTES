@@ -10,6 +10,8 @@ LIN shein
 LIN tourneys
 Test on concatenated RBN file
 
+Add ability to store optimal results from PBN.
+
 Checks
 ------
 Add == comparison (read written file back into, compare groups as ==).
@@ -17,8 +19,8 @@ Should somehow recognize complete duplicates.
 
 options
 -------
--b "binary compare", write to temp file, read back in, check ==
--S stats on lengths (incl cards per play etc.)
+-c "binary compare", write to temp file, read back in, check ==
+-s stats on lengths (incl cards per play etc.)
 -N name file
 -A analyse DD
 -p play analyze DD

@@ -236,6 +236,12 @@ void Auction::copyDealerVul(const Auction& auction2)
 }
 
 
+unsigned Auction::length() const
+{
+  return len;
+}
+
+
 void Auction::extend()
 {
   lenMax += AUCTION_SEQ_INCR;

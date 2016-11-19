@@ -113,6 +113,8 @@ class Auction
 
     void copyDealerVul(const Auction& auction2);
 
+    unsigned length() const;
+
 
     // Auction itself.
 

@@ -126,6 +126,11 @@ string Location::str(const Format format) const
          return "\n";
       return Location::strCore(", ") + "\n";
     
+    case BRIDGE_FORMAT_PAR:
+       if (locGeneral == "")
+         return "";
+      return Location::strCore(", ");
+
     default:
       THROW("Invalid format: " + STR(format));
   }

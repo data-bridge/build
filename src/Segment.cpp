@@ -709,6 +709,9 @@ string Segment::strTitle(const Format format) const
     case BRIDGE_FORMAT_TXT:
       return title + "\n";
 
+    case BRIDGE_FORMAT_PAR:
+      return title;
+
     default:
       THROW("Invalid format " + STR(format));
   }
@@ -749,6 +752,9 @@ string Segment::strEvent(const Format format) const
 
     case BRIDGE_FORMAT_TXT:
       return event + "\n";
+
+    case BRIDGE_FORMAT_PAR:
+      return event;
 
     default:
       THROW("Invalid format: " + STR(format));

@@ -10,8 +10,9 @@
 #ifndef BRIDGE_GROUP_H
 #define BRIDGE_GROUP_H
 
-#include "Segment.h"
 #include <string>
+
+#include "Segment.h"
 
 using namespace std;
 

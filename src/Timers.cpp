@@ -17,7 +17,8 @@ const string TimerName[]
   "Read",
   "Write",
   "Valid",
-  "Comp"
+  "Comp",
+  "Stats"
 };
 
 

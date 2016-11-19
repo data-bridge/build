@@ -11,6 +11,7 @@
 #define BRIDGE_SEGMENT_H
 
 #include <string>
+#include <iostream>
 
 #include "Date.h"
 #include "Location.h"

@@ -115,6 +115,8 @@ class Board
 
     bool isPassedOut() const;
 
+    unsigned lengthAuction() const;
+
     // Contract
 
     void setContract(

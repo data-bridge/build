@@ -227,6 +227,12 @@ bool Board::isPassedOut() const
 }
 
 
+unsigned Board::lengthAuction() const
+{
+  return auction[numActive].length();
+}
+
+
 // Contract
 
 void Board::setContract(

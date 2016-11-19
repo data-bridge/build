@@ -29,7 +29,7 @@ struct OptEntry
   unsigned numArgs;
 };
 
-#define BRIDGE_NUM_OPTIONS 10
+#define BRIDGE_NUM_OPTIONS 12
 
 static const OptEntry OPT_LIST[BRIDGE_NUM_OPTIONS] =
 {
@@ -40,7 +40,9 @@ static const OptEntry OPT_LIST[BRIDGE_NUM_OPTIONS] =
   {"r", "reffile", 1},
   {"R", "refdir", 1},
   {"l", "logfile", 1},
+  {"c", "compare", 0},
   {"f", "format", 1},
+  {"s", "stats", 0},
   {"n", "threads", 1},
   {"v", "verbose", 1}
 };
@@ -82,13 +84,19 @@ void usage(
     "\n" <<
     "-R, --refdir s     Reference for -i and -I.\n" <<
     "\n" <<
-    "-l, --logfile      Log file for outputs (default: stdout).\n" <<
+    "-l, --logfile s    Log file for outputs (default: stdout).\n" <<
     "\n" <<
-    "-f, --format       Output format for -O (default: ALL).\n" <<
+    "-c, --compare      Re-read output and compare internally.\n" <<
+    "                   (Default: not set)\n" <<
+    "\n" <<
+    "-f, --format s     Output format for -O (default: ALL).\n" <<
     "                   Values LIN, PBN, RBN, TXT, EML, DOC, REC, ALL.\n" <<
     "                   Some dialects are set by the input filename.\n" <<
     "\n" <<
-    "-n, --threads      Number of threads (default: 1).\n" <<
+    "-s, --stats        Output length stats of free-form fields.\n" <<
+    "                   (Default: not set)\n" <<
+    "\n" <<
+    "-n, --threads n    Number of threads (default: 1).\n" <<
     "\n" <<
     "-v, -verbose n     Verbosity (default: 0x1a).  Bits:\n" <<
     "                   0x01: Show input/output file names.\n" <<
@@ -160,8 +168,12 @@ static void setDefaults(Options& options)
   options.dirRef = {false, ""};
   options.fileLog = {false, ""};
 
+  options.compareFlag = false;
+
   options.formatSetFlag = false;
   options.format = BRIDGE_FORMAT_SIZE;
+
+  options.statsFlag = false;
 
   options.numThreads = 1;
 
@@ -199,6 +211,11 @@ void printOptions(const Options& options)
 
   printFileOption(options.fileLog, "logfile");
 
+  if (options.compareFlag)
+    cout << setw(12) << "compare" << setw(12) << "set" << "\n";
+  else
+    cout << setw(12) << "compare" << setw(12) << "not set" << "\n";
+
   if (options.formatSetFlag)
   {
     cout << setw(12) << "format" << 
@@ -206,6 +223,11 @@ void printOptions(const Options& options)
   }
   else
     cout << setw(12) << "(not set)\n";
+
+  if (options.statsFlag)
+    cout << setw(12) << "stats" << setw(12) << "set" << "\n";
+  else
+    cout << setw(12) << "stats" << setw(12) << "not set" << "\n";
 
   cout << setw(12) << "threads" << setw(12) << options.numThreads << "\n\n";
 }
@@ -323,6 +345,10 @@ void readArgs(
         options.fileLog = {true, optarg};
         break;
 
+      case 'c':
+        options.compareFlag = true;
+        break;
+
       case 'f':
         matchFlag = false;
         for (unsigned i = 0; i < BRIDGE_FORMAT_SIZE; i++)
@@ -342,6 +368,10 @@ void readArgs(
           nextToken -= 2;
           errFlag = true;
         }
+        break;
+
+      case 's':
+        options.statsFlag = true;
         break;
 
       case 'n':

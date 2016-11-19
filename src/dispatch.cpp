@@ -29,6 +29,7 @@
 
 #include "parse.h"
 #include "Bexcept.h"
+#include "Bdiff.h"
 
 
 // Modulo 4, so West for Board "0" (4, 8, ...) etc.
@@ -135,6 +136,12 @@ static void printChunk(const vector<string>& chunk);
 static void printCounts(
   const string& fname,
   Counts& counts);
+
+void logLengths(
+  Group& group,
+  TextStats& tstats,
+  const string& fname,
+  const Format format);
 
 static bool readFormattedFile(
   const string& fname,
@@ -310,6 +317,23 @@ void dispatchRead(
 }
 
 
+void dispatchStats(
+  const FileTask& task,
+  Group& group,
+  TextStats& tstats,
+  ostream& flog)
+{
+  try
+  {
+    logLengths(group, tstats, task.fileInput, task.formatInput);
+  }
+  catch (Bexcept& bex)
+  {
+    bex.print(flog);
+  }
+}
+
+
 void dispatchWrite(
   const FileOutputTask& otask,
   Group& group,
@@ -341,11 +365,48 @@ void dispatchValidate(
     validate(text, otask.fileOutput, otask.fileRef,
       task.formatInput, otask.formatOutput, options, vstats);
   }
-  catch(Bexcept& bex)
+  catch (Bexcept& bex)
   {
     flog << "Files " << task.fileInput << " -> " <<
       otask.fileOutput << endl;
     bex.print(flog);
+  }
+}
+
+
+void dispatchCompare(
+  const Options& options,
+  const Format format,
+  Group& group,
+  const string& text,
+  CompStats& cstats,
+  ostream& flog)
+{
+  try
+  {
+    Group groupNew;
+    Buffer buffer;
+    vector<Fix> fix;
+
+    buffer.split(text, format);
+    fix.clear();
+
+    readFormattedFile(buffer, fix, format, groupNew, options, flog);
+
+    group == groupNew;
+    cstats.add(true, format);
+  }
+  catch (Bdiff& bdiff)
+  {
+    // bdiff.print(flog);
+    UNUSED(bdiff);
+    cstats.add(false, format);
+  }
+  catch (Bexcept& bex)
+  {
+    // bex.print(flog);
+    UNUSED(bex);
+    cstats.add(false, format);
   }
 }
 
@@ -355,6 +416,8 @@ void dispatch(
   Files& files,
   const Options& options,
   ValStats& vstats,
+  TextStats& tstats,
+  CompStats& cstats,
   Timers& timers)
 {
   ofstream freal;
@@ -375,6 +438,16 @@ void dispatch(
     dispatchRead(task, options, group, flog);
     timers.stop(BRIDGE_TIMER_READ, task.formatInput);
 
+    if (options.statsFlag)
+    {
+      if (options.verboseIO)
+        flog << "Input " << task.fileInput << endl;
+    
+      timers.start(BRIDGE_TIMER_STATS, task.formatInput);
+      dispatchStats(task, group, tstats, flog);
+      timers.stop(BRIDGE_TIMER_STATS, task.formatInput);
+    }
+
     for (auto &t: task.taskList)
     {
       if (options.verboseIO)
@@ -393,6 +466,18 @@ void dispatch(
         timers.start(BRIDGE_TIMER_VALIDATE, t.formatOutput);
         dispatchValidate(task, t, options, text, vstats, flog);
         timers.stop(BRIDGE_TIMER_VALIDATE, t.formatOutput);
+      }
+
+      if (options.compareFlag && task.formatInput == t.formatOutput)
+      {
+        if (options.verboseIO)
+          flog << "Comparing " << t.fileOutput <<
+              " against " << task.fileInput << endl;
+
+        timers.start(BRIDGE_TIMER_COMPARE, t.formatOutput);
+        dispatchCompare(options, task.formatInput, 
+          group, text, cstats, flog);
+        timers.stop(BRIDGE_TIMER_COMPARE, t.formatOutput);
       }
 
       if (task.removeOutputFlag)
@@ -687,6 +772,55 @@ static void tryFormatMethod(
 }
 
 
+void logLengths(
+  Group& group,
+  TextStats& tstats,
+  const string& fname,
+  const Format format)
+{
+  for (auto &segment: group)
+  {
+    tstats.add(segment.strTitle(BRIDGE_FORMAT_PAR),
+      fname, BRIDGE_FORMAT_TITLE, format);
+
+    tstats.add(segment.strLocation(BRIDGE_FORMAT_PAR),
+      fname, BRIDGE_FORMAT_LOCATION, format);
+
+    tstats.add(segment.strEvent(BRIDGE_FORMAT_PAR),
+      fname, BRIDGE_FORMAT_EVENT, format);
+
+    tstats.add(segment.strSession(BRIDGE_FORMAT_PAR),
+      fname, BRIDGE_FORMAT_SESSION, format);
+
+    tstats.add(segment.strFirstTeam(BRIDGE_FORMAT_PAR),
+      fname, BRIDGE_FORMAT_TEAMS, format);
+
+    tstats.add(segment.strSecondTeam(BRIDGE_FORMAT_PAR),
+      fname, BRIDGE_FORMAT_TEAMS, format);
+
+    for (auto &bpair: segment)
+    {
+      Board& board = bpair.board;
+
+      for (unsigned i = 0; i < board.count(); i++)
+      {
+        board.setInstance(i);
+
+        tstats.add(board.lengthAuction(),
+          fname, BRIDGE_FORMAT_AUCTION, format);
+
+        for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
+        {
+          tstats.add(
+            board.strPlayer(static_cast<Player>(p), BRIDGE_FORMAT_PAR),
+            fname, BRIDGE_FORMAT_PLAYERS_BOARD, format);
+        }
+      }
+    }
+  }
+}
+
+
 static void writeHeader(
   string& st,
   Group& group,
@@ -755,6 +889,8 @@ static void writeFormattedFile(
 
 void mergeResults(
   vector<ValStats>& vstats,
+  vector<TextStats>& tstats,
+  vector<CompStats>& cstats,
   vector<Timers>& timers,
   const Options& options)
 {
@@ -764,6 +900,8 @@ void mergeResults(
   for (unsigned i = 1; i < options.numThreads; i++)
   {
     vstats[0] += vstats[i];
+    tstats[0] += tstats[i];
+    cstats[0] += cstats[i];
     timers[0] += timers[i];
   }
 

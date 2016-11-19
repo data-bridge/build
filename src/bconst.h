@@ -231,8 +231,12 @@ struct Options
 
   FileOption fileLog; // -l, --logfile
 
+  bool compareFlag; // -c, --compare
+
   bool formatSetFlag; // -f, --format
   Format format;
+
+  bool statsFlag; // -s, --stats
 
   unsigned numThreads;
 

@@ -389,6 +389,7 @@ string Players::strPlayer(
         players[player] + "\"]\n";
     
     case BRIDGE_FORMAT_TXT:
+    case BRIDGE_FORMAT_PAR:
       return players[player];
     
     case BRIDGE_FORMAT_EML:

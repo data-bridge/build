@@ -978,7 +978,10 @@ string Contract::strScorePBN(const int refScore) const
 string Contract::strScoreREC() const
 {
   stringstream ss;
-  ss << "Score: " << setw(13) << left << showpos << score;
+  if (Contract::isPassedOut())
+    ss << "Score: " << setw(13) << "";
+  else
+    ss << "Score: " << setw(13) << left << showpos << score;
   return ss.str();
 }
 
@@ -1060,7 +1063,9 @@ string Contract::strScoreIMP(
     case BRIDGE_FORMAT_REC:
       ss << "Points:";
       IMPs = Contract::diffToIMPs(score - refScore);
-      if (IMPs == 0)
+      if (Contract::isPassedOut())
+        ss << setw(7) << "";
+      else if (IMPs == 0)
         ss << setw(7) << right << "=";
       else
         ss << setw(7) << right << showpos << IMPs;
@@ -1193,7 +1198,9 @@ string Contract::strResultEML() const
 string Contract::strResultREC() const
 {
   stringstream ss;
-  if (tricksRelative < 0)
+  if (Contract::isPassedOut())
+    ss << "Result: Won 32"; // Pavlicek bug
+  else if (tricksRelative < 0)
     ss << "Result: Down " << -tricksRelative;
   else
     ss << "Result: Made " << 

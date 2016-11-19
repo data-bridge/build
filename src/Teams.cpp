@@ -330,6 +330,7 @@ string Teams::strFirst(
       return team1.str(format, "HomeTeam");
 
     case BRIDGE_FORMAT_TXT:
+    case BRIDGE_FORMAT_PAR:
       return team1.name;
 
     default:
@@ -347,6 +348,7 @@ string Teams::strSecond(
       return team2.str(format, "VisitTeam");
 
     case BRIDGE_FORMAT_TXT:
+    case BRIDGE_FORMAT_PAR:
       return team2.name;
 
     default:

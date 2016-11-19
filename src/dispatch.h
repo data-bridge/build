@@ -15,6 +15,8 @@
 #include "Files.h"
 #include "Timers.h"
 #include "ValStats.h"
+#include "TextStats.h"
+#include "CompStats.h"
 #include "bconst.h"
 
 using namespace std;
@@ -26,10 +28,14 @@ void dispatch(
   Files& files,
   const Options& options,
   ValStats& vstats,
+  TextStats& tstats,
+  CompStats& cstats,
   Timers& timers);
 
 void mergeResults(
   vector<ValStats>& vstats,
+  vector<TextStats>& tstats,
+  vector<CompStats>& cstats,
   vector<Timers>& timer,
   const Options& options);
 

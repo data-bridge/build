@@ -535,7 +535,7 @@ string Session::strTXT() const
   else if (general2 != "")
     ss << ", " << general2;
 
-  return ss.str() + "\n";
+  return ss.str();
 }
 
 
@@ -559,6 +559,9 @@ string Session::str(const Format format) const
       return Session::strRBX();
 
     case BRIDGE_FORMAT_TXT:
+      return Session::strTXT() + "\n";
+
+    case BRIDGE_FORMAT_PAR:
       return Session::strTXT();
 
     default:
