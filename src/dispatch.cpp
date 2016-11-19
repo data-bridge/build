@@ -376,6 +376,7 @@ void dispatchValidate(
 
 void dispatchCompare(
   const Options& options,
+  const string& fname,
   const Format format,
   Group& group,
   const string& text,
@@ -389,7 +390,7 @@ void dispatchCompare(
     vector<Fix> fix;
 
     buffer.split(text, format);
-    fix.clear();
+    readFix(fname, fix);
 
     readFormattedFile(buffer, fix, format, groupNew, options, flog);
 
@@ -468,14 +469,17 @@ void dispatch(
         timers.stop(BRIDGE_TIMER_VALIDATE, t.formatOutput);
       }
 
-      if (options.compareFlag && task.formatInput == t.formatOutput)
+      // TODO: Should write in LIN_RP
+      // if (options.compareFlag && task.formatInput == t.formatOutput)
+      if (options.compareFlag && 
+          FORMAT_INPUT_MAP[task.formatInput] == t.formatOutput)
       {
         if (options.verboseIO)
           flog << "Comparing " << t.fileOutput <<
               " against " << task.fileInput << endl;
 
         timers.start(BRIDGE_TIMER_COMPARE, t.formatOutput);
-        dispatchCompare(options, task.formatInput, 
+        dispatchCompare(options, task.fileInput, task.formatInput, 
           group, text, cstats, flog);
         timers.stop(BRIDGE_TIMER_COMPARE, t.formatOutput);
       }

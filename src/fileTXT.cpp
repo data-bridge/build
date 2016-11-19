@@ -311,7 +311,7 @@ static void getTXTAuction(
   vector<string>& chunk)
 {
   const unsigned l0 = canvas[offset].length();
-  if (l0 > 6 && l0 < 11)
+  if (l0 > 6 && l0 < 11 && canvas[offset] != "All Pass")
   {
     // No auction, e.g. "5Cx North".
     chunk[BRIDGE_FORMAT_AUCTION] = "";

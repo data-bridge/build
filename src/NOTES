@@ -12,18 +12,11 @@ Test on concatenated RBN file
 
 Add ability to store optimal results from PBN.
 
-Checks
-------
-Add == comparison (read written file back into, compare groups as ==).
-Should somehow recognize complete duplicates.
-
 options
 -------
--c "binary compare", write to temp file, read back in, check ==
--s stats on lengths (incl cards per play etc.)
--N name file
 -A analyse DD
 -p play analyze DD
+-n output all names to appropriately named text files
 
 Code quality
 ------------
@@ -66,6 +59,10 @@ Ingest them into sqlite in a separate program
 
 some kind of "make" ("scour") looks for new or changed files.
 Output proposed deltas to DB
+
+Find a way to normalize all important text fields.
+
+Should somehow recognize complete duplicates.
 
 Syntax for .bsf files
 ---------------------

@@ -12,6 +12,7 @@
 #include <mutex>
 
 #include "TextStats.h"
+#include "parse.h"
 
 #define BRIDGE_STATS_MAX_LENGTH 64
 #define BRIDGE_STATS_NUM_FIELDS 7
@@ -96,7 +97,7 @@ void TextStats::add(
   unsigned len = text.length();
   if (stats[format][lb].datum[len].count == 0)
   {
-    stats[format][lb].datum[len].source = source;
+    stats[format][lb].datum[len].source = basefile(source);
     stats[format][lb].datum[len].example = text;
   }
   stats[format][lb].datum[len].count++;
@@ -112,7 +113,7 @@ void TextStats::add(
 {
   unsigned lb = BRIDGE_STATS_MAP[label];
   if (stats[format][lb].datum[len].count == 0)
-    stats[format][lb].datum[len].source = source;
+    stats[format][lb].datum[len].source = basefile(source);
 
   stats[format][lb].datum[len].count++;
   stats[format][lb].count++;

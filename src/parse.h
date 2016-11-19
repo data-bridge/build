@@ -74,6 +74,8 @@ Format ext2format(const string& s);
 
 void toUpper(string& text);
 
+string basefile(const string& path);
+
 unsigned trimLeading(string& text);
 
 string trimTrailing(const string& str);

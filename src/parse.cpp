@@ -375,6 +375,17 @@ Format ext2format(const string& text)
     return BRIDGE_FORMAT_SIZE;
 }
 
+
+string basefile(const string& path)
+{
+  unsigned pos = path.find_last_of("/\\");
+  if (pos == string::npos)
+    return path;
+  else
+    return path.substr(pos+1);
+}
+
+
 void toUpper(
   string& text)
 {
