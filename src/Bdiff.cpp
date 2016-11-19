@@ -25,11 +25,11 @@ Bdiff::Bdiff(
 }
 
 
-void Bdiff::print() const
+void Bdiff::print(ostream& flog) const
 {
-  cout << "Difference seen in " << file <<
+  flog << "Difference seen in " << file <<
       ", function " << function <<
       ", line number " << line << endl;
-  cout << message << endl;
+  flog << message << endl;
 }
 

@@ -399,14 +399,13 @@ void dispatchCompare(
   }
   catch (Bdiff& bdiff)
   {
-    // bdiff.print(flog);
+    bdiff.print(flog);
     UNUSED(bdiff);
     cstats.add(false, format);
   }
   catch (Bexcept& bex)
   {
-    // bex.print(flog);
-    UNUSED(bex);
+    bex.print(flog);
     cstats.add(false, format);
   }
 }
@@ -469,10 +468,7 @@ void dispatch(
         timers.stop(BRIDGE_TIMER_VALIDATE, t.formatOutput);
       }
 
-      // TODO: Should write in LIN_RP
-      // if (options.compareFlag && task.formatInput == t.formatOutput)
-      if (options.compareFlag && 
-          FORMAT_INPUT_MAP[task.formatInput] == t.formatOutput)
+      if (options.compareFlag && task.formatInput == t.formatOutput)
       {
         if (options.verboseIO)
           flog << "Comparing " << t.fileOutput <<
@@ -704,7 +700,7 @@ static bool readFormattedFile(
 
     if (chunk[BRIDGE_FORMAT_BOARD_NO] != "" &&
         chunk[BRIDGE_FORMAT_BOARD_NO] != lastBoard &&
-        (format != BRIDGE_FORMAT_LIN ||
+        ((format != BRIDGE_FORMAT_LIN && format != BRIDGE_FORMAT_LIN_RP) ||
         lastBoard == "" ||
         chunk[BRIDGE_FORMAT_BOARD_NO].substr(1) != lastBoard.substr(1)))
     {
@@ -733,7 +729,9 @@ static bool readFormattedFile(
       {
         if (chunk[i] == "")
         {
-          if (i == BRIDGE_FORMAT_CONTRACT && format == BRIDGE_FORMAT_LIN)
+          if (i == BRIDGE_FORMAT_CONTRACT && 
+              (format == BRIDGE_FORMAT_LIN ||
+               format == BRIDGE_FORMAT_LIN_RP))
             segment->loadSpecificsFromHeader(chunk[BRIDGE_FORMAT_BOARD_NO]);
 
           continue;

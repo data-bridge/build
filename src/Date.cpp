@@ -168,6 +168,7 @@ void Date::set(
   switch(format)
   {
     case BRIDGE_FORMAT_LIN:
+    case BRIDGE_FORMAT_LIN_RP:
       Date::setLIN(text);
       return;
     
@@ -293,6 +294,7 @@ string Date::str(const Format format) const
   switch(format)
   {
     case BRIDGE_FORMAT_LIN:
+    case BRIDGE_FORMAT_LIN_RP:
       return Date::strLIN();
     
     case BRIDGE_FORMAT_PBN:

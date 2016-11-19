@@ -103,6 +103,7 @@ void Teams::set(
   switch(format)
   {
     case BRIDGE_FORMAT_LIN:
+    case BRIDGE_FORMAT_LIN_RP:
     case BRIDGE_FORMAT_RBN:
     case BRIDGE_FORMAT_RBX:
       return Teams::setRBN(text);
@@ -288,6 +289,7 @@ string Teams::str(
   switch(format)
   {
     case BRIDGE_FORMAT_LIN:
+    case BRIDGE_FORMAT_LIN_RP:
       return Teams::strLIN(swapFlag);
 
     case BRIDGE_FORMAT_RBN:

@@ -262,7 +262,10 @@ void Files::set(const Options& options)
         {
           oe.fullName = "";
           oe.base = "";
-          oe.format = f;
+          if (f == BRIDGE_FORMAT_LIN)
+            oe.format = Files::guessLINFormat(i.base);
+          else
+            oe.format = f;
         }
 
         outputList.push_back(oe);

@@ -127,6 +127,7 @@ void Scoring::set(
   switch(format)
   {
     case BRIDGE_FORMAT_LIN:
+    case BRIDGE_FORMAT_LIN_RP:
       return Scoring::setLIN(text);
     
     case BRIDGE_FORMAT_PBN:
@@ -206,6 +207,7 @@ string Scoring::str(const Format format) const
   switch(format)
   {
     case BRIDGE_FORMAT_LIN:
+    case BRIDGE_FORMAT_LIN_RP:
       return Scoring::strLIN();
     
     case BRIDGE_FORMAT_PBN:

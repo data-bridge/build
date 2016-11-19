@@ -114,7 +114,7 @@ void Team::set(
 bool Team::operator == (const Team& team2) const
 {
   if (name != team2.name)
-    DIFF("Different team name");
+    DIFF("Different team name: " + STR(name) + " / " + STR(team2.name));
 
   if (carry != team2.carry)
     DIFF("Different team carry type");

@@ -266,6 +266,7 @@ void Deal::set(
   switch(format)
   {
     case BRIDGE_FORMAT_LIN:
+    case BRIDGE_FORMAT_LIN_RP:
       Deal::setLIN(text);
       break;
 

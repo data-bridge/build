@@ -153,7 +153,8 @@ void Board::setDeal(
   deal.getDDS(cards);
   play[0].setHoldingDDS(cards);
 
-  if (format == BRIDGE_FORMAT_LIN)
+  if (format == BRIDGE_FORMAT_LIN ||
+      format == BRIDGE_FORMAT_LIN_RP)
     auction[numActive].setDealer(text.substr(0, 1), format);
 }
 

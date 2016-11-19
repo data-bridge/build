@@ -159,6 +159,7 @@ void Auction::setDealer(
   switch(format)
   {
     case BRIDGE_FORMAT_LIN:
+    case BRIDGE_FORMAT_LIN_RP:
       Auction::setDealerLIN(text);
       break;
     
@@ -185,6 +186,7 @@ void Auction::setVul(
   switch(format)
   {
     case BRIDGE_FORMAT_LIN:
+    case BRIDGE_FORMAT_LIN_RP:
     case BRIDGE_FORMAT_PBN:
     case BRIDGE_FORMAT_RBN:
     case BRIDGE_FORMAT_RBX:
@@ -646,6 +648,7 @@ void Auction::addAuction(
   switch(format)
   {
     case BRIDGE_FORMAT_LIN:
+    case BRIDGE_FORMAT_LIN_RP:
       {
         vector<string> lines;
         str2lines(text, lines);

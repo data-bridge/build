@@ -107,6 +107,7 @@ string Location::str(const Format format) const
   switch(format)
   {
     case BRIDGE_FORMAT_LIN:
+    case BRIDGE_FORMAT_LIN_RP:
       return Location::strCore(":");
     
     case BRIDGE_FORMAT_PBN:
