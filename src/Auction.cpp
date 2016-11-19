@@ -12,8 +12,14 @@
 #include <sstream>
 #include <map>
 #include <regex>
-#include <thread>
-#include <mutex>
+
+#if defined(_WIN32) && defined(__MINGW32__)
+  #include "mingw.thread.h"
+  #include "mingw.mutex.h"
+#else
+  #include <thread>
+  #include <mutex>
+#endif
 
 #include "Auction.h"
 #include "Contract.h"

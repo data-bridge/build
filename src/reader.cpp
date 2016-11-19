@@ -8,7 +8,12 @@
 
 
 #include <iostream>
-#include <thread>
+
+#if defined(_WIN32) && defined(__MINGW32__)
+  #include "mingw.thread.h"
+#else
+  #include <thread>
+#endif
 
 #include "args.h"
 #include "dispatch.h"

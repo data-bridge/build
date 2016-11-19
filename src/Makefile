@@ -1,6 +1,54 @@
-EXPORTER	= Exports.def
+# This is the valet Makefile for Windows and the MinGW compiler.
+# It does assume a Unix-like setup for some commands,
+# but if you only want to call "make" with the default target,
+# you should be OK.
 
-SOURCE_FILES 	=		\
+# If your exact compiler name is not given here, change it.
+# CC		= mingw32-g++
+CC		= i686-w64-mingw32-g++
+
+CC_FLAGS	= -O3 -flto -mtune=generic -std=c++11
+
+# These flags are not turned on be default, but DDS should pass them.
+# Turn them on below.
+WARN_FLAGS	= 		\
+	-Wshadow 		\
+	-Wsign-conversion 	\
+	-pedantic -Wall -Wextra  \
+	-Wcast-align -Wcast-qual \
+	-Wctor-dtor-privacy 	\
+	-Wdisabled-optimization \
+	-Winit-self 		\
+	-Wlogical-op 		\
+	-Wmissing-declarations 	\
+	-Wmissing-include-dirs 	\
+	-Wnoexcept 		\
+	-Wold-style-cast 	\
+	-Woverloaded-virtual 	\
+	-Wredundant-decls 	\
+	-Wsign-promo 		\
+	-Wstrict-null-sentinel 	\
+	-Wstrict-overflow=1 	\
+	-Wswitch-default -Wundef \
+	-Werror 		\
+	-Wno-unused 		\
+	-Wno-unknown-pragmas 	\
+	-Wno-long-long		\
+	-Wno-maybe-uninitialized	\
+	-Wno-format
+
+# Here you can turn on warnings.
+# CC_FULL_FLAGS	= $(CC_FLAGS)
+CC_FULL_FLAGS	= $(CC_FLAGS) $(WARN_FLAGS)
+
+DLLBASE         = reader
+DLL             = $(DLLBASE).dll
+DLIB            = $(DLLBASE).lib
+
+LIB_FLAGS       = -mdll
+LIB_USE_FLAGS   = -L. -l$(DLLBASE)
+
+BUILD_FILES	=		\
 	Auction.cpp		\
         Bexcept.cpp             \
         Bdiff.cpp               \
@@ -46,139 +94,108 @@ SOURCE_FILES 	=		\
 	validateREC.cpp		\
 	reader.cpp
 
-TEST		= reader
+LD_FLAGS        =               \
+        -Wl,--subsystem,windows \
+        -Wl,--output-def,$(DLLBASE).def \
+        -Wl,--dynamicbase       \
+        -Wl,--nxcompat          \
+        -Wl,--no-seh            \
+        -Wl,--enable-stdcall-fixup
 
-CC_VS     	= cl
-
-WARN_FLAGS      =               \
-        /Wall                   \
-        /wd4061                 \
-        /wd4127                 \
-        /wd4265                 \
-        /wd4350                 \
-        /wd4514                 \
-        /wd4555                 \
-        /wd4668                 \
-        /wd4701                 \
-        /wd4710                 \
-        /wd4711                 \
-        /wd4820                 \
-        /wd4986                 \
-        /wd4987                 \
-        /wd4996                 \
-        /WX
-
-CC_FLAGS_VS     = /O2 /Oi /Ot /Oy /GL /Zi /EHsc
-CC_FLAGS_DEBUG  = /DEBUG
+VOBJ_FILES 	= $(subst .cpp,.o,$(BUILD_FILES)) 
+LOBJ_FILES 	= $(subst .cpp,.o,$(LIB_FILES)) 
+DOBJ_FILES 	= $(subst .cpp,.o,$(DRIVER_FILES)) 
 
 
-LD_FLAGS_VS	= /INCREMENTAL:NO /DEBUG /OPT:REF /OPT:ICF
-# LD_FLAGS_VS	= /INCREMENTAL:NO /DEBUG
+reader:	$(VOBJ_FILES)
+	$(CC) $(CC_FULL_FLAGS) $(VOBJ_FILES) -o reader.exe
 
-WINDRES_FLAG	= -F pe-i386
-
-CC		= $(CC_VS)
-CC_FLAGS	= $(CC_FLAGS_VS) $(WARN_FLAGS)
-# CC_FLAGS	= $(CC_FLAGS_DEBUG) $(WARN_FLAGS) /Zi
-LD_FLAGS	= $(LD_FLAGS_VS)
-
-OBJ_FILES 	= $(subst .cpp,.obj,$(SOURCE_FILES))
-
-# Linking directly.
-
-reader:	$(OBJ_FILES)
-	link /LTCG $(LD_FLAGS) $(OBJ_FILES) /out:$(TEST).exe
-
-%.obj:	%.cpp
-	$(CC) $(CC_FLAGS) /c /EHsc $<
-
+%.o:	%.cpp
+	$(CC) $(CC_FULL_FLAGS) -c $<
 
 depend:
-	makedepend -Y -o.obj -- $(CC_FLAGS) -- $(SOURCE_FILES) $(TEST).cpp
+	makedepend -Y -- $(CC_FLAGS) -- $(BUILD_FILES) $(LIB_FILES) $(DRIVER_FILES)
 
 clean:
-	rm -f $(OBJ_FILES) $(TEST_OBJ_FILES) $(TEST).obj $(TEST).exe 
-
+	rm -f $(VOBJ_FILES) $(LOBJ_FILES) $(DOBJ_FILES) reader.exe 
 
 # DO NOT DELETE
 
-Auction.obj: Auction.h bconst.h Contract.h parse.h Bexcept.h Bdiff.h
-Bexcept.obj: Bexcept.h
-Bdiff.obj: Bdiff.h
-Board.obj: bconst.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
-Board.obj: Play.h Valuation.h parse.h Bexcept.h Bdiff.h
-Buffer.obj: Buffer.h valint.h bconst.h parse.h Bexcept.h
-Canvas.obj: Canvas.h
-CompStats.obj: CompStats.h bconst.h
-Contract.obj: Contract.h bconst.h parse.h Bexcept.h Bdiff.h
-Date.obj: Date.h bconst.h parse.h Bexcept.h Bdiff.h
-Deal.obj: Deal.h bconst.h parse.h Bexcept.h Bdiff.h
-Files.obj: Files.h bconst.h parse.h
-Group.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
-Group.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
-Group.obj: Contract.h Play.h Bdiff.h
-Location.obj: Location.h bconst.h Bexcept.h Bdiff.h
-Play.obj: Play.h bconst.h Contract.h parse.h Bexcept.h Bdiff.h
-Players.obj: Players.h bconst.h parse.h Bexcept.h Bdiff.h
-Scoring.obj: Scoring.h bconst.h Bexcept.h Bdiff.h
-Segment.obj: Segment.h Date.h bconst.h Location.h Session.h Scoring.h Teams.h
-Segment.obj: Team.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
-Segment.obj: Play.h parse.h Bexcept.h Bdiff.h
-Session.obj: Session.h bconst.h parse.h Bdiff.h Bexcept.h
-Tableau.obj: Tableau.h bconst.h Contract.h parse.h Bexcept.h Bdiff.h
-Team.obj: Team.h bconst.h parse.h Bexcept.h Bdiff.h
-Teams.obj: Teams.h Team.h bconst.h parse.h Bexcept.h Bdiff.h
-TextStats.obj: TextStats.h bconst.h
-Timer.obj: Timer.h
-Timers.obj: Timers.h Timer.h bconst.h
-Valuation.obj: Valuation.h
-args.obj: args.h bconst.h
-dispatch.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h
-dispatch.obj: Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h Players.h
-dispatch.obj: Auction.h Contract.h Play.h dispatch.h Files.h Timers.h Timer.h
-dispatch.obj: ValStats.h ValProfile.h validate.h Buffer.h valint.h
-dispatch.obj: TextStats.h CompStats.h fileLIN.h filePBN.h fileRBN.h fileTXT.h
-dispatch.obj: fileEML.h fileREC.h parse.h Bexcept.h
-fileEML.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
-fileEML.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
-fileEML.obj: Contract.h Play.h Canvas.h fileEML.h Buffer.h valint.h parse.h
-fileEML.obj: Bexcept.h
-filePBN.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
-filePBN.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
-filePBN.obj: Contract.h Play.h filePBN.h Buffer.h valint.h Bexcept.h
-fileRBN.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
-fileRBN.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
-fileRBN.obj: Contract.h Play.h Bexcept.h fileRBN.h Buffer.h valint.h parse.h
-fileTXT.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
-fileTXT.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
-fileTXT.obj: Contract.h Play.h Canvas.h fileTXT.h Buffer.h valint.h parse.h
-fileTXT.obj: Bexcept.h
-fileLIN.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
-fileLIN.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
-fileLIN.obj: Contract.h Play.h fileLIN.h Buffer.h valint.h Bexcept.h
-fileREC.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
-fileREC.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
-fileREC.obj: Contract.h Play.h Canvas.h fileREC.h Buffer.h valint.h parse.h
-fileREC.obj: Bexcept.h
-parse.obj: parse.h bconst.h
-ValProfile.obj: ValProfile.h validate.h Buffer.h valint.h bconst.h
-ValStats.obj: ValStats.h ValProfile.h validate.h Buffer.h valint.h bconst.h
-validate.obj: ValStats.h ValProfile.h validate.h Buffer.h valint.h bconst.h
-validate.obj: validateLIN.h validatePBN.h validateRBN.h validateTXT.h
-validate.obj: validateEML.h validateREC.h parse.h
-validateLIN.obj: validateLIN.h ValProfile.h validate.h Buffer.h valint.h
-validateLIN.obj: bconst.h parse.h
-validatePBN.obj: validatePBN.h ValProfile.h validate.h Buffer.h valint.h
-validatePBN.obj: bconst.h
-validateRBN.obj: validateRBN.h ValProfile.h validate.h Buffer.h valint.h
-validateRBN.obj: bconst.h parse.h
-validateTXT.obj: validateTXT.h ValProfile.h validate.h Buffer.h valint.h
-validateTXT.obj: bconst.h parse.h
-validateEML.obj: validateEML.h ValProfile.h validate.h Buffer.h valint.h
-validateEML.obj: bconst.h
-validateREC.obj: validateREC.h ValProfile.h validate.h Buffer.h valint.h
-validateREC.obj: bconst.h parse.h
-reader.obj: args.h bconst.h dispatch.h Files.h Timers.h Timer.h ValStats.h
-reader.obj: ValProfile.h validate.h Buffer.h valint.h TextStats.h CompStats.h
-reader.obj: args.h bconst.h dispatch.h Files.h Timers.h Timer.h ValStats.h
-reader.obj: ValProfile.h validate.h Buffer.h valint.h TextStats.h CompStats.h
+Auction.o: Auction.h bconst.h Contract.h parse.h Bexcept.h Bdiff.h
+Bexcept.o: Bexcept.h
+Bdiff.o: Bdiff.h
+Board.o: bconst.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
+Board.o: Play.h Valuation.h parse.h Bexcept.h Bdiff.h
+Buffer.o: Buffer.h valint.h bconst.h parse.h Bexcept.h
+Canvas.o: Canvas.h
+CompStats.o: CompStats.h bconst.h
+Contract.o: Contract.h bconst.h parse.h Bexcept.h Bdiff.h
+Date.o: Date.h bconst.h parse.h Bexcept.h Bdiff.h
+Deal.o: Deal.h bconst.h parse.h Bexcept.h Bdiff.h
+Files.o: Files.h bconst.h parse.h
+Group.o: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
+Group.o: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
+Group.o: Contract.h Play.h Bdiff.h
+Location.o: Location.h bconst.h Bexcept.h Bdiff.h
+Play.o: Play.h bconst.h Contract.h parse.h Bexcept.h Bdiff.h
+Players.o: Players.h bconst.h parse.h Bexcept.h Bdiff.h
+Scoring.o: Scoring.h bconst.h Bexcept.h Bdiff.h
+Segment.o: Segment.h Date.h bconst.h Location.h Session.h Scoring.h Teams.h
+Segment.o: Team.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
+Segment.o: Play.h parse.h Bexcept.h Bdiff.h
+Session.o: Session.h bconst.h parse.h Bdiff.h Bexcept.h
+Tableau.o: Tableau.h bconst.h Contract.h parse.h Bexcept.h Bdiff.h
+Team.o: Team.h bconst.h parse.h Bexcept.h Bdiff.h
+Teams.o: Teams.h Team.h bconst.h parse.h Bexcept.h Bdiff.h
+TextStats.o: TextStats.h bconst.h parse.h
+Timer.o: Timer.h
+Timers.o: Timers.h Timer.h bconst.h
+Valuation.o: Valuation.h
+args.o: args.h bconst.h
+dispatch.o: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
+dispatch.o: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
+dispatch.o: Contract.h Play.h dispatch.h Files.h Timers.h Timer.h ValStats.h
+dispatch.o: ValProfile.h validate.h Buffer.h valint.h TextStats.h CompStats.h
+dispatch.o: fileLIN.h filePBN.h fileRBN.h fileTXT.h fileEML.h fileREC.h
+dispatch.o: parse.h Bexcept.h Bdiff.h
+fileEML.o: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
+fileEML.o: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
+fileEML.o: Contract.h Play.h Canvas.h fileEML.h Buffer.h valint.h parse.h
+fileEML.o: Bexcept.h
+filePBN.o: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
+filePBN.o: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
+filePBN.o: Contract.h Play.h filePBN.h Buffer.h valint.h Bexcept.h
+fileRBN.o: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
+fileRBN.o: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
+fileRBN.o: Contract.h Play.h Bexcept.h fileRBN.h Buffer.h valint.h parse.h
+fileTXT.o: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
+fileTXT.o: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
+fileTXT.o: Contract.h Play.h Canvas.h fileTXT.h Buffer.h valint.h parse.h
+fileTXT.o: Bexcept.h
+fileLIN.o: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
+fileLIN.o: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
+fileLIN.o: Contract.h Play.h fileLIN.h Buffer.h valint.h Bexcept.h
+fileREC.o: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
+fileREC.o: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
+fileREC.o: Contract.h Play.h Canvas.h fileREC.h Buffer.h valint.h parse.h
+fileREC.o: Bexcept.h
+parse.o: parse.h bconst.h
+ValProfile.o: ValProfile.h validate.h Buffer.h valint.h bconst.h
+ValStats.o: ValStats.h ValProfile.h validate.h Buffer.h valint.h bconst.h
+validate.o: ValStats.h ValProfile.h validate.h Buffer.h valint.h bconst.h
+validate.o: validateLIN.h validatePBN.h validateRBN.h validateTXT.h
+validate.o: validateEML.h validateREC.h parse.h
+validateLIN.o: validateLIN.h ValProfile.h validate.h Buffer.h valint.h
+validateLIN.o: bconst.h parse.h
+validatePBN.o: validatePBN.h ValProfile.h validate.h Buffer.h valint.h
+validatePBN.o: bconst.h
+validateRBN.o: validateRBN.h ValProfile.h validate.h Buffer.h valint.h
+validateRBN.o: bconst.h parse.h
+validateTXT.o: validateTXT.h ValProfile.h validate.h Buffer.h valint.h
+validateTXT.o: bconst.h parse.h
+validateEML.o: validateEML.h ValProfile.h validate.h Buffer.h valint.h
+validateEML.o: bconst.h
+validateREC.o: validateREC.h ValProfile.h validate.h Buffer.h valint.h
+validateREC.o: bconst.h parse.h
+reader.o: args.h bconst.h dispatch.h Files.h Timers.h Timer.h ValStats.h
+reader.o: ValProfile.h validate.h Buffer.h valint.h TextStats.h CompStats.h

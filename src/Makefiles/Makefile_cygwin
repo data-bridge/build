@@ -98,7 +98,7 @@ BUILD_FILES	=		\
 
 VOBJ_FILES 	= $(subst .cpp,.o,$(BUILD_FILES)) 
 
-valet:	$(VOBJ_FILES)
+reader:	$(VOBJ_FILES)
 	$(CC) $(CC_FULL_FLAGS) $(VOBJ_FILES) $(LD_FLAGS) -o reader
 
 %.o:	%.cpp

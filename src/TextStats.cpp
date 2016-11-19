@@ -9,7 +9,12 @@
 #include <string>
 #include <iomanip>
 #include <sstream>
-#include <mutex>
+
+#if defined(_WIN32) && defined(__MINGW32__)
+  #include "mingw.mutex.h"
+#else
+  #include <mutex>
+#endif
 
 #include "TextStats.h"
 #include "parse.h"

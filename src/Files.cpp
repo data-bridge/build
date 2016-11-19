@@ -9,8 +9,15 @@
 
 #include <iostream>
 #include <regex>
-#include <thread>
-#include <mutex>
+
+
+#if defined(_WIN32) && defined(__MINGW32__)
+  #include "mingw.thread.h"
+  #include "mingw.mutex.h"
+#else
+  #include <thread>
+  #include <mutex>
+#endif
 
 #if defined(__CYGWIN__)
   #include "dirent.h"
