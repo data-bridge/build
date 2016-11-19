@@ -27,6 +27,10 @@ Tools
 - clang static analyzer
 
 Add g++ makefile for Ubuntu, maybe Mac etc etc.
+- Ubuntu
+- mingw
+- cygwin
+- Mac clang
 
 Valuation
 ---------

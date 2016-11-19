@@ -634,8 +634,22 @@ bool Segment::operator == (const Segment& segment2) const
     DIFF("Different scoring");
   else if (teams != segment2.teams)
     DIFF("Different teams");
-  else
-    return true;
+  else if (len != segment2.len)
+    DIFF("Different board numbers");
+
+  for (unsigned b = 0; b < len; b++)
+  {
+    const BoardPair& bp1 = boards[b];
+    const BoardPair& bp2 = segment2.boards[b];
+    if (bp1.no != bp2.no)
+      DIFF("Different internal number of board");
+    else if (bp1.extNo != bp2.extNo)
+      DIFF("Different external number of board");
+    else if (bp1.board != bp2.board)
+      DIFF("Different boards"); // Board == will already throw, though
+  }
+
+  return true;
 }
 
 
