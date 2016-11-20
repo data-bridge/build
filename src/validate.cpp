@@ -41,7 +41,7 @@ void setValidateTables()
 {
   valPtr[BRIDGE_FORMAT_LIN] = &validateLIN_RP;
   valPtr[BRIDGE_FORMAT_LIN_RP] = &validateLIN_RP;
-  valPtr[BRIDGE_FORMAT_LIN_VG] = &validateLIN_RP;
+  valPtr[BRIDGE_FORMAT_LIN_VG] = &validateLIN;
   valPtr[BRIDGE_FORMAT_LIN_TRN] = &validateLIN_RP;
   valPtr[BRIDGE_FORMAT_PBN] = &validatePBN;
   valPtr[BRIDGE_FORMAT_RBN] = &validateRBN;

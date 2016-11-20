@@ -427,12 +427,15 @@ bool Buffer::advance()
 
 bool Buffer::nextLIN(LineData& vside)
 {
-  while (current < len && lines[current].type == BRIDGE_BUFFER_COMMENT)
+  while (current < len && 
+      (lines[current].type == BRIDGE_BUFFER_COMMENT ||
+       lines[current].type == BRIDGE_BUFFER_EMPTY))
     current++;
 
   if (current > len-1)
     return false;
 
+  /*
   if (lines[current].type == BRIDGE_BUFFER_EMPTY)
   {
     // Make an empty line.
@@ -446,6 +449,7 @@ bool Buffer::nextLIN(LineData& vside)
     posLIN = 0;
     return true;
   }
+  */
 
   size_t e = lines[current].line.find('|', posLIN);
   if (e != posLIN+2 || e == string::npos)
@@ -575,14 +579,26 @@ unsigned Buffer::previousHeaderStart() const
 
 int Buffer::peek() const
 {
-  if (current > len-1)
+  if (format == BRIDGE_FORMAT_LIN ||
+      format == BRIDGE_FORMAT_LIN_VG ||
+      format == BRIDGE_FORMAT_LIN_TRN)
+  {
+    unsigned c = current;
+    unsigned p = posLIN;
+    while (c < len && lines[c].type == BRIDGE_BUFFER_EMPTY)
+    {
+      c++;
+      p = 0;
+    }
+    if (c > len-1)
+      return 0x00;
+    else
+      return static_cast<int>(lines[c].line.at(p));
+  }
+  else if (current > len-1)
     return 0x00;
   else if (lines[current].len == 0)
     return 0x01; // Whatever
-  else if (format == BRIDGE_FORMAT_LIN ||
-      format == BRIDGE_FORMAT_LIN_VG ||
-      format == BRIDGE_FORMAT_LIN_TRN)
-    return static_cast<int>(lines[current].line.at(posLIN));
   else 
     return static_cast<int>(lines[current].line.at(0));
 }

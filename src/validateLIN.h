@@ -14,6 +14,10 @@
 using namespace std;
 
 
+bool validateLIN(
+  ValState& valState,
+  ValProfile& prof);
+
 bool validateLIN_RP(
   ValState& valState,
   ValProfile& prof);

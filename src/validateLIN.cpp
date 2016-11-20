@@ -218,3 +218,102 @@ bool validateLIN_RP(
     return false;
 }
 
+
+static bool skipEmpty(
+  LineData& data,
+  Buffer& buffer)
+{
+  while (data.type == BRIDGE_BUFFER_EMPTY)
+    if (! buffer.next(data))
+      return false;
+
+  return true;
+}
+
+
+static bool isLINDiscard(const string& label)
+{
+  if (label == "nt" || label == "pg")
+    return true;
+  else
+    return false;
+}
+
+
+static bool skipDiscard(
+  LineData& data,
+  Buffer& buffer)
+{
+  while (data.type == BRIDGE_BUFFER_EMPTY || isLINDiscard(data.label))
+    if (! buffer.next(data))
+      return false;
+
+  return true;
+}
+
+
+static bool isDifferentCase(
+  const string& value1,
+  const string& value2)
+{
+  string v1 = value1;
+  string v2 = value2;
+  toUpper(v1);
+  toUpper(v2);
+  return (v1 == v2);
+}
+
+
+bool validateLIN(
+  ValState& valState,
+  ValProfile& prof)
+{
+  UNUSED(prof);
+
+  // Skip empty lines.
+  if (! skipEmpty(valState.dataRef, valState.bufferRef))
+  {
+    if (! skipEmpty(valState.dataOut, valState.bufferOut))
+      return true;
+    else
+      return false;
+  }
+
+  if (! skipEmpty(valState.dataOut, valState.bufferOut))
+    return false;
+
+  if (valState.dataRef.type != BRIDGE_BUFFER_STRUCTURED ||
+      valState.dataOut.type != BRIDGE_BUFFER_STRUCTURED)
+    return false;
+
+  if (valState.dataRef.label == valState.dataOut.label)
+  {
+    if (valState.dataRef.len != valState.dataOut.len)
+      return false;
+    else
+      return isDifferentCase(valState.dataRef.value,
+        valState.dataOut.value);
+      // Could maybe consider equality an error here, but only w.r.t. case
+  }
+
+  if (! skipDiscard(valState.dataRef, valState.bufferRef))
+  {
+    if (! skipDiscard(valState.dataOut, valState.bufferOut))
+      return true;
+    else
+      return false;
+  }
+
+  if (! skipDiscard(valState.dataOut, valState.bufferOut))
+    return false;
+
+  if (valState.dataRef.label != valState.dataOut.label)
+    return false;
+  else if (valState.dataRef.len != valState.dataOut.len)
+    return false;
+  else
+    return isDifferentCase(valState.dataRef.value,
+      valState.dataOut.value);
+    // Could maybe consider equality an error here, but only w.r.t. case
+}
+
