@@ -43,6 +43,7 @@ void Buffer::reset()
   len = 0;
   current = 0;
   format = BRIDGE_FORMAT_SIZE;
+  posLIN = 0;
   posRBX = 0;
   lines.reserve(CHUNK_SIZE);
 }
@@ -424,52 +425,123 @@ bool Buffer::advance()
 }
 
 
+bool Buffer::nextLIN(LineData& vside)
+{
+  while (current < len && lines[current].type == BRIDGE_BUFFER_COMMENT)
+    current++;
+
+  if (current > len-1)
+    return false;
+
+  if (lines[current].type == BRIDGE_BUFFER_EMPTY)
+  {
+    // Make an empty line.
+    vside.line = "";
+    vside.len = 0;
+    vside.type = BRIDGE_BUFFER_EMPTY;
+    vside.label = "";
+    vside.value = "";
+    vside.no = lines[current].no;
+    current++;
+    posLIN = 0;
+    return true;
+  }
+
+  size_t e = lines[current].line.find('|', posLIN);
+  if (e != posLIN+2 || e == string::npos)
+    THROW("Bad LIN line");
+
+  vside.label = lines[current].line.substr(posLIN, 2);
+  vside.no = lines[current].no;
+
+  posLIN += 3;
+  if (posLIN >= lines[current].len)
+    THROW("Bad LIN line");
+
+  e = lines[current].line.find('|', posLIN);
+  if (e == string::npos)
+    THROW("Bad LIN line");
+
+  vside.type = BRIDGE_BUFFER_STRUCTURED;
+
+  if (e == posLIN)
+    vside.value = "";
+  else
+    vside.value = lines[current].line.substr(posLIN, e-posLIN);
+
+  vside.line = vside.label + "|" + vside.value + "|";
+  vside.len = 4 + vside.value.length();
+
+  if (e == lines[current].len-1)
+  {
+    current++;
+    posLIN = 0;
+  }
+  else
+    posLIN = e+1;
+
+  return true;
+}
+
+
+void Buffer::nextRBX(LineData& vside)
+{
+  // Turn RBX into RBN.
+
+  if (posRBX >= lines[current].len)
+  {
+    // Make an empty line.
+    vside.line = "";
+    vside.len = 0;
+    vside.type = BRIDGE_BUFFER_EMPTY;
+    vside.label = "";
+    vside.value = "";
+    vside.no = lines[current].no;
+    current++;
+    posRBX = 0;
+    return;
+  }
+
+  size_t e = lines[current].line.find('}', posRBX);
+  if (e <= posRBX+1 || e == string::npos)
+    THROW("Bad RBX line");
+
+  vside.label = lines[current].line.substr(posRBX, 1);
+  vside.no = lines[current].no;
+
+  if (e == posRBX+2)
+  {
+    vside.len = 2;
+    vside.line = vside.label + " ";
+    vside.value = "";
+  }
+  else
+  {
+    vside.len = e-posRBX;
+    vside.value = lines[current].line.substr(posRBX+2, vside.len-2);
+    vside.line = vside.label + " " + vside.value;
+  }
+
+  Buffer::classify(vside);
+  posRBX = e+1;
+}
+
+
 bool Buffer::next(LineData& vside)
 {
   if (current > len-1)
     return false;
 
-  if (format == BRIDGE_FORMAT_RBX &&
+  if (format == BRIDGE_FORMAT_LIN ||
+      format == BRIDGE_FORMAT_LIN_VG ||
+      format == BRIDGE_FORMAT_LIN_TRN)
+  {
+    return Buffer::nextLIN(vside);
+  }
+  else if (format == BRIDGE_FORMAT_RBX &&
       lines[current].type != BRIDGE_BUFFER_EMPTY)
   {
-    // Turn RBX into RBN.
-
-    if (posRBX >= lines[current].len)
-    {
-      // Make an empty line.
-      vside.line = "";
-      vside.len = 0;
-      vside.type = BRIDGE_BUFFER_EMPTY;
-      vside.label = "";
-      vside.value = "";
-      vside.no = lines[current].no;
-      current++;
-      posRBX = 0;
-      return true;
-    }
-
-    size_t e = lines[current].line.find('}', posRBX);
-    if (e <= posRBX+1 || e == string::npos)
-      THROW("Bad RBX line");
-
-    vside.label = lines[current].line.substr(posRBX, 1);
-    vside.no = lines[current].no;
-
-    if (e == posRBX+2)
-    {
-      vside.len = 2;
-      vside.line = vside.label + " ";
-      vside.value = "";
-    }
-    else
-    {
-      vside.len = e-posRBX;
-      vside.value = lines[current].line.substr(posRBX+2, vside.len-2);
-      vside.line = vside.label + " " + vside.value;
-    }
-
-    Buffer::classify(vside);
-    posRBX = e+1;
+    Buffer::nextRBX(vside);
     return true;
   }
   else
@@ -507,6 +579,10 @@ int Buffer::peek() const
     return 0x00;
   else if (lines[current].len == 0)
     return 0x01; // Whatever
+  else if (format == BRIDGE_FORMAT_LIN ||
+      format == BRIDGE_FORMAT_LIN_VG ||
+      format == BRIDGE_FORMAT_LIN_TRN)
+    return static_cast<int>(lines[current].line.at(posLIN));
   else 
     return static_cast<int>(lines[current].line.at(0));
 }

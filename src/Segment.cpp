@@ -248,6 +248,8 @@ void Segment::setTitle(
   {
     case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_LIN_RP:
+    case BRIDGE_FORMAT_LIN_VG:
+    case BRIDGE_FORMAT_LIN_TRN:
       Segment::setTitleLIN(text);
       break;
 
@@ -378,7 +380,9 @@ void Segment::setResultsList(
   const Format format)
 {
   if (format != BRIDGE_FORMAT_LIN &&
-      format != BRIDGE_FORMAT_LIN_RP)
+      format != BRIDGE_FORMAT_LIN_RP &&
+      format != BRIDGE_FORMAT_LIN_VG &&
+      format != BRIDGE_FORMAT_LIN_TRN)
     THROW("Invalid format: " + STR(format));
   
   size_t c = countDelimiters(text, ",");
@@ -495,7 +499,9 @@ void Segment::setPlayersHeader(
   const Format format)
 {
   if (format != BRIDGE_FORMAT_LIN &&
-      format != BRIDGE_FORMAT_LIN_RP)
+      format != BRIDGE_FORMAT_LIN_RP &&
+      format != BRIDGE_FORMAT_LIN_VG &&
+      format != BRIDGE_FORMAT_LIN_TRN)
     THROW("Invalid format: " + STR(format));
 
   size_t c = countDelimiters(text, ",");
@@ -519,7 +525,9 @@ void Segment::setScoresList(
   const Format format)
 {
   if (format != BRIDGE_FORMAT_LIN &&
-      format != BRIDGE_FORMAT_LIN_RP)
+      format != BRIDGE_FORMAT_LIN_RP &&
+      format != BRIDGE_FORMAT_LIN_VG &&
+      format != BRIDGE_FORMAT_LIN_TRN)
     THROW("Invalid format: " + STR(format));
 
   size_t c = countDelimiters(text, ",");
@@ -543,7 +551,9 @@ void Segment::setBoardsList(
   const Format format)
 {
   if (format != BRIDGE_FORMAT_LIN &&
-      format != BRIDGE_FORMAT_LIN_RP)
+      format != BRIDGE_FORMAT_LIN_RP &&
+      format != BRIDGE_FORMAT_LIN_VG &&
+      format != BRIDGE_FORMAT_LIN_TRN)
     THROW("Invalid format: " + STR(format));
   
   size_t c = countDelimiters(text, ",");
@@ -586,7 +596,9 @@ void Segment::setNumber(
 {
   string t = text;
   if (format == BRIDGE_FORMAT_LIN ||
-      format == BRIDGE_FORMAT_LIN_RP)
+      format == BRIDGE_FORMAT_LIN_RP ||
+      format == BRIDGE_FORMAT_LIN_VG ||
+      format == BRIDGE_FORMAT_LIN_TRN)
   {
     // Drop the open/closed indicator.
     t = t.substr(1);

@@ -543,6 +543,8 @@ void Contract::setResult(
   {
     case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_LIN_RP:
+    case BRIDGE_FORMAT_LIN_VG:
+    case BRIDGE_FORMAT_LIN_TRN:
     case BRIDGE_FORMAT_PBN:
       Contract::textToTricks(text);
       break;

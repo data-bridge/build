@@ -184,6 +184,8 @@ void Players::setRoom(
   {
     case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_LIN_RP:
+    case BRIDGE_FORMAT_LIN_VG:
+    case BRIDGE_FORMAT_LIN_TRN:
       if (roomIn == "o")
         roomVal = BRIDGE_ROOM_OPEN;
       else if (roomIn == "c")

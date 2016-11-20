@@ -440,6 +440,8 @@ void Play::setPlays(
 
     case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_LIN_RP:
+    case BRIDGE_FORMAT_LIN_VG:
+    case BRIDGE_FORMAT_LIN_TRN:
     case BRIDGE_FORMAT_RBN:
     case BRIDGE_FORMAT_RBX:
     case BRIDGE_FORMAT_EML:

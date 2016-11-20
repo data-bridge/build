@@ -56,7 +56,7 @@ static bool LINtoList(
     return false;
 
   list.clear();
-  if (line.substr(line.length()-5) == "|pg||")
+  if (line.length() >= 5 && line.substr(line.length()-5) == "|pg||")
     tokenize(line.substr(0, line.length()-5), list, ",");
   else
     tokenize(line, list, ",");

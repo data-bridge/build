@@ -406,7 +406,7 @@ void dispatch(
 
     for (auto &t: task.taskList)
     {
-      if (options.verboseIO)
+      if (options.verboseIO && t.fileOutput != "")
         flog << "Output " << t.fileOutput << endl;
 
       timers.start(BRIDGE_TIMER_WRITE, t.formatOutput);
@@ -670,7 +670,10 @@ static bool readFormattedFile(
 
     if (chunk[BRIDGE_FORMAT_BOARD_NO] != "" &&
         chunk[BRIDGE_FORMAT_BOARD_NO] != lastBoard &&
-        ((format != BRIDGE_FORMAT_LIN && format != BRIDGE_FORMAT_LIN_RP) ||
+        ((format != BRIDGE_FORMAT_LIN && 
+          format != BRIDGE_FORMAT_LIN_RP &&
+          format != BRIDGE_FORMAT_LIN_VG &&
+          format != BRIDGE_FORMAT_LIN_TRN) ||
         lastBoard == "" ||
         chunk[BRIDGE_FORMAT_BOARD_NO].substr(1) != lastBoard.substr(1)))
     {
@@ -701,7 +704,9 @@ static bool readFormattedFile(
         {
           if (i == BRIDGE_FORMAT_CONTRACT && 
               (format == BRIDGE_FORMAT_LIN ||
-               format == BRIDGE_FORMAT_LIN_RP))
+               format == BRIDGE_FORMAT_LIN_RP ||
+               format == BRIDGE_FORMAT_LIN_VG ||
+               format == BRIDGE_FORMAT_LIN_TRN))
             segment->loadSpecificsFromHeader(chunk[BRIDGE_FORMAT_BOARD_NO]);
 
           continue;

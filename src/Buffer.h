@@ -42,6 +42,7 @@ class Buffer
     unsigned len;
     unsigned current;
     Format format;
+    unsigned posLIN;
     unsigned posRBX;
 
 
@@ -57,6 +58,9 @@ class Buffer
     void readRefFix(
       const string& fname,
       vector<RefFix>& refFix);
+
+    bool nextLIN(LineData& vside);
+    void nextRBX(LineData& vside);
 
 
   public:

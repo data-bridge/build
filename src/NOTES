@@ -1,3 +1,11 @@
+validate:
+* Make a validateLIN in line 42 and validateLIN.cpp
+* Skip over certain labels: ah, pg on either side
+* Permit lower-case cards and pass
+* Print example for each "error"
+
+update Pavlicek missive and Excel
+
 Functionality
 -------------
 JEC PBN
@@ -8,6 +16,9 @@ LIN VG
 - Parse headers for semantic content
 LIN shein
 LIN tourneys
+
+LIN as it is now, and modified Buffer
+
 Test on concatenated RBN file
 
 Add ability to store optimal results from PBN.
@@ -18,19 +29,15 @@ options
 -p play analyze DD
 -n output all names to appropriately named text files
 
-Code quality
-------------
-Tools
-- cppclean
-- doxygen including dot
-- include-what-you-use
-- clang static analyzer
-
-Add makefiles for:
-- Ubuntu g++
-- mingw
-- cygwin
-- Mac clang
+Makefiles
+---------
+        compile runs    threads
+-------------------------------
+visual  yes     yes     yes
+cygwin  yes     segf
+mingw   almost
+clang
+ubuntu
 
 Valuation
 ---------

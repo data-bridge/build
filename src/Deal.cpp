@@ -273,6 +273,8 @@ void Deal::set(
   {
     case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_LIN_RP:
+    case BRIDGE_FORMAT_LIN_VG:
+    case BRIDGE_FORMAT_LIN_TRN:
       Deal::setLIN(text);
       break;
 
