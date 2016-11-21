@@ -6,8 +6,12 @@ LIN_VG:
   - starts c1, o2, c2, ...  How to recognize?
     Maybe in Segment line 472 we also test for contract
     for instance 0.  Can we move straight to instance 1 in Board?
-
--i 30002 -o tmp/34567 -r 34567 dies in c2, copyPlayers
+    -i 30002 -o tmp/34567 -r 34567 dies in c2, copyPlayers
+* 31000
+  Board given as 1-32
+  rs has a bunch of ,,,,
+  Then o17, c17, ...
+  Could have 16 empty boards in Segment?
 
             #qx
 LIN_VG  948,965

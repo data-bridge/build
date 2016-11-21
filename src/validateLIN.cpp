@@ -272,7 +272,7 @@ bool validateLIN(
           valState.dataRef.value.at(2) == '!' &&
           valState.dataRef.value.substr(0, 2) == valState.dataOut.value)
       {
-        // mb|2C| vs mb|2C!|.
+        // ref mb|2C!| vs out mb|2C|.
         if (! valState.bufferRef.next(valState.dataRef))
           return false;
         if (! valState.bufferOut.next(valState.dataOut))
@@ -280,6 +280,22 @@ bool validateLIN(
         if (valState.dataRef.label != "an" ||
             valState.dataOut.label != "an" ||
             valState.dataRef.value != valState.dataOut.value)
+          return false;
+
+        prof.log(BRIDGE_VAL_LIN_EXCLAIM, valState);
+        return true;
+      }
+      else if (valState.dataRef.label == "mb" &&
+          valState.dataRef.len == 6 &&
+          valState.dataOut.len == 7 &&
+          valState.dataOut.value.at(2) == '!' &&
+          valState.dataOut.value.substr(0, 2) == valState.dataRef.value)
+      {
+        // ref mb|2C|an|!| vs out mb|2C!|
+        if (! valState.bufferRef.next(valState.dataRef))
+          return false;
+        if (valState.dataRef.label != "an" ||
+            valState.dataRef.value != "!")
           return false;
 
         prof.log(BRIDGE_VAL_LIN_EXCLAIM, valState);
