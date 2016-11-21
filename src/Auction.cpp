@@ -632,7 +632,7 @@ void Auction::addAuctionRBNCore(
     else if (c == '*' || c == '!') 
     {
       pos++;
-      sequence[activeBNo].alert = '!';
+      sequence[len-1].alert = '!';
     }
     else if (c == 'P' || c == 'X' || c == 'D' || c == 'R')
     {
