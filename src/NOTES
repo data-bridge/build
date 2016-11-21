@@ -1,11 +1,13 @@
 LIN_VG:
 * 29123 works
+* 34567 works
 * 34999 works
-* 34567
-  - 2DW+2 contradicts later mc 9.
-    Consider whether both result are still reachable.
-    Also DD in position.
-    Could have .fix files
+* 30002
+  - starts c1, o2, c2, ...  How to recognize?
+    Maybe in Segment line 472 we also test for contract
+    for instance 0.  Can we move straight to instance 1 in Board?
+
+-i 30002 -o tmp/34567 -r 34567 dies in c2, copyPlayers
 
             #qx
 LIN_VG  948,965
@@ -25,6 +27,8 @@ Move all file*cpp to lno = lineData.lno,
 then move printed line interval to actual lno's.
 
 Make prettier line break in LIN print except LIN_RP.
+
+No % comment in LIN except LIN_RP.
 
 Functionality
 -------------

@@ -435,22 +435,6 @@ bool Buffer::nextLIN(LineData& vside)
   if (current > len-1)
     return false;
 
-  /*
-  if (lines[current].type == BRIDGE_BUFFER_EMPTY)
-  {
-    // Make an empty line.
-    vside.line = "";
-    vside.len = 0;
-    vside.type = BRIDGE_BUFFER_EMPTY;
-    vside.label = "";
-    vside.value = "";
-    vside.no = lines[current].no;
-    current++;
-    posLIN = 0;
-    return true;
-  }
-  */
-
   size_t e = lines[current].line.find('|', posLIN);
   if (e != posLIN+2 || e == string::npos)
     THROW("Bad LIN line");

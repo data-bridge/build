@@ -219,18 +219,6 @@ bool validateLIN_RP(
 }
 
 
-static bool skipEmpty(
-  LineData& data,
-  Buffer& buffer)
-{
-  while (data.type == BRIDGE_BUFFER_EMPTY)
-    if (! buffer.next(data))
-      return false;
-
-  return true;
-}
-
-
 static bool isLINDiscard(const string& label)
 {
   if (label == "nt" || label == "pg")
@@ -270,18 +258,6 @@ bool validateLIN(
 {
   UNUSED(prof);
 
-  // Skip empty lines.
-  if (! skipEmpty(valState.dataRef, valState.bufferRef))
-  {
-    if (! skipEmpty(valState.dataOut, valState.bufferOut))
-      return true;
-    else
-      return false;
-  }
-
-  if (! skipEmpty(valState.dataOut, valState.bufferOut))
-    return false;
-
   if (valState.dataRef.type != BRIDGE_BUFFER_STRUCTURED ||
       valState.dataOut.type != BRIDGE_BUFFER_STRUCTURED)
     return false;
@@ -289,7 +265,29 @@ bool validateLIN(
   if (valState.dataRef.label == valState.dataOut.label)
   {
     if (valState.dataRef.len != valState.dataOut.len)
-      return false;
+    {
+      if (valState.dataRef.label == "mb" &&
+          valState.dataRef.len == 7 &&
+          valState.dataOut.len == 6 &&
+          valState.dataRef.value.at(2) == '!' &&
+          valState.dataRef.value.substr(0, 2) == valState.dataOut.value)
+      {
+        // mb|2C| vs mb|2C!|.
+        if (! valState.bufferRef.next(valState.dataRef))
+          return false;
+        if (! valState.bufferOut.next(valState.dataOut))
+          return false;
+        if (valState.dataRef.label != "an" ||
+            valState.dataOut.label != "an" ||
+            valState.dataRef.value != valState.dataOut.value)
+          return false;
+
+        prof.log(BRIDGE_VAL_LIN_EXCLAIM, valState);
+        return true;
+      }
+      else
+        return false;
+    }
     else
       return isDifferentCase(valState.dataRef.value,
         valState.dataOut.value);
