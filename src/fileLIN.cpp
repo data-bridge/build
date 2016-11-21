@@ -85,7 +85,7 @@ void readLINChunk(
   unsigned aNo = 1;
   while (! doneFlag && buffer.next(lineData))
   {
-    lno++;
+    lno = lineData.no;
 
     if (lineData.type != BRIDGE_BUFFER_EMPTY)
     {

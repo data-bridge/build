@@ -1,17 +1,26 @@
 LIN_VG:
 * 29123 works
 * 34567
-  - line numbers are off (1306-1765)
   - 2DW+2 contradicts later mc 9.
     Consider whether both result are still reachable.
     Also DD in position.
+    Could have .fix files
 * 34999
   - o12 alert goes onto wrong bid (1NT, not P)
+
+            #qx
+LIN_VG  948,965
+LIN_RP   80,138
+LIN     ~ 9,399 incl TRN
+JEC      23,045
 
 validate:
 * Print example for each "error"
 
 update Pavlicek missive and Excel
+
+Move all file*cpp to lno = lineData.lno,
+then move printed line interval to actual lno's.
 
 Functionality
 -------------
