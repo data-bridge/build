@@ -44,6 +44,7 @@ class Board
     vector<Auction> auction;
     vector<Contract> contract;
     vector<Play> play;
+    vector<bool> skip;
     float givenScore;
 
     unsigned len;
@@ -70,6 +71,10 @@ class Board
     void setInstance(const unsigned no);
 
     unsigned getInstance() const;
+
+    void markInstanceSkip();
+
+    bool skipped() const;
 
     unsigned count() const;
 

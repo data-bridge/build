@@ -161,7 +161,8 @@ class Segment
       const Format format);
 
     void loadSpecificsFromHeader(
-      const string& room);
+      const string& room,
+      const Format format);
 
     void setPlayersHeader(
       const string& text,

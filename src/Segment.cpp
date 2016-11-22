@@ -457,7 +457,9 @@ void Segment::setPlayersList(
 }
 
 
-void Segment::loadSpecificsFromHeader(const string& room)
+void Segment::loadSpecificsFromHeader(
+  const string& room,
+  const Format format)
 {
   if (LINcount == 0)
     return;
@@ -477,14 +479,23 @@ void Segment::loadSpecificsFromHeader(const string& room)
     teams.swap();
   }
 
-  const Format format = BRIDGE_FORMAT_LIN;
+  unsigned linTableNo;
+  if (format == BRIDGE_FORMAT_LIN_RP)
+  {
+    // Consecutively without gaps.
+    linTableNo = activeNo;
+  }
+  else
+  {
+    // At the right place, perhaps with gaps.
+    unsigned eno = boards[activeNo].extNo;
+    if (eno < bInmin || eno > bInmax)
+      THROW("Board number out of range of LIN header");
+    linTableNo = eno - bInmin;
+  }
 
-  unsigned eno = boards[activeNo].extNo;
-  if (eno < bInmin || eno > bInmax)
-    THROW("Board number out of range of LIN header");
-  const unsigned linTableNo = eno - bInmin;
-
-  activeBoard->setContract(LINdata[linTableNo].contract[r], format);
+  activeBoard->setContract(
+    LINdata[linTableNo].contract[r], BRIDGE_FORMAT_LIN);
 
   string st = "";
   for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
@@ -495,7 +506,7 @@ void Segment::loadSpecificsFromHeader(const string& room)
   }
 
   if (st != ",,,")
-    activeBoard->setPlayers(st, format);
+    activeBoard->setPlayers(st, BRIDGE_FORMAT_LIN);
 }
 
 

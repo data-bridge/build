@@ -47,6 +47,7 @@ void Board::reset()
   auction.clear();
   contract.clear();
   play.clear();
+  skip.clear();
 
   givenScore = 0.0f;
   LINset = false;
@@ -60,6 +61,9 @@ void Board::newInstance()
   auction.resize(len);
   contract.resize(len);
   play.resize(len);
+  skip.resize(len);
+
+  skip[numActive] = false;
 
   // Default, may change.
   if (numActive == 0)
@@ -95,6 +99,18 @@ void Board::setInstance(const unsigned no)
 unsigned Board::getInstance() const
 {
   return numActive;
+}
+
+
+void Board::markInstanceSkip()
+{
+  skip[numActive] = true;
+}
+
+
+bool Board::skipped() const
+{
+  return skip[numActive];
 }
 
 

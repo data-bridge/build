@@ -261,7 +261,8 @@ static void dispatchRead(
   try
   {
     if (! readFormattedFile(task.fileInput,
-        FORMAT_INPUT_MAP[task.formatInput], group, options, flog))
+        task.formatInput, group, options, flog))
+        // FORMAT_INPUT_MAP[task.formatInput], group, options, flog))
     {
       THROW("dispatch: read failed");
     }
@@ -707,7 +708,8 @@ static bool readFormattedFile(
                format == BRIDGE_FORMAT_LIN_RP ||
                format == BRIDGE_FORMAT_LIN_VG ||
                format == BRIDGE_FORMAT_LIN_TRN))
-            segment->loadSpecificsFromHeader(chunk[BRIDGE_FORMAT_BOARD_NO]);
+            segment->loadSpecificsFromHeader(
+              chunk[BRIDGE_FORMAT_BOARD_NO], format);
 
           continue;
         }
@@ -838,6 +840,9 @@ static void writeFormattedFile(
       for (unsigned i = 0; i < writeInfo.numInst; i++)
       {
         board.setInstance(i);
+        if (board.skipped())
+          continue;
+
         writeInfo.ino = i;
         (* formatFncs[format].writeBoard)
           (text, segment, board, writeInfo, format);
