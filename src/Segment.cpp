@@ -478,7 +478,13 @@ void Segment::loadSpecificsFromHeader(const string& room)
   }
 
   const Format format = BRIDGE_FORMAT_LIN;
-  activeBoard->setContract(LINdata[activeNo].contract[r], format);
+
+  unsigned eno = boards[activeNo].extNo;
+  if (eno < bInmin || eno > bInmax)
+    THROW("Board number out of range of LIN header");
+  const unsigned linTableNo = eno - bInmin;
+
+  activeBoard->setContract(LINdata[linTableNo].contract[r], format);
 
   string st = "";
   for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
