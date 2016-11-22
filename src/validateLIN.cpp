@@ -262,6 +262,17 @@ bool validateLIN(
       valState.dataOut.type != BRIDGE_BUFFER_STRUCTURED)
     return false;
 
+  if (! skipDiscard(valState.dataRef, valState.bufferRef))
+  {
+    if (! skipDiscard(valState.dataOut, valState.bufferOut))
+      return true;
+    else
+      return false;
+  }
+
+  if (! skipDiscard(valState.dataOut, valState.bufferOut))
+    return false;
+
   if (valState.dataRef.label == valState.dataOut.label)
   {
     if (valState.dataRef.len != valState.dataOut.len)
@@ -309,17 +320,6 @@ bool validateLIN(
         valState.dataOut.value);
       // Could maybe consider equality an error here, but only w.r.t. case
   }
-
-  if (! skipDiscard(valState.dataRef, valState.bufferRef))
-  {
-    if (! skipDiscard(valState.dataOut, valState.bufferOut))
-      return true;
-    else
-      return false;
-  }
-
-  if (! skipDiscard(valState.dataOut, valState.bufferOut))
-    return false;
 
   if (valState.dataRef.label != valState.dataOut.label)
     return false;

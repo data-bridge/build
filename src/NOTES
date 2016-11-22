@@ -11,9 +11,6 @@ closed room, make an extra instance?
 Flag instance as one that's empty?
 Still copy players?
 
-* 31002
-  - Has mb|1N!| vs mb|1N| in lines 276/243 (ref/out)
-
 In validate, differences in board range and contracts: flag, accept
 
             #qx
