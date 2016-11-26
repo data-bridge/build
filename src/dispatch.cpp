@@ -471,14 +471,26 @@ static void guessDealerAndVul(
 
 static void guessDealerAndVul(
   vector<string>& chunk, 
-  const string& s,
+  const string& st,
   const Format format)
 {
   unsigned u;
-  if (! str2upos(s, u))
-    return;
+  if (format == BRIDGE_FORMAT_LIN_VG)
+  {
+    if (st.length() <= 1 || ! str2upos(st.substr(1), u))
+      return;
 
-  guessDealerAndVul(chunk, u, format);
+    chunk[BRIDGE_FORMAT_DEALER] = 
+      STR(PLAYER_DDS_TO_LIN_DEALER[BOARD_TO_DEALER[u % 4]]);
+    chunk[BRIDGE_FORMAT_VULNERABLE] = 
+      VUL_NAMES_LIN[BOARD_TO_VUL[u % 16]];
+  }
+  else
+  {
+    if (! str2upos(st, u))
+      return;
+    guessDealerAndVul(chunk, u, format);
+  }
 }
 
 
@@ -604,10 +616,11 @@ static void str2board(
 }
 
 
-static void strLIN2range(
-  const string title,
+static void chunkLIN2range(
+  const vector<string>& chunk,
   Counts& counts)
 {
+  const string title = chunk[BRIDGE_FORMAT_TITLE];
   if (title == "")
     return;
 
@@ -625,6 +638,24 @@ static void strLIN2range(
     THROW("Not a board number");
   if (! str2upos(v[4], counts.bExtmax))
     THROW("Not a board number");
+
+  const string res = chunk[BRIDGE_FORMAT_RESULTS_LIST];
+  if (res == "")
+    return;
+
+  unsigned commas = 
+    static_cast<unsigned>(count(res.begin(), res.end(), ','));
+  if (commas+1 != 2 * (counts.bExtmax - counts.bExtmin + 1))
+    THROW("Bad number of results, commas " + STR(commas));
+
+  const unsigned l = res.length();
+  unsigned p = 0;
+  while (p+1 < l && res.substr(p, 2) == ",,")
+  {
+    p += 2;
+    counts.bExtmin++;
+  }
+
   if (counts.bExtmax < counts.bExtmin)
     THROW("Bad board range");
 }
@@ -726,6 +757,13 @@ static bool storeChunk(
 
     bex.print(flog);
 
+    if (bex.isTricks())
+    {
+      cout << board->strDeal(BRIDGE_FORMAT_TXT) << endl;
+      cout << board->strContract(BRIDGE_FORMAT_TXT) << endl;
+      cout << board->strPlay(BRIDGE_FORMAT_TXT) << endl;
+    }
+
     if (options.verboseBatch)
       printChunk(chunk);
     return false;
@@ -821,15 +859,21 @@ static bool readFormattedFile(
       counts.segno++;
       counts.bno = 0;
       if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
-        strLIN2range(chunk[BRIDGE_FORMAT_TITLE], counts);
+        chunkLIN2range(chunk, counts);
     }
 
     str2board(chunk[BRIDGE_FORMAT_BOARD_NO], format, counts);
+// cout << "Starting on " << counts.curr.no << ", " <<
+  // counts.curr.roomFlag << endl;
 
     if (format == BRIDGE_FORMAT_LIN_VG)
     {
       boardIDLIN expectBoard = lastBoard;
+// cout << "Expect was " << expectBoard.no << ", " <<
+  // expectBoard.roomFlag << endl;
       advance(expectBoard, counts);
+// cout << "Expect advanced to " << expectBoard.no << ", " <<
+  // expectBoard.roomFlag << endl;
 
       if (counts.curr > expectBoard)
       {
@@ -844,6 +888,18 @@ static bool readFormattedFile(
             STR(expectBoard.no);
 cout << "Would make " << chunkSynth[BRIDGE_FORMAT_BOARD_NO] << endl;
 
+    if (expectBoard.no != lastBoard.no)
+    {
+// cout << "Making whole new board " << expectBoard.no << endl;
+      board = segment->acquireBoard(counts.bno);
+      counts.bno++;
+    }
+
+    lastBoard = counts.curr;
+    board->newInstance();
+    if (! storeChunk(group, segment, board, chunkSynth, 
+        counts, format, options, flog))
+      return false;
           advance(expectBoard, counts);
         }
         while (counts.curr > expectBoard);
@@ -853,12 +909,16 @@ cout << "Would make " << chunkSynth[BRIDGE_FORMAT_BOARD_NO] << endl;
     if (counts.curr.no != 0 && counts.curr.no != lastBoard.no)
     {
       // New board.
-      lastBoard = counts.curr;
       // lastBoard = counts.curr.no;
       // lastRoomFlag = counts.curr.roomFlag;
       board = segment->acquireBoard(counts.bno);
       counts.bno++;
     }
+
+    lastBoard = counts.curr;
+
+// cout << "lastBoard now " << lastBoard.no << ", " <<
+  // lastBoard.roomFlag << endl;
 
     board->newInstance();
     if (! storeChunk(group, segment, board, chunk, 

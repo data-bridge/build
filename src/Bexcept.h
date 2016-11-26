@@ -37,6 +37,8 @@ class Bexcept: public exception
       const string messageArg);
 
     void print(ostream& flog) const;
+
+    bool isTricks() const;
 };
 
 #endif

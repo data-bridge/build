@@ -33,3 +33,10 @@ void Bexcept::print(ostream& flog) const
   flog << message << endl;
 }
 
+
+bool Bexcept::isTricks() const
+{
+  return (file == "Contract.cpp" &&
+      function == "Contract::setTricks" &&
+      message == "Tricks already set differently");
+}

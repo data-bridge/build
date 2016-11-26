@@ -160,14 +160,15 @@ void Board::setDeal(
   const Format format)
 {
     // Assume the cards are unchanged.  Don't check for now.
-  if (numActive > 0)
+  if (deal.isSet())
+  // if (numActive > 0)
     return;
 
   deal.set(text, format);
 
   unsigned cards[BRIDGE_PLAYERS][BRIDGE_SUITS];
   deal.getDDS(cards);
-  play[0].setHoldingDDS(cards);
+  play[numActive].setHoldingDDS(cards);
 
   if (format == BRIDGE_FORMAT_LIN ||
       format == BRIDGE_FORMAT_LIN_RP ||
