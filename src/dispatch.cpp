@@ -91,6 +91,12 @@ struct Fix
   string value;
 };
 
+struct boardIDLIN
+{
+  unsigned no;
+  unsigned roomFlag;
+};
+
 struct Counts
 {
   unsigned segno;
@@ -98,8 +104,7 @@ struct Counts
   unsigned bno;
   unsigned bExtmin;
   unsigned bExtmax;
-  unsigned bExtcurr;
-  bool roomOpenFlag;
+  boardIDLIN curr;
   unsigned lno;
   unsigned lnoOld;
 };
@@ -578,22 +583,22 @@ static void str2board(
   Counts& counts)
 {
   if (bno == "")
-    counts.bExtcurr = 0;
+    counts.curr.no = 0;
   else if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
   {
     const string st = bno.substr(1);
-    if (! str2upos(st, counts.bExtcurr))
+    if (! str2upos(st, counts.curr.no))
       THROW("Not a board number");
     if (bno.at(0) == 'o')
-      counts.roomOpenFlag = true;
+      counts.curr.roomFlag = true;
     else if (bno.at(0) == 'c')
-      counts.roomOpenFlag = false;
+      counts.curr.roomFlag = false;
     else
       THROW("Not a room");
   }
   else
   {
-    if (! str2upos(bno, counts.bExtcurr))
+    if (! str2upos(bno, counts.curr.no))
       THROW("Not a board number");
   }
 }
@@ -622,6 +627,37 @@ static void strLIN2range(
     THROW("Not a board number");
   if (counts.bExtmax < counts.bExtmin)
     THROW("Bad board range");
+}
+
+
+static void advance(
+  boardIDLIN& expectBoard, 
+  const Counts& counts)
+{
+  if (expectBoard.no == 0)
+  {
+    expectBoard.no = counts.bExtmin;
+    expectBoard.roomFlag = true;
+  }
+  else if (expectBoard.roomFlag)
+    expectBoard.roomFlag = false;
+  else
+  {
+    expectBoard.no++;
+    expectBoard.roomFlag = true;
+  }
+
+  if (counts.curr.no < expectBoard.no)
+    THROW("Gone past the end of the board range");
+}
+
+
+static bool operator > (
+  const boardIDLIN& lhs,
+  const boardIDLIN& rhs)
+{
+  return (lhs.no > rhs.no ||
+      (lhs.no == rhs.no && rhs.roomFlag && ! lhs.roomFlag));
 }
 
 
@@ -735,8 +771,9 @@ static bool readFormattedFile(
   bool newSegFlag = false;
 
   Board * board = nullptr;
-  unsigned lastBoard = 0;
-  bool lastRoomFlag = false;
+  boardIDLIN lastBoard = {0, false};
+  // unsigned lastBoard = 0;
+  // bool lastRoomFlag = false;
 
   Counts counts;
   counts.segno = 0;
@@ -788,11 +825,37 @@ static bool readFormattedFile(
     }
 
     str2board(chunk[BRIDGE_FORMAT_BOARD_NO], format, counts);
-    if (counts.bExtcurr != 0 && counts.bExtcurr != lastBoard)
+
+    if (format == BRIDGE_FORMAT_LIN_VG)
+    {
+      boardIDLIN expectBoard = lastBoard;
+      advance(expectBoard, counts);
+
+      if (counts.curr > expectBoard)
+      {
+        vector<string> chunkSynth(BRIDGE_FORMAT_LABELS_SIZE);
+        for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
+          chunkSynth[i] = "";
+
+        do
+        {
+          chunkSynth[BRIDGE_FORMAT_BOARD_NO] =
+            (expectBoard.roomFlag ? 'o' : 'c') +
+            STR(expectBoard.no);
+cout << "Would make " << chunkSynth[BRIDGE_FORMAT_BOARD_NO] << endl;
+
+          advance(expectBoard, counts);
+        }
+        while (counts.curr > expectBoard);
+      }
+    }
+
+    if (counts.curr.no != 0 && counts.curr.no != lastBoard.no)
     {
       // New board.
-      lastBoard = counts.bExtcurr;
-      lastRoomFlag = counts.roomOpenFlag;
+      lastBoard = counts.curr;
+      // lastBoard = counts.curr.no;
+      // lastRoomFlag = counts.curr.roomFlag;
       board = segment->acquireBoard(counts.bno);
       counts.bno++;
     }
