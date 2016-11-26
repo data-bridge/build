@@ -810,8 +810,6 @@ static bool readFormattedFile(
 
   Board * board = nullptr;
   boardIDLIN lastBoard = {0, false};
-  // unsigned lastBoard = 0;
-  // bool lastRoomFlag = false;
 
   Counts counts;
   counts.segno = 0;
@@ -863,17 +861,11 @@ static bool readFormattedFile(
     }
 
     str2board(chunk[BRIDGE_FORMAT_BOARD_NO], format, counts);
-// cout << "Starting on " << counts.curr.no << ", " <<
-  // counts.curr.roomFlag << endl;
 
     if (format == BRIDGE_FORMAT_LIN_VG)
     {
       boardIDLIN expectBoard = lastBoard;
-// cout << "Expect was " << expectBoard.no << ", " <<
-  // expectBoard.roomFlag << endl;
       advance(expectBoard, counts);
-// cout << "Expect advanced to " << expectBoard.no << ", " <<
-  // expectBoard.roomFlag << endl;
 
       if (counts.curr > expectBoard)
       {
@@ -886,20 +878,19 @@ static bool readFormattedFile(
           chunkSynth[BRIDGE_FORMAT_BOARD_NO] =
             (expectBoard.roomFlag ? 'o' : 'c') +
             STR(expectBoard.no);
-cout << "Would make " << chunkSynth[BRIDGE_FORMAT_BOARD_NO] << endl;
 
-    if (expectBoard.no != lastBoard.no)
-    {
-// cout << "Making whole new board " << expectBoard.no << endl;
-      board = segment->acquireBoard(counts.bno);
-      counts.bno++;
-    }
+          if (expectBoard.no != lastBoard.no)
+          {
+            board = segment->acquireBoard(counts.bno);
+            counts.bno++;
+          }
 
-    lastBoard = counts.curr;
-    board->newInstance();
-    if (! storeChunk(group, segment, board, chunkSynth, 
-        counts, format, options, flog))
-      return false;
+          lastBoard = counts.curr;
+          board->newInstance();
+          board->markInstanceSkip();
+          if (! storeChunk(group, segment, board, chunkSynth, 
+              counts, format, options, flog))
+            return false;
           advance(expectBoard, counts);
         }
         while (counts.curr > expectBoard);
@@ -909,16 +900,11 @@ cout << "Would make " << chunkSynth[BRIDGE_FORMAT_BOARD_NO] << endl;
     if (counts.curr.no != 0 && counts.curr.no != lastBoard.no)
     {
       // New board.
-      // lastBoard = counts.curr.no;
-      // lastRoomFlag = counts.curr.roomFlag;
       board = segment->acquireBoard(counts.bno);
       counts.bno++;
     }
 
     lastBoard = counts.curr;
-
-// cout << "lastBoard now " << lastBoard.no << ", " <<
-  // lastBoard.roomFlag << endl;
 
     board->newInstance();
     if (! storeChunk(group, segment, board, chunk, 

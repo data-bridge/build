@@ -240,6 +240,43 @@ static bool skipDiscard(
 }
 
 
+static bool isTitleBoards(
+  const string& valueRef,
+  const string& valueOut)
+{
+  vector<string> listRef(9), listOut(9);
+  if (! LINtoList(valueRef, listRef, 8))
+    return false;
+  if (! LINtoList(valueOut, listOut, 8))
+    return false;
+
+  for (unsigned i = 0; i < 9; i++)
+  {
+    if (i == 3 || i == 4)
+      continue;
+    if (listRef[i] != listOut[i])
+      return false;
+  }
+  return true;
+}
+
+
+static bool isContracts(
+  const string& valueRef,
+  const string& valueOut)
+{
+  unsigned p = 0;
+  const unsigned l = valueRef.length();
+  while (p+1 < l && valueRef.substr(p, 2) == ",,")
+    p += 2;
+
+  if (p+1 >= l)
+    return false;
+
+  return (valueOut == valueRef.substr(p));
+}
+
+
 static bool isDifferentCase(
   const string& value1,
   const string& value2)
@@ -275,7 +312,27 @@ bool validateLIN(
 
   if (valState.dataRef.label == valState.dataOut.label)
   {
-    if (valState.dataRef.len != valState.dataOut.len)
+    if (valState.dataRef.label == "vg")
+    {
+      if (isTitleBoards(valState.dataRef.value, valState.dataOut.value))
+      {
+        prof.log(BRIDGE_VAL_BOARDS_HEADER, valState);
+        return true;
+      }
+      else
+        return false;
+    }
+    else if (valState.dataRef.label == "rs")
+    {
+      if (isContracts(valState.dataRef.value, valState.dataOut.value))
+      {
+        prof.log(BRIDGE_VAL_BOARDS_HEADER, valState);
+        return true;
+      }
+      else
+        return false;
+    }
+    else if (valState.dataRef.len != valState.dataOut.len)
     {
       if (valState.dataRef.label == "mb" &&
           valState.dataRef.len == 7 &&
