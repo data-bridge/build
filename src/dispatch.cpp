@@ -96,6 +96,10 @@ struct Counts
   unsigned segno;
   unsigned chunkno;
   unsigned bno;
+  unsigned bExtmin;
+  unsigned bExtmax;
+  unsigned bExtcurr;
+  bool roomOpenFlag;
   unsigned lno;
   unsigned lnoOld;
 };
@@ -568,6 +572,59 @@ static void printCounts(
 }
 
 
+static void str2board(
+  const string bno,
+  const Format format,
+  Counts& counts)
+{
+  if (bno == "")
+    counts.bExtcurr = 0;
+  else if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
+  {
+    const string st = bno.substr(1);
+    if (! str2upos(st, counts.bExtcurr))
+      THROW("Not a board number");
+    if (bno.at(0) == 'o')
+      counts.roomOpenFlag = true;
+    else if (bno.at(0) == 'c')
+      counts.roomOpenFlag = false;
+    else
+      THROW("Not a room");
+  }
+  else
+  {
+    if (! str2upos(bno, counts.bExtcurr))
+      THROW("Not a board number");
+  }
+}
+
+
+static void strLIN2range(
+  const string title,
+  Counts& counts)
+{
+  if (title == "")
+    return;
+
+  if (count(title.begin(), title.end(), ',') != 8)
+    THROW("LIN vg need exactly 8 commas");
+
+  vector<string> v(9);
+  v.clear();
+  tokenize(title, v, ",");
+  
+  if (v[3] == "" || v[4] == "")
+    return;
+  
+  if (! str2upos(v[3], counts.bExtmin))
+    THROW("Not a board number");
+  if (! str2upos(v[4], counts.bExtmax))
+    THROW("Not a board number");
+  if (counts.bExtmax < counts.bExtmin)
+    THROW("Bad board range");
+}
+
+
 static void tryFormatMethod(
   const Format format,
   const string& text,
@@ -619,7 +676,7 @@ static bool readFormattedFile(
   bool newSegFlag = false;
 
   Board * board = nullptr;
-  string lastBoard = "";
+  unsigned lastBoard = 0;
 
   Counts counts;
   counts.segno = 0;
@@ -666,19 +723,15 @@ static bool readFormattedFile(
       segment = group.make();
       counts.segno++;
       counts.bno = 0;
+      if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
+        strLIN2range(chunk[BRIDGE_FORMAT_TITLE], counts);
     }
 
-    if (chunk[BRIDGE_FORMAT_BOARD_NO] != "" &&
-        chunk[BRIDGE_FORMAT_BOARD_NO] != lastBoard &&
-        ((format != BRIDGE_FORMAT_LIN && 
-          format != BRIDGE_FORMAT_LIN_RP &&
-          format != BRIDGE_FORMAT_LIN_VG &&
-          format != BRIDGE_FORMAT_LIN_TRN) ||
-        lastBoard == "" ||
-        chunk[BRIDGE_FORMAT_BOARD_NO].substr(1) != lastBoard.substr(1)))
+    str2board(chunk[BRIDGE_FORMAT_BOARD_NO], format, counts);
+    if (counts.bExtcurr != 0 && counts.bExtcurr != lastBoard)
     {
       // New board.
-      lastBoard = chunk[BRIDGE_FORMAT_BOARD_NO];
+      lastBoard = counts.bExtcurr;
       board = segment->acquireBoard(counts.bno);
       counts.bno++;
     }
@@ -703,10 +756,7 @@ static bool readFormattedFile(
         if (chunk[i] == "")
         {
           if (i == BRIDGE_FORMAT_CONTRACT && 
-              (format == BRIDGE_FORMAT_LIN ||
-               format == BRIDGE_FORMAT_LIN_RP ||
-               format == BRIDGE_FORMAT_LIN_VG ||
-               format == BRIDGE_FORMAT_LIN_TRN))
+              FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
             segment->loadSpecificsFromHeader(
               chunk[BRIDGE_FORMAT_BOARD_NO], format);
 
