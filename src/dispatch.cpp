@@ -762,6 +762,9 @@ static bool storeChunk(
       cout << board->strDeal(BRIDGE_FORMAT_TXT) << endl;
       cout << board->strContract(BRIDGE_FORMAT_TXT) << endl;
       cout << board->strPlay(BRIDGE_FORMAT_TXT) << endl;
+      cout << "Suggest " << group.name() << " fix:\n";
+      cout << counts.chunkno-1 << " \"Result\" \"" << 
+        board->strResult(BRIDGE_FORMAT_PAR, false) << "\"\n";
     }
     else if (bex.isPlay())
     {

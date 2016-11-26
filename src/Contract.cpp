@@ -1254,6 +1254,9 @@ string Contract::strResult(const Format format) const
     case BRIDGE_FORMAT_REC:
       return Contract::strResultREC();
 
+    case BRIDGE_FORMAT_PAR:
+      return STR(Contract::getTricks());
+
     default:
       THROW("Invalid format: " + STR(format));
   }
