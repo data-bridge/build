@@ -885,7 +885,7 @@ static bool readFormattedFile(
             counts.bno++;
           }
 
-          lastBoard = counts.curr;
+          lastBoard = expectBoard;
           board->newInstance();
           board->markInstanceSkip();
           if (! storeChunk(group, segment, board, chunkSynth, 

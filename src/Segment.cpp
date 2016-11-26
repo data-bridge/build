@@ -494,8 +494,9 @@ void Segment::loadSpecificsFromHeader(
     linTableNo = eno - bInmin;
   }
 
-  activeBoard->setContract(
-    LINdata[linTableNo].contract[r], BRIDGE_FORMAT_LIN);
+  if (LINdata[linTableNo].contract[r] != "")
+    activeBoard->setContract(
+      LINdata[linTableNo].contract[r], BRIDGE_FORMAT_LIN);
 
   string st = "";
   for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)

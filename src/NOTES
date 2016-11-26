@@ -1,17 +1,9 @@
 LIN_VG:
 * 29123 works
+* 31000 works
 * 34567 works
 * 34999 works
 * 30002: c1, o2, c2, ...: Maybe assume o-c order for LIN_VG?
-* 31000: o17, c17, o18, c18, c19, c20, o21, c21:
-  c18 and c19 go in instance 0, so there is nothing to copy for c21.
-
-When we make a new board in dispatch, and it's LIN_VG and
-closed room, make an extra instance?
-Flag instance as one that's empty?
-Still copy players?
-
-In validate, differences in board range and contracts: flag, accept
 
             #qx
 LIN_VG  948,965
