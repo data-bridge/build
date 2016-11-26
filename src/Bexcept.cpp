@@ -39,3 +39,11 @@ bool Bexcept::isTricks() const
   return (file == "Contract.cpp" &&
       function == "Contract::setTricks");
 }
+
+
+bool Bexcept::isPlay() const
+{
+  return (file == "Play.cpp" &&
+      function == "Play::addPlay");
+}
+

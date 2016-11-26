@@ -763,6 +763,11 @@ static bool storeChunk(
       cout << board->strContract(BRIDGE_FORMAT_TXT) << endl;
       cout << board->strPlay(BRIDGE_FORMAT_TXT) << endl;
     }
+    else if (bex.isPlay())
+    {
+      cout << board->strDeal(BRIDGE_FORMAT_TXT) << endl;
+      cout << board->strContract(BRIDGE_FORMAT_TXT) << endl;
+    }
 
     if (options.verboseBatch)
       printChunk(chunk);

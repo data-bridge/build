@@ -273,7 +273,18 @@ static bool isContracts(
   if (p+1 >= l)
     return false;
 
-  return (valueOut == valueRef.substr(p));
+  // Leading commas.
+  if (valueOut == valueRef.substr(p))
+    return true;
+
+  unsigned q = l;
+  while (q >= 2 && valueRef.substr(q-2, 2) == ",,")
+    q -= 2;
+
+  if (q <= p || q == l)
+    return false;
+
+  return (valueOut == valueRef.substr(p, q-p));
 }
 
 
@@ -334,12 +345,20 @@ bool validateLIN(
     }
     else if (valState.dataRef.len != valState.dataOut.len)
     {
+      const unsigned lr = valState.dataRef.len;
+      const unsigned lo = valState.dataOut.len;
+
       if (valState.dataRef.label == "mb" &&
-          valState.dataRef.len == 7 &&
-          valState.dataOut.len == 6 &&
-          valState.dataRef.value.at(2) == '!' &&
-          valState.dataRef.value.substr(0, 2) == valState.dataOut.value)
+          (lr == 6 || lr == 7) &&
+          lo+1 == lr &&
+          valState.dataRef.value.at(lr-5) == '!')
       {
+        // Output is already in upper case, as we made it.
+        string ur = valState.dataRef.value.substr(0, lr-5);
+        toUpper(ur);
+        if (ur != valState.dataOut.value)
+          return false;
+
         // ref mb|2C!| vs out mb|2C|.
         if (! valState.bufferRef.next(valState.dataRef))
           return false;
@@ -354,11 +373,15 @@ bool validateLIN(
         return true;
       }
       else if (valState.dataRef.label == "mb" &&
-          valState.dataRef.len == 6 &&
-          valState.dataOut.len == 7 &&
-          valState.dataOut.value.at(2) == '!' &&
-          valState.dataOut.value.substr(0, 2) == valState.dataRef.value)
+          lr+1 == lo &&
+          (lo == 6 || lo == 7) &&
+          valState.dataOut.value.at(lo-5) == '!')
       {
+        string ur = valState.dataRef.value;
+        toUpper(ur);
+        if (valState.dataOut.value.substr(0, lo-5) != ur)
+          return false;
+
         // ref mb|2C|an|!| vs out mb|2C!|
         if (! valState.bufferRef.next(valState.dataRef))
           return false;

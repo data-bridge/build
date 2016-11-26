@@ -683,6 +683,10 @@ Denom Contract::getDenom() const
 
 int Contract::getScore() const
 {
+// TODO: Formalize or delete.
+if (! setContractFlag || ! setVulFlag || ! setResultFlag)
+  THROW("Can't get score");
+
   return score;
 }
 
@@ -969,6 +973,9 @@ string Contract::strScorePBN() const
 
 string Contract::strScorePBN(const int refScore) const
 {
+  if (! setResultFlag || score == 0)
+    return "";
+
   stringstream ss;
   ss << Contract::strScorePBN();
 
@@ -1065,6 +1072,10 @@ string Contract::strScoreIMP(
   const Format format,
   const int refScore) const
 {
+// TODO: Delete
+if (refScore < -9000 || refScore > 9000)
+  THROW("refScore off: " + STR(refScore));
+
   stringstream ss;
   int IMPs;
   switch(format)

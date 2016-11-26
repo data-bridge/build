@@ -39,6 +39,8 @@ class Bexcept: public exception
     void print(ostream& flog) const;
 
     bool isTricks() const;
+
+    bool isPlay() const;
 };
 
 #endif
