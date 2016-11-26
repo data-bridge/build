@@ -559,7 +559,7 @@ static void printChunk(const vector<string>& chunk)
 
 static void printCounts(
   const string& fname,
-  Counts& counts)
+  const Counts& counts)
 {
   cout << "Input file:   " << fname << endl;
   cout << "Segment:      " << counts.segno << endl;
@@ -639,6 +639,65 @@ static void tryFormatMethod(
 }
 
 
+static bool storeChunk(
+  Group& group,
+  Segment * segment,
+  Board * board,
+  vector<string>& chunk,
+  const Counts& counts,
+  const Format format,
+  const Options& options,
+  ostream& flog)
+
+{
+  segment->copyPlayers();
+
+  if (chunk[BRIDGE_FORMAT_AUCTION] == "")
+  {
+    // Guess dealer and vul from the board number.
+    if (chunk[BRIDGE_FORMAT_BOARD_NO] == "")
+      guessDealerAndVul(chunk, segment->getActiveExtBoardNo(), format);
+    else
+      guessDealerAndVul(chunk, chunk[BRIDGE_FORMAT_BOARD_NO], format);
+  }
+
+  unsigned i;
+  try
+  {
+    for (i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
+    {
+      if (chunk[i] == "")
+      {
+        if (i == BRIDGE_FORMAT_CONTRACT && 
+            FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
+          segment->loadSpecificsFromHeader(
+            chunk[BRIDGE_FORMAT_BOARD_NO], format);
+
+        continue;
+      }
+
+      tryFormatMethod(format, chunk[i], segment, board, i);
+    }
+  }
+  catch (Bexcept& bex)
+  {
+    if (options.verboseThrow)
+    {
+      printCounts(group.name(), counts);
+      cout << "label " << LABEL_NAMES[i] << " (" << i << "), '" <<
+          chunk[i] << "'" << endl << endl;
+    }
+
+    bex.print(flog);
+
+    if (options.verboseBatch)
+      printChunk(chunk);
+    return false;
+  }
+  return true;
+}
+
+
 static bool readFormattedFile(
   const string& fname,
   const Format format,
@@ -677,6 +736,7 @@ static bool readFormattedFile(
 
   Board * board = nullptr;
   unsigned lastBoard = 0;
+  bool lastRoomFlag = false;
 
   Counts counts;
   counts.segno = 0;
@@ -732,55 +792,15 @@ static bool readFormattedFile(
     {
       // New board.
       lastBoard = counts.bExtcurr;
+      lastRoomFlag = counts.roomOpenFlag;
       board = segment->acquireBoard(counts.bno);
       counts.bno++;
     }
 
     board->newInstance();
-    segment->copyPlayers();
-
-    if (chunk[BRIDGE_FORMAT_AUCTION] == "")
-    {
-      // Guess dealer and vul from the board number.
-      if (chunk[BRIDGE_FORMAT_BOARD_NO] == "")
-        guessDealerAndVul(chunk, segment->getActiveExtBoardNo(), format);
-      else
-        guessDealerAndVul(chunk, chunk[BRIDGE_FORMAT_BOARD_NO], format);
-    }
-
-    unsigned i;
-    try
-    {
-      for (i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
-      {
-        if (chunk[i] == "")
-        {
-          if (i == BRIDGE_FORMAT_CONTRACT && 
-              FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
-            segment->loadSpecificsFromHeader(
-              chunk[BRIDGE_FORMAT_BOARD_NO], format);
-
-          continue;
-        }
-
-        tryFormatMethod(format, chunk[i], segment, board, i);
-      }
-    }
-    catch (Bexcept& bex)
-    {
-      if (options.verboseThrow)
-      {
-        printCounts(group.name(), counts);
-        cout << "label " << LABEL_NAMES[i] << " (" << i << "), '" <<
-            chunk[i] << "'" << endl << endl;
-      }
-
-      bex.print(flog);
-
-      if (options.verboseBatch)
-        printChunk(chunk);
+    if (! storeChunk(group, segment, board, chunk, 
+        counts, format, options, flog))
       return false;
-    }
   }
   return true;
 }
