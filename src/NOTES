@@ -1,7 +1,10 @@
 LIN_VG:
 * Move the uninformative files (often 3 lines) to .orig
-* Get DDS to work on end of play in case of doubtful claims
-* If DDS and header agree, write a .fix file directly
+* Cases of trick differences
+  - DD agrees with contract -- fix mc claim
+  - Play is over -- must somehow fix contract
+  - DD agrees with mc -- must somehow contract
+  - DD agrees with neither -- what to do?
 * In validate, if there is an mc| difference and a .fix file,
   write a .ref file directly
 

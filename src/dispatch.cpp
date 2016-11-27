@@ -718,11 +718,12 @@ static void writeFix(
   string nameFix = nameLIN.substr(0, nameLIN.length()-4) + ".fix";
 
   ifstream f(nameFix.c_str());
-  if (f.good())
-    THROW("Will not overwrite " + nameFix);
-
   ofstream fout;
-  fout.open(nameFix.c_str());
+  if (f.good())
+    fout.open(nameFix.c_str(), ios::app);
+  else
+    fout.open(nameFix.c_str());
+
   fout << chunkno << " \"Result\" \"" << result << "\"\n";
   fout.close();
 }
