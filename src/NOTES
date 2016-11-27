@@ -1,3 +1,9 @@
+Getting 031000 done:
+* Figure out a way to fix contract header       6000
+* Fix mc| difference as below                   1000
+* Fix out-short with pg||                       1000
+* Guidance lines                                3300
+
 LIN_VG:
 * Cases of trick differences
   - DD agrees with contract -- fix mc claim

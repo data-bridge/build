@@ -296,7 +296,7 @@ void Contract::passOut()
 
 void Contract::setContractByString(const string& text)
 {
-  if (text == "P" || text == "Pass")
+  if (text == "P" || text == "Pass" || text == "PASS")
   {
     Contract::passOut();
     return;
