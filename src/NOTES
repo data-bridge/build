@@ -1,5 +1,4 @@
 LIN_VG:
-* Move the uninformative files (often 3 lines) to .orig
 * Cases of trick differences
   - DD agrees with contract -- fix mc claim
   - Play is over -- must somehow fix contract
@@ -7,6 +6,12 @@ LIN_VG:
   - DD agrees with neither -- what to do?
 * In validate, if there is an mc| difference and a .fix file,
   write a .ref file directly
+
+* Buffer should know the file it came from (complete path)
+* Should be able to output complete line
+* Then if different mc's, and fix file exists
+  - Fix line to new mc value
+  - Write/append ref file
 
             #qx
 LIN_VG  948,965

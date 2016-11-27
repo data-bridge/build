@@ -541,7 +541,11 @@ void Play::getStateDDS(RunningDD& runningDD) const
 
   runningDD.dl.trump = denom;
   runningDD.dl.first = leads[trickToPlay].leader;
-  runningDD.declLeadFlag = ((runningDD.dl.first % 2) == (declarer % 2));
+
+  const unsigned partial = len % 4;
+  runningDD.declLeadFlag = 
+    (((runningDD.dl.first + static_cast<int>(partial)) % 2) == 
+      (declarer % 2));
 
   for (int p = 0; p < BRIDGE_PLAYERS; p++)
     for (int d = 0; d < BRIDGE_SUITS; d++)
@@ -553,7 +557,6 @@ void Play::getStateDDS(RunningDD& runningDD) const
     runningDD.dl.currentTrickRank[c] = 0;
   }
 
-  const unsigned partial = len % 4;
   for (unsigned c = 0; c < partial; c++)
   {
     const CardInfo& ci = PLAY_NO_TO_INFO[sequence[4 * trickToPlay + c]];
