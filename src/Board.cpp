@@ -357,6 +357,12 @@ bool Board::hasClaim() const
 }
 
 
+void Board::getStateDDS(RunningDD& runningDD) const
+{
+  play[numActive].getStateDDS(runningDD);
+}
+
+
 // Result
 
 void Board::setResult(

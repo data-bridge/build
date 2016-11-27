@@ -164,6 +164,8 @@ class Board
 
     bool hasClaim() const;
 
+    void getStateDDS(RunningDD& runningDD) const;
+
     // Result
 
     void setResult(

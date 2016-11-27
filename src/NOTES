@@ -1,9 +1,9 @@
 LIN_VG:
-* 29123 works
-* 31000 works
-* 34567 works
-* 34999 works
-* 30002: c1, o2, c2, ...: Maybe assume o-c order for LIN_VG?
+* Move the uninformative files (often 3 lines) to .orig
+* Get DDS to work on end of play in case of doubtful claims
+* If DDS and header agree, write a .fix file directly
+* In validate, if there is an mc| difference and a .fix file,
+  write a .ref file directly
 
             #qx
 LIN_VG  948,965

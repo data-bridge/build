@@ -534,6 +534,35 @@ unsigned Play::getTricks() const
 }
 
 
+void Play::getStateDDS(RunningDD& runningDD) const
+{
+  runningDD.tricksDecl = tricksDecl;
+  runningDD.tricksDef = tricksDef;
+
+  runningDD.dl.trump = denom;
+  runningDD.dl.first = leads[trickToPlay].leader;
+  runningDD.declLeadFlag = ((runningDD.dl.first % 2) == (declarer % 2));
+
+  for (int p = 0; p < BRIDGE_PLAYERS; p++)
+    for (int d = 0; d < BRIDGE_SUITS; d++)
+      runningDD.dl.remainCards[p][d] = holding[p][d];
+
+  for (int c = 0; c < 3; c++)
+  {
+    runningDD.dl.currentTrickSuit[c] = 0;
+    runningDD.dl.currentTrickRank[c] = 0;
+  }
+
+  const unsigned partial = len % 4;
+  for (unsigned c = 0; c < partial; c++)
+  {
+    const CardInfo& ci = PLAY_NO_TO_INFO[sequence[4 * trickToPlay + c]];
+    runningDD.dl.currentTrickSuit[c] = static_cast<int>(ci.suit);
+    runningDD.dl.currentTrickRank[c] = static_cast<int>(ci.rank+2);
+  }
+}
+
+
 bool Play::operator == (const Play& play2) const
 {
   // We don't require the holdings to be identical.

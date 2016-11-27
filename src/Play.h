@@ -13,6 +13,7 @@
 #include <string>
 
 #include "bconst.h"
+#include "ddsIF.h"
 
 using namespace std;
 
@@ -131,6 +132,8 @@ class Play
     bool hasClaim() const;
 
     unsigned getTricks() const;
+
+    void getStateDDS(RunningDD& runningDD) const;
 
     bool operator == (const Play& play2) const;
 

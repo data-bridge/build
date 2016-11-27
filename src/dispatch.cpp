@@ -18,6 +18,7 @@
 #include "Segment.h"
 #include "Board.h"
 #include "dispatch.h"
+#include "ddsIF.h"
 #include "validate.h"
 
 #include "fileLIN.h"
@@ -706,6 +707,27 @@ static void tryFormatMethod(
 }
 
 
+static void writeFix(
+  const string& nameLIN,
+  const unsigned chunkno,
+  const string& result)
+{
+  if (nameLIN.length() < 5)
+    THROW("Too short filename");
+
+  string nameFix = nameLIN.substr(0, nameLIN.length()-4) + ".fix";
+
+  ifstream f(nameFix.c_str());
+  if (f.good())
+    THROW("Will not overwrite " + nameFix);
+
+  ofstream fout;
+  fout.open(nameFix.c_str());
+  fout << chunkno << " \"Result\" \"" << result << "\"\n";
+  fout.close();
+}
+
+
 static bool storeChunk(
   Group& group,
   Segment * segment,
@@ -762,9 +784,29 @@ static bool storeChunk(
       cout << board->strDeal(BRIDGE_FORMAT_TXT) << endl;
       cout << board->strContract(BRIDGE_FORMAT_TXT) << endl;
       cout << board->strPlay(BRIDGE_FORMAT_TXT) << endl;
-      cout << "Suggest " << group.name() << " fix:\n";
-      cout << counts.chunkno-1 << " \"Result\" \"" << 
-        board->strResult(BRIDGE_FORMAT_PAR, false) << "\"\n";
+
+      const string headerRes = board->strResult(BRIDGE_FORMAT_PAR, false);
+
+      RunningDD runningDD;
+      board->getStateDDS(runningDD);
+
+      if (board->playIsOver())
+      {
+        cout << "Play has ended?\n";
+        cout << "Header yielded " << headerRes << " vs. actual " <<
+          runningDD.tricksDecl << " (" << runningDD.tricksDef << ")\n";
+      }
+      else
+      {
+        unsigned ddRes = tricksDD(runningDD);
+        if (headerRes == STR(ddRes))
+        {
+          writeFix(group.name(), counts.chunkno-1, headerRes);
+          cout << "Wrote fix file with " << headerRes << " tricks\n";
+        }
+        else
+          cout << "Header " << headerRes << " vs. DD " << ddRes << endl;
+      }
     }
     else if (bex.isPlay())
     {
