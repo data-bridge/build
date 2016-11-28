@@ -907,7 +907,8 @@ static bool readFormattedFile(
       segment = group.make();
       counts.segno++;
       counts.bno = 0;
-      if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
+      if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN &&
+          format != BRIDGE_FORMAT_LIN_RP)
         chunkLIN2range(chunk, counts);
     }
 

@@ -973,7 +973,7 @@ string Contract::strScorePBN() const
 
 string Contract::strScorePBN(const int refScore) const
 {
-  if (! setResultFlag || score == 0)
+  if (! setResultFlag)
     return "";
 
   stringstream ss;

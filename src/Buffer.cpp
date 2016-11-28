@@ -468,7 +468,11 @@ bool Buffer::nextLIN(LineData& vside)
   else
     posLIN = e+1;
 
-  return true;
+  // Skip over nt and pg.
+  if (vside.label == "nt" || vside.label == "pg")
+    return Buffer::nextLIN(vside);
+  else
+    return true;
 }
 
 
@@ -561,23 +565,23 @@ unsigned Buffer::previousHeaderStart() const
 }
 
 
-int Buffer::peek() const
+int Buffer::peek() 
 {
   if (format == BRIDGE_FORMAT_LIN ||
       format == BRIDGE_FORMAT_LIN_VG ||
       format == BRIDGE_FORMAT_LIN_TRN)
   {
-    unsigned c = current;
-    unsigned p = posLIN;
-    while (c < len && lines[c].type == BRIDGE_BUFFER_EMPTY)
-    {
-      c++;
-      p = 0;
-    }
-    if (c > len-1)
+    const unsigned current0 = current;
+    const unsigned posLIN0 = posLIN;
+
+    LineData lineData;
+    if (! Buffer::nextLIN(lineData))
       return 0x00;
-    else
-      return static_cast<int>(lines[c].line.at(p));
+
+    current = current0;
+    posLIN = posLIN0;
+
+    return static_cast<int>(lineData.line.at(0));
   }
   else if (current > len-1)
     return 0x00;

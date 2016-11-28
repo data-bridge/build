@@ -89,7 +89,7 @@ class Buffer
 
     unsigned previousHeaderStart() const;
 
-    int peek() const;
+    int peek();
 
     void print() const;
 };

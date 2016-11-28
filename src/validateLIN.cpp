@@ -219,27 +219,6 @@ bool validateLIN_RP(
 }
 
 
-static bool isLINDiscard(const string& label)
-{
-  if (label == "nt" || label == "pg")
-    return true;
-  else
-    return false;
-}
-
-
-static bool skipDiscard(
-  LineData& data,
-  Buffer& buffer)
-{
-  while (data.type == BRIDGE_BUFFER_EMPTY || isLINDiscard(data.label))
-    if (! buffer.next(data))
-      return false;
-
-  return true;
-}
-
-
 static bool isTitleBoards(
   const string& valueRef,
   const string& valueOut)
@@ -304,23 +283,6 @@ bool validateLIN(
   ValState& valState,
   ValProfile& prof)
 {
-  UNUSED(prof);
-
-  if (valState.dataRef.type != BRIDGE_BUFFER_STRUCTURED ||
-      valState.dataOut.type != BRIDGE_BUFFER_STRUCTURED)
-    return false;
-
-  if (! skipDiscard(valState.dataRef, valState.bufferRef))
-  {
-    if (! skipDiscard(valState.dataOut, valState.bufferOut))
-      return true;
-    else
-      return false;
-  }
-
-  if (! skipDiscard(valState.dataOut, valState.bufferOut))
-    return false;
-
   if (valState.dataRef.label == valState.dataOut.label)
   {
     if (valState.dataRef.label == "vg")

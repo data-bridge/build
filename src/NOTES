@@ -3,6 +3,7 @@ Getting 031000 done:
 * Fix mc| difference as below                   1000
 * Fix out-short with pg||                       1000
 * Guidance lines                                3300
+* If 1st board missing, probable header bug
 
 LIN_VG:
 * Cases of trick differences
