@@ -799,7 +799,16 @@ static bool storeChunk(
       }
       else
       {
-        unsigned ddRes = tricksDD(runningDD);
+        unsigned ddRes;
+        try
+        {
+          ddRes = tricksDD(runningDD);
+        }
+        catch (Bexcept bex2)
+        {
+          UNUSED(bex2);
+        }
+
         if (headerRes == STR(ddRes))
         {
           writeFix(group.name(), counts.chunkno-1, headerRes);
