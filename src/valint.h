@@ -40,7 +40,8 @@ const string ValErrorName[] =
 
   "Error",
   "Out-short",
-  "Ref-short"
+  "Ref-short",
+  "VG-mc",
 };
 
 const string ValErrorNameShort[] =
@@ -67,7 +68,8 @@ const string ValErrorNameShort[] =
 
   "Error",
   "Osht",
-  "Rsht"
+  "Rsht",
+  "mc"
 };
 
 

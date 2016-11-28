@@ -717,6 +717,7 @@ static void writeFix(
 
   string nameFix = nameLIN.substr(0, nameLIN.length()-4) + ".fix";
 
+  // TODO: Switch to appendFile
   ifstream f(nameFix.c_str());
   ofstream fout;
   if (f.good())

@@ -38,6 +38,7 @@ class Buffer
       unsigned count;
     };
 
+    string fileName;
     vector<LineData> lines;
     unsigned len;
     unsigned current;
@@ -88,6 +89,10 @@ class Buffer
     bool previous(LineData& lineData);
 
     unsigned previousHeaderStart() const;
+
+    string getLine(const unsigned no) const;
+
+    string name() const;
 
     int peek();
 

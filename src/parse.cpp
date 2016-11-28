@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include <iomanip>
 #include <string>
 #include <vector>
@@ -373,6 +374,33 @@ Format ext2format(const string& text)
     return BRIDGE_FORMAT_REC;
   else
     return BRIDGE_FORMAT_SIZE;
+}
+
+
+string changeExt(
+  const string& fname,
+  const string& newExt)
+{
+  regex re("\\.\\w+$");
+  return regex_replace(fname, re, newExt);
+}
+
+
+void appendFile(
+  const string& fname,
+  const string& text)
+{
+  const char * fn = fname.c_str();
+  ifstream f(fn);
+  ofstream fout;
+  if (f.good())
+    fout.open(fn, ios::app);
+  else
+    fout.open(fn);
+
+  fout << text << "\n";
+  fout.close();
+    
 }
 
 

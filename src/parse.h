@@ -72,6 +72,14 @@ bool char2player(
 
 Format ext2format(const string& s);
 
+string changeExt(
+  const string& fname,
+  const string& newExt);
+
+void appendFile(
+  const string& fname,
+  const string& text);
+
 void toUpper(string& text);
 
 string basefile(const string& path);

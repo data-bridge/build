@@ -40,6 +40,7 @@ Buffer::~Buffer()
 
 void Buffer::reset()
 {
+  fileName = "";
   len = 0;
   current = 0;
   format = BRIDGE_FORMAT_SIZE;
@@ -255,6 +256,7 @@ bool Buffer::read(
   const string& fname,
   const Format formatIn)
 {
+  fileName = fname;
   format = formatIn;
   Buffer::readBinaryFile(fname);
   if (len == 0)
@@ -562,6 +564,21 @@ unsigned Buffer::previousHeaderStart() const
     u--;
 
   return lines[u+2].no;
+}
+
+
+string Buffer::getLine(const unsigned no) const
+{
+  if (no == 0 || no > len)
+    return "";
+  else
+    return lines[no-1].line;
+}
+
+
+string Buffer::name() const
+{
+  return fileName;
 }
 
 

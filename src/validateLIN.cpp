@@ -9,6 +9,9 @@
 // The functions in this file help to parse files.
 
 
+#include <iostream>
+#include <sstream>
+#include <fstream>
 #include <algorithm>
 
 #include "validateLIN.h"
@@ -279,6 +282,32 @@ static bool isDifferentCase(
 }
 
 
+static bool replaceTricks(
+  string& target,
+  const string& source)
+{
+  size_t tp0 = target.find("mc|");
+  if (tp0 == string::npos || tp0+3 >= target.length())
+    return false;
+
+  size_t sp0 = source.find("mc|");
+  if (sp0 == string::npos || sp0+3 >= source.length())
+    return false;
+
+  size_t tp1 = target.find("|", tp0+3);
+  if (tp1 == string::npos)
+    return false;
+
+  size_t sp1 = source.find("|", sp0+3);
+  if (sp1 == string::npos)
+    return false;
+
+  target.erase(tp0+3, tp1 - (tp0+3));
+  target.insert(tp0+3, source, sp0+3, sp1 - (sp0+3));
+  return true;
+}
+
+
 bool validateLIN(
   ValState& valState,
   ValProfile& prof)
@@ -304,6 +333,27 @@ bool validateLIN(
       }
       else
         return false;
+    }
+    else if (valState.dataRef.label == "mc")
+    {
+      // If the ref buffer has a fix file, we guess that it was for
+      // this reason.
+      const string fixName = changeExt(valState.bufferRef.name(), ".fix");
+      ifstream ff(fixName.c_str());
+      if (! ff.good())
+        return false;
+      
+      string lref = STR(valState.dataRef.no) + " replace \"" +
+        valState.bufferRef.getLine(valState.dataRef.no) + "\"";
+      string lout = valState.bufferOut.getLine(valState.dataOut.no);
+
+      if (! replaceTricks(lref, lout))
+        return false;
+
+      const string refName = changeExt(valState.bufferRef.name(), ".ref");
+      appendFile(refName, lref);
+      prof.log(BRIDGE_VAL_VG_MC, valState);
+      return true;
     }
     else if (valState.dataRef.len != valState.dataOut.len)
     {
