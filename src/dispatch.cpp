@@ -837,8 +837,14 @@ static bool storeChunk(
           segment->strContracts(BRIDGE_FORMAT_PAR) + + "\"";
 
         string fname = changeExt(group.name(), ".fix");
-        if (fname != "")
+        if (fname == "")
         {
+          cout << "Wanted to write rs fix file " << fname << " with " << 
+            runningDD.tricksDecl << " tricks\n";
+        }
+        else
+        {
+          // Actual tricks win if the hand is played out completely.
           appendFile(fname, resHeader);
           cout << "Wrote rs fix file " << fname << " with " << 
             runningDD.tricksDecl << " tricks\n";

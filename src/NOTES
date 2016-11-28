@@ -5,17 +5,13 @@ Getting 031000 done:
 
 LIN_VG:
 * Cases of trick differences
-  - DD agrees with contract -- fix mc claim
-  - Play is over -- must somehow fix contract
+  + DD agrees with contract -- fix mc claim
+  + Play is over -- must somehow fix contract
   - DD agrees with mc -- must somehow contract
   - DD agrees with neither -- what to do?
 
-How to fix contract:
-* Get the relevant contract from LINdata in Segment (bno, instance)
-* Modify the string to the right number of tricks (4SN+2 -> 4SN-1)
-* Write the string back to LINdata in Segment (bno, instance)
-* Get the whole contract string from LINdata
-* Append it to a .fix file (chunk 0 by definition)
+
+Find the occasional segfault
 
             #qx
 LIN_VG  948,965
