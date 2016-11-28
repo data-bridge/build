@@ -1,6 +1,5 @@
 Getting 031000 done:
 * Figure out a way to fix contract header       6000
-* Fix mc| difference as below                   1000
 * Guidance lines                                3300
 * If 1st board missing, probable header bug
 
@@ -10,14 +9,13 @@ LIN_VG:
   - Play is over -- must somehow fix contract
   - DD agrees with mc -- must somehow contract
   - DD agrees with neither -- what to do?
-* In validate, if there is an mc| difference and a .fix file,
-  write a .ref file directly
 
-* Buffer should know the file it came from (complete path)
-* Should be able to output complete line
-* Then if different mc's, and fix file exists
-  - Fix line to new mc value
-  - Write/append ref file
+How to fix contract:
+* Get the relevant contract from LINdata in Segment (bno, instance)
+* Modify the string to the right number of tricks (4SN+2 -> 4SN-1)
+* Write the string back to LINdata in Segment (bno, instance)
+* Get the whole contract string from LINdata
+* Append it to a .fix file (chunk 0 by definition)
 
             #qx
 LIN_VG  948,965
@@ -39,6 +37,8 @@ then move printed line interval to actual lno's.
 Make prettier line break in LIN print except LIN_RP.
 
 No % comment in LIN except LIN_RP.
+
+Detect uncaught exceptions in own code?
 
 Functionality
 -------------

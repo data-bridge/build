@@ -730,6 +730,39 @@ static void writeFix(
 }
 
 
+static void adjustContractTricks(
+  string& contractHeader, 
+  const unsigned tricks)
+{
+  const unsigned l = contractHeader.length();
+  if (l < 4)
+    THROW("Contract too short: " + contractHeader);
+
+  const char c = contractHeader.at(0);
+  if (c < '1' || c > '7')
+    THROW("Malformed contract: " + contractHeader);
+
+  const unsigned tricksNeeded = 7u + static_cast<unsigned>(c - '1');
+
+  if (contractHeader.at(l-1) == '=')
+    contractHeader.pop_back();
+  else if (contractHeader.at(l-2) == '+' || contractHeader.at(l-2) == '-')
+  {
+    contractHeader.pop_back();
+    contractHeader.pop_back();
+  }
+  else
+    THROW("Malformed contract: " + contractHeader);
+
+  if (tricks == tricksNeeded)
+    contractHeader += "=";
+  else if (tricks > tricksNeeded)
+    contractHeader += "+" + STR(tricks - tricksNeeded);
+  else
+    contractHeader += "-" + STR(tricksNeeded - tricks);
+}
+
+
 static bool storeChunk(
   Group& group,
   Segment * segment,
@@ -794,9 +827,22 @@ static bool storeChunk(
 
       if (board->playIsOver())
       {
-        cout << "Play has ended?\n";
-        cout << "Header yielded " << headerRes << " vs. actual " <<
-          runningDD.tricksDecl << " (" << runningDD.tricksDef << ")\n";
+        string contractHeader = segment->contractFromHeader();
+        adjustContractTricks(contractHeader, runningDD.tricksDecl);
+
+        if (! segment->setContractInHeader(contractHeader))
+          THROW("Could not rewrite header contract");
+
+        const string resHeader = "0 \"Results list\" \"" + 
+          segment->strContracts(BRIDGE_FORMAT_PAR) + + "\"";
+
+        string fname = changeExt(group.name(), ".fix");
+        if (fname != "")
+        {
+          appendFile(fname, resHeader);
+          cout << "Wrote rs fix file " << fname << " with " << 
+            runningDD.tricksDecl << " tricks\n";
+        }
       }
       else
       {
@@ -812,8 +858,9 @@ static bool storeChunk(
 
         if (headerRes == STR(ddRes))
         {
+          // Header wins if it agrees with double-dummy.
           writeFix(group.name(), counts.chunkno-1, headerRes);
-          cout << "Wrote fix file with " << headerRes << " tricks\n";
+          cout << "Wrote mc fix file with " << headerRes << " tricks\n";
         }
         else
           cout << "Header " << headerRes << " vs. DD " << ddRes << endl;

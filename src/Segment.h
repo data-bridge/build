@@ -63,7 +63,7 @@ class Segment
     string strTitleLINCore(const bool swapFlag = false) const;
     string strTitleLIN() const;
     string strTitleLIN_RP() const;
-    string strContractsLIN(const Format format);
+    string strContractsCore(const Format format);
 
 
   public:
@@ -186,6 +186,10 @@ class Segment
       const string& text,
       const Format format);
 
+    string contractFromHeader() const;
+
+    bool setContractInHeader(const string& text);
+      
     bool scoringIsIMPs() const;
 
     bool hasCarry() const;

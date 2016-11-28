@@ -636,6 +636,27 @@ void Segment::setNumber(
 }
 
 
+string Segment::contractFromHeader() const
+{
+  if (LINcount == 0)
+    return "";
+
+  const unsigned instNo = boards[activeNo].board.getInstance();
+  return LINdata[activeNo].contract[instNo];
+}
+
+
+bool Segment::setContractInHeader(const string& text)
+{
+  if (LINcount == 0)
+    return false;
+
+  const unsigned instNo = boards[activeNo].board.getInstance();
+  LINdata[activeNo].contract[instNo] = text;
+  return true;
+}
+
+
 bool Segment::scoringIsIMPs() const
 {
   return scoring.isIMPs();
@@ -902,6 +923,37 @@ string Segment::strNumber(
 }
 
 
+string Segment::strContractsCore(const Format format) 
+{
+  string st = "";
+
+  if (format == BRIDGE_FORMAT_PAR)
+  {
+    if (LINcount == 0)
+      return "";
+
+    for (unsigned b = 0; b < LINcount; b++)
+      st += LINdata[b].contract[0] + "," + LINdata[b].contract[1] + ",";
+    st.pop_back(); // Remove trailing comma
+    return st;
+  }
+
+  for (auto &p: boards)
+  {
+    const string contractFromHeader = 
+      (LINcount == 0 ? "" : LINdata[p.no].contract[1]);
+    st += p.board.strContracts(contractFromHeader, format);
+  }
+
+  if (format == BRIDGE_FORMAT_LIN ||
+      format == BRIDGE_FORMAT_LIN_RP || 
+      format == BRIDGE_FORMAT_LIN_VG)
+    st.pop_back(); // Remove trailing comma
+  return st;
+
+}
+
+
 string Segment::strContracts(const Format format) 
 {
   string st = "rs|";
@@ -912,18 +964,10 @@ string Segment::strContracts(const Format format)
     case BRIDGE_FORMAT_LIN_RP:
     case BRIDGE_FORMAT_LIN_VG:
     case BRIDGE_FORMAT_LIN_TRN:
-      for (auto &p: boards)
-      {
-        const string contractFromHeader = 
-          (LINcount == 0 ? "" : LINdata[p.no].contract[1]);
-        st += p.board.strContracts(contractFromHeader, format);
-      }
+      return "rs|" + Segment::strContractsCore(format) + "|\n";
 
-      if (format == BRIDGE_FORMAT_LIN ||
-          format == BRIDGE_FORMAT_LIN_RP || 
-          format == BRIDGE_FORMAT_LIN_VG)
-        st.pop_back(); // Remove trailing comma
-      return st + "|\n";
+    case BRIDGE_FORMAT_PAR:
+      return Segment::strContractsCore(BRIDGE_FORMAT_PAR);
 
     default:
       THROW("Invalid format: " + STR(format));
