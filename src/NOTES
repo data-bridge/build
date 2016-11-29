@@ -3,6 +3,8 @@ Getting 031000 done:
 * Guidance lines                                3300
 * If 1st board missing, probable header bug
 
+Filter somewhere for hands with empty md (no cards).
+
 LIN_VG:
 * Cases of trick differences
   + DD agrees with contract -- fix mc claim
