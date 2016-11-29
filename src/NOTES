@@ -13,12 +13,12 @@ LIN_VG:
   - DD agrees with neither -- what to do?
   - Maybe one or the other is no longer reachable
 
-Write script to detect files with wrong deals
-* Extract file names from .txt output
-* Run reader on .lin file
-* Remove first complete hand, also from vg and rs
-* Keep running, keep track just of card error or not
-* Output only summary
+Write script to sanity-check .fix and .ref files:
+- Order
+- Complete duplicates
+- Contradictions
+
+Find out why e.g. 31984.fix keeps making more lines.
 
 Find the occasional segfault
 

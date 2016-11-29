@@ -488,6 +488,7 @@ void Segment::loadSpecificsFromHeader(
   else
   {
     // At the right place, perhaps with gaps.
+    // TODO: Should be a function, also used in contractFromHeader.
     unsigned eno = boards[activeNo].extNo;
     if (eno < bInmin || eno > bInmax)
       THROW("Board number out of range of LIN header");
@@ -641,8 +642,14 @@ string Segment::contractFromHeader() const
   if (LINcount == 0)
     return "";
 
+  // TODO: Should be a function, see also further up.
+  unsigned eno = boards[activeNo].extNo;
+  if (eno < bInmin || eno > bInmax)
+    THROW("Board number out of range of LIN header");
+  const unsigned linTableNo = eno - bInmin;
+
   const unsigned instNo = boards[activeNo].board.getInstance();
-  return LINdata[activeNo].contract[instNo];
+  return LINdata[linTableNo].contract[instNo];
 }
 
 
@@ -651,8 +658,14 @@ bool Segment::setContractInHeader(const string& text)
   if (LINcount == 0)
     return false;
 
+  // TODO: Should be a function, see also further up.
+  unsigned eno = boards[activeNo].extNo;
+  if (eno < bInmin || eno > bInmax)
+    THROW("Board number out of range of LIN header");
+  const unsigned linTableNo = eno - bInmin;
+
   const unsigned instNo = boards[activeNo].board.getInstance();
-  LINdata[activeNo].contract[instNo] = text;
+  LINdata[linTableNo].contract[instNo] = text;
   return true;
 }
 

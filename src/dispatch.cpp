@@ -763,6 +763,37 @@ static void adjustContractTricks(
 }
 
 
+static void storePlayWins(
+  const Group& group, 
+  Segment * segment, 
+  const RunningDD& runningDD,
+  const unsigned tricks)
+{
+  string contractHeader = segment->contractFromHeader();
+  adjustContractTricks(contractHeader, runningDD.tricksDecl);
+
+  if (! segment->setContractInHeader(contractHeader))
+    THROW("Could not rewrite header contract");
+
+  const string resHeader = "0 \"Results list\" \"" + 
+    segment->strContracts(BRIDGE_FORMAT_PAR) + + "\"";
+
+  string fname = changeExt(group.name(), ".fix");
+  if (fname == "")
+  {
+    cout << "Wanted to write rs fix file " << fname << " with " << 
+      tricks << " tricks\n";
+  }
+  else
+  {
+    // Actual tricks win if the hand is played out completely.
+    appendFile(fname, resHeader);
+    cout << "Wrote rs fix file " << fname << " with " << 
+      tricks << " tricks\n";
+  }
+}
+
+
 static bool storeChunk(
   Group& group,
   Segment * segment,
@@ -827,28 +858,7 @@ static bool storeChunk(
 
       if (board->playIsOver())
       {
-        string contractHeader = segment->contractFromHeader();
-        adjustContractTricks(contractHeader, runningDD.tricksDecl);
-
-        if (! segment->setContractInHeader(contractHeader))
-          THROW("Could not rewrite header contract");
-
-        const string resHeader = "0 \"Results list\" \"" + 
-          segment->strContracts(BRIDGE_FORMAT_PAR) + + "\"";
-
-        string fname = changeExt(group.name(), ".fix");
-        if (fname == "")
-        {
-          cout << "Wanted to write rs fix file " << fname << " with " << 
-            runningDD.tricksDecl << " tricks\n";
-        }
-        else
-        {
-          // Actual tricks win if the hand is played out completely.
-          appendFile(fname, resHeader);
-          cout << "Wrote rs fix file " << fname << " with " << 
-            runningDD.tricksDecl << " tricks\n";
-        }
+        storePlayWins(group, segment, runningDD, runningDD.tricksDecl);
       }
       else
       {
@@ -868,8 +878,25 @@ static bool storeChunk(
           writeFix(group.name(), counts.chunkno-1, headerRes);
           cout << "Wrote mc fix file with " << headerRes << " tricks\n";
         }
+        else if (chunk[BRIDGE_FORMAT_RESULT] == STR(ddRes))
+        {
+          storePlayWins(group, segment, runningDD, ddRes);
+          /*
+          cout << "Header X " << setw(2) << right << headerRes << 
+            " mc " << setw(2) << right << chunk[BRIDGE_FORMAT_RESULT] << 
+            " vs. DD " << setw(2) << right << ddRes << 
+            " (min " << setw(2) << right << runningDD.tricksDecl << 
+            ", max " << setw(2) << right << 13-runningDD.tricksDef << 
+            ")" << endl;
+          */
+        }
         else
-          cout << "Header " << headerRes << " vs. DD " << ddRes << endl;
+          cout << "Header " << setw(2) << right << headerRes << 
+            " mc " << setw(2) << right << chunk[BRIDGE_FORMAT_RESULT] << 
+            " vs. DD " << setw(2) << right << ddRes << 
+            " (min " << setw(2) << right << runningDD.tricksDecl << 
+            ", max " << setw(2) << right << 13-runningDD.tricksDef << 
+            ")" << endl;
       }
     }
     else if (bex.isPlay())
