@@ -758,13 +758,13 @@ bool Contract::operator != (const Contract& c2) const
 }
 
 
-string Contract::strLIN() const
+string Contract::strLIN(const Format format) const
 {
   if (! setContractFlag)
     return "";
   
   if (contract.level == 0)
-    return "P";
+    return (format == BRIDGE_FORMAT_LIN_VG ? "PASS" : "P");
 
   stringstream ss;
   ss << 
@@ -884,7 +884,7 @@ string Contract::str(const Format format) const
     case BRIDGE_FORMAT_LIN_RP:
     case BRIDGE_FORMAT_LIN_VG:
     case BRIDGE_FORMAT_LIN_TRN:
-      return Contract::strLIN();
+      return Contract::strLIN(format);
 
     case BRIDGE_FORMAT_PBN:
       return Contract::strPBN();

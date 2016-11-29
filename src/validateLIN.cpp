@@ -245,7 +245,9 @@ static bool isTitleBoards(
 
 static bool isContracts(
   const string& valueRef,
-  const string& valueOut)
+  const string& valueOut,
+  const string& bufRefName,
+  const unsigned lineno)
 {
   unsigned p = 0;
   const unsigned l = valueRef.length();
@@ -263,10 +265,44 @@ static bool isContracts(
   while (q >= 2 && valueRef.substr(q-2, 2) == ",,")
     q -= 2;
 
-  if (q <= p || q == l)
+  // Trailing commas.
+  if (q <= p)
     return false;
 
-  return (valueOut == valueRef.substr(p, q-p));
+  if (valueOut == valueRef.substr(p, q-p))
+    return true;
+
+  // Last-ditch effort: If the ref buffer has a fix file, it might
+  // be a fix of a specific contract in the list.
+  const string fixName = changeExt(bufRefName, ".fix");
+  ifstream ff(fixName.c_str());
+  if (! ff.good())
+    return false;
+
+  const int countRef = count(valueRef.begin(), valueRef.end(), ',');
+  const int countOut = count(valueOut.begin(), valueOut.end(), ',');
+
+  if (countRef != countOut)
+    return false;
+  
+  vector<string> listRef, listOut;
+  if (! LINtoList(valueRef, listRef, countRef))
+    return false;
+  if (! LINtoList(valueOut, listOut, countOut))
+    return false;
+
+  unsigned diffs = 0;
+  for (unsigned i = 0; i < static_cast<unsigned>(countRef); i++)
+    if (listRef[i] != listOut[i])
+      diffs++;
+
+  if (diffs >= 2)
+    return false;
+
+  string lnew = STR(lineno) + " replace \"rs|" + valueOut + "|\"";
+  const string refName = changeExt(bufRefName, ".ref");
+  appendFile(refName, lnew);
+  return false;
 }
 
 
@@ -326,7 +362,8 @@ bool validateLIN(
     }
     else if (valState.dataRef.label == "rs")
     {
-      if (isContracts(valState.dataRef.value, valState.dataOut.value))
+      if (isContracts(valState.dataRef.value, valState.dataOut.value,
+        valState.bufferRef.name(), valState.dataRef.no))
       {
         prof.log(BRIDGE_VAL_BOARDS_HEADER, valState);
         return true;

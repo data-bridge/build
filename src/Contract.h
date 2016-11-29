@@ -52,7 +52,7 @@ class Contract
     void setResultTXT(const string& text);
     void setResultEML(const string& text);
 
-    string strLIN() const;
+    string strLIN(const Format format) const;
     string strPBN() const;
     string strRBNCore() const;
     string strRBN() const;
