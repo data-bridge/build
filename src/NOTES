@@ -9,7 +9,14 @@ LIN_VG:
   + Play is over -- must somehow fix contract
   - DD agrees with mc -- must somehow contract
   - DD agrees with neither -- what to do?
+  - Maybe one or the other is no longer reachable
 
+Write script to detect files with wrong deals
+* Extract file names from .txt output
+* Run reader on .lin file
+* Remove first complete hand, also from vg and rs
+* Keep running, keep track just of card error or not
+* Output only summary
 
 Find the occasional segfault
 
