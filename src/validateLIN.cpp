@@ -297,7 +297,8 @@ static bool isContracts(
     if (listRef[i] != listOut[i])
       diffs++;
 
-  if (diffs >= 2)
+  // Heuristic.
+  if (diffs >= 3 || (diffs == 2 && countRef < 16))
     return false;
 
   // const string commas(q, ',');

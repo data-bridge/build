@@ -628,7 +628,7 @@ string Board::strScoreIMP(
   if (format != BRIDGE_FORMAT_REC)
     return "";
 
-  if (! showFlag)
+  if (! showFlag || ! contract[0].hasResult())
     return "Points:       ";
 
   return contract[numActive].strScoreIMP(format, contract[0].getScore());
