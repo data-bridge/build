@@ -769,8 +769,10 @@ static void storePlayWins(
   const RunningDD& runningDD,
   const unsigned tricks)
 {
+  UNUSED(runningDD);
+
   string contractHeader = segment->contractFromHeader();
-  adjustContractTricks(contractHeader, runningDD.tricksDecl);
+  adjustContractTricks(contractHeader, tricks);
 
   if (! segment->setContractInHeader(contractHeader))
     THROW("Could not rewrite header contract");
