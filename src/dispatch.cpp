@@ -356,7 +356,9 @@ static void dispatchCompare(
     vector<Fix> fix;
 
     buffer.split(text, format);
-    readFix(fname, fix);
+    fix.clear();
+    UNUSED(fname);
+    // readFix(fname, fix);
 
     readFormattedFile(buffer, fix, format, groupNew, options, flog);
 
@@ -1017,6 +1019,16 @@ static bool readFormattedFile(
         for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
           chunkSynth[i] = "";
 
+        // Need the header for the very first synthetic board.
+        if (chunk[BRIDGE_FORMAT_TITLE] != "")
+        {
+          for (unsigned i = 0; i <= BRIDGE_FORMAT_BOARDS_LIST; i++)
+          {
+            chunkSynth[i] = chunk[i];
+            chunk[i] = "";
+          }
+        }
+
         do
         {
           chunkSynth[BRIDGE_FORMAT_BOARD_NO] =
@@ -1036,6 +1048,12 @@ static bool readFormattedFile(
               counts, format, options, flog))
             return false;
           advance(expectBoard, counts);
+
+          if (chunkSynth[BRIDGE_FORMAT_TITLE] != "")
+          {
+            for (unsigned i = 0; i <= BRIDGE_FORMAT_BOARDS_LIST; i++)
+              chunkSynth[i] = "";
+          }
         }
         while (counts.curr > expectBoard);
       }

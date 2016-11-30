@@ -269,7 +269,8 @@ static bool isContracts(
   if (q <= p)
     return false;
 
-  if (valueOut == valueRef.substr(p, q-p))
+  const string refPruned = valueRef.substr(p, q-p);
+  if (valueOut == refPruned)
     return true;
 
   // Last-ditch effort: If the ref buffer has a fix file, it might
@@ -279,14 +280,14 @@ static bool isContracts(
   if (! ff.good())
     return false;
 
-  const int countRef = count(valueRef.begin(), valueRef.end(), ',');
+  const int countRef = count(refPruned.begin(), refPruned.end(), ',');
   const int countOut = count(valueOut.begin(), valueOut.end(), ',');
 
   if (countRef != countOut)
     return false;
   
   vector<string> listRef, listOut;
-  if (! LINtoList(valueRef, listRef, countRef))
+  if (! LINtoList(refPruned, listRef, countRef))
     return false;
   if (! LINtoList(valueOut, listOut, countOut))
     return false;
@@ -299,7 +300,9 @@ static bool isContracts(
   if (diffs >= 2)
     return false;
 
-  string lnew = STR(lineno) + " replace \"rs|" + valueOut + "|\"";
+  // const string commas(q, ',');
+  string lnew = STR(lineno) + " replace \"rs|" + 
+    string(p, ',') + valueOut + "|\"";
   const string refName = changeExt(bufRefName, ".ref");
   appendFile(refName, lnew);
   return false;

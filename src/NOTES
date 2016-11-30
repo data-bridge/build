@@ -1,7 +1,10 @@
 Getting 031000 done:
-* Figure out a way to fix contract header       6000
 * Guidance lines                                3300
-* If 1st board missing, probable header bug
+
+If 1st board missing, probable header bug
+- Move header lines to synth
+- Delete them from synth after first use
+
 
 Filter somewhere for hands with empty md (no cards).
 
@@ -9,16 +12,9 @@ LIN_VG:
 * Cases of trick differences
   + DD agrees with contract -- fix mc claim
   + Play is over -- must somehow fix contract
-  - DD agrees with mc -- must somehow contract
+  + DD agrees with mc -- must somehow fix contract
   - DD agrees with neither -- what to do?
   - Maybe one or the other is no longer reachable
-
-Write script to sanity-check .fix and .ref files:
-- Order
-- Complete duplicates
-- Contradictions
-
-Find out why e.g. 31984.fix keeps making more lines.
 
 Find the occasional segfault
 
