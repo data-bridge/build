@@ -588,6 +588,24 @@ string Board::strDeclarer(const Format format) const
 }
 
 
+string Board::strDeclarerPlay(const Format format) const
+{
+  return play[numActive].strDeclarer(format);
+}
+
+
+string Board::strDenom(const Format format) const
+{
+  return contract[numActive].strDenom(format);
+}
+
+
+string Board::strDenomPlay(const Format format) const
+{
+  return play[numActive].strDenom(format);
+}
+
+
 string Board::strTricks(const Format format) const
 {
   return contract[numActive].strTricks(format);

@@ -1,11 +1,6 @@
 Getting 031000 done:
 * Guidance lines                                3300
 
-If 1st board missing, probable header bug
-- Move header lines to synth
-- Delete them from synth after first use
-
-
 Filter somewhere for hands with empty md (no cards).
 
 LIN_VG:
@@ -16,7 +11,18 @@ LIN_VG:
   - DD agrees with neither -- what to do?
   - Maybe one or the other is no longer reachable
 
+Difference in declarer/denomination
+* Same denom
+  - Partner (N/S, E/W): Fix declarer
+  - Not partner: Flag, probably auction is wrong
+* Different denom, same declarer
+  - Check auction manually, maybe typo
+* Both different
+  - Check manually
+
 Find the occasional segfault
+
+appendFile should keep stuff in order and not duplicative
 
             #qx
 LIN_VG  948,965

@@ -173,8 +173,16 @@ void Play::setDeclAndDenom(
     if (declIn == declarer && denomIn == denom)
       return;
 
-    THROW("Declarer and denomination reset: " + 
-      STR(declIn) + STR(denomIn) + " " + STR(declarer) + STR(denomIn));
+    if (declIn < BRIDGE_NORTH || declIn > BRIDGE_WEST)
+      THROW("Declarer out of range");
+    if (denomIn < BRIDGE_SPADES || denomIn > BRIDGE_NOTRUMP)
+      THROW("Denomination out of range");
+
+    THROW("Declarer and denomination reset: new '" + 
+      PLAYER_NAMES_LONG[declIn] + " " +
+      DENOM_NAMES_LONG[denomIn] + "' vs set '" +
+      PLAYER_NAMES_LONG[declarer] + " " +
+      DENOM_NAMES_LONG[denom] + "'");
   }
 
   if (declIn >= BRIDGE_NORTH_SOUTH)
@@ -950,6 +958,32 @@ string Play::strLead(const Format format) const
         return "Opening lead:   ";
       else
         return "Opening lead: " + PLAY_NO_TO_CARD[sequence[0]];
+
+    default:
+      THROW("Invalid format: " + STR(format));
+  }
+}
+
+
+string Play::strDeclarer(const Format format) const
+{
+  switch(format)
+  {
+    case BRIDGE_FORMAT_PAR:
+      return PLAYER_NAMES_SHORT[declarer];
+
+    default:
+      THROW("Invalid format: " + STR(format));
+  }
+}
+
+
+string Play::strDenom(const Format format) const
+{
+  switch(format)
+  {
+    case BRIDGE_FORMAT_PAR:
+      return STR(DENOM_NAMES_SHORT[denom]);
 
     default:
       THROW("Invalid format: " + STR(format));

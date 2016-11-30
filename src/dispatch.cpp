@@ -885,14 +885,6 @@ static bool storeChunk(
         else if (chunk[BRIDGE_FORMAT_RESULT] == STR(ddRes))
         {
           storePlayWins(group, segment, runningDD, ddRes);
-          /*
-          cout << "Header X " << setw(2) << right << headerRes << 
-            " mc " << setw(2) << right << chunk[BRIDGE_FORMAT_RESULT] << 
-            " vs. DD " << setw(2) << right << ddRes << 
-            " (min " << setw(2) << right << runningDD.tricksDecl << 
-            ", max " << setw(2) << right << 13-runningDD.tricksDef << 
-            ")" << endl;
-          */
         }
         else
           cout << "Header " << setw(2) << right << headerRes << 
@@ -907,6 +899,44 @@ static bool storeChunk(
     {
       cout << board->strDeal(BRIDGE_FORMAT_TXT) << endl;
       cout << board->strContract(BRIDGE_FORMAT_TXT) << endl;
+    }
+    else if (bex.isPlayDD())
+    {
+      cout << board->strDeal(BRIDGE_FORMAT_TXT) << endl;
+      cout << board->strContract(BRIDGE_FORMAT_TXT) << endl;
+      cout << segment->contractFromHeader() << endl;
+
+      const string declHeader = board->strDeclarer(BRIDGE_FORMAT_PAR);
+      const string denomHeader = board->strDenom(BRIDGE_FORMAT_PAR);
+
+      const string declPlay = board->strDeclarerPlay(BRIDGE_FORMAT_PAR);
+      const string denomPlay = board->strDenomPlay(BRIDGE_FORMAT_PAR);
+
+      cout << "Hdr  " << declHeader << " " << denomHeader << endl;
+      cout << "Play " << declPlay << " " << denomPlay << endl;
+
+      if (declPlay == declHeader)
+      {
+        cout << "Would like to fix denom typo, probably in header\n";
+      }
+      else if (denomPlay == denomHeader)
+      {
+        if ((declHeader == "N" && declPlay == "S") ||
+            (declHeader == "E" && declPlay == "W") ||
+            (declHeader == "S" && declPlay == "N") ||
+            (declHeader == "W" && declPlay == "E"))
+        {
+          cout << "Would like to fix decl typo, probably in header\n";
+        }
+        else
+        {
+          cout << "Would like to fix decl typo, probably in auction\n";
+        }
+      }
+      else
+      {
+        cout << "Not sure what is going on\n";
+      }
     }
 
     if (options.verboseBatch)

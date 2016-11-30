@@ -47,3 +47,10 @@ bool Bexcept::isPlay() const
       function == "Play::addPlay");
 }
 
+
+bool Bexcept::isPlayDD() const
+{
+  return (file == "Play.cpp" &&
+      function == "Play::setDeclAndDenom");
+}
+

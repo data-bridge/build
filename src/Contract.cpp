@@ -920,6 +920,25 @@ string Contract::strDeclarer(const Format format) const
       return "[Declarer \"" + 
           PLAYER_NAMES_SHORT[contract.declarer] + "\"]\n";
 
+    case BRIDGE_FORMAT_PAR:
+      return PLAYER_NAMES_SHORT[contract.declarer];
+
+    default:
+      THROW("Invalid format: " + STR(format));
+  }
+}
+
+
+string Contract::strDenom(const Format format) const
+{
+  switch(format)
+  {
+    case BRIDGE_FORMAT_PAR:
+      if (! setResultFlag)
+        return "";
+      else 
+        return STR(DENOM_NAMES_SHORT[contract.denom]);
+
     default:
       THROW("Invalid format: " + STR(format));
   }

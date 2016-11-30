@@ -237,6 +237,9 @@ class Board
       const unsigned instNo,
       const Format format) const;
     string strDeclarer(const Format format) const;
+    string strDenom(const Format format) const;
+    string strDeclarerPlay(const Format format) const;
+    string strDenomPlay(const Format format) const;
     string strTricks(const Format format) const;
 
     string strScore(

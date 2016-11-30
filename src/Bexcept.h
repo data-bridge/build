@@ -41,6 +41,8 @@ class Bexcept: public exception
     bool isTricks() const;
 
     bool isPlay() const;
+
+    bool isPlayDD() const;
 };
 
 #endif
