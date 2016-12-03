@@ -1054,17 +1054,22 @@ static bool storeChunk(
         }
         else if (declLead == declHeader)
           cout << "E7 Would like to fix decl typo, likely in auction\n";
+        else if (declLead == declAuction)
+        {
+          storeAuctionContractDeclWins(group, segment, declAuction);
+          cout << "E8 Fixed declarer typo in header\n";
+        }
         else if (declLead == "")
-          cout << "E8 Would like to fix decl typo, probably in auction\n";
+          cout << "E9 Would like to fix decl typo, probably in auction\n";
         else
-          cout << "E9 Would like to fix decl typo, but odd auction\n";
+          cout << "EA Would like to fix decl typo, but odd auction\n";
       }
       else if (declLead == declHeader)
-        cout << "EA Would like to fix denom typo, likely in auction\n";
+        cout << "EB Would like to fix denom typo, likely in auction\n";
       else if (declLead == declAuction)
-        cout << "EB Would like to fix denom typo, likely in header\n";
+        cout << "EC Would like to fix denom typo, likely in header\n";
       else
-        cout << "EC Not sure what is going on\n";
+        cout << "ED Not sure what is going on\n";
     }
 
     if (options.verboseBatch)
