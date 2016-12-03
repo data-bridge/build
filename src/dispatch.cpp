@@ -1254,6 +1254,18 @@ static bool readFormattedFile(
         counts, format, options, flog))
       return false;
   }
+
+  if (format == BRIDGE_FORMAT_LIN_VG && board != nullptr)
+  {
+    // Fill out trailing skips.
+    counts.curr.no = counts.bExtmax+1;
+    counts.curr.roomFlag = true;
+
+    if (! fillBoards(group, segment, board, chunk, counts,
+        lastBoard, format, options, flog))
+      return false;
+  }
+
   return true;
 }
 
