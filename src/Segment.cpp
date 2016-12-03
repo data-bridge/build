@@ -196,6 +196,8 @@ void Segment::setTitleLIN(const string& t)
   // Scoring (2).
   if (v[2] == "P" && v[1] != "IMPs")
     Segment::setScoring("P", BRIDGE_FORMAT_LIN);
+  else if (v[2] == "B" && v[1] != "IMPs")
+    Segment::setScoring("B", BRIDGE_FORMAT_LIN);
   else
     Segment::setScoring("I", BRIDGE_FORMAT_LIN);
     

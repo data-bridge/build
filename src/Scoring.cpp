@@ -17,7 +17,7 @@
 // No doubt LIN also has tags for some of these.
 static const string SCORING_LIN[] =
 {
-  "I", "X", "X", "X", "P", "X", "X", "X", "X", ""
+  "I", "B", "X", "X", "P", "X", "X", "X", "X", ""
 };
 
 static const string SCORING_PBN[] =
@@ -69,6 +69,8 @@ void Scoring::setLIN(const string& text)
     scoring = BRIDGE_SCORING_IMPS;
   else if (text == "P")
     scoring = BRIDGE_SCORING_MATCHPOINTS;
+  else if (text == "B")
+    scoring = BRIDGE_SCORING_BAM;
   else
     THROW("Unknown LIN scoring");
 }
