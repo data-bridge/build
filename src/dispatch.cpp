@@ -1080,6 +1080,68 @@ static bool storeChunk(
 }
 
 
+static bool fillBoards(
+  Group& group, 
+  Segment * segment, 
+  Board *& board, 
+  vector<string>& chunk, 
+  Counts& counts,
+  boardIDLIN& lastBoard,
+  const Format format,
+  const Options& options,
+  ostream& flog)
+{
+  boardIDLIN expectBoard = lastBoard;
+  advance(expectBoard, counts);
+
+  if (! (counts.curr > expectBoard))
+    return true;
+
+  vector<string> chunkSynth(BRIDGE_FORMAT_LABELS_SIZE);
+  for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
+    chunkSynth[i] = "";
+
+  // Need the header for the very first synthetic board.
+  if (chunk[BRIDGE_FORMAT_TITLE] != "")
+  {
+    for (unsigned i = 0; i <= BRIDGE_FORMAT_BOARDS_LIST; i++)
+    {
+      chunkSynth[i] = chunk[i];
+      chunk[i] = "";
+    }
+  }
+
+  do
+  {
+    chunkSynth[BRIDGE_FORMAT_BOARD_NO] =
+      (expectBoard.roomFlag ? 'o' : 'c') +
+      STR(expectBoard.no);
+
+    if (expectBoard.no != lastBoard.no)
+    {
+      board = segment->acquireBoard(counts.bno);
+      counts.bno++;
+    }
+
+    lastBoard = expectBoard;
+    board->newInstance();
+    board->markInstanceSkip();
+    if (! storeChunk(group, segment, board, chunkSynth, 
+        counts, format, options, flog))
+      return false;
+    advance(expectBoard, counts);
+
+    if (chunkSynth[BRIDGE_FORMAT_TITLE] != "")
+    {
+      for (unsigned i = 0; i <= BRIDGE_FORMAT_BOARDS_LIST; i++)
+        chunkSynth[i] = "";
+    }
+  }
+  while (counts.curr > expectBoard);
+  return true;
+}
+
+
 static bool readFormattedFile(
   const string& fname,
   const Format format,
@@ -1173,53 +1235,9 @@ static bool readFormattedFile(
 
     if (format == BRIDGE_FORMAT_LIN_VG)
     {
-      boardIDLIN expectBoard = lastBoard;
-      advance(expectBoard, counts);
-
-      if (counts.curr > expectBoard)
-      {
-        vector<string> chunkSynth(BRIDGE_FORMAT_LABELS_SIZE);
-        for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
-          chunkSynth[i] = "";
-
-        // Need the header for the very first synthetic board.
-        if (chunk[BRIDGE_FORMAT_TITLE] != "")
-        {
-          for (unsigned i = 0; i <= BRIDGE_FORMAT_BOARDS_LIST; i++)
-          {
-            chunkSynth[i] = chunk[i];
-            chunk[i] = "";
-          }
-        }
-
-        do
-        {
-          chunkSynth[BRIDGE_FORMAT_BOARD_NO] =
-            (expectBoard.roomFlag ? 'o' : 'c') +
-            STR(expectBoard.no);
-
-          if (expectBoard.no != lastBoard.no)
-          {
-            board = segment->acquireBoard(counts.bno);
-            counts.bno++;
-          }
-
-          lastBoard = expectBoard;
-          board->newInstance();
-          board->markInstanceSkip();
-          if (! storeChunk(group, segment, board, chunkSynth, 
-              counts, format, options, flog))
-            return false;
-          advance(expectBoard, counts);
-
-          if (chunkSynth[BRIDGE_FORMAT_TITLE] != "")
-          {
-            for (unsigned i = 0; i <= BRIDGE_FORMAT_BOARDS_LIST; i++)
-              chunkSynth[i] = "";
-          }
-        }
-        while (counts.curr > expectBoard);
-      }
+      if (! fillBoards(group, segment, board, chunk, counts,
+          lastBoard, format, options, flog))
+        return false;
     }
 
     if (counts.curr.no != 0 && counts.curr.no != lastBoard.no)
