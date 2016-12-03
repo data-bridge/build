@@ -47,6 +47,8 @@ No % comment in LIN except LIN_RP.
 
 Detect uncaught exceptions in own code?
 
+Do we even need the .fix file when we have the .ref file?
+
 Functionality
 -------------
 JEC PBN

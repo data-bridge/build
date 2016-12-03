@@ -94,6 +94,8 @@ class Board
       const string& text,
       const Format format);
       
+    Player holdsCard(const string& text) const;
+
     // Auction
 
     void addCall(

@@ -74,6 +74,8 @@ class Deal
       const string& text,
       const Format format);
 
+    Player holdsCard(const string& text) const;
+
     void getDDS(unsigned cards[][BRIDGE_SUITS]) const;
 
     bool operator == (const Deal& deal2) const;

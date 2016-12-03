@@ -709,7 +709,7 @@ static void tryFormatMethod(
 }
 
 
-static void writeFix(
+static void storeHeaderResultWins(
   const string& nameLIN,
   const unsigned chunkno,
   const string& result)
@@ -765,7 +765,7 @@ static void adjustContractTricks(
 }
 
 
-static void storePlayWins(
+static void storePlayResultWins(
   const Group& group, 
   Segment * segment, 
   const RunningDD& runningDD,
@@ -794,6 +794,98 @@ static void storePlayWins(
     appendFile(fname, resHeader);
     cout << "Wrote rs fix file " << fname << " with " << 
       tricks << " tricks\n";
+  }
+}
+
+
+static void adjustContractDeclarer(
+  string& contractHeader, 
+  const string& declarer)
+{
+  const unsigned l = contractHeader.length();
+  if (l < 4)
+    THROW("Contract too short: " + contractHeader);
+
+  if (declarer.length() != 1)
+    THROW("Declarer length not 1: " + declarer);
+
+  contractHeader.replace(2, 1, declarer);
+}
+
+
+static void storeAuctionContractDeclWins(
+  const Group& group, 
+  Segment * segment, 
+  const string& declarer)
+{
+  string contractHeader = segment->contractFromHeader();
+  adjustContractDeclarer(contractHeader, declarer);
+
+  if (! segment->setContractInHeader(contractHeader))
+    THROW("Could not rewrite header contract");
+
+  const string resHeader = "0 \"Results list\" \"" + 
+    segment->strContracts(BRIDGE_FORMAT_PAR) + + "\"";
+
+  string fname = changeExt(group.name(), ".fix");
+  if (fname == "")
+  {
+    cout << "Wanted to write rs fix file " << fname << " with " << 
+      declarer << " as declarer\n";
+  }
+  else
+  {
+    // Actual tricks win if the hand is played out completely.
+    appendFile(fname, resHeader);
+    cout << "Wrote rs fix file " << fname << " with " << 
+      declarer << " as declarer\n";
+  }
+}
+
+
+static void adjustContractDenom(
+  string& contractHeader, 
+  const string& denom)
+{
+  const unsigned l = contractHeader.length();
+  if (l < 4)
+    THROW("Contract too short: " + contractHeader);
+
+  if (denom.length() != 1)
+    THROW("Denomination length not 1: " + denom);
+
+  contractHeader.replace(1, 1, denom);
+}
+
+
+static void storeAuctionContractDenomWins(
+  const Group& group, 
+  Segment * segment, 
+  const string& denom)
+{
+  string contractHeader = segment->contractFromHeader();
+  adjustContractDenom(contractHeader, denom);
+
+  // TODO: Common among all adjust functions.
+
+  if (! segment->setContractInHeader(contractHeader))
+    THROW("Could not rewrite header contract");
+
+  const string resHeader = "0 \"Results list\" \"" + 
+    segment->strContracts(BRIDGE_FORMAT_PAR) + + "\"";
+
+  string fname = changeExt(group.name(), ".fix");
+  if (fname == "")
+  {
+    cout << "Wanted to write rs fix file " << fname << " with " << 
+      denom << " as denomination\n";
+  }
+  else
+  {
+    // Actual tricks win if the hand is played out completely.
+    appendFile(fname, resHeader);
+    cout << "Wrote rs fix file " << fname << " with " << 
+      denom << " as denomination\n";
   }
 }
 
@@ -862,7 +954,7 @@ static bool storeChunk(
 
       if (board->playIsOver())
       {
-        storePlayWins(group, segment, runningDD, runningDD.tricksDecl);
+        storePlayResultWins(group, segment, runningDD, runningDD.tricksDecl);
       }
       else
       {
@@ -879,12 +971,12 @@ static bool storeChunk(
         if (headerRes == STR(ddRes))
         {
           // Header wins if it agrees with double-dummy.
-          writeFix(group.name(), counts.chunkno-1, headerRes);
+          storeHeaderResultWins(group.name(), counts.chunkno-1, headerRes);
           cout << "Wrote mc fix file with " << headerRes << " tricks\n";
         }
         else if (chunk[BRIDGE_FORMAT_RESULT] == STR(ddRes))
         {
-          storePlayWins(group, segment, runningDD, ddRes);
+          storePlayResultWins(group, segment, runningDD, ddRes);
         }
         else
           cout << "Header " << setw(2) << right << headerRes << 
@@ -909,34 +1001,70 @@ static bool storeChunk(
       const string declHeader = board->strDeclarer(BRIDGE_FORMAT_PAR);
       const string denomHeader = board->strDenom(BRIDGE_FORMAT_PAR);
 
-      const string declPlay = board->strDeclarerPlay(BRIDGE_FORMAT_PAR);
-      const string denomPlay = board->strDenomPlay(BRIDGE_FORMAT_PAR);
+      const string declAuction = board->strDeclarerPlay(BRIDGE_FORMAT_PAR);
+      const string denomAuction = board->strDenomPlay(BRIDGE_FORMAT_PAR);
+      string declLead = "";
+      if (chunk[BRIDGE_FORMAT_PLAY].length() >= 2)
+      {
+        string lead = chunk[BRIDGE_FORMAT_PLAY].substr(0, 2);
+        toUpper(lead);
+        const Player leader = board->holdsCard(lead);
+        if (leader != BRIDGE_PLAYER_SIZE)
+        {
+          const Player pLead = static_cast<Player>((leader + 3) % 4);
+          declLead = PLAYER_NAMES_SHORT[pLead];
+        }
+      }
 
       cout << "Hdr  " << declHeader << " " << denomHeader << endl;
-      cout << "Play " << declPlay << " " << denomPlay << endl;
-
-      if (declPlay == declHeader)
-      {
-        cout << "Would like to fix denom typo, probably in header\n";
-      }
-      else if (denomPlay == denomHeader)
-      {
-        if ((declHeader == "N" && declPlay == "S") ||
-            (declHeader == "E" && declPlay == "W") ||
-            (declHeader == "S" && declPlay == "N") ||
-            (declHeader == "W" && declPlay == "E"))
-        {
-          cout << "Would like to fix decl typo, probably in header\n";
-        }
-        else
-        {
-          cout << "Would like to fix decl typo, probably in auction\n";
-        }
-      }
+      cout << "Auct " << declAuction << " " << denomAuction << endl;
+      if (declLead == "")
+        cout << "Lead none\n";
       else
+        cout << "Lead " << declLead << "\n";
+
+      if (declAuction == declHeader)
       {
-        cout << "Not sure what is going on\n";
+        if (declAuction == declLead)
+        {
+          storeAuctionContractDenomWins(group, segment, denomAuction);
+          cout << "E1 Fixed denom typo in header\n";
+        }
+        else if (declLead == "")
+          cout << "E2 Would like to fix denom typo, probably in header\n";
+        else
+          cout << "E3 Would like to fix denom typo, but odd\n";
       }
+      else if (denomAuction == denomHeader)
+      {
+        if ((declHeader == "N" && declAuction == "S") ||
+            (declHeader == "E" && declAuction == "W") ||
+            (declHeader == "S" && declAuction == "N") ||
+            (declHeader == "W" && declAuction == "E"))
+        {
+          if (declLead == declAuction)
+          {
+            storeAuctionContractDeclWins(group, segment, declAuction);
+            cout << "E4 Fixed decl typo in header\n";
+          }
+          else if (declLead == "")
+            cout << "E5 Would like to fix decl typo, probably in header\n";
+          else
+            cout << "E6 Would like to fix decl typo, auction very wrong?\n";
+        }
+        else if (declLead == declHeader)
+          cout << "E7 Would like to fix decl typo, likely in auction\n";
+        else if (declLead == "")
+          cout << "E8 Would like to fix decl typo, probably in auction\n";
+        else
+          cout << "E9 Would like to fix decl typo, but odd auction\n";
+      }
+      else if (declLead == declHeader)
+        cout << "EA Would like to fix denom typo, likely in auction\n";
+      else if (declLead == declAuction)
+        cout << "EB Would like to fix denom typo, likely in header\n";
+      else
+        cout << "EC Not sure what is going on\n";
     }
 
     if (options.verboseBatch)

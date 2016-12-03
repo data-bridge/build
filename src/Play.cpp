@@ -959,6 +959,12 @@ string Play::strLead(const Format format) const
       else
         return "Opening lead: " + PLAY_NO_TO_CARD[sequence[0]];
 
+    case BRIDGE_FORMAT_PAR:
+      if (len == 0)
+        return "";
+      else
+        return PLAY_NO_TO_CARD[sequence[0]];
+
     default:
       THROW("Invalid format: " + STR(format));
   }

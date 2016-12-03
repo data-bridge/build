@@ -178,6 +178,12 @@ void Board::setDeal(
 }
 
 
+Player Board::holdsCard(const string& text) const
+{
+  return deal.holdsCard(text);
+}
+
+
 // Auction
 
 void Board::addCall(

@@ -295,6 +295,41 @@ void Deal::set(
   }
 }
 
+Player Deal::holdsCard(const string& text) const
+{
+  if (text.length() != 2)
+    return BRIDGE_PLAYER_SIZE;
+
+  unsigned s, h;
+  const char sc = text.at(0);
+  bool found = false;
+
+  for (unsigned i = 0; i < BRIDGE_NOTRUMP; i++)
+  {
+    if (DENOM_NAMES_SHORT[i] == sc)
+    {
+      found = true;
+      s = i;
+      break;
+    }
+  }
+  if (! found)
+    return BRIDGE_PLAYER_SIZE;
+
+  auto it = SUIT_TO_HOLDING.find(text.substr(1));
+  if (it == SUIT_TO_HOLDING.end())
+    return BRIDGE_PLAYER_SIZE;
+  h = it->second;
+
+  for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
+  {
+    if (holding[p][s] & h)
+      return static_cast<Player>(p);
+  }
+  return BRIDGE_PLAYER_SIZE;
+}
+
+
 void Deal::getDDS(unsigned holdingArg[][BRIDGE_SUITS]) const
 {
   if (! setFlag)
