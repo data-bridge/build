@@ -63,6 +63,7 @@ class Session
 
     string strLIN() const;
     string strLIN_RP() const;
+    string strLIN_VG() const;
     string strPBN() const;
     string strRBNCore() const;
     string strRBN() const;

@@ -243,36 +243,50 @@ static bool isTitleBoards(
 }
 
 
+static string pruneCommas(
+  const string& text,
+  unsigned& p,
+  unsigned& q)
+{
+  p = 0;
+  const unsigned l = text.length();
+  while (p+1 < l && text.substr(p, 2) == ",,")
+    p += 2;
+
+  if (p+1 >= l)
+    return "";
+
+  q = l;
+  while (q >= 2 && text.substr(q-2, 2) == ",,")
+    q -= 2;
+
+  // Trailing commas.
+  if (q <= p)
+    return "";
+
+  return text.substr(p, q-p);
+}
+
+
 static bool isContracts(
   const string& valueRef,
   const string& valueOut,
   const string& bufRefName,
   const unsigned lineno)
 {
-  unsigned p = 0;
-  const unsigned l = valueRef.length();
-  while (p+1 < l && valueRef.substr(p, 2) == ",,")
-    p += 2;
-
-  if (p+1 >= l)
+  unsigned p, q;
+  const string refPruned = pruneCommas(valueRef, p, q);
+  if (refPruned == "")
     return false;
 
-  // Leading commas.
-  if (valueOut == valueRef.substr(p))
-    return true;
-
-  unsigned q = l;
-  while (q >= 2 && valueRef.substr(q-2, 2) == ",,")
-    q -= 2;
-
-  // Trailing commas.
-  if (q <= p)
-    return false;
-
-  const string refPruned = valueRef.substr(p, q-p);
   if (valueOut == refPruned)
     return true;
 
+  unsigned p1, q1;
+  const string outPruned = pruneCommas(valueOut, p1, q1);
+
+  if (outPruned == refPruned)
+    return true;
   // Last-ditch effort: If the ref buffer has a fix file, it might
   // be a fix of a specific contract in the list.
   const string fixName = changeExt(bufRefName, ".fix");
@@ -281,15 +295,28 @@ static bool isContracts(
     return false;
 
   const int countRef = count(refPruned.begin(), refPruned.end(), ',');
-  const int countOut = count(valueOut.begin(), valueOut.end(), ',');
-
+  const int countOut = count(outPruned.begin(), outPruned.end(), ',');
   if (countRef != countOut)
+  {
+cout << "ref:\n" << valueRef << "\n";
+cout << "out:\n" << valueOut << "\n\n";
+
+cout << "ref length " << valueRef.length() << "\n";
+cout << "out length " << valueOut.length() << "\n\n";
+
+cout << "ref comm " << p << ", " << q << "\n";
+cout << "out comm " << p1 << ", " << q1 << "\n";
+
+cout << "ref intr " << countRef << "\n";
+cout << "out intr " << countOut << "\n";
+
     return false;
+  }
   
   vector<string> listRef, listOut;
   if (! LINtoList(refPruned, listRef, countRef))
     return false;
-  if (! LINtoList(valueOut, listOut, countOut))
+  if (! LINtoList(outPruned, listOut, countOut))
     return false;
 
   unsigned diffs = 0;
@@ -297,13 +324,14 @@ static bool isContracts(
     if (listRef[i] != listOut[i])
       diffs++;
 
+cout << "diffs " << diffs << "\n";
   // Heuristic.
   if (diffs >= 3 || (diffs == 2 && countRef < 16))
     return false;
 
   // const string commas(q, ',');
   string lnew = STR(lineno) + " replace \"rs|" + 
-    string(p, ',') + valueOut + "|\"";
+    string(p1, ',') + outPruned + string(valueRef.length()-q1, ',') + "|\"";
   const string refName = changeExt(bufRefName, ".ref");
   appendFile(refName, lnew);
   return false;

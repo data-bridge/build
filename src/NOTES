@@ -1,7 +1,14 @@
-Getting 031000 done:
-* Guidance lines                                3300
+* appendFile should keep stuff in order and not duplicative
+* Find the occasional segfault
+* Detect uncaught exceptions in own code?
+* Shouldn't .ref be enough?
 
-Filter somewhere for hands with empty md (no cards).
+Likely order:
+* Make .skip files for 3-liners (don't move to .orig)
+* Ditto for files with only North,West etc.
+* Ditto for files with only md||
+* Turn off speculative file writers
+* Run reader
 
 LIN_VG:
 * Cases of trick differences
@@ -19,10 +26,6 @@ Difference in declarer/denomination
   - Check auction manually, maybe typo
 * Both different
   - Check manually
-
-Find the occasional segfault
-
-appendFile should keep stuff in order and not duplicative
 
             #qx
 LIN_VG  948,965
@@ -44,10 +47,6 @@ then move printed line interval to actual lno's.
 Make prettier line break in LIN print except LIN_RP.
 
 No % comment in LIN except LIN_RP.
-
-Detect uncaught exceptions in own code?
-
-Do we even need the .fix file when we have the .ref file?
 
 Functionality
 -------------
