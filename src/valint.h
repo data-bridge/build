@@ -28,6 +28,7 @@ const string ValErrorName[] =
   "Teams",
   "Names-short",
   "TXT-dashes",
+  "VG-cards",
   "VG-chat",
 
   "All-pass",
@@ -56,6 +57,7 @@ const string ValErrorNameShort[] =
   "K",
   "Nsht",
   "Dash",
+  "Hlen",
   "Chat",
 
   "Apass",

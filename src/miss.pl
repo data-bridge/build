@@ -9,6 +9,8 @@ if ($#ARGV < 0)
   exit;
 }
 
+my $FILENO = 99999;
+
 my @files;
 get_files(\@files, $ARGV[0], 1);
 
@@ -23,15 +25,37 @@ for my $entry (@files)
     \$vg0, \$vgs, \$vg1, \@rs, \$pn, \@blist);
   print $entry->{fullname}, "\n";
 
+  my $fixfile = $entry->{fullname};
+  $fixfile =~ s/lin$/fix/;
+  my $reffile = $entry->{fullname};
+  $reffile =~ s/lin$/ref/;
+
+  if (-e $fixfile)
+  {
+    system("cp $fixfile $FILENO.fix");
+  }
+  else
+  {
+    unlink "$FILENO.fix";
+  }
+  if (-e $reffile)
+  {
+    system("cp $reffile $FILENO.ref");
+  }
+  else
+  {
+    unlink "$FILENO.ref";
+  }
+
   my $blast = $#blist;
   my $b = 0;
   my $vgmid = $vgs;
   while ($b <= $blast)
   {
-    dump_subfile("x.lin", \@lines, 
+    dump_subfile("$FILENO.lin", \@lines, 
       $vg0, $vgmid, $vg1, \@rs, $pn, $blist[$b]{no}, $vgmid-$vgs);
 
-    system("./reader -i x.lin -r x.lin -c -v 30 > y.lin");
+    system("./reader -i $FILENO.lin -r $FILENO.lin -c -v 30 > y.lin");
 
     my @revfiles;
     get_files(\@revfiles, "y.lin", 0);
@@ -142,7 +166,7 @@ sub slurp_file
     elsif ($line =~ /^rs\|(.*)\|$/)
     {
       die "rs must be line 2" unless $lno == 1;
-      @$rsref = split ',', $1;
+      @$rsref = split ',', $1, -1;
     }
     elsif ($line =~ /^pn\|/)
     {

@@ -396,6 +396,18 @@ bool validateLIN(
       prof.log(BRIDGE_VAL_VG_MC, valState);
       return true;
     }
+    else if (valState.dataRef.label == "md")
+    {
+      if (valState.dataRef.value.length() == 54 &&
+          valState.dataOut.value.length() == 72 &&
+          valState.dataOut.value.substr(0, 54) == valState.dataRef.value)
+      {
+        prof.log(BRIDGE_VAL_VG_MD, valState);
+        return true;
+      }
+      else
+        return false;
+    }
     else if (valState.dataRef.len != valState.dataOut.len)
     {
       const unsigned lr = valState.dataRef.len;
