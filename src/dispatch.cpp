@@ -541,6 +541,10 @@ static void readFix(
     newFix.label = static_cast<Label>(i);
     newFix.value = match.str(3);
 
+    // Replace backslash-n with literal newline.
+    regex renl("\\\\n");
+    newFix.value = regex_replace(newFix.value, renl, string("\n"));
+
     fix.push_back(newFix);
   }
 
