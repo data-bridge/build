@@ -417,7 +417,7 @@ void Segment::setPlayersList(
   const string& text,
   const Format format)
 {
-  if (format != BRIDGE_FORMAT_LIN)
+  if (format != BRIDGE_FORMAT_LIN && format != BRIDGE_FORMAT_LIN_VG)
     THROW("Invalid format: " + STR(format));
 
   size_t c = countDelimiters(text, ",");
@@ -766,6 +766,18 @@ string Segment::strTitleLIN_RP() const
 }
 
 
+string Segment::strTitleLIN_VG() const
+{
+  if (event == "")
+    return "vg|" + title + "," +
+        session.str(BRIDGE_FORMAT_LIN_VG) + "," +
+        scoring.str(BRIDGE_FORMAT_LIN) + "," +
+        Segment::strTitleLINCore() + "\n";
+  else
+    return Segment::strTitleLIN();
+}
+
+
 string Segment::strTitle(const Format format) const
 {
   // In LIN this is the entire vg field.
@@ -773,12 +785,14 @@ string Segment::strTitle(const Format format) const
   switch(format)
   {
     case BRIDGE_FORMAT_LIN:
-    case BRIDGE_FORMAT_LIN_VG:
     case BRIDGE_FORMAT_LIN_TRN:
       return Segment::strTitleLIN();
 
     case BRIDGE_FORMAT_LIN_RP:
       return Segment::strTitleLIN_RP();
+
+    case BRIDGE_FORMAT_LIN_VG:
+      return Segment::strTitleLIN_VG();
 
     case BRIDGE_FORMAT_PBN:
       if (title == "")

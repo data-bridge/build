@@ -63,6 +63,7 @@ class Segment
     string strTitleLINCore(const bool swapFlag = false) const;
     string strTitleLIN() const;
     string strTitleLIN_RP() const;
+    string strTitleLIN_VG() const;
     string strContractsCore(const Format format);
 
 
