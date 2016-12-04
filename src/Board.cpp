@@ -548,6 +548,18 @@ string Board::strDeal(
 }
 
 
+string Board::strDealRemain(const Format format) const
+{
+  RunningDD runningDD;
+  play[numActive].getStateDDS(runningDD);
+
+  Deal dltmp;
+  dltmp.set(runningDD.dl.remainCards);
+
+  return dltmp.str(auction[0].getDealer(), format);
+}
+
+
 string Board::strTableau(const Format format) const
 {
   return tableau.str(format);

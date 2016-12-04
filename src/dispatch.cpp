@@ -984,7 +984,9 @@ static bool storeChunk(
             " vs. DD " << setw(2) << right << ddRes << 
             " (min " << setw(2) << right << runningDD.tricksDecl << 
             ", max " << setw(2) << right << 13-runningDD.tricksDef << 
-            ")" << endl;
+            "), chunk " << counts.chunkno-1 << endl;
+
+          cout << board->strDealRemain(BRIDGE_FORMAT_TXT) << endl;
       }
     }
     else if (bex.isPlay())

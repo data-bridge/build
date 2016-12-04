@@ -295,6 +295,20 @@ void Deal::set(
   }
 }
 
+
+void Deal::set(const unsigned holdingArg[][BRIDGE_SUITS])
+{
+  if (setFlag)
+    THROW("Holding already set");
+
+  setFlag = true;
+
+  for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
+    for (unsigned s = 0; s < BRIDGE_SUITS; s++)
+      holding[p][s] = holdingArg[p][s] >> 2;
+}
+
+
 Player Deal::holdsCard(const string& text) const
 {
   if (text.length() != 2)

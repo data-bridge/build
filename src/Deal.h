@@ -74,6 +74,8 @@ class Deal
       const string& text,
       const Format format);
 
+    void set(const unsigned cards[][BRIDGE_SUITS]);
+
     Player holdsCard(const string& text) const;
 
     void getDDS(unsigned cards[][BRIDGE_SUITS]) const;

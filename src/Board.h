@@ -232,6 +232,7 @@ class Board
     string strDeal(
       const Player player,
       const Format format) const;
+    string strDealRemain(const Format format) const;
     string strTableau(const Format format) const;
     string strAuction(const Format format) const;
     string strContract(const Format format) const;
