@@ -958,7 +958,7 @@ static bool storeChunk(
       }
       else
       {
-        unsigned ddRes;
+        unsigned ddRes, hdrRes, chunkRes;
         try
         {
           ddRes = tricksDD(runningDD);
@@ -968,17 +968,28 @@ static bool storeChunk(
           UNUSED(bex2);
         }
 
-        if (headerRes == STR(ddRes))
+        if (! str2unsigned(headerRes, hdrRes) || 
+            ! str2unsigned(chunk[BRIDGE_FORMAT_RESULT], chunkRes))
+        {
+          cout << "Bad trick strings: " << headerRes << ", " <<
+            chunk[BRIDGE_FORMAT_RESULT] << endl;
+        }
+        else if (hdrRes == ddRes)
         {
           // Header wins if it agrees with double-dummy.
           storeHeaderResultWins(group.name(), counts.chunkno-1, headerRes);
           cout << "Wrote mc fix file with " << headerRes << " tricks\n";
         }
-        else if (chunk[BRIDGE_FORMAT_RESULT] == STR(ddRes))
+        else if (chunkRes == ddRes)
         {
+          // Play wins if it agrees with double-dummy.
           storePlayResultWins(group, segment, runningDD, ddRes);
+          cout << "Wrote hdr fix file with " << ddRes << " tricks\n";
         }
         else
+        {
+          // Hodge-podge.
+
           cout << "Header " << setw(2) << right << headerRes << 
             " mc " << setw(2) << right << chunk[BRIDGE_FORMAT_RESULT] << 
             " vs. DD " << setw(2) << right << ddRes << 
@@ -986,7 +997,35 @@ static bool storeChunk(
             ", max " << setw(2) << right << 13-runningDD.tricksDef << 
             "), chunk " << counts.chunkno-1 << endl;
 
+          if (hdrRes > 13 - runningDD.tricksDef)
+            cout << "Header tricks unreachable" << endl;
+
+          if (chunkRes > 13 - runningDD.tricksDef)
+            cout << "Play tricks unreachable" << endl;
+
+          const unsigned distHdr = 
+            (ddRes >= hdrRes ? ddRes-hdrRes : hdrRes-ddRes);
+          const unsigned distPlay = 
+            (ddRes >= chunkRes ? ddRes-chunkRes : chunkRes-ddRes);
+
+          if (distHdr > distPlay)
+          {
+            cout << "Play result is closer to DD\n";
+            storePlayResultWins(group, segment, runningDD, ddRes);
+            cout << "Wrote hdr fix file with " << ddRes << " tricks\n";
+          }
+          else if (distHdr < distPlay)
+          {
+            cout << "Header result is closer to DD\n";
+            storeHeaderResultWins(group.name(), 
+              counts.chunkno-1, headerRes);
+            cout << "Wrote mc fix file with " << headerRes << " tricks\n";
+          }
+          else
+            cout << "DD has equal distance\n";
+
           cout << board->strDealRemain(BRIDGE_FORMAT_TXT) << endl;
+        }
       }
     }
     else if (bex.isPlay())
