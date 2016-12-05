@@ -2,6 +2,8 @@
 * Find the occasional segfault
 * Detect uncaught exceptions in own code?
 * Shouldn't .ref be enough?
+* Have 3 levels of file writer: none, basic, all
+* Have a script that picks up ../../.. file by argument
 
 Likely order:
 * Make .skip files for 3-liners (don't move to .orig)

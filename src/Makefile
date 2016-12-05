@@ -45,6 +45,8 @@ SOURCE_FILES 	=		\
 	validateTXT.cpp		\
 	validateEML.cpp		\
 	validateREC.cpp		\
+	trace.cpp		\
+	StackWalker.cpp		\
 	reader.cpp
 
 DLIB		= dds.lib
@@ -56,6 +58,7 @@ CC_VS     	= cl
 WARN_FLAGS      =               \
         /Wall                   \
         /wd4061                 \
+        /wd4091                 \
         /wd4127                 \
         /wd4265                 \
         /wd4350                 \
@@ -72,6 +75,7 @@ WARN_FLAGS      =               \
         /WX
 
 CC_FLAGS_VS     = /O2 /Oi /Ot /Oy /GL /Zi /EHsc
+# CC_FLAGS_VS     = /O2 /Oi /Ot /Oy /GL /Zi /EHa /DEBUG
 CC_FLAGS_DEBUG  = /DEBUG
 
 
@@ -93,7 +97,7 @@ reader:	$(OBJ_FILES)
 	link /LTCG $(LD_FLAGS) $(OBJ_FILES) $(DLIB) /out:$(TEST).exe
 
 %.obj:	%.cpp
-	$(CC) $(CC_FLAGS) /c /EHsc $<
+	$(CC) $(CC_FLAGS) /c $<
 
 
 depend:
@@ -187,5 +191,7 @@ validateREC.obj: validateREC.h ValProfile.h validate.h Buffer.h valint.h
 validateREC.obj: bconst.h parse.h
 reader.obj: args.h bconst.h dispatch.h Files.h Timers.h Timer.h ValStats.h
 reader.obj: ValProfile.h validate.h Buffer.h valint.h TextStats.h CompStats.h
+reader.obj: trace.h
 reader.obj: args.h bconst.h dispatch.h Files.h Timers.h Timer.h ValStats.h
 reader.obj: ValProfile.h validate.h Buffer.h valint.h TextStats.h CompStats.h
+reader.obj: trace.h

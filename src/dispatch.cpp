@@ -31,6 +31,7 @@
 #include "parse.h"
 #include "Bexcept.h"
 #include "Bdiff.h"
+#include "trace.h"
 
 
 // Modulo 4, so West for Board "0" (4, 8, ...) etc.
@@ -396,6 +397,8 @@ void dispatch(
   FileTask task;
   string text;
   text.reserve(100000);
+try
+{
   while (files.next(task))
   {
     if (options.verboseIO)
@@ -452,6 +455,19 @@ void dispatch(
         remove(t.fileOutput.c_str());
     }
   }
+}
+catch (Bexcept& bex)
+{
+  cout << "Bex loose:\n";
+  bex.print(flog);
+  trace();
+}
+catch (Bdiff& bdiff)
+{
+  cout << "Bdiff loose:\n";
+  bdiff.print(flog);
+  trace();
+}
 }
 
 
@@ -1404,6 +1420,9 @@ static void writeFormattedFile(
 
   for (auto &segment: group)
   {
+    if (segment.size() == 0)
+      continue;
+
     (* formatFncs[format].writeSeg)(text, segment, format);
 
     writeInfo.numBoards = segment.size();

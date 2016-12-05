@@ -331,7 +331,7 @@ cout << "diffs " << diffs << "\n";
 
   // const string commas(q, ',');
   string lnew = STR(lineno) + " replace \"rs|" + 
-    string(p1, ',') + outPruned + string(valueRef.length()-q1, ',') + "|\"";
+    string(p1, ',') + outPruned + string(valueOut.length()-q1, ',') + "|\"";
   const string refName = changeExt(bufRefName, ".ref");
   appendFile(refName, lnew);
   return false;
