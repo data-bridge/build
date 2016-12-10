@@ -33,3 +33,4 @@
 *.vspx
 *.log
 *.lib
+*.skip

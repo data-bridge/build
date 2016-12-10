@@ -8,6 +8,7 @@
 
 
 #include <iostream>
+#include <fstream>
 #include <regex>
 
 
@@ -61,7 +62,8 @@ void Files::rewind()
 
 bool Files::fillEntry(
   const string& text,
-  FileEntry& entry) const
+  FileEntry& entry,
+  const bool checkSkip) const
 {
   regex re("([^./]+)\\.(\\w+)$");
   smatch match;
@@ -74,7 +76,14 @@ bool Files::fillEntry(
     if (entry.format == BRIDGE_FORMAT_LIN)
       entry.format = Files::guessLINFormat(entry.base);
 
-    return (entry.format != BRIDGE_FORMAT_SIZE);
+    if (entry.format == BRIDGE_FORMAT_SIZE)
+      return false;
+    else if (! checkSkip)
+      return true;
+    
+    string skip = changeExt(text, ".skip");
+    ifstream fin(skip);
+    return ! fin.good();
   }
   else
     return false;
@@ -84,7 +93,8 @@ bool Files::fillEntry(
 void Files::buildFileList(
   const string& dirName,
   vector<FileEntry>& fileList,
-  const Format formatOnly)
+  const Format formatOnly,
+  const bool checkSkip)
 {
   DIR *dir;
   struct dirent *ent;
@@ -99,7 +109,7 @@ void Files::buildFileList(
     switch(ent->d_type)
     {
       case DT_REG:
-        if (Files::fillEntry(s, entry))
+        if (Files::fillEntry(s, entry, checkSkip))
         {
           if (formatOnly == BRIDGE_FORMAT_SIZE || 
               entry.format == formatOnly)
@@ -111,7 +121,7 @@ void Files::buildFileList(
         if (strcmp(ent->d_name, ".") != 0 &&
             strcmp(ent->d_name, "..") != 0)
         {
-          Files::buildFileList(s, fileList, formatOnly);
+          Files::buildFileList(s, fileList, formatOnly, checkSkip);
         }
 
       default:
@@ -201,11 +211,12 @@ void Files::set(const Options& options)
   if (options.fileInput.setFlag)
   {
     FileEntry e;
-    Files::fillEntry(options.fileInput.name, e);
-    inputList.push_back(e);
+    if (Files::fillEntry(options.fileInput.name, e, true))
+      inputList.push_back(e);
   }
   else
-    Files::buildFileList(options.dirInput.name, inputList);
+    Files::buildFileList(options.dirInput.name, inputList, 
+      BRIDGE_FORMAT_SIZE, true);
 
   // Set refMap, a map of reference files indexed by basename
   if (options.fileRef.setFlag)
@@ -227,7 +238,8 @@ void Files::set(const Options& options)
   if (options.fileOutput.setFlag)
   {
     keepFlag = true;
-    Files::fillEntry(options.fileOutput.name, oe);
+    if (! Files::fillEntry(options.fileOutput.name, oe))
+      return;
 
     outputList.push_back(oe);
     flist.push_back(oe.format);
