@@ -85,6 +85,51 @@ static string fixTricksRS(
 }
 
 
+static void writeTricksMC(
+  const Buffer& buffer,
+  const Counts& counts,
+  const string& fname,
+  const string& tricks,
+  const RefLevel refLevel)
+{
+  unsigned lineno = counts.lno[BRIDGE_FORMAT_RESULT];
+  string fixed;
+  fixTricksMC(buffer.getLine(lineno), tricks, fixed);
+  if (refLevel != REF_LEVEL_NONE)
+  {
+    appendFile(fname, lineno, "replace", fixed);
+    cout << "Wrote mc with " << tricks << " tricks\n";
+  }
+  else
+  {
+    cout << "XX2 Wanted to write mc with " << tricks << " tricks\n";
+    cout << lineno << " replace \"" << fixed << "\"\n";
+  }
+}
+
+
+static void writeTricksRS(
+  Segment * segment,
+  const Buffer& buffer,
+  const string& fname,
+  const unsigned tricks,
+  const RefLevel refLevel)
+{
+  string fixed = fixTricksRS(segment, tricks);
+  unsigned rsNo = buffer.firstRS();
+  if (refLevel != REF_LEVEL_NONE)
+  {
+    appendFile(fname, rsNo, "replace", fixed);
+    cout << "Wrote rs with " << tricks << " tricks\n";
+  }
+  else
+  {
+    cout << "XX1 Wanted to write rs with " << tricks << " tricks\n";
+    cout << rsNo << " replace \"" << fixed << "\"\n";
+  }
+}
+
+
 static void adjustContractDeclarer(
   string& contractHeader, 
   const string& declarer)
@@ -200,21 +245,9 @@ void heurFixTricks(
 
   if (board->playIsOver())
   {
-    string fixed = fixTricksRS(segment, runningDD.tricksDecl);
-    unsigned rsNo = buffer.firstRS();
-    if (options.refLevel != REF_LEVEL_NONE)
-    {
-      // Actual tricks win if the hand is played out completely.
-      appendFile(nameRef, rsNo, "replace", fixed);
-      cout << "Wrote play result with " << runningDD.tricksDecl <<
-        " tricks\n";
-    }
-    else
-    {
-      cout << "XX1 Wanted to write rs with " << runningDD.tricksDecl <<
-        " tricks\n";
-      cout << rsNo << " replace \"" << fixed << "\"\n";
-    }
+    // Play wins if it is complete.
+    writeTricksRS(segment, buffer, nameRef, runningDD.tricksDecl,
+      options.refLevel);
   }
   else
   {
@@ -237,35 +270,12 @@ void heurFixTricks(
     else if (hdrRes == ddRes)
     {
       // Header wins if it agrees with double-dummy.
-      unsigned lineno = counts.lno[BRIDGE_FORMAT_RESULT];
-      string fixed;
-      fixTricksMC(buffer.getLine(lineno), headerRes, fixed);
-      if (options.refLevel != REF_LEVEL_NONE)
-      {
-        appendFile(nameRef, lineno, "replace", fixed);
-        cout << "Wrote mc with " << headerRes << " tricks\n";
-      }
-      else
-      {
-        cout << "XX2 Wanted to write mc with " << headerRes << " tricks\n";
-        cout << lineno << " replace \"" << fixed << "\"\n";
-      }
+      writeTricksMC(buffer, counts, nameRef, headerRes, options.refLevel);
     }
     else if (chunkRes == ddRes)
     {
       // Play wins if it agrees with double-dummy.
-      string fixed = fixTricksRS(segment, ddRes);
-      unsigned rsNo = buffer.firstRS();
-      if (options.refLevel != REF_LEVEL_NONE)
-      {
-        appendFile(nameRef, rsNo, "replace", fixed);
-        cout << "Wrote play result with " << ddRes << " tricks\n";
-      }
-      else
-      {
-        cout << "XX3 Wanted to write rs with " << ddRes << " tricks\n";
-        cout << rsNo << " replace \"" << fixed << "\"\n";
-      }
+      writeTricksRS(segment, buffer, nameRef, ddRes, options.refLevel);
     }
     else
     {
@@ -291,36 +301,15 @@ void heurFixTricks(
 
       if (distHdr > distPlay)
       {
+        // Play wins if it is closer to double-dummy.
         cout << "Play result is closer to DD\n";
-        string fixed = fixTricksRS(segment, ddRes);
-        unsigned rsNo = buffer.firstRS();
-        if (options.refLevel == REF_LEVEL_ALL)
-        {
-          appendFile(nameRef, rsNo, "replace", fixed);
-          cout << "Wrote play result with " << ddRes << " tricks\n";
-        }
-        else
-        {
-          cout << "XX4 Wanted to write rs with " << ddRes << " tricks\n";
-          cout << rsNo << " replace \"" << fixed << "\"\n";
-        }
+        writeTricksRS(segment, buffer, nameRef, ddRes, options.refLevel);
       }
       else if (distHdr < distPlay)
       {
+        // Header wins if it is closer to double-dummy.
         cout << "Header result is closer to DD\n";
-        string fixed;
-        unsigned lineno = counts.lno[BRIDGE_FORMAT_RESULT];
-        if (options.refLevel == REF_LEVEL_ALL)
-        {
-          fixTricksMC(buffer.getLine(lineno), headerRes, fixed);
-          appendFile(nameRef, lineno, "replace", fixed);
-          cout << "Wrote mc with " << headerRes << " tricks\n";
-        }
-        else
-        {
-          cout << "Wanted to write mc with " << headerRes << " tricks\n";
-          cout << lineno << " replace \"" << fixed << "\"\n";
-        }
+        writeTricksMC(buffer, counts, nameRef, headerRes, options.refLevel);
       }
       else
         cout << "DD has equal distance\n";
