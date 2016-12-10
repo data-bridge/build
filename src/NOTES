@@ -1,12 +1,29 @@
+* Move Options to write none, basic or all (3 levels)
+* .fix should no longer be needed, or needed as much?
+  - Rerun RPmajors
+  - No more writing in validateLIN
+* Clean up code in validateLIN and dispatch
+* Add skip keyword to .ref (skips whole file)
+* Add 10-19 delete (or skip) to skip lines
+* Then get rid of .orig files
+* Get RPmajors to run with -s and -c as well
+  - EML missing contract has to be a .fix-type input
+  - Maybe .ref has an augment keyword as well /(by chunk or
+    board number or something like that)
+  - So
+    insert (-> add) line number ""
+    replace (-> change) line number ""
+    delete line number1 line number2
+    skip (entire file)
+    augment bno instNo|open|closed "Contract" "value"
+    But how to get augmented data into readChunk?
+
+
+
 * appendFile should keep stuff in order and not duplicative
-* Find the occasional segfault
-* Detect uncaught exceptions in own code?
-* Shouldn't .ref be enough?
-* Have 3 levels of file writer: none, basic, all
 * Have a script that picks up ../../.. file by argument
 
 Likely order:
-* Make .skip files for 3-liners (don't move to .orig)
 * Ditto for files with only North,West etc.
 * Ditto for files with only md||
 * Turn off speculative file writers
@@ -29,6 +46,7 @@ Difference in declarer/denomination
 * Both different
   - Check manually
 
+Find the occasional segfault
             #qx
 LIN_VG  948,965
 LIN_RP   80,138

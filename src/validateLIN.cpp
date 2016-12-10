@@ -334,6 +334,7 @@ cout << "diffs " << diffs << "\n";
     string(p1, ',') + outPruned + string(valueOut.length()-q1, ',') + "|\"";
   const string refName = changeExt(bufRefName, ".ref");
   appendFile(refName, lnew);
+cout << "ERROR1\n";
   return false;
 }
 
@@ -421,6 +422,7 @@ bool validateLIN(
 
       const string refName = changeExt(valState.bufferRef.name(), ".ref");
       appendFile(refName, lref);
+cout << "ERROR2\n";
       prof.log(BRIDGE_VAL_VG_MC, valState);
       return true;
     }

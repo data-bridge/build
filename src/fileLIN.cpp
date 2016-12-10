@@ -153,6 +153,9 @@ void readLINChunk(
     chunk[BRIDGE_FORMAT_AUCTION] += "\n" + alerts.str();
   if (! qxSeen && buffer.peek() != 0x00)
     THROW("No deal found");
+  if (chunk[BRIDGE_FORMAT_BOARD_NO] != "" &&
+      chunk[BRIDGE_FORMAT_DEAL] == "")
+    THROW("No LIN cards found (md)");
 }
 
 

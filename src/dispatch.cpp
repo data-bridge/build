@@ -263,12 +263,21 @@ void setTables()
 }
 
 
-static void dispatchRead(
+static bool dispatchRead(
   const FileTask& task,
-  const Options& options,
   Group& group,
+  const Options& options,
+  Timers &timers,
   ostream& flog)
 {
+  timers.start(BRIDGE_TIMER_READ, task.formatInput);
+  bool b = readFormattedFile(task.fileInput,
+    task.formatInput, group, options, flog);
+  timers.stop(BRIDGE_TIMER_READ, task.formatInput);
+
+  return b;
+
+  /*
   try
   {
     if (! readFormattedFile(task.fileInput,
@@ -281,6 +290,7 @@ static void dispatchRead(
   {
     bex.print(flog);
   }
+  */
 }
 
 
@@ -310,6 +320,8 @@ static void dispatchWrite(
   try
   {
     text = "";
+if (otask.fileRef == "../../../bridgedata/hands/BBOVG/032000/32049.lin")
+  cout << "HERE\n";
     writeFormattedFile(group, otask.fileOutput, text, otask.formatOutput);
   }
   catch (Bexcept& bex)
@@ -405,9 +417,13 @@ try
       flog << "Input " << task.fileInput << endl;
 
     Group group;
-    timers.start(BRIDGE_TIMER_READ, task.formatInput);
-    dispatchRead(task, options, group, flog);
-    timers.stop(BRIDGE_TIMER_READ, task.formatInput);
+    // timers.start(BRIDGE_TIMER_READ, task.formatInput);
+    if (! dispatchRead(task, group, options, timers, flog))
+    {
+      flog << "Failed to read " << task.fileInput << endl;
+      continue;
+    }
+    // timers.stop(BRIDGE_TIMER_READ, task.formatInput);
 
     if (options.statsFlag)
     {
@@ -1212,8 +1228,10 @@ static bool readFormattedFile(
 {
   Buffer buffer;
   buffer.read(fname, format);
+  buffer.fix(fname);
 
   vector<Fix> fix;
+  fix.clear();
   readFix(fname, fix);
 
   group.setName(fname);

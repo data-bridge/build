@@ -9,6 +9,7 @@
 #include <string>
 #include <iomanip>
 #include <sstream>
+#include <assert.h>
 
 #if defined(_WIN32) && defined(__MINGW32__)
   #include "mingw.mutex.h"
@@ -55,7 +56,6 @@ void TextStats::reset()
     stats[f].resize(BRIDGE_STATS_NUM_FIELDS);
     for (unsigned l = 0; l < BRIDGE_STATS_NUM_FIELDS; l++)
     {
-      stats[f][l].datum.reserve(BRIDGE_STATS_MAX_LENGTH);
       stats[f][l].count = 0;
       stats[f][l].datum.resize(BRIDGE_STATS_MAX_LENGTH);
       for (unsigned i = 0; i < BRIDGE_STATS_MAX_LENGTH; i++)
@@ -71,8 +71,8 @@ void TextStats::reset()
 
 void TextStats::setTables()
 {
-  for (unsigned f = 0; f < BRIDGE_FORMAT_SIZE; f++)
-    BRIDGE_STATS_MAP[f] = BRIDGE_FORMAT_SIZE;
+  for (unsigned lb = 0; lb < BRIDGE_FORMAT_LABELS_SIZE; lb++)
+    BRIDGE_STATS_MAP[lb] = BRIDGE_FORMAT_LABELS_SIZE;
 
   BRIDGE_STATS_MAP[BRIDGE_FORMAT_TITLE] = 0;
   BRIDGE_STATS_MAP[BRIDGE_FORMAT_LOCATION] = 1;
@@ -99,6 +99,7 @@ void TextStats::add(
   const Format format)
 {
   unsigned lb = BRIDGE_STATS_MAP[label];
+  assert(lb < BRIDGE_STATS_NUM_FIELDS);
   unsigned len = text.length();
   if (stats[format][lb].datum[len].count == 0)
   {
@@ -117,6 +118,7 @@ void TextStats::add(
   const Format format)
 {
   unsigned lb = BRIDGE_STATS_MAP[label];
+  assert(lb < BRIDGE_STATS_NUM_FIELDS);
   if (stats[format][lb].datum[len].count == 0)
     stats[format][lb].datum[len].source = basefile(source);
 
