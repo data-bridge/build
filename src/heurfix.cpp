@@ -145,12 +145,41 @@ static void fixDeclarerContract(
 }
 
 
+static void fixDenomContract(
+  string& contractHeader, 
+  const string& denom)
+{
+  const unsigned l = contractHeader.length();
+  if (l < 4)
+    THROW("Contract too short: " + contractHeader);
+
+  if (denom.length() != 1)
+    THROW("Denomination length not 1: " + denom);
+
+  contractHeader.replace(1, 1, denom);
+}
+
+
 static string fixDeclarerRS(
   Segment * segment, 
   const string& declarer)
 {
   string contractHeader = segment->contractFromHeader();
   fixDeclarerContract(contractHeader, declarer);
+
+  if (! segment->setContractInHeader(contractHeader))
+    THROW("Could not rewrite header contract");
+
+  return "rs|" + segment->strContracts(BRIDGE_FORMAT_PAR) + + "|";
+}
+
+
+static string fixDenomRS(
+  Segment * segment, 
+  const string& denom)
+{
+  string contractHeader = segment->contractFromHeader();
+  fixDenomContract(contractHeader, denom);
 
   if (! segment->setContractInHeader(contractHeader))
     THROW("Could not rewrite header contract");
@@ -181,48 +210,25 @@ static void writeDeclarerRS(
 }
 
 
-static void adjustContractDenom(
-  string& contractHeader, 
-  const string& denom)
+static void writeDenomRS(
+  Segment * segment,
+  const Buffer& buffer,
+  const string& fname,
+  const string& denom,
+  const RefLevel refLevel)
 {
-  const unsigned l = contractHeader.length();
-  if (l < 4)
-    THROW("Contract too short: " + contractHeader);
-
-  if (denom.length() != 1)
-    THROW("Denomination length not 1: " + denom);
-
-  contractHeader.replace(1, 1, denom);
-}
-
-
-static void storeAuctionContractDenomWins(
-  const Group& group, 
-  Segment * segment, 
-  const unsigned lineno,
-  const string& denom)
-{
-  string fname = changeExt(group.name(), ".ref");
-  if (fname == "")
+  const string fixed = fixDenomRS(segment, denom);
+  unsigned rsNo = buffer.firstRS();
+  if (refLevel != REF_LEVEL_NONE)
   {
-    cout << "Wanted to write rs fix file " << fname << " with " << 
-      denom << " as denomination\n";
-    return;
+    appendFile(fname, rsNo, "replace", fixed);
+    cout << "Wrote rs with " << denom << " as denom\n";
   }
-
-  string contractHeader = segment->contractFromHeader();
-  adjustContractDenom(contractHeader, denom);
-
-  // TODO: Common among all adjust functions.
-
-  if (! segment->setContractInHeader(contractHeader))
-    THROW("Could not rewrite header contract");
-
-  const string resHeader = "rs|" +
-    segment->strContracts(BRIDGE_FORMAT_PAR) + + "|";
-
-  // Actual tricks win if the hand is played out completely.
-  appendFile(fname, lineno, "replace", resHeader);
+  else
+  {
+    cout << "Wanted to write rs with " << denom << " as denom\n";
+    cout << rsNo << " replace \"" << fixed << "\"\n";
+  }
 }
 
 
@@ -310,17 +316,17 @@ void heurFixTricks(
       if (distHdr > distPlay)
       {
         // Play wins if it is closer to double-dummy.
-        cout << "Play result is closer to DD\n";
-        writeTricksRS(segment, buffer, nameRef, ddRes, options.refLevel);
+        cout << "XX0 Play result is closer to DD\n";
+        // writeTricksRS(segment, buffer, nameRef, ddRes, options.refLevel);
       }
       else if (distHdr < distPlay)
       {
         // Header wins if it is closer to double-dummy.
-        cout << "Header result is closer to DD\n";
-        writeTricksMC(buffer, counts, nameRef, headerRes, options.refLevel);
+        cout << "XX1 Header result is closer to DD\n";
+        // writeTricksMC(buffer, counts, nameRef, headerRes, options.refLevel);
       }
       else
-        cout << "DD has equal distance\n";
+        cout << "XX2 DD has equal distance\n";
 
       cout << board->strDealRemain(BRIDGE_FORMAT_TXT) << endl;
     }
@@ -377,17 +383,8 @@ void heurFixPlayDD(
   {
     if (declAuction == declLead)
     {
-      if (options.refLevel != REF_LEVEL_NONE)
-      {
-        unsigned rsNo = buffer.firstRS();
-        storeAuctionContractDenomWins(group, segment, 
-          rsNo, denomAuction);
-        cout << "Fixed denom in header\n";
-      }
-      else
-      {
-        cout << "YY1 Wanted to fix denom in header\n";
-      }
+      writeDenomRS(segment, buffer, nameRef, denomAuction,
+        options.refLevel);
     }
     else if (declLead == "")
       cout << "YY2 Would like to fix denom, probably in header\n";

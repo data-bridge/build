@@ -1,5 +1,3 @@
-Clean up code in dispatch, move to heurist.
-
 Buffer should pick up .ref automatically.
 
 No % comment in LIN except LIN_RP.
