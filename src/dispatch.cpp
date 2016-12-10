@@ -353,8 +353,7 @@ static void dispatchCompare(
 
     buffer.split(text, format);
     fix.clear();
-    UNUSED(fname);
-    // readFix(fname, fix);
+    readFix(fname, fix);
 
     readFormattedFile(buffer, fix, format, groupNew, options, flog);
 
@@ -455,12 +454,14 @@ try
 }
 catch (Bexcept& bex)
 {
+  // TODO Can probably go at some point.
   cout << "Bex loose:\n";
   bex.print(flog);
   trace();
 }
 catch (Bdiff& bdiff)
 {
+  // TODO Can probably go at some point.
   cout << "Bdiff loose:\n";
   bdiff.print(flog);
   trace();

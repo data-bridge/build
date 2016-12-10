@@ -1,6 +1,10 @@
-* Permit reading .fix also for EML compare file
-* RPmajors should then also run with -c
-* Clean up code in dispatch
+Clean up code in dispatch, move to heurist.
+
+Buffer should pick up .ref automatically.
+
+No % comment in LIN except LIN_RP.
+
+Make prettier line break in LIN print except LIN_RP.
 
 Likely order:
 * Ditto for files with only North,West etc.
@@ -19,10 +23,6 @@ validate:
 
 update Pavlicek missive and Excel
 
-Make prettier line break in LIN print except LIN_RP.
-
-No % comment in LIN except LIN_RP.
-
 Still segfault at end?
 
 Functionality
@@ -35,8 +35,6 @@ LIN VG
 - Parse headers for semantic content
 LIN shein
 LIN tourneys
-
-LIN as it is now, and modified Buffer
 
 Test on concatenated RBN file
 
