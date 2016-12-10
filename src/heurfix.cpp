@@ -11,7 +11,6 @@
 
 #include <iomanip>
 #include <sstream>
-// #include <fstream>
 
 #include "heurfix.h"
 #include "ddsIF.h"
@@ -20,16 +19,11 @@
 #include "Bexcept.h"
 
 
-static void storeHeaderResultWins(
-  const string& nameLIN,
+static void fixTricksMC(
   const string& text,
-  const unsigned lineno,
-  const string& tricks)
+  const string& tricks,
+  string& fixed)
 {
-  if (nameLIN.length() < 5)
-    THROW("Too short filename");
-  string nameRef = changeExt(nameLIN, ".ref");
-
   size_t tp0 = text.find("mc|");
   if (tp0 == string::npos || tp0+3 >= text.length())
     return;
@@ -38,15 +32,13 @@ static void storeHeaderResultWins(
   if (tp1 == string::npos)
     return;
 
-  string target = text;
-  target.erase(tp0+3, tp1 - (tp0+3));
-  target.insert(tp0+3, tricks);
-
-  appendFile(nameRef, lineno, "replace", target);
+  fixed = text;
+  fixed.erase(tp0+3, tp1 - (tp0+3));
+  fixed.insert(tp0+3, tricks);
 }
 
 
-static void adjustContractTricks(
+static void fixTricksContract(
   string& contractHeader, 
   const unsigned tricks)
 {
@@ -79,32 +71,17 @@ static void adjustContractTricks(
 }
 
 
-static void storePlayResultWins(
-  const Group& group, 
+static string fixTricksRS(
   Segment * segment, 
-  const unsigned lineno,
   const unsigned tricks)
 {
-  string fname = changeExt(group.name(), ".ref");
-  if (fname == "")
-  {
-    cout << "Wanted to write rs file " << fname << " with " << 
-      tricks << " tricks\n";
-    return;
-  }
-
   string contractHeader = segment->contractFromHeader();
-  adjustContractTricks(contractHeader, tricks);
+  fixTricksContract(contractHeader, tricks);
 
   if (! segment->setContractInHeader(contractHeader))
     THROW("Could not rewrite header contract");
 
-  const string resHeader = "rs|" + 
-    segment->strContracts(BRIDGE_FORMAT_PAR) + + "|";
-
-
-  // Actual tricks win if the hand is played out completely.
-  appendFile(fname, lineno, "replace", resHeader);
+  return "rs|" + segment->strContracts(BRIDGE_FORMAT_PAR) + + "|";
 }
 
 
@@ -214,19 +191,29 @@ void heurFixTricks(
   RunningDD runningDD;
   board->getStateDDS(runningDD);
 
+  string nameRef = changeExt(group.name(), ".ref");
+  if (nameRef == "")
+  {
+    cout << "XX0 Couldn't make a ref name: " << group.name() << endl;
+    return;
+  }
+
   if (board->playIsOver())
   {
+    string fixed = fixTricksRS(segment, runningDD.tricksDecl);
+    unsigned rsNo = buffer.firstRS();
     if (options.refLevel != REF_LEVEL_NONE)
     {
-      unsigned rsNo = buffer.firstRS();
-      storePlayResultWins(group, segment, rsNo, runningDD.tricksDecl);
+      // Actual tricks win if the hand is played out completely.
+      appendFile(nameRef, rsNo, "replace", fixed);
       cout << "Wrote play result with " << runningDD.tricksDecl <<
         " tricks\n";
     }
     else
     {
-      cout << "Wanted to write play result " << runningDD.tricksDecl <<
+      cout << "XX1 Wanted to write rs with " << runningDD.tricksDecl <<
         " tricks\n";
+      cout << rsNo << " replace \"" << fixed << "\"\n";
     }
   }
   else
@@ -250,31 +237,34 @@ void heurFixTricks(
     else if (hdrRes == ddRes)
     {
       // Header wins if it agrees with double-dummy.
+      unsigned lineno = counts.lno[BRIDGE_FORMAT_RESULT];
+      string fixed;
+      fixTricksMC(buffer.getLine(lineno), headerRes, fixed);
       if (options.refLevel != REF_LEVEL_NONE)
       {
-        unsigned ll = counts.lno[BRIDGE_FORMAT_RESULT];
-        storeHeaderResultWins(group.name(), 
-          buffer.getLine(ll), ll, headerRes);
+        appendFile(nameRef, lineno, "replace", fixed);
         cout << "Wrote mc with " << headerRes << " tricks\n";
       }
       else
       {
-        cout << "Wanted to write mc with " << headerRes << " tricks\n";
+        cout << "XX2 Wanted to write mc with " << headerRes << " tricks\n";
+        cout << lineno << " replace \"" << fixed << "\"\n";
       }
     }
     else if (chunkRes == ddRes)
     {
       // Play wins if it agrees with double-dummy.
+      string fixed = fixTricksRS(segment, ddRes);
+      unsigned rsNo = buffer.firstRS();
       if (options.refLevel != REF_LEVEL_NONE)
       {
-        unsigned rsNo = buffer.firstRS();
-        storePlayResultWins(group, segment, rsNo, ddRes);
-        cout << "Wrote rs header with " << ddRes << " tricks\n";
+        appendFile(nameRef, rsNo, "replace", fixed);
+        cout << "Wrote play result with " << ddRes << " tricks\n";
       }
       else
       {
-        cout << "Wanted to rs write header with " << ddRes << 
-          " tricks\n";
+        cout << "XX3 Wanted to write rs with " << ddRes << " tricks\n";
+        cout << rsNo << " replace \"" << fixed << "\"\n";
       }
     }
     else
@@ -302,32 +292,34 @@ void heurFixTricks(
       if (distHdr > distPlay)
       {
         cout << "Play result is closer to DD\n";
+        string fixed = fixTricksRS(segment, ddRes);
+        unsigned rsNo = buffer.firstRS();
         if (options.refLevel == REF_LEVEL_ALL)
         {
-          unsigned rsNo = buffer.firstRS();
-          storePlayResultWins(group, segment, rsNo, ddRes);
-          cout << "Wrote header with " << ddRes << " tricks\n";
+          appendFile(nameRef, rsNo, "replace", fixed);
+          cout << "Wrote play result with " << ddRes << " tricks\n";
         }
         else
         {
-          cout << "Wanted to write header with " << 
-            ddRes << " tricks\n";
+          cout << "XX4 Wanted to write rs with " << ddRes << " tricks\n";
+          cout << rsNo << " replace \"" << fixed << "\"\n";
         }
       }
       else if (distHdr < distPlay)
       {
         cout << "Header result is closer to DD\n";
+        string fixed;
+        unsigned lineno = counts.lno[BRIDGE_FORMAT_RESULT];
         if (options.refLevel == REF_LEVEL_ALL)
         {
-          unsigned ll = counts.lno[BRIDGE_FORMAT_RESULT];
-          storeHeaderResultWins(group.name(), 
-            buffer.getLine(ll), ll, headerRes);
+          fixTricksMC(buffer.getLine(lineno), headerRes, fixed);
+          appendFile(nameRef, lineno, "replace", fixed);
           cout << "Wrote mc with " << headerRes << " tricks\n";
         }
         else
         {
-          cout << "Wanted to write mc with " << headerRes << 
-            " tricks\n";
+          cout << "Wanted to write mc with " << headerRes << " tricks\n";
+          cout << lineno << " replace \"" << fixed << "\"\n";
         }
       }
       else
