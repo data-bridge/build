@@ -130,7 +130,7 @@ static void writeTricksRS(
 }
 
 
-static void adjustContractDeclarer(
+static void fixDeclarerContract(
   string& contractHeader, 
   const string& declarer)
 {
@@ -145,31 +145,39 @@ static void adjustContractDeclarer(
 }
 
 
-static void storeAuctionContractDeclWins(
-  const Group& group, 
+static string fixDeclarerRS(
   Segment * segment, 
-  const unsigned lineno,
   const string& declarer)
 {
-  string fname = changeExt(group.name(), ".ref");
-  if (fname == "")
-  {
-    cout << "Wanted to write rs fix file " << fname << " with " << 
-      declarer << " as declarer\n";
-    return;
-  }
-
   string contractHeader = segment->contractFromHeader();
-  adjustContractDeclarer(contractHeader, declarer);
+  fixDeclarerContract(contractHeader, declarer);
 
   if (! segment->setContractInHeader(contractHeader))
     THROW("Could not rewrite header contract");
 
-  const string resHeader = "rs|" +
-    segment->strContracts(BRIDGE_FORMAT_PAR) + + "|";
+  return "rs|" + segment->strContracts(BRIDGE_FORMAT_PAR) + + "|";
+}
 
-  // Actual tricks win if the hand is played out completely.
-  appendFile(fname, lineno, "replace", resHeader);
+
+static void writeDeclarerRS(
+  Segment * segment,
+  const Buffer& buffer,
+  const string& fname,
+  const string& declarer,
+  const RefLevel refLevel)
+{
+  const string fixed = fixDeclarerRS(segment, declarer);
+  unsigned rsNo = buffer.firstRS();
+  if (refLevel != REF_LEVEL_NONE)
+  {
+    appendFile(fname, rsNo, "replace", fixed);
+    cout << "Wrote rs with " << declarer << " as declarer\n";
+  }
+  else
+  {
+    cout << "Wanted to write rs with " << declarer << " as declarer\n";
+    cout << rsNo << " replace \"" << fixed << "\"\n";
+  }
 }
 
 
@@ -337,6 +345,7 @@ void heurFixPlayDD(
 
   const string declAuction = board->strDeclarerPlay(BRIDGE_FORMAT_PAR);
   const string denomAuction = board->strDenomPlay(BRIDGE_FORMAT_PAR);
+
   string declLead = "";
   if (chunk[BRIDGE_FORMAT_PLAY].length() >= 2)
   {
@@ -357,6 +366,13 @@ void heurFixPlayDD(
   else
     cout << "Lead " << declLead << "\n";
 
+  string nameRef = changeExt(group.name(), ".ref");
+  if (nameRef == "")
+  {
+    cout << "YY0 Couldn't make a ref name: " << group.name() << endl;
+    return;
+  }
+
   if (declAuction == declHeader)
   {
     if (declAuction == declLead)
@@ -366,17 +382,17 @@ void heurFixPlayDD(
         unsigned rsNo = buffer.firstRS();
         storeAuctionContractDenomWins(group, segment, 
           rsNo, denomAuction);
-        cout << "E1 Fixed denom typo in header\n";
+        cout << "Fixed denom in header\n";
       }
       else
       {
-        cout << "E1 Wanted to fix denom typo in header\n";
+        cout << "YY1 Wanted to fix denom in header\n";
       }
     }
     else if (declLead == "")
-      cout << "E2 Would like to fix denom typo, probably in header\n";
+      cout << "YY2 Would like to fix denom, probably in header\n";
     else
-      cout << "E3 Would like to fix denom typo, but odd\n";
+      cout << "YY3 Would like to fix denom, but odd\n";
   }
   else if (denomAuction == denomHeader)
   {
@@ -387,45 +403,33 @@ void heurFixPlayDD(
     {
       if (declLead == declAuction)
       {
-        if (options.refLevel != REF_LEVEL_NONE)
-        {
-          unsigned rsNo = buffer.firstRS();
-          storeAuctionContractDeclWins(group, segment, 
-            rsNo, declAuction);
-          cout << "E4 Fixed decl typo in header\n";
-        }
-        else
-          cout << "E4 Wanted to fix decl typo in header\n";
+        // If lead and auction agree, we fix the header.
+        writeDeclarerRS(segment, buffer, nameRef, declAuction,
+          options.refLevel);
       }
       else if (declLead == "")
-        cout << "E5 Would like to fix decl typo, probably in header\n";
+        cout << "YY5 Would like to fix declarer, probably in header\n";
       else
-        cout << "E6 Would like to fix decl typo, auction very wrong?\n";
+        cout << "YY6 Would like to fix declarer, auction very wrong?\n";
     }
     else if (declLead == declHeader)
-      cout << "E7 Would like to fix decl typo, likely in auction\n";
+      cout << "YY7 Would like to fix decl typo, likely in auction\n";
     else if (declLead == declAuction)
     {
-      if (options.refLevel != REF_LEVEL_NONE)
-      {
-        unsigned rsNo = buffer.firstRS();
-        storeAuctionContractDeclWins(group, segment, 
-          rsNo, declAuction);
-        cout << "E8 Fixed declarer typo in header\n";
-      }
-      else
-        cout << "E8 Wanted to fix declarer typo in header\n";
+      // If lead and auction agree, we fix the header.
+      writeDeclarerRS(segment, buffer, nameRef, declAuction,
+        options.refLevel);
     }
     else if (declLead == "")
-      cout << "E9 Would like to fix decl typo, probably in auction\n";
+      cout << "YY9 Would like to fix declarer, probably in auction\n";
     else
-      cout << "EA Would like to fix decl typo, but odd auction\n";
+      cout << "YYA Would like to fix declarer, but odd auction\n";
   }
   else if (declLead == declHeader)
-    cout << "EB Would like to fix denom typo, likely in auction\n";
+    cout << "YYB Would like to fix denom, likely in auction\n";
   else if (declLead == declAuction)
-    cout << "EC Would like to fix denom typo, likely in header\n";
+    cout << "YYC Would like to fix denom, likely in header\n";
   else
-    cout << "ED Not sure what is going on\n";
+    cout << "YYD Not sure what is going on\n";
 }
 
