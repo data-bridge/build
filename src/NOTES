@@ -19,9 +19,7 @@
     But how to get augmented data into readChunk?
 
 
-
 * appendFile should keep stuff in order and not duplicative
-* Have a script that picks up ../../.. file by argument
 
 Likely order:
 * Ditto for files with only North,West etc.
@@ -46,7 +44,6 @@ Difference in declarer/denomination
 * Both different
   - Check manually
 
-Find the occasional segfault
             #qx
 LIN_VG  948,965
 LIN_RP   80,138

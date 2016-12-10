@@ -218,6 +218,15 @@ struct FileOption
   string name;
 };
 
+// ref file option.
+
+enum RefLevel
+{
+  REF_LEVEL_NONE = 0,
+  REF_LEVEL_SOME = 1,
+  REF_LEVEL_ALL = 2
+};
+
 struct Options
 {
   FileOption fileInput; // -i, --infile
@@ -237,6 +246,8 @@ struct Options
   Format format;
 
   bool statsFlag; // -s, --stats
+
+  RefLevel refLevel;
 
   unsigned numThreads;
 

@@ -29,7 +29,7 @@ struct OptEntry
   unsigned numArgs;
 };
 
-#define BRIDGE_NUM_OPTIONS 12
+#define BRIDGE_NUM_OPTIONS 13
 
 static const OptEntry OPT_LIST[BRIDGE_NUM_OPTIONS] =
 {
@@ -42,6 +42,7 @@ static const OptEntry OPT_LIST[BRIDGE_NUM_OPTIONS] =
   {"l", "logfile", 1},
   {"c", "compare", 0},
   {"f", "format", 1},
+  {"w", "write", 1},
   {"s", "stats", 0},
   {"n", "threads", 1},
   {"v", "verbose", 1}
@@ -92,6 +93,9 @@ void usage(
     "-f, --format s     Output format for -O (default: ALL).\n" <<
     "                   Values LIN, PBN, RBN, TXT, EML, DOC, REC, ALL.\n" <<
     "                   Some dialects are set by the input filename.\n" <<
+    "\n" <<
+    "-w, --write s      Write .ref file for next run (default: 0).\n" <<
+    "                   Values 0 (none), 1 (clear ones), 2 (all).\n" <<
     "\n" <<
     "-s, --stats        Output length stats of free-form fields.\n" <<
     "                   (Default: not set)\n" <<
@@ -175,6 +179,8 @@ static void setDefaults(Options& options)
 
   options.statsFlag = false;
 
+  options.refLevel = REF_LEVEL_NONE;
+
   options.numThreads = 1;
 
   options.verboseIO = false;
@@ -228,6 +234,8 @@ void printOptions(const Options& options)
     cout << setw(12) << "stats" << setw(12) << "set" << "\n";
   else
     cout << setw(12) << "stats" << setw(12) << "not set" << "\n";
+
+  cout << setw(12) << "ref level" << setw(12) << options.refLevel << "\n\n";
 
   cout << setw(12) << "threads" << setw(12) << options.numThreads << "\n\n";
 }
@@ -373,6 +381,25 @@ void readArgs(
 
       case 's':
         options.statsFlag = true;
+        break;
+
+      case 'w':
+        mu = static_cast<unsigned>(strtol(optarg, &temp, 0));
+        if (temp == optarg || temp == '\0' || errno == ERANGE)
+        {
+          cout << "Could not parse write\n";
+          nextToken -= 2;
+          errFlag = true;
+        }
+        
+        if (mu > REF_LEVEL_ALL)
+        {
+          cout << "numThreads out of range\n";
+          nextToken -= 2;
+          errFlag = true;
+        }
+
+        options.refLevel = static_cast<RefLevel>(mu);
         break;
 
       case 'n':

@@ -274,6 +274,8 @@ static bool isContracts(
   const string& bufRefName,
   const unsigned lineno)
 {
+UNUSED(lineno);
+
   unsigned p, q;
   const string refPruned = pruneCommas(valueRef, p, q);
   if (refPruned == "")
@@ -298,6 +300,7 @@ static bool isContracts(
   const int countOut = count(outPruned.begin(), outPruned.end(), ',');
   if (countRef != countOut)
   {
+/*
 cout << "ref:\n" << valueRef << "\n";
 cout << "out:\n" << valueOut << "\n\n";
 
@@ -309,6 +312,7 @@ cout << "out comm " << p1 << ", " << q1 << "\n";
 
 cout << "ref intr " << countRef << "\n";
 cout << "out intr " << countOut << "\n";
+*/
 
     return false;
   }
@@ -324,18 +328,21 @@ cout << "out intr " << countOut << "\n";
     if (listRef[i] != listOut[i])
       diffs++;
 
-cout << "diffs " << diffs << "\n";
+// cout << "diffs " << diffs << "\n";
   // Heuristic.
   if (diffs >= 3 || (diffs == 2 && countRef < 16))
     return false;
+  else
+    return true;
 
-  // const string commas(q, ',');
+  /*
   string lnew = STR(lineno) + " replace \"rs|" + 
     string(p1, ',') + outPruned + string(valueOut.length()-q1, ',') + "|\"";
   const string refName = changeExt(bufRefName, ".ref");
   appendFile(refName, lnew);
 cout << "ERROR1\n";
   return false;
+  */
 }
 
 
@@ -351,6 +358,7 @@ static bool isDifferentCase(
 }
 
 
+/*
 static bool replaceTricks(
   string& target,
   const string& source)
@@ -375,6 +383,7 @@ static bool replaceTricks(
   target.insert(tp0+3, source, sp0+3, sp1 - (sp0+3));
   return true;
 }
+*/
 
 
 bool validateLIN(
@@ -404,6 +413,7 @@ bool validateLIN(
       else
         return false;
     }
+    /*
     else if (valState.dataRef.label == "mc")
     {
       // If the ref buffer has a fix file, we guess that it was for
@@ -426,6 +436,7 @@ cout << "ERROR2\n";
       prof.log(BRIDGE_VAL_VG_MC, valState);
       return true;
     }
+    */
     else if (valState.dataRef.label == "md")
     {
       if (valState.dataRef.value.length() == 54 &&
