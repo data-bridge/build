@@ -584,12 +584,48 @@ unsigned Buffer::firstRS() const
 }
 
 
+unsigned Buffer::getInternalNumber(const unsigned no) const
+{
+  if (no == 0 || no > lines[len-1].no)
+    return 99999; // TODO: Move to BIGNUM
+  
+  if (lines[no-1].no == no)
+    return no-1;
+
+  unsigned i = no-1;
+  if (lines[no-1].no > no)
+  {
+    // Happens with deletions.
+    while (i >= 1 && lines[i-1].no != no)
+      i--;
+    if (i == 0)
+      return 99999;
+    else
+      return i-1;
+  }
+  else
+  {
+    // Happens with insertions.
+    while (i < len && lines[i-1].no != no)
+      i++;
+    if (i == len)
+      return 99999;
+    else
+      return i-1;
+  }
+}
+
+
 string Buffer::getLine(const unsigned no) const
 {
   if (no == 0 || no > len)
     return "";
+
+  const unsigned intNo = Buffer::getInternalNumber(no);
+  if (intNo == 99999)
+    return "";
   else
-    return lines[no-1].line;
+    return lines[intNo].line;
 }
 
 

@@ -60,6 +60,8 @@ class Buffer
       const string& fname,
       vector<RefFix>& refFix);
 
+    unsigned getInternalNumber(const unsigned no) const;
+
     bool nextLIN(LineData& vside);
     void nextRBX(LineData& vside);
 

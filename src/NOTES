@@ -1,7 +1,3 @@
-* Introduce .skip files in Files
-* Move .orig without .lin back to .lin, make .skip instead
-* Allow "10-19 skip" in .ref file, used in Buffer
-* Get rid of remaining .orig files
 * Permit reading .fix also for EML compare file
 * RPmajors should then also run with -c
 * Clean up code in dispatch
@@ -26,6 +22,8 @@ update Pavlicek missive and Excel
 Make prettier line break in LIN print except LIN_RP.
 
 No % comment in LIN except LIN_RP.
+
+Still segfault at end?
 
 Functionality
 -------------
