@@ -270,13 +270,8 @@ static string pruneCommas(
 
 static bool isContracts(
   const string& valueRef,
-  const string& valueOut,
-  const string& bufRefName,
-  const unsigned lineno)
+  const string& valueOut)
 {
-UNUSED(lineno);
-UNUSED(bufRefName);
-
   unsigned p, q;
   const string refPruned = pruneCommas(valueRef, p, q);
   if (refPruned == "")
@@ -288,63 +283,7 @@ UNUSED(bufRefName);
   unsigned p1, q1;
   const string outPruned = pruneCommas(valueOut, p1, q1);
 
-  if (outPruned == refPruned)
-    return true;
-  else
-    return false;
-
-  /*
-  // Last-ditch effort: If the ref buffer has a fix file, it might
-  // be a fix of a specific contract in the list.
-  const string fixName = changeExt(bufRefName, ".fix");
-  ifstream ff(fixName.c_str());
-  if (! ff.good())
-    return false;
-
-  const int countRef = count(refPruned.begin(), refPruned.end(), ',');
-  const int countOut = count(outPruned.begin(), outPruned.end(), ',');
-  if (countRef != countOut)
-  {
-cout << "ref:\n" << valueRef << "\n";
-cout << "out:\n" << valueOut << "\n\n";
-
-cout << "ref length " << valueRef.length() << "\n";
-cout << "out length " << valueOut.length() << "\n\n";
-
-cout << "ref comm " << p << ", " << q << "\n";
-cout << "out comm " << p1 << ", " << q1 << "\n";
-
-cout << "ref intr " << countRef << "\n";
-cout << "out intr " << countOut << "\n";
-
-    return false;
-  }
-  
-  vector<string> listRef, listOut;
-  if (! LINtoList(refPruned, listRef, countRef))
-    return false;
-  if (! LINtoList(outPruned, listOut, countOut))
-    return false;
-
-  unsigned diffs = 0;
-  for (unsigned i = 0; i < static_cast<unsigned>(countRef); i++)
-    if (listRef[i] != listOut[i])
-      diffs++;
-
-// cout << "diffs " << diffs << "\n";
-  // Heuristic.
-  if (diffs >= 3 || (diffs == 2 && countRef < 16))
-    return false;
-  else
-    return true;
-
-  string lnew = STR(lineno) + " replace \"rs|" + 
-    string(p1, ',') + outPruned + string(valueOut.length()-q1, ',') + "|\"";
-  const string refName = changeExt(bufRefName, ".ref");
-  appendFile(refName, lnew);
-cout << "ERROR1\n";
-  return false;
-  */
+  return (outPruned == refPruned);
 }
 
 
@@ -358,34 +297,6 @@ static bool isDifferentCase(
   toUpper(v2);
   return (v1 == v2);
 }
-
-
-/*
-static bool replaceTricks(
-  string& target,
-  const string& source)
-{
-  size_t tp0 = target.find("mc|");
-  if (tp0 == string::npos || tp0+3 >= target.length())
-    return false;
-
-  size_t sp0 = source.find("mc|");
-  if (sp0 == string::npos || sp0+3 >= source.length())
-    return false;
-
-  size_t tp1 = target.find("|", tp0+3);
-  if (tp1 == string::npos)
-    return false;
-
-  size_t sp1 = source.find("|", sp0+3);
-  if (sp1 == string::npos)
-    return false;
-
-  target.erase(tp0+3, tp1 - (tp0+3));
-  target.insert(tp0+3, source, sp0+3, sp1 - (sp0+3));
-  return true;
-}
-*/
 
 
 bool validateLIN(
@@ -406,8 +317,7 @@ bool validateLIN(
     }
     else if (valState.dataRef.label == "rs")
     {
-      if (isContracts(valState.dataRef.value, valState.dataOut.value,
-        valState.bufferRef.name(), valState.dataRef.no))
+      if (isContracts(valState.dataRef.value, valState.dataOut.value))
       {
         prof.log(BRIDGE_VAL_BOARDS_HEADER, valState);
         return true;
@@ -415,30 +325,6 @@ bool validateLIN(
       else
         return false;
     }
-    /*
-    else if (valState.dataRef.label == "mc")
-    {
-      // If the ref buffer has a fix file, we guess that it was for
-      // this reason.
-      const string fixName = changeExt(valState.bufferRef.name(), ".fix");
-      ifstream ff(fixName.c_str());
-      if (! ff.good())
-        return false;
-      
-      string lref = STR(valState.dataRef.no) + " replace \"" +
-        valState.bufferRef.getLine(valState.dataRef.no) + "\"";
-      string lout = valState.bufferOut.getLine(valState.dataOut.no);
-
-      if (! replaceTricks(lref, lout))
-        return false;
-
-      const string refName = changeExt(valState.bufferRef.name(), ".ref");
-      appendFile(refName, lref);
-cout << "ERROR2\n";
-      prof.log(BRIDGE_VAL_VG_MC, valState);
-      return true;
-    }
-    */
     else if (valState.dataRef.label == "md")
     {
       if (valState.dataRef.value.length() == 54 &&

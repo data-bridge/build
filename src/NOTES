@@ -1,48 +1,17 @@
-* Move Options to write none, basic or all (3 levels)
 * .fix should no longer be needed, or needed as much?
   - Rerun RPmajors
-  - No more writing in validateLIN
-* Clean up code in validateLIN and dispatch
+* Clean up code in dispatch
 * Add skip keyword to .ref (skips whole file)
 * Add 10-19 delete (or skip) to skip lines
 * Then get rid of .orig files
 * Get RPmajors to run with -s and -c as well
-  - EML missing contract has to be a .fix-type input
-  - Maybe .ref has an augment keyword as well /(by chunk or
-    board number or something like that)
-  - So
-    insert (-> add) line number ""
-    replace (-> change) line number ""
-    delete line number1 line number2
-    skip (entire file)
-    augment bno instNo|open|closed "Contract" "value"
-    But how to get augmented data into readChunk?
-
-
-* appendFile should keep stuff in order and not duplicative
+  - EML missing contract has to remain a .fix-type input
 
 Likely order:
 * Ditto for files with only North,West etc.
 * Ditto for files with only md||
 * Turn off speculative file writers
 * Run reader
-
-LIN_VG:
-* Cases of trick differences
-  + DD agrees with contract -- fix mc claim
-  + Play is over -- must somehow fix contract
-  + DD agrees with mc -- must somehow fix contract
-  - DD agrees with neither -- what to do?
-  - Maybe one or the other is no longer reachable
-
-Difference in declarer/denomination
-* Same denom
-  - Partner (N/S, E/W): Fix declarer
-  - Not partner: Flag, probably auction is wrong
-* Different denom, same declarer
-  - Check auction manually, maybe typo
-* Both different
-  - Check manually
 
             #qx
 LIN_VG  948,965
@@ -54,12 +23,6 @@ validate:
 * Print example for each "error"
 
 update Pavlicek missive and Excel
-
-write a readLINChunk that utilizes lineData structure
-except for LIN_RP.
-
-Move all file*cpp to lno = lineData.lno,
-then move printed line interval to actual lno's.
 
 Make prettier line break in LIN print except LIN_RP.
 
