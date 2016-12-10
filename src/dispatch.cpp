@@ -1321,8 +1321,6 @@ static bool readFormattedFile(
 
   Counts counts;
   counts.lno.resize(BRIDGE_FORMAT_LABELS_SIZE);
-  for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
-    counts.lno[i] = 9999;
 
   counts.segno = 0;
   counts.chunkno = 0;
@@ -1334,7 +1332,10 @@ static bool readFormattedFile(
     {
       newSegFlag = false;
       for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
+      {
         chunk[i] = "";
+        counts.lno[i] = 9999;
+      }
 
       (* formatFncs[format].readChunk)
         (buffer, counts.lno, chunk, newSegFlag);
