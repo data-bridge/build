@@ -46,6 +46,7 @@ SOURCE_FILES 	=		\
 	validateEML.cpp		\
 	validateREC.cpp		\
 	trace.cpp		\
+	heurfix.cpp		\
 	StackWalker.cpp		\
 	reader.cpp
 
@@ -145,8 +146,9 @@ dispatch.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h
 dispatch.obj: Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h Players.h
 dispatch.obj: Auction.h Contract.h Play.h ddsIF.h dll.h dispatch.h Files.h
 dispatch.obj: Timers.h Timer.h ValStats.h ValProfile.h validate.h Buffer.h
-dispatch.obj: valint.h TextStats.h CompStats.h fileLIN.h filePBN.h fileRBN.h
-dispatch.obj: fileTXT.h fileEML.h fileREC.h parse.h Bexcept.h Bdiff.h
+dispatch.obj: valint.h TextStats.h CompStats.h heurfix.h fileLIN.h filePBN.h
+dispatch.obj: fileRBN.h fileTXT.h fileEML.h fileREC.h parse.h Bexcept.h
+dispatch.obj: Bdiff.h trace.h
 fileEML.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 fileEML.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
 fileEML.obj: Contract.h Play.h ddsIF.h dll.h Canvas.h fileEML.h Buffer.h
@@ -189,9 +191,10 @@ validateEML.obj: validateEML.h ValProfile.h validate.h Buffer.h valint.h
 validateEML.obj: bconst.h
 validateREC.obj: validateREC.h ValProfile.h validate.h Buffer.h valint.h
 validateREC.obj: bconst.h parse.h
+trace.obj: StackWalker.h trace.h
+heurfix.obj: ddsIF.h dll.h Bexcept.h
+StackWalker.obj: StackWalker.h
 reader.obj: args.h bconst.h dispatch.h Files.h Timers.h Timer.h ValStats.h
 reader.obj: ValProfile.h validate.h Buffer.h valint.h TextStats.h CompStats.h
-reader.obj: trace.h
 reader.obj: args.h bconst.h dispatch.h Files.h Timers.h Timer.h ValStats.h
 reader.obj: ValProfile.h validate.h Buffer.h valint.h TextStats.h CompStats.h
-reader.obj: trace.h

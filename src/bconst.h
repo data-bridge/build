@@ -280,6 +280,26 @@ struct FileTask
 };
 
 
+// This is used in dispatch.
+
+struct boardIDLIN
+{
+  unsigned no;
+  unsigned roomFlag;
+};
+
+struct Counts
+{
+  unsigned segno;
+  unsigned chunkno;
+  unsigned bno;
+  unsigned bExtmin;
+  unsigned bExtmax;
+  boardIDLIN curr;
+  vector<unsigned> lno;
+  unsigned lnoOld;
+};
+
 
 // This is the same encoding as in DDS.
 
