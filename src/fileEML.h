@@ -23,7 +23,7 @@ void setEMLTables();
 
 void readEMLChunk(
   Buffer& buffer,
-  unsigned& lno,
+  vector<unsigned>& lno,
   vector<string>& chunk,
   bool& newSegFlag);
 

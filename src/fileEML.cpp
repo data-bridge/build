@@ -73,13 +73,13 @@ void setEMLTables()
 
 static void readEMLCanvas(
   Buffer& buffer,
-  unsigned& lno,
+  vector<unsigned>& lno,
   vector<string>& canvas)
 {
   LineData lineData;
   while (buffer.next(lineData))
   {
-    lno++;
+    lno[0] = lineData.no; // Not very good
     if (lineData.type == BRIDGE_BUFFER_EMPTY)
     {
       // If some players aren't given, we might have an empty line.
@@ -384,7 +384,7 @@ static void getEMLPlay(
 
 void readEMLChunk(
   Buffer& buffer,
-  unsigned& lno,
+  vector<unsigned>& lno,
   vector<string>& chunk,
   bool& newSegFlag)
 {

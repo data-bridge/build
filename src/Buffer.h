@@ -90,6 +90,8 @@ class Buffer
 
     unsigned previousHeaderStart() const;
 
+    unsigned firstRS() const;
+
     string getLine(const unsigned no) const;
 
     string name() const;

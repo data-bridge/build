@@ -567,6 +567,23 @@ unsigned Buffer::previousHeaderStart() const
 }
 
 
+unsigned Buffer::firstRS() const
+{
+  // TODO: have 9999 as a global BIGNUM in bconst.h
+  if (format != BRIDGE_FORMAT_LIN_VG)
+    return 9999;
+
+  for (unsigned i = 0; i < len; i++)
+  {
+    if (lines[i].type == BRIDGE_BUFFER_STRUCTURED &&
+        lines[i].label == "rs")
+      return lines[i].no;
+  }
+
+  return 9999;
+}
+
+
 string Buffer::getLine(const unsigned no) const
 {
   if (no == 0 || no > len)

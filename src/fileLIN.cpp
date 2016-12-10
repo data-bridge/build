@@ -73,7 +73,7 @@ static bool nextLINPair(
 
 void readLINChunk(
   Buffer& buffer,
-  unsigned& lno,
+  vector<unsigned>& lno,
   vector<string>& chunk,
   bool& newSegFlag)
 {
@@ -85,8 +85,6 @@ void readLINChunk(
   unsigned aNo = 1;
   while (! doneFlag && buffer.next(lineData))
   {
-    lno = lineData.no;
-
     if (lineData.type != BRIDGE_BUFFER_EMPTY)
     {
       if (lineData.type == BRIDGE_BUFFER_COMMENT)
@@ -146,6 +144,8 @@ void readLINChunk(
         chunk[labelNo] = value;
       else
         THROW("Label already set in line '" + lineData.line + "'");
+
+      lno[labelNo] = lineData.no;
     }
   }
 

@@ -49,7 +49,7 @@ void setRBNTables()
 
 void readRBNChunk(
   Buffer& buffer,
-  unsigned& lno,
+  vector<unsigned>& lno,
   vector<string>& chunk,
   bool& newSegFlag)
 {
@@ -58,7 +58,6 @@ void readRBNChunk(
 
   while (buffer.next(lineData))
   {
-    lno++;
     if (lineData.type == BRIDGE_BUFFER_EMPTY)
       return;
     
@@ -79,6 +78,7 @@ void readRBNChunk(
       THROW("RBN label already set in line:\n" + lineData.line);
 
     chunk[labelNo] = lineData.value;
+    lno[labelNo] = lineData.no;
   }
 }
 

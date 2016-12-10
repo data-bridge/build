@@ -23,7 +23,7 @@ void setPBNTables();
 
 void readPBNChunk(
   Buffer& buffer,
-  unsigned& lno,
+  vector<unsigned>& lno,
   vector<string>& chunk,
   bool& newSegFlag);
 

@@ -72,7 +72,7 @@ using namespace std;
 
 struct FormatFunctions
 {
-  void (* readChunk)(Buffer&, unsigned&, vector<string>&, bool&);
+  void (* readChunk)(Buffer&, vector<unsigned>&, vector<string>&, bool&);
   void (* writeSeg)(string&, Segment&, Format);
   void (* writeBoard)(string&, Segment&, Board&, 
     WriteInfo&, const Format);
@@ -107,7 +107,7 @@ struct Counts
   unsigned bExtmin;
   unsigned bExtmax;
   boardIDLIN curr;
-  unsigned lno;
+  vector<unsigned> lno;
   unsigned lnoOld;
 };
 
@@ -276,21 +276,6 @@ static bool dispatchRead(
   timers.stop(BRIDGE_TIMER_READ, task.formatInput);
 
   return b;
-
-  /*
-  try
-  {
-    if (! readFormattedFile(task.fileInput,
-        task.formatInput, group, options, flog))
-    {
-      THROW("dispatch: read failed");
-    }
-  }
-  catch (Bexcept& bex)
-  {
-    bex.print(flog);
-  }
-  */
 }
 
 
@@ -320,8 +305,6 @@ static void dispatchWrite(
   try
   {
     text = "";
-if (otask.fileRef == "../../../bridgedata/hands/BBOVG/032000/32049.lin")
-  cout << "HERE\n";
     writeFormattedFile(group, otask.fileOutput, text, otask.formatOutput);
   }
   catch (Bexcept& bex)
@@ -417,13 +400,11 @@ try
       flog << "Input " << task.fileInput << endl;
 
     Group group;
-    // timers.start(BRIDGE_TIMER_READ, task.formatInput);
     if (! dispatchRead(task, group, options, timers, flog))
     {
       flog << "Failed to read " << task.fileInput << endl;
       continue;
     }
-    // timers.stop(BRIDGE_TIMER_READ, task.formatInput);
 
     if (options.statsFlag)
     {
@@ -620,11 +601,23 @@ static void printCounts(
   cout << "Input file:   " << fname << endl;
   cout << "Segment:      " << counts.segno << endl;
   cout << "Board:        " << counts.bno << endl;
-  if (counts.lnoOld+1 > counts.lno-1)
-    cout << "Line number:  " << counts.lnoOld << endl;
+
+  unsigned lo = 9999;
+  unsigned hi = 0;
+  for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
+  {
+    if (counts.lno[i] == 9999)
+      continue;
+    if (counts.lno[i] > hi)
+      hi = counts.lno[i];
+    if (counts.lno[i] < lo)
+      lo = counts.lno[i];
+  }
+
+  if (lo == hi)
+    cout << "Line number:  " << lo << endl;
   else
-    cout << "Line numbers: " << counts.lnoOld+2 << " to " << 
-      counts.lno-1 << endl << endl;
+    cout << "Line numbers: " << lo << " to " << hi << endl << endl;
 }
 
 
@@ -747,24 +740,27 @@ static void tryFormatMethod(
 
 static void storeHeaderResultWins(
   const string& nameLIN,
-  const unsigned chunkno,
-  const string& result)
+  const string& text,
+  const unsigned lineno,
+  const string& tricks)
 {
   if (nameLIN.length() < 5)
     THROW("Too short filename");
+  string nameRef = changeExt(nameLIN, ".ref");
 
-  string nameFix = nameLIN.substr(0, nameLIN.length()-4) + ".fix";
+  size_t tp0 = text.find("mc|");
+  if (tp0 == string::npos || tp0+3 >= text.length())
+    return;
 
-  // TODO: Switch to appendFile
-  ifstream f(nameFix.c_str());
-  ofstream fout;
-  if (f.good())
-    fout.open(nameFix.c_str(), ios::app);
-  else
-    fout.open(nameFix.c_str());
+  size_t tp1 = text.find("|", tp0+3);
+  if (tp1 == string::npos)
+    return;
 
-  fout << chunkno << " \"Result\" \"" << result << "\"\n";
-  fout.close();
+  string target = text;
+  target.erase(tp0+3, tp1 - (tp0+3));
+  target.insert(tp0+3, tricks);
+
+  appendFile(nameRef, lineno, "replace", target);
 }
 
 
@@ -804,10 +800,16 @@ static void adjustContractTricks(
 static void storePlayResultWins(
   const Group& group, 
   Segment * segment, 
-  const RunningDD& runningDD,
+  const unsigned lineno,
   const unsigned tricks)
 {
-  UNUSED(runningDD);
+  string fname = changeExt(group.name(), ".ref");
+  if (fname == "")
+  {
+    cout << "Wanted to write rs file " << fname << " with " << 
+      tricks << " tricks\n";
+    return;
+  }
 
   string contractHeader = segment->contractFromHeader();
   adjustContractTricks(contractHeader, tricks);
@@ -815,22 +817,12 @@ static void storePlayResultWins(
   if (! segment->setContractInHeader(contractHeader))
     THROW("Could not rewrite header contract");
 
-  const string resHeader = "0 \"Results list\" \"" + 
-    segment->strContracts(BRIDGE_FORMAT_PAR) + + "\"";
+  const string resHeader = "rs|" + 
+    segment->strContracts(BRIDGE_FORMAT_PAR) + + "|";
 
-  string fname = changeExt(group.name(), ".fix");
-  if (fname == "")
-  {
-    cout << "Wanted to write rs fix file " << fname << " with " << 
-      tricks << " tricks\n";
-  }
-  else
-  {
-    // Actual tricks win if the hand is played out completely.
-    appendFile(fname, resHeader);
-    cout << "Wrote rs fix file " << fname << " with " << 
-      tricks << " tricks\n";
-  }
+
+  // Actual tricks win if the hand is played out completely.
+  appendFile(fname, lineno, "replace", resHeader);
 }
 
 
@@ -852,30 +844,28 @@ static void adjustContractDeclarer(
 static void storeAuctionContractDeclWins(
   const Group& group, 
   Segment * segment, 
+  const unsigned lineno,
   const string& declarer)
 {
+  string fname = changeExt(group.name(), ".ref");
+  if (fname == "")
+  {
+    cout << "Wanted to write rs fix file " << fname << " with " << 
+      declarer << " as declarer\n";
+    return;
+  }
+
   string contractHeader = segment->contractFromHeader();
   adjustContractDeclarer(contractHeader, declarer);
 
   if (! segment->setContractInHeader(contractHeader))
     THROW("Could not rewrite header contract");
 
-  const string resHeader = "0 \"Results list\" \"" + 
-    segment->strContracts(BRIDGE_FORMAT_PAR) + + "\"";
+  const string resHeader = "rs|" +
+    segment->strContracts(BRIDGE_FORMAT_PAR) + + "|";
 
-  string fname = changeExt(group.name(), ".fix");
-  if (fname == "")
-  {
-    cout << "Wanted to write rs fix file " << fname << " with " << 
-      declarer << " as declarer\n";
-  }
-  else
-  {
-    // Actual tricks win if the hand is played out completely.
-    appendFile(fname, resHeader);
-    cout << "Wrote rs fix file " << fname << " with " << 
-      declarer << " as declarer\n";
-  }
+  // Actual tricks win if the hand is played out completely.
+  appendFile(fname, lineno, "replace", resHeader);
 }
 
 
@@ -897,8 +887,17 @@ static void adjustContractDenom(
 static void storeAuctionContractDenomWins(
   const Group& group, 
   Segment * segment, 
+  const unsigned lineno,
   const string& denom)
 {
+  string fname = changeExt(group.name(), ".ref");
+  if (fname == "")
+  {
+    cout << "Wanted to write rs fix file " << fname << " with " << 
+      denom << " as denomination\n";
+    return;
+  }
+
   string contractHeader = segment->contractFromHeader();
   adjustContractDenom(contractHeader, denom);
 
@@ -907,22 +906,11 @@ static void storeAuctionContractDenomWins(
   if (! segment->setContractInHeader(contractHeader))
     THROW("Could not rewrite header contract");
 
-  const string resHeader = "0 \"Results list\" \"" + 
-    segment->strContracts(BRIDGE_FORMAT_PAR) + + "\"";
+  const string resHeader = "rs|" +
+    segment->strContracts(BRIDGE_FORMAT_PAR) + + "|";
 
-  string fname = changeExt(group.name(), ".fix");
-  if (fname == "")
-  {
-    cout << "Wanted to write rs fix file " << fname << " with " << 
-      denom << " as denomination\n";
-  }
-  else
-  {
-    // Actual tricks win if the hand is played out completely.
-    appendFile(fname, resHeader);
-    cout << "Wrote rs fix file " << fname << " with " << 
-      denom << " as denomination\n";
-  }
+  // Actual tricks win if the hand is played out completely.
+  appendFile(fname, lineno, "replace", resHeader);
 }
 
 
@@ -930,12 +918,12 @@ static bool storeChunk(
   Group& group,
   Segment * segment,
   Board * board,
+  const Buffer& buffer,
   vector<string>& chunk,
   const Counts& counts,
   const Format format,
   const Options& options,
   ostream& flog)
-
 {
   segment->copyPlayers();
 
@@ -990,7 +978,18 @@ static bool storeChunk(
 
       if (board->playIsOver())
       {
-        storePlayResultWins(group, segment, runningDD, runningDD.tricksDecl);
+        if (options.refLevel != REF_LEVEL_NONE)
+        {
+          unsigned rsNo = buffer.firstRS();
+          storePlayResultWins(group, segment, rsNo, runningDD.tricksDecl);
+          cout << "Wrote play result with " << runningDD.tricksDecl <<
+            " tricks\n";
+        }
+        else
+        {
+          cout << "Wanted to write play result " << runningDD.tricksDecl <<
+            " tricks\n";
+        }
       }
       else
       {
@@ -1013,14 +1012,32 @@ static bool storeChunk(
         else if (hdrRes == ddRes)
         {
           // Header wins if it agrees with double-dummy.
-          storeHeaderResultWins(group.name(), counts.chunkno-1, headerRes);
-          cout << "Wrote mc fix file with " << headerRes << " tricks\n";
+          if (options.refLevel != REF_LEVEL_NONE)
+          {
+            unsigned ll = counts.lno[BRIDGE_FORMAT_RESULT];
+            storeHeaderResultWins(group.name(), 
+              buffer.getLine(ll), ll, headerRes);
+            cout << "Wrote mc with " << headerRes << " tricks\n";
+          }
+          else
+          {
+            cout << "Wanted to write mc with " << headerRes << " tricks\n";
+          }
         }
         else if (chunkRes == ddRes)
         {
           // Play wins if it agrees with double-dummy.
-          storePlayResultWins(group, segment, runningDD, ddRes);
-          cout << "Wrote hdr fix file with " << ddRes << " tricks\n";
+          if (options.refLevel != REF_LEVEL_NONE)
+          {
+            unsigned rsNo = buffer.firstRS();
+            storePlayResultWins(group, segment, rsNo, ddRes);
+            cout << "Wrote rs header with " << ddRes << " tricks\n";
+          }
+          else
+          {
+            cout << "Wanted to rs write header with " << ddRes << 
+              " tricks\n";
+          }
         }
         else
         {
@@ -1047,15 +1064,33 @@ static bool storeChunk(
           if (distHdr > distPlay)
           {
             cout << "Play result is closer to DD\n";
-            storePlayResultWins(group, segment, runningDD, ddRes);
-            cout << "Wrote hdr fix file with " << ddRes << " tricks\n";
+            if (options.refLevel == REF_LEVEL_ALL)
+            {
+              unsigned rsNo = buffer.firstRS();
+              storePlayResultWins(group, segment, rsNo, ddRes);
+              cout << "Wrote header with " << ddRes << " tricks\n";
+            }
+            else
+            {
+              cout << "Wanted to write header with " << 
+                ddRes << " tricks\n";
+            }
           }
           else if (distHdr < distPlay)
           {
             cout << "Header result is closer to DD\n";
-            storeHeaderResultWins(group.name(), 
-              counts.chunkno-1, headerRes);
-            cout << "Wrote mc fix file with " << headerRes << " tricks\n";
+            if (options.refLevel == REF_LEVEL_ALL)
+            {
+              unsigned ll = counts.lno[BRIDGE_FORMAT_RESULT];
+              storeHeaderResultWins(group.name(), 
+                buffer.getLine(ll), ll, headerRes);
+              cout << "Wrote mc with " << headerRes << " tricks\n";
+            }
+            else
+            {
+              cout << "Wanted to write mc with " << headerRes << 
+                " tricks\n";
+            }
           }
           else
             cout << "DD has equal distance\n";
@@ -1104,8 +1139,17 @@ static bool storeChunk(
       {
         if (declAuction == declLead)
         {
-          storeAuctionContractDenomWins(group, segment, denomAuction);
-          cout << "E1 Fixed denom typo in header\n";
+          if (options.refLevel != REF_LEVEL_NONE)
+          {
+            unsigned rsNo = buffer.firstRS();
+            storeAuctionContractDenomWins(group, segment, 
+              rsNo, denomAuction);
+            cout << "E1 Fixed denom typo in header\n";
+          }
+          else
+          {
+            cout << "E1 Wanted to fix denom typo in header\n";
+          }
         }
         else if (declLead == "")
           cout << "E2 Would like to fix denom typo, probably in header\n";
@@ -1121,8 +1165,15 @@ static bool storeChunk(
         {
           if (declLead == declAuction)
           {
-            storeAuctionContractDeclWins(group, segment, declAuction);
-            cout << "E4 Fixed decl typo in header\n";
+            if (options.refLevel != REF_LEVEL_NONE)
+            {
+              unsigned rsNo = buffer.firstRS();
+              storeAuctionContractDeclWins(group, segment, 
+                rsNo, declAuction);
+              cout << "E4 Fixed decl typo in header\n";
+            }
+            else
+              cout << "E4 Wanted to fix decl typo in header\n";
           }
           else if (declLead == "")
             cout << "E5 Would like to fix decl typo, probably in header\n";
@@ -1133,8 +1184,15 @@ static bool storeChunk(
           cout << "E7 Would like to fix decl typo, likely in auction\n";
         else if (declLead == declAuction)
         {
-          storeAuctionContractDeclWins(group, segment, declAuction);
-          cout << "E8 Fixed declarer typo in header\n";
+          if (options.refLevel != REF_LEVEL_NONE)
+          {
+            unsigned rsNo = buffer.firstRS();
+            storeAuctionContractDeclWins(group, segment, 
+              rsNo, declAuction);
+            cout << "E8 Fixed declarer typo in header\n";
+          }
+          else
+            cout << "E8 Wanted to fix declarer typo in header\n";
         }
         else if (declLead == "")
           cout << "E9 Would like to fix decl typo, probably in auction\n";
@@ -1161,6 +1219,7 @@ static bool fillBoards(
   Group& group, 
   Segment * segment, 
   Board *& board, 
+  const Buffer& buffer,
   vector<string>& chunk, 
   Counts& counts,
   boardIDLIN& lastBoard,
@@ -1203,7 +1262,7 @@ static bool fillBoards(
     lastBoard = expectBoard;
     board->newInstance();
     board->markInstanceSkip();
-    if (! storeChunk(group, segment, board, chunkSynth, 
+    if (! storeChunk(group, segment, board, buffer, chunkSynth, 
         counts, format, options, flog))
       return false;
     advance(expectBoard, counts);
@@ -1261,15 +1320,16 @@ static bool readFormattedFile(
   boardIDLIN lastBoard = {0, false};
 
   Counts counts;
+  counts.lno.resize(BRIDGE_FORMAT_LABELS_SIZE);
+  for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
+    counts.lno[i] = 9999;
+
   counts.segno = 0;
   counts.chunkno = 0;
   counts.bno = 0;
-  counts.lno = 0;
-  counts.lnoOld = 0;
 
   while (true)
   {
-    counts.lnoOld = counts.lno;
     try
     {
       newSegFlag = false;
@@ -1314,7 +1374,7 @@ static bool readFormattedFile(
 
     if (format == BRIDGE_FORMAT_LIN_VG)
     {
-      if (! fillBoards(group, segment, board, chunk, counts,
+      if (! fillBoards(group, segment, board, buffer, chunk, counts,
           lastBoard, format, options, flog))
         return false;
     }
@@ -1329,7 +1389,7 @@ static bool readFormattedFile(
     lastBoard = counts.curr;
 
     board->newInstance();
-    if (! storeChunk(group, segment, board, chunk, 
+    if (! storeChunk(group, segment, board, buffer, chunk, 
         counts, format, options, flog))
       return false;
   }
@@ -1340,7 +1400,7 @@ static bool readFormattedFile(
     counts.curr.no = counts.bExtmax+1;
     counts.curr.roomFlag = true;
 
-    if (! fillBoards(group, segment, board, chunk, counts,
+    if (! fillBoards(group, segment, board, buffer, chunk, counts,
         lastBoard, format, options, flog))
       return false;
   }

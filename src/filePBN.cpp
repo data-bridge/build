@@ -56,7 +56,7 @@ void setPBNTables()
 
 void readPBNChunk(
   Buffer& buffer,
-  unsigned& lno,
+  vector<unsigned>& lno,
   vector<string>& chunk,
   bool& newSegFlag)
 {
@@ -66,7 +66,6 @@ void readPBNChunk(
 
   while (buffer.next(lineData))
   {
-    lno++;
     if (lineData.type == BRIDGE_BUFFER_EMPTY)
       return;
 
@@ -80,6 +79,7 @@ void readPBNChunk(
       else
       {
         chunk[BRIDGE_FORMAT_AUCTION] += lineData.line + "\n";
+        lno[BRIDGE_FORMAT_AUCTION] = lineData.no; // Could  be range...
         continue;
       }
     }
@@ -90,6 +90,7 @@ void readPBNChunk(
       else
       {
         chunk[BRIDGE_FORMAT_PLAY] += lineData.line + "\n";
+        lno[BRIDGE_FORMAT_PLAY] = lineData.no; // Could  be range...
         continue;
       }
     }
@@ -111,22 +112,26 @@ void readPBNChunk(
       // Kludge to get declarer onto contract.  According to the PBN
       // standard, declarer should always come before contract.
       chunk[labelNo] = lineData.value + chunk[BRIDGE_FORMAT_DECLARER];
+      lno[labelNo] = lineData.no;
     }
     else if (labelNo == BRIDGE_FORMAT_AUCTION)
     {
       // Multi-line.
       chunk[BRIDGE_FORMAT_AUCTION] += lineData.value + "\n";
+      lno[labelNo] = lineData.no; // Could be range...
       inAuction = true;
     }
     else if (labelNo == BRIDGE_FORMAT_PLAY)
     {
       // Multi-line.
       chunk[BRIDGE_FORMAT_PLAY] += lineData.value + "\n";
+      lno[labelNo] = lineData.no; // Could be range...
       inPlay = true;
     }
     else if (lineData.value != "#")
     {
       chunk[labelNo] = lineData.value;
+      lno[labelNo] = lineData.no; // Could be range...
       if (labelNo <= BRIDGE_FORMAT_VISITTEAM)
       {
         // Kludge to avoid new segment on [Site ""].

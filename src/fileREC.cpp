@@ -60,14 +60,14 @@ static void getRECPlay(
 
 static void readRECCanvas(
   Buffer& buffer,
-  unsigned& lno,
+  vector<unsigned>& lno,
   vector<string>& canvas)
 {
   string line;
   LineData lineData;
   while (buffer.next(lineData))
   {
-    lno++;
+    lno[0] = lineData.no; // Not very good...
     if (lineData.type == BRIDGE_BUFFER_EMPTY)
     {
       int i = buffer.peek();
@@ -344,7 +344,7 @@ static void getRECPlay(
 
 void readRECChunk(
   Buffer& buffer,
-  unsigned& lno,
+  vector<unsigned>& lno,
   vector<string>& chunk,
   bool& newSegFlag)
 {

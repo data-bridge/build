@@ -11,7 +11,7 @@
 
 #include <iostream>
 #include <sstream>
-#include <fstream>
+// #include <fstream>
 #include <algorithm>
 
 #include "validateLIN.h"
@@ -275,6 +275,7 @@ static bool isContracts(
   const unsigned lineno)
 {
 UNUSED(lineno);
+UNUSED(bufRefName);
 
   unsigned p, q;
   const string refPruned = pruneCommas(valueRef, p, q);
@@ -289,6 +290,10 @@ UNUSED(lineno);
 
   if (outPruned == refPruned)
     return true;
+  else
+    return false;
+
+  /*
   // Last-ditch effort: If the ref buffer has a fix file, it might
   // be a fix of a specific contract in the list.
   const string fixName = changeExt(bufRefName, ".fix");
@@ -300,7 +305,6 @@ UNUSED(lineno);
   const int countOut = count(outPruned.begin(), outPruned.end(), ',');
   if (countRef != countOut)
   {
-/*
 cout << "ref:\n" << valueRef << "\n";
 cout << "out:\n" << valueOut << "\n\n";
 
@@ -312,7 +316,6 @@ cout << "out comm " << p1 << ", " << q1 << "\n";
 
 cout << "ref intr " << countRef << "\n";
 cout << "out intr " << countOut << "\n";
-*/
 
     return false;
   }
@@ -335,7 +338,6 @@ cout << "out intr " << countOut << "\n";
   else
     return true;
 
-  /*
   string lnew = STR(lineno) + " replace \"rs|" + 
     string(p1, ',') + outPruned + string(valueOut.length()-q1, ',') + "|\"";
   const string refName = changeExt(bufRefName, ".ref");

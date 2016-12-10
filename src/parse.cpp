@@ -388,19 +388,76 @@ string changeExt(
 
 void appendFile(
   const string& fname,
+  const unsigned lineno,
+  const string& command,
   const string& text)
 {
   const char * fn = fname.c_str();
   ifstream f(fn);
   ofstream fout;
-  if (f.good())
-    fout.open(fn, ios::app);
-  else
+  if (! f.good())
+  {
+    // New file.
     fout.open(fn);
+    fout << lineno << " " << command << " \"" << text << "\"\n";
+    return;
+  }
 
-  fout << text << "\n";
+  vector<string> buf;
+  buf.clear();
+  string tmp;
+  while (getline(f, tmp))
+    buf.push_back(tmp);
+  f.close();
+
+  fout.open(fn);
+  regex re("^(\\d+)\\s+(\\w+)\\s+\"(.*)\"\\s*$");
+  smatch match;
+  const string newline = STR(lineno) + " " + 
+    command + " \"" + text + "\"\n";
+
+  bool seen = false;
+  for (auto& line: buf)
+  {
+    if (line.empty() || line.at(0) == '%')
+      continue;
+
+    if (! regex_search(line, match, re) || match.size() < 3)
+      fout << line << "\n";
+    else
+    {
+      unsigned lno;
+      if (! str2unsigned(match.str(1), lno))
+        fout << line << "\n";
+      else if (lno < lineno)
+        fout << line << "\n";
+      else if (lno == lineno)
+      {
+        if (command == match.str(2))
+        {
+          // Replace.
+          fout << newline;
+          seen = true;
+        }
+        else
+          fout << line << "\n";
+      }
+      else if (! seen)
+      {
+        // Insert.
+        fout << newline;
+        seen = true;
+      }
+      else
+      {
+        fout << line << "\n";
+      }
+    }
+  }
+
+  if (! seen)
+    fout << newline;
   fout.close();
-    
 }
 
 

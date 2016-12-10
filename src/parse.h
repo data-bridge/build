@@ -78,6 +78,8 @@ string changeExt(
 
 void appendFile(
   const string& fname,
+  const unsigned lineno,
+  const string& command,
   const string& text);
 
 void toUpper(string& text);

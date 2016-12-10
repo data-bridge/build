@@ -58,14 +58,14 @@ void setTXTTables()
 
 static void readTXTCanvas(
   Buffer& buffer,
-  unsigned& lno,
+  vector<unsigned>& lno,
   vector<string>& canvas)
 {
   LineData lineData;
   bool seenDeal = false;
   while (buffer.next(lineData))
   {
-    lno++;
+    lno[0] = lineData.no; // Not very good...
     if (lineData.type == BRIDGE_BUFFER_EMPTY)
     {
       if (! seenDeal)
@@ -459,7 +459,7 @@ static void getTXTPlay(
 
 void readTXTChunk(
   Buffer& buffer,
-  unsigned& lno,
+  vector<unsigned>& lno,
   vector<string>& chunk,
   bool& newSegFlag)
 {
