@@ -112,15 +112,25 @@ sub get_files
       $entry{start} = $1;
       $entry{end} = $2;
     }
+    elsif ($line =~ /^Line number:\s+(\d+)/)
+    {
+      $entry{start} = $1;
+      $entry{end} = $entry{start};
+    }
     elsif ($line =~ / not held /)
     {
-      if ($entry{start} > 5)
+      if (! defined $entry{start})
       {
-        # Just flag the ones that are not complete losses.
-        print_entry(\%entry) if $printflag;
+        print "HERE\n";
+        print "$lno $line\n";
       }
       else
       {
+        if ($entry{start} > 5)
+        {
+          # Just flag the ones that are not complete losses.
+          print_entry(\%entry) if $printflag;
+        }
         push @$fref, {%entry};
         undef %entry;
       }

@@ -1,3 +1,19 @@
+* miss.pl should start also in middle of files if late "not held" error.
+* Why does it fail all in e.g. 101.txt after the initial error?
+* When there is an initial fail, and we re-run, we get the position of
+  the next error, so we can actually pinpoint all single errors at once.
+
+* SHDC hands, not checked yet (fails before these points)
+   4178,  
+   8745, 
+  10259, 10592, 10603, 10606, 10923, 10970, 10976, 10980,
+  28919, 28954, 
+  43447, 
+  
+  7015 messed up
+  45465 has SHDC in one hand, but other three are given
+
+
 Buffer should pick up .ref automatically.
 
 No % comment in LIN except LIN_RP.
