@@ -405,6 +405,8 @@ bool Buffer::fix(const string& fname)
       lines.erase(lines.begin() + static_cast<int>(i), 
           lines.begin() + static_cast<int>(refFix[rno].count + i));
       len -= refFix[rno].count;
+      if (i > 0)
+        i--; // Kludge
     }
     else
       THROW("Bad reference line type");
@@ -439,18 +441,18 @@ bool Buffer::nextLIN(LineData& vside)
 
   size_t e = lines[current].line.find('|', posLIN);
   if (e != posLIN+2 || e == string::npos)
-    THROW("Bad LIN line");
+    THROW("Bad LIN line: " + lines[current].line + ", " + STR(current));
 
   vside.label = lines[current].line.substr(posLIN, 2);
   vside.no = lines[current].no;
 
   posLIN += 3;
   if (posLIN >= lines[current].len)
-    THROW("Bad LIN line");
+    THROW("Bad LIN line: " + lines[current].line + ", " + STR(current));
 
   e = lines[current].line.find('|', posLIN);
   if (e == string::npos)
-    THROW("Bad LIN line");
+    THROW("Bad LIN line: " + lines[current].line + ", " + STR(current));
 
   vside.type = BRIDGE_BUFFER_STRUCTURED;
 

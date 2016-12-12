@@ -621,7 +621,7 @@ void Auction::addAuctionRBNCore(
       if (pos >= l)
         THROW("Missing end of alert");
 
-      aNoNew = Auction::getRBNAlertNo(s, pos, aNo > 9);
+      aNoNew = Auction::getRBNAlertNo(s, pos, aNo >= 9);
 
       if (aNoNew <= aNo)
         THROW("Alerts not in ascending order");

@@ -124,7 +124,7 @@ static void writeTricksRS(
   }
   else
   {
-    cout << "XX1 Wanted to write rs with " << tricks << " tricks\n";
+    cout << "XXX Wanted to write rs with " << tricks << " tricks\n";
     cout << rsNo << " replace \"" << fixed << "\"\n";
   }
 }
@@ -318,15 +318,35 @@ void heurFixTricks(
         // Play wins if it is closer to double-dummy.
         cout << "XX0 Play result is closer to DD\n";
         // writeTricksRS(segment, buffer, nameRef, ddRes, options.refLevel);
+        //
+        string fixed = fixTricksRS(segment, chunkRes);
+        unsigned rsNo = buffer.firstRS();
+        cout << rsNo << " replace \"" << fixed << "\"\n";
       }
       else if (distHdr < distPlay)
       {
         // Header wins if it is closer to double-dummy.
         cout << "XX1 Header result is closer to DD\n";
         // writeTricksMC(buffer, counts, nameRef, headerRes, options.refLevel);
+        unsigned lineno = counts.lno[BRIDGE_FORMAT_RESULT];
+        string fixed;
+        fixTricksMC(buffer.getLine(lineno), headerRes, fixed);
+        cout << lineno << " replace \"" << fixed << "\"\n";
       }
       else
+      {
         cout << "XX2 DD has equal distance\n";
+        cout << "If fixing mc:\n";
+        unsigned lineno = counts.lno[BRIDGE_FORMAT_RESULT];
+        string fixed;
+        fixTricksMC(buffer.getLine(lineno), headerRes, fixed);
+        cout << lineno << " replace \"" << fixed << "\"\n";
+
+        cout << "If fixing rs:\n";
+        fixed = fixTricksRS(segment, ddRes);
+        unsigned rsNo = buffer.firstRS();
+        cout << rsNo << " replace \"" << fixed << "\"\n";
+      }
 
       cout << board->strDealRemain(BRIDGE_FORMAT_TXT) << endl;
     }

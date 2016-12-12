@@ -438,14 +438,14 @@ try
 catch (Bexcept& bex)
 {
   // TODO Can probably go at some point.
-  cout << "Bex loose:\n";
+  cout << "Bex loose: " << task.fileInput << "\n";
   bex.print(flog);
   trace();
 }
 catch (Bdiff& bdiff)
 {
   // TODO Can probably go at some point.
-  cout << "Bdiff loose:\n";
+  cout << "Bdiff loose: " << task.fileInput << "\n";
   bdiff.print(flog);
   trace();
 }
@@ -662,7 +662,13 @@ static void chunkLIN2range(
   unsigned commas = 
     static_cast<unsigned>(count(res.begin(), res.end(), ','));
   if (commas+1 != 2 * (counts.bExtmax - counts.bExtmin + 1))
-    THROW("Bad number of results, commas " + STR(commas));
+  {
+    if (commas == 2 * (counts.bExtmax - counts.bExtmin + 1))
+      THROW("Might have a stray trailing comma in LIN results: " +
+        STR(commas));
+    else
+      THROW("Bad number of results, commas " + STR(commas));
+  }
 
   const unsigned l = res.length();
   unsigned p = 0;
@@ -948,7 +954,23 @@ static bool readFormattedFile(
       counts.bno = 0;
       if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN &&
           format != BRIDGE_FORMAT_LIN_RP)
-        chunkLIN2range(chunk, counts);
+      {
+        try
+        {
+          chunkLIN2range(chunk, counts);
+        }
+        catch(Bexcept& bex)
+        {
+          if (options.verboseThrow)
+            printCounts(group.name(), counts);
+
+          bex.print(flog);
+
+          if (options.verboseBatch)
+            printChunk(chunk);
+          return false;
+        }
+      }
     }
 
     str2board(chunk[BRIDGE_FORMAT_BOARD_NO], format, counts);
