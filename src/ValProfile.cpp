@@ -64,6 +64,20 @@ bool ValProfile::labelIsSet(const unsigned label) const
 }
 
 
+bool ValProfile::hasError(const bool minorFlag) const
+{
+  unsigned lower = 
+    (minorFlag ? 0u : static_cast<unsigned>(BRIDGE_VAL_ERROR));
+
+  for (unsigned v = lower; v < BRIDGE_VAL_SIZE; v++)
+  {
+    if (count[v] > 0)
+      return true;
+  }
+  return false;
+}
+
+
 unsigned ValProfile::getCount(const unsigned label) const
 {
   return count[label];

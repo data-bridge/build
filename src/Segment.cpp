@@ -145,7 +145,9 @@ void Segment::loadFromHeader(
 }
 
 
-void Segment::setTitleLIN(const string& t)
+void Segment::setTitleLIN(
+  const string& t,
+  const Format format)
 {
   // We figure out which of the LIN formats is used.
   // We cater to several uses of the first three fields:
@@ -167,7 +169,13 @@ void Segment::setTitleLIN(const string& t)
   // Pick out the RBN-generated line.
   regex re("^(.+)\\s+(\\w+)$");
   smatch match;
-  if (regex_search(v[0], match, re) && 
+  if (format == BRIDGE_FORMAT_LIN_VG)
+  {
+    // Simple case.
+    Segment::setTitle(v[0], BRIDGE_FORMAT_RBN);
+    Segment::setEvent(v[1], BRIDGE_FORMAT_RBN);
+  }
+  else if (regex_search(v[0], match, re) && 
       match.size() >= 2 &&
       session.isStage(match.str(2)) &&
       session.isSegmentLike(v[1]))
@@ -252,7 +260,7 @@ void Segment::setTitle(
     case BRIDGE_FORMAT_LIN_RP:
     case BRIDGE_FORMAT_LIN_VG:
     case BRIDGE_FORMAT_LIN_TRN:
-      Segment::setTitleLIN(text);
+      Segment::setTitleLIN(text, format);
       break;
 
     case BRIDGE_FORMAT_PBN:

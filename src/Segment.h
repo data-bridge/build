@@ -58,7 +58,9 @@ class Segment
     unsigned LINcount;
 
 
-    void setTitleLIN(const string& text);
+    void setTitleLIN(
+      const string& text,
+      const Format format);
 
     string strTitleLINCore(const bool swapFlag = false) const;
     string strTitleLIN() const;

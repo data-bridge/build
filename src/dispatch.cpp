@@ -345,6 +345,9 @@ static void dispatchCompare(
   }
   catch (Bdiff& bdiff)
   {
+    cout << "Difference: " << fname << ", format " <<
+      FORMAT_NAMES[format] << "\n";
+
     bdiff.print(flog);
     UNUSED(bdiff);
     cstats.add(false, format);

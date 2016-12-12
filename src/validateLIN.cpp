@@ -303,6 +303,34 @@ bool validateLIN(
   ValState& valState,
   ValProfile& prof)
 {
+  if (valState.dataRef.label == "an" &&
+      valState.dataRef.value == "!" &&
+      valState.dataOut.label == "mb")
+  {
+    // Probably the previous values were mb|bid!|, but ref has a 
+    // trailing an|!| which we must get rid of.
+    if (! valState.bufferRef.next(valState.dataRef))
+      return false;
+
+    if (valState.dataRef.label != "mb")
+      return false;
+
+    prof.log(BRIDGE_VAL_LIN_EXCLAIM, valState);
+  }
+  else if (valState.dataRef.label == "pn" &&
+      valState.dataOut.label == "st")
+  {
+    // Could be pn|...| embedded in qx|o1|, which we choose to
+    // disregard, as it is hopefully consistent with the pn header.
+    if (! valState.bufferRef.next(valState.dataRef))
+      return false;
+
+    if (valState.dataRef.label != "st")
+      return false;
+
+    prof.log(BRIDGE_VAL_LIN_EXCLAIM, valState);
+  }
+
   if (valState.dataRef.label == valState.dataOut.label)
   {
     if (valState.dataRef.label == "vg")
@@ -327,9 +355,10 @@ bool validateLIN(
     }
     else if (valState.dataRef.label == "md")
     {
-      if (valState.dataRef.value.length() == 54 &&
+      const unsigned lr = valState.dataRef.value.length();
+      if ((lr == 54 || lr == 55) &&
           valState.dataOut.value.length() == 72 &&
-          valState.dataOut.value.substr(0, 54) == valState.dataRef.value)
+          valState.dataOut.value.substr(0, lr) == valState.dataRef.value)
       {
         prof.log(BRIDGE_VAL_VG_MD, valState);
         return true;
@@ -392,7 +421,7 @@ bool validateLIN(
     else
       return isDifferentCase(valState.dataRef.value,
         valState.dataOut.value);
-      // Could maybe consider equality an error here, but only w.r.t. case
+    // Could maybe consider equality an error here, but only w.r.t. case
   }
 
   if (valState.dataRef.label != valState.dataOut.label)

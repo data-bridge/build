@@ -32,6 +32,7 @@ const string ValErrorName[] =
   "VG-chat",
 
   "All-pass",
+  "Lin-players2",
   "Lin-!",
   "Play-newline",
   "Play-short",
@@ -61,6 +62,7 @@ const string ValErrorNameShort[] =
   "Chat",
 
   "Apass",
+  "Psrep",
   "Alert",
   "Pline",
   "Psht",

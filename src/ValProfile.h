@@ -39,19 +39,20 @@ enum ValError
 
   // These are Pavlicek bugs.
   BRIDGE_VAL_TXT_ALL_PASS = 12,
-  BRIDGE_VAL_LIN_EXCLAIM = 13,
-  BRIDGE_VAL_LIN_PLAY_NL = 14,
-  BRIDGE_VAL_PLAY_SHORT = 15,
-  BRIDGE_VAL_REC_MADE_32 = 16,
-  BRIDGE_VAL_TXT_RESULT = 17,
-  BRIDGE_VAL_RECORD_NUMBER = 18,
+  BRIDGE_VAL_LIN_PN_EMBEDDED = 13,
+  BRIDGE_VAL_LIN_EXCLAIM = 14,
+  BRIDGE_VAL_LIN_PLAY_NL = 15,
+  BRIDGE_VAL_PLAY_SHORT = 16,
+  BRIDGE_VAL_REC_MADE_32 = 17,
+  BRIDGE_VAL_TXT_RESULT = 18,
+  BRIDGE_VAL_RECORD_NUMBER = 19,
 
   // These are real errors.
-  BRIDGE_VAL_ERROR = 19,
-  BRIDGE_VAL_OUT_SHORT = 20,
-  BRIDGE_VAL_REF_SHORT = 20,
-  BRIDGE_VAL_VG_MC = 22,
-  BRIDGE_VAL_SIZE = 23
+  BRIDGE_VAL_ERROR = 20,
+  BRIDGE_VAL_OUT_SHORT = 21,
+  BRIDGE_VAL_REF_SHORT = 22,
+  BRIDGE_VAL_VG_MC = 23,
+  BRIDGE_VAL_SIZE = 24
 };
 
 
@@ -88,6 +89,8 @@ class ValProfile
       const ValState& valState);
 
     bool labelIsSet(const unsigned label) const;
+
+    bool hasError(const bool minorFlag = false) const;
 
     unsigned getCount(const unsigned label) const;
 

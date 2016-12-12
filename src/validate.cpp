@@ -29,7 +29,7 @@ typedef bool (* ValPtr)(ValState&, ValProfile&);
 ValPtr valPtr[BRIDGE_FORMAT_LABELS_SIZE];
 
 
-static void validateCore(
+static bool validateCore(
   ValState& valState,
   const Format formatOrig,
   const Format formatRef,
@@ -81,7 +81,7 @@ static bool isRecordComment(
 }
 
 
-static void validateCore(
+static bool validateCore(
   ValState& valState,
   const Format formatOrig,
   const Format formatRef,
@@ -122,6 +122,7 @@ static void validateCore(
     prof.print(cout);
 
   vstats.add(formatOrig, formatRef, prof);
+  return ! prof.hasError();
 }
 
 
@@ -140,7 +141,8 @@ void validate(
   valState.bufferRef.read(fileRef, formatRef);
   valState.bufferRef.fix(fileRef);
 
-  validateCore(valState, formatOrig, formatRef, options, vstats);
+  if (! validateCore(valState, formatOrig, formatRef, options, vstats))
+    cout << "Error came from " << fileOut << " -> " << fileRef << "\n";
 }
 
 
@@ -160,7 +162,8 @@ void validate(
   valState.bufferRef.read(fileRef, formatRef);
   valState.bufferRef.fix(fileRef);
 
-  validateCore(valState, formatOrig, formatRef, options, vstats);
+  if (! validateCore(valState, formatOrig, formatRef, options, vstats))
+    cout << "Error came from " << fileOut << " -> " << fileRef << "\n";
 }
 
 
