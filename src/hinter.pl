@@ -81,12 +81,11 @@ for my $eref (@files)
   elsif ($eref->{error} == $ERROR_PLAYERS)
   {
     print_entry($eref);
-    print_summary($vg, $rs, $pn, \@blist);
+    hint_bad_players($pn, \@lines, \@count);
   }
   elsif ($eref->{error} == $ERROR_COMMENT)
   {
     print_entry($eref);
-    print_summary($vg, $rs, $pn, \@blist);
     hint_bad_comment($eref, \@lines, \@count);
   }
   else
@@ -415,7 +414,7 @@ sub slurp_file
     }
     elsif ($line =~ /^pn\|/)
     {
-      $$pn = $countref->[$i];
+      $$pnref = $countref->[$i];
     }
     elsif ($line =~ /^qx\|([^|]+)\|/)
     {
@@ -615,6 +614,23 @@ sub hint_md_no_cards
       print "$l0 delete " . ($l1-$l0+1) . "\n";
     }
   }
+  print "\n";
+}
+
+
+sub hint_bad_players
+{
+  my ($pn, $linesref, $countref) = @_;
+
+  my $lno = get_index($pn, $countref);
+  if ($lno == -1)
+  {
+    die "Cannot find $lno";
+  }
+
+  my $line = $linesref->[$lno];
+  print "EDIT BY HAND\n";
+  print "$pn replace \"" . $line . "\"\n";
   print "\n";
 }
 
