@@ -23,14 +23,14 @@ my $ERROR_COMMENT = 8;
 
 my @ERROR_NAMES;
 push @ERROR_NAMES, "Unknown";
-push @ERROR_NAMES, "Extra call";
-push @ERROR_NAMES, "No cards";
+push @ERROR_NAMES, "Extra call"; # Done
+push @ERROR_NAMES, "No cards"; # Done
 push @ERROR_NAMES, "Card not held";
 push @ERROR_NAMES, "Decl/denom";
 push @ERROR_NAMES, "Contract set";
 push @ERROR_NAMES, "Number of tricks";
 push @ERROR_NAMES, "Players";
-push @ERROR_NAMES, "Comment";
+push @ERROR_NAMES, "Comment"; # Done
 
 
 my @files;
@@ -46,7 +46,7 @@ for my $eref (@files)
 
   if ($eref->{error} == $ERROR_UNKNOWN)
   {
-    die "Unknown error should not arise";
+    die "Unknown error should not arise: $eref->{fullname}";
   }
   elsif ($eref->{error} == $ERROR_CALL_EXTRA)
   {
@@ -57,26 +57,6 @@ for my $eref (@files)
   {
     print_entry($eref);
     hint_md_no_cards($eref, \@blist, \@lines, \@count);
-
-    if ($#blist == 0)
-    {
-      print "skip\n";
-    }
-    else
-    {
-      my ($l0, $l1);
-      find_line_range($eref->{board}, \@blist, \@lines, \@count,
-        \$l0, \$l1);
-      if ($l0 == $l1)
-      {
-        print "$l0 delete\n";
-      }
-      else
-      {
-        print "$l0 delete " . ($l1-$l0+1) . "\n";
-      }
-    }
-    print "\n";
   }
   elsif ($eref->{error} == $ERROR_CARD_NOT_HELD)
   {
@@ -107,6 +87,7 @@ for my $eref (@files)
   {
     print_entry($eref);
     print_summary($vg, $rs, $pn, \@blist);
+    hint_bad_comment($eref, \@lines, \@count);
   }
   else
   {
@@ -253,6 +234,12 @@ sub get_files
       print "ERROR4 $lno $line\n" unless defined $entry{start};
       $entry{error} = $ERROR_DECL_DENOM;
     }
+    elsif ($line =~ /Declarer and denomination reset/)
+    {
+      # Could be a separate error, perhaps.
+      print "ERROR4 $lno $line\n" unless defined $entry{start};
+      $entry{error} = $ERROR_DECL_DENOM;
+    }
     elsif ($line eq "Contract already set")
     {
       print "ERROR5 $lno $line\n" unless defined $entry{start};
@@ -263,12 +250,18 @@ sub get_files
       print "ERROR6 $lno $line\n" unless defined $entry{start};
       $entry{error} = $ERROR_NUM_TRICKS;
     }
+    elsif ($line =~ /Tricks already set/)
+    {
+      # Could be a separate error, perhaps.
+      print "ERROR6 $lno $line\n" unless defined $entry{start};
+      $entry{error} = $ERROR_NUM_TRICKS;
+    }
     elsif ($line eq "Bad number of fields")
     {
       print "ERROR7 $lno $line\n" unless defined $entry{start};
       $entry{error} = $ERROR_PLAYERS;
     }
-    elsif ($line =~ /Bad line line: .*, line number (\d+)$/)
+    elsif ($line =~ /Bad LIN line: .*, (\d+)$/)
     {
       print "ERROR7 $lno $line\n" unless defined $entry{start};
       $entry{error} = $ERROR_COMMENT;
@@ -344,7 +337,8 @@ sub slurp_file
       $line =~ s///g;
       next if ($line eq '');
 
-      if ($line !~ /^(\w+)\s+(\w+)\s+\"(.*)\"$/)
+      if ($line !~ /^(\w+)\s+(\w+)\s+\"(.*)\"$/ &&
+          $line !~ /^(\w+)\s+(\w+)\s+(.*)$/)
       {
         die "$refname syntax error: $line";
       }
@@ -621,6 +615,50 @@ sub hint_md_no_cards
       print "$l0 delete " . ($l1-$l0+1) . "\n";
     }
   }
+  print "\n";
+}
+
+
+sub hint_bad_comment
+{
+  my ($eref, $linesref, $countref) = @_;
+
+  my $lno = get_index($eref->{lno}, $countref);
+  if ($lno == -1)
+  {
+    die "Cannot find $lno";
+  }
+
+  my $line = $linesref->[$lno];
+  my @a = split /\|/, $line, -1;
+  for (my $i = $#a; $i >= 0; $i--)
+  {
+    # Delete all comments.
+    if ($a[$i] eq 'nt')
+    {
+      if ($i == $#a)
+      {
+        die "Unmatched trailing nt";
+      }
+      my $j = $i+1;
+      while ($j <= $#a && $a[$j] !~ /^\w\w$/)
+      {
+        $j++;
+      }
+      if ($j > $#a)
+      {
+        splice @a, $i;
+      }
+      else
+      {
+        splice @a, $i, $j-$i;
+      }
+    }
+  }
+
+  $line = join '|', @a;
+
+  print $eref->{lno} . " replace \"" . $line . "\"\n";
   print "\n";
 }
 
