@@ -29,7 +29,7 @@ push @ERROR_NAMES, "Card not held";
 push @ERROR_NAMES, "Decl/denom";
 push @ERROR_NAMES, "Contract set";
 push @ERROR_NAMES, "Number of tricks";
-push @ERROR_NAMES, "Players";
+push @ERROR_NAMES, "Players"; # Done
 push @ERROR_NAMES, "Comment"; # Done
 
 
@@ -62,6 +62,15 @@ for my $eref (@files)
   {
     print_entry($eref);
     print_summary($vg, $rs, $pn, \@blist);
+
+    if (cards_and_play_match($eref))
+    {
+      print "Examine manually (no contradiction in cards)\n";
+    }
+    else
+    {
+      hint_md_no_cards($eref, \@blist, \@lines, \@count);
+    }
   }
   elsif ($eref->{error} == $ERROR_DECL_DENOM)
   {
@@ -202,6 +211,7 @@ sub get_files
       $entry{auction} = '';
       $entry{play} = '';
       $entry{lno} = '';
+      @{$entry{holders}} = ();
     }
     elsif ($line =~ /^Line numbers: (\d+) to (\d+)/)
     {
@@ -227,6 +237,15 @@ sub get_files
     {
       print "ERROR3 $lno $line\n" unless defined $entry{start};
       $entry{error} = $ERROR_CARD_NOT_HELD;
+
+      # Read in the deal.
+      for my $i (1 .. 15)
+      {
+        $line = <$fh>;
+        chomp $line;
+        $line =~ s///g;
+        push @{$entry{holders}}, $line;
+      }
     }
     elsif ($line =~ /YY/)
     {
@@ -569,6 +588,95 @@ sub find_line_range
   {
     $$l1ref = $listref->[$bno+1]{no}-1;
   }
+}
+
+
+sub cards_player
+{
+  my ($line, $href, $player) = @_;
+
+  $line =~ s/^\s+//;
+  $line =~ s/\s+$//;
+
+  my @a = split ' ', $line;
+  for my $j (1 .. $#a)
+  {
+    my $card = ($a[$j] eq '10' ? 'T' : $a[$j]);
+    $href->{$a[0] . $card} = 0;
+  }
+}
+
+
+sub cards_and_play_match
+{
+  my ($eref) = @_;
+
+  # Split play into tricks.
+  my @tricks = split ':', $eref->{play};
+  return 1 if ($#tricks == -1);
+
+  # Make a note of holder of each card in deal.
+  # North 0, East 1, South 2, West 3
+
+  my %holders;
+  for my $i (1 .. 4)
+  {
+    # North
+    my $line = $eref->{holders}[$i];
+    cards_player($line, \%holders, 0);
+  }
+
+  for my $i (6 .. 9)
+  {
+    # West and East
+    my $line = $eref->{holders}[$i];
+    my $linewest = substr $line, 0, 24;
+    my $lineeast = substr $line, 24;
+
+    cards_player($lineeast, \%holders, 1);
+    cards_player($linewest, \%holders, 3);
+  }
+
+  for my $i (11 .. 14)
+  {
+    # South
+    my $line = $eref->{holders}[$i];
+    cards_player($line, \%holders, 2);
+  }
+
+  # Check that each trick is possible.  (Don't check that winner
+  # agrees with previous tricks etc).
+
+  for my $t (@tricks)
+  {
+    my $l = length $t;
+    next if ($l == 2);
+    my $lead = uc(substr $t, 0, 2);
+    if (! defined $holders{$lead})
+    {
+      die "Unknown card $lead";
+    }
+
+    my $player = $holders{$lead};
+    for my $i (1 .. ($l/2 - 1))
+    {
+      my $nextc = uc(substr $t, 2*$i, 2);
+      if (! defined $holders{$lead})
+      {
+        die "Unknown card $lead";
+      }
+      my $nextp = $holders{$nextc};
+      if (($nextp + 3 - $player) % 4 != 0)
+      {
+        return 0;
+      }
+      $player = $nextp;
+    }
+
+    # TODO: Debug
+  }
+
+  return 1;
 }
 
 
