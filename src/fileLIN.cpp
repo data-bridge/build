@@ -66,7 +66,7 @@ static bool nextLINPair(
 
   label = line.substr(pos, lpos-pos);
   value = line.substr(lpos+1, vpos-lpos-1);
-  pos = vpos+1;
+  pos = static_cast<unsigned>(vpos)+1;
   return true;
 }
 

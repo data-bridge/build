@@ -41,8 +41,8 @@ static bool isRECJustMade(
   const string &lineOut, 
   const string &lineRef)
 {
-  unsigned lOut = lineOut.length();
-  unsigned lRef = lineRef.length();
+  unsigned lOut = static_cast<unsigned>(lineOut.length());
+  unsigned lRef = static_cast<unsigned>(lineRef.length());
 
   if (lOut < 32 || lRef != lOut)
     return false;

@@ -79,7 +79,8 @@ static void readTXTCanvas(
       if (readNextWord(prevData.line, 0, wd) && 
           (wd == "Down" || wd == "Made" || wd == "Passed"))
       {
-        int seen = count(prevData.line.begin(), prevData.line.end(), ' ');
+        int seen = static_cast<int>
+	  (count(prevData.line.begin(), prevData.line.end(), ' '));
         if (seen > 4 || (wd == "Passed" && seen >= 3))
           // Team line still to come
           continue;
@@ -141,25 +142,28 @@ static void getTXTCanvasOffset(
   // The fields can be longer than 12 characters...
   // The whole line can also be absent.
 
-  const unsigned ll = canvas[aline].length();
-  if (ll > 13 && ll < 36 && canvas[aline].substr(12, 2) == "C ")
+  const unsigned ll = static_cast<unsigned>(canvas[aline].length());
+  if (ll > 13u && ll < 36u && canvas[aline].substr(12, 2) == "C ")
     return;
 
   if (readAllWordsOverlong(canvas[aline], n, n+11, 
       chunk[BRIDGE_FORMAT_WEST])) 
-    n += Max(12, chunk[BRIDGE_FORMAT_WEST].length()+1);
+    n += static_cast<unsigned>
+      (Max(12, chunk[BRIDGE_FORMAT_WEST].length()+1));
   else
     n += 12;
 
   if (readAllWordsOverlong(canvas[aline], n, n+11, 
       chunk[BRIDGE_FORMAT_NORTH])) 
-    n += Max(12, chunk[BRIDGE_FORMAT_NORTH].length()+1);
+    n += static_cast<unsigned>
+      (Max(12, chunk[BRIDGE_FORMAT_NORTH].length()+1));
   else
     n += 12;
 
   if (readAllWordsOverlong(canvas[aline], n, n+11, 
       chunk[BRIDGE_FORMAT_EAST])) 
-    n += Max(12, chunk[BRIDGE_FORMAT_EAST].length()+1);
+    n += static_cast<unsigned>
+      (Max(12, chunk[BRIDGE_FORMAT_EAST].length()+1));
   else
     n += 12;
 
@@ -310,7 +314,7 @@ static void getTXTAuction(
   unsigned& offset,
   vector<string>& chunk)
 {
-  const unsigned l0 = canvas[offset].length();
+  const unsigned l0 = static_cast<unsigned>(canvas[offset].length());
   if (l0 > 6 && l0 < 11 && canvas[offset] != "All Pass")
   {
     // No auction, e.g. "5Cx North".
@@ -338,7 +342,7 @@ static void getTXTAuction(
   unsigned numPasses = 0;
   for (l = offset; l < canvas.size(); l++)
   {
-    const unsigned ll = canvas[l].length();
+    const unsigned ll = static_cast<unsigned>(canvas[l].length());
     if (ll >= 7 && ll <= 11 && canvas[l] != "All Pass")
     {
       // "5S South", not an actual bid.

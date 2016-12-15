@@ -673,7 +673,7 @@ static void chunkLIN2range(
       THROW("Bad number of results, commas " + STR(commas));
   }
 
-  const unsigned l = res.length();
+  const unsigned l = static_cast<unsigned>(res.length());
   unsigned p = 0;
   while (p+1 < l && res.substr(p, 2) == ",,")
   {

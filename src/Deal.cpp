@@ -139,7 +139,8 @@ void Deal::setHand(
 {
   int seen = 0;
   for (unsigned i = 0; i < delimiters.length(); i++)
-    seen += count(hand.begin(), hand.end(), delimiters.at(i));
+    seen += static_cast<int>
+      (count(hand.begin(), hand.end(), delimiters.at(i)));
 
   if (seen != 3 + static_cast<int>(offset))
     THROW("Not the right number of delimiters");

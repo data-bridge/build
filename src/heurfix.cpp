@@ -42,7 +42,7 @@ static void fixTricksContract(
   string& contractHeader, 
   const unsigned tricks)
 {
-  const unsigned l = contractHeader.length();
+  const unsigned l = static_cast<unsigned>(contractHeader.length());
   if (l < 4)
     THROW("Contract too short: " + contractHeader);
 
@@ -134,7 +134,7 @@ static void fixDeclarerContract(
   string& contractHeader, 
   const string& declarer)
 {
-  const unsigned l = contractHeader.length();
+  const unsigned l = static_cast<unsigned>(contractHeader.length());
   if (l < 4)
     THROW("Contract too short: " + contractHeader);
 
@@ -149,7 +149,7 @@ static void fixDenomContract(
   string& contractHeader, 
   const string& denom)
 {
-  const unsigned l = contractHeader.length();
+  const unsigned l = static_cast<unsigned>(contractHeader.length());
   if (l < 4)
     THROW("Contract too short: " + contractHeader);
 
