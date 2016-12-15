@@ -36,6 +36,13 @@ push @ERROR_NAMES, "Comment"; # Done
 my @files;
 get_files(\@files, $ARGV[0], 1);
 
+my $numbers = `basename $ARGV[0]`;
+$numbers =~ /(\d+)/;
+$numbers = $1;
+
+open my $fzfix, '>', "zfix$numbers.txt" or die "Can't open zfix.txt: $!";
+open my $fzrest, '>', "zrest$numbers.txt" or die "Can't open zrest.txt: $!";
+
 for my $eref (@files)
 {
   my (@lines, @count, $vg, $rs, $pn, @blist);
@@ -50,51 +57,51 @@ for my $eref (@files)
   }
   elsif ($eref->{error} == $ERROR_CALL_EXTRA)
   {
-    print_entry($eref);
-    hint_call_extra($eref, \@blist, \@lines, \@count);
+    print $fzfix $eref->{fullname} . "\n";
+    hint_call_extra($fzfix, $eref, \@blist, \@lines, \@count);
   }
   elsif ($eref->{error} == $ERROR_MD_NO_CARDS)
   {
-    print_entry($eref);
-    hint_md_no_cards($eref, \@blist, \@lines, \@count);
+    print $fzfix $eref->{fullname} . "\n";
+    hint_md_no_cards($fzfix, $eref, \@blist, \@lines, \@count);
   }
   elsif ($eref->{error} == $ERROR_CARD_NOT_HELD)
   {
-    print_entry($eref);
-    print_summary($vg, $rs, $pn, \@blist);
-
     if (cards_and_play_match($eref))
     {
-      print "Examine manually (no contradiction in cards)\n";
+      print_entry($fzrest, $eref);
+      print $fzrest "Examine manually (no contradiction in cards)\n";
+      print $fzrest "Play length " . (length $eref->{play}) . "\n";
     }
     else
     {
-      hint_md_no_cards($eref, \@blist, \@lines, \@count);
+      print $fzfix $eref->{fullname} . "\n";
+      hint_md_no_cards($fzfix, $eref, \@blist, \@lines, \@count);
     }
   }
   elsif ($eref->{error} == $ERROR_DECL_DENOM)
   {
-    print_entry($eref);
-    print_summary($vg, $rs, $pn, \@blist);
+    print_entry($fzrest, $eref);
+    print_summary($fzrest, $vg, $rs, $pn, \@blist);
   }
   elsif ($eref->{error} == $ERROR_CONTRACT_SET)
   {
-    print_entry($eref);
-    print_summary($vg, $rs, $pn, \@blist);
+    print_entry($fzrest, $eref);
+    print_summary($fzrest, $vg, $rs, $pn, \@blist);
   }
   elsif ($eref->{error} == $ERROR_NUM_TRICKS)
   {
-    print_entry($eref);
-    print_summary($vg, $rs, $pn, \@blist);
+    print_entry($fzrest, $eref);
+    print_summary($fzrest, $vg, $rs, $pn, \@blist);
   }
   elsif ($eref->{error} == $ERROR_PLAYERS)
   {
-    print_entry($eref);
-    hint_bad_players($pn, \@lines, \@count);
+    print $fzfix $eref->{fullname} . "\n";
+    hint_bad_players($fzfix, $pn, \@lines, \@count);
   }
   elsif ($eref->{error} == $ERROR_COMMENT)
   {
-    print_entry($eref);
+    print $fzfix $eref->{fullname} . "\n";
     hint_bad_comment($eref, \@lines, \@count);
   }
   else
@@ -303,7 +310,7 @@ sub get_files
   for my $i (0 .. $#count)
   {
     next unless defined ($count[$i]);
-    printf "%-16s %3d\n", $ERROR_NAMES[$i], $count[$i]
+    printf "%-16s %3d\n", $ERROR_NAMES[$i], $count[$i];
   }
   print "\n";
 
@@ -313,15 +320,15 @@ sub get_files
 
 sub print_entry
 {
-  my $eref = pop;
-  print "File    $eref->{fullname}\n";
-  print "Error   $ERROR_NAMES[$eref->{error}]\n";
-  print "Range   $eref->{start} .. $eref->{end}\n";
-  print "Board   $eref->{board}\n";
-  print "Auction $eref->{auction}\n";
-  print "Play    $eref->{play}\n";
-  print "Line no $eref->{lno}\n";
-  print "\n";
+  my ($fzr, $eref) = @_;
+  print $fzr "File    $eref->{fullname}\n";
+  print $fzr "Error   $ERROR_NAMES[$eref->{error}]\n";
+  print $fzr "Range   $eref->{start} .. $eref->{end}\n";
+  print $fzr "Board   $eref->{board}\n";
+  print $fzr "Auction $eref->{auction}\n";
+  print $fzr "Play    $eref->{play}\n";
+  print $fzr "Line no $eref->{lno}\n";
+  print $fzr "\n";
 }
 
 
@@ -477,16 +484,17 @@ sub get_index
 
 sub print_summary
 {
-  my ($vg, $rs, $pn, $blistref) = @_;
+  my ($fzr, $vg, $rs, $pn, $blistref) = @_;
 
-  print "vg $vg\n";
-  print "rs $rs\n";
-  print "pn $pn\n";
+  print $fzr "vg $vg\n";
+  print $fzr "rs $rs\n";
+  print $fzr "pn $pn\n";
   for my $i (0 .. $#$blistref)
   {
-    printf "%-4d %4d %s\n", $i, $blistref->[$i]{no}, $blistref->[$i]{name};
+    printf $fzr "%-4d %4d %s\n", 
+      $i, $blistref->[$i]{no}, $blistref->[$i]{name};
   }
-  print "\n";
+  print $fzr "\n";
 }
 
 
@@ -602,7 +610,7 @@ sub cards_player
   for my $j (1 .. $#a)
   {
     my $card = ($a[$j] eq '10' ? 'T' : $a[$j]);
-    $href->{$a[0] . $card} = 0;
+    $href->{$a[0] . $card} = $player;
   }
 }
 
@@ -672,8 +680,6 @@ sub cards_and_play_match
       }
       $player = $nextp;
     }
-
-    # TODO: Debug
   }
 
   return 1;
@@ -682,12 +688,12 @@ sub cards_and_play_match
 
 sub hint_call_extra
 {
-  my ($eref, $blistref, $linesref, $countref) = @_;
+  my ($fzf, $eref, $blistref, $linesref, $countref) = @_;
 
   my $pcount = count_trailing_passes($eref->{auction});
   if ($pcount <= 3)
   {
-    die "Not enough trailing passes";
+    die "Not enough trailing passes: $eref->{fullname}";
   }
 
   my $mno = find_last_bid_line($eref->{board}, $blistref, 
@@ -695,18 +701,18 @@ sub hint_call_extra
   die "No bid line" if ($mno == -1);
   my $modif = modify_bid_line($linesref->[$mno], $pcount-3);
 
-  print "$countref->[$mno] replace \"$modif\"\n";
-  print "\n";
+  print $fzf "$countref->[$mno] replace \"$modif\"\n";
+  print $fzf "\n";
 }
 
 
 sub hint_md_no_cards
 {
-  my ($eref, $blistref, $linesref, $countref) = @_;
+  my ($fzf, $eref, $blistref, $linesref, $countref) = @_;
 
   if ($#$blistref == 0)
   {
-    print "skip\n";
+    print $fzf "skip\n";
   }
   else
   {
@@ -715,20 +721,20 @@ sub hint_md_no_cards
       \$l0, \$l1);
     if ($l0 == $l1)
     {
-      print "$l0 delete\n";
+      print $fzf "$l0 delete\n";
     }
     else
     {
-      print "$l0 delete " . ($l1-$l0+1) . "\n";
+      print $fzf "$l0 delete " . ($l1-$l0+1) . "\n";
     }
   }
-  print "\n";
+  print $fzf "\n";
 }
 
 
 sub hint_bad_players
 {
-  my ($pn, $linesref, $countref) = @_;
+  my ($fzf, $pn, $linesref, $countref) = @_;
 
   my $lno = get_index($pn, $countref);
   if ($lno == -1)
@@ -737,15 +743,15 @@ sub hint_bad_players
   }
 
   my $line = $linesref->[$lno];
-  print "EDIT BY HAND\n";
-  print "$pn replace \"" . $line . "\"\n";
-  print "\n";
+  print $fzf "EDIT BY HAND\n";
+  print $fzf "$pn replace \"" . $line . "\"\n";
+  print $fzf "\n";
 }
 
 
 sub hint_bad_comment
 {
-  my ($eref, $linesref, $countref) = @_;
+  my ($fzf, $eref, $linesref, $countref) = @_;
 
   my $lno = get_index($eref->{lno}, $countref);
   if ($lno == -1)
@@ -782,8 +788,8 @@ sub hint_bad_comment
 
   $line = join '|', @a;
 
-  print $eref->{lno} . " replace \"" . $line . "\"\n";
-  print "\n";
+  print $fzf $eref->{lno} . " replace \"" . $line . "\"\n";
+  print $fzf "\n";
 }
 
 
