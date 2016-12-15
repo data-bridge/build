@@ -249,7 +249,7 @@ static string pruneCommas(
   unsigned& q)
 {
   p = 0;
-  const unsigned l = text.length();
+  const unsigned l = static_cast<unsigned>(text.length());
   while (p+1 < l && text.substr(p, 2) == ",,")
     p += 2;
 
@@ -355,7 +355,8 @@ bool validateLIN(
     }
     else if (valState.dataRef.label == "md")
     {
-      const unsigned lr = valState.dataRef.value.length();
+      const unsigned lr = static_cast<unsigned>
+        (valState.dataRef.value.length());
       if ((lr == 54 || lr == 55) &&
           valState.dataOut.value.length() == 72 &&
           valState.dataOut.value.substr(0, lr) == valState.dataRef.value)

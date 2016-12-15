@@ -34,7 +34,8 @@ bool validatePBN(
       valState.dataRef.type != BRIDGE_BUFFER_STRUCTURED)
   {
     // Could be a short play line, "S4 -- -- --" (Pavlicek notation!).
-    unsigned poso = valState.dataOut.line.find('-');
+    unsigned poso = static_cast<unsigned>
+      (valState.dataOut.line.find('-'));
     
     if (poso > 0 && poso < lo)
     {

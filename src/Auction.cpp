@@ -515,7 +515,7 @@ void Auction::addAuctionPBN(const vector<string>& list)
     THROW("Auction has different dealer");
 
   // Get the alerts from the back.
-  unsigned end = list.size() - 1;
+  unsigned end = static_cast<unsigned>(list.size()) - 1;
   vector<string> alerts;
   alerts.clear();
   int no;

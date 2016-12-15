@@ -93,7 +93,7 @@ void Buffer::readBinaryFile(const string& fname)
       lineData.len = static_cast<unsigned>(p-prev);
       lineData.line = leftover + 
         chars2str(prev, lineData.len);
-      lineData.len += leftover.size();
+      lineData.len += static_cast<unsigned>(leftover.size());
       lineData.no = ++no;
 
       lines.push_back(lineData);
@@ -104,7 +104,7 @@ void Buffer::readBinaryFile(const string& fname)
       static_cast<unsigned>((buf + bytes_read) - prev));
   }
 
-  len = lines.size();
+  len = static_cast<unsigned>(lines.size());
   close(fd);
 }
 
@@ -282,7 +282,7 @@ bool Buffer::split(
   {
     size_t found = st.find("\n", p);
     lineData.line = st.substr(p, found-p);
-    lineData.len = lineData.line.length();
+    lineData.len = static_cast<unsigned>(lineData.line.length());
     lineData.no = ++len;
     lines.push_back(lineData);
     if (found == string::npos)
@@ -385,7 +385,7 @@ bool Buffer::fix(const string& fname)
     {
       LineData lnew;
       lnew.line = refFix[rno].value;
-      lnew.len = lnew.line.length();
+      lnew.len = static_cast<unsigned>(lnew.line.length());
       lnew.no = 0;
       Buffer::classify(lnew);
       lines.insert(lines.begin() + static_cast<int>(i), lnew);
@@ -394,7 +394,7 @@ bool Buffer::fix(const string& fname)
     else if (refFix[rno].type == BRIDGE_REF_REPLACE)
     {
       ld.line = refFix[rno].value;
-      ld.len = ld.line.length();
+      ld.len = static_cast<unsigned>(ld.line.length());
       Buffer::classify(ld);
     }
     else if (refFix[rno].type == BRIDGE_REF_DELETE)
@@ -462,7 +462,7 @@ bool Buffer::nextLIN(LineData& vside)
     vside.value = lines[current].line.substr(posLIN, e-posLIN);
 
   vside.line = vside.label + "|" + vside.value + "|";
-  vside.len = 4 + vside.value.length();
+  vside.len = 4 + static_cast<unsigned>(vside.value.length());
 
   if (e == lines[current].len-1)
   {
@@ -470,7 +470,7 @@ bool Buffer::nextLIN(LineData& vside)
     posLIN = 0;
   }
   else
-    posLIN = e+1;
+    posLIN = static_cast<unsigned>(e)+1;
 
   // Skip over nt and pg.
   if (vside.label == "nt" || vside.label == "pg")
@@ -513,13 +513,13 @@ void Buffer::nextRBX(LineData& vside)
   }
   else
   {
-    vside.len = e-posRBX;
+    vside.len = static_cast<unsigned>(e)-posRBX;
     vside.value = lines[current].line.substr(posRBX+2, vside.len-2);
     vside.line = vside.label + " " + vside.value;
   }
 
   Buffer::classify(vside);
-  posRBX = e+1;
+  posRBX = static_cast<unsigned>(e)+1;
 }
 
 

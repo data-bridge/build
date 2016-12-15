@@ -59,7 +59,7 @@ void Players::setRBNSide(
   if (text == "")
     return;
 
-  int seen = count(text.begin(), text.end(), '+');
+  int seen = static_cast<int>(count(text.begin(), text.end(), '+'));
   if (seen != 1)
     THROW("RBN side does not have exactly one plus");
 
@@ -74,7 +74,7 @@ void Players::setRBNSide(
 
 void Players::setLIN(const string& text)
 {
-  int seen = count(text.begin(), text.end(), ',');
+  int seen = static_cast<int>(count(text.begin(), text.end(), ','));
   if (seen != 3 && seen != 7)
     THROW("Names are not in LIN format: '" + text + "'");
 
@@ -95,7 +95,7 @@ void Players::setRBN(const string& text)
   if (text.length() <= 2)
     THROW("Names are not in RBN format");
 
-  int seen = count(text.begin(), text.end(), ':');
+  int seen = static_cast<int>(count(text.begin(), text.end(), ':'));
   if (seen == 0 || seen > 2)
     THROW("Names are not in RBN format");
 
@@ -295,7 +295,8 @@ string Players::strTXT() const
   for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
   {
     const unsigned pTXT = PLAYER_DDS_TO_TXT[p];
-    const unsigned l = 1 + Max(11, players[pTXT].length());
+    const unsigned l = 1u + 
+      static_cast<unsigned>(Max(11, players[pTXT].length()));
     ss << setw(static_cast<int>(l)) << left << players[pTXT];
   }
 

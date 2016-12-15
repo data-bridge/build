@@ -46,7 +46,7 @@ void Teams::setPBN(
 
 void Teams::setRBN(const string& text)
 {
-  int seen = count(text.begin(), text.end(), ':');
+  int seen = static_cast<int>(count(text.begin(), text.end(), ':'));
   if (seen == 1)
   {
     vector<string> v(2);

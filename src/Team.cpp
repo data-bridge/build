@@ -59,7 +59,7 @@ void Team::extractCarry(const string& text)
 
 void Team::setPBN(const string& text)
 {
-  int seen = count(text.begin(), text.end(), ':');
+  int seen = static_cast<int>(count(text.begin(), text.end(), ':'));
   if (seen > 1)
     THROW("Too many colons");
   if (seen == 0)

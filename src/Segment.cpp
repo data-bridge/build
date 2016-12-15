@@ -158,7 +158,7 @@ void Segment::setTitleLIN(
   // 2         P           P         I             I          I
   // scoring   I           P         I             I          I
 
-  int seen = std::count(t.begin(), t.end(), ',');
+  int seen = static_cast<int>(std::count(t.begin(), t.end(), ','));
   if (seen != 8)
     THROW("LIN vg needs exactly 8 commas.");
 
@@ -409,7 +409,7 @@ void Segment::setResultsList(
 
   if (c+1 > 2*LINcount)
   {
-    LINcount = (c+1)/2;
+    LINcount = static_cast<unsigned>((c+1)/2);
     LINdata.resize(LINcount);
   }
 

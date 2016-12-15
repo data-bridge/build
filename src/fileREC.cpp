@@ -318,7 +318,7 @@ static void getRECPlay(
   for (unsigned l = offset; l < canvas.size(); l++)
   {
     const string& line = canvas[l];
-    int seen = count(line.begin(), line.end(), ',');
+    int seen = static_cast<int>(count(line.begin(), line.end(), ','));
     if (seen > 3)
       THROW("Too many commas in play line: " + line + "'");
 

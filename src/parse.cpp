@@ -63,7 +63,8 @@ unsigned countDelimiters(
 {
   int c = 0;
   for (unsigned i = 0; i < delimiters.length(); i++)
-    c += count(text.begin(), text.end(), delimiters.at(i));
+    c += static_cast<int>
+      (count(text.begin(), text.end(), delimiters.at(i)));
   return static_cast<unsigned>(c);
 }
 
@@ -76,7 +77,7 @@ void splitIntoWords(
   unsigned pos = 0;
   unsigned startPos = 0;
   bool isSpace = true;
-  const unsigned l = text.length();
+  const unsigned l = static_cast<unsigned>(text.length());
 
   while (pos < l)
   {
@@ -481,7 +482,7 @@ void toUpper(
 
 unsigned trimLeading(string& text)
 {
-  const unsigned l = text.length();
+  const unsigned l = static_cast<unsigned>(text.length());
   unsigned pos = 0;
   while (pos < l && text.at(pos) == ' ')
     pos++;
@@ -494,7 +495,7 @@ unsigned trimLeading(string& text)
 
 string trimTrailing(const string& str)
 {
-  unsigned pos = str.length();
+  unsigned pos = static_cast<unsigned>(str.length());
   while (pos >= 1 && str.at(pos-1) == ' ')
     pos--;
 
@@ -510,7 +511,7 @@ bool getNextWord(
   string& word)
 {
   // Consumes from s!
-  const unsigned l = text.length();
+  const unsigned l = static_cast<unsigned>(text.length());
   unsigned pos = 0;
   while (pos < l && text.at(pos) != ' ')
     pos++;
@@ -537,7 +538,7 @@ bool readNextWord(
   const unsigned startPos,
   string& word)
 {
-  unsigned l = text.length();
+  unsigned l = static_cast<unsigned>(text.length());
   unsigned pos = startPos;
   while (pos < l && text.at(pos) != ' ')
     pos++;
@@ -558,7 +559,7 @@ bool readNextWord(
   const unsigned stopPosInclusive,
   string& word)
 {
-  const unsigned l = text.length();
+  const unsigned l = static_cast<unsigned>(text.length());
   unsigned pos = startPos;
   while (pos < l && pos <= stopPosInclusive && text.at(pos) != ' ')
     pos++;
@@ -579,7 +580,7 @@ bool readAllWords(
   const unsigned stopPosInclusive,
   string& word)
 {
-  const unsigned l = text.length();
+  const unsigned l = static_cast<unsigned>(text.length());
   if (l == 0 || l < startPos || text.at(startPos) == ' ')
     return false;
 
@@ -603,7 +604,7 @@ bool readAllWordsOverlong(
   const unsigned stopPosInclusive,
   string& word)
 {
-  const unsigned l = text.length();
+  const unsigned l = static_cast<unsigned>(text.length());
   if (l == 0 || l < startPos)
     return false;
 
@@ -637,7 +638,7 @@ bool readNextSpacedWord(
   const unsigned startPos,
   string& word)
 {
-  const unsigned l = text.length();
+  const unsigned l = static_cast<unsigned>(text.length());
   stringstream ss;
   unsigned pos;
   bool oneFlag = false; // Lot of ado to turn 10 into T

@@ -49,7 +49,7 @@ void Canvas::setLine(
   if (lineNo >= height || colNo >= width)
     return;
 
-  unsigned l = text.length();
+  unsigned l = static_cast<unsigned>(text.length());
   if (colNo + l > width)
     l -= colNo - width;
 

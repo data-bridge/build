@@ -385,7 +385,7 @@ void Play::setPlaysRBN(const string& text)
 
   toUpper(str);
 
-  int seen = count(str.begin(), str.end(), ':');
+  int seen = static_cast<int>(count(str.begin(), str.end(), ':'));
   if (seen > BRIDGE_TRICKS-1)
     THROW("Too many colons in RBN " + str);
 
@@ -396,7 +396,7 @@ void Play::setPlaysRBN(const string& text)
   for (unsigned t = 0; t < tricks.size(); t++)
   {
     const string& trick = tricks[t];
-    const unsigned l = trick.length();
+    const unsigned l = static_cast<unsigned>(trick.length());
     if (l < 2 || l > 8)
       THROW("Bad RBN trick " + trick);
 

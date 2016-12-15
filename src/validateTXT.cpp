@@ -19,13 +19,13 @@ static bool isTXTAllPass(
 {
   vector<string> wordsRef;
   splitIntoWords(valState.dataRef.line, wordsRef);
-  unsigned lRef = wordsRef.size();
+  unsigned lRef = static_cast<unsigned>(wordsRef.size());
   if (lRef > 4)
     return false;
 
   vector<string> wordsOut;
   splitIntoWords(valState.dataOut.line, wordsOut);
-  unsigned lOut = wordsOut.size();
+  unsigned lOut = static_cast<unsigned>(wordsOut.size());
   if (lOut < 2 || lOut+2 < lRef || lOut > lRef+1)
     return false;
 
@@ -105,7 +105,7 @@ static bool isTXTRunningScore(const string& line)
 {
   vector<string> words;
   splitIntoWords(line, words);
-  const unsigned n = words.size();
+  const unsigned n = static_cast<unsigned>(words.size());
   if (n < 4)
     return false;
 
@@ -140,8 +140,8 @@ static bool areTXTSimilarResults(
   splitIntoWords(lineOut, wordsOut);
   splitIntoWords(lineRef, wordsRef);
 
-  const unsigned lOut = wordsOut.size();
-  const unsigned lRef = wordsRef.size();
+  const unsigned lOut = static_cast<unsigned>(wordsOut.size());
+  const unsigned lRef = static_cast<unsigned>(wordsRef.size());
 
   if (lOut >= lRef || lOut < 2)
     return false;

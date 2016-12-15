@@ -88,7 +88,7 @@ bool Tableau::setRBN(const string& text)
   if (text == "")
     THROW("Empty text");
     
-  int c = count(text.begin(), text.end(), ':');
+  int c = static_cast<int>(count(text.begin(), text.end(), ':'));
   if (c != 2 && c != 3)
     THROW("Text without 2 or 3 colons: '" + text + "'");
 

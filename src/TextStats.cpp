@@ -100,7 +100,7 @@ void TextStats::add(
 {
   unsigned lb = BRIDGE_STATS_MAP[label];
   assert(lb < BRIDGE_STATS_NUM_FIELDS);
-  unsigned len = text.length();
+  unsigned len = static_cast<unsigned>(text.length());
   if (stats[format][lb].datum[len].count == 0)
   {
     stats[format][lb].datum[len].source = basefile(source);
