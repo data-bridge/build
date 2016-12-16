@@ -38,6 +38,10 @@ while (my $line = <$fh>)
     {
       `touch $skip`;
       # print "touch $skip\n\n";
+      if (-e $pre)
+      {
+        unlink($pre);
+      }
     }
     elsif (-e $pre)
     {

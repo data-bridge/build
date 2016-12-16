@@ -1,4 +1,6 @@
 Detect complete skips from full ref files
+In fact, for all erroneous files at all, no matter the error,
+check the cards held
 
 validateLIN, md:
 Must split and reverse actual suits to compare...

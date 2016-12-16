@@ -9,6 +9,12 @@ if ($#ARGV < 0)
   exit;
 }
 
+# PC
+# my $DIR = "../../../bridgedata/hands/BBOVG";
+
+# Laptop
+my $DIR = "../../../bridgedata/BBOVG";
+
 my $chapter = $ARGV[0];
 if ($chapter < 0 || $chapter > 99)
 {
@@ -30,7 +36,7 @@ if (-e $out)
 
 while (1)
 {
-  my $indir = "../../../bridgedata/hands/BBOVG/0${chapter}000";
+  my $indir = "$DIR/0${chapter}000";
   system("./reader -I $indir -R $indir -s -c -v 30 -w 1 > $out");
 
   die "No output?" unless (-e $out);

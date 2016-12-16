@@ -11,6 +11,8 @@ if ($#ARGV < 0)
 
 my $FILENO = 99999;
 
+my @SUITS = qw(S H D C);
+
 my $ERROR_UNKNOWN = 0;
 my $ERROR_CALL_EXTRA = 1;
 my $ERROR_MD_NO_CARDS = 2;
@@ -48,6 +50,10 @@ for my $eref (@files)
   my (@lines, @count, $vg, $rs, $pn, @blist);
   $vg = "";
   $pn = "";
+# if ($eref->{fullname} =~ /33086/)
+# {
+  # print "HERE\n";
+# }
   slurp_file($eref->{fullname}, \@lines, \@count,
     \$vg, \$rs, \$pn, \@blist);
 
@@ -76,7 +82,7 @@ for my $eref (@files)
     else
     {
       print $fzfix $eref->{fullname} . "\n";
-      hint_md_no_cards($fzfix, $eref, \@blist, \@lines, \@count);
+      hint_md_cards_not_held($fzfix, $eref, \@blist, \@lines, \@count);
     }
   }
   elsif ($eref->{error} == $ERROR_DECL_DENOM)
@@ -110,79 +116,6 @@ for my $eref (@files)
   }
 }
 exit;
-
-
-my $n = 0;
-my (@lines, $vg0, $vgs, $vg1, @rs, $pn, @blist);
-for my $entry (@files)
-{
-  undef @lines;
-  undef @blist;
-  slurp_file($entry->{fullname}, \@lines, 
-    \$vg0, \$vgs, \$vg1, \@rs, \$pn, \@blist);
-  print $entry->{fullname}, "\n";
-
-  my $fixfile = $entry->{fullname};
-  $fixfile =~ s/lin$/fix/;
-  my $reffile = $entry->{fullname};
-  $reffile =~ s/lin$/ref/;
-
-  if (-e $fixfile)
-  {
-    system("cp $fixfile $FILENO.fix");
-  }
-  else
-  {
-    unlink "$FILENO.fix";
-  }
-  if (-e $reffile)
-  {
-    system("cp $reffile $FILENO.ref");
-  }
-  else
-  {
-    unlink "$FILENO.ref";
-  }
-
-  my $blast = $#blist;
-  my $b = 0;
-  my $vgmid = $vgs;
-  while ($b <= $blast)
-  {
-    dump_subfile("$FILENO.lin", \@lines, 
-      $vg0, $vgmid, $vg1, \@rs, $pn, $blist[$b]{no}, $vgmid-$vgs);
-
-    system("./reader -i $FILENO.lin -r $FILENO.lin -c -v 30 > y.lin");
-
-    my @revfiles;
-    get_files(\@revfiles, "y.lin", 0);
-
-    if ($#revfiles >= 0)
-    {
-      print "Failed entry $b: $blist[$b]{name}, $blist[$b]{no}";
-    }
-    else
-    {
-      print "Passed entry $b: $blist[$b]{name}, $blist[$b]{no}";
-    }
-
-    if ($b == $blast)
-    {
-      $b++;
-    }
-    else
-    {
-      my $n = substr $blist[$b]{name}, 1;
-      my $m = substr $blist[$b+1]{name}, 1;
-      $b += ($n eq $m ? 2 : 1);
-    }
-    $vgmid++;
-  }
-
-  $n++;
-  print "\n";
-}
-
 
 
 sub get_files
@@ -362,15 +295,24 @@ sub slurp_file
       $line =~ s///g;
       next if ($line eq '');
 
-      if ($line !~ /^(\w+)\s+(\w+)\s+\"(.*)\"$/ &&
-          $line !~ /^(\w+)\s+(\w+)\s+(.*)$/)
+      my ($lr, $lt, $lv);
+      if ($line =~ /^(\w+)\s+(\w+)\s+\"(.*)\"$/ ||
+          $line =~ /^(\w+)\s+(\w+)\s+(.*)$/)
+      {
+        $lr = $1;
+        $lt = $2;
+        $lv = $3;
+      }
+      elsif ($line =~ /^(\w+)\s+delete\s*$/)
+      {
+        $lr = $1;
+        $lt = "delete";
+        $lv = 1;
+      }
+      else
       {
         die "$refname syntax error: $line";
       }
-
-      my $lr = $1;
-      my $lt = $2;
-      my $lv = $3;
 
       if ($lt eq "replace")
       {
@@ -395,27 +337,14 @@ sub slurp_file
       }
       elsif ($lt eq "delete")
       {
-        my $c;
-        my $ll;
-        if ($lr =~ /^\d+$/)
-        {
-          $c = 1;
-          $ll = $lr;
-        }
-        elsif ($lr =~ /^(\d+)\-(\d+)$/)
-        {
-          $c = $2 - $1 + 1;
-          $ll = $1;
-        }
-        else
-        {
-          die "$refname bad keyword: $line";
-        }
-
-        my $ix = get_index($ll, $countref);
-        die "Could not find index $ix: $line" if ($ix == -1);
-        splice @$linesref, $ix, $c;
-        splice @$countref, $ix, $c;
+        my $ix = get_index($lr, $countref);
+	if ($ix == -1)
+	{
+          get_index($lr, $countref);
+          die "Could not find index $ix: $line";
+	}
+        splice @$linesref, $ix, $lv;
+        splice @$countref, $ix, $lv;
       }
       else
       {
@@ -456,15 +385,19 @@ sub get_index
 {
   my ($lno, $lref) = @_;
 
+  # lno is a line number as seen from the outside world,
+  # so 1 is the first line.
+  # Returns the corresponding internal index in lref.
+
   my $start = ($lno >= $#$lref ? $#$lref : $lno);
-  if ($lref->[$start] == $start)
+  if ($lref->[$start] == $lno)
   {
     return $start;
   }
-  elsif ($lref->[$start] > $start)
+  elsif ($lref->[$start] > $lno)
   {
     my $s = $start;
-    while ($s >= 0 && $lref->[$s] != $start)
+    while ($s >= 0 && $lref->[$s] != $lno)
     {
       $s--;
     }
@@ -473,7 +406,7 @@ sub get_index
   else
   {
     my $s = $start;
-    while ($s <= $#$lref && $lref->[$s] != $start)
+    while ($s <= $#$lref && $lref->[$s] != $lno)
     {
       $s++;
     }
@@ -577,7 +510,7 @@ sub modify_bid_line
 
 
 
-sub find_line_range
+sub find_line_range_no_cards
 {
   my ($boardtag, $listref, $lineref, $countref, $l0ref, $l1ref) = @_;
 
@@ -591,10 +524,81 @@ sub find_line_range
   if ($bno == $#$listref)
   {
     $$l1ref = $countref->[$#$lineref];
+    return;
   }
-  else
+
+  my $b = $bno+1;
+  while (1)
   {
-    $$l1ref = $listref->[$bno+1]{no}-1;
+    my $r0 = $listref->[$b]{no};
+    my $r1 = ($b == $#$listref ? $countref->[$#$lineref] :
+      $listref->[$b+1]{no}-1);
+
+    my $i0 = get_index($r0, $countref);
+    my $i1 = get_index($r1, $countref);
+
+    if (check_md_has_cards($lineref, $i0, $i1))
+    {
+      $$l1ref = $r0-1;
+      return;
+    }
+    elsif ($b == $#$listref)
+    {
+      $$l1ref = $r1;
+      return;
+    }
+    else
+    {
+      $b++;
+    }
+  }
+}
+
+
+sub find_line_range_bad_cards
+{
+  my ($boardtag, $listref, $lineref, $countref, $l0ref, $l1ref) = @_;
+
+  my $bno = btag_to_bno($boardtag, $listref);
+  if ($bno == -1)
+  {
+    die "Could not find $boardtag";
+  }
+
+  $$l0ref = $listref->[$bno]{no};
+  if ($bno == $#$listref)
+  {
+    $$l1ref = $countref->[$#$lineref];
+    return;
+  }
+
+  my $b = $bno+1;
+  while (1)
+  {
+    my $r0 = $listref->[$b]{no};
+    my $r1 = ($b == $#$listref ? $countref->[$#$lineref] :
+      $listref->[$b+1]{no}-1);
+
+    my %entry;
+    my $i0 = get_index($r0, $countref);
+    my $i1 = get_index($r1, $countref);
+    my %holders;
+    range_to_card_entry($lineref, $i0, $i1, \%entry, \%holders);
+
+    if (check_holders_and_play(\%holders, $entry{play}))
+    {
+      $$l1ref = $r0-1;
+      return;
+    }
+    elsif ($b == $#$listref)
+    {
+      $$l1ref = $r1;
+      return;
+    }
+    else
+    {
+      $b++;
+    }
   }
 }
 
@@ -618,10 +622,6 @@ sub cards_player
 sub cards_and_play_match
 {
   my ($eref) = @_;
-
-  # Split play into tricks.
-  my @tricks = split ':', $eref->{play};
-  return 1 if ($#tricks == -1);
 
   # Make a note of holder of each card in deal.
   # North 0, East 1, South 2, West 3
@@ -652,28 +652,58 @@ sub cards_and_play_match
     cards_player($line, \%holders, 2);
   }
 
+  return check_holders_and_play(\%holders, $eref->{play});
+}
+
+sub check_md_has_cards
+{
+  my ($lineref, $i0, $i1) = @_;
+
+  for my $i ($i0 .. $i1)
+  {
+    next if ($lineref->[$i] !~ /md\|([^|])*\|/);
+    if (! defined $1 || $1 eq "")
+    {
+      return 0;
+    }
+    else
+    {
+      return 1;
+    }
+  }
+}
+
+
+sub check_holders_and_play
+{
+  my ($href, $play) = @_;
+
   # Check that each trick is possible.  (Don't check that winner
   # agrees with previous tricks etc).
+
+  # Split play into tricks.
+  my @tricks = split ':', $play;
+  return 1 if ($#tricks == -1);
 
   for my $t (@tricks)
   {
     my $l = length $t;
     next if ($l == 2);
     my $lead = uc(substr $t, 0, 2);
-    if (! defined $holders{$lead})
+    if (! defined $href->{$lead})
     {
       die "Unknown card $lead";
     }
 
-    my $player = $holders{$lead};
+    my $player = $href->{$lead};
     for my $i (1 .. ($l/2 - 1))
     {
       my $nextc = uc(substr $t, 2*$i, 2);
-      if (! defined $holders{$lead})
+      if (! defined $href->{$lead})
       {
         die "Unknown card $lead";
       }
-      my $nextp = $holders{$nextc};
+      my $nextp = $href->{$nextc};
       if (($nextp + 3 - $player) % 4 != 0)
       {
         return 0;
@@ -681,10 +711,90 @@ sub cards_and_play_match
       $player = $nextp;
     }
   }
-
   return 1;
 }
 
+
+sub set_holders
+{
+  my ($href, $p, $suit, $holding) = @_;
+
+  my @a = split '', $holding;
+  for my $c (@a)
+  {
+    $href->{$suit . $c} = $p;
+  }
+}
+
+sub range_to_card_entry
+{
+  my ($lineref, $r0, $r1, $eref, $href) = @_;
+
+  # Parse out the holding into eref->{holders}.
+
+  if ($r0 > $#$lineref)
+  {
+    die "$r0 out of bounds";
+  }
+
+  my $line = $lineref->[$r0];
+  if ($line !~ /md\|([^|]*)\|/)
+  {
+    die "Not an md line: $line";
+  }
+  my $deal = substr $1, 1; # Skip dealer
+
+  for my $s (@SUITS)
+  {
+    for my $c (qw(2 3 4 5 6 7 8 9 T J Q K A))
+    {
+      $href->{$s . $c} = 1; # East
+    }
+  }
+
+  my @a = split ',', $deal;
+  if ($#a < 2 || $#a > 3)
+  {
+    die "Bad md line: $line";
+  }
+  for my $i (0 .. 2)
+  {
+    my $p = ($i + 2) % 4;
+    my @b = split /[SHDC]/, $a[$i], -1;
+    if ($#b != 4)
+    {
+      die "Bad md line $i: $line";
+    }
+
+    for my $j (0 .. 3)
+    {
+      set_holders($href, $p, $SUITS[$j], $b[$j+1]);
+    }
+  }
+
+  # Parse out the plays.
+
+  my $c = 0;
+  $eref->{play} = "";
+  for my $i ($r0+1 .. $r1)
+  {
+    my @a = split '\|', $lineref->[$i];
+    for my $j (0 .. $#a-1)
+    {
+      if ($a[$j] eq 'pc')
+      {
+        $eref->{play} .= $a[$j+1];
+	$c++;
+	if ($c % 4 == 0)
+	{
+	  $eref->{play} .= ':';
+	}
+      }
+    }
+  }
+
+  $eref->{play} =~ s/:$//;
+}
 
 sub hint_call_extra
 {
@@ -717,11 +827,47 @@ sub hint_md_no_cards
   else
   {
     my ($l0, $l1);
-    find_line_range($eref->{board}, $blistref, $linesref, $countref, 
-      \$l0, \$l1);
+    find_line_range_no_cards(
+      $eref->{board}, $blistref, $linesref, $countref, \$l0, \$l1);
     if ($l0 == $l1)
     {
       print $fzf "$l0 delete\n";
+    }
+    elsif ($l0 == $blistref->[0]{no} &&
+        $l1 == $blistref->[$#$blistref]{no})
+    {
+      print $fzf "skip\n";
+    }
+    else
+    {
+      print $fzf "$l0 delete " . ($l1-$l0+1) . "\n";
+    }
+  }
+  print $fzf "\n";
+}
+
+
+sub hint_md_cards_not_held
+{
+  my ($fzf, $eref, $blistref, $linesref, $countref) = @_;
+
+  if ($#$blistref == 0)
+  {
+    print $fzf "skip\n";
+  }
+  else
+  {
+    my ($l0, $l1);
+    find_line_range_bad_cards(
+      $eref->{board}, $blistref, $linesref, $countref, \$l0, \$l1);
+    if ($l0 == $l1)
+    {
+      print $fzf "$l0 delete\n";
+    }
+    elsif ($l0 == $blistref->[0]{no} &&
+        $l1 == $blistref->[$#$blistref]{no})
+    {
+      print $fzf "skip\n";
     }
     else
     {
@@ -790,35 +936,5 @@ sub hint_bad_comment
 
   print $fzf $eref->{lno} . " replace \"" . $line . "\"\n";
   print $fzf "\n";
-}
-
-
-sub dump_subfile
-{
-  my ($fname, $linesref, 
-    $vg0, $vgmid, $vg1, $rsref, $pn, $fromline, $numskips) = @_;
-
-  die "Not enough contracts" unless 2*$numskips <= $#$rsref;
-
-  open my $fh, '>', $fname or die "Can't open $fname: $!";
-  print $fh "$vg0,$vgmid,$vg1\n";
-
-  my $rs = "rs|";
-  for (my $i = 2*$numskips; $i <= $#$rsref; $i++)
-  {
-    $rs .= $rsref->[$i] . ",";
-  }
-  $rs =~ s/,$//;
-  $rs .= "|";
-  print $fh "$rs\n";
-
-  print $fh "$pn\n";
-
-  for (my $i = $fromline; $i <= $#$linesref; $i++)
-  {
-    print $fh "$linesref->[$i]\n";
-  }
-
-  close $fh;
 }
 
