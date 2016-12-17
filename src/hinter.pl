@@ -47,10 +47,11 @@ open my $fzrest, '>', "zrest$numbers.txt" or die "Can't open zrest.txt: $!";
 
 for my $eref (@files)
 {
+# print $eref->{fullname}, "\n";
   my (@lines, @count, $vg, $rs, $pn, @blist);
   $vg = "";
   $pn = "";
-# if ($eref->{fullname} =~ /33086/)
+# if ($eref->{fullname} =~ /32701/)
 # {
   # print "HERE\n";
 # }
@@ -87,8 +88,16 @@ for my $eref (@files)
   }
   elsif ($eref->{error} == $ERROR_DECL_DENOM)
   {
-    print_entry($fzrest, $eref);
-    print_summary($fzrest, $vg, $rs, $pn, \@blist);
+    if (cards_and_play_match($eref))
+    {
+      print_entry($fzrest, $eref);
+      print_summary($fzrest, $vg, $rs, $pn, \@blist);
+    }
+    else
+    {
+      print $fzfix $eref->{fullname} . "\n";
+      hint_md_cards_not_held($fzfix, $eref, \@blist, \@lines, \@count);
+    }
   }
   elsif ($eref->{error} == $ERROR_CONTRACT_SET)
   {
@@ -153,6 +162,16 @@ sub get_files
       $entry{lno} = '';
       @{$entry{holders}} = ();
     }
+    elsif ($line =~ /^\s+LIN LIN-RP/)
+    {
+      # Last entry before results.
+      if (%entry)
+      {
+        push @$fref, {%entry};
+        $count[$entry{error}]++;
+        last;
+      }
+    }
     elsif ($line =~ /^Line numbers: (\d+) to (\d+)/)
     {
       $entry{start} = $1;
@@ -197,6 +216,15 @@ sub get_files
       # Could be a separate error, perhaps.
       print "ERROR4 $lno $line\n" unless defined $entry{start};
       $entry{error} = $ERROR_DECL_DENOM;
+
+      # Read in the deal.
+      for my $i (1 .. 15)
+      {
+        $line = <$fh>;
+        chomp $line;
+        $line =~ s///g;
+        push @{$entry{holders}}, $line;
+      }
     }
     elsif ($line eq "Contract already set")
     {
@@ -631,6 +659,10 @@ sub cards_and_play_match
   {
     # North
     my $line = $eref->{holders}[$i];
+if (! defined $line)
+{
+  print "XX1\n";
+}
     cards_player($line, \%holders, 0);
   }
 
@@ -638,6 +670,10 @@ sub cards_and_play_match
   {
     # West and East
     my $line = $eref->{holders}[$i];
+if (! defined $line)
+{
+  print "XX2\n";
+}
     my $linewest = substr $line, 0, 24;
     my $lineeast = substr $line, 24;
 
@@ -649,6 +685,10 @@ sub cards_and_play_match
   {
     # South
     my $line = $eref->{holders}[$i];
+if (! defined $line)
+{
+  print "XX3\n";
+}
     cards_player($line, \%holders, 2);
   }
 

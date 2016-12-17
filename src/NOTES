@@ -2,8 +2,17 @@ Detect complete skips from full ref files
 In fact, for all erroneous files at all, no matter the error,
 check the cards held
 
+Check .ref files:
+- in order
+- cannot combine deletes
+- no ref when skip
+
 validateLIN, md:
 Must split and reverse actual suits to compare...
+
+Find unrealistic sequences (opening final contract)
+
+Find when no "real" players
 
 
 * miss.pl should start also in middle of files if late "not held" error.

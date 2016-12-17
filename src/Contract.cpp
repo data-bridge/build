@@ -282,7 +282,19 @@ void Contract::passOut()
   if (setContractFlag)
   {
     if (contract.level != 0)
-      THROW("Contract already set");
+    {
+      if (tricksRelative < -13 || tricksRelative > 6)
+      {
+        THROW("Contract already set to " + 
+            Contract::strRBNCore());
+      }
+      else
+      {
+        THROW("Contract already set to " + 
+            Contract::strRBNCore() +
+            LEVEL_SHIFT_TO_TAG[tricksRelative + 13]);
+      }
+    }
     return;
   }
 

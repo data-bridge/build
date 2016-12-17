@@ -11,11 +11,13 @@
 
 #include <iostream>
 #include <sstream>
-// #include <fstream>
 #include <algorithm>
 
+#include "Deal.h"
 #include "validateLIN.h"
 #include "parse.h"
+#include "Bexcept.h"
+#include "Bdiff.h"
 
 
 static bool firstContainsSecondLIN(
@@ -357,12 +359,39 @@ bool validateLIN(
     {
       const unsigned lr = static_cast<unsigned>
         (valState.dataRef.value.length());
-      if ((lr == 54 || lr == 55) &&
+      if (lr == 54 &&
           valState.dataOut.value.length() == 72 &&
           valState.dataOut.value.substr(0, lr) == valState.dataRef.value)
       {
         prof.log(BRIDGE_VAL_VG_MD, valState);
         return true;
+      }
+      else if (lr == 55 && valState.dataOut.value.length() == 72)
+      {
+        Deal dealRef, dealOut;
+        try
+        {
+          dealRef.set(valState.dataRef.value, BRIDGE_FORMAT_LIN);
+          dealOut.set(valState.dataOut.value, BRIDGE_FORMAT_LIN);
+
+          if (dealRef == dealOut)
+          {
+            prof.log(BRIDGE_VAL_VG_MD, valState);
+            return true;
+          }
+          else
+            return false;
+        }
+        catch (Bexcept& bex)
+        {
+          UNUSED(bex);
+          return false;
+        }
+        catch (Bdiff& bdiff)
+        {
+          UNUSED(bdiff);
+          return false;
+        }
       }
       else
         return false;
@@ -426,7 +455,29 @@ bool validateLIN(
   }
 
   if (valState.dataRef.label != valState.dataOut.label)
+  {
+    // Normal LIN has rh|| and ah|Board|, not in LIN_VG.
+    if (valState.dataOut.label == "sv" &&
+        valState.dataRef.label == "rh" &&
+        valState.dataRef.value == "")
+    {
+      if (! valState.bufferRef.next(valState.dataRef))
+        return false;
+      if (valState.dataRef.label != "ah")
+        return false;
+      if (! valState.bufferRef.next(valState.dataRef))
+        return false;
+      if (valState.dataRef.label != "sv")
+        return false;
+      if (valState.dataRef.value != valState.dataOut.value)
+        return false;
+
+      prof.log(BRIDGE_VAL_LIN_RH_AH, valState);
+      return true;
+    }
+
     return false;
+  }
   else if (valState.dataRef.len != valState.dataOut.len)
     return false;
   else

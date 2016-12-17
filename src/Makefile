@@ -179,8 +179,8 @@ ValStats.obj: ValStats.h ValProfile.h validate.h Buffer.h valint.h bconst.h
 validate.obj: ValStats.h ValProfile.h validate.h Buffer.h valint.h bconst.h
 validate.obj: validateLIN.h validatePBN.h validateRBN.h validateTXT.h
 validate.obj: validateEML.h validateREC.h parse.h
-validateLIN.obj: validateLIN.h ValProfile.h validate.h Buffer.h valint.h
-validateLIN.obj: bconst.h parse.h
+validateLIN.obj: Deal.h bconst.h validateLIN.h ValProfile.h validate.h
+validateLIN.obj: Buffer.h valint.h parse.h Bexcept.h Bdiff.h
 validatePBN.obj: validatePBN.h ValProfile.h validate.h Buffer.h valint.h
 validatePBN.obj: bconst.h
 validateRBN.obj: validateRBN.h ValProfile.h validate.h Buffer.h valint.h
@@ -192,7 +192,10 @@ validateEML.obj: bconst.h
 validateREC.obj: validateREC.h ValProfile.h validate.h Buffer.h valint.h
 validateREC.obj: bconst.h parse.h
 trace.obj: StackWalker.h trace.h
-heurfix.obj: ddsIF.h dll.h Bexcept.h
+heurfix.obj: heurfix.h Group.h Segment.h Date.h bconst.h Location.h Session.h
+heurfix.obj: Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h Players.h
+heurfix.obj: Auction.h Contract.h Play.h ddsIF.h dll.h Buffer.h valint.h
+heurfix.obj: parse.h Bexcept.h
 StackWalker.obj: StackWalker.h
 reader.obj: args.h bconst.h dispatch.h Files.h Timers.h Timer.h ValStats.h
 reader.obj: ValProfile.h validate.h Buffer.h valint.h TextStats.h CompStats.h

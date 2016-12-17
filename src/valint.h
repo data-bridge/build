@@ -33,6 +33,7 @@ const string ValErrorName[] =
 
   "All-pass",
   "Lin-players2",
+  "Lin-rh-ah",
   "Lin-!",
   "Play-newline",
   "Play-short",
@@ -63,6 +64,7 @@ const string ValErrorNameShort[] =
 
   "Apass",
   "Psrep",
+  "ah-rh",
   "Alert",
   "Pline",
   "Psht",
