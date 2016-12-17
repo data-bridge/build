@@ -51,7 +51,7 @@ for my $eref (@files)
   my (@lines, @count, $vg, $rs, $pn, @blist);
   $vg = "";
   $pn = "";
-# if ($eref->{fullname} =~ /32701/)
+# if ($eref->{fullname} =~ /35113/)
 # {
   # print "HERE\n";
 # }
@@ -117,7 +117,7 @@ for my $eref (@files)
   elsif ($eref->{error} == $ERROR_COMMENT)
   {
     print $fzfix $eref->{fullname} . "\n";
-    hint_bad_comment($eref, \@lines, \@count);
+    hint_bad_comment($fzfix, $eref, \@lines, \@count);
   }
   else
   {

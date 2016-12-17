@@ -96,7 +96,7 @@ sub enter_line
     }
     elsif ($rno == $fno)
     {
-      die "Confused: $rno same as $fno";
+      die "Confused in $fname, $line: $rno same as $fno";
     }
     elsif ($seen)
     {
