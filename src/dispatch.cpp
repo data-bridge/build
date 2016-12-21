@@ -253,12 +253,18 @@ static bool dispatchRead(
   Timers &timers,
   ostream& flog)
 {
-  timers.start(BRIDGE_TIMER_READ, task.formatInput);
-  bool b = readFormattedFile(task.fileInput,
-    task.formatInput, group, options, flog);
-  timers.stop(BRIDGE_TIMER_READ, task.formatInput);
-
-  return b;
+  UNUSED(timers);
+  try
+  {
+    bool b = readFormattedFile(task.fileInput,
+      task.formatInput, group, options, flog);
+    return b;
+  }
+  catch (Bexcept& bex)
+  {
+    bex.print(flog);
+    return false;
+  }
 }
 
 
@@ -385,7 +391,10 @@ try
       flog << "Input " << task.fileInput << endl;
 
     Group group;
-    if (! dispatchRead(task, group, options, timers, flog))
+    timers.start(BRIDGE_TIMER_READ, task.formatInput);
+    bool b = dispatchRead(task, group, options, timers, flog);
+    timers.stop(BRIDGE_TIMER_READ, task.formatInput);
+    if (! b)
     {
       flog << "Failed to read " << task.fileInput << endl;
       continue;
@@ -744,7 +753,9 @@ static bool storeChunk(
 {
   segment->copyPlayers();
 
-  if (chunk[BRIDGE_FORMAT_AUCTION] == "")
+  if (chunk[BRIDGE_FORMAT_AUCTION] == "" ||
+      (format == BRIDGE_FORMAT_LIN_VG &&
+       chunk[BRIDGE_FORMAT_VULNERABLE] == ""))
   {
     // Guess dealer and vul from the board number.
     if (chunk[BRIDGE_FORMAT_BOARD_NO] == "")

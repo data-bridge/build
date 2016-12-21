@@ -257,7 +257,11 @@ void heurFixTricks(
     return;
   }
 
-  if (board->playIsOver())
+  if (board->isPassedOut())
+  {
+    cout << "Hand was passed out, yet has tricks\n";
+  }
+  else if (board->playIsOver())
   {
     // Play wins if it is complete.
     writeTricksRS(segment, buffer, nameRef, runningDD.tricksDecl,

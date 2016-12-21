@@ -225,8 +225,8 @@ void Segment::setTitleLIN(
   s << v[5] << ":" << v[7];
   if (v[6] != "" || v[8] != "")
   {
-    s << ":" << (v[6] == "" ? 0 : v[6]);
-    s << ":" << (v[8] == "" ? 0 : v[8]);
+    s << ":" << (v[6] == "" ? "0" : v[6]);
+    s << ":" << (v[8] == "" ? "0" : v[8]);
   }
   Segment::setTeams(s.str(), BRIDGE_FORMAT_LIN);
 }
@@ -448,8 +448,17 @@ void Segment::setPlayersList(
   else
   {
     // Assume all players are given.
-    if (c+1 != 4*LINcount)
-      THROW("Wrong number of fields");
+    // TODO: This should probably always be 8.
+    if (format == BRIDGE_FORMAT_LIN_VG)
+    {
+      if (c+1 != 8*LINcount)
+        THROW("Wrong number of fields");
+    }
+    else
+    {
+      if (c+1 != 4*LINcount)
+        THROW("Wrong number of fields");
+    }
 
     vector<string> tokens(c+1);
     tokens.clear();

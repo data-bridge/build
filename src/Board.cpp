@@ -636,7 +636,8 @@ string Board::strScore(
 {
   if (numActive != 1 || 
      ! scoringIsIMPs ||
-     ! contract[0].hasResult())
+     ! contract[0].hasResult() ||
+     ! contract[1].hasResult())
     return contract[numActive].strScore(format);
   else
     return contract[numActive].strScore(format, contract[0].getScore());
@@ -664,7 +665,9 @@ string Board::strScoreIMP(
   if (format != BRIDGE_FORMAT_REC)
     return "";
 
-  if (! showFlag || ! contract[0].hasResult())
+  if (! showFlag || 
+      ! contract[0].hasResult() ||
+      ! contract[1].hasResult())
     return "Points:       ";
 
   return contract[numActive].strScoreIMP(format, contract[0].getScore());
@@ -673,7 +676,9 @@ string Board::strScoreIMP(
 
 int Board::IMPScore() const
 {
-  if (numActive != 1 || ! contract[0].hasResult())
+  if (numActive != 1 || 
+      ! contract[0].hasResult() ||
+      ! contract[1].hasResult())
     return 0;
   else
     return contract[numActive].IMPScore(contract[0].getScore());

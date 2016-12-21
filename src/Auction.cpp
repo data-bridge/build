@@ -631,6 +631,9 @@ void Auction::addAuctionRBNCore(
     }
     else if (c == '*' || c == '!') 
     {
+      if (len == 0)
+        THROW("Alerting before any bid");
+
       pos++;
       sequence[len-1].alert = '!';
     }
