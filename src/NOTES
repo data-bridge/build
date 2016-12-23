@@ -1,3 +1,11 @@
+ob tag, occurs mostly in 0, 1, 6, 7, 8:
+Skip in buffer
+
+37865.lin, c32: Why is 2NT, W and 1NT, W not flagged apart?
+
+Very expensive bids (offering huge upside score).
+Very expensive or "stupid" plays (quickTricks?).
+
 Detect complete skips from full ref files
 In fact, for all erroneous files at all, no matter the error,
 check the cards held
@@ -7,12 +15,18 @@ Check .ref files:
 - cannot combine deletes
 - no ref when skip
 
+Files with > 50% lines deleted
+
 validateLIN, md:
 Must split and reverse actual suits to compare...
 
 Find unrealistic sequences (opening final contract)
 
 Find when no "real" players
+
+Screenscrape major championships, compare.
+Check links (http, www).
+Note single missing hands, investigate.
 
 
 * miss.pl should start also in middle of files if late "not held" error.

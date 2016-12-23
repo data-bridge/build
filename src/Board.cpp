@@ -454,7 +454,7 @@ void Board::setPlayer(
 void Board::copyPlayers(const Board& board2)
 {
   if (numActive >= board2.len)
-    THROW("Player access error");
+    THROW("Player access error: " + STR(numActive));
 
   players[numActive] = board2.players[numActive];
 }

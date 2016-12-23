@@ -330,7 +330,19 @@ bool validateLIN(
     if (valState.dataRef.label != "st")
       return false;
 
-    prof.log(BRIDGE_VAL_LIN_EXCLAIM, valState);
+    prof.log(BRIDGE_VAL_LIN_PN_EMBEDDED, valState);
+  }
+  else if (valState.dataRef.label == "md" &&
+      valState.dataOut.label == "st")
+  {
+    // Could be missing st before md in ref.
+    if (! valState.bufferOut.next(valState.dataOut))
+      return false;
+
+    if (valState.dataOut.label != "md")
+      return false;
+
+    prof.log(BRIDGE_VAL_LIN_ST_MISSING, valState);
   }
 
   if (valState.dataRef.label == valState.dataOut.label)
@@ -366,7 +378,8 @@ bool validateLIN(
         prof.log(BRIDGE_VAL_VG_MD, valState);
         return true;
       }
-      else if (lr == 55 && valState.dataOut.value.length() == 72)
+      else if ((lr == 54 || lr == 55) && 
+          valState.dataOut.value.length() == 72)
       {
         Deal dealRef, dealOut;
         try
@@ -393,6 +406,16 @@ bool validateLIN(
           return false;
         }
       }
+      else if (valState.dataRef.value == valState.dataOut.value)
+        return true;
+      else
+        return false;
+    }
+    else if (valState.dataRef.label == "sv")
+    {
+      if (valState.dataRef.value == "0" &&
+          valState.dataOut.value == "o")
+        return true;
       else
         return false;
     }

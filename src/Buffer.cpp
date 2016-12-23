@@ -472,8 +472,10 @@ bool Buffer::nextLIN(LineData& vside)
   else
     posLIN = static_cast<unsigned>(e)+1;
 
-  // Skip over nt and pg.
-  if (vside.label == "nt" || vside.label == "pg")
+  // Skip over nt, pg and ob (bidding in other room).
+  // Don't quite know what sa is.
+  if (vside.label == "nt" || vside.label == "pg" || 
+      vside.label == "ob" || vside.label == "sa")
     return Buffer::nextLIN(vside);
   else
     return true;
