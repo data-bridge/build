@@ -676,8 +676,9 @@ static void chunkLIN2range(
   if (commas+1 != 2 * (counts.bExtmax - counts.bExtmin + 1))
   {
     if (commas == 2 * (counts.bExtmax - counts.bExtmin + 1))
-      THROW("Might have a stray trailing comma in LIN results: " +
-        STR(commas));
+    {
+      // Might have a stray trailing comma -- tolerate.
+    }
     else
       THROW("Bad number of results, commas " + STR(commas));
   }

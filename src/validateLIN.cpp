@@ -12,6 +12,7 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
+#include <regex>
 
 #include "Deal.h"
 #include "validateLIN.h"
@@ -285,7 +286,23 @@ static bool isContracts(
   unsigned p1, q1;
   const string outPruned = pruneCommas(valueOut, p1, q1);
 
-  return (outPruned == refPruned);
+  if (outPruned == refPruned)
+    return true;
+
+  regex re("P,");
+  const string refPass = regex_replace(refPruned, re, string("PASS,"));
+
+  if (outPruned == refPass)
+    return true;
+
+  // Tolerate single stray comma in reference.
+  const unsigned lr = refPass.length();
+  if (outPruned.length()+1 == lr &&
+      refPass.at(lr-1) == ',' &&
+      outPruned == refPass.substr(0, lr-1))
+    return true;
+  else
+    return false;
 }
 
 
