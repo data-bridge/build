@@ -60,7 +60,9 @@ for my $eref (@files)
 
   if ($eref->{error} == $ERROR_UNKNOWN)
   {
-    die "Unknown error should not arise: $eref->{fullname}";
+    warn "Unknown error should not arise: $eref->{fullname}";
+    print_entry($fzrest, $eref);
+    print_summary($fzrest, $vg, $rs, $pn, \@blist);
   }
   elsif ($eref->{error} == $ERROR_CALL_EXTRA)
   {

@@ -9,7 +9,13 @@ if ($#ARGV < 0)
   exit;
 }
 
+my $numbers = `basename $ARGV[0]`;
+$numbers =~ /(\d+)/;
+$numbers = $1;
+
+open my $zout, '>', "zskip$numbers.txt" or die "Can't open zskip.txt: $!";
 get_files($ARGV[0]);
+close $zout;
 exit;
 
 
@@ -22,6 +28,7 @@ sub get_files
   my $fullname = '';
   my $lno = 0;
   my $bad = 0;
+  my $count = 0;
 
   while (my $line = <$fh>)
   {
@@ -31,7 +38,6 @@ sub get_files
 
     if ($line =~ /^Out-short\s+1$/)
     {
-      $fullname = '';
       $bad = 0;
     }
     elsif ($line =~ /^Out \((\d+)\)/ && $1 > 10000)
@@ -41,10 +47,15 @@ sub get_files
     elsif ($line =~ /^Error came from\s+(..)\s+(.+)$/)
     {
       $fullname = $2;
-      print "$fullname\nskip\n\n";
+      if ($bad)
+      {
+        print $zout "$fullname\nskip\n\n";
+        $count++;
+	$bad = 0;
+      }
     }
   }
-
   close $fh;
+  print "Wrote $count suggestions\n";
 }
 

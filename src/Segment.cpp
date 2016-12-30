@@ -396,7 +396,7 @@ void Segment::setResultsList(
     THROW("Invalid format: " + STR(format));
   
   size_t c = countDelimiters(text, ",");
-  if (c == 0 || c > 128)
+  if (c == 0 || c > 256)
     THROW("Bad number of fields");
 
   vector<string> tokens(c+1);

@@ -475,7 +475,9 @@ bool Buffer::nextLIN(LineData& vside)
   // Skip over nt, pg and ob (bidding in other room).
   // Don't quite know what sa is.
   if (vside.label == "nt" || vside.label == "pg" || 
-      vside.label == "ob" || vside.label == "sa")
+      vside.label == "ob" || vside.label == "sa" ||
+      vside.label == "mn" ||
+      (vside.label == "mb" && vside.value == "-"))
     return Buffer::nextLIN(vside);
   else
     return true;

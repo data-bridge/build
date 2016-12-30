@@ -349,6 +349,17 @@ bool validateLIN(
 
     prof.log(BRIDGE_VAL_LIN_PN_EMBEDDED, valState);
   }
+  else if (valState.dataRef.label == "st" &&
+      valState.dataOut.label == "mb")
+  {
+    if (! valState.bufferRef.next(valState.dataRef))
+      return false;
+
+    if (valState.dataRef.label != "mb")
+      return false;
+
+    prof.log(BRIDGE_VAL_LIN_PN_EMBEDDED, valState);
+  }
   else if (valState.dataRef.label == "md" &&
       valState.dataOut.label == "st")
   {

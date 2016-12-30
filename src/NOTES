@@ -1,3 +1,29 @@
+28.12.2016
+----------
+* sver: Add sv to hinter when missing
+* sv|N| permit (upper-case)
+
+* Find files with multiple player lines, write fix file
+  that stops after first segment
+* Ignore bt|| label
+* Find pairs files with lots of names, skip,
+  but not if names are just repeated n times
+
+
+Sheet.cpp
+* read unadulterated .lin file
+  - header contracts
+  - final bids
+  - tricks from header
+  - tricks from claim
+  - http chats
+  - vugraph operator chats on this and next 2 boards
+* set DD tricks
+* set info from .ref file
+* print pure sheet, or comments including hand diagram and play
+  and remaining cards
+
+
 ob tag, occurs mostly in 0, 1, 6, 7, 8:
 Skip in buffer
 
@@ -8,6 +34,7 @@ Files with lots of corrections
 Look in particular at vugrapher's comments, often "sorry..."
 
 37865.lin, c32: Why is 2NT, W and 1NT, W not flagged apart?
+(Also perhaps doubled or not?)
 
 Very expensive bids (offering huge upside score).
 Very expensive or "stupid" plays (quickTricks?).
