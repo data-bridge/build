@@ -9,6 +9,11 @@
 * Find pairs files with lots of names, skip,
   but not if names are just repeated n times
 
+May have deleted whole hands due to single bad cards...
+
+Files with long player lists, like normal play files (6939.lin).
+Maybe find and reinstate these.
+And multiple pn tags -- case 1: Multiple segments, case 2: 1 seg.
 
 Sheet.cpp
 * read unadulterated .lin file

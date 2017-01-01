@@ -3,6 +3,8 @@
 use strict;
 use warnings;
 
+require "adder.pl";
+
 if ($#ARGV < 0)
 {
   print "Usage: perl tofix.pl zfix33.txt\n";
@@ -46,7 +48,8 @@ while (my $line = <$fh>)
     elsif (-e $pre)
     {
       # print "extend $pre\n";
-      enter_line($pre, $change);
+      # enter_line($pre, $change);
+      addref($pre, $change);
       # print "\n";
     }
     else

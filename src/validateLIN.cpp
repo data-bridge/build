@@ -441,8 +441,14 @@ bool validateLIN(
     }
     else if (valState.dataRef.label == "sv")
     {
-      if (valState.dataRef.value == "0" &&
-          valState.dataOut.value == "o")
+      if ((valState.dataRef.value == "0" &&
+          valState.dataOut.value == "o") ||
+          (valState.dataRef.value == "B" &&
+          valState.dataOut.value == "b") ||
+          (valState.dataRef.value == "N" &&
+          valState.dataOut.value == "n") ||
+          (valState.dataRef.value == "E" &&
+          valState.dataOut.value == "e"))
         return true;
       else
         return false;

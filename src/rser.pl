@@ -29,7 +29,7 @@ if ($chapter < 0 || $chapter > 99)
 }
 
 my $indir = "$DIR/0${chapter}000";
-$indir = "ttest";
+# $indir = "ttest";
 my $lintext = `ls $indir/*.lin`;
 my @lins = split ' ', $lintext;
 

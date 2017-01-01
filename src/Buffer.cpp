@@ -476,7 +476,8 @@ bool Buffer::nextLIN(LineData& vside)
   // Don't quite know what sa is.
   if (vside.label == "nt" || vside.label == "pg" || 
       vside.label == "ob" || vside.label == "sa" ||
-      vside.label == "mn" ||
+      vside.label == "mn" || vside.label == "em" ||
+      vside.label == "bt" ||
       (vside.label == "mb" && vside.value == "-"))
     return Buffer::nextLIN(vside);
   else
