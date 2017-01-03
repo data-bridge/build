@@ -714,7 +714,8 @@ static void advance(
   }
 
   if (counts.curr.no < expectBoard.no)
-    THROW("Gone past the end of the board range");
+    THROW("Gone past the end of the board range: " +
+      STR(counts.curr.no) + " " + STR(expectBoard.no));
 }
 
 

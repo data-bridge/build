@@ -1,15 +1,13 @@
 28.12.2016
 ----------
-* sver: Add sv to hinter when missing
-* sv|N| permit (upper-case)
-
 * Find files with multiple player lines, write fix file
   that stops after first segment
-* Ignore bt|| label
 * Find pairs files with lots of names, skip,
   but not if names are just repeated n times
 
 May have deleted whole hands due to single bad cards...
+
+No skip file without a lin file...
 
 Files with long player lists, like normal play files (6939.lin).
 Maybe find and reinstate these.
@@ -27,10 +25,6 @@ Sheet.cpp
 * set info from .ref file
 * print pure sheet, or comments including hand diagram and play
   and remaining cards
-
-
-ob tag, occurs mostly in 0, 1, 6, 7, 8:
-Skip in buffer
 
 Output mode (format?) showing only team score per hand.
 
@@ -55,9 +49,6 @@ Check .ref files:
 
 Files with > 50% lines deleted
 
-validateLIN, md:
-Must split and reverse actual suits to compare...
-
 Find unrealistic sequences (opening final contract)
 
 Find when no "real" players
@@ -73,17 +64,6 @@ Note single missing hands, investigate.
   the next error, so we can actually pinpoint all single errors at once.
 * Should actually parse .ref file and modify the input before
   slurping it
-
-* SHDC hands, not checked yet (fails before these points)
-   4178,  
-   8745, 
-  10259, 10592, 10603, 10606, 10923, 10970, 10976, 10980,
-  28919, 28954, 
-  43447, 
-  
-  7015 messed up
-  45465 has SHDC in one hand, but other three are given
-
 
 Buffer should pick up .ref automatically.
 

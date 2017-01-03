@@ -475,7 +475,10 @@ void Contract::setTricks(const unsigned tricksIn)
   if (setResultFlag)
   {
     if (tricksRelative != trel)
-      THROW("Tricks already set to " + STR(Contract::getTricks()));
+    {
+      if (! Contract::isPassedOut() || tricksIn != 0)
+        THROW("Tricks already set to " + STR(Contract::getTricks()));
+    }
   }
   else if (! setContractFlag)
     THROW("Cannot set tricks before a contract is entered");

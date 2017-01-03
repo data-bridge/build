@@ -14,10 +14,10 @@ if ($#ARGV < 0)
 }
 
 # PC
-# my $DIR = "../../../bridgedata/hands/BBOVG";
+my $DIR = "../../../bridgedata/hands/BBOVG";
 
 # Laptop
-my $DIR = "../../../bridgedata/BBOVG";
+# my $DIR = "../../../bridgedata/BBOVG";
 
 my $chapter = $ARGV[0];
 if ($chapter < 0 || $chapter > 99)
@@ -49,7 +49,7 @@ for my $fname (@lins)
     $line =~ s///g;
     $lno++;
 
-    if ($line =~ s/^(qx\|[oc]\d+),BOARD \d+/$1/)
+    if ($line =~ s/(qx\|[oc]\d+),BOARD \d+/$1/)
     {
       $line =~ s/rh\|\|ah\|Board \d+/st|/;
       my $ref = "$lno replace \"$line\"";

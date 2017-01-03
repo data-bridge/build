@@ -372,6 +372,28 @@ bool validateLIN(
 
     prof.log(BRIDGE_VAL_LIN_ST_MISSING, valState);
   }
+  else if (valState.dataRef.label == "mb" &&
+      valState.dataOut.label == "sv")
+  {
+    if (! valState.bufferOut.next(valState.dataOut))
+      return false;
+
+    if (valState.dataOut.label != "mb")
+      return false;
+
+    prof.log(BRIDGE_VAL_LIN_SV_MISSING, valState);
+  }
+  else if (valState.dataRef.label == "qx" &&
+      valState.dataOut.label == "sv")
+  {
+    if (! valState.bufferOut.next(valState.dataOut))
+      return false;
+
+    if (valState.dataOut.label != "qx")
+      return false;
+
+    prof.log(BRIDGE_VAL_LIN_SV_MISSING, valState);
+  }
 
   if (valState.dataRef.label == valState.dataOut.label)
   {

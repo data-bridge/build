@@ -5,18 +5,18 @@ use warnings;
 
 if ($#ARGV < 0)
 {
-  print "Usage: perl converge.pl 31\n";
+  print "Usage: perl consh.pl 2016\n";
   exit;
 }
 
 # PC
-my $DIR = "../../../bridgedata/hands/BBOVG";
+my $DIR = "../../../bridgedata/hands/BBOSH";
 
 # Laptop
-# my $DIR = "../../../bridgedata/BBOVG";
+# my $DIR = "../../../bridgedata/BBOSH";
 
 my $chapter = $ARGV[0];
-if ($chapter < 0 || $chapter > 99)
+if ($chapter < 2000 || $chapter > 2099)
 {
   print "$chapter is probably out of range\n";
   exit;
@@ -36,7 +36,7 @@ if (-e $out)
 
 while (1)
 {
-  my $indir = "$DIR/0${chapter}000";
+  my $indir = "$DIR/${chapter}";
   system("./reader -I $indir -R $indir -s -c -v 30 -w 1 > $out");
 
   die "No output?" unless (-e $out);
