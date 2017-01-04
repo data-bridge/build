@@ -3,26 +3,13 @@
 use strict;
 use warnings;
 
-if ($#ARGV < 0)
-{
-  print "Usage: perl consh.pl 2016\n";
-  exit;
-}
-
 # PC
 my $DIR = "../../../bridgedata/hands/BBOSH";
 
 # Laptop
 # my $DIR = "../../../bridgedata/BBOSH";
 
-my $chapter = $ARGV[0];
-if ($chapter < 2000 || $chapter > 2099)
-{
-  print "$chapter is probably out of range\n";
-  exit;
-}
-
-my $out = "cvg$chapter.txt";
+my $out = "cvg20xx.txt";
 
 my $flag = 0;
 my ($wc0, $n0, $w0);
@@ -36,8 +23,7 @@ if (-e $out)
 
 while (1)
 {
-  my $indir = "$DIR/${chapter}";
-  system("./reader -I $indir -R $indir -s -c -v 30 -w 1 > $out");
+  system("./reader -I $DIR -R $DIR -s -c -v 30 -w 1 > $out");
 
   die "No output?" unless (-e $out);
 

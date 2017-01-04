@@ -487,7 +487,9 @@ static void guessDealerAndVul(
   const Format format)
 {
   unsigned u;
-  if (format == BRIDGE_FORMAT_LIN_VG)
+  if (format == BRIDGE_FORMAT_LIN || 
+      format == BRIDGE_FORMAT_LIN_VG ||
+      format == BRIDGE_FORMAT_LIN_TRN)
   {
     if (st.length() <= 1 || ! str2upos(st.substr(1), u))
       return;
@@ -756,7 +758,9 @@ static bool storeChunk(
   segment->copyPlayers();
 
   if (chunk[BRIDGE_FORMAT_AUCTION] == "" ||
-      (format == BRIDGE_FORMAT_LIN_VG &&
+      ((format == BRIDGE_FORMAT_LIN ||
+        format == BRIDGE_FORMAT_LIN_VG ||
+        format == BRIDGE_FORMAT_LIN_TRN) &&
        chunk[BRIDGE_FORMAT_VULNERABLE] == ""))
   {
     // Guess dealer and vul from the board number.
@@ -993,7 +997,8 @@ static bool readFormattedFile(
 
     str2board(chunk[BRIDGE_FORMAT_BOARD_NO], format, counts);
 
-    if (format == BRIDGE_FORMAT_LIN_VG)
+    if (format == BRIDGE_FORMAT_LIN_VG ||
+        format == BRIDGE_FORMAT_LIN_TRN)
     {
       if (! fillBoards(group, segment, board, buffer, chunk, counts,
           lastBoard, format, options, flog))

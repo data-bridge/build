@@ -425,7 +425,9 @@ void Segment::setPlayersList(
   const string& text,
   const Format format)
 {
-  if (format != BRIDGE_FORMAT_LIN && format != BRIDGE_FORMAT_LIN_VG)
+  if (format != BRIDGE_FORMAT_LIN && 
+      format != BRIDGE_FORMAT_LIN_VG &&
+      format != BRIDGE_FORMAT_LIN_TRN)
     THROW("Invalid format: " + STR(format));
 
   size_t c = countDelimiters(text, ",");
@@ -458,7 +460,8 @@ void Segment::setPlayersList(
         format == BRIDGE_FORMAT_LIN_RP)
     {
       if (c+1 != 8*LINcount)
-        THROW("Wrong number of fields");
+        THROW("Wrong number of fields: " + 
+          STR(c+1) + " vs. "  + STR(8*LINcount));
       
       for (size_t b = 0; b < c; b += 8)
       {
