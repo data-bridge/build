@@ -131,7 +131,7 @@ void Board::setLINheader(const LINData& lin)
   else if (LINdata.mp[1] != "")
     Board::setScoreIMP("-" + LINdata.mp[1], BRIDGE_FORMAT_LIN);
   else
-    Board::setScoreIMP("0.0", BRIDGE_FORMAT_LIN);
+    LINset = false;
 }
 
 
@@ -652,8 +652,9 @@ string Board::strGivenScore(const Format format) const
   stringstream s;
   if (givenScore == 0.0f)
   {
-    if (format == BRIDGE_FORMAT_LIN ||
-        format == BRIDGE_FORMAT_LIN_TRN)
+    if ((format == BRIDGE_FORMAT_LIN ||
+        format == BRIDGE_FORMAT_LIN_TRN) && 
+        ! LINset)
       s << ",,";
     else
       s << "--,--,";
