@@ -1012,7 +1012,10 @@ string Play::strClaim(const Format format) const
   switch(format)
   {
     case BRIDGE_FORMAT_LIN:
-      return Play::strClaimLIN() + "pg||\n";
+      if (len == PLAY_NUM_CARDS)
+        return "pg||\n";
+      else
+        return Play::strClaimLIN() + "pg||\n";
 
     case BRIDGE_FORMAT_LIN_RP:
       if (claimMadeFlag)

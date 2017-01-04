@@ -39,7 +39,7 @@ static bool validateCore(
 
 void setValidateTables()
 {
-  valPtr[BRIDGE_FORMAT_LIN] = &validateLIN_RP;
+  valPtr[BRIDGE_FORMAT_LIN] = &validateLIN;
   valPtr[BRIDGE_FORMAT_LIN_RP] = &validateLIN_RP;
   valPtr[BRIDGE_FORMAT_LIN_VG] = &validateLIN;
   valPtr[BRIDGE_FORMAT_LIN_TRN] = &validateLIN_RP;
