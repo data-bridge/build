@@ -72,7 +72,9 @@ void Players::setRBNSide(
 }
 
 
-void Players::setLIN(const string& text)
+void Players::setLIN(
+  const string& text,
+  const bool hardFlag)
 {
   int seen = static_cast<int>(count(text.begin(), text.end(), ','));
   if (seen != 3 && seen != 7)
@@ -83,13 +85,13 @@ void Players::setLIN(const string& text)
   tokenize(text, v, ",");
 
   unsigned start = (seen == 7 ? 4u : 0u);
-  if (v[start] != "")
+  if (hardFlag || v[start] != "")
     players[BRIDGE_SOUTH] = v[start];
-  if (v[start+1] != "")
+  if (hardFlag || v[start+1] != "")
     players[BRIDGE_WEST] = v[start+1];
-  if (v[start+2] != "")
+  if (hardFlag || v[start+2] != "")
     players[BRIDGE_NORTH] = v[start+2];
-  if (v[start+3] != "")
+  if (hardFlag || v[start+3] != "")
     players[BRIDGE_EAST] = v[start+3];
 }
 
@@ -117,14 +119,15 @@ void Players::setRBN(const string& text)
 
 void Players::set(
   const string& text,
-  const Format format)
+  const Format format,
+  const bool hardFlag)
 {
   switch(format)
   {
     case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_LIN_VG:
     case BRIDGE_FORMAT_LIN_TRN:
-      Players::setLIN(text);
+      Players::setLIN(text, hardFlag);
       break;
     
     case BRIDGE_FORMAT_RBN:

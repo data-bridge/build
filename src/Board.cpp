@@ -439,9 +439,10 @@ bool Board::getPar(
 
 void Board::setPlayers(
   const string& text,
-  const Format format)
+  const Format format,
+  const bool hardFlag)
 {
-  players[numActive].set(text, format);
+  players[numActive].set(text, format, hardFlag);
 }
 
 

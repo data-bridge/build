@@ -537,7 +537,7 @@ void Segment::loadSpecificsFromHeader(
   }
 
   if (st != ",,,")
-    activeBoard->setPlayers(st, BRIDGE_FORMAT_LIN);
+    activeBoard->setPlayers(st, BRIDGE_FORMAT_LIN, false);
 
   if (instNo == 0)
     activeBoard->setLINheader(LINdata[linTableNo]);

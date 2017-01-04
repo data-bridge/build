@@ -29,7 +29,9 @@ class Players
       const Player p1,
       const Player p2);
     
-    void setLIN(const string& text);
+    void setLIN(
+      const string& text,
+      const bool hardFlag);
     void setRBN(const string& text);
 
     string strLIN() const;
@@ -50,7 +52,8 @@ class Players
 
     void set(
       const string& text,
-      const Format format);
+      const Format format,
+      const bool hardFlag = true);
 
     void setPlayer(
       const string& name,

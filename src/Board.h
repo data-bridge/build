@@ -205,7 +205,8 @@ class Board
 
     void setPlayers(
       const string& text,
-      const Format format);
+      const Format format,
+      const bool hardFlag = true);
 
     void setPlayer(
       const string& text,
