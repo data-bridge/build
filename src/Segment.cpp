@@ -1059,9 +1059,12 @@ string Segment::strPlayers(const Format format)
       return board->strPlayers(format);
 
     case BRIDGE_FORMAT_LIN_RP:
-    case BRIDGE_FORMAT_LIN_TRN:
       board = Segment::getBoard(0);
       return board->strPlayers(format);
+
+    case BRIDGE_FORMAT_LIN_TRN:
+      board = Segment::getBoard(0);
+      return board->strPlayers(BRIDGE_FORMAT_LIN_VG);
 
     default:
       THROW("Invalid format: " + STR(format));

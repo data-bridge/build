@@ -181,8 +181,10 @@ void writeLINBoardLevel(
 {
   st += segment.strNumber(writeInfo.bno, BRIDGE_FORMAT_LIN_RP);
 
-  if (format == BRIDGE_FORMAT_LIN || format == BRIDGE_FORMAT_LIN_TRN)
+  if (format == BRIDGE_FORMAT_LIN)
     st += "pn|" + board.strPlayers(format) + "|";
+  else if (format == BRIDGE_FORMAT_LIN_TRN)
+    st += board.strPlayers(format);
 
   st += board.strDeal(format);
 

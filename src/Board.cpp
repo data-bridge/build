@@ -742,7 +742,6 @@ string Board::strPlayers(
       return "pn|" + st1 + "," + st2 + "|pg||\n";
 
     case BRIDGE_FORMAT_LIN_RP:
-    case BRIDGE_FORMAT_LIN_TRN:
       if (len != 2)
         return "";
 
@@ -756,15 +755,9 @@ string Board::strPlayers(
         st1 = Board::strPlayers(0, format);
         st2 = Board::strPlayers(1, format);
       }
+      return "pn|" + st1 + "," + st2 + "|pg||\n\n";
 
-      if (format == BRIDGE_FORMAT_LIN_TRN)
-      {
-        st1.pop_back(); // Trailing |, leading pn|,,,,
-        return st1 + "," + st2.substr(7) + "\npg||\n";
-      }
-      else
-        return "pn|" + st1 + "," + st2 + "|pg||\n\n";
-
+    case BRIDGE_FORMAT_LIN_TRN:
     case BRIDGE_FORMAT_PBN:
     case BRIDGE_FORMAT_RBN:
     case BRIDGE_FORMAT_RBX:

@@ -123,6 +123,7 @@ void Players::set(
   {
     case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_LIN_VG:
+    case BRIDGE_FORMAT_LIN_TRN:
       Players::setLIN(text);
       break;
     
@@ -132,7 +133,7 @@ void Players::set(
       break;
     
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + STR(format) + ", " + text);
   }
 }
 
