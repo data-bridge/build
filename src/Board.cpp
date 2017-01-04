@@ -651,7 +651,13 @@ string Board::strGivenScore(const Format format) const
   UNUSED(format);
   stringstream s;
   if (givenScore == 0.0f)
-    s << "--,--,";
+  {
+    if (format == BRIDGE_FORMAT_LIN ||
+        format == BRIDGE_FORMAT_LIN_TRN)
+      s << ",,";
+    else
+      s << "--,--,";
+  }
   else if (givenScore > 0.0f)
     s << setprecision(1) << fixed << givenScore << ",,";
   else
