@@ -1047,7 +1047,7 @@ string Segment::strPlayers(const Format format)
       for (auto &p: boards)
       {
         st += p.board.strPlayers(format, refBoard);
-        if (refBoard == nullptr && len > 1)
+        if (refBoard == nullptr)
           st += ",";
         refBoard = &p.board;
       }
