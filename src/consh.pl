@@ -45,6 +45,8 @@ while (1)
   my $wc1 = `wc $out`;
   get_nw($wc1, \$n1, \$w1);
 
+  skip_pbn($out);
+
   if ($flag && $n1 == $n0 && $w1 == $w0)
   {
     print "$wc0";
@@ -72,3 +74,61 @@ sub get_nw
   $$w = $a[1];
 }
 
+
+sub skip_pbn
+{
+  my $fname = pop;
+  open my $fh, '<', $fname or die "Can't open $fname: $!";
+  my (@lines, @used);
+  while (my $line = <$fh>)
+  {
+    chomp $line;
+    $line =~ s///g;
+    push @lines, $line;
+    push @used, 1;
+  }
+  close $fh;
+
+  my $pbn = 0;
+  for (my $i = $#lines; $i >= 0; $i--)
+  {
+    my $line = $lines[$i];
+    if ($line =~ /Failed to read/ && $line =~ /pbn$/)
+    {
+      $used[$i] = 0;
+      $pbn = 1;
+    }
+    elsif ($line =~ /Error came from/ && $line =~ /pbn$/)
+    {
+      $used[$i] = 0;
+      $pbn = 1;
+    }
+    elsif ($line =~ /Input file/ && $line =~ /pbn$/)
+    {
+      $used[$i] = 0;
+      $pbn = 0;
+    }
+    elsif ($line =~ /Failed to read/)
+    {
+      $pbn = 0;
+    }
+    elsif ($line =~ /Error came from/)
+    {
+      $pbn = 0;
+    }
+    elsif ($pbn)
+    {
+      $used[$i] = 0;
+    }
+  }
+
+  open my $fo, '>', $fname or die "Can't open $fname: $!";
+  for my $i (0 .. $#lines)
+  {
+    if ($used[$i])
+    {
+      print $fo "$lines[$i]\n";
+    }
+  }
+  close $fo;
+}

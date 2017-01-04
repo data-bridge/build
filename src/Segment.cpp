@@ -201,8 +201,7 @@ void Segment::setTitleLIN(
     Segment::setEvent(v[1], BRIDGE_FORMAT_RBN);
   }
 
-  // Scoring (2).
-  // if (v[2] == "P" && v[1] != "IMPs")
+  // Scoring (2).  This isn't really matchpoints, could be IMP Pairs.
   if (v[2] == "P")
     Segment::setScoring("P", BRIDGE_FORMAT_LIN);
   else if (v[2] == "B" && v[1] != "IMPs")
@@ -619,7 +618,7 @@ void Segment::setBoardsList(
   if (c+1 != LINcount)
     THROW("Odd number of boards");
 
-  for (unsigned i = 0; i < c; i++)
+  for (unsigned i = 0; i <= c; i++)
     LINdata[i].no = tokens[i];
 }
 
@@ -943,7 +942,10 @@ string Segment::strNumber(
   {
     case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_LIN_TRN:
-      ss << "ah|Board " << extNo << "|";
+      if (format == BRIDGE_FORMAT_LIN_TRN || LINcount == 0)
+        ss << "ah|Board " << extNo << "|";
+      else
+        ss << "ah|Board " << LINdata[intNo].no << "|";
       return ss.str();
 
     case BRIDGE_FORMAT_LIN_RP:
@@ -1106,8 +1108,16 @@ string Segment::strBoards(const Format format) const
   {
     case BRIDGE_FORMAT_LIN:
       ss << "bn|";
-      for (auto &p: boards)
-        ss << p.extNo << ",";
+      if (LINcount == 0)
+      {
+        for (auto &p: boards)
+          ss << p.extNo << ",";
+      }
+      else
+      {
+        for (auto &p: boards)
+          ss << LINdata[p.no].no << ",";
+      }
 
       st = ss.str();
       st.pop_back(); // Remove trailing comma
