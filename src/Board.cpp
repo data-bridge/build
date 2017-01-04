@@ -309,8 +309,10 @@ void Board::setScoreIMP(
   // We regenerate this ourselves, so mostly ignore for now.
   if (format == BRIDGE_FORMAT_LIN)
   {
-    if (! str2float(text, givenScore))
-      THROW("Bad IMP score");
+    if (text == "--")
+      givenScore = 0.0f;
+    else if (! str2float(text, givenScore))
+      THROW("Bad IMP score: " + text);
   }
 }
 
