@@ -83,10 +83,14 @@ void Players::setLIN(const string& text)
   tokenize(text, v, ",");
 
   unsigned start = (seen == 7 ? 4u : 0u);
-  players[BRIDGE_SOUTH] = v[start];
-  players[BRIDGE_WEST] = v[start+1];
-  players[BRIDGE_NORTH] = v[start+2];
-  players[BRIDGE_EAST] = v[start+3];
+  if (v[start] != "")
+    players[BRIDGE_SOUTH] = v[start];
+  if (v[start+1] != "")
+    players[BRIDGE_WEST] = v[start+1];
+  if (v[start+2] != "")
+    players[BRIDGE_NORTH] = v[start+2];
+  if (v[start+3] != "")
+    players[BRIDGE_EAST] = v[start+3];
 }
 
 

@@ -775,8 +775,10 @@ static bool storeChunk(
       {
         if (i == BRIDGE_FORMAT_CONTRACT && 
             FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
+        {
           segment->loadSpecificsFromHeader(
             chunk[BRIDGE_FORMAT_BOARD_NO], format);
+        }
 
         continue;
       }
@@ -1092,6 +1094,12 @@ static void writeHeader(
   {
     st += "%{RBX " + g + "}";
     st += "%{www.rpbridge.net Richard Pavlicek}";
+  }
+  else if (format == BRIDGE_FORMAT_LIN ||
+      format == BRIDGE_FORMAT_LIN_TRN)
+  {
+    // Nothing.
+    // TODO: Skip except when coming from a Pavlicek file.
   }
   else
   {

@@ -449,27 +449,37 @@ void Segment::setPlayersList(
   {
     // Assume all players are given.
     // TODO: This should probably always be 8.
-    if (format == BRIDGE_FORMAT_LIN_VG)
-    {
-      if (c+1 != 8*LINcount)
-        THROW("Wrong number of fields");
-    }
-    else
-    {
-      if (c+1 != 4*LINcount)
-        THROW("Wrong number of fields");
-    }
 
     vector<string> tokens(c+1);
     tokens.clear();
     tokenize(text, tokens, ",");
 
-    for (size_t b = 0; b < c; b += 8)
+    if (format == BRIDGE_FORMAT_LIN_VG ||
+        format == BRIDGE_FORMAT_LIN_RP)
     {
-      for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
+      if (c+1 != 8*LINcount)
+        THROW("Wrong number of fields");
+      
+      for (size_t b = 0; b < c; b += 8)
       {
-        LINdata[b >> 3].players[0][(d+2) % 4] = tokens[b+d];
-        LINdata[b >> 3].players[1][(d+2) % 4] = tokens[b+d+4];
+        for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
+        {
+          LINdata[b >> 3].players[0][(d+2) % 4] = tokens[b+d];
+          LINdata[b >> 3].players[1][(d+2) % 4] = tokens[b+d+4];
+        }
+      }
+    }
+    else
+    {
+      if (c+1 != 4*LINcount)
+        THROW("Wrong number of fields");
+
+      for (size_t b = 0; b < c; b += 4)
+      {
+        for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
+        {
+          LINdata[b >> 2].players[0][(d+2) % 4] = tokens[b+d];
+        }
       }
     }
   }
@@ -488,9 +498,9 @@ void Segment::loadSpecificsFromHeader(
 
   int r = (room != "" && room.substr(0, 1) == "c" ? 1 : 0);
 
-  if (activeNo == 0 &&
-      activeBoard->getInstance() == 0 &&
-      r == 1)
+  const unsigned instNo = activeBoard->getInstance();
+
+  if (activeNo == 0 && instNo == 0 && r == 1)
   {
     // Teams from LIN header were in "wrong" order for our internal
     // format, which is consistent with RBN:  The first team is NS
@@ -528,6 +538,9 @@ void Segment::loadSpecificsFromHeader(
 
   if (st != ",,,")
     activeBoard->setPlayers(st, BRIDGE_FORMAT_LIN);
+
+  if (instNo == 0)
+    activeBoard->setLINheader(LINdata[linTableNo]);
 }
 
 
@@ -1034,6 +1047,8 @@ string Segment::strPlayers(const Format format)
       for (auto &p: boards)
       {
         st += p.board.strPlayers(format, refBoard);
+        if (refBoard == nullptr && len > 1)
+          st += ",";
         refBoard = &p.board;
       }
       st.pop_back();

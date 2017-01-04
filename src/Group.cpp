@@ -7,6 +7,8 @@
 */
 
 
+#include <sstream>
+
 #include "Group.h"
 #include "Bdiff.h"
 
@@ -74,7 +76,11 @@ unsigned Group::count()
 bool Group::operator == (const Group& group2) const
 {
   if (segments.size() != group2.segments.size())
-    DIFF("Different lengths");
+  {
+    const unsigned s1 = segments.size();
+    const unsigned s2 = group2.segments.size();
+    DIFF("Different lengths: " + STR(s1) + " vs. " + STR(s2));
+  }
 
   for (unsigned i = 0; i< segments.size(); i++)
   {
