@@ -82,7 +82,7 @@ void Scoring::setPBN(const string& text)
     scoring = BRIDGE_SCORING_IMPS;
   else if (text == "BAM")
     scoring = BRIDGE_SCORING_BAM;
-  else if (text == "MP" || text == "Matchpoints")
+  else if (text == "MP" || text == "Matchpoints" || text == "P")
     scoring = BRIDGE_SCORING_MATCHPOINTS;
   else if (text == "Instant")
     scoring = BRIDGE_SCORING_INSTANT;

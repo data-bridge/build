@@ -532,9 +532,10 @@ void Auction::addAuctionPBN(const vector<string>& list)
   words.clear();
   for (unsigned i = 1; i <= end; i++)
   {
-    string s = list[i];
-    while (getNextWord(s, word))
-      words.push_back(word);
+    vector<string> ll;
+    splitIntoWords(list[i], ll);
+    for (auto &s: ll)
+      words.push_back(s);
   }
 
   const size_t l = words.size();
@@ -554,6 +555,11 @@ void Auction::addAuctionPBN(const vector<string>& list)
       Auction::addCall(words[i], alerts[ano-1]);
 
       // Consume the alert.
+      i++;
+    }
+    else if (i < l-1 && words[i+1] == "$15")
+    {
+      Auction::addCall(words[i] + "!", "");
       i++;
     }
     else if (words[i].length() >= 4 &&

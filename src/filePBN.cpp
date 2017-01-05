@@ -56,9 +56,14 @@ void setPBNTables()
   PBNmap["Round"] = BRIDGE_FORMAT_LABELS_SIZE;
   PBNmap["Table"] = BRIDGE_FORMAT_LABELS_SIZE;
   PBNmap["Seq"] = BRIDGE_FORMAT_LABELS_SIZE;
+  PBNmap["Link"] = BRIDGE_FORMAT_LABELS_SIZE;
+  PBNmap["Time"] = BRIDGE_FORMAT_LABELS_SIZE;
+  PBNmap["Filters"] = BRIDGE_FORMAT_LABELS_SIZE;
+  PBNmap["ScorePercentage"] = BRIDGE_FORMAT_LABELS_SIZE;
   PBNmap["OptimumContract"] = BRIDGE_FORMAT_LABELS_SIZE;
   PBNmap["OptimumScore"] = BRIDGE_FORMAT_LABELS_SIZE;
   PBNmap["OptimumDeclarer"] = BRIDGE_FORMAT_LABELS_SIZE;
+  PBNmap["OptimumResult"] = BRIDGE_FORMAT_LABELS_SIZE;
 }
 
 
@@ -68,23 +73,25 @@ static void setModifiedContract(
 {
   const unsigned l = st.length();
   // Can be P, or 1NT.
-  if (l == 1)
+  if (l == 1 || (l == 4 && st == "Pass"))
     chunk[BRIDGE_FORMAT_CONTRACT] = st;
-  else if (l <= 2 || (l == 3 && st.at(2) == 'T'))
+  else if (l <= 2 || 
+    (l == 3 && st.at(2) == 'T'))
     chunk[BRIDGE_FORMAT_CONTRACT] = st + chunk[BRIDGE_FORMAT_DECLARER];
   else
   {
     // Could be of form 4HX or even 4H X.
-    unsigned p = 2;
+    const unsigned start = (st.at(2) == 'T' ? 3u : 2u);
+    unsigned p = start;
     while (p < l && st.at(p) == ' ')
       p++;
 
     if (p == l)
       chunk[BRIDGE_FORMAT_CONTRACT] = 
-        st.substr(0, 2) + chunk[BRIDGE_FORMAT_DECLARER];
+        st.substr(0, start) + chunk[BRIDGE_FORMAT_DECLARER];
     else
       chunk[BRIDGE_FORMAT_CONTRACT] = 
-        st.substr(0, 2) + chunk[BRIDGE_FORMAT_DECLARER] + st.substr(p);
+        st.substr(0, start) + chunk[BRIDGE_FORMAT_DECLARER] + st.substr(p);
   }
 }
 
@@ -210,7 +217,13 @@ void readPBNChunk(
     }
     else if (lineData.value != "#")
     {
-      chunk[labelNo] = lineData.value;
+      if (lineData.value.length() > 2 &&
+          lineData.value.at(0) == '#' &&
+          lineData.value.at(1) == '#')
+        chunk[labelNo] = lineData.value.substr(2);
+      else
+        chunk[labelNo] = lineData.value;
+
       lno[labelNo] = lineData.no; // Could be range...
       if (labelNo <= BRIDGE_FORMAT_VISITTEAM)
       {

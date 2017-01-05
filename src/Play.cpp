@@ -273,7 +273,7 @@ void Play::addPlay(const string& text)
 
   auto it = PLAY_CARD_TO_INFO.find(text);
   if (it == PLAY_CARD_TO_INFO.end())
-    THROW("Invalid card: " + text);
+    THROW("Invalid card: '" + text + "'");
 
   const CardInfo& info = it->second;
 
@@ -365,12 +365,17 @@ void Play::setPlaysPBN(const vector<string>& list)
   if ((declarer + 1) % 4 != opldr)
     THROW("Wrong opening leader");
 
-  for (unsigned i = 1; i < list.size(); i++)
+  const unsigned l = list.size();
+  for (unsigned i = 1; i < l; i++)
   {
     // Compress adjacent spaces just to be sure.
     string s = list[i];
     auto new_end = unique(s.begin(), s.end(), bothAreSpaces);
     s.erase(new_end, s.end());
+
+    // Permit last line of *.
+    if (i == l-1 && (s == "*" || s == " *"))
+      break;
 
     Play::addTrickPBN(s);
   }
