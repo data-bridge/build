@@ -47,6 +47,40 @@ bool Tableau::isComplete() const
 }
 
 
+bool Tableau::setPBN(const string& text)
+{
+  vector<string> lines;
+  str2lines(text, lines);
+  
+  const unsigned l = lines.size();
+  if (l <= 1)
+    THROW("Bad PBN tableau");
+
+  for (unsigned i = 1; i < l; i++)
+  {
+    vector<string> words;
+    splitIntoWords(lines[i], words);
+
+    if (words.size() != 3)
+      THROW("Bad PBN tableau line: " + lines[i]);
+
+    Player p = str2player(words[0]);
+    if (p ==  BRIDGE_PLAYER_SIZE)
+      THROW("Bad PBN tableau player: " + words[0]);
+
+    Denom d;
+    if (! str2denom(words[1], d))
+      THROW("Bad PBN tableau denom: " + words[1]);
+
+    unsigned t;
+    if (! str2unsigned(words[2], t))
+      THROW("Bad PBN tableau tricks: " + words[2]);
+
+    Tableau::set(p, d, t);
+  }
+  return true;
+}
+
 
 bool Tableau::RBNStringToList(
   const string text,
@@ -195,6 +229,9 @@ bool Tableau::set(
   {
     case BRIDGE_FORMAT_RBN:
       return Tableau::setRBN(text);
+
+    case BRIDGE_FORMAT_PBN:
+      return Tableau::setPBN(text);
 
     default:
       THROW("Tableau format not implemented:" + STR(format));

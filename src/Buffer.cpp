@@ -193,6 +193,14 @@ void Buffer::classify(LineData& ld)
     ld.type = BRIDGE_BUFFER_EMPTY;
     return;
   }
+  else if (ld.len == 1 &&
+      format == BRIDGE_FORMAT_PBN &&
+      ld.line == " ")
+  {
+    // Kludge for some versions of Double Dummy Captain.
+    ld.type = BRIDGE_BUFFER_EMPTY;
+    return;
+  }
   else if (format == BRIDGE_FORMAT_TXT &&
       ld.len > 5 &&
       ld.line.substr(0, 5) == "-----")

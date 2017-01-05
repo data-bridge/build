@@ -918,8 +918,18 @@ static bool readFormattedFile(
   group.setFormat(format);
 
   vector<string> chunk(BRIDGE_FORMAT_LABELS_SIZE);
+  vector<string> prevChunk(BRIDGE_FORMAT_VISITTEAM+1);
   for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
     chunk[i].reserve(128);
+
+  if (format == BRIDGE_FORMAT_PBN)
+  {
+    for (unsigned i = 0; i <= BRIDGE_FORMAT_VISITTEAM; i++)
+    {
+      chunk[i] = "";
+      prevChunk[i].reserve(128);
+    }
+  }
 
   Segment * segment = nullptr;
   bool newSegFlag = false;
@@ -938,12 +948,19 @@ static bool readFormattedFile(
   {
     try
     {
+      if (format == BRIDGE_FORMAT_PBN)
+      {
+        for (unsigned i = 0; i <= BRIDGE_FORMAT_VISITTEAM; i++)
+          prevChunk[i] = chunk[i];
+      }
+
       newSegFlag = false;
       for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
       {
         chunk[i] = "";
         counts.lno[i] = 9999;
       }
+
 
       (* formatFncs[format].readChunk)
         (buffer, counts.lno, chunk, newSegFlag);
@@ -968,6 +985,21 @@ static bool readFormattedFile(
       fixChunk(chunk, newSegFlag, fix);
 
     counts.chunkno++;
+
+    if (newSegFlag && format == BRIDGE_FORMAT_PBN)
+    {
+      // May not really be a new segment.
+      bool newFlag = false;
+      for (unsigned i = 0; i <= BRIDGE_FORMAT_VISITTEAM; i++)
+      {
+        if (chunk[i] != prevChunk[i])
+        {
+          newFlag = true;
+          break;
+        }
+      }
+      newSegFlag = newFlag;
+    }
 
     if (newSegFlag || segment == nullptr)
     {

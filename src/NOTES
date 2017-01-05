@@ -1,5 +1,7 @@
 28.12.2016
 ----------
+No duplicated pbn and lin files in BBOSH.
+
 * Find files with multiple player lines, write fix file
   that stops after first segment
 * Find pairs files with lots of names, skip,

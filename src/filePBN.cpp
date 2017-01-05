@@ -51,6 +51,41 @@ void setPBNTables()
   PBNmap["ScoreIMP"] = BRIDGE_FORMAT_SCORE_IMP;
   PBNmap["ScoreMP"] = BRIDGE_FORMAT_SCORE_MP;
   PBNmap["OptimumResultTable"] = BRIDGE_FORMAT_DOUBLE_DUMMY;
+
+  // These are discarded.
+  PBNmap["Round"] = BRIDGE_FORMAT_LABELS_SIZE;
+  PBNmap["Table"] = BRIDGE_FORMAT_LABELS_SIZE;
+  PBNmap["Seq"] = BRIDGE_FORMAT_LABELS_SIZE;
+  PBNmap["OptimumContract"] = BRIDGE_FORMAT_LABELS_SIZE;
+  PBNmap["OptimumScore"] = BRIDGE_FORMAT_LABELS_SIZE;
+  PBNmap["OptimumDeclarer"] = BRIDGE_FORMAT_LABELS_SIZE;
+}
+
+
+static void setModifiedContract(
+  const string& st,
+  vector<string>& chunk)
+{
+  const unsigned l = st.length();
+  // Can be P, or 1NT.
+  if (l == 1)
+    chunk[BRIDGE_FORMAT_CONTRACT] = st;
+  else if (l <= 2 || (l == 3 && st.at(2) == 'T'))
+    chunk[BRIDGE_FORMAT_CONTRACT] = st + chunk[BRIDGE_FORMAT_DECLARER];
+  else
+  {
+    // Could be of form 4HX or even 4H X.
+    unsigned p = 2;
+    while (p < l && st.at(p) == ' ')
+      p++;
+
+    if (p == l)
+      chunk[BRIDGE_FORMAT_CONTRACT] = 
+        st.substr(0, 2) + chunk[BRIDGE_FORMAT_DECLARER];
+    else
+      chunk[BRIDGE_FORMAT_CONTRACT] = 
+        st.substr(0, 2) + chunk[BRIDGE_FORMAT_DECLARER] + st.substr(p);
+  }
 }
 
 
@@ -63,11 +98,13 @@ void readPBNChunk(
   LineData lineData;
   bool inAuction = false;
   bool inPlay = false;
+  bool inDD = false;
+  string alerts = "";
 
   while (buffer.next(lineData))
   {
     if (lineData.type == BRIDGE_BUFFER_EMPTY)
-      return;
+      break;
 
     if (lineData.type == BRIDGE_BUFFER_COMMENT ||
         lineData.line.at(0) == '*')
@@ -75,22 +112,48 @@ void readPBNChunk(
     else if (inAuction)
     {
       if (lineData.type == BRIDGE_BUFFER_STRUCTURED)
-        inAuction = false;
+      {
+        if (lineData.label == "Note")
+        {
+          alerts += lineData.line + "\n";
+          continue;
+        }
+        else
+          inAuction = false;
+      }
       else
       {
         chunk[BRIDGE_FORMAT_AUCTION] += lineData.line + "\n";
-        lno[BRIDGE_FORMAT_AUCTION] = lineData.no; // Could  be range...
+        lno[BRIDGE_FORMAT_AUCTION] = lineData.no; // Could be range...
         continue;
       }
     }
     else if (inPlay)
     {
       if (lineData.type == BRIDGE_BUFFER_STRUCTURED)
-        inPlay = false;
+      {
+        // Bug in some Double Dummy Captain files:
+        // Note is repeated in Play section.
+        if (lineData.label == "Note")
+          continue;
+        else
+          inPlay = false;
+      }
       else
       {
         chunk[BRIDGE_FORMAT_PLAY] += lineData.line + "\n";
-        lno[BRIDGE_FORMAT_PLAY] = lineData.no; // Could  be range...
+        lno[BRIDGE_FORMAT_PLAY] = lineData.no; // Could be range...
+        continue;
+      }
+    }
+    else if (inDD)
+    {
+      if (lineData.type == BRIDGE_BUFFER_STRUCTURED)
+        inDD = false;
+      else
+      {
+        chunk[BRIDGE_FORMAT_DOUBLE_DUMMY] += lineData.line + "\n";
+        lno[BRIDGE_FORMAT_DOUBLE_DUMMY] = lineData.no; // Could be range...
         continue;
       }
     }
@@ -104,6 +167,10 @@ void readPBNChunk(
 
     const unsigned labelNo = static_cast<unsigned>(it->second);
 
+    // Skip certain labels.
+    if (labelNo == BRIDGE_FORMAT_LABELS_SIZE)
+      continue;
+
     if (chunk[labelNo] != "")
       THROW("Label already set in line '" + lineData.line + "'");
 
@@ -111,7 +178,13 @@ void readPBNChunk(
     {
       // Kludge to get declarer onto contract.  According to the PBN
       // standard, declarer should always come before contract.
-      chunk[labelNo] = lineData.value + chunk[BRIDGE_FORMAT_DECLARER];
+      if (lineData.value.length() <= 2)
+        chunk[labelNo] = lineData.value + chunk[BRIDGE_FORMAT_DECLARER];
+      else
+      {
+        // Could be of form 4HX or even 4H X.
+      }
+      setModifiedContract(lineData.value, chunk);
       lno[labelNo] = lineData.no;
     }
     else if (labelNo == BRIDGE_FORMAT_AUCTION)
@@ -128,6 +201,13 @@ void readPBNChunk(
       lno[labelNo] = lineData.no; // Could be range...
       inPlay = true;
     }
+    else if (labelNo == BRIDGE_FORMAT_DOUBLE_DUMMY)
+    {
+      // Multi-line.
+      chunk[BRIDGE_FORMAT_DOUBLE_DUMMY] += lineData.value + "\n";
+      lno[labelNo] = lineData.no; // Could be range...
+      inDD = true;
+    }
     else if (lineData.value != "#")
     {
       chunk[labelNo] = lineData.value;
@@ -140,6 +220,8 @@ void readPBNChunk(
       }
     }
   }
+
+  chunk[BRIDGE_FORMAT_AUCTION] += alerts;
 }
 
 

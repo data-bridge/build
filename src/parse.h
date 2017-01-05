@@ -58,6 +58,10 @@ Player str2player(const string& text);
 
 Vul str2vul(const string& text);
 
+bool str2denom(
+  const string& text,
+  Denom& denom);
+
 void str2lines(
   const string& sin,
   vector<string>& sout);

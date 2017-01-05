@@ -321,10 +321,15 @@ void Board::setScoreMP(
   const string& text,
   const Format format)
 {
-  // We ignore this for now.
-  UNUSED(format);
-  if (! str2float(text, givenScore))
-    THROW("Bad matchpoint score");
+  if (format == BRIDGE_FORMAT_PBN)
+  {
+    // We mostly ignore this for now.
+  }
+  else
+  {
+    if (! str2float(text, givenScore))
+      THROW("Bad matchpoint score");
+  }
 }
 
 

@@ -290,7 +290,7 @@ Vul str2vul(const string& text)
   // This function is "too permissive" as it doesn't limit the format...
   // Pavlicek uses "0" -- wrong?
   if (text == "o" || text == "O" || text == "0" || 
-      text == "None" || text == "Z")
+      text == "None" || text == "NONE" || text == "Z")
     return BRIDGE_VUL_NONE;
   else if (text == "e" || text == "E" || text == "EW" || 
        text == "E" || text == "E-W")
@@ -298,10 +298,32 @@ Vul str2vul(const string& text)
   else if (text == "n" || text == "N" || text == "NS" || 
       text == "N-S" || text == "N")
     return BRIDGE_VUL_NORTH_SOUTH;
-  else if (text == "b" || text == "B" || text == "All" || text == "Both")
+  else if (text == "b" || text == "B" || text == "All" || 
+      text == "Both" || text == "BOTH")
     return BRIDGE_VUL_BOTH;
   else
     return BRIDGE_VUL_SIZE;
+}
+
+
+bool str2denom(
+  const string& text,
+  Denom& denom)
+{
+  if (text == "N" || text == "NT")
+    denom = BRIDGE_NOTRUMP;
+  else if (text == "S")
+    denom = BRIDGE_SPADES;
+  else if (text == "H")
+    denom = BRIDGE_HEARTS;
+  else if (text == "D")
+    denom = BRIDGE_DIAMONDS;
+  else if (text == "C")
+    denom = BRIDGE_CLUBS;
+  else
+    return false;
+
+  return true;
 }
 
 

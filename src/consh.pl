@@ -31,7 +31,7 @@ while (1)
   my $wc1 = `wc $out`;
   get_nw($wc1, \$n1, \$w1);
 
-  skip_pbn($out);
+  # skip_pbn($out);
 
   if ($flag && $n1 == $n0 && $w1 == $w0)
   {

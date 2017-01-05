@@ -64,6 +64,7 @@ class Tableau
       const Player player);
 
     bool setRBN(const string& text);
+    bool setPBN(const string& text);
     
     unsigned toRBNPlayer(const Player player) const;
 

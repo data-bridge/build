@@ -522,7 +522,7 @@ void Auction::addAuctionPBN(const vector<string>& list)
   string alert;
   while (end > 0 && Auction::isPBNNote(list[end], no, alert))
   {
-    alerts.insert(alerts.begin() + no, alert);
+    alerts.insert(alerts.begin(), alert);
     end--;
   }
 
@@ -540,30 +540,49 @@ void Auction::addAuctionPBN(const vector<string>& list)
   const size_t l = words.size();
   for (size_t i = 0; i < l; i++)
   {
-    if (i == l-1 || words[i+1].at(0) != '=')
+    if (i < l-1 && words[i+1].at(0) == '=')
     {
-      if (i == l-1 && words[i] == "AP")
-      {
-        Auction::addPasses();
-        return;
-      }
-      Auction::addCall(words[i]);
-    }
-    else
-    {
+      // Alert was spaced from bid.
       unsigned ano;
       words[i+1].erase(0, 1);
       if (! str2upos(words[i+1], ano))
         THROW("Not an alert number");
 
-      if (ano > alerts.size()-1)
-        THROW("Alert too high");
+      if (ano == 0 || ano > alerts.size())
+        THROW("Alert number out of range: " + STR(ano));
 
-      Auction::addCall(words[i], alerts[ano]);
+      Auction::addCall(words[i], alerts[ano-1]);
 
-      // Already consumed the alert.
-      i--;
+      // Consume the alert.
+      i++;
     }
+    else if (words[i].length() >= 4 &&
+        words[i].at(words[i].length()-1) == '=')
+    {
+      // Alert is with bid (1S=1=).
+      
+      size_t p = words[i].find("=");
+      const unsigned ll = words[i].length();
+      if (p == string::npos || p == 0 || p > ll-3)
+        THROW("Odd string: " + words[i]);
+      const string a = words[i].substr(p+1);
+
+      unsigned ano;
+      if (! str2upos(a, ano))
+        THROW("Not an alert number");
+
+      if (ano == 0 || ano > alerts.size())
+        THROW("Alert number out of range: " + STR(ano));
+
+      Auction::addCall(words[i].substr(0, p), alerts[ano-1]);
+    }
+    else if (i == l-1 && words[i] == "AP")
+    {
+      Auction::addPasses();
+      return;
+    }
+    else
+      Auction::addCall(words[i]);
   }
 }
 
