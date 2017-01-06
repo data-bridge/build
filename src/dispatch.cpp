@@ -992,7 +992,7 @@ static bool readFormattedFile(
       bool newFlag = false;
       for (unsigned i = 0; i <= BRIDGE_FORMAT_VISITTEAM; i++)
       {
-        if (chunk[i] != prevChunk[i])
+        if (chunk[i] != prevChunk[i] && chunk[i] != "")
         {
           newFlag = true;
           break;

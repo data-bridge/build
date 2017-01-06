@@ -319,10 +319,22 @@ void Board::setScoreIMP(
   }
   else if (format == BRIDGE_FORMAT_PBN)
   {
+    if (text == "0")
+    {
+      givenScore = 0.f;
+      givenSet = true;
+      return;
+    }
+
     if (text.length() < 4)
       THROW("Short RBN IMP score: " + text);
-    if (text.substr(0, 3) != "NS ")
-      THROW("RBN IMP score not NS: " + text);
+    int side = 0;
+    if (text.substr(0, 3) == "NS ")
+      side = 1;
+    else if (text.substr(0, 3) == "EW ")
+      side = -1;
+    else
+      THROW("RBN IMP score not NS/EW: " + text);
 
     // Double Dummy Captain has also used commas.
     string fixed = text.substr(3);
@@ -333,6 +345,7 @@ void Board::setScoreIMP(
     if (! str2float(fixed, givenScore))
       THROW("Bad RBN IMP score: " + fixed);
 
+    givenScore *= side;
     givenSet = true;
   }
 }

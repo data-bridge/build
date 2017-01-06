@@ -177,6 +177,7 @@ const vector<Label> PBNFields =
   BRIDGE_FORMAT_NORTH,
   BRIDGE_FORMAT_EAST,
   BRIDGE_FORMAT_SOUTH,
+  BRIDGE_FORMAT_BOARD_NO,
   BRIDGE_FORMAT_ROOM
 };
 
@@ -244,11 +245,11 @@ static bool validateCorePBN(
     readPBNChunk(valState.bufferRef, lnoRef, chunkRef, newSegRef);
     readPBNChunk(valState.bufferOut, lnoOut, chunkOut, newSegOut);
 
-    restoreChunkHeader(chunkRef, prevRef);
-    restoreChunkHeader(chunkOut, prevOut);
-
     doneRef = chunkIsEmpty(chunkRef);
     doneOut = chunkIsEmpty(chunkOut);
+
+    restoreChunkHeader(chunkRef, prevRef);
+    restoreChunkHeader(chunkOut, prevOut);
 
     if (! doneRef && !doneOut)
     {

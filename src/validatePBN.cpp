@@ -414,6 +414,42 @@ bool resultPassout(
 }
 
 
+bool doubleDummyFormat(
+  const string& ddRef,
+  const string& ddOut)
+{
+  vector<string> linesRef, linesOut;
+  str2lines(ddRef, linesRef);
+  str2lines(ddOut, linesOut);
+
+  unsigned lRef = linesRef.size();
+  unsigned lOut = linesOut.size();
+
+  if (lRef != 21 || lOut != 21)
+    return false;
+
+  if (linesRef[0].substr(0, 8) != "Declarer" ||
+      linesOut[0].substr(0, 8) != "Declarer")
+    return false;
+
+  for (unsigned i = 1; i < 21; i++)
+  {
+    dropSpaces(linesRef[i]);
+    dropSpaces(linesOut[i]);
+  }
+
+  sort(linesRef.begin()+1, linesRef.end());
+  sort(linesOut.begin()+1, linesOut.end());
+
+  for (unsigned i = 1; i < 21; i++)
+  {
+    if (linesRef[i] != linesOut[i])
+      return false;
+  }
+  return true;
+}
+
+
 bool scoreFormat(
   const string& scoreRef,
   const string& scoreOut)
@@ -438,6 +474,63 @@ bool scoreFormat(
 }
 
 
+bool str2IMPScore(
+  const string& source,
+  float& score)
+{
+  if (str2float(source, score))
+    return true;
+
+  if (source.length() < 4)
+    return false;
+
+  int side;
+  if (source.substr(0, 3) == "NS ")
+    side = 1;
+  else if (source.substr(0, 3) == "EW ")
+    side = -1;
+  else
+    return false;
+
+  string rest = source.substr(3);
+  size_t p = rest.find(",");
+  if (p != string::npos)
+    rest.at(p) = '.';
+
+  if (str2float(rest, score))
+  {
+    score *= side;
+    return true;
+  }
+  else
+    return false;
+}
+
+
+bool scoreIMPFormat(
+  const string& scoreRef,
+  const string& scoreOut)
+{
+  if (scoreRef == "" || scoreOut == "")
+    return false;
+
+  float valRef, valOut;
+  if (! str2IMPScore(scoreRef, valRef))
+    return false;
+  if (! str2IMPScore(scoreOut, valOut))
+    return false;
+
+  if (valRef == valOut)
+    return true;
+
+  const float delta = valRef - valOut;
+  if (delta < 0.001 && delta > -0.001)
+    return true;
+  else
+    return false;
+}
+
+
 bool validatePBNChunk(
   const vector<string>& chunkRef,
   const vector<string>& chunkOut,
@@ -452,7 +545,7 @@ bool validatePBNChunk(
     if ((i == BRIDGE_FORMAT_TITLE || i == BRIDGE_FORMAT_EVENT) && 
         titleInWrongPlace(chunkRef, chunkOut))
     {
-      prof.log(BRIDGE_VAL_DATE, valState);
+      prof.log(BRIDGE_VAL_TITLE, valState);
     }
     else if (i == BRIDGE_FORMAT_DATE && 
         datePunctuation(chunkRef[i], chunkOut[i]))
@@ -513,6 +606,16 @@ bool validatePBNChunk(
         scoreFormat(chunkRef[i], chunkOut[i]))
     {
       prof.log(BRIDGE_VAL_AUCTION, valState);
+    }
+    else if (i == BRIDGE_FORMAT_SCORE_IMP &&
+        scoreIMPFormat(chunkRef[i], chunkOut[i]))
+    {
+      prof.log(BRIDGE_VAL_AUCTION, valState);
+    }
+    else if (i == BRIDGE_FORMAT_DOUBLE_DUMMY &&
+        doubleDummyFormat(chunkRef[i], chunkOut[i]))
+    {
+      prof.log(BRIDGE_VAL_DD, valState);
     }
     else
     {
