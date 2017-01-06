@@ -12,6 +12,8 @@
 #include <string>
 #include <vector>
 
+#include "Segment.h"
+#include "Board.h"
 #include "Buffer.h"
 
 using namespace std;

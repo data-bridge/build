@@ -18,4 +18,10 @@ bool validatePBN(
   ValState& valState,
   ValProfile& prof);
 
+bool validatePBNChunk(
+  const vector<string>& chunkRef,
+  const vector<string>& chunkOut,
+  ValState& valState,
+  ValProfile& prof);
+
 #endif

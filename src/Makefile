@@ -177,8 +177,10 @@ parse.obj: parse.h bconst.h
 ValProfile.obj: ValProfile.h validate.h Buffer.h valint.h bconst.h
 ValStats.obj: ValStats.h ValProfile.h validate.h Buffer.h valint.h bconst.h
 validate.obj: ValStats.h ValProfile.h validate.h Buffer.h valint.h bconst.h
-validate.obj: validateLIN.h validatePBN.h validateRBN.h validateTXT.h
-validate.obj: validateEML.h validateREC.h parse.h
+validate.obj: filePBN.h Segment.h Date.h Location.h Session.h Scoring.h
+validate.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
+validate.obj: Contract.h Play.h ddsIF.h dll.h validateLIN.h validatePBN.h
+validate.obj: validateRBN.h validateTXT.h validateEML.h validateREC.h parse.h
 validateLIN.obj: Deal.h bconst.h validateLIN.h ValProfile.h validate.h
 validateLIN.obj: Buffer.h valint.h parse.h Bexcept.h Bdiff.h
 validatePBN.obj: validatePBN.h ValProfile.h validate.h Buffer.h valint.h

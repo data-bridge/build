@@ -14,6 +14,7 @@
 #include "ValStats.h"
 #include "ValProfile.h"
 
+#include "filePBN.h"
 #include "validateLIN.h"
 #include "validatePBN.h"
 #include "validateRBN.h"
@@ -29,7 +30,26 @@ typedef bool (* ValPtr)(ValState&, ValProfile&);
 ValPtr valPtr[BRIDGE_FORMAT_LABELS_SIZE];
 
 
+static bool isOfRPOrigin(const string& fileRef);
+
+static bool chunkIsEmpty(const vector<string>& chunk);
+
+static void copyChunkHeader(
+  const vector<string>& chunk,
+  vector<string>& prev);
+
+static void restoreChunkHeader(
+  vector<string>& chunk,
+  vector<string>& prev);
+
 static bool validateCore(
+  ValState& valState,
+  const Format formatOrig,
+  const Format formatRef,
+  const Options& options,
+  ValStats& vstats);
+
+static bool validateCorePBN(
   ValState& valState,
   const Format formatOrig,
   const Format formatRef,
@@ -81,6 +101,22 @@ static bool isRecordComment(
 }
 
 
+static bool isOfRPOrigin(const string& fileRef)
+{
+  regex re("^[SUVW]\\d\\d\\w\\w\\w");
+  smatch match;
+  return regex_search(fileRef, match, re);
+}
+
+
+static bool chunkIsEmpty(const vector<string>& chunk)
+{
+  return (chunk[BRIDGE_FORMAT_BOARD_NO] == "" &&
+      chunk[BRIDGE_FORMAT_RESULT] == "" &&
+      chunk[BRIDGE_FORMAT_AUCTION] == "");
+}
+
+
 static bool validateCore(
   ValState& valState,
   const Format formatOrig,
@@ -126,6 +162,119 @@ static bool validateCore(
 }
 
 
+const vector<Label> PBNFields =
+{
+  BRIDGE_FORMAT_TITLE,
+  BRIDGE_FORMAT_DATE,
+  BRIDGE_FORMAT_LOCATION,
+  BRIDGE_FORMAT_EVENT,
+  BRIDGE_FORMAT_SESSION,
+  BRIDGE_FORMAT_SCORING,
+  BRIDGE_FORMAT_HOMETEAM,
+  BRIDGE_FORMAT_VISITTEAM,
+  BRIDGE_FORMAT_WEST,
+  BRIDGE_FORMAT_NORTH,
+  BRIDGE_FORMAT_EAST,
+  BRIDGE_FORMAT_SOUTH,
+  BRIDGE_FORMAT_ROOM
+};
+
+static void copyChunkHeader(
+  const vector<string>& chunk,
+  vector<string>& prev)
+{
+  for (auto &lb: PBNFields)
+    prev[lb] = chunk[lb];
+}
+
+
+static void restoreChunkHeader(
+  vector<string>& chunk,
+  vector<string>& prev)
+{
+  for (auto &lb: PBNFields)
+  {
+    if (chunk[lb] == "")
+      chunk[lb] = prev[lb];
+  }
+}
+
+
+static bool validateCorePBN(
+  ValState& valState,
+  const Format formatOrig,
+  const Format formatRef,
+  const Options& options,
+  ValStats& vstats)
+{
+  ValProfile prof;
+
+  vector<string> chunkRef(BRIDGE_FORMAT_LABELS_SIZE),
+    chunkOut(BRIDGE_FORMAT_LABELS_SIZE);
+  vector<string> prevRef(BRIDGE_FORMAT_LABELS_SIZE),
+    prevOut(BRIDGE_FORMAT_LABELS_SIZE);
+  vector<unsigned> lnoRef(BRIDGE_FORMAT_LABELS_SIZE), 
+    lnoOut(BRIDGE_FORMAT_LABELS_SIZE);
+  bool newSegRef = false, newSegOut = false;
+  bool doneRef, doneOut;
+
+  for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
+  {
+    chunkRef[i].reserve(128);
+    chunkOut[i].reserve(128);
+    chunkRef[i] = "";
+    chunkOut[i] = "";
+
+    prevRef[i].reserve(128);
+    prevOut[i].reserve(128);
+  }
+
+  while (true)
+  {
+    copyChunkHeader(chunkRef, prevRef);
+    copyChunkHeader(chunkOut, prevOut);
+
+    for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
+    {
+      chunkRef[i] = "";
+      chunkOut[i] = "";
+    }
+
+    readPBNChunk(valState.bufferRef, lnoRef, chunkRef, newSegRef);
+    readPBNChunk(valState.bufferOut, lnoOut, chunkOut, newSegOut);
+
+    restoreChunkHeader(chunkRef, prevRef);
+    restoreChunkHeader(chunkOut, prevOut);
+
+    doneRef = chunkIsEmpty(chunkRef);
+    doneOut = chunkIsEmpty(chunkOut);
+
+    if (! doneRef && !doneOut)
+    {
+      if (validatePBNChunk(chunkRef, chunkOut, valState, prof))
+        continue;
+
+      prof.log(BRIDGE_VAL_ERROR, valState);
+    }
+
+    if (doneRef || doneOut)
+      break;
+  }
+
+  if (! doneOut)
+    prof.log(BRIDGE_VAL_REF_SHORT, valState);
+
+  if (! doneRef)
+    prof.log(BRIDGE_VAL_OUT_SHORT, valState);
+
+  if (options.verboseValDetails)
+    prof.print(cout);
+
+  vstats.add(formatOrig, formatRef, prof);
+  return ! prof.hasError();
+}
+
+
 void validate(
   const string& fileOut,
   const string& fileRef,
@@ -141,8 +290,18 @@ void validate(
   valState.bufferRef.read(fileRef, formatRef);
   valState.bufferRef.fix(fileRef);
 
-  if (! validateCore(valState, formatOrig, formatRef, options, vstats))
-    cout << "Error came from " << fileOut << " -> " << fileRef << "\n";
+  if (formatRef == BRIDGE_FORMAT_PBN && ! isOfRPOrigin(fileRef))
+  {
+    // The order of PBN tags is all over the map in general,
+    // except in Pavlicek files.  We only compare chunks for these.
+    if (! validateCorePBN(valState, formatOrig, formatRef, options, vstats))
+      cout << "Error came from " << fileOut << " -> " << fileRef << "\n";
+  }
+  else
+  {
+    if (! validateCore(valState, formatOrig, formatRef, options, vstats))
+      cout << "Error came from " << fileOut << " -> " << fileRef << "\n";
+  }
 }
 
 
@@ -162,8 +321,18 @@ void validate(
   valState.bufferRef.read(fileRef, formatRef);
   valState.bufferRef.fix(fileRef);
 
-  if (! validateCore(valState, formatOrig, formatRef, options, vstats))
-    cout << "Error came from " << fileOut << " -> " << fileRef << "\n";
+  if (formatRef == BRIDGE_FORMAT_PBN && ! isOfRPOrigin(fileRef))
+  {
+    // The order of PBN tags is all over the map in general,
+    // except in Pavlicek files.  We only compare chunks for these.
+    if (! validateCorePBN(valState, formatOrig, formatRef, options, vstats))
+      cout << "Error came from " << fileOut << " -> " << fileRef << "\n";
+  }
+  else
+  {
+    if (! validateCore(valState, formatOrig, formatRef, options, vstats))
+      cout << "Error came from " << fileOut << " -> " << fileRef << "\n";
+  }
 }
 
 
