@@ -165,6 +165,7 @@ static bool validateCore(
 const vector<Label> PBNFields =
 {
   BRIDGE_FORMAT_TITLE,
+  BRIDGE_FORMAT_EVENT,
   BRIDGE_FORMAT_DATE,
   BRIDGE_FORMAT_LOCATION,
   BRIDGE_FORMAT_EVENT,

@@ -875,7 +875,8 @@ string Segment::strEvent(const Format format) const
     case BRIDGE_FORMAT_PBN:
       if (event == "")
         return "";
-      return "[Event \"" + event + "\"]\n";
+      else
+        return "[Event \"" + event + "\"]\n";
 
     case BRIDGE_FORMAT_RBN:
       return "E " + event + "\n";

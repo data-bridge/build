@@ -46,6 +46,7 @@ class Board
     vector<Play> play;
     vector<bool> skip;
     float givenScore;
+    bool givenSet;
 
     unsigned len;
     unsigned numActive;

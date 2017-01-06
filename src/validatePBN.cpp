@@ -7,6 +7,7 @@
 */
 
 
+#include <regex>
 #include <algorithm>
 
 #include "parse.h"
@@ -116,16 +117,45 @@ bool validatePBN(
 }
 
 
+bool titleInWrongPlace(
+  const vector<string>& chunkRef,
+  const vector<string>& chunkOut)
+{
+  if (chunkRef[BRIDGE_FORMAT_TITLE] == "" &&
+      chunkRef[BRIDGE_FORMAT_EVENT] != "" &&
+      chunkOut[BRIDGE_FORMAT_TITLE] == chunkRef[BRIDGE_FORMAT_EVENT] &&
+      chunkOut[BRIDGE_FORMAT_EVENT] == "Bridge Base Online")
+    return true;
+  else
+    return false;
+}
+
+
 bool datePunctuation(
   const string& dateRef,
   const string& dateOut)
 {
+  // Coming e.g. from LIN, date will be missing.
+  if (dateOut == "")
+    return true;
+
   if (dateRef.length() != dateOut.length())
     return false;
 
   string st = dateRef;
   replace(st.begin(), st.end(), '-', '.');
   return (dateOut == st);
+}
+
+
+bool locationNone(
+  const string& locRef,
+  const string& locOut)
+{
+  if ((locRef == "?" || locRef == "BBO") && locOut == "")
+    return true;
+  else
+    return false;
 }
 
 
@@ -197,6 +227,21 @@ bool vulCapitalization(
 void dropSpaces(string& st)
 {
   st.erase(remove(st.begin(), st.end(), ' '), st.end());
+}
+
+
+void singleDashes(string& st)
+{
+  regex re("--");
+  smatch match;
+  st = regex_replace(st, re, "-");
+
+  // Drop trailing dashes.
+  size_t p = st.length()-1;
+  while (p >= 1 && (st.at(p) == '-' || st.at(p) == ' '))
+    p--;
+
+  st = st.substr(0, p+1);
 }
 
 
@@ -282,6 +327,32 @@ bool auctionFormat(
 }
 
 
+bool declarerPassout(
+  const vector<string>& chunkRef,
+  const vector<string>& chunkOut)
+{
+  if (chunkRef[BRIDGE_FORMAT_DECLARER] != "" &&
+      chunkOut[BRIDGE_FORMAT_DECLARER] == "" &&
+      (chunkRef[BRIDGE_FORMAT_CONTRACT] == "P" ||
+       chunkRef[BRIDGE_FORMAT_CONTRACT] == "Pass") &&
+      chunkOut[BRIDGE_FORMAT_CONTRACT] == "Pass")
+    return true;
+  else
+    return false;
+}
+
+
+bool contractPassout(
+  const string& contractRef,
+  const string& contractOut)
+{
+  if (contractRef == "P" && contractOut == "Pass")
+    return true;
+  else
+    return false;
+}
+
+
 bool playFormat(
   const string& playRef,
   const string& playOut)
@@ -290,11 +361,16 @@ bool playFormat(
   str2lines(playRef, linesRef);
   str2lines(playOut, linesOut);
 
-  const unsigned lRef = linesRef.size();
-  const unsigned lOut = linesOut.size();
+  unsigned lRef = linesRef.size();
+  unsigned lOut = linesOut.size();
 
   if (lRef == 0 || lOut == 0)
     return false;
+
+  if (linesRef[lRef-1] == "*" || linesRef[lRef-1] == " *")
+    lRef--;
+  if (linesOut[lOut-1] == "*" || linesOut[lOut-1] == " *")
+    lOut--;
 
   // Opening leader must be the same.
   if (linesRef[0] != linesOut[0])
@@ -304,6 +380,8 @@ bool playFormat(
   for (unsigned i = 1; i < lRef; i++)
   {
     string line = linesRef[i];
+    if (i == lOut-1)
+      singleDashes(line);
     dropSpaces(line);
     refCum += line;
   }
@@ -312,11 +390,48 @@ bool playFormat(
   for (unsigned i = 1; i < lOut; i++)
   {
     string line = linesOut[i];
+    if (i == lOut-1)
+      singleDashes(line);
     dropSpaces(line);
     outCum += line;
   }
 
   if (refCum == outCum)
+    return true;
+  else
+    return false;
+}
+
+
+bool resultPassout(
+  const string& resultRef,
+  const string& resultOut)
+{
+  if (resultRef == "0" && resultOut == "")
+    return true;
+  else
+    return false;
+}
+
+
+bool scoreFormat(
+  const string& scoreRef,
+  const string& scoreOut)
+{
+  const unsigned lRef = scoreRef.length();
+  const unsigned lOut = scoreOut.length();
+
+  if ((scoreRef == "NS 0" || scoreRef == "0") && 
+      scoreOut == "")
+    return true;
+
+  if (lRef < 5 || lOut < 4)
+    return false;
+
+  // "NS -110" is the same as "EW 110".
+  if (scoreRef.substr(0, 4) == "NS -" &&
+      scoreOut.substr(0, 3) == "EW " &&
+      scoreRef.substr(4) == scoreOut.substr(3))
     return true;
   else
     return false;
@@ -334,10 +449,20 @@ bool validatePBNChunk(
     if (chunkRef[i] == chunkOut[i])
       continue;
     
-    if (i == BRIDGE_FORMAT_DATE && 
+    if ((i == BRIDGE_FORMAT_TITLE || i == BRIDGE_FORMAT_EVENT) && 
+        titleInWrongPlace(chunkRef, chunkOut))
+    {
+      prof.log(BRIDGE_VAL_DATE, valState);
+    }
+    else if (i == BRIDGE_FORMAT_DATE && 
         datePunctuation(chunkRef[i], chunkOut[i]))
     {
       prof.log(BRIDGE_VAL_DATE, valState);
+    }
+    else if (i == BRIDGE_FORMAT_LOCATION && 
+        locationNone(chunkRef[i], chunkOut[i]))
+    {
+      prof.log(BRIDGE_VAL_LOCATION, valState);
     }
     else if (i == BRIDGE_FORMAT_SCORING &&
         scoringName(chunkRef[i], chunkOut[i]))
@@ -364,8 +489,28 @@ bool validatePBNChunk(
     {
       prof.log(BRIDGE_VAL_AUCTION, valState);
     }
+    else if (i == BRIDGE_FORMAT_DECLARER &&
+        declarerPassout(chunkRef, chunkOut))
+    {
+      prof.log(BRIDGE_VAL_AUCTION, valState);
+    }
+    else if (i == BRIDGE_FORMAT_CONTRACT &&
+        contractPassout(chunkRef[i], chunkOut[i]))
+    {
+      prof.log(BRIDGE_VAL_AUCTION, valState);
+    }
     else if (i == BRIDGE_FORMAT_PLAY &&
         playFormat(chunkRef[i], chunkOut[i]))
+    {
+      prof.log(BRIDGE_VAL_AUCTION, valState);
+    }
+    else if (i == BRIDGE_FORMAT_RESULT &&
+        resultPassout(chunkRef[i], chunkOut[i]))
+    {
+      prof.log(BRIDGE_VAL_AUCTION, valState);
+    }
+    else if (i == BRIDGE_FORMAT_SCORE &&
+        scoreFormat(chunkRef[i], chunkOut[i]))
     {
       prof.log(BRIDGE_VAL_AUCTION, valState);
     }

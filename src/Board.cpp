@@ -50,6 +50,7 @@ void Board::reset()
   skip.clear();
 
   givenScore = 0.0f;
+  givenSet = false;
   LINset = false;
 }
 
@@ -313,6 +314,26 @@ void Board::setScoreIMP(
       givenScore = 0.0f;
     else if (! str2float(text, givenScore))
       THROW("Bad IMP score: " + text);
+
+    givenSet = true;
+  }
+  else if (format == BRIDGE_FORMAT_PBN)
+  {
+    if (text.length() < 4)
+      THROW("Short RBN IMP score: " + text);
+    if (text.substr(0, 3) != "NS ")
+      THROW("RBN IMP score not NS: " + text);
+
+    // Double Dummy Captain has also used commas.
+    string fixed = text.substr(3);
+    size_t p = fixed.find(",");
+    if (p < string::npos)
+      fixed.at(p) = '.';
+
+    if (! str2float(fixed, givenScore))
+      THROW("Bad RBN IMP score: " + fixed);
+
+    givenSet = true;
   }
 }
 
@@ -329,6 +350,8 @@ void Board::setScoreMP(
   {
     if (! str2float(text, givenScore))
       THROW("Bad matchpoint score");
+
+    givenSet = true;
   }
 }
 
@@ -654,22 +677,38 @@ string Board::strScore(
 
 string Board::strGivenScore(const Format format) const
 {
-  UNUSED(format);
   stringstream s;
-  if (givenScore == 0.0f)
+  
+  if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
   {
-    if ((format == BRIDGE_FORMAT_LIN ||
-        format == BRIDGE_FORMAT_LIN_TRN) && 
-        ! LINset)
-      s << ",,";
+    if (givenScore == 0.0f)
+    {
+      if ((format == BRIDGE_FORMAT_LIN ||
+          format == BRIDGE_FORMAT_LIN_TRN) && 
+          ! LINset)
+        s << ",,";
+      else
+        s << "--,--,";
+    }
+    else if (givenScore > 0.0f)
+      s << setprecision(1) << fixed << givenScore << ",,";
     else
-      s << "--,--,";
+      s << "," << setprecision(1) << fixed << -givenScore << ",";
+    return s.str();
   }
-  else if (givenScore > 0.0f)
-    s << setprecision(1) << fixed << givenScore << ",,";
+  else if (format == BRIDGE_FORMAT_PBN && givenSet)
+  {
+    s << "[ScoreIMP \"NS ";
+    if (numActive == 0)
+      s << setprecision(2) << fixed << givenScore;
+    else
+      s << setprecision(2) << fixed << -givenScore;
+    s << "\"]\n";
+
+    return s.str();
+  }
   else
-    s << "," << setprecision(1) << fixed << -givenScore << ",";
-  return s.str();
+    return "";
 }
 
 
