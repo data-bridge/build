@@ -103,7 +103,7 @@ static bool isRecordComment(
 
 static bool isOfRPOrigin(const string& fileRef)
 {
-  regex re("^[SUVW]\\d\\d\\w\\w\\w");
+  regex re("[SUVW]\\d\\d\\w\\w\\w.PBN");
   smatch match;
   return regex_search(fileRef, match, re);
 }

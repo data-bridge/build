@@ -495,6 +495,8 @@ bool Auction::isPBNNote(
       return false;
 
     alert = match.str(2);
+    if (alert == "")
+      alert = "!";
     return true;
   }
   else
@@ -781,6 +783,20 @@ bool Auction::isEmpty() const
 }
 
 
+bool Auction::lateAlerts() const
+{
+  if (len < 3 || numPasses < 3)
+    return false;
+
+  for (unsigned b = len-3; b < len; b++)
+  {
+    if (sequence[b].alert != "")
+      return true;
+  }
+  return false;
+}
+
+
 bool Auction::operator == (const Auction& auction2) const
 {
   if (setDVFlag != auction2.setDVFlag)
@@ -867,10 +883,11 @@ string Auction::strPBN() const
   stringstream ss, alerts;
   ss << "[Auction \"" << PLAYER_NAMES_SHORT[dealer] << "\"]\n";
 
-  if (Auction::isPassedOut())
+  if (Auction::isPassedOut() && ! lateAlerts())
     return ss.str() + "AP\n";
 
-  unsigned end = (numPasses == 3 ? len-3 : len);
+  const bool shorten = (numPasses == 3 && ! lateAlerts());
+  unsigned end = (shorten ? len-3 : len);
   unsigned aNo = 1;
   for (unsigned b = 0; b < end; b++)
   {
@@ -894,7 +911,7 @@ string Auction::strPBN() const
   }
 
   string st = trimTrailing(ss.str());
-  if (numPasses == 3)
+  if (shorten)
   {
     st += (end % 4 == 0 ? "\n" : " ");
     st += "AP";

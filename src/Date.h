@@ -26,6 +26,10 @@ class Date
 
     void check() const;
 
+    void setTriple(
+      const string& y,
+      const string& m,
+      const string& d);
     void setLIN(const string& text);
     void setPBN(const string& text);
     void setRBN(const string& text);

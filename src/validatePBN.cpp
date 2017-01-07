@@ -144,7 +144,20 @@ bool datePunctuation(
 
   string st = dateRef;
   replace(st.begin(), st.end(), '-', '.');
-  return (dateOut == st);
+  if (dateOut == st)
+    return true;
+
+  // In JEC.PBN there is sometimes a rotation, 02.01.2013 vs.
+  // 2013.02.01.
+
+  if (dateRef.length() == 10 &&
+      dateRef.substr(0, 5) == dateOut.substr(5) &&
+      dateRef.substr(6) == dateOut.substr(0, 4) &&
+      dateRef.at(5) == '.' &&
+      dateOut.at(4) == '.')
+    return true;
+  else
+    return false;
 }
 
 
@@ -215,7 +228,7 @@ bool vulCapitalization(
   const string& vulRef,
   const string& vulOut)
 {
-  if (vulRef == "BOTH" && vulOut == "All")
+  if ((vulRef == "BOTH" || vulRef == "Both") && vulOut == "All")
     return true;
   else if (vulRef == "NONE" && vulOut == "None")
     return true;
@@ -622,6 +635,10 @@ bool validatePBNChunk(
       cout << LABEL_NAMES[i] << ":\n";
       cout << "Ref " << chunkRef[i] << "\n";
       cout << "Out " << chunkOut[i] << "\n" << endl;
+if (i == BRIDGE_FORMAT_DATE)
+  cout << "HEREDATE\n";
+else if (i == BRIDGE_FORMAT_SCORE)
+  cout << "HERESCORE\n";
       prof.log(BRIDGE_VAL_ERROR, valState);
       return true;
     }

@@ -600,11 +600,11 @@ static void printCounts(
   cout << "Segment:      " << counts.segno << endl;
   cout << "Board:        " << counts.bno << endl;
 
-  unsigned lo = 9999;
+  unsigned lo = BIGNUM;
   unsigned hi = 0;
   for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
   {
-    if (counts.lno[i] == 9999)
+    if (counts.lno[i] == BIGNUM)
       continue;
     if (counts.lno[i] > hi)
       hi = counts.lno[i];
@@ -801,7 +801,7 @@ static bool storeChunk(
 
     bex.print(flog);
 
-    if (bex.isTricks())
+    if (bex.isTricks() && FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
     {
       heurFixTricks(group, segment, board, buffer, chunk, counts, options);
     }
@@ -810,7 +810,8 @@ static bool storeChunk(
       cout << board->strDeal(BRIDGE_FORMAT_TXT) << endl;
       cout << board->strContract(BRIDGE_FORMAT_TXT) << endl;
     }
-    else if (bex.isPlayDD())
+    else if (bex.isPlayDD() && 
+        FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
     {
       heurFixPlayDD(group, segment, board, buffer, chunk, options);
     }
@@ -958,7 +959,7 @@ static bool readFormattedFile(
       for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
       {
         chunk[i] = "";
-        counts.lno[i] = 9999;
+        counts.lno[i] = BIGNUM;
       }
 
 

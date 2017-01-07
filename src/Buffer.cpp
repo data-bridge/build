@@ -584,9 +584,8 @@ unsigned Buffer::previousHeaderStart() const
 
 unsigned Buffer::firstRS() const
 {
-  // TODO: have 9999 as a global BIGNUM in bconst.h
   if (format != BRIDGE_FORMAT_LIN_VG)
-    return 9999;
+    return BIGNUM;
 
   for (unsigned i = 0; i < len; i++)
   {
@@ -595,14 +594,14 @@ unsigned Buffer::firstRS() const
       return lines[i].no;
   }
 
-  return 9999;
+  return BIGNUM;
 }
 
 
 unsigned Buffer::getInternalNumber(const unsigned no) const
 {
   if (no == 0 || no > lines[len-1].no)
-    return 99999; // TODO: Move to BIGNUM
+    return BIGNUM;
   
   if (lines[no-1].no == no)
     return no-1;
@@ -614,7 +613,7 @@ unsigned Buffer::getInternalNumber(const unsigned no) const
     while (i >= 1 && lines[i-1].no != no)
       i--;
     if (i == 0)
-      return 99999;
+      return BIGNUM;
     else
       return i-1;
   }
@@ -624,7 +623,7 @@ unsigned Buffer::getInternalNumber(const unsigned no) const
     while (i < len && lines[i-1].no != no)
       i++;
     if (i == len)
-      return 99999;
+      return BIGNUM;
     else
       return i-1;
   }
@@ -637,7 +636,7 @@ string Buffer::getLine(const unsigned no) const
     return "";
 
   const unsigned intNo = Buffer::getInternalNumber(no);
-  if (intNo == 99999)
+  if (intNo == BIGNUM)
     return "";
   else
     return lines[intNo].line;

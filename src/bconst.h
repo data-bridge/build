@@ -27,6 +27,8 @@ using namespace std;
 #define Max(x, y) (((x) >= (y)) ? (x) : (y))
 #define Min(x, y) (((x) <= (y)) ? (x) : (y))
 
+#define BIGNUM 9999999
+
 
 // Bridge file formats.
 

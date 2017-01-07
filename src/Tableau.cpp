@@ -493,8 +493,6 @@ static const unsigned DENOM_PAR_TO_DDS[5] =
 };
 
 
-#define BIGNUM 9999
-
 
 bool Tableau::getPar(
   const Player dealer,

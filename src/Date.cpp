@@ -89,30 +89,59 @@ void Date::setLIN(const string& text)
 }
 
 
-void Date::setPBN(const string& text)
+void Date::setTriple(
+  const string& y,
+  const string& m,
+  const string& d)
 {
-  // 2010.12.31
-  regex re("(....).(..).(..)");
-  smatch match;
-  if (! regex_search(text, match, re) || match.size() < 3)
-    THROW("Bad PBN date");
-
-  if (match.str(1) == "????")
+  if (y == "????")
     year = 0;
-  else if (! str2upos(match.str(1), year))
-    THROW("Bad PBN year");
+  else if (! str2upos(y, year))
+    THROW("Bad PBN year: " + y);
 
-  if (match.str(2) == "??")
+  if (m == "??")
     month = 0;
-  else if (! str2upos(match.str(2), month))
-    THROW("Bad PBN month number");
+  else if (! str2upos(m, month))
+    THROW("Bad PBN month number: " + m);
 
-  if (match.str(3) == "??")
+  if (d == "??")
     day = 0;
-  else if (! str2upos(match.str(3), day))
-    THROW("Bad PBN day");
+  else if (! str2upos(d, day))
+    THROW("Bad PBN day: " + d);
 
   Date::check();
+}
+
+
+void Date::setPBN(const string& text)
+{
+  smatch match;
+
+  // 2010.12.31
+  regex re("(....)\\.(..)\\.(..)");
+  if (regex_search(text, match, re) && match.size() >= 3)
+  {
+    Date::setTriple(match.str(1), match.str(2), match.str(3));
+    return;
+  }
+
+  // 2010-12-31 -- not legal PBN.
+  regex re2("(....)-(..)-(..)");
+  if (regex_search(text, match, re2) && match.size() >= 3)
+  {
+    Date::setTriple(match.str(1), match.str(2), match.str(3));
+    return;
+  }
+
+  // 02.17.2013 -- definitely not legal PBN.
+  regex re3("(..)\\.(..)\\.(....)");
+  if (regex_search(text, match, re3) && match.size() >= 3)
+  {
+    Date::setTriple(match.str(3), match.str(1), match.str(2));
+    return;
+  }
+
+  THROW("Bad PBN date:" + text);
 }
 
 

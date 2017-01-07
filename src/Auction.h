@@ -86,6 +86,8 @@ class Auction
     string strTXT(const int * lengths) const;
     string strREC() const;
 
+    bool lateAlerts() const;
+
 
   public:
 

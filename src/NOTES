@@ -1,19 +1,21 @@
 28.12.2016
 ----------
-No duplicated pbn and lin files in BBOSH.
+Statistics on sources
+- Number of (good) hands
+- Number of files
+  - Perfect
+  - Some fixes (say few .ref lines and few .xxx effect lines)
+  - Skips
 
-* Find files with multiple player lines, write fix file
-  that stops after first segment
-* Find pairs files with lots of names, skip,
-  but not if names are just repeated n times
-
-May have deleted whole hands due to single bad cards...
-
-No skip file without a lin file...
-
-Files with long player lists, like normal play files (6939.lin).
-Maybe find and reinstate these.
-And multiple pn tags -- case 1: Multiple segments, case 2: 1 seg.
+Quality of fixes
+- No skip or ref file without a data file (lin to start with)
+- No skip file with a ref file
+- No duplicates in BBOSH (file names)
+- BBOSH files sorted properly into directories
+- Detect complete skips
+- Fixes in order
+- Screenscrape major championships, compare.
+- Check links (http, www).
 
 Sheet.cpp
 * read unadulterated .lin file
@@ -27,87 +29,59 @@ Sheet.cpp
 * set info from .ref file
 * print pure sheet, or comments including hand diagram and play
   and remaining cards
+* print comments on hands before, during and after fixes
 
-Output mode (format?) showing only team score per hand.
+LIN_VG files with multiple players
+- Could be multiple segments
+- Could be running changes
+- Tolerate whole files or deleted parts of files as well
+- Normal play files (6939.lin).
 
-Files with lots of corrections
+Too harsh fixes especially in BBOVG
+- Try multi-threading of BBOVG and also BBOSH
+- Fixes should only be for real file errors; program should
+  tolerate more
+- Fixes might have a fourth entry with the type of fix
+- May have deleted whole hands due to single bad cards...
+- Maybe tolerate tricks in wrong order within each trick
 
-Look in particular at vugrapher's comments, often "sorry..."
+Too lenient
+- No "real" players (West,North,East,South)
+- Very expensive bids (offering huge upside score).
+- Very expensive or "stupid" plays (quickTricks?).
+- Find unrealistic sequences (opening final contract)
+- 37865.lin, c32: Why is 2NT, W and 1NT, W not flagged apart?
+  (Also perhaps doubled or not?)
 
-37865.lin, c32: Why is 2NT, W and 1NT, W not flagged apart?
-(Also perhaps doubled or not?)
+Code
+- Print example of each validate "error"
+- No % comment except LIN_RP and perhaps PBN
+- Make prettier line break in LIN print except LIN_RP.
+- Buffer should pick up .ref automatically.
+- Still segfault at end?
+- Allow concatenated files, e.g. RBN but also LIN
+- TODOs
 
-Very expensive bids (offering huge upside score).
-Very expensive or "stupid" plays (quickTricks?).
+Documentation
+- Move scripts to script directory
+- Write a note saying what each script does
 
-Detect complete skips from full ref files
-In fact, for all erroneous files at all, no matter the error,
-check the cards held
-
-Check .ref files:
-- in order
-- cannot combine deletes
-- no ref when skip
-
-Files with > 50% lines deleted
-
-Find unrealistic sequences (opening final contract)
-
-Find when no "real" players
-
-Screenscrape major championships, compare.
-Check links (http, www).
-Note single missing hands, investigate.
-
-
-* miss.pl should start also in middle of files if late "not held" error.
-* Why does it fail all in e.g. 101.txt after the initial error?
-* When there is an initial fail, and we re-run, we get the position of
-  the next error, so we can actually pinpoint all single errors at once.
-* Should actually parse .ref file and modify the input before
-  slurping it
-
-Buffer should pick up .ref automatically.
-
-No % comment in LIN except LIN_RP.
-
-Make prettier line break in LIN print except LIN_RP.
-
-Likely order:
-* Ditto for files with only North,West etc.
-* Ditto for files with only md||
-* Turn off speculative file writers
-* Run reader
-
-            #qx
-LIN_VG  948,965
-LIN_RP   80,138
-LIN     ~ 9,399 incl TRN
-JEC      23,045
-
-validate:
-* Print example for each "error"
+Data
+- Include BBOVG and BBOSH up to the end of 2016
+- Look for more sources?  Later...
 
 update Pavlicek missive and Excel
 
-Still segfault at end?
-
-Try multi-thread of BBOVG
 
 Functionality
 -------------
 JEC PBN
 - support ##
-- Find way to ignore OptimumResult
 LIN VG
 - Include alerts in RBN
 - Parse headers for semantic content
 LIN shein
 LIN tourneys
-
-Test on concatenated RBN file
-
-Add ability to store optimal results from PBN.
 
 options
 -------

@@ -18,8 +18,6 @@
 #include "Bdiff.h"
 
 
-#define BIG_BOARD 99999
-
 
 Segment::Segment()
 {
@@ -39,7 +37,7 @@ void Segment::reset()
   LINcount = 0;
   LINdata.clear();
 
-  bmin = BIG_BOARD;
+  bmin = BIGNUM;
   bmax = 0;
 
   title = ""; 

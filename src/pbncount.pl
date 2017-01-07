@@ -31,7 +31,7 @@ close $fh;
 my $sum = 0;
 for my $k (sort keys %counts)
 {
-  printf "%4d  %s\n", $counts{$k}, $k;
+  printf "%5d  %s\n", $counts{$k}, $k;
   $sum += $counts{$k};
 }
-print "----\n$sum\n";
+print "-----\n$sum\n";

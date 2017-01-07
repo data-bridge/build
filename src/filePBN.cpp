@@ -55,6 +55,7 @@ void setPBNTables()
   // These are discarded.
   PBNmap["Round"] = BRIDGE_FORMAT_LABELS_SIZE;
   PBNmap["Table"] = BRIDGE_FORMAT_LABELS_SIZE;
+  PBNmap["ScoreMP"] = BRIDGE_FORMAT_LABELS_SIZE;
   PBNmap["Seq"] = BRIDGE_FORMAT_LABELS_SIZE;
   PBNmap["Link"] = BRIDGE_FORMAT_LABELS_SIZE;
   PBNmap["Time"] = BRIDGE_FORMAT_LABELS_SIZE;
@@ -64,6 +65,8 @@ void setPBNTables()
   PBNmap["OptimumScore"] = BRIDGE_FORMAT_LABELS_SIZE;
   PBNmap["OptimumDeclarer"] = BRIDGE_FORMAT_LABELS_SIZE;
   PBNmap["OptimumResult"] = BRIDGE_FORMAT_LABELS_SIZE;
+  PBNmap["ValidDeal"] = BRIDGE_FORMAT_LABELS_SIZE;
+  PBNmap["DDS_Filters"] = BRIDGE_FORMAT_LABELS_SIZE;
 }
 
 
