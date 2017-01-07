@@ -62,10 +62,6 @@ Code
 - Allow concatenated files, e.g. RBN but also LIN
 - TODOs
 
-Documentation
-- Move scripts to script directory
-- Write a note saying what each script does
-
 Data
 - Include BBOVG and BBOSH up to the end of 2016
 - Look for more sources?  Later...
@@ -75,13 +71,9 @@ update Pavlicek missive and Excel
 
 Functionality
 -------------
-JEC PBN
-- support ##
-LIN VG
-- Include alerts in RBN
-- Parse headers for semantic content
-LIN shein
-LIN tourneys
+Named Entity Recognizers for
+- Player names
+- Tournaments
 
 options
 -------

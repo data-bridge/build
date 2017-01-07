@@ -3,6 +3,8 @@
 use strict;
 use warnings;
 
+# General function to add a line to a ref file.
+
 sub addref
 {
   my ($fname, $line) = @_;

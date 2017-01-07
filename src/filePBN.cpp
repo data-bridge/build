@@ -319,6 +319,8 @@ void writePBNBoardLevel(
 
   st += board.strRoom(0, format);
   st += board.strScore(format, segment.scoringIsIMPs());
+  if (writeInfo.ino == 0)
+    st += board.strGivenScore(format);
   st += board.strTableau(format);
 
   st += "\n";

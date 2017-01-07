@@ -9,7 +9,7 @@ require "adder.pl";
 
 if ($#ARGV < 0)
 {
-  print "Usage: perl ser.pl 07\n";
+  print "Usage: perl qxer.pl 07\n";
   exit;
 }
 

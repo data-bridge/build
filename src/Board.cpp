@@ -317,7 +317,7 @@ void Board::setScoreIMP(
 
     givenSet = true;
   }
-  else if (format == BRIDGE_FORMAT_PBN)
+  else if (format == BRIDGE_FORMAT_PBN && numActive == 0)
   {
     if (text == "0")
     {

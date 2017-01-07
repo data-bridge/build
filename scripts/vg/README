@@ -1,0 +1,70 @@
+converge (lives in src for now):
+-----
+perl converge.pl 07
+
+runs on all files in 007000, makes a zfix07.txt file with proposed
+fixes and a zrest07.txt file which is not as useful.
+
+hinter:
+-----
+perl hinter.pl cvg07.txt
+
+extracts proposed fixes from cvg??.txt into a zref??.txt file.
+Will often fail, as it doesn't like several error types.
+The zref file has to be edited manually in generl.
+
+shorts:
+-----
+perl shorts.pl cvg07.txt
+
+extracts short files from a zref??.txt file and causes them to
+be skipped.
+
+tofix:
+-----
+perl tofix.pl zref07.txt
+
+parses a zfix??.txt file and applies the fixes to central ref files.
+
+
+
+adder:
+-----
+addref can add a line to an existing (or new) ref file.
+Can be require'd by other scripts.
+
+qxer:
+-----
+Can fix (directly) qx BBO bugs of the form:
+qx|o1,BOARD1|
+(at least I think it's bug).
+
+tricker:
+-----
+Can fix (directly) mc|dd| for qx entries where all 13 tricks are played.
+
+commatizer:
+-----
+Can fix too many or too few commas at the end of an rs line.
+(But may be wrong when the last contract does not have 4 characters?).
+
+rser:
+-----
+Can fix bug where a line break is inserted into normal text when
+that text ends on rs| (which looks like a BBO tag).
+
+multicom:
+-----
+Can delete multi-line nt comments.
+
+sorter:
+-----
+Can sort a file by qx (o1, c1, o2, c2, ...), delete the ref file
+and make an orig file.
+
+
+
+miss:
+-----
+This was an early script to find card mistakes.  hinter is 
+somewhat better.

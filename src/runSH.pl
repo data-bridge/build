@@ -24,6 +24,7 @@ if (-e $out)
 while (1)
 {
   system("./reader -I $DIR -R $DIR -s -c -v 30 -w 1 > $out");
+  # system("./reader -I $DIR -R $DIR -s -c -v 30 -w 1 -n 6 > $out");
 
   die "No output?" unless (-e $out);
 
