@@ -1,0 +1,139 @@
+28.12.2016
+----------
+Statistics on sources
+- Number of (good) hands
+- Number of files
+  - Perfect
+  - Some fixes (say few .ref lines and few .xxx effect lines)
+  - Skips
+
+Quality of fixes
+- No skip or ref file without a data file (lin to start with)
+- No skip file with a ref file
+- No duplicates in BBOSH (file names)
+- BBOSH files sorted properly into directories
+- Detect complete skips
+- Fixes in order
+- Screenscrape major championships, compare.
+- Check links (http, www).
+
+Sheet.cpp
+* read unadulterated .lin file
+  - header contracts
+  - final bids
+  - tricks from header
+  - tricks from claim
+  - http chats
+  - vugraph operator chats on this and next 2 boards
+* set DD tricks
+* set info from .ref file
+* print pure sheet, or comments including hand diagram and play
+  and remaining cards
+* print comments on hands before, during and after fixes
+
+LIN_VG files with multiple players
+- Could be multiple segments
+- Could be running changes
+- Tolerate whole files or deleted parts of files as well
+- Normal play files (6939.lin).
+
+Too harsh fixes especially in BBOVG
+- Try multi-threading of BBOVG and also BBOSH
+- Fixes should only be for real file errors; program should
+  tolerate more
+- Fixes might have a fourth entry with the type of fix
+- May have deleted whole hands due to single bad cards...
+- Maybe tolerate tricks in wrong order within each trick
+
+Too lenient
+- No "real" players (West,North,East,South)
+- Very expensive bids (offering huge upside score).
+- Very expensive or "stupid" plays (quickTricks?).
+- Find unrealistic sequences (opening final contract)
+- 37865.lin, c32: Why is 2NT, W and 1NT, W not flagged apart?
+  (Also perhaps doubled or not?)
+
+Code
+- Print example of each validate "error"
+- No % comment except LIN_RP and perhaps PBN
+- Make prettier line break in LIN print except LIN_RP.
+- Buffer should pick up .ref automatically.
+- Still segfault at end?
+- Allow concatenated files, e.g. RBN but also LIN
+- TODOs
+
+Data
+- Include BBOVG and BBOSH up to the end of 2016
+- Look for more sources?  Later...
+
+update Pavlicek missive and Excel
+
+
+Functionality
+-------------
+Named Entity Recognizers for
+- Player names
+- Tournaments
+
+options
+-------
+-A analyse DD
+-p play analyze DD
+-n output all names to appropriately named text files
+
+Makefiles
+---------
+        compile runs    threads
+-------------------------------
+visual  yes     yes     yes
+cygwin  yes     segf
+mingw   almost
+clang
+ubuntu
+
+Valuation
+---------
+Board: Valuation
+
+Double-dummy
+------------
+* Tableau: Call DDS
+* Trace: 
+  - (1) old trace, can count mistakes
+  - (2) new trace, can compare within suit and between suits,
+    probably friend of Deal.  Need new DDS function?
+
+How to multi-thread the DDS calls?
+Threads consume single boards from segments (all instances).
+
+Database
+--------
+Be able to store
+- Play trace, including error types
+- Hand to open bidding (0-4)
+- board display number, can check dealer/vul then
+- Files, Dirs (or combine?)
+- Systems, and some characteristics
+- Defenses, and some characteristics
+
+Generate each of the tables in an sqlite DB as txt
+
+Ingest them into sqlite in a separate program
+
+some kind of "make" ("scour") looks for new or changed files.
+Output proposed deltas to DB
+
+Find a way to normalize all important text fields.
+
+Should somehow recognize complete duplicates.
+
+Syntax for .bsf files
+---------------------
+(Bridge script files)
+player alias "Display,Last,First" "Display"
+select segment "segment"
+unselect segment
+postpone (rerun in the end, e.g. for partner counts)
+select board 7
+(stuff to do with the selected board, e.g. contract)
+Actually, make it sql-like
