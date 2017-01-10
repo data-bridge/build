@@ -1,7 +1,7 @@
 /* 
    Part of BridgeData.
 
-   Copyright (C) 2016 by Soren Hein.
+   Copyright (C) 2016-17 by Soren Hein.
 
    See LICENSE and README.
 */
