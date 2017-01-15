@@ -826,6 +826,9 @@ bool Auction::operator != (const Auction& a2) const
 
 string Auction::strTXTHeader(const int * lengths) const
 {
+  if (lengths == nullptr)
+    THROW("lengths is nullptr");
+
   stringstream ss;
   ss << left <<
        setw(lengths[0]) << "West" << 

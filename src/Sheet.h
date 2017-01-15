@@ -29,6 +29,7 @@ class Sheet
     {
       string headline;
       vector<string> links;
+      unsigned lineRS;
     };
 
     struct SheetContract
@@ -46,6 +47,9 @@ class Sheet
     struct SheetHand
     {
       string label;
+      string room;
+      unsigned numberQX;
+      unsigned lineLIN;
 
       Deal deal;
       bool hasDeal;
@@ -96,11 +100,11 @@ class Sheet
       string& link) const;
 
     string qxToHeaderContract(
-      const string& value,
+      SheetHand& hd,
       const vector<string>& clist,
       const vector<unsigned>& blist,
       const unsigned noHdrFirst,
-      const unsigned noHdrLast) const;
+      const unsigned noHdrLast);
 
     void strToContract(
       const Contract& contract,
@@ -126,6 +130,7 @@ class Sheet
       vector<SheetHand>& hd);
 
     unsigned findFixed(const string& label) const;
+    unsigned findOrig(const string& label) const;
 
     string cstr(const SheetContract& ct) const;
     string cstr(
@@ -151,6 +156,14 @@ class Sheet
     void extendNotes(
       const SheetHand& ho,
       const SheetHand& hf,
+      stringstream& notes) const;
+
+    void extendNotesWithChat(
+      const SheetHand& ho,
+      stringstream& notes) const;
+
+    void extendNotesDetail(
+      const SheetHand& hand,
       stringstream& notes) const;
 
 

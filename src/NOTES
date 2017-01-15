@@ -1,5 +1,49 @@
-28.12.2016
+15.01.2017
 ----------
+Sheet:
+- Output a proposed modified ref line
+  In Buffer, make readReadFix (and RefFix) available publicly.
+  In Sheet::read, call readRefFix
+  Allocate each line to all relevant qx's according to line number
+  Careful with last qx in list
+  Later on, for an affected qx, dump its ref lines 
+  Change to rs line potentially affects a lot of qx's
+  Have to count them
+
+- Other script can parse out the lines that we want
+  (delete those sheet files that are left for later)
+- Another str() function that outputs an IMP sheet,
+  will also need vul
+
+Permit runs with only -i and -d.
+Can make output hard to tmp directory.
+
+Buffer:
+- Should be able to read a partial or a full ref file
+- Partial means only explained lines {ERR_...}
+
+Come up with syntax for ref files, compatible, that marks
+error types, e.g. ERR_CONTRACT_HEADER.
+{ERR_CONTRACT_HEADER(#tags, #qx, #boards), ...}
+
+Script in BBOVG directory
+- Count
+  number of ref files
+  explained and unexplained
+    number of lines in ref files
+    numbers of lines in LIN files that are affected
+    number of tags that are affected 
+    number of qx's that are affected
+    number of boards (open or closed) that are affected
+
+At some point we need to explain the skips as well;
+that can go in the skip file.
+
+Complete replacements should go in ref file,
+* replace
+followed by the new file
+
+
 Statistics on sources
 - Number of (good) hands
 - Number of files
@@ -17,12 +61,10 @@ Quality of fixes
 - Screenscrape major championships, compare.
 - Check links (http, www).
 
-Sheet.cpp
-* include chats on next board as well
-* set DD tricks?
 
-Come up with syntax for ref files, compatible, that marks
-error types, e.g. ERR_CONTRACT_HEADER.
+Number of lines:
+19,306,468 in LIN_VG
+    25,440 in .ref
 
 
 LIN_VG files with multiple players

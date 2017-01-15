@@ -170,31 +170,32 @@ bool Sheet::isLink(
 
 
 string Sheet::qxToHeaderContract(
-  const string& value,
+  SheetHand& hd,
   const vector<string>& clist,
   const vector<unsigned>& blist,
   const unsigned noHdrFirst,
-  const unsigned noHdrLast) const
+  const unsigned noHdrLast)
 {
   UNUSED(blist);
 
-  if (value.length() < 2)
+  if (hd.label.length() < 2)
     return "";
 
-  const string room = value.substr(0, 1);
-  if (room != "o" && room != "c")
+  hd.room = hd.label.substr(0, 1);
+  if (hd.room != "o" && hd.room != "c")
     return "";
 
-  unsigned adder = (room == "o" ? 0u : 1u);
+  unsigned adder = (hd.room == "o" ? 0u : 1u);
   
-  unsigned bno;
-  if (! str2unsigned(value.substr(1), bno))
+  if (! str2unsigned(hd.label.substr(1), hd.numberQX))
     return "";
 
-  if (bno == 0 || bno < noHdrFirst || bno > noHdrLast)
+  if (hd.numberQX == 0 || 
+      hd.numberQX < noHdrFirst || 
+      hd.numberQX > noHdrLast)
     return "";
 
-  const unsigned index = 2*(bno-1) + adder;
+  const unsigned index = 2*(hd.numberQX-1) + adder;
   if (index >= clist.size())
     return "-";
   else if (clist[index] == "")
@@ -249,7 +250,7 @@ void Sheet::finishHand(
   if (hand.auction.isOver())
     hand.hasAuction = true;
 
-  string c = Sheet::qxToHeaderContract(hand.label,
+  string c = Sheet::qxToHeaderContract(hand,
     clist, blist, noHdrFirst, noHdrLast);
   Contract contractHdr;
   if (c == "")
@@ -370,6 +371,7 @@ void Sheet::parse(
       plays = "";
       numPlays = 0;
       handTmp.label = Sheet::parseQX(lineData.value);
+      handTmp.lineLIN = lineData.no;
     }
     else if (lineData.label == "md")
     {
@@ -488,6 +490,17 @@ unsigned Sheet::findFixed(const string& label) const
 }
 
 
+unsigned Sheet::findOrig(const string& label) const
+{
+  for (unsigned i = 0; i < handsOrig.size(); i++)
+  {
+    if (handsOrig[i].label == label)
+      return i;
+  }
+  return BIGNUM;
+}
+
+
 string Sheet::cstr(const SheetContract& ct) const
 {
   if (! ct.has)
@@ -585,6 +598,47 @@ bool Sheet::handsDiffer(
 }
 
 
+void Sheet::extendNotesDetail(
+  const SheetHand& hand,
+  stringstream& notes) const
+{
+  RunningDD runningDD;
+  hand.play.getStateDDS(runningDD);
+
+  Deal deal;
+  deal.set(runningDD.dl.remainCards);
+
+  if (hand.hasAuction)
+  {
+    const int lengths[4] = {12, 12, 12, 12};
+    notes << hand.auction.str(BRIDGE_FORMAT_TXT, lengths) << "\n";
+  }
+
+  unsigned ddTricks;
+  try
+  {
+    ddTricks = tricksDD(runningDD);
+  }
+  catch (Bexcept& bex)
+  {
+    bex.print(cout);
+  }
+
+  notes << deal.str(hand.auction.getDealer(), BRIDGE_FORMAT_TXT) << "\n";
+
+  notes << "Contract: " << hand.contractHeader.value << "\n";
+  notes << "Running : " << runningDD.tricksDecl << " to " <<
+    runningDD.tricksDef << "\n\n";
+  if (hand.tricksHeader.has)
+    notes << "Header  : " << hand.tricksHeader.value << "\n";
+  if (hand.tricksPlay.has)
+    notes << "Play    : " << hand.tricksPlay.value << "\n";
+  if (hand.tricksClaim.has)
+    notes << "Claim   : " << hand.tricksClaim.value << "\n";
+  notes << "DD      : " << ddTricks << "\n\n";
+}
+
+
 void Sheet::extendNotes(
   const SheetHand& ho,
   const SheetHand& hf,
@@ -606,22 +660,7 @@ void Sheet::extendNotes(
   {
     notes << ho.play.str(BRIDGE_FORMAT_TXT) << "\n";
 
-    RunningDD runningDD;
-    ho.play.getStateDDS(runningDD);
-    Deal dltmp;
-    dltmp.set(runningDD.dl.remainCards);
-    notes << dltmp.str(ho.auction.getDealer(), BRIDGE_FORMAT_TXT) << "\n";
-
-    notes << "Contract     : " << ho.contractHeader.value << "\n";
-    notes << "Running score: " << runningDD.tricksDecl << " to " <<
-      runningDD.tricksDef << "\n";
-    if (ho.tricksHeader.has)
-      notes << "Header: " << ho.tricksHeader.value << "\n";
-    if (ho.tricksPlay.has)
-      notes << "Play  : " << ho.tricksPlay.value << "\n";
-    if (ho.tricksClaim.has)
-      notes << "Claim : " << ho.tricksClaim.value << "\n";
-      notes << "\n";
+    Sheet::extendNotesDetail(ho, notes);
 
     if (hf.hasPlay && ho.play != hf.play)
       notes << "Original and fixed plays differ\n";
@@ -632,22 +671,18 @@ void Sheet::extendNotes(
     notes << "No original play -- fixed play:\n";
     notes << hf.play.str(BRIDGE_FORMAT_TXT) << "\n";
 
-    RunningDD runningDD;
-    hf.play.getStateDDS(runningDD);
-    Deal dltmp;
-    dltmp.set(runningDD.dl.remainCards);
-    notes << dltmp.str(hf.auction.getDealer(), BRIDGE_FORMAT_TXT) << "\n";
-    notes << "Running score: " << runningDD.tricksDecl << " to " <<
-      runningDD.tricksDef << "\n";
+    Sheet::extendNotesDetail(hf, notes);
   }
 
+}
+
+
+void Sheet::extendNotesWithChat(
+  const SheetHand& ho,
+  stringstream& notes) const
+{
   for (auto &line: ho.chats)
-  {
     notes << line << "\n";
-  }
-
-  if (ho.hasDeal || ho.hasPlay)
-    notes << "----------\n\n";
 }
   
 
@@ -708,9 +743,30 @@ string Sheet::str() const
 
       if (Sheet::handsDiffer(ho, hf))
       {
+        hasDiffs = true;
+
         notes << "Board " << ho.label << "\n";
         Sheet::extendNotes(ho, hf, notes);
-        hasDiffs = true;
+        Sheet::extendNotesWithChat(ho, notes);
+
+        const unsigned indexOrig = Sheet::findOrig(ho.label);
+        if (indexOrig != BIGNUM)
+        {
+          const unsigned l = handsOrig.size();
+          if (indexOrig < l-1)
+          {
+            notes << "--\n";
+            Sheet::extendNotesWithChat(handsOrig[indexOrig+1], notes);
+            if (indexOrig < l-2)
+            {
+              notes << "--\n";
+              Sheet::extendNotesWithChat(handsOrig[indexOrig+2], notes);
+            }
+          }
+        }
+
+        if (ho.hasDeal || hf.hasDeal || ho.hasPlay || hf.hasPlay)
+          notes << "----------\n\n";
       }
     }
   }

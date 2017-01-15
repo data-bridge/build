@@ -274,7 +274,7 @@ void heurFixTricks(
     {
       ddRes = tricksDD(runningDD);
     }
-    catch (Bexcept bex)
+    catch (Bexcept& bex)
     {
       UNUSED(bex);
     }
