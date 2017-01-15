@@ -30,6 +30,7 @@
 #include "fileREC.h"
 
 #include "parse.h"
+#include "Sheet.h"
 #include "Bexcept.h"
 #include "Bdiff.h"
 #include "trace.h"
@@ -366,6 +367,26 @@ static void dispatchCompare(
 }
 
 
+static void dispatchDigest(
+  const FileTask& task,
+  ostream& flog)
+{
+  if (FORMAT_INPUT_MAP[task.formatInput] != BRIDGE_FORMAT_LIN)
+    return;
+
+  try
+  {
+    Sheet sheet;
+    sheet.read(task.fileInput);
+    flog << sheet.str();
+  }
+  catch (Bexcept& bex)
+  {
+    bex.print(flog);
+  }
+}
+
+
 void dispatch(
   const int thrNo,
   Files& files,
@@ -440,6 +461,16 @@ try
         dispatchCompare(options, task.fileInput, task.formatInput, 
           group, text, cstats, flog);
         timers.stop(BRIDGE_TIMER_COMPARE, t.formatOutput);
+      }
+
+      if (options.digestFlag)
+      {
+        if (options.verboseIO)
+          flog << "Input " << task.fileInput << endl;
+    
+        timers.start(BRIDGE_TIMER_DIGEST, task.formatInput);
+        dispatchDigest(task, flog);
+        timers.stop(BRIDGE_TIMER_DIGEST, task.formatInput);
       }
 
       if (task.removeOutputFlag)

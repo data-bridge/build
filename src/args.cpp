@@ -29,7 +29,7 @@ struct OptEntry
   unsigned numArgs;
 };
 
-#define BRIDGE_NUM_OPTIONS 13
+#define BRIDGE_NUM_OPTIONS 14
 
 static const OptEntry OPT_LIST[BRIDGE_NUM_OPTIONS] =
 {
@@ -41,6 +41,7 @@ static const OptEntry OPT_LIST[BRIDGE_NUM_OPTIONS] =
   {"R", "refdir", 1},
   {"l", "logfile", 1},
   {"c", "compare", 0},
+  {"d", "digest", 0},
   {"f", "format", 1},
   {"w", "write", 1},
   {"s", "stats", 0},
@@ -88,6 +89,9 @@ void usage(
     "-l, --logfile s    Log file for outputs (default: stdout).\n" <<
     "\n" <<
     "-c, --compare      Re-read output and compare internally.\n" <<
+    "                   (Default: not set)\n" <<
+    "\n" <<
+    "-d, --digest       Produce a sheet of contracts and tricks.\n" <<
     "                   (Default: not set)\n" <<
     "\n" <<
     "-f, --format s     Output format for -O (default: ALL).\n" <<
@@ -173,6 +177,7 @@ static void setDefaults(Options& options)
   options.fileLog = {false, ""};
 
   options.compareFlag = false;
+  options.digestFlag = false;
 
   options.formatSetFlag = false;
   options.format = BRIDGE_FORMAT_SIZE;
@@ -221,6 +226,11 @@ void printOptions(const Options& options)
     cout << setw(12) << "compare" << setw(12) << "set" << "\n";
   else
     cout << setw(12) << "compare" << setw(12) << "not set" << "\n";
+
+  if (options.digestFlag)
+    cout << setw(12) << "digest" << setw(12) << "set" << "\n";
+  else
+    cout << setw(12) << "digest" << setw(12) << "not set" << "\n";
 
   if (options.formatSetFlag)
   {
@@ -356,6 +366,10 @@ void readArgs(
 
       case 'c':
         options.compareFlag = true;
+        break;
+
+      case 'd':
+        options.digestFlag = true;
         break;
 
       case 'f':

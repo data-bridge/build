@@ -74,6 +74,8 @@ class Buffer
 
     void reset();
 
+    void rewind();
+
     bool read(
       const string& fname,
       const Format format);

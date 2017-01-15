@@ -50,6 +50,14 @@ void Buffer::reset()
 }
 
 
+void Buffer::rewind()
+{
+  current = 0;
+  posLIN = 0;
+  posRBX = 0;
+}
+
+
 // http://stackoverflow.com/questions/17925051/
 //   fast-textfile-reading-in-c
 
