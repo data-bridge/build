@@ -102,9 +102,13 @@ class Sheet
       const unsigned noHdrFirst,
       const unsigned noHdrLast) const;
 
-    void contractToComponents(
+    void strToContract(
       const Contract& contract,
-      SheetContract& contractSheet,
+      SheetContract& contractSheet);
+    
+    void strToTricks(
+      const Contract& contract,
+      const SheetContract& contractSheet,
       SheetTricks& tricksSheet);
     
     void finishHand(

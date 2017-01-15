@@ -18,18 +18,12 @@ Quality of fixes
 - Check links (http, www).
 
 Sheet.cpp
-* read unadulterated .lin file
-  - header contracts
-  - final bids
-  - tricks from header
-  - tricks from claim
-  - http chats
-  - vugraph operator chats on this and next 2 boards
-* set DD tricks
-* set info from .ref file
-* print pure sheet, or comments including hand diagram and play
-  and remaining cards
-* print comments on hands before, during and after fixes
+* include chats on next board as well
+* set DD tricks?
+
+Come up with syntax for ref files, compatible, that marks
+error types, e.g. ERR_CONTRACT_HEADER.
+
 
 LIN_VG files with multiple players
 - Could be multiple segments

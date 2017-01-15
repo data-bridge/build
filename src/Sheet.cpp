@@ -16,6 +16,7 @@
 #include "Segment.h"
 #include "Sheet.h"
 #include "parse.h"
+#include "ddsIF.h"
 #include "Bexcept.h"
 
 
@@ -203,14 +204,31 @@ string Sheet::qxToHeaderContract(
 }
 
 
-void Sheet::contractToComponents(
+void Sheet::strToContract(
   const Contract& contract,
-  SheetContract& contractSheet,
+  SheetContract& contractSheet)
+{
+  // Drop leading "C ", colon and trailing newline.
+  string st = contract.str(BRIDGE_FORMAT_RBN);
+  const size_t l = st.length();
+  if (l >= 4)
+  {
+    const size_t p = st.find(":");
+    if (p == string::npos || p == l-1)
+      contractSheet.value = st.substr(2, l-3);
+    else
+      contractSheet.value = st.substr(2, p-2) + st.substr(p+1, l-p-2);
+
+    contractSheet.has = true;
+  }
+}
+
+
+void Sheet::strToTricks(
+  const Contract& contract,
+  const SheetContract& contractSheet,
   SheetTricks& tricksSheet)
 {
-  contractSheet.value = contract.str(BRIDGE_FORMAT_LIN);
-  contractSheet.has = true;
-
   if (contractSheet.value != "P")
   {
     tricksSheet.value = contract.getTricks();
@@ -248,16 +266,13 @@ void Sheet::finishHand(
   else
   {
     contractHdr.setContract(c, BRIDGE_FORMAT_LIN);
-    Sheet::contractToComponents(contractHdr,
-      hand.contractHeader, hand.tricksHeader);
+    Sheet::strToContract(contractHdr, hand.contractHeader);
+    Sheet::strToTricks(contractHdr, hand.contractHeader, hand.tricksHeader);
   }
 
   Contract contract;
   if (hand.auction.getContract(contract))
-  {
-    Sheet::contractToComponents(contract,
-      hand.contractAuction, hand.tricksPlay);
-  }
+    Sheet::strToContract(contract, hand.contractAuction);
 
   if (numPlays > 0 && 
       (contractHdr.isSet() || contract.isSet()) &&
@@ -312,7 +327,7 @@ void Sheet::parse(
   string plays = "";
   unsigned numPlays = 0;
 
-  while (buffer.next(lineData))
+  while (buffer.next(lineData, false))
   {
     if (lineData.type != BRIDGE_BUFFER_STRUCTURED)
       continue;
@@ -362,6 +377,14 @@ void Sheet::parse(
       {
         handTmp.deal.set(lineData.value, BRIDGE_FORMAT_LIN);
         handTmp.hasDeal = true;
+
+        unsigned u;
+        if (str2unsigned(lineData.value.substr(0, 1), u) &&
+            u >= 1 && u <= 4)
+        {
+          string dealer = PLAYER_NAMES_SHORT[PLAYER_LIN_DEALER_TO_DDS[u]];
+          handTmp.auction.setDealer(dealer, BRIDGE_FORMAT_RBN);
+        }
       }
       catch (Bexcept& bex)
       {
@@ -483,7 +506,7 @@ string Sheet::cstr(
   else if (! cbase.has)
     return ct.value;
   else if (ct.value == cbase.value)
-    return "=";
+    return ".";
   else
     return ct.value;
 }
@@ -507,7 +530,7 @@ string Sheet::tstr(
   else if (! tbase.has)
     return STR(tr.value);
   else if (tr.value == tbase.value)
-    return "=";
+    return ".";
   else
     return STR(tr.value);
 }
@@ -582,13 +605,40 @@ void Sheet::extendNotes(
   if (ho.hasPlay)
   {
     notes << ho.play.str(BRIDGE_FORMAT_TXT) << "\n";
+
+    RunningDD runningDD;
+    ho.play.getStateDDS(runningDD);
+    Deal dltmp;
+    dltmp.set(runningDD.dl.remainCards);
+    notes << dltmp.str(ho.auction.getDealer(), BRIDGE_FORMAT_TXT) << "\n";
+
+    notes << "Contract     : " << ho.contractHeader.value << "\n";
+    notes << "Running score: " << runningDD.tricksDecl << " to " <<
+      runningDD.tricksDef << "\n";
+    if (ho.tricksHeader.has)
+      notes << "Header: " << ho.tricksHeader.value << "\n";
+    if (ho.tricksPlay.has)
+      notes << "Play  : " << ho.tricksPlay.value << "\n";
+    if (ho.tricksClaim.has)
+      notes << "Claim : " << ho.tricksClaim.value << "\n";
+      notes << "\n";
+
     if (hf.hasPlay && ho.play != hf.play)
       notes << "Original and fixed plays differ\n";
+
   }
   else if (hf.hasPlay)
   {
     notes << "No original play -- fixed play:\n";
     notes << hf.play.str(BRIDGE_FORMAT_TXT) << "\n";
+
+    RunningDD runningDD;
+    hf.play.getStateDDS(runningDD);
+    Deal dltmp;
+    dltmp.set(runningDD.dl.remainCards);
+    notes << dltmp.str(hf.auction.getDealer(), BRIDGE_FORMAT_TXT) << "\n";
+    notes << "Running score: " << runningDD.tricksDecl << " to " <<
+      runningDD.tricksDef << "\n";
   }
 
   for (auto &line: ho.chats)

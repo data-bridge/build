@@ -463,18 +463,18 @@ try
         timers.stop(BRIDGE_TIMER_COMPARE, t.formatOutput);
       }
 
-      if (options.digestFlag)
-      {
-        if (options.verboseIO)
-          flog << "Input " << task.fileInput << endl;
-    
-        timers.start(BRIDGE_TIMER_DIGEST, task.formatInput);
-        dispatchDigest(task, flog);
-        timers.stop(BRIDGE_TIMER_DIGEST, task.formatInput);
-      }
-
       if (task.removeOutputFlag)
         remove(t.fileOutput.c_str());
+    }
+
+    if (options.digestFlag)
+    {
+      if (options.verboseIO)
+        flog << "Input " << task.fileInput << endl;
+    
+      timers.start(BRIDGE_TIMER_DIGEST, task.formatInput);
+      dispatchDigest(task, flog);
+      timers.stop(BRIDGE_TIMER_DIGEST, task.formatInput);
     }
   }
 }

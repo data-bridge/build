@@ -62,7 +62,9 @@ class Buffer
 
     unsigned getInternalNumber(const unsigned no) const;
 
-    bool nextLIN(LineData& vside);
+    bool nextLIN(
+      LineData& vside,
+      const bool skipChat = true);
     void nextRBX(LineData& vside);
 
 
@@ -88,7 +90,9 @@ class Buffer
 
     bool advance();
 
-    bool next(LineData& lineData);
+    bool next(
+      LineData& lineData,
+      const bool skipChat = true);
 
     bool previous(LineData& lineData);
 

@@ -445,7 +445,9 @@ bool Buffer::advance()
 }
 
 
-bool Buffer::nextLIN(LineData& vside)
+bool Buffer::nextLIN(
+  LineData& vside,
+  const bool skipChat)
 {
   while (current < len && 
       (lines[current].type == BRIDGE_BUFFER_COMMENT ||
@@ -490,12 +492,15 @@ bool Buffer::nextLIN(LineData& vside)
 
   // Skip over nt, pg and ob (bidding in other room).
   // Don't quite know what sa is.
-  if (vside.label == "nt" || vside.label == "pg" || 
-      vside.label == "ob" || vside.label == "sa" ||
-      vside.label == "mn" || vside.label == "em" ||
+  if ((skipChat && vside.label == "nt") || 
+      vside.label == "pg" || 
+      vside.label == "ob" || 
+      vside.label == "sa" ||
+      vside.label == "mn" || 
+      vside.label == "em" ||
       vside.label == "bt" ||
       (vside.label == "mb" && vside.value == "-"))
-    return Buffer::nextLIN(vside);
+    return Buffer::nextLIN(vside, skipChat);
   else
     return true;
 }
@@ -544,7 +549,9 @@ void Buffer::nextRBX(LineData& vside)
 }
 
 
-bool Buffer::next(LineData& vside)
+bool Buffer::next(
+  LineData& vside,
+  const bool skipChat)
 {
   if (current > len-1)
     return false;
@@ -553,7 +560,7 @@ bool Buffer::next(LineData& vside)
       format == BRIDGE_FORMAT_LIN_VG ||
       format == BRIDGE_FORMAT_LIN_TRN)
   {
-    return Buffer::nextLIN(vside);
+    return Buffer::nextLIN(vside, skipChat);
   }
   else if (format == BRIDGE_FORMAT_RBX &&
       lines[current].type != BRIDGE_BUFFER_EMPTY)
