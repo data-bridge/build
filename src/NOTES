@@ -25,6 +25,8 @@ Buffer:
 Come up with syntax for ref files, compatible, that marks
 error types, e.g. ERR_CONTRACT_HEADER.
 {ERR_CONTRACT_HEADER(#tags, #qx, #boards), ...}
+Have a canonical list of errors with a name and a label.
+They can be in a .h file which Perl parses.
 
 Script in BBOVG directory
 - Count

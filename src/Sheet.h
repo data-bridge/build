@@ -16,6 +16,7 @@
 #include "Deal.h"
 #include "Auction.h"
 #include "Play.h"
+#include "referr.h"
 
 
 using namespace std;
@@ -68,6 +69,8 @@ class Sheet
       SheetTricks tricksClaim;
 
       vector<string> chats;
+
+      vector<unsigned> refSource;
     };
 
     SheetHeader headerOrig;
@@ -76,6 +79,18 @@ class Sheet
     SheetHeader headerFixed;
     vector<SheetHand> handsFixed;
     bool hasFixed;
+
+    vector<RefFix> refFix;
+
+    // ref fixes can affect multiple qx's
+    struct RefEffects
+    {
+      RefErrorsType type;
+      vector<unsigned> list;
+    };
+
+    vector<RefEffects> refEffects;
+
 
     void resetHeader(SheetHeader& hdr);
     void resetHand(SheetHand& hd);
@@ -128,6 +143,18 @@ class Sheet
       Buffer& buffer,
       SheetHeader& hdr,
       vector<SheetHand>& hd);
+
+    unsigned refLineNoToHandNo(const unsigned lineno) const;
+
+    bool lineToList(
+      const string& line,
+      vector<string>& list) const;
+
+    void parseRefs(const Buffer& buffer);
+
+    RefErrorsType classifyRefLine(
+      const RefFix& refEntry,
+      const string& bufferLine) const;
 
     unsigned findFixed(const string& label) const;
     unsigned findOrig(const string& label) const;

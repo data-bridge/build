@@ -19,24 +19,25 @@
 using namespace std;
 
 
+enum FixType
+{
+  BRIDGE_REF_INSERT = 0,
+  BRIDGE_REF_REPLACE = 1,
+  BRIDGE_REF_DELETE = 2,
+};
+
+struct RefFix
+{
+  unsigned lno; // First line is 1
+  FixType type;
+  string value;
+  unsigned count;
+};
+
+
 class Buffer
 {
   private:
-
-    enum FixType
-    {
-      BRIDGE_REF_INSERT = 0,
-      BRIDGE_REF_REPLACE = 1,
-      BRIDGE_REF_DELETE = 2,
-    };
-
-    struct RefFix
-    {
-      unsigned lno; // First line is 1
-      FixType type;
-      string value;
-      unsigned count;
-    };
 
     string fileName;
     vector<LineData> lines;
@@ -55,10 +56,6 @@ class Buffer
     bool isRBX(LineData& ld);
 
     void classify(LineData& ld);
-
-    void readRefFix(
-      const string& fname,
-      vector<RefFix>& refFix);
 
     unsigned getInternalNumber(const unsigned no) const;
 
@@ -85,6 +82,10 @@ class Buffer
     bool split(
       const string& st,
       const Format format);
+
+    void readRefFix(
+      const string& fname,
+      vector<RefFix>& refFix);
 
     bool fix(const string& fname);
 
