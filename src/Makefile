@@ -20,6 +20,7 @@ SOURCE_FILES 	=		\
         Segment.cpp             \
         Session.cpp             \
 	Sheet.cpp		\
+	SheetHand.cpp		\
 	StackWalker.cpp		\
 	Tableau.cpp		\
         Team.cpp                \
@@ -139,6 +140,8 @@ Sheet.obj: Buffer.h valint.h bconst.h Segment.h Date.h Location.h Session.h
 Sheet.obj: Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h Players.h
 Sheet.obj: Auction.h Contract.h Play.h ddsIF.h dll.h Sheet.h referr.h parse.h
 Sheet.obj: Bexcept.h
+SheetHand.obj: SheetHand.h Contract.h bconst.h Deal.h Auction.h Play.h
+SheetHand.obj: ddsIF.h dll.h parse.h Bexcept.h
 StackWalker.obj: StackWalker.h
 Tableau.obj: Tableau.h bconst.h Contract.h parse.h Bexcept.h Bdiff.h
 Team.obj: Team.h bconst.h parse.h Bexcept.h Bdiff.h
