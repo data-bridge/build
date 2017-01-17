@@ -4,19 +4,16 @@ ref line modification:
 - Write referr.cpp: classify function
 
 Perl script for the output file(s):
-- Parse ~/GitHub/Build/src/referr.h
-- Parse out {ERR_CONTRACT_HEADER(#tags, #qx, #boards), ...}
-- Accumulate rs lines (including board tag, o1 and c1 are same board)
-- Make a zfix.txt file suitable to tofix.pl
+- Don't output ERR_SIZE lines (later)
 
 Sheet:
+- Don't output lines with ERR_SIZE as the classification
 - Another str() function that outputs an IMP sheet,
   will also need vul
 - Can be extended to the "rotated" plays in early VG files
 - Deal can report #recurring hands out of (up to) 4 cards
 - See whether a hand is completely messed up, or only a few
   cards, or only rotations
-- Don't output lines with ERR_SIZE as the classification
 
 Permit runs with only -i and -d.
 Can make output hard to tmp directory.

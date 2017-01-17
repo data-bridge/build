@@ -4,11 +4,11 @@ use strict;
 use warnings;
 
 # Reads all files in directory argument that end on .ref,
-# and generates statistics.
+# and generates statistics in refstats.txt.
 
 if ($#ARGV < 0)
 {
-  print "Usage: perl refstats.pl tmp\n";
+  print "Usage: perl refstats.pl dir|30|all\n";
   exit;
 }
 
@@ -27,7 +27,7 @@ if ($indir =~ /^\d+$/)
 }
 
 my $ref = "referr.h";
-my $out = "zfix.txt";
+my $out = "refstats.txt";
 my @files;
 $indir = "$DIR/*" if ($indir eq "all");
 @files = glob("$indir/*.ref");
@@ -76,7 +76,7 @@ foreach my $file (@files)
     if ($line =~ /\{(.*)\}\s*$/)
     {
       my $text = $1;
-      my @entries = split ',', $text;
+      my @entries = split ';', $text;
       for my $e (@entries)
       {
         if ($e !~ /(.+)\((\d+),(\d+),(\d+)\)/)
