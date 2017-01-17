@@ -9,18 +9,6 @@ Perl script for the output file(s):
 - Accumulate rs lines (including board tag, o1 and c1 are same board)
 - Make a zfix.txt file suitable to tofix.pl
 
-Perl script in BBOVG:
-- Parse ~/GitHub/Build/src/referr.h
-- Parse the ref files, not the output files
-- Make statistics, columns are numbers, rows are errors
-  number of ref files
-  explained and unexplained
-    number of lines in ref files
-    numbers of lines in LIN files that are affected
-    number of tags that are affected 
-    number of qx's that are affected
-    number of boards (open or closed) that are affected
-
 Sheet:
 - Another str() function that outputs an IMP sheet,
   will also need vul
