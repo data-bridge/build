@@ -152,10 +152,6 @@ class Sheet
 
     void parseRefs(const Buffer& buffer);
 
-    RefErrorsType classifyRefLine(
-      const RefFix& refEntry,
-      const string& bufferLine) const;
-
     unsigned findFixed(const string& label) const;
     unsigned findOrig(const string& label) const;
 

@@ -474,48 +474,6 @@ bool Sheet::lineToList(
 }
 
 
-RefErrorsType Sheet::classifyRefLine(
-  const RefFix& refEntry,
-  const string& bufferLine) const
-{
-  UNUSED(bufferLine);
-  // refEentry has .type (FixType) and .value (string) as well
-  // TODO
-  // Start out with local changes that only affect one qx
-  
-  switch (refEntry.type)
-  {
-    case BRIDGE_REF_INSERT:
-      // Split new line
-      // As below
-      return ERR_SIZE;
-
-    case BRIDGE_REF_REPLACE:
-      // Split old and new line
-      // If there's a single stretch of differences, work on this
-      // If not, fail for now
-      // rs is a special case with known format
-      // ERR_LIN_SV_WRONG
-      // ERR_LIN_MB_WRONG
-      // ERR_LIN_MB_OVERLONG
-      // ERR_LIN_MC_CLAIM_WRONG
-      return ERR_SIZE;
-      
-
-    case BRIDGE_REF_DELETE:
-      // Split old line
-      // If there's a single stretch, work on this
-      // If not, fail for now
-      // mc deletion could be unneeded (in fact, it should be).
-      // ERR_LIN_MB_OVERLONG
-      return ERR_SIZE;
-
-    default:
-      return ERR_SIZE;
-  }
-}
-
-
 void Sheet::parseRefs(const Buffer& buffer)
 {
   // refFix contains a list of line entries from ref file.
@@ -544,7 +502,7 @@ void Sheet::parseRefs(const Buffer& buffer)
       refEffects[refNo].list.push_back(hno);
     }
 
-    refEffects[refNo].type = Sheet::classifyRefLine(refFix[refNo],
+    refEffects[refNo].type = classifyRefLine(refFix[refNo],
       buffer.getLine(refFix[refNo].lno));
   }
 }
