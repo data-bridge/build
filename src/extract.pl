@@ -36,8 +36,16 @@ foreach my $file (@files)
 {
   open my $fr, '<', $file or die "Can't open $file: $!";
 
-  my $outfile = $DIR . "/" . `basename $file`;
+  my $outfile = `basename $file`;
+  chomp $outfile;
   $outfile =~ s/\.sht$/.ref/;
+  $outfile =~ s///g;
+  my $dirint = "";
+  if ($outfile =~ /(\d+)/)
+  {
+    my $dirno = int($1/1000);
+    $dirint = "0${dirno}000/";
+  }
 
   my @accum;
   while (my $line = <$fr>)
@@ -154,7 +162,8 @@ foreach my $file (@files)
     $outline .= join ',', @components;
     $outline .= "\}\n";
     
-    print $fo $outline;
+    print $fo "$DIR/$dirint$outfile:\n";
+    print $fo $outline . "\n";
   }
 }
 

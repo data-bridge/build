@@ -1,4 +1,4 @@
-15.01.2017
+17.01.2017
 ----------
 ref line modification:
 - Write referr.cpp: classify function
@@ -8,16 +8,18 @@ Perl script for the output file(s):
 
 Sheet:
 - Don't output lines with ERR_SIZE as the classification
+
+Run on a lot of VG files.
+Permit runs with only -i and -d.
+Can make output hard to tmp directory.
+
+Sheet:
 - Another str() function that outputs an IMP sheet,
   will also need vul
 - Can be extended to the "rotated" plays in early VG files
 - Deal can report #recurring hands out of (up to) 4 cards
 - See whether a hand is completely messed up, or only a few
   cards, or only rotations
-
-Permit runs with only -i and -d.
-Can make output hard to tmp directory.
-
 
 At some point we need to explain the skips as well;
 that can go in the skip file.
