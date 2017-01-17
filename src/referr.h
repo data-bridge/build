@@ -105,6 +105,8 @@ void readRefFix(
   const string& fname,
   vector<RefFix>& refFix);
 
+string strRefFix(const RefFix& refFix);
+
 RefErrorsType classifyRefLine(
   const RefFix& refEntry,
   const string& bufferLine);

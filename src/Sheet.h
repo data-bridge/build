@@ -60,6 +60,7 @@ class Sheet
     {
       RefErrorsType type;
       vector<unsigned> list;
+      string line;
     };
 
     vector<RefEffects> refEffects;

@@ -312,12 +312,20 @@ void Sheet::parse(
 
 unsigned Sheet::refLineNoToHandNo(const unsigned lineNo) const
 {
-  for (unsigned i = 0; i < handsOrig.size(); i++)
+  const unsigned l = handsOrig.size();
+  if (lineNo < handsOrig[0].lineLIN)
+    return BIGNUM; // Header
+
+  for (unsigned i = 0; i < l-1; i++)
   {
-    if (lineNo >= handsOrig[i].lineLIN)
+    if (lineNo < handsOrig[i+1].lineLIN)
       return i;
   }
-  return BIGNUM;
+
+  if (lineNo >= handsOrig[l-1].lineLIN)
+    return l-1;
+  else
+    return BIGNUM;
 }
 
 
@@ -351,6 +359,7 @@ void Sheet::parseRefs(const Buffer& buffer)
 
     refEffects[refNo].type = classifyRefLine(refFix[refNo],
       buffer.getLine(refFix[refNo].lno));
+    refEffects[refNo].line = strRefFix(refFix[refNo]);
   }
 }
 
@@ -371,7 +380,7 @@ bool Sheet::read(
       return true; // No ref file
 
     readRefFix(fname, refFix);
-    refEffects.reserve(refFix.size());
+    refEffects.resize(refFix.size());
     Sheet::parseRefs(buffer);
 
     buffer.rewind();
@@ -474,8 +483,12 @@ string Sheet::str() const
           }
         }
 
-        if (ho.hand.hasData() || hf.hand.hasData())
-          notes << "----------\n\n";
+        notes << "\nActive ref lines: " << ho.label << "\n";
+        for (auto &no: ho.refSource)
+          notes << refEffects[no].line << " {" << 
+          RefErrors[refEffects[no].type].name << "()}\n";
+
+        notes << "\n----------\n\n";
       }
     }
   }

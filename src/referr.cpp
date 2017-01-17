@@ -63,6 +63,7 @@ void readRefFix(
         THROW("Ref file " + refName + ": Syntax error in '" + line + "'");
 
       rf.value = match.str(1);
+      rf.count = 1;
     }
     else if (s == "replace")
     {
@@ -71,6 +72,7 @@ void readRefFix(
         THROW("Ref file " + refName + ": Syntax error in '" + line + "'");
 
       rf.value = match.str(1);
+      rf.count = 1;
     }
     else if (s == "delete")
     {
@@ -101,6 +103,29 @@ static bool lineToLINList(
   UNUSED(line);
   UNUSED(list);
   return true;
+}
+
+
+string strRefFix(const RefFix& refFix)
+{
+  string st;
+  st = STR(refFix.lno) + " ";
+  if (refFix.type == BRIDGE_REF_INSERT)
+    st += "insert";
+  else if (refFix.type == BRIDGE_REF_REPLACE)
+    st += "replace";
+  else if (refFix.type == BRIDGE_REF_DELETE)
+    st += "delete";
+  else
+    st += "ERROR";
+
+  st += " ";
+  if (refFix.count == 1)
+    st += "\"" + refFix.value + "\"";
+  else
+    st += STR(refFix.count);
+
+  return st;
 }
 
 
