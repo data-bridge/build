@@ -7,6 +7,30 @@
 */
 
 
+#ifndef BRIDGE_REFERR_H
+#define BRIDGE_REFERR_H
+
+#include <string>
+#include <vector>
+
+using namespace std;
+
+
+enum FixType
+{
+  BRIDGE_REF_INSERT = 0,
+  BRIDGE_REF_REPLACE = 1,
+  BRIDGE_REF_DELETE = 2,
+};
+
+struct RefFix
+{
+  unsigned lno; // First line is 1
+  FixType type;
+  string value;
+  unsigned count;
+};
+
 enum RefErrorsType
 {
   ERR_LIN_RS_CONTRACT_MISSING,
@@ -75,3 +99,10 @@ const vector<RefErrorBundle> RefErrors =
    "ERR_SIZE",
    "Unclassified error"},
 };
+
+
+void readRefFix(
+  const string& fname,
+  vector<RefFix>& refFix);
+
+#endif

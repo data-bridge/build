@@ -1,5 +1,17 @@
 15.01.2017
 ----------
+Put ref file stuff, including list parsing, in referr.cpp
+(this also takes stuff from Buffer.cpp)
+(this also takes stuff from Buffer.cpp)
+(this also takes stuff from Buffer.cpp)
+(this also takes stuff from Buffer.cpp)
+(this also takes stuff from Buffer.cpp)
+(this also takes stuff from Buffer.cpp)
+(this also takes stuff from Buffer.cpp)
+(this also takes stuff from Buffer.cpp)
+
+Make objects out of header and hand
+
 Sheet:
 - Output a proposed modified ref line
   In Buffer, make readReadFix (and RefFix) available publicly.

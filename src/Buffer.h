@@ -19,22 +19,6 @@
 using namespace std;
 
 
-enum FixType
-{
-  BRIDGE_REF_INSERT = 0,
-  BRIDGE_REF_REPLACE = 1,
-  BRIDGE_REF_DELETE = 2,
-};
-
-struct RefFix
-{
-  unsigned lno; // First line is 1
-  FixType type;
-  string value;
-  unsigned count;
-};
-
-
 class Buffer
 {
   private:
@@ -82,10 +66,6 @@ class Buffer
     bool split(
       const string& st,
       const Format format);
-
-    void readRefFix(
-      const string& fname,
-      vector<RefFix>& refFix);
 
     bool fix(const string& fname);
 

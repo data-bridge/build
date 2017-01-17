@@ -565,7 +565,7 @@ bool Sheet::read(
     if (! buffer.fix(fname))
       return true; // No ref file
 
-    buffer.readRefFix(fname, refFix);
+    readRefFix(fname, refFix);
     refEffects.reserve(refFix.size());
     Sheet::parseRefs(buffer);
 

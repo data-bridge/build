@@ -41,6 +41,7 @@ SOURCE_FILES 	=		\
 	fileREC.cpp		\
 	heurfix.cpp		\
 	parse.cpp		\
+	referr.cpp		\
 	validate.cpp		\
 	validateLIN.cpp		\
 	validatePBN.cpp		\
@@ -116,7 +117,7 @@ Bdiff.obj: Bdiff.h
 Bexcept.obj: Bexcept.h
 Board.obj: bconst.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
 Board.obj: Play.h ddsIF.h dll.h Valuation.h parse.h Bexcept.h Bdiff.h
-Buffer.obj: Buffer.h valint.h bconst.h parse.h Bexcept.h
+Buffer.obj: Buffer.h valint.h bconst.h parse.h referr.h Bexcept.h
 Canvas.obj: Canvas.h
 CompStats.obj: CompStats.h bconst.h
 Contract.obj: Contract.h bconst.h parse.h Bexcept.h Bdiff.h
@@ -186,6 +187,7 @@ heurfix.obj: Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h Players.h
 heurfix.obj: Auction.h Contract.h Play.h ddsIF.h dll.h Buffer.h valint.h
 heurfix.obj: parse.h Bexcept.h
 parse.obj: parse.h bconst.h
+referr.obj: referr.h parse.h bconst.h Bexcept.h
 validate.obj: ValStats.h ValProfile.h validate.h Buffer.h valint.h bconst.h
 validate.obj: filePBN.h Segment.h Date.h Location.h Session.h Scoring.h
 validate.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
