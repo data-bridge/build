@@ -358,7 +358,7 @@ void Sheet::parseRefs(const Buffer& buffer)
     }
 
     refEffects[refNo].type = classifyRefLine(refFix[refNo],
-      buffer.getLine(refFix[refNo].lno));
+      buffer.getLine(refFix[refNo].lno), refEffects[refNo].numTags);
     refEffects[refNo].line = strRefFix(refFix[refNo]);
   }
 }
@@ -372,11 +372,16 @@ bool Sheet::read(
   if (! buffer.read(fname, BRIDGE_FORMAT_LIN))
     return false;
 
+  if (! buffer.fix(fname, BRIDGE_REF_ONLY_PARTIAL))
+  {
+    // Ignore -- file may be missing, or no partials.
+  }
+
   try
   {
     Sheet::parse(buffer, headerOrig, handsOrig);
 
-    if (! buffer.fix(fname))
+    if (! buffer.fix(fname, BRIDGE_REF_ONLY_NONPARTIAL))
       return true; // No ref file
 
     readRefFix(fname, refFix);
@@ -486,7 +491,8 @@ string Sheet::str() const
         notes << "\nActive ref lines: " << ho.label << "\n";
         for (auto &no: ho.refSource)
           notes << refEffects[no].line << " {" << 
-          RefErrors[refEffects[no].type].name << "()}\n";
+          RefErrors[refEffects[no].type].name << "(" <<
+          refEffects[no].numTags << ",1,1)}\n";
 
         notes << "\n----------\n\n";
       }

@@ -19,6 +19,14 @@
 using namespace std;
 
 
+enum RefUse
+{
+  BRIDGE_REF_ALL,
+  BRIDGE_REF_ONLY_PARTIAL,
+  BRIDGE_REF_ONLY_NONPARTIAL
+};
+
+
 class Buffer
 {
   private:
@@ -67,7 +75,9 @@ class Buffer
       const string& st,
       const Format format);
 
-    bool fix(const string& fname);
+    bool fix(
+      const string& fname,
+      const RefUse use = BRIDGE_REF_ALL);
 
     bool advance();
 

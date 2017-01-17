@@ -29,6 +29,7 @@ struct RefFix
   FixType type;
   string value;
   unsigned count;
+  bool partialFlag;
 };
 
 enum RefErrorsType
@@ -109,6 +110,7 @@ string strRefFix(const RefFix& refFix);
 
 RefErrorsType classifyRefLine(
   const RefFix& refEntry,
-  const string& bufferLine);
+  const string& bufferLine,
+  unsigned& numLINTags);
 
 #endif

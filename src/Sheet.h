@@ -61,6 +61,7 @@ class Sheet
       RefErrorsType type;
       vector<unsigned> list;
       string line;
+      unsigned numTags;
     };
 
     vector<RefEffects> refEffects;

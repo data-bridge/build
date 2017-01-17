@@ -41,6 +41,7 @@ void readRefFix(
   string line, s;
   RefFix rf;
   regex rer("^\\s*\"(.*)\"\\s*$");
+  regex rep("^\\s*\"(.*)\"\\s+\\{.*\\}\\s*$");
   smatch match;
   while (getline(refstr, line))
   {
@@ -59,31 +60,56 @@ void readRefFix(
     if (s == "insert")
     {
       rf.type = BRIDGE_REF_INSERT;
-      if (! regex_search(line, match, rer) || match.size() < 1)
+      if (regex_search(line, match, rer) && match.size() >= 1)
+      {
+        rf.value = match.str(1);
+        rf.count = 1;
+        rf.partialFlag = false;
+      }
+      else if (regex_search(line, match, rep) && match.size() >= 1)
+      {
+        rf.value = match.str(1);
+        rf.count = 1;
+        rf.partialFlag = false;
+      }
+      else
         THROW("Ref file " + refName + ": Syntax error in '" + line + "'");
-
-      rf.value = match.str(1);
-      rf.count = 1;
     }
     else if (s == "replace")
     {
       rf.type = BRIDGE_REF_REPLACE;
-      if (! regex_search(line, match, rer) || match.size() < 1)
+      if (regex_search(line, match, rer) && match.size() >= 1)
+      {
+        rf.value = match.str(1);
+        rf.count = 1;
+        rf.partialFlag = false;
+      }
+      else if (regex_search(line, match, rep) && match.size() >= 1)
+      {
+        rf.value = match.str(1);
+        rf.count = 1;
+        rf.partialFlag = true;
+      }
+      else
         THROW("Ref file " + refName + ": Syntax error in '" + line + "'");
-
-      rf.value = match.str(1);
-      rf.count = 1;
     }
     else if (s == "delete")
     {
       rf.type = BRIDGE_REF_DELETE;
-      if (getNextWord(line, s))
+      if (! getNextWord(line, s))
       {
-        if (! str2unsigned(s, rf.count))
-          THROW("Ref file " + refName + ": Bad number in '" + line + "'");
-      }
-      else
         rf.count = 1;
+        rf.partialFlag = false;
+      }
+      else if (! str2unsigned(s, rf.count))
+      {
+        THROW("Ref file " + refName + ": Bad number in '" + line + "'");
+      }
+      else if (getNextWord(line, s))
+        rf.partialFlag = true;
+      else
+        rf.partialFlag = false;
+
     }
     else
       THROW("Ref file " + refName + ": Syntax error in '" + line + "'");
@@ -131,10 +157,12 @@ string strRefFix(const RefFix& refFix)
 
 RefErrorsType classifyRefLine(
   const RefFix& refEntry,
-  const string& bufferLine)
+  const string& bufferLine,
+  unsigned& numLINTags)
 {
   UNUSED(bufferLine);
   vector<string> list;
+  numLINTags = 0;
 
   // refEentry has .type (FixType) and .value (string) as well
   // TODO

@@ -317,7 +317,9 @@ bool Buffer::split(
 }
 
 
-bool Buffer::fix(const string& fname)
+bool Buffer::fix(
+  const string& fname,
+  const RefUse use)
 {
   vector<RefFix> refFix;
   readRefFix(fname, refFix);
@@ -326,10 +328,16 @@ bool Buffer::fix(const string& fname)
     return false;
    
   unsigned rno = 0;
+  bool usedFlag = false;
   for (unsigned i = 0; i < len; i++)
   {
     LineData& ld = lines[i];
     if (refFix[rno].lno != ld.no)
+      continue;
+
+    if (use == BRIDGE_REF_ONLY_PARTIAL && ! refFix[rno].partialFlag)
+      continue;
+    else if (use == BRIDGE_REF_ONLY_NONPARTIAL && refFix[rno].partialFlag)
       continue;
 
     if (refFix[rno].type == BRIDGE_REF_INSERT)
@@ -340,6 +348,7 @@ bool Buffer::fix(const string& fname)
       lnew.no = 0;
       Buffer::classify(lnew);
       lines.insert(lines.begin() + static_cast<int>(i), lnew);
+      usedFlag = true;
       len++;
     }
     else if (refFix[rno].type == BRIDGE_REF_REPLACE)
@@ -347,6 +356,7 @@ bool Buffer::fix(const string& fname)
       ld.line = refFix[rno].value;
       ld.len = static_cast<unsigned>(ld.line.length());
       Buffer::classify(ld);
+      usedFlag = true;
     }
     else if (refFix[rno].type == BRIDGE_REF_DELETE)
     {
@@ -358,6 +368,7 @@ bool Buffer::fix(const string& fname)
       len -= refFix[rno].count;
       if (i > 0)
         i--; // Kludge
+      usedFlag = true;
     }
     else
       THROW("Bad reference line type");
@@ -366,7 +377,7 @@ bool Buffer::fix(const string& fname)
     if (rno == refFix.size())
       break;
   }
-  return true;
+  return usedFlag;
 }
 
 
