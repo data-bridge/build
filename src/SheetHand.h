@@ -70,6 +70,16 @@ class SheetHand
     vector<string> chats;
 
 
+    void fail() const;
+
+    void strToContract(
+      const Contract& contract,
+      const SheetContractType type);
+    
+    void strToTricks(
+      const Contract& contract,
+      const SheetTricksType type);
+    
     string cstr(const SheetContract& ct) const;
     string cstr(
       const SheetContract& ct,
@@ -98,18 +108,20 @@ class SheetHand
 
     void reset();
 
-    void strToContract(
-      const Contract& contract,
-      const SheetContractType type);
-    
-    void strToTricks(
-      const Contract& contract,
-      const SheetTricksType type);
-    
+    bool setDeal(const string& text);
+
+    bool addCall(const string& text);
+
+    bool claim(const string& text);
+
+    void addChat(const string& text);
+
     void finishHand(
       const string& ct,
       const string& plays,
       const unsigned numPlays);
+
+    bool hasData() const;
 
     bool operator ==(const SheetHand& href) const;
     bool operator !=(const SheetHand& href) const;

@@ -91,19 +91,80 @@ void SheetHand::strToTricks(
       case SHEET_TRICKS_HEADER:
         tricksHeader.value = contract.getTricks();
         tricksHeader.has = true;
+        break;
 
       case SHEET_TRICKS_PLAY:
         tricksPlay.value = contract.getTricks();
         tricksPlay.has = true;
+        break;
 
       case SHEET_TRICKS_CLAIM:
         tricksClaim.value = contract.getTricks();
         tricksClaim.has = true;
+        break;
 
       default:
         return;
     }
   }
+}
+
+
+bool SheetHand::setDeal(const string& text)
+{
+  try
+  {
+    deal.set(text, BRIDGE_FORMAT_LIN);
+    hasDeal = true;
+
+    unsigned u;
+    if (str2unsigned(text.substr(0, 1), u) && u >= 1 && u <= 4)
+    {
+      string dealer = PLAYER_NAMES_SHORT[PLAYER_LIN_DEALER_TO_DDS[u]];
+      auction.setDealer(dealer, BRIDGE_FORMAT_RBN);
+    }
+  }
+  catch (Bexcept& bex)
+  {
+    bex.print(cout);
+    return false;
+  }
+  return true;
+}
+
+
+bool SheetHand::addCall(const string& text)
+{
+  try
+  {
+    string tmp = text;
+    toUpper(tmp);
+    auction.addCall(tmp);
+  }
+  catch (Bexcept& bex)
+  {
+    bex.print(cout);
+    return false;
+  }
+  return true;
+}
+
+
+bool SheetHand::claim(const string& text)
+{
+  if (str2unsigned(text, tricksClaim.value))
+  {
+    tricksClaim.has = true;
+    return true;
+  }
+  else
+    return false;
+}
+
+
+void SheetHand::addChat(const string& text)
+{
+  chats.push_back(text);
 }
 
 
@@ -194,6 +255,12 @@ bool SheetHand::operator !=(const SheetHand& href) const
     return true;
 
   return false;
+}
+
+
+bool SheetHand::hasData() const
+{
+  return (hasDeal || hasPlay);
 }
 
 
@@ -376,11 +443,11 @@ string SheetHand::str(
 {
   stringstream ss;
   ss <<
-    setw(6) << SheetHand::cstr(href.contractHeader, contractHeader) <<
-    setw(6) << SheetHand::tstr(href.tricksHeader, tricksHeader) <<
-    setw(6) << SheetHand::cstr(href.contractAuction, contractHeader) <<
-    setw(6) << SheetHand::tstr(href.tricksPlay, tricksHeader) <<
-    setw(6) << SheetHand::tstr(href.tricksClaim, tricksHeader) << "\n";
+    setw(6) << SheetHand::cstr(contractHeader, href.contractHeader) <<
+    setw(6) << SheetHand::tstr(tricksHeader, href.tricksHeader) <<
+    setw(6) << SheetHand::cstr(contractAuction, href.contractHeader) <<
+    setw(6) << SheetHand::tstr(tricksPlay, href.tricksHeader) <<
+    setw(6) << SheetHand::tstr(tricksClaim, href.tricksHeader);
 
   return ss.str();
 }

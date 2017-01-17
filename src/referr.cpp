@@ -21,6 +21,11 @@
 using namespace std;
 
 
+static bool lineToLINList(
+  const string& line,
+  vector<string>& list);
+
+
 void readRefFix(
   const string& fname,
   vector<RefFix>& refFix)
@@ -87,11 +92,25 @@ void readRefFix(
 }
 
 
+static bool lineToLINList(
+  const string& line,
+  vector<string>& list)
+{
+  // Split on |
+  // Fields should have length 2 alternating with content
+  UNUSED(line);
+  UNUSED(list);
+  return true;
+}
+
+
 RefErrorsType classifyRefLine(
   const RefFix& refEntry,
   const string& bufferLine)
 {
   UNUSED(bufferLine);
+  vector<string> list;
+
   // refEentry has .type (FixType) and .value (string) as well
   // TODO
   // Start out with local changes that only affect one qx
@@ -112,6 +131,7 @@ RefErrorsType classifyRefLine(
       // ERR_LIN_MB_WRONG
       // ERR_LIN_MB_OVERLONG
       // ERR_LIN_MC_CLAIM_WRONG
+      lineToLINList(refEntry.value, list);
       return ERR_SIZE;
       
 

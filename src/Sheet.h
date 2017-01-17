@@ -16,6 +16,7 @@
 #include "Deal.h"
 #include "Auction.h"
 #include "Play.h"
+#include "SheetHand.h"
 #include "referr.h"
 
 
@@ -33,51 +34,23 @@ class Sheet
       unsigned lineRS;
     };
 
-    struct SheetContract
-    {
-      string value;
-      bool has;
-    };
-
-    struct SheetTricks
-    {
-      unsigned value;
-      bool has;
-    };
-
-    struct SheetHand
+    struct SheetHandData
     {
       string label;
       string room;
       unsigned numberQX;
       unsigned lineLIN;
 
-      Deal deal;
-      bool hasDeal;
-
-      Auction auction;
-      bool hasAuction;
-
-      Play play;
-      bool hasPlay;
-
-      SheetContract contractHeader;
-      SheetTricks tricksHeader;
-
-      SheetContract contractAuction;
-      SheetTricks tricksPlay;
-      SheetTricks tricksClaim;
-
-      vector<string> chats;
+      SheetHand hand;
 
       vector<unsigned> refSource;
     };
 
     SheetHeader headerOrig;
-    vector<SheetHand> handsOrig;
+    vector<SheetHandData> handsOrig;
 
     SheetHeader headerFixed;
-    vector<SheetHand> handsFixed;
+    vector<SheetHandData> handsFixed;
     bool hasFixed;
 
     vector<RefFix> refFix;
@@ -93,7 +66,9 @@ class Sheet
 
 
     void resetHeader(SheetHeader& hdr);
-    void resetHand(SheetHand& hd);
+    void resetHand(SheetHandData& hd);
+
+    void fail(const string& text) const;
 
     void parseVG(
       const string& value,
@@ -115,34 +90,16 @@ class Sheet
       string& link) const;
 
     string qxToHeaderContract(
-      SheetHand& hd,
+      SheetHandData& hd,
       const vector<string>& clist,
       const vector<unsigned>& blist,
       const unsigned noHdrFirst,
       const unsigned noHdrLast);
 
-    void strToContract(
-      const Contract& contract,
-      SheetContract& contractSheet);
-    
-    void strToTricks(
-      const Contract& contract,
-      const SheetContract& contractSheet,
-      SheetTricks& tricksSheet);
-    
-    void finishHand(
-      SheetHand& hand,
-      const vector<string>& clist,
-      const vector<unsigned>& blist,
-      const unsigned noHdrFirst,
-      const unsigned noHdrLast,
-      const string& plays,
-      const unsigned numPlays);
-
     void parse(
       Buffer& buffer,
       SheetHeader& hdr,
-      vector<SheetHand>& hd);
+      vector<SheetHandData>& hd);
 
     unsigned refLineNoToHandNo(const unsigned lineno) const;
 
@@ -154,40 +111,6 @@ class Sheet
 
     unsigned findFixed(const string& label) const;
     unsigned findOrig(const string& label) const;
-
-    string cstr(const SheetContract& ct) const;
-    string cstr(
-      const SheetContract& ct,
-      const SheetContract& cbase) const;
-    string tstr(const SheetTricks& tr) const;
-    string tstr(
-      const SheetTricks& tr,
-      const SheetTricks& tbase) const;
-
-    bool contractsDiffer(
-      const SheetContract& ct,
-      const SheetContract& cf) const;
-
-    bool tricksDiffer(
-      const SheetTricks& tr,
-      const SheetTricks& tf) const;
-
-    bool handsDiffer(
-      const SheetHand& ho,
-      const SheetHand& hf) const;
-
-    void extendNotes(
-      const SheetHand& ho,
-      const SheetHand& hf,
-      stringstream& notes) const;
-
-    void extendNotesWithChat(
-      const SheetHand& ho,
-      stringstream& notes) const;
-
-    void extendNotesDetail(
-      const SheetHand& hand,
-      stringstream& notes) const;
 
 
   public:
