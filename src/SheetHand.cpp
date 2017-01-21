@@ -16,6 +16,7 @@
 #include "parse.h"
 #include "ddsIF.h"
 #include "Bexcept.h"
+#include "Bdiff.h"
 
 
 #define SHEET_INIT 20
@@ -353,16 +354,6 @@ string SheetHand::strNotesDetail() const
     ss << auction.str(BRIDGE_FORMAT_TXT, lengths) << "\n";
   }
 
-  unsigned ddTricks;
-  try
-  {
-    ddTricks = tricksDD(runningDD);
-  }
-  catch (Bexcept& bex)
-  {
-    bex.print(cout);
-  }
-
   ss << dl.str(auction.getDealer(), BRIDGE_FORMAT_TXT) << "\n";
 
   ss << "Contract: " << contractHeader.value << "\n";
@@ -374,7 +365,40 @@ string SheetHand::strNotesDetail() const
     ss << "Play    : " << tricksPlay.value << "\n";
   if (tricksClaim.has)
     ss << "Claim   : " << tricksClaim.value << "\n";
-  ss << "DD      : " << ddTricks << "\n\n";
+
+  if (! play.isOver())
+  {
+    unsigned ddTricks;
+    try
+    {
+      ddTricks = tricksDD(runningDD);
+    }
+    catch (Bexcept& bex)
+    {
+      bex.print(cout);
+    }
+    ss << "DD      : " << ddTricks << "\n\n";
+  }
+
+  return ss.str();
+}
+
+
+string SheetHand::strNotes() const
+{
+  stringstream ss;
+  if (hasDeal)
+  {
+    ss << deal.str(BRIDGE_NORTH, BRIDGE_FORMAT_TXT) << "\n";
+    ss << "Fixed deal is missing\n";
+  }
+
+  if (hasPlay)
+  {
+    ss << play.str(BRIDGE_FORMAT_TXT) << "\n";
+    ss << SheetHand::strNotesDetail();
+    ss << "Fixed play is missing\n";
+  }
 
   return ss.str();
 }
@@ -400,8 +424,16 @@ string SheetHand::strNotes(const SheetHand& href) const
     ss << play.str(BRIDGE_FORMAT_TXT) << "\n";
     ss << SheetHand::strNotesDetail();
 
-    if (href.hasPlay && play != href.play)
+    try
+    {
+      if (href.hasPlay && play != href.play)
+        ss << "Original and fixed plays differ\n";
+    }
+    catch (Bdiff& bdiff)
+    {
+      UNUSED(bdiff);
       ss << "Original and fixed plays differ\n";
+    }
 
   }
   else if (href.hasPlay)

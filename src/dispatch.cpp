@@ -368,6 +368,7 @@ static void dispatchCompare(
 
 
 static void dispatchDigest(
+  const Options& options,
   const FileTask& task,
   ostream& flog)
 {
@@ -378,7 +379,22 @@ static void dispatchDigest(
   {
     Sheet sheet;
     sheet.read(task.fileInput);
-    flog << sheet.str();
+    const string st = sheet.str();
+    if (st != "")
+    {
+      ofstream dlog;
+      if (options.fileDigest.setFlag)
+        dlog.open(options.fileDigest.name);
+      else
+      {
+        const string base = basefile(task.fileInput);
+	const string dout = options.dirDigest.name + "/" +
+	  changeExt(base, ".sht");
+        dlog.open(dout);
+      }
+      dlog << st;
+      dlog.close();
+    }
   }
   catch (Bexcept& bex)
   {
@@ -467,13 +483,13 @@ try
         remove(t.fileOutput.c_str());
     }
 
-    if (options.digestFlag)
+    if (options.fileDigest.setFlag || options.dirDigest.setFlag)
     {
       if (options.verboseIO)
-        flog << "Input " << task.fileInput << endl;
+        flog << "Digest input " << task.fileInput << endl;
     
       timers.start(BRIDGE_TIMER_DIGEST, task.formatInput);
-      dispatchDigest(task, flog);
+      dispatchDigest(options, task, flog);
       timers.stop(BRIDGE_TIMER_DIGEST, task.formatInput);
     }
   }

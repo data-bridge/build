@@ -29,7 +29,7 @@ struct OptEntry
   unsigned numArgs;
 };
 
-#define BRIDGE_NUM_OPTIONS 14
+#define BRIDGE_NUM_OPTIONS 15
 
 static const OptEntry OPT_LIST[BRIDGE_NUM_OPTIONS] =
 {
@@ -39,9 +39,10 @@ static const OptEntry OPT_LIST[BRIDGE_NUM_OPTIONS] =
   {"O", "outdir", 1},
   {"r", "reffile", 1},
   {"R", "refdir", 1},
+  {"d", "digfile", 1},
+  {"D", "digdir", 1},
   {"l", "logfile", 1},
   {"c", "compare", 0},
-  {"d", "digest", 0},
   {"f", "format", 1},
   {"w", "write", 1},
   {"s", "stats", 0},
@@ -86,12 +87,13 @@ void usage(
     "\n" <<
     "-R, --refdir s     Reference for -i and -I.\n" <<
     "\n" <<
+    "-d, --digfile s    Produce a sheet of contracts and tricks.\n" <<
+    "\n" <<
+    "-D, --digdir s     Produce a sheet of contracts and tricks.\n" <<
+    "\n" <<
     "-l, --logfile s    Log file for outputs (default: stdout).\n" <<
     "\n" <<
     "-c, --compare      Re-read output and compare internally.\n" <<
-    "                   (Default: not set)\n" <<
-    "\n" <<
-    "-d, --digest       Produce a sheet of contracts and tricks.\n" <<
     "                   (Default: not set)\n" <<
     "\n" <<
     "-f, --format s     Output format for -O (default: ALL).\n" <<
@@ -174,10 +176,11 @@ static void setDefaults(Options& options)
   options.dirOutput = {false, ""};
   options.fileRef = {false, ""};
   options.dirRef = {false, ""};
+  options.fileDigest = {false, ""};
+  options.dirDigest = {false, ""};
   options.fileLog = {false, ""};
 
   options.compareFlag = false;
-  options.digestFlag = false;
 
   options.formatSetFlag = false;
   options.format = BRIDGE_FORMAT_SIZE;
@@ -220,17 +223,15 @@ void printOptions(const Options& options)
   printFileOption(options.fileRef, "reffile");
   printFileOption(options.dirRef, "refdir");
 
+  printFileOption(options.fileDigest, "digfile");
+  printFileOption(options.dirDigest, "digdir");
+
   printFileOption(options.fileLog, "logfile");
 
   if (options.compareFlag)
     cout << setw(12) << "compare" << setw(12) << "set" << "\n";
   else
     cout << setw(12) << "compare" << setw(12) << "not set" << "\n";
-
-  if (options.digestFlag)
-    cout << setw(12) << "digest" << setw(12) << "set" << "\n";
-  else
-    cout << setw(12) << "digest" << setw(12) << "not set" << "\n";
 
   if (options.formatSetFlag)
   {
@@ -289,10 +290,17 @@ static void checkArgs(const Options& options)
     exit(0);
   }
 
-  if (! options.fileOutput.setFlag && ! options.dirOutput.setFlag &&
-      ! options.fileRef.setFlag && ! options.dirRef.setFlag)
+  if (options.fileDigest.setFlag && options.dirDigest.setFlag)
   {
-    cout << "Need at least one of -o, -O, -r, -R." << endl;
+    cout << "Cannot use both -d and -D." << endl;
+    exit(0);
+  }
+
+  if (! options.fileOutput.setFlag && ! options.dirOutput.setFlag &&
+      ! options.fileRef.setFlag && ! options.dirRef.setFlag &&
+      ! options.fileDigest.setFlag && ! options.dirDigest.setFlag)
+  {
+    cout << "Need at least one of -o, -O, -r, -R, -d, -D." << endl;
     exit(0);
   }
 
@@ -360,16 +368,20 @@ void readArgs(
         options.dirRef = {true, optarg};
         break;
 
+      case 'd':
+        options.fileDigest = {true, optarg};
+        break;
+
+      case 'D':
+        options.dirDigest = {true, optarg};
+        break;
+
       case 'l':
         options.fileLog = {true, optarg};
         break;
 
       case 'c':
         options.compareFlag = true;
-        break;
-
-      case 'd':
-        options.digestFlag = true;
         break;
 
       case 'f':

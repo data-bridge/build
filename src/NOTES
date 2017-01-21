@@ -1,5 +1,16 @@
-17.01.2017
+19.01.2017
 ----------
+Need exceptions to go into sheet str somehow, not end up
+in general output.
+
+- 30020 addPlay (Card D2 not held)
+- 30165 addCall (Call after auction is over)
+- 30334 nextLIN (Bad LIN line)
+- 30699 setRBN (Malformed RBN team line)
+- 30706 addPlay (Invalid card)
+
+-30849: Why DD difference in equality test?
+
 ref line modification:
 - Write referr.cpp: classify function
 
@@ -10,8 +21,6 @@ Sheet:
 - Don't output lines with ERR_SIZE as the classification
 
 Run on a lot of VG files.
-Permit runs with only -i and -d.
-Can make output hard to tmp directory.
 
 Sheet:
 - Another str() function that outputs an IMP sheet,

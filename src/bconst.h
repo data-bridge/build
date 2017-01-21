@@ -240,10 +240,12 @@ struct Options
   FileOption fileRef; // -r, --reffile
   FileOption dirRef; // -R, --refdir
 
+  FileOption fileDigest; // -d, --digfile
+  FileOption dirDigest; // -D, --digdir
+
   FileOption fileLog; // -l, --logfile
 
   bool compareFlag; // -c, --compare
-  bool digestFlag; // -d, --digest
 
   bool formatSetFlag; // -f, --format
   Format format;

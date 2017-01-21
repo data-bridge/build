@@ -18,6 +18,7 @@
 #include "parse.h"
 #include "ddsIF.h"
 #include "Bexcept.h"
+#include "Bdiff.h"
 
 
 #define SHEET_INIT 20
@@ -183,7 +184,7 @@ string Sheet::qxToHeaderContract(
       hd.numberQX > noHdrLast)
     return "";
 
-  const unsigned index = 2*(hd.numberQX-1) + adder;
+  const unsigned index = 2*(hd.numberQX-noHdrFirst) + adder;
   if (index >= clist.size())
     return "-";
   else if (clist[index] == "")
@@ -346,7 +347,8 @@ void Sheet::parseRefs(const Buffer& buffer)
       Sheet::refLineNoToHandNo(refFix[refNo].lno);
     const unsigned handNoLast = 
       (refFix[refNo].count == 1 ?  handNoFirst : 
-      Sheet::refLineNoToHandNo(refFix[refNo].lno));
+      Sheet::refLineNoToHandNo(
+        refFix[refNo].lno + refFix[refNo].count - 1));
 
     if (handNoFirst == BIGNUM || handNoLast == BIGNUM)
       continue;
@@ -381,12 +383,12 @@ bool Sheet::read(
   {
     Sheet::parse(buffer, headerOrig, handsOrig);
 
-    if (! buffer.fix(fname, BRIDGE_REF_ONLY_NONPARTIAL))
-      return true; // No ref file
-
     readRefFix(fname, refFix);
     refEffects.resize(refFix.size());
     Sheet::parseRefs(buffer);
+
+    if (! buffer.fix(fname, BRIDGE_REF_ONLY_NONPARTIAL))
+      return true; // No ref file
 
     buffer.rewind();
     Sheet::parse(buffer, headerFixed, handsFixed);
@@ -455,47 +457,62 @@ string Sheet::str() const
     ss << setw(5) << ho.label << " " << ho.hand.str();
 
     const unsigned index = Sheet::findFixed(ho.label);
+    bool hasDiff = false;
     if (index == BIGNUM)
     {
       ss << ho.hand.strDummy();
+      hasDiff = true;
     }
     else
     {
       const SheetHandData& hf = handsFixed[index];
       ss << hf.hand.str(ho.hand) << "\n";
 
-      if (ho.hand != hf.hand)
+      try
       {
-        hasDiffs = true;
+        if (ho.hand != hf.hand)
+          hasDiff = true;
+      }
+      catch (Bdiff& bdiff)
+      {
+        hasDiff = true;
+	bdiff.print(cout);
+      }
+    }
 
-        notes << "Board " << ho.label << "\n";
-        notes << ho.hand.strNotes(hf.hand);
-        notes << ho.hand.strChat();
+    if (hasDiff)
+    {
+      hasDiffs = true;
+      notes << "Board " << ho.label << "\n";
+      if (index == BIGNUM)
+        notes << ho.hand.strNotes();
+      else
+        notes << ho.hand.strNotes(handsFixed[index].hand);
+      notes << ho.hand.strChat();
 
-        const unsigned indexOrig = Sheet::findOrig(ho.label);
-        if (indexOrig != BIGNUM)
+      const unsigned indexOrig = Sheet::findOrig(ho.label);
+      if (indexOrig != BIGNUM)
+      {
+        const unsigned l = handsOrig.size();
+        if (indexOrig < l-1)
         {
-          const unsigned l = handsOrig.size();
-          if (indexOrig < l-1)
+          notes << "--\n";
+          notes << handsOrig[indexOrig+1].hand.strChat();
+          if (indexOrig < l-2)
           {
             notes << "--\n";
-            notes << handsOrig[indexOrig+1].hand.strChat();
-            if (indexOrig < l-2)
-            {
-              notes << "--\n";
-              notes << handsOrig[indexOrig+2].hand.strChat();
-            }
+            notes << handsOrig[indexOrig+2].hand.strChat();
           }
         }
-
-        notes << "\nActive ref lines: " << ho.label << "\n";
-        for (auto &no: ho.refSource)
-          notes << refEffects[no].line << " {" << 
-          RefErrors[refEffects[no].type].name << "(" <<
-          refEffects[no].numTags << ",1,1)}\n";
-
-        notes << "\n----------\n\n";
       }
+
+      notes << "\nActive ref lines: " << ho.label << "\n";
+      for (auto &no: ho.refSource)
+        notes << refEffects[no].line << " {" << 
+        RefErrors[refEffects[no].type].name << "(" <<
+        refEffects[no].numTags << ",1,1)}\n";
+
+      notes << "\n----------\n\n";
     }
   }
 

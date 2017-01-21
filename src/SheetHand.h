@@ -126,6 +126,7 @@ class SheetHand
     bool operator ==(const SheetHand& href) const;
     bool operator !=(const SheetHand& href) const;
 
+    string strNotes() const;
     string strNotes(const SheetHand& href) const;
 
     string strChat() const;

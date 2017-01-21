@@ -10,10 +10,10 @@ if ($#ARGV < 0)
 }
 
 # PC
-my $DIR = "../../../bridgedata/hands/BBOVG";
+# my $DIR = "../../../bridgedata/hands/BBOVG";
 
 # Laptop
-# my $DIR = "../../../bridgedata/BBOVG";
+my $DIR = "../../../bridgedata/BBOVG";
 
 my $chapter = $ARGV[0];
 if ($chapter < 0 || $chapter > 99)

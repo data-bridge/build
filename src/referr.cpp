@@ -125,10 +125,86 @@ static bool lineToLINList(
   vector<string>& list)
 {
   // Split on |
-  // Fields should have length 2 alternating with content
-  UNUSED(line);
-  UNUSED(list);
+  vector<string> temp;
+  temp.clear();
+  tokenize(line, temp, "|");
+
+  unsigned const l = temp.size();
+  unsigned i = 0;
+  while (i < l)
+  {
+    // Must start with token.
+    if (temp[i].length() != 2 || i+1 == l)
+      return false;
+
+    if (temp[i] == "nt" || temp[i] == "pg" || temp[i] == "ob" ||
+        temp[i] == "sa" || temp[i] == "mn" || temp[i] == "em" ||
+	temp[i] == "bt")
+    {
+      // Skip over any chats with embedded |'s.
+      i += 2;
+      while (i < l && temp[i].length() != 2)
+        i++;
+    }
+    else
+    {
+      list.push_back(temp[i]);
+
+      // Skip over any chats with embedded |'s.
+      string st = temp[i+1];
+      i += 2;
+      while (i < l && temp[i].length() != 2)
+        st += temp[i++];
+      list.push_back(st);
+    }
+  }
   return true;
+}
+
+
+static bool deltaLINLists(
+  const vector<string>& list1,
+  const vector<string>& list2,
+  vector<string>& listDelta,
+  bool& list1LongerFlag)
+{
+  const unsigned l1 = list1.size();
+  const unsigned l2 = list2.size();
+  const unsigned lm = Min(l1, l2);
+
+  unsigned i = 0;
+  while (i < lm && list1[i] == list2[i])
+    i++;
+  // Get the tag corresponding to a difference in value.
+  if (i & 1)
+    i--;
+  
+  unsigned j = 0;
+  while (j < lm && list1[l1-1-j] == list2[l2-1-j])
+    j++;
+  if ((j & 1) == 0)
+    j++;
+  
+  listDelta.clear();
+  if (i > l1-1-j)
+  {
+    if (i > l2-1-j)
+      return false;
+
+    list1LongerFlag = false;
+    for (unsigned k = i; k <= l2-1-j; k++)
+      listDelta.push_back(list2[k]);
+    return true;
+  }
+  else if (i > l2-1-j)
+  {
+    list1LongerFlag = true;
+    for (unsigned k = i; k <= l1-1-j; k++)
+      listDelta.push_back(list1[k]);
+    return true;
+  }
+  else
+    return false;
 }
 
 
@@ -160,38 +236,84 @@ RefErrorsType classifyRefLine(
   const string& bufferLine,
   unsigned& numLINTags)
 {
-  UNUSED(bufferLine);
-  vector<string> list;
+  vector<string> listRef, listBuf, listDelta;
+  bool bufLongerFlag;
   numLINTags = 0;
 
-  // refEentry has .type (FixType) and .value (string) as well
   // TODO
   // Start out with local changes that only affect one qx
   
   switch (refEntry.type)
   {
     case BRIDGE_REF_INSERT:
-      // Split new line
-      // As below
+      // Split ref line
+      listRef.clear();
+      lineToLINList(refEntry.value, listRef);
+
+      if (listRef.size() != 2)
+        return ERR_SIZE;
+
       return ERR_SIZE;
 
     case BRIDGE_REF_REPLACE:
-      // Split old and new line
-      // If there's a single stretch of differences, work on this
-      // If not, fail for now
+      // Split old and new line.
+      listRef.clear();
+      listBuf.clear();
+      lineToLINList(bufferLine, listBuf);
+      lineToLINList(refEntry.value, listRef);
+
+      // If there's a single stretch of differences, work on this.
+      // If not, fail for now.
+      if (! deltaLINLists(listBuf, listRef, listDelta, bufLongerFlag))
+        return ERR_SIZE;
+      
+      if (listDelta.size() != 2)
+        return ERR_SIZE;
+
+      if (bufLongerFlag)
+      {
+        if (listDelta[0] == "mb")
+	{
+	}
+	else if (listDelta[0] == "sv")
+	{
+	}
+	else if (listDelta[0] == "mb")
+	{
+	}
+	else
+          return ERR_SIZE;
+        return ERR_SIZE;
+      }
+      else
+      {
+        if (listDelta[0] == "mb")
+	{
+	}
+	else if (listDelta[0] == "sv")
+	{
+	}
+	else if (listDelta[0] == "mb")
+	{
+	}
+	else
+          return ERR_SIZE;
+        return ERR_SIZE;
+      }
+
       // rs is a special case with known format
       // ERR_LIN_SV_WRONG
       // ERR_LIN_MB_WRONG
       // ERR_LIN_MB_OVERLONG
       // ERR_LIN_MC_CLAIM_WRONG
-      lineToLINList(refEntry.value, list);
       return ERR_SIZE;
       
 
     case BRIDGE_REF_DELETE:
-      // Split old line
-      // If there's a single stretch, work on this
-      // If not, fail for now
+      // Split old line.
+      listBuf.clear();
+      lineToLINList(bufferLine, listBuf);
+
       // mc deletion could be unneeded (in fact, it should be).
       // ERR_LIN_MB_OVERLONG
       return ERR_SIZE;
