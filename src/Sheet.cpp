@@ -359,8 +359,11 @@ void Sheet::parseRefs(const Buffer& buffer)
       refEffects[refNo].list.push_back(hno);
     }
 
-    refEffects[refNo].type = classifyRefLine(refFix[refNo],
-      buffer.getLine(refFix[refNo].lno), refEffects[refNo].numTags);
+    RefErrorClass refError;
+    classifyRefLine(refFix[refNo],
+      buffer.getLine(refFix[refNo].lno), refError);
+    refEffects[refNo].type = refError.code;
+    refEffects[refNo].numTags = refError.numTags;
     refEffects[refNo].line = strRefFix(refFix[refNo]);
   }
 }
@@ -427,6 +430,9 @@ unsigned Sheet::findOrig(const string& label) const
 
 string Sheet::str() const
 {
+  if (! hasFixed)
+    return "";
+
   bool hasDiffs = false;
   stringstream ss;
   ss << headerOrig.headline << "\n\n";

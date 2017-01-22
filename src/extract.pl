@@ -153,6 +153,7 @@ foreach my $file (@files)
     for my $code (@codes)
     {
       next unless defined $accum[$l]{expl}{$code};
+      # next if $code eq "ERR_SIZE";
       push @components, $code . "(" .
         $accum[$l]{expl}{$code}{tags} . "," .
         $accum[$l]{expl}{$code}{qxs} . "," .

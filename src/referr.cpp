@@ -120,6 +120,29 @@ void readRefFix(
 }
 
 
+string strRefFix(const RefFix& refFix)
+{
+  string st;
+  st = STR(refFix.lno) + " ";
+  if (refFix.type == BRIDGE_REF_INSERT)
+    st += "insert";
+  else if (refFix.type == BRIDGE_REF_REPLACE)
+    st += "replace";
+  else if (refFix.type == BRIDGE_REF_DELETE)
+    st += "delete";
+  else
+    st += "ERROR";
+
+  st += " ";
+  if (refFix.count == 1)
+    st += "\"" + refFix.value + "\"";
+  else
+    st += STR(refFix.count);
+
+  return st;
+}
+
+
 static bool lineToLINList(
   const string& line,
   vector<string>& list)
@@ -166,7 +189,7 @@ static bool deltaLINLists(
   const vector<string>& list1,
   const vector<string>& list2,
   vector<string>& listDelta,
-  bool& list1LongerFlag)
+  FixType& fix)
 {
   const unsigned l1 = list1.size();
   const unsigned l2 = list2.size();
@@ -176,31 +199,41 @@ static bool deltaLINLists(
   while (i < lm && list1[i] == list2[i])
     i++;
   // Get the tag corresponding to a difference in value.
+  // i will be at the first tag for which a (tag, value) pair
+  // is different.  j will be the last such tag.
   if (i & 1)
     i--;
   
   unsigned j = 0;
   while (j < lm && list1[l1-1-j] == list2[l2-1-j])
     j++;
-  if ((j & 1) == 0)
-    j++;
+  if (j & 1)
+    j--;
   
   listDelta.clear();
+// cout << "i " << i << ", j " << j << endl;
   if (i > l1-1-j)
   {
     if (i > l2-1-j)
       return false;
 
-    list1LongerFlag = false;
+    fix = BRIDGE_REF_INSERT;
     for (unsigned k = i; k <= l2-1-j; k++)
       listDelta.push_back(list2[k]);
     return true;
   }
   else if (i > l2-1-j)
   {
-    list1LongerFlag = true;
+    fix = BRIDGE_REF_DELETE;
     for (unsigned k = i; k <= l1-1-j; k++)
       listDelta.push_back(list1[k]);
+    return true;
+  }
+  else if (l1 == l2)
+  {
+    fix = BRIDGE_REF_REPLACE;
+    for (unsigned k = i; k <= l1-1-j; k++)
+      listDelta.push_back(list2[k]);
     return true;
   }
   else
@@ -208,52 +241,80 @@ static bool deltaLINLists(
 }
 
 
-string strRefFix(const RefFix& refFix)
+void classifyList(
+  RefErrorClass& diff,
+  const FixType fix)
 {
-  string st;
-  st = STR(refFix.lno) + " ";
-  if (refFix.type == BRIDGE_REF_INSERT)
-    st += "insert";
-  else if (refFix.type == BRIDGE_REF_REPLACE)
-    st += "replace";
-  else if (refFix.type == BRIDGE_REF_DELETE)
-    st += "delete";
-  else
-    st += "ERROR";
+  const unsigned l = diff.list.size();
+  const string& tag = diff.list[0];
+  if (tag == "rs")
+  {
+    if (fix == BRIDGE_REF_REPLACE && l == 2)
+    {
+      // TODO: Should really count individual contracts.
+    }
+  }
+  else if (tag == "md")
+  {
+    if (fix == BRIDGE_REF_REPLACE && l == 2)
+    {
+      // TODO: Do we distinguish between format and content?
+    }
+  }
+  else if (tag == "sv")
+  {
+  }
+  else if (tag == "mb")
+  {
+  }
+  else if (tag == "mc")
+  {
+    if (fix == BRIDGE_REF_REPLACE && l == 2)
+    {
+      diff.numTags = 1;
+      diff.code = ERR_LIN_MC_CLAIM_WRONG;
+      return;
+    }
+  }
 
-  st += " ";
-  if (refFix.count == 1)
-    st += "\"" + refFix.value + "\"";
-  else
-    st += STR(refFix.count);
-
-  return st;
+  diff.code = ERR_SIZE;
+  diff.numTags = 0;
+  return;
 }
 
 
-RefErrorsType classifyRefLine(
+static bool listIsPure(const vector<string>& list)
+{
+  const unsigned l = list.size();
+  if (l == 0 || l % 2)
+    return false;
+
+  const string tag = list[0];
+  for (unsigned i = 2; i < l; i += 2)
+  {
+    if (list[i] != tag)
+      return false;
+  }
+  return true;
+}
+
+
+bool classifyRefLine(
   const RefFix& refEntry,
   const string& bufferLine,
-  unsigned& numLINTags)
+  RefErrorClass& diff)
 {
-  vector<string> listRef, listBuf, listDelta;
-  bool bufLongerFlag;
-  numLINTags = 0;
+  vector<string> listRef, listBuf;
+  FixType fix;
 
-  // TODO
-  // Start out with local changes that only affect one qx
-  
   switch (refEntry.type)
   {
     case BRIDGE_REF_INSERT:
       // Split ref line
-      listRef.clear();
-      lineToLINList(refEntry.value, listRef);
-
-      if (listRef.size() != 2)
-        return ERR_SIZE;
-
-      return ERR_SIZE;
+      diff.list.clear();
+      lineToLINList(refEntry.value, diff.list);
+      diff.type = BRIDGE_REF_INSERT;
+      break;
 
     case BRIDGE_REF_REPLACE:
       // Split old and new line.
@@ -264,62 +325,40 @@ RefErrorsType classifyRefLine(
 
       // If there's a single stretch of differences, work on this.
       // If not, fail for now.
-      if (! deltaLINLists(listBuf, listRef, listDelta, bufLongerFlag))
-        return ERR_SIZE;
-      
-      if (listDelta.size() != 2)
-        return ERR_SIZE;
-
-      if (bufLongerFlag)
+      if (! deltaLINLists(listBuf, listRef, diff.list, fix))
       {
-        if (listDelta[0] == "mb")
-	{
-	}
-	else if (listDelta[0] == "sv")
-	{
-	}
-	else if (listDelta[0] == "mb")
-	{
-	}
-	else
-          return ERR_SIZE;
-        return ERR_SIZE;
+        diff.pureFlag = false;
+        diff.code = ERR_SIZE;
+        diff.type = fix;
+        return false;
       }
-      else
-      {
-        if (listDelta[0] == "mb")
-	{
-	}
-	else if (listDelta[0] == "sv")
-	{
-	}
-	else if (listDelta[0] == "mb")
-	{
-	}
-	else
-          return ERR_SIZE;
-        return ERR_SIZE;
-      }
-
-      // rs is a special case with known format
-      // ERR_LIN_SV_WRONG
-      // ERR_LIN_MB_WRONG
-      // ERR_LIN_MB_OVERLONG
-      // ERR_LIN_MC_CLAIM_WRONG
-      return ERR_SIZE;
-      
+      break;
 
     case BRIDGE_REF_DELETE:
       // Split old line.
-      listBuf.clear();
-      lineToLINList(bufferLine, listBuf);
-
-      // mc deletion could be unneeded (in fact, it should be).
-      // ERR_LIN_MB_OVERLONG
-      return ERR_SIZE;
+      diff.list.clear();
+      lineToLINList(bufferLine, diff.list);
+      diff.type = BRIDGE_REF_DELETE;
+      break;
 
     default:
-      return ERR_SIZE;
+      diff.pureFlag = false;
+      diff.code = ERR_SIZE;
+      diff.type = BRIDGE_REF_DELETE;
+      return false;
+  }
+
+  if (listIsPure(diff.list))
+  {
+    diff.pureFlag = true;
+    classifyList(diff, refEntry.type);
+    return (diff.code == ERR_SIZE ? false : true);
+  }
+  else
+  {
+    diff.pureFlag = false;
+    diff.code = ERR_SIZE;
+    return false;
   }
 }
 

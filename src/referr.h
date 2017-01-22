@@ -101,6 +101,15 @@ const vector<RefErrorBundle> RefErrors =
    "Unclassified error"},
 };
 
+struct RefErrorClass
+{
+  FixType type;
+  RefErrorsType code;
+  vector<string> list;
+  bool pureFlag;
+  unsigned numTags;
+};
+
 
 void readRefFix(
   const string& fname,
@@ -108,9 +117,9 @@ void readRefFix(
 
 string strRefFix(const RefFix& refFix);
 
-RefErrorsType classifyRefLine(
+bool classifyRefLine(
   const RefFix& refEntry,
   const string& bufferLine,
-  unsigned& numLINTags);
+  RefErrorClass& diff);
 
 #endif
