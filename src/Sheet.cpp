@@ -343,6 +343,9 @@ void Sheet::parseRefs(const Buffer& buffer)
   {
     // TODO: Could be the rs line
 
+    if (refFix[refNo].partialFlag)
+      continue;
+
     const unsigned handNoFirst = 
       Sheet::refLineNoToHandNo(refFix[refNo].lno);
     const unsigned handNoLast = 

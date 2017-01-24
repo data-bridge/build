@@ -11,6 +11,11 @@ in general output.
 
 -30849: Why DD difference in equality test?
 
+Do doubled contracts get detected in Sheet (always, sometimes,
+never)?  E.g. 30502.sht o24
+
+30637 c2: Why shown as "Claim 8"?
+
 ref line modification:
 - Write referr.cpp: classify function
 
