@@ -32,7 +32,7 @@ my @files;
 $indir = "$DIR/*" if ($indir eq "all");
 @files = glob("$indir/*.ref");
 
-my (@codes, @accum_expl, @accum_rem);
+my (@codes, @accum_expl, @accum_rem, @accum_expl2, @accum_rem2);
 read_error_codes("$HOMEDIR/$ref", \@codes);
 my %codehash;
 for (my $i = 0; $i <= $#codes; $i++)
@@ -40,64 +40,23 @@ for (my $i = 0; $i <= $#codes; $i++)
   $codehash{$codes[$i]} = $i;
   reset_accum(\%{$accum_expl[$i]});
   reset_accum(\%{$accum_rem[$i]});
+  reset_accum(\%{$accum_expl2[$i]});
+  reset_accum(\%{$accum_rem2[$i]});
 }
 
 my $num_lin_files = count_files($indir, "lin");
 my $num_skip_files = count_files($indir, "skip");
 my $num_orig_files = count_files($indir, "orig");
+my $num_ref_files = count_files($indir, "ref");
 
-my $num_ref_files = 0;
-foreach my $file (@files)
-{
-  $num_ref_files++;
-  open my $fr, '<', $file or die "Can't open $file: $!";
-  my $expl_seen = 0;
-  my $rem_seen = 0;
 
-  while (my $line = <$fr>)
-  {
-    chomp $line;
-    $line =~ s///g;
+make_stats(\@files, \@accum_expl, \@accum_rem);
 
-    my $noLIN;
-    if ($line =~ /^(\d+)\s+(\w+)\s+(\d+)/)
-    {
-      $noLIN = $3;
-    }
-    elsif ($line =~ /^(\d+)\s+(\w+)/)
-    {
-      $noLIN = 1;
-    }
-    else
-    {
-      die "Bad line: $line";
-    }
-
-    if ($line =~ /\{(.*)\}\s*$/)
-    {
-      my $text = $1;
-      my @entries = split ';', $text;
-      for my $e (@entries)
-      {
-        if ($e !~ /(.+)\((\d+),(\d+),(\d+)\)/)
-        {
-          die "Bad entry: $e";
-        }
-        log_entry(\@accum_expl, $expl_seen, $noLIN, $1, $2, $3, $4);
-        $expl_seen = 1;
-      }
-    }
-    else
-    {
-      log_entry(\@accum_rem, $rem_seen, $noLIN, "ERR_SIZE", 0, 0, 0);
-      $rem_seen = 1;
-    }
-  }
-  close $fr;
-}
-
-write_stats($out, \@codes, \@accum_expl, \@accum_rem, 
-  $num_lin_files, $num_ref_files, $num_skip_files, $num_orig_files);
+open my $fo, '>', $out or die "Can't open $out $!";
+write_ref_stats($fo, \@codes, \@accum_expl, \@accum_rem);
+write_file_numbers($fo, $num_lin_files, $num_ref_files, $num_skip_files, 
+  $num_orig_files);
+close $fo;
 
 
 sub reset_accum
@@ -178,12 +137,63 @@ sub count_files
 }
 
 
-sub write_stats
+sub make_stats
 {
-  my ($fout, $codes_ref, $accum_expl_ref, $accum_rem_ref,
-    $num_lin_files, $num_ref_files, $num_skip_files, $num_orig_files) = @_;
+  my ($files_ref, $accum_expl_ref, $accum_rem_ref) = @_;
 
-  open my $fo, '>', $fout or die "Can't open $fout $!";
+  foreach my $file (@$files_ref)
+  {
+    open my $fr, '<', $file or die "Can't open $file: $!";
+    my $expl_seen = 0;
+    my $rem_seen = 0;
+
+    while (my $line = <$fr>)
+    {
+      chomp $line;
+      $line =~ s///g;
+
+      my $noLIN;
+      if ($line =~ /^(\d+)\s+(\w+)\s+(\d+)/)
+      {
+        $noLIN = $3;
+      }
+      elsif ($line =~ /^(\d+)\s+(\w+)/)
+      {
+        $noLIN = 1;
+      }
+      else
+      {
+        die "Bad line: $line";
+      }
+
+      if ($line =~ /\{(.*)\}\s*$/)
+      {
+        my $text = $1;
+        my @entries = split ';', $text;
+        for my $e (@entries)
+        {
+          if ($e !~ /(.+)\((\d+),(\d+),(\d+)\)/)
+        {
+            die "Bad entry: $e";
+          }
+          log_entry($accum_expl_ref, $expl_seen, $noLIN, $1, $2, $3, $4);
+          $expl_seen = 1;
+        }
+      }
+      else
+      {
+        log_entry($accum_rem_ref, $rem_seen, $noLIN, "ERR_SIZE", 0, 0, 0);
+        $rem_seen = 1;
+      }
+    }
+    close $fr;
+  }
+}
+
+
+sub write_ref_stats
+{
+  my ($fo, $codes_ref, $accum_expl_ref, $accum_rem_ref) = @_;
 
   printf $fo "%-28s %23s %11s | %12s\n", 
     "", "Explained", "", "Remaining";
@@ -220,7 +230,16 @@ sub write_stats
   printf $fo $FORMAT,
     "Sum", "N/A", @sum;
 
-  printf $fo "\n\n%-28s %5s\n",
+  printf $fo "\n\n";
+}
+
+
+sub write_file_numbers
+{
+  my ($fo, $num_lin_files, $num_ref_files, $num_skip_files, 
+    $num_orig_files) = @_;
+
+  printf $fo "%-28s %5s\n",
     "Number of lin files", $num_lin_files;
   printf $fo "%-28s %5s\n",
     "Number of ref files", $num_ref_files;

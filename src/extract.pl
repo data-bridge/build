@@ -38,7 +38,7 @@ foreach my $file (@files)
 
   my $outfile = `basename $file`;
   chomp $outfile;
-  $outfile =~ s/\.sht$/.ref/;
+  $outfile =~ s/\.sht$/.lin/;
   $outfile =~ s///g;
   my $dirint = "";
   if ($outfile =~ /(\d+)/)
@@ -153,17 +153,19 @@ foreach my $file (@files)
     for my $code (@codes)
     {
       next unless defined $accum[$l]{expl}{$code};
-      # next if $code eq "ERR_SIZE";
+      next if $code eq "ERR_SIZE";
       push @components, $code . "(" .
         $accum[$l]{expl}{$code}{tags} . "," .
         $accum[$l]{expl}{$code}{qxs} . "," .
         $accum[$l]{expl}{$code}{boards} . ")";
     }
 
+    next if ($#components == -1);
+
     $outline .= join ',', @components;
     $outline .= "\}\n";
     
-    print $fo "$DIR/$dirint$outfile:\n";
+    print $fo "$DIR/$dirint$outfile\n";
     print $fo $outline . "\n";
   }
 }

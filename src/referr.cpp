@@ -358,6 +358,7 @@ bool classifyRefLine(
   {
     diff.pureFlag = false;
     diff.code = ERR_SIZE;
+    diff.numTags = 0;
     return false;
   }
 }
