@@ -28,9 +28,9 @@ if ($indir =~ /^\d+$/)
 
 my $ref = "referr.h";
 my $out = "refstats.txt";
-my @files;
 $indir = "$DIR/*" if ($indir eq "all");
-@files = glob("$indir/*.ref");
+my @files = glob("$indir/*.ref");
+my @files2 = glob("$indir/*.skip");
 
 my (@codes, @accum_expl, @accum_rem, @accum_expl2, @accum_rem2);
 read_error_codes("$HOMEDIR/$ref", \@codes);
@@ -51,9 +51,11 @@ my $num_ref_files = count_files($indir, "ref");
 
 
 make_stats(\@files, \@accum_expl, \@accum_rem);
+make_stats(\@files2, \@accum_expl2, \@accum_rem2);
 
 open my $fo, '>', $out or die "Can't open $out $!";
 write_ref_stats($fo, \@codes, \@accum_expl, \@accum_rem);
+write_skip_stats($fo, \@codes, \@accum_expl2, \@accum_rem2);
 write_file_numbers($fo, $num_lin_files, $num_ref_files, $num_skip_files, 
   $num_orig_files);
 close $fo;
@@ -143,9 +145,28 @@ sub make_stats
 
   foreach my $file (@$files_ref)
   {
-    open my $fr, '<', $file or die "Can't open $file: $!";
     my $expl_seen = 0;
     my $rem_seen = 0;
+
+    if ($file =~ /skip/ && -z $file)
+    {
+      # Zero size.
+      my $filelin = $file;
+      $filelin =~ s/skip$/lin/;
+      my $wc = `wc -l $filelin`;
+      if ($wc =~ /^(\d+)/)
+      {
+        my $noLIN = $1;
+        log_entry($accum_rem_ref, $rem_seen, $noLIN, "ERR_SIZE", 0, 0, 0);
+        $rem_seen = 1;
+      }
+      else
+      {
+        die "Bad wc line: $wc";
+      }
+    }
+
+    open my $fr, '<', $file or die "Can't open $file: $!";
 
     while (my $line = <$fr>)
     {
@@ -160,6 +181,10 @@ sub make_stats
       elsif ($line =~ /^(\d+)\s+(\w+)/)
       {
         $noLIN = 1;
+      }
+      elsif ($file =~ /skip/ && $line =~ /^(\d+)\s+/)
+      {
+        $noLIN = $1;
       }
       else
       {
@@ -206,6 +231,9 @@ sub write_ref_stats
   my @sum;
   for (my $i = 0; $i <= $#$codes_ref; $i++)
   {
+    next if ($accum_expl_ref->[$i]{lins} == 0 &&
+        $accum_rem_ref->[$i]{lins} == 0);
+
     printf $fo $FORMAT,
       $codes_ref->[$i],
       $accum_expl_ref->[$i]{files},
@@ -227,6 +255,50 @@ sub write_ref_stats
   }
 
   print $fo ("-" x 79) . "\n";
+  printf $fo $FORMAT,
+    "Sum", "N/A", @sum;
+
+  printf $fo "\n\n";
+}
+
+
+sub write_skip_stats
+{
+  my ($fo, $codes_ref, $accum_expl_ref, $accum_rem_ref) = @_;
+
+  printf $fo "%-28s %20s %8s | %12s\n", 
+    "", "Explained", "", "Remaining";
+  my $FORMAT = "%-28s %5s %5s %5s %5s %5s | %6s %5s\n";
+
+  printf $fo $FORMAT,
+    "Skip", "#file", "#lin", "#ref", "#qx", "#bds",
+    "#lin", "#ref";
+
+  my @sum = qw(0 0 0 0 0 0);
+  for (my $i = 0; $i <= $#$codes_ref; $i++)
+  {
+    next if ($accum_expl_ref->[$i]{lins} == 0 &&
+        $accum_rem_ref->[$i]{lins} == 0);
+
+    printf $fo $FORMAT,
+      $codes_ref->[$i],
+      $accum_expl_ref->[$i]{files},
+      $accum_expl_ref->[$i]{lins},
+      $accum_expl_ref->[$i]{refs},
+      $accum_expl_ref->[$i]{qxs},
+      $accum_expl_ref->[$i]{boards},
+      $accum_rem_ref->[$i]{lins},
+      $accum_rem_ref->[$i]{refs};
+
+      $sum[0] += $accum_expl_ref->[$i]{lins};
+      $sum[1] += $accum_expl_ref->[$i]{refs};
+      $sum[2] += $accum_expl_ref->[$i]{qxs};
+      $sum[3] += $accum_expl_ref->[$i]{boards};
+      $sum[4] += $accum_rem_ref->[$i]{lins};
+      $sum[5] += $accum_rem_ref->[$i]{refs};
+  }
+
+  print $fo ("-" x 73) . "\n";
   printf $fo $FORMAT,
     "Sum", "N/A", @sum;
 

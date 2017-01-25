@@ -37,6 +37,9 @@ enum RefErrorsType
   ERR_LIN_RS_CONTRACT_MISSING,
   ERR_LIN_RS_CONTRACT_WRONG,
 
+  ERR_LIN_PN_PLAYERS_UNKNOWN,
+  ERR_LIN_PN_PLAYERS_WRONG,
+
   ERR_LIN_MD_FORMAT,
   ERR_LIN_MD_CONTENT,
 
@@ -67,6 +70,14 @@ const vector<RefErrorBundle> RefErrors =
   {ERR_LIN_RS_CONTRACT_WRONG,
    "ERR_LIN_RS_CONTRACT_WRONG",
    "LIN rs wrong contract"},
+
+  {ERR_LIN_PN_PLAYERS_UNKNOWN,
+   "ERR_LIN_PN_PLAYERS_UNKNOWN",
+   "LIN pn not all names"},
+
+  {ERR_LIN_PN_PLAYERS_WRONG,
+   "ERR_LIN_PN_PLAYERS_WRONG",
+   "LIN pn name commas"},
 
   {ERR_LIN_MD_FORMAT,
    "ERR_LIN_MD_FORMAT",
