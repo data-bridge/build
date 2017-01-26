@@ -35,6 +35,7 @@ void SheetHand::reset()
 
   auction.reset();
   hasAuction = false;
+  auctionFlawed = false;
 
   play.reset();
   hasPlay = false;
@@ -144,7 +145,9 @@ bool SheetHand::addCall(const string& text)
   }
   catch (Bexcept& bex)
   {
-    bex.print(cout);
+    // bex.print(cout);
+    UNUSED(bex);
+    auctionFlawed = true;
     return false;
   }
   return true;
@@ -217,11 +220,25 @@ void SheetHand::finishHand(
       }
       else
         play.setContract(contract);
+    }
+    catch (Bexcept& bex)
+    {
+      bex.print(cout);
+    }
 
+    try
+    {
       unsigned cards[BRIDGE_PLAYERS][BRIDGE_SUITS];
       deal.getDDS(cards);
       play.setHoldingDDS(cards);
+    }
+    catch (Bexcept& bex)
+    {
+      bex.print(cout);
+    }
 
+    try
+    {
       play.setPlays(plays, BRIDGE_FORMAT_RBN);
       hasPlay = true;
       if (play.isOver())
@@ -268,6 +285,12 @@ bool SheetHand::operator !=(const SheetHand& href) const
 bool SheetHand::hasData() const
 {
   return (hasDeal || hasPlay);
+}
+
+
+bool SheetHand::auctionIsFlawed() const
+{
+  return auctionFlawed;
 }
 
 

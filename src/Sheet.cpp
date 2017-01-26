@@ -515,7 +515,7 @@ string Sheet::str() const
       }
     }
 
-    if (hasDiff)
+    if (hasDiff || ho.hand.auctionIsFlawed())
     {
       hasDiffs = true;
       notes << "Board " << ho.label << "\n";
@@ -540,6 +540,8 @@ string Sheet::str() const
           }
         }
       }
+
+      // TODO: For MB errors, could check that auctionIsFlawed().
 
       notes << "\nActive ref lines: " << ho.label << "\n";
       for (auto &no: ho.refSource)

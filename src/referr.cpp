@@ -212,7 +212,7 @@ static bool deltaLINLists(
   
   listDelta.clear();
 // cout << "i " << i << ", j " << j << endl;
-  if (i > l1-1-j)
+  if (i+j+1 > l1)
   {
     if (i > l2-1-j)
       return false;
@@ -222,7 +222,7 @@ static bool deltaLINLists(
       listDelta.push_back(list2[k]);
     return true;
   }
-  else if (i > l2-1-j)
+  else if (i+j+1 > l2)
   {
     fix = BRIDGE_REF_DELETE;
     for (unsigned k = i; k <= l1-1-j; k++)
@@ -241,22 +241,20 @@ static bool deltaLINLists(
 }
 
 
-void classifyList(
-  RefErrorClass& diff,
-  const FixType fix)
+void classifyList(RefErrorClass& diff)
 {
   const unsigned l = diff.list.size();
   const string& tag = diff.list[0];
   if (tag == "rs")
   {
-    if (fix == BRIDGE_REF_REPLACE && l == 2)
+    if (diff.type == BRIDGE_REF_REPLACE && l == 2)
     {
       // TODO: Should really count individual contracts.
     }
   }
   else if (tag == "md")
   {
-    if (fix == BRIDGE_REF_REPLACE && l == 2)
+    if (diff.type == BRIDGE_REF_REPLACE && l == 2)
     {
       // TODO: Do we distinguish between format and content?
     }
@@ -266,10 +264,16 @@ void classifyList(
   }
   else if (tag == "mb")
   {
+    if (diff.type == BRIDGE_REF_DELETE)
+    {
+      diff.numTags = l / 2;
+      diff.code = ERR_LIN_MB_OVERLONG;
+      return;
+    }
   }
   else if (tag == "mc")
   {
-    if (fix == BRIDGE_REF_REPLACE && l == 2)
+    if (diff.type == BRIDGE_REF_REPLACE && l == 2)
     {
       diff.numTags = 1;
       diff.code = ERR_LIN_MC_CLAIM_WRONG;
@@ -305,7 +309,7 @@ bool classifyRefLine(
   RefErrorClass& diff)
 {
   vector<string> listRef, listBuf;
-  FixType fix;
+  diff.type = refEntry.type;
 
   switch (refEntry.type)
   {
@@ -313,7 +317,6 @@ bool classifyRefLine(
       // Split ref line
       diff.list.clear();
       lineToLINList(refEntry.value, diff.list);
-      diff.type = BRIDGE_REF_INSERT;
       break;
 
     case BRIDGE_REF_REPLACE:
@@ -325,11 +328,10 @@ bool classifyRefLine(
 
       // If there's a single stretch of differences, work on this.
       // If not, fail for now.
-      if (! deltaLINLists(listBuf, listRef, diff.list, fix))
+      if (! deltaLINLists(listBuf, listRef, diff.list, diff.type))
       {
         diff.pureFlag = false;
         diff.code = ERR_SIZE;
-        diff.type = fix;
         return false;
       }
       break;
@@ -338,20 +340,18 @@ bool classifyRefLine(
       // Split old line.
       diff.list.clear();
       lineToLINList(bufferLine, diff.list);
-      diff.type = BRIDGE_REF_DELETE;
       break;
 
     default:
       diff.pureFlag = false;
       diff.code = ERR_SIZE;
-      diff.type = BRIDGE_REF_DELETE;
       return false;
   }
 
   if (listIsPure(diff.list))
   {
     diff.pureFlag = true;
-    classifyList(diff, refEntry.type);
+    classifyList(diff);
     return (diff.code == ERR_SIZE ? false : true);
   }
   else

@@ -56,6 +56,7 @@ class SheetHand
 
     Auction auction;
     bool hasAuction;
+    bool auctionFlawed;
 
     Play play;
     bool hasPlay;
@@ -122,6 +123,8 @@ class SheetHand
       const unsigned numPlays);
 
     bool hasData() const;
+
+    bool auctionIsFlawed() const;
 
     bool operator ==(const SheetHand& href) const;
     bool operator !=(const SheetHand& href) const;

@@ -44,7 +44,14 @@ foreach my $file (@files)
   if ($outfile =~ /(\d+)/)
   {
     my $dirno = int($1/1000);
-    $dirint = "0${dirno}000/";
+    if ($dirno < 10)
+    {
+      $dirint = "00${dirno}000/";
+    }
+    else
+    {
+      $dirint = "0${dirno}000/";
+    }
   }
 
   my @accum;
@@ -56,7 +63,6 @@ foreach my $file (@files)
     next unless $line =~ /^Active ref lines: (\w+)$/;
 
     my $qx = $1;
-    my %entry;
     my $bno;
     if ($qx =~ /^([oc])(\d+)$/)
     {
@@ -67,78 +73,84 @@ foreach my $file (@files)
       die "File $file: Bad line $line";
     }
 
-    $line = <$fr>;
+    my %entry;
     my $expl;
-    if ($line =~ /^(.+)\s+\{(.*)\}\s*$/)
+    while (1)
     {
-      $entry{text} = $1;
-      $expl = $2;
-    }
-    else
-    {
-      # Skip unexplained lines
-      next;
-    }
+      last unless defined($line = <$fr>);
+      last unless $line =~ /ERR_LIN/;
 
-    my $lineno;
-    if ($line =~ /^(\d+)/)
-    {
-      $lineno = $1;
-    }
-    else
-    {
-      die "Bad line number: $file, $line";
-    }
-
-    my @entries = split ';', $expl;
-    for my $e (@entries)
-    {
-      if ($e =~ /^(.+)\((\d+),(\d+),(\d+)\)$/)
+      if ($line =~ /^(.+)\s+\{(.*)\}\s*$/)
       {
-        my $code = $1;
-        $entry{expl}{$code}{tags} = $2;
-        $entry{expl}{$code}{qxs} = $3;
-        $entry{expl}{$code}{boards} = $4;
+        $entry{text} = $1;
+        $expl = $2;
       }
       else
       {
-        die "Bad line within {}: $file, $line, $e";
-      }
-    }
-
-    if (! defined $accum[$lineno])
-    {
-      %{$accum[$lineno]} = %entry;
-      push @{$accum[$lineno]{number}}, $bno;
-    }
-    else
-    {
-      if ($accum[$lineno]{text} ne $entry{text})
-      {
-        die "Texts differ";
+        # Skip unexplained lines
+        next;
       }
 
-      my $found = 0;
-      for my $i (0 .. $#{$accum[$lineno]{number}})
+      my $lineno;
+      if ($line =~ /^(\d+)/)
       {
-        if ($accum[$lineno]{number}[$i] == $bno)
+        $lineno = $1;
+      }
+      else
+      {
+        die "Bad line number: $file, $line";
+      }
+
+      my @entries = split ';', $expl;
+      for my $e (@entries)
+      {
+        if ($e =~ /^(.+)\((\d+),(\d+),(\d+)\)$/)
         {
-          $found = 1;
-          last;
+          my $code = $1;
+          $entry{expl}{$code}{tags} = $2;
+          $entry{expl}{$code}{qxs} = $3;
+          $entry{expl}{$code}{boards} = $4;
+        }
+        else
+        {
+          die "Bad line within {}: $file, $line, $e";
         }
       }
 
-      if (! $found)
+      if (! defined $accum[$lineno])
       {
+        %{$accum[$lineno]} = %entry;
         push @{$accum[$lineno]{number}}, $bno;
       }
-
-      for my $code (keys %{$entry{expl}})
+      else
       {
-        $accum[$lineno]{expl}{$code}{tags} += $entry{expl}{$code}{tags};
-        $accum[$lineno]{expl}{$code}{qxs} += $entry{expl}{$code}{qxs};
-        $accum[$lineno]{expl}{$code}{boards} += $entry{expl}{$code}{boards}
-          unless $found;
+        if ($accum[$lineno]{text} ne $entry{text})
+        {
+          die "Texts differ";
+        }
+
+        my $found = 0;
+        for my $i (0 .. $#{$accum[$lineno]{number}})
+        {
+          if ($accum[$lineno]{number}[$i] == $bno)
+          {
+            $found = 1;
+            last;
+          }
+        }
+
+        if (! $found)
+        {
+          push @{$accum[$lineno]{number}}, $bno;
+        }
+
+        for my $code (keys %{$entry{expl}})
+        {
+          $accum[$lineno]{expl}{$code}{tags} += $entry{expl}{$code}{tags};
+          $accum[$lineno]{expl}{$code}{qxs} += $entry{expl}{$code}{qxs};
+          $accum[$lineno]{expl}{$code}{boards} += $entry{expl}{$code}{boards}
+            unless $found;
+        }
       }
     }
   }
@@ -154,6 +166,7 @@ foreach my $file (@files)
     {
       next unless defined $accum[$l]{expl}{$code};
       next if $code eq "ERR_SIZE";
+next unless $code =~ /OVERLONG/;
       push @components, $code . "(" .
         $accum[$l]{expl}{$code}{tags} . "," .
         $accum[$l]{expl}{$code}{qxs} . "," .

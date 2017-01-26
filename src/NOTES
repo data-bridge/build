@@ -3,10 +3,7 @@
 Need exceptions to go into sheet str somehow, not end up
 in general output.
 
-Eliminate empty lines in TXT header in sht.
-
 - 30020 addPlay (Card D2 not held)
-- 30165 addCall (Call after auction is over)
 - 30334 nextLIN (Bad LIN line)
 - 30699 setRBN (Malformed RBN team line)
 - 30706 addPlay (Invalid card)
@@ -21,6 +18,8 @@ never)?  E.g. 30502.sht o24
 ref line modification:
 - Expand referr.cpp: classify function
 
+Explain all skips.
+
 
 Sheet:
 - Another str() function that outputs an IMP sheet,
@@ -30,13 +29,10 @@ Sheet:
 - See whether a hand is completely messed up, or only a few
   cards, or only rotations
 
-At some point we need to explain the skips as well;
-that can go in the skip file.
 
 Complete replacements should go in ref file,
 * replace
 followed by the new file
-
 
 Statistics on sources
 - Number of (good) hands
@@ -48,6 +44,8 @@ Statistics on sources
 Quality of fixes
 - No skip or ref file without a data file (lin to start with)
 - No skip file with a ref file
+- Incomplete auctions, e.g. 30319.  Some MB_OVERLONG may have to be
+  reclassified.
 - No duplicates in BBOSH (file names)
 - BBOSH files sorted properly into directories
 - Detect complete skips
