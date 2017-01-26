@@ -114,6 +114,8 @@ class Sheet
     unsigned findFixed(const string& label) const;
     unsigned findOrig(const string& label) const;
 
+    string Sheet::strLinks() const;
+
 
   public:
 

@@ -235,10 +235,24 @@ void Sheet::parse(
     if (lineData.label == "vg")
     {
       segment.setTitle(lineData.value, BRIDGE_FORMAT_LIN_VG);
-      header.headline += segment.strTitle(BRIDGE_FORMAT_TXT) + "\n";
-      header.headline += segment.strEvent(BRIDGE_FORMAT_TXT);
-      header.headline += segment.strSession(BRIDGE_FORMAT_TXT);
-      header.headline += segment.strTeams(BRIDGE_FORMAT_TXT) + "\n\n";
+
+      string st;
+
+      header.headline += segment.strTitle(BRIDGE_FORMAT_TXT);
+
+      st = segment.strEvent(BRIDGE_FORMAT_TXT);
+      if (st.length() > 1)
+        header.headline += st;
+
+      st = segment.strSession(BRIDGE_FORMAT_TXT);
+      if (st.length() > 1)
+        header.headline += st;
+
+      st = segment.strTeams(BRIDGE_FORMAT_TXT);
+      if (st.length() > 1)
+        header.headline += st;
+
+      header.headline += "\n";
 
       Sheet::parseVG(lineData.value, noHdrFirst, noHdrLast);
     }
@@ -405,6 +419,8 @@ bool Sheet::read(
     bex.print(cout);
     return false;
   }
+
+  sort(headerOrig.links.begin(), headerOrig.links.end());
   return true;
 }
 
@@ -431,6 +447,21 @@ unsigned Sheet::findOrig(const string& label) const
 }
 
 
+string Sheet::strLinks() const
+{
+  stringstream ss;
+  ss << "Links:\n";
+  for (unsigned i = 0; i < headerOrig.links.size(); i++)
+  {
+    if (i == 0 || headerOrig.links[i] != headerOrig.links[i-1])
+      ss << headerOrig.links[i] << "\n";
+  }
+  ss << "\n";
+
+  return ss.str();
+}
+
+
 string Sheet::str() const
 {
   if (! hasFixed)
@@ -441,12 +472,7 @@ string Sheet::str() const
   ss << headerOrig.headline << "\n\n";
 
   if (headerOrig.links.size() > 0)
-  {
-    ss << "Links:\n";
-    for (auto &s: headerOrig.links)
-      ss << s << "\n";
-    ss << "\n";
-  }
+    ss << strLinks();
 
   ss << setw(6) << "Board " << 
     setw(6) << "Chdr" <<

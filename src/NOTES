@@ -1,15 +1,7 @@
 25.01.2017
 ----------
-./reader -I ../../../bridgedata/hands/BBOVG/0xx000 -D tmp/0xx000 -v 31 > bxx.txt
-segfaults:
-00, 04, 17, 32, 45
-
-Delete .ref file when .skip is present, especially non-zero length.
-
 Need exceptions to go into sheet str somehow, not end up
 in general output.
-
-Sort links, make them unique.
 
 Eliminate empty lines in TXT header in sht.
 
@@ -29,7 +21,6 @@ never)?  E.g. 30502.sht o24
 ref line modification:
 - Expand referr.cpp: classify function
 
-Run on a lot of VG files.
 
 Sheet:
 - Another str() function that outputs an IMP sheet,
