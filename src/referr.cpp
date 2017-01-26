@@ -205,7 +205,7 @@ static bool deltaLINLists(
     i--;
   
   unsigned j = 0;
-  while (j < lm && list1[l1-1-j] == list2[l2-1-j])
+  while (j < lm-i && list1[l1-1-j] == list2[l2-1-j])
     j++;
   if (j & 1)
     j--;

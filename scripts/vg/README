@@ -1,3 +1,15 @@
+Possible procedure for new VG files
+===================================
+Generate skip files
+* pnames.pl for missing player names
+* qskips.pl for missing qx entries
+* (TODO: Something with play vs. cards)
+
+Fix rest semi-manually
+* Look at ./reader -D and the .sht files
+* Then run normally with -c etc.
+
+
 converge (lives in src for now):
 -----
 perl converge.pl 07

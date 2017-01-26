@@ -208,7 +208,13 @@ void SheetHand::finishHand(
     try
     {
       if (contractHdr.isSet())
-        play.setContract(contractHdr);
+      {
+        // Header may incorrectly list "PASS".
+        if ((ct == "PASS" || ct == "P") && contract.isSet())
+          play.setContract(contract);
+        else
+          play.setContract(contractHdr);
+      }
       else
         play.setContract(contract);
 
