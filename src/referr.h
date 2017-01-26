@@ -40,6 +40,8 @@ enum RefErrorsType
   ERR_LIN_PN_PLAYERS_UNKNOWN,
   ERR_LIN_PN_PLAYERS_WRONG,
 
+  ERR_LIN_QX_MISSING,
+
   ERR_LIN_MD_FORMAT,
   ERR_LIN_MD_CONTENT,
 
@@ -78,6 +80,10 @@ const vector<RefErrorBundle> RefErrors =
   {ERR_LIN_PN_PLAYERS_WRONG,
    "ERR_LIN_PN_PLAYERS_WRONG",
    "LIN pn name commas"},
+
+  {ERR_LIN_QX_MISSING,
+   "ERR_LIN_QX_MISSING",
+   "LIN qx not present"},
 
   {ERR_LIN_MD_FORMAT,
    "ERR_LIN_MD_FORMAT",

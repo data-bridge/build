@@ -13,6 +13,7 @@ if ($#ARGV < 0)
 }
 
 my $HOMEDIR = glob("~/GitHub/Build/src");
+my $out = "refstats.txt";
 
 # PC
 my $DIR = "../../../bridgedata/hands/BBOVG";
@@ -23,11 +24,15 @@ my $DIR = "../../../bridgedata/hands/BBOVG";
 my $indir = $ARGV[0];
 if ($indir =~ /^\d+$/)
 {
+  $out = "z${indir}_0.txt";
+  if (-e $out)
+  {
+    $out = "z${indir}_1.txt";
+  }
   $indir = "$DIR/0${indir}000";
 }
 
 my $ref = "referr.h";
-my $out = "refstats.txt";
 $indir = "$DIR/*" if ($indir eq "all");
 my @files = glob("$indir/*.ref");
 my @files2 = glob("$indir/*.skip");
@@ -145,8 +150,9 @@ sub make_stats
 
   foreach my $file (@$files_ref)
   {
-    my $expl_seen = 0;
-    my $rem_seen = 0;
+    my (%expl_seen, %rem_seen);
+    # my $expl_seen = 0;
+    # my $rem_seen = 0;
 
     if ($file =~ /skip/ && -z $file)
     {
@@ -157,8 +163,9 @@ sub make_stats
       if ($wc =~ /^(\d+)/)
       {
         my $noLIN = $1;
-        log_entry($accum_rem_ref, $rem_seen, $noLIN, "ERR_SIZE", 0, 0, 0);
-        $rem_seen = 1;
+        log_entry($accum_rem_ref, $rem_seen{ERR_SIZE}, 
+          $noLIN, "ERR_SIZE", 0, 0, 0);
+        $rem_seen{ERR_SIZE} = 1;
       }
       else
       {
@@ -188,7 +195,7 @@ sub make_stats
       }
       else
       {
-        die "Bad line: $line";
+        die "Bad line: File '$file', line '$line'";
       }
 
       if ($line =~ /\{(.*)\}\s*$/)
@@ -201,14 +208,17 @@ sub make_stats
         {
             die "Bad entry: $e";
           }
-          log_entry($accum_expl_ref, $expl_seen, $noLIN, $1, $2, $3, $4);
-          $expl_seen = 1;
+          my ($tag, $c1, $c2, $c3) = ($1, $2, $3, $4);
+          log_entry($accum_expl_ref, $expl_seen{$tag}, 
+            $noLIN, $tag, $c1, $c2, $c3);
+          $expl_seen{$tag} = 1;
         }
       }
       else
       {
-        log_entry($accum_rem_ref, $rem_seen, $noLIN, "ERR_SIZE", 0, 0, 0);
-        $rem_seen = 1;
+        log_entry($accum_rem_ref, $rem_seen{ERR_SIZE}, 
+          $noLIN, "ERR_SIZE", 0, 0, 0);
+        $rem_seen{ERR_SIZE} = 1;
       }
     }
     close $fr;

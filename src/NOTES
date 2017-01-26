@@ -1,7 +1,41 @@
 25.01.2017
 ----------
+segfaults in
+./reader -I ../../../bridgedata/hands/BBOVG/044000 -D tmp/044000 -v 31 > b44.txt
+03, 04, 06, 07, 09,
+11, 15, 16, 19,
+22, 23, 25, 26, 27, 29, 
+32, 33, 35, 36, 
+41, 44
+Also, some end prematurely:
+00,
+10, 12, 13, 14, 15, 17, 18,
+20, 21,
+31,
+42
+
+qskips.pl: Should add some ERR_LIN tag (ERR_LIN_QX_NONE).
+Either create or add {...,ERR_LIN_QX_NONE(a,b,c)}.
+Run refstats.pl again, see how many skips are still unexplained.
+
+Write how-to for new vg's:
+First pnames
+Then qskips
+Then ... (something with plays and cards)
+Then done with skips
+Then -D, look at sht files
+Then -c etc
+
+Delete .ref file when .skip is present, especially non-zero length.
+
+Add skip detector for when there is not a single qx in lin file.
+
 Need exceptions to go into sheet str somehow, not end up
 in general output.
+
+Sort links, make them unique.
+
+Eliminate empty lines in TXT header in sht.
 
 - 30020 addPlay (Card D2 not held)
 - 30165 addCall (Call after auction is over)
