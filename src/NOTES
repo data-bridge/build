@@ -1,5 +1,18 @@
-25.01.2017
+26.01.2017
 ----------
+Turn back temporary changes
+- Makefile
+- dispatch function
+
+The other 6000 skip files should be checked for plays.
+
+Are there skipped lin file that contain the word "Suggest"? Look at.
+
+Get rid of as many skip files as possible.  Down to 1016?
+
+Check #lines in .skip against actual line count.
+
+
 Need exceptions to go into sheet str somehow, not end up
 in general output.
 

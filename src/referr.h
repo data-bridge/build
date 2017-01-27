@@ -42,6 +42,8 @@ enum RefErrorsType
 
   ERR_LIN_QX_MISSING,
 
+  ERR_LIN_DISTS_WRONG,
+
   ERR_LIN_MD_FORMAT,
   ERR_LIN_MD_CONTENT,
 
@@ -84,6 +86,10 @@ const vector<RefErrorBundle> RefErrors =
   {ERR_LIN_QX_MISSING,
    "ERR_LIN_QX_MISSING",
    "LIN qx not present"},
+
+  {ERR_LIN_DISTS_WRONG,
+   "ERR_LIN_DISTS_WRONG",
+   "LIN dists wrong"},
 
   {ERR_LIN_MD_FORMAT,
    "ERR_LIN_MD_FORMAT",

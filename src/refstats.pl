@@ -230,9 +230,9 @@ sub write_ref_stats
 {
   my ($fo, $codes_ref, $accum_expl_ref, $accum_rem_ref) = @_;
 
-  printf $fo "%-28s %23s %11s | %12s\n", 
+  printf $fo "%-28s %24s %11s | %12s\n", 
     "", "Explained", "", "Remaining";
-  my $FORMAT = "%-28s %5s %5s %5s %5s %5s %5s | %6s %5s\n";
+  my $FORMAT = "%-28s %5s %6s %5s %5s %5s %5s | %6s %5s\n";
 
   printf $fo $FORMAT,
     "Reference", "#file", "#lin", "#ref", "#tags", "#qx", "#bds",
@@ -264,7 +264,7 @@ sub write_ref_stats
       $sum[6] += $accum_rem_ref->[$i]{refs};
   }
 
-  print $fo ("-" x 79) . "\n";
+  print $fo ("-" x 80) . "\n";
   printf $fo $FORMAT,
     "Sum", "N/A", @sum;
 
@@ -276,9 +276,9 @@ sub write_skip_stats
 {
   my ($fo, $codes_ref, $accum_expl_ref, $accum_rem_ref) = @_;
 
-  printf $fo "%-28s %20s %8s | %12s\n", 
+  printf $fo "%-28s %21s %8s | %12s\n", 
     "", "Explained", "", "Remaining";
-  my $FORMAT = "%-28s %5s %5s %5s %5s %5s | %6s %5s\n";
+  my $FORMAT = "%-28s %5s %6s %5s %5s %5s | %6s %5s\n";
 
   printf $fo $FORMAT,
     "Skip", "#file", "#lin", "#ref", "#qx", "#bds",
@@ -308,7 +308,7 @@ sub write_skip_stats
       $sum[5] += $accum_rem_ref->[$i]{refs};
   }
 
-  print $fo ("-" x 73) . "\n";
+  print $fo ("-" x 74) . "\n";
   printf $fo $FORMAT,
     "Sum", "N/A", @sum;
 

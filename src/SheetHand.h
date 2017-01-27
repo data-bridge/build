@@ -34,6 +34,29 @@ enum SheetTricksType
   SHEET_TRICKS_CLAIM,
 };
 
+enum SheetPlayType
+{
+  SHEET_PLAY_OK,
+  SHEET_PLAY_OPEN,
+  SHEET_PLAY_BAD,
+  SHEET_PLAY_SIZE
+};
+
+const vector<string> SheetPlayNames =
+{
+  "OK",
+  "?",
+  "BAD"
+};
+
+struct SheetPlayDistance
+{
+  unsigned numTricks;
+  unsigned numCards;
+  unsigned goodTricks;
+  unsigned distance;
+};
+
 
 class SheetHand
 {
@@ -51,6 +74,7 @@ class SheetHand
       bool has;
     };
 
+
     Deal deal;
     bool hasDeal;
 
@@ -60,6 +84,8 @@ class SheetHand
 
     Play play;
     bool hasPlay;
+    bool playFlawed;
+    SheetPlayDistance playDistance;
 
     SheetContract contractHeader;
     SheetTricks tricksHeader;
@@ -71,7 +97,10 @@ class SheetHand
     vector<string> chats;
 
 
-    void fail() const;
+    void fail(const string& text) const;
+
+    void setPlayDistance(const string& plays);
+    void incrPlayDistance(const string& trick);
 
     void strToContract(
       const Contract& contract,
@@ -125,6 +154,12 @@ class SheetHand
     bool hasData() const;
 
     bool auctionIsFlawed() const;
+
+    bool playIsFlawed() const;
+
+    SheetPlayType playValidity() const;
+
+    const SheetPlayDistance& getPlayDistance() const;
 
     bool operator ==(const SheetHand& href) const;
     bool operator !=(const SheetHand& href) const;

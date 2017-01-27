@@ -39,6 +39,12 @@ void SheetHand::reset()
 
   play.reset();
   hasPlay = false;
+  playFlawed = false;
+
+  playDistance.numTricks = 0;
+  playDistance.numCards = 0;
+  playDistance.goodTricks = 0;
+  playDistance.distance = 0;
 
   contractHeader.has = false;
   tricksHeader.has = false;
@@ -172,6 +178,78 @@ void SheetHand::addChat(const string& text)
 }
 
 
+void SheetHand::incrPlayDistance(const string& trick)
+{
+  const unsigned l = trick.length();
+  if (l % 2 || l > 8)
+    SheetHand::fail("Bad trick: " + trick);
+
+  if (l == 0)
+    return;
+
+  const unsigned c = l >> 1;
+  const int ci = static_cast<int>(c);
+  vector<int> cards(4);
+  for (unsigned i = 0; i < c; i++)
+  {
+    cards[i] = static_cast<int>(deal.holdsCard(trick.substr(2*i, 2)));
+    if (cards[i] == BRIDGE_PLAYER_SIZE)
+      SheetHand::fail("Bad card in: " + trick);
+  }
+
+  unsigned distBest = c-1;
+  for (int startPos = 0; startPos < ci; startPos++)
+  {
+    const int start = cards[static_cast<unsigned>(startPos)];
+    unsigned dist = 0;
+    for (int i = 1; i < ci; i++)
+    {
+      const int pos = (startPos+i) % ci;
+      const int expectPlayer = (start+i) % BRIDGE_PLAYERS;
+      if (cards[static_cast<unsigned>(pos)] != expectPlayer)
+        dist++;
+    }
+
+    if (dist < distBest)
+      distBest = dist;
+  }
+
+  playDistance.numTricks++;
+  playDistance.numCards += c;
+  if (distBest == 0)
+    playDistance.goodTricks++;
+  playDistance.distance += distBest;
+}
+
+
+void SheetHand::setPlayDistance(const string& plays)
+{
+  vector<string> tricks(13);
+  tricks.clear();
+  tokenize(plays, tricks, ":");
+
+  for (unsigned t = 0; t < tricks.size(); t++)
+  {
+    toUpper(tricks[t]);
+    SheetHand::incrPlayDistance(tricks[t]);
+  }
+}
+
+
+void SheetHand::fail(const string& text) const
+{
+  // Ugly way to fail.
+  try
+  {
+    THROW(text);
+  }
+  catch (Bexcept& bex)
+  {
+    bex.print(cout);
+  }
+}
+
+
 void SheetHand::finishHand(
   const string& ct,
   const string& plays,
@@ -183,15 +261,7 @@ void SheetHand::finishHand(
   Contract contractHdr;
   if (ct == "")
   {
-    // Ugly way to fail.
-    try
-    {
-      THROW("Bad board");
-    }
-    catch (Bexcept& bex)
-    {
-      bex.print(cout);
-    }
+    SheetHand::fail("Bad board");
   }
   else
   {
@@ -241,15 +311,21 @@ void SheetHand::finishHand(
     {
       play.setPlays(plays, BRIDGE_FORMAT_RBN);
       hasPlay = true;
+      playDistance.numTricks = play.getTricks();
+      playDistance.goodTricks = tricksPlay.value;
+      playDistance.numCards = numPlays;
       if (play.isOver())
       {
-        tricksPlay.value = play.getTricks();
+        tricksPlay.value = playDistance.numTricks;
         tricksPlay.has = true;
       }
     }
     catch (Bexcept& bex)
     {
-      bex.print(cout);
+      playFlawed = true;
+      SheetHand::setPlayDistance(plays);
+      UNUSED(bex);
+      // bex.print(cout);
     }
   }
 }
@@ -291,6 +367,38 @@ bool SheetHand::hasData() const
 bool SheetHand::auctionIsFlawed() const
 {
   return auctionFlawed;
+}
+
+
+bool SheetHand::playIsFlawed() const
+{
+  return playFlawed;
+}
+
+
+SheetPlayType SheetHand::playValidity() const
+{
+  // Expected value if random is about 2 distance units per trick.
+  //
+  if (playDistance.numCards < 4)
+  {
+    return (playDistance.distance == 0 ? SHEET_PLAY_OPEN : SHEET_PLAY_BAD);
+  }
+  else if (playDistance.numCards < 8)
+  {
+    return (playDistance.distance <= 1 ? SHEET_PLAY_OPEN : SHEET_PLAY_BAD);
+  }
+  else
+  {
+    return (10 * playDistance.distance <= playDistance.numCards ? 
+      SHEET_PLAY_OK : SHEET_PLAY_BAD);
+  }
+}
+
+
+const SheetPlayDistance& SheetHand::getPlayDistance() const
+{
+  return playDistance;
 }
 
 

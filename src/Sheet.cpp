@@ -462,19 +462,111 @@ string Sheet::strLinks() const
 }
 
 
-string Sheet::str() const
+string Sheet::strHeader() const
 {
-  if (! hasFixed)
-    return "";
-
-  bool hasDiffs = false;
   stringstream ss;
   ss << headerOrig.headline << "\n\n";
 
   if (headerOrig.links.size() > 0)
     ss << strLinks();
+  
+  return ss.str();
+}
 
-  ss << setw(6) << "Board " << 
+
+string Sheet::strPlays() const
+{
+  stringstream ss;
+  ss << Sheet::strHeader();
+
+  ss << setw(6) << "Board " <<
+    setw(6) << "#tr" <<
+    setw(6) << "#good" <<
+    setw(6) << "#play" <<
+    setw(6) << "#bad" <<
+    setw(6) << "Grade" << "\n";
+
+  SheetPlayDistance cp;
+  cp.numTricks = 0;
+  cp.goodTricks = 0;
+  cp.numCards = 0;
+  cp.distance = 0;
+  vector<unsigned> cumVal(SHEET_PLAY_SIZE);
+
+  for (auto &ho: handsOrig)
+  {
+    const SheetPlayDistance& sp = ho.hand.getPlayDistance();
+    const SheetPlayType pv = ho.hand.playValidity();
+
+    ss << setw(5) << ho.label << " " << 
+      setw(6) << sp.numTricks <<
+      setw(6) << sp.goodTricks <<
+      setw(6) << sp.numCards <<
+      setw(6) << sp.distance <<
+      setw(6) << SheetPlayNames[pv] << "\n";
+
+    cp.numTricks += sp.numTricks;
+    cp.goodTricks += sp.goodTricks;
+    cp.numCards += sp.numCards;
+    cp.distance += sp.distance;
+
+    cumVal[pv]++;
+  }
+
+  const string dashes(36, '-');
+  ss << dashes << "\n";
+
+  SheetPlayType pv;
+  if (cumVal[SHEET_PLAY_OK] == 0 && cumVal[SHEET_PLAY_BAD] > 0)
+    pv = SHEET_PLAY_BAD;
+  else if (cumVal[SHEET_PLAY_OK] > 0 && cumVal[SHEET_PLAY_BAD] == 0)
+    pv = SHEET_PLAY_OK;
+  else if (cumVal[SHEET_PLAY_OK] > 5 * cumVal[SHEET_PLAY_BAD])
+    pv = SHEET_PLAY_OK;
+  else
+    pv = SHEET_PLAY_OPEN;
+
+  ss << setw(6) << "Sum" <<
+    setw(6) << cp.numTricks <<
+    setw(6) << cp.goodTricks <<
+    setw(6) << cp.numCards <<
+    setw(6) << cp.distance <<
+    setw(6) << SheetPlayNames[pv] << "\n";
+
+  if (pv == SHEET_PLAY_BAD)
+    ss << "\nSuggest skip\n";
+
+  ss << "\n";
+
+  return ss.str();
+}
+
+
+string Sheet::str() const
+{
+  stringstream ss;
+
+  bool hasFlaw = false;
+  for (auto &ho: handsOrig)
+  {
+    if (ho.hand.playIsFlawed())
+    {
+      hasFlaw = true;
+      break;
+    }
+  }
+  if (hasFlaw)
+    ss << Sheet::strPlays();
+
+  if (! hasFixed)
+    return ss.str();
+
+
+  bool hasDiffs = false;
+  if (! hasFlaw)
+    ss << Sheet::strHeader();
+
+  ss << setw(6) << "Board " <<
     setw(6) << "Chdr" <<
     setw(6) << "Thdr" <<
     setw(6) << "Cauct" <<
@@ -515,7 +607,7 @@ string Sheet::str() const
       }
     }
 
-    if (hasDiff || ho.hand.auctionIsFlawed())
+    if (hasDiff || ho.hand.auctionIsFlawed() || ho.hand.playIsFlawed())
     {
       hasDiffs = true;
       notes << "Board " << ho.label << "\n";

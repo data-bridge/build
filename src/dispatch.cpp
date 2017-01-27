@@ -427,6 +427,7 @@ try
     if (options.verboseIO)
       flog << "Input " << task.fileInput << endl;
 
+/*
     Group group;
     timers.start(BRIDGE_TIMER_READ, task.formatInput);
     bool b = dispatchRead(task, group, options, timers, flog);
@@ -482,6 +483,7 @@ try
       if (task.removeOutputFlag)
         remove(t.fileOutput.c_str());
     }
+*/
 
     if (options.fileDigest.setFlag || options.dirDigest.setFlag)
     {
