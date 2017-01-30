@@ -240,7 +240,14 @@ static bool isTitleBoards(
     if (i == 3 || i == 4)
       continue;
     if (listRef[i] != listOut[i])
-      return false;
+    {
+      if ((i == 6 || i == 8) && listRef[i] == "0" && listOut[i] == "")
+      {
+        // Permit.
+      }
+      else
+        return false;
+    }
   }
   return true;
 }

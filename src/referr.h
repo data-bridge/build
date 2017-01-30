@@ -46,6 +46,7 @@ enum RefErrorsType
 
   ERR_LIN_MD_FORMAT,
   ERR_LIN_MD_CONTENT,
+  ERR_LIN_MD_MISSING,
 
   ERR_LIN_SV_MISSING,
   ERR_LIN_SV_WRONG,
@@ -53,7 +54,11 @@ enum RefErrorsType
   ERR_LIN_MB_OVERLONG,
   ERR_LIN_MB_WRONG,
 
+  ERR_LIN_PC_ROTATED,
+
   ERR_LIN_MC_CLAIM_WRONG,
+
+  ERR_LIN_TOO_FLAWED,
 
   ERR_SIZE
 };
@@ -99,6 +104,10 @@ const vector<RefErrorBundle> RefErrors =
    "ERR_LIN_MD_CONTENT",
    "LIN md deal content"},
 
+  {ERR_LIN_MD_MISSING,
+   "ERR_LIN_MD_MISSING",
+   "LIN md deal missing"},
+
   {ERR_LIN_SV_MISSING,
    "ERR_LIN_SV_MISSING",
    "LIN sv missing"},
@@ -115,9 +124,17 @@ const vector<RefErrorBundle> RefErrors =
    "ERR_LIN_MB_WRONG",
    "LIN mb auction wrong"},
 
+  {ERR_LIN_PC_ROTATED,
+   "ERR_LIN_PC_ROTATED",
+   "LIN pc play rotated"},
+
   {ERR_LIN_MC_CLAIM_WRONG,
    "ERR_LIN_MC_CLAIM_WRONG",
    "LIN mc claim wrong"},
+
+  {ERR_LIN_TOO_FLAWED,
+   "ERR_LIN_TOO_FLAWED",
+   "LIN too flawed"},
 
   {ERR_SIZE,
    "ERR_SIZE",

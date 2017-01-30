@@ -1,20 +1,41 @@
-26.01.2017
+30.01.2017
 ----------
-Turn back temporary changes
+Zero-size skips are now almost all multi-pn/pw, and some also have
+multi-line comments.  So the next step is to change reader for this.
+
+refstats.pl: Are there unrecognized tags that don't get printed out?
+
+Have to look at tag counts, consistent for each type of LIN_ERR.
+Check #lines in .skip against actual line count.
+
+10606.sht has duplicate URLs -- why?
+
+Are there skipped lin files that contain the word "Suggest"? Look at.
+
+Get rid of as many skip files as possible.  Down to 1016 with size 0,
+of which 75 generate .sht files.  Look at each of these manually.
+In 23085.sht, how is it possible in c31 to have 3 tricks, 0 good,
+and yet 26 plays and 0 bad?
+
+In allskips, could write a script to delete .sht files that end on 
+"Suggest skip".  That should leave 147 files, of which 75 are the
+ones corresponding to 0 .skip file size.  Examine manually.
+
+Then we still have 1016 - 75 = 941 size-0 skip files that
+don't generate .sht files.  Probably a bunch of the other
+8364 skip files - 1016 = 7348 skip files also don't generate .sht
+files and yet have issues.  We need to determine those issues
+(or enough of them to eliminate all size-0 sht files).
+
+
+Turn back temporary changes (or on digest, skip input parsing):
 - Makefile
 - dispatch function
 
-The other 6000 skip files should be checked for plays.
-
-Are there skipped lin file that contain the word "Suggest"? Look at.
-
-Get rid of as many skip files as possible.  Down to 1016?
-
-Check #lines in .skip against actual line count.
-
+Clean up perl path and @INC
 
 Need exceptions to go into sheet str somehow, not end up
-in general output.
+in general output.  The -v 30 input should be clean in the end.
 
 - 30020 addPlay (Card D2 not held)
 - 30334 nextLIN (Bad LIN line)
@@ -30,8 +51,6 @@ never)?  E.g. 30502.sht o24
 
 ref line modification:
 - Expand referr.cpp: classify function
-
-Explain all skips.
 
 
 Sheet:

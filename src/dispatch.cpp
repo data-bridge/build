@@ -427,8 +427,12 @@ try
     if (options.verboseIO)
       flog << "Input " << task.fileInput << endl;
 
-/*
     Group group;
+
+    // TODO: Better dispatch description language.
+    if (options.fileDigest.setFlag || options.dirDigest.setFlag)
+      goto DIGEST;
+
     timers.start(BRIDGE_TIMER_READ, task.formatInput);
     bool b = dispatchRead(task, group, options, timers, flog);
     timers.stop(BRIDGE_TIMER_READ, task.formatInput);
@@ -483,8 +487,8 @@ try
       if (task.removeOutputFlag)
         remove(t.fileOutput.c_str());
     }
-*/
 
+    DIGEST:
     if (options.fileDigest.setFlag || options.dirDigest.setFlag)
     {
       if (options.verboseIO)

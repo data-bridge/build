@@ -111,12 +111,12 @@ sub read_error_codes
 
 sub log_entry
 {
-  my ($accum_ref, $seen_flag, $noLIN,
+  my ($file, $accum_ref, $seen_flag, $noLIN,
     $code, $count_tag, $count_qx, $count_board) = @_;
 
   if (! defined $codehash{$code})
   {
-    die "Undefined code: $code";
+    die "Undefined code in $file: $code";
   }
 
   my $i = $codehash{$code};
@@ -163,7 +163,7 @@ sub make_stats
       if ($wc =~ /^(\d+)/)
       {
         my $noLIN = $1;
-        log_entry($accum_rem_ref, $rem_seen{ERR_SIZE}, 
+        log_entry($file, $accum_rem_ref, $rem_seen{ERR_SIZE}, 
           $noLIN, "ERR_SIZE", 0, 0, 0);
         $rem_seen{ERR_SIZE} = 1;
       }
@@ -209,14 +209,14 @@ sub make_stats
             die "Bad entry: $e";
           }
           my ($tag, $c1, $c2, $c3) = ($1, $2, $3, $4);
-          log_entry($accum_expl_ref, $expl_seen{$tag}, 
+          log_entry($file, $accum_expl_ref, $expl_seen{$tag}, 
             $noLIN, $tag, $c1, $c2, $c3);
           $expl_seen{$tag} = 1;
         }
       }
       else
       {
-        log_entry($accum_rem_ref, $rem_seen{ERR_SIZE}, 
+        log_entry($file, $accum_rem_ref, $rem_seen{ERR_SIZE}, 
           $noLIN, "ERR_SIZE", 0, 0, 0);
         $rem_seen{ERR_SIZE} = 1;
       }

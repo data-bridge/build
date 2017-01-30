@@ -312,7 +312,7 @@ void SheetHand::finishHand(
       play.setPlays(plays, BRIDGE_FORMAT_RBN);
       hasPlay = true;
       playDistance.numTricks = play.getTricks();
-      playDistance.goodTricks = tricksPlay.value;
+      playDistance.goodTricks = playDistance.numTricks;
       playDistance.numCards = numPlays;
       if (play.isOver())
       {
