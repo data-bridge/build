@@ -320,7 +320,8 @@ static void collapseList(
   for (unsigned i = 0; i < 4; i++)
     out.push_back(in[i]);
 
-  for (unsigned i = 4; i < in.size(); i += 4)
+  const unsigned l = in.size();
+  for (unsigned i = 4; i+3 < l; i += 4)
   {
     if (in[i] != in[i-4] ||
         in[i+1] != in[i-3] ||
@@ -333,6 +334,10 @@ static void collapseList(
       out.push_back(in[i+3]);
     }
   }
+
+  // Stragglers.
+  for (unsigned i = (l & 0xfffc); i < l; i++)
+    out.push_back(in[i]);
 }
 
 
