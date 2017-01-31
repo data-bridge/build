@@ -457,16 +457,34 @@ void Segment::setPlayersList(
     if (format == BRIDGE_FORMAT_LIN_VG ||
         format == BRIDGE_FORMAT_LIN_RP)
     {
-      if (c+1 != 8*LINcount)
-        THROW("Wrong number of fields: " + 
-          STR(c+1) + " vs. "  + STR(8*LINcount));
-      
-      for (size_t b = 0; b < c; b += 8)
+      if (format ==  BRIDGE_FORMAT_LIN_VG &&
+          scoring.str(BRIDGE_FORMAT_LIN) == "P")
       {
-        for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
+        // Pairs.  Permit a trailing comma.
+        if (c+1 != 4*LINcount && (c != 4*LINcount || tokens[c] != ""))
+          THROW("Wrong number of fields");
+
+        for (size_t b = 0; b < c; b += 4)
         {
-          LINdata[b >> 3].players[0][(d+2) % 4] = tokens[b+d];
-          LINdata[b >> 3].players[1][(d+2) % 4] = tokens[b+d+4];
+          for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
+          {
+            LINdata[b >> 2].players[0][(d+2) % 4] = tokens[b+d];
+          }
+        }
+      }
+      else
+      {
+        if (c+1 != 8*LINcount)
+          THROW("Wrong number of fields: " + 
+            STR(c+1) + " vs. "  + STR(8*LINcount));
+      
+        for (size_t b = 0; b < c; b += 8)
+        {
+          for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
+          {
+            LINdata[b >> 3].players[0][(d+2) % 4] = tokens[b+d];
+            LINdata[b >> 3].players[1][(d+2) % 4] = tokens[b+d+4];
+          }
         }
       }
     }
@@ -557,17 +575,34 @@ void Segment::setPlayersHeader(
     THROW("Invalid format: " + STR(format));
 
   size_t c = countDelimiters(text, ",");
-  if (c != 7)
-    THROW("Bad number of fields");
-
-  vector<string> tokens(8);
-  tokens.clear();
-  tokenize(text, tokens, ",");
-
-  for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
+  if (format ==  BRIDGE_FORMAT_LIN_VG &&
+      scoring.str(BRIDGE_FORMAT_LIN) == "P")
   {
-    LINdata[0].players[0][(i+2) % 4] = tokens[i];
-    LINdata[0].players[1][(i+2) % 4] = tokens[i+4];
+    // TODO: Probably also need to accept 4 real, 4 empty fields.
+    if (c != 3)
+      THROW("Bad number of fields");
+
+    vector<string> tokens(4);
+    tokens.clear();
+    tokenize(text, tokens, ",");
+
+    for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
+      LINdata[0].players[0][(i+2) % 4] = tokens[i];
+  }
+  else
+  {
+    if (c != 7)
+      THROW("Bad number of fields");
+
+    vector<string> tokens(8);
+    tokens.clear();
+    tokenize(text, tokens, ",");
+
+    for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
+    {
+      LINdata[0].players[0][(i+2) % 4] = tokens[i];
+      LINdata[0].players[1][(i+2) % 4] = tokens[i+4];
+    }
   }
 }
 
@@ -583,17 +618,26 @@ void Segment::setScoresList(
     THROW("Invalid format: " + STR(format));
 
   size_t c = countDelimiters(text, ",");
-  if (c+1 != 2*LINcount)
-    THROW("Wrong number of fields");
-
-  vector<string> tokens(c+1);
-  tokens.clear();
-  tokenize(text, tokens, ",");
-
-  for (size_t b = 0, d = 0; b < c; b += 2, d++)
+  if (format ==  BRIDGE_FORMAT_LIN_VG &&
+      scoring.str(BRIDGE_FORMAT_LIN) == "P")
   {
-    LINdata[d].mp[0] = tokens[b];
-    LINdata[d].mp[1] = tokens[b+1];
+  }
+  else
+  {
+    vector<string> tokens(c+1);
+    tokens.clear();
+    tokenize(text, tokens, ",");
+
+    if (c+1 != 2*LINcount && (c != 2*LINcount || tokens[c] != ""))
+      THROW("Wrong number of fields: " + STR(c+1));
+
+    for (size_t b = 0, d = 0; b < c; b += 2, d++)
+    {
+      if (tokens[b] == "")
+        LINdata[d].mp[0] = "-" + tokens[b+1];
+      else
+        LINdata[d].mp[0] = tokens[b];
+    }
   }
 }
 
@@ -615,6 +659,9 @@ void Segment::setBoardsList(
   vector<string> tokens(c+1);
   tokens.clear();
   tokenize(text, tokens, ",");
+
+  if (c == LINcount && tokens[c] == "")
+    c--;
 
   if (c+1 != LINcount)
     THROW("Odd number of boards");
@@ -1039,15 +1086,34 @@ string Segment::strContracts(const Format format)
 }
 
 
+string Segment::strPlayersLIN()
+{
+  Board * refBoard = nullptr;
+  string st = "pw|";
+  for (auto &p: boards)
+  {
+    st += p.board.strPlayers(BRIDGE_FORMAT_LIN, refBoard);
+    if (refBoard == nullptr)
+      st += ",";
+    refBoard = &p.board;
+  }
+  st.pop_back();
+  return st + "|\n";
+}
+
+
 string Segment::strPlayers(const Format format) 
 {
   Board * board;
-  Board * refBoard = nullptr;
-  string st;
+  // Board * refBoard = nullptr;
+  // string st;
+  // TODO: Delete unused lines
 
   switch(format)
   {
     case BRIDGE_FORMAT_LIN:
+      return Segment::strPlayersLIN();
+      /*
       st = "pw|";
       for (auto &p: boards)
       {
@@ -1058,10 +1124,18 @@ string Segment::strPlayers(const Format format)
       }
       st.pop_back();
       return st + "|\n";
+      */
 
     case BRIDGE_FORMAT_LIN_VG:
-      board = Segment::getBoard(0);
-      return board->strPlayers(format);
+      if (scoring.str(BRIDGE_FORMAT_LIN) == "P")
+      {
+        return Segment::strPlayersLIN();
+      }
+      else
+      {
+        board = Segment::getBoard(0);
+        return board->strPlayers(format);
+      }
 
     case BRIDGE_FORMAT_LIN_RP:
       board = Segment::getBoard(0);

@@ -260,15 +260,15 @@ static string pruneCommas(
 {
   p = 0;
   const unsigned l = static_cast<unsigned>(text.length());
-  while (p+1 < l && text.substr(p, 2) == ",,")
-    p += 2;
+  while (p < l && text.at(p) == ',')
+    p++;
 
-  if (p+1 >= l)
+  if (p >= l)
     return "";
 
   q = l;
-  while (q >= 2 && text.substr(q-2, 2) == ",,")
-    q -= 2;
+  while (q >= 1 && text.at(q-1) == ',')
+    q--;
 
   // Trailing commas.
   if (q <= p)
@@ -313,6 +313,82 @@ static bool isContracts(
 }
 
 
+static void collapseList(
+  const vector<string>& in,
+  vector<string>& out)
+{
+  for (unsigned i = 0; i < 4; i++)
+    out.push_back(in[i]);
+
+  for (unsigned i = 4; i < in.size(); i += 4)
+  {
+    if (in[i] != in[i-4] ||
+        in[i+1] != in[i-3] ||
+        in[i+2] != in[i-2] ||
+        in[i+3] != in[i-1])
+    {
+      out.push_back(in[i]);
+      out.push_back(in[i+1]);
+      out.push_back(in[i+2]);
+      out.push_back(in[i+3]);
+    }
+  }
+}
+
+
+static bool isPlayersList(
+  const string& valueRef,
+  const string& valueOut)
+{
+  unsigned p, q;
+  const string refPruned = pruneCommas(valueRef, p, q);
+  if (refPruned == "")
+    return false;
+
+  if (valueOut == refPruned)
+    return true;
+
+  unsigned p1, q1;
+  const string outPruned = pruneCommas(valueOut, p1, q1);
+
+  if (outPruned == refPruned)
+    return true;
+
+  const int refCommas = count(refPruned.begin(), refPruned.end(), ',');
+  const int outCommas = count(outPruned.begin(), outPruned.end(), ',');
+
+  if (refCommas < 3 || outCommas < 3)
+    return false;
+
+  vector<string> refList(static_cast<unsigned>(refCommas+1));
+  vector<string> outList(static_cast<unsigned>(outCommas+1));
+  if (! LINtoList(refPruned, refList, refCommas))
+    return false;
+
+  if (! LINtoList(outPruned, outList, outCommas))
+    return false;
+
+  vector<string> refCollapsed;
+  vector<string> outCollapsed;
+
+  collapseList(refList, refCollapsed);
+  collapseList(outList, outCollapsed);
+
+  const unsigned lRef = refCollapsed.size();
+  const unsigned lOut = outCollapsed.size();
+  if (lRef != lOut)
+    return false;
+
+  for (unsigned i = 0; i < lRef; i++)
+  {
+    if (refCollapsed[i] != outCollapsed[i])
+      return false;
+  }
+
+  return true;
+}
+
+
 static bool isDifferentCase(
   const string& value1,
   const string& value2)
@@ -329,6 +405,8 @@ bool validateLIN(
   ValState& valState,
   ValProfile& prof)
 {
+  // TODO: Can write a function to streamline these calls.
+
   if (valState.dataRef.label == "an" &&
       valState.dataRef.value == "!" &&
       valState.dataOut.label == "mb")
@@ -343,7 +421,7 @@ bool validateLIN(
 
     prof.log(BRIDGE_VAL_LIN_EXCLAIM, valState);
   }
-  else if (valState.dataRef.label == "pn" &&
+  if (valState.dataRef.label == "pn" &&
       valState.dataOut.label == "st")
   {
     // Could be pn|...| embedded in qx|o1|, which we choose to
@@ -356,7 +434,44 @@ bool validateLIN(
 
     prof.log(BRIDGE_VAL_LIN_PN_EMBEDDED, valState);
   }
-  else if (valState.dataRef.label == "st" &&
+  if (valState.dataRef.label == "bn" &&
+      valState.dataOut.label == "qx")
+  {
+    if (! valState.bufferRef.next(valState.dataRef))
+      return false;
+
+    if (valState.dataRef.label != "qx" &&
+        valState.dataRef.label != "mp")
+      return false;
+
+    prof.log(BRIDGE_VAL_BOARDS_HEADER, valState);
+  }
+  if (valState.dataRef.label == "mp" &&
+      valState.dataOut.label == "qx")
+  {
+    if (! valState.bufferRef.next(valState.dataRef))
+      return false;
+
+    if (valState.dataRef.label != "qx" &&
+        valState.dataRef.label != "pn")
+      return false;
+
+    prof.log(BRIDGE_VAL_SCORES_HEADER, valState);
+  }
+  if (valState.dataRef.label == "pn" &&
+      valState.dataOut.label == "qx")
+  {
+    // Assume the global pw takes care of this.
+
+    if (! valState.bufferRef.next(valState.dataRef))
+      return false;
+
+    if (valState.dataRef.label != "qx")
+      return false;
+
+    prof.log(BRIDGE_VAL_LIN_PN_EMBEDDED, valState);
+  }
+  if (valState.dataRef.label == "st" &&
       valState.dataOut.label == "mb")
   {
     if (! valState.bufferRef.next(valState.dataRef))
@@ -367,7 +482,7 @@ bool validateLIN(
 
     prof.log(BRIDGE_VAL_LIN_PN_EMBEDDED, valState);
   }
-  else if (valState.dataRef.label == "md" &&
+  if (valState.dataRef.label == "md" &&
       valState.dataOut.label == "st")
   {
     // Could be missing st before md in ref.
@@ -379,7 +494,7 @@ bool validateLIN(
 
     prof.log(BRIDGE_VAL_LIN_ST_MISSING, valState);
   }
-  else if (valState.dataRef.label == "mb" &&
+  if (valState.dataRef.label == "mb" &&
       valState.dataOut.label == "sv")
   {
     if (! valState.bufferOut.next(valState.dataOut))
@@ -390,7 +505,7 @@ bool validateLIN(
 
     prof.log(BRIDGE_VAL_LIN_SV_MISSING, valState);
   }
-  else if (valState.dataRef.label == "qx" &&
+  if (valState.dataRef.label == "qx" &&
       valState.dataOut.label == "sv")
   {
     if (! valState.bufferOut.next(valState.dataOut))
@@ -409,6 +524,16 @@ bool validateLIN(
       if (isTitleBoards(valState.dataRef.value, valState.dataOut.value))
       {
         prof.log(BRIDGE_VAL_BOARDS_HEADER, valState);
+        return true;
+      }
+      else
+        return false;
+    }
+    else if (valState.dataRef.label == "pw")
+    {
+      if (isPlayersList(valState.dataRef.value, valState.dataOut.value))
+      {
+        prof.log(BRIDGE_VAL_PLAYERS_HEADER, valState);
         return true;
       }
       else
