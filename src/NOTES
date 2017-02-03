@@ -1,7 +1,18 @@
-30.01.2017
+31.01.2017
 ----------
 Zero-size skips are now almost all multi-pn/pw, and some also have
 multi-line comments.  So the next step is to change reader for this.
+
+Rough break-down of skips:
+- 844 LIN files
+- 177 "Bad LIN" lines (probably multi-line comments)
+- 457 "already set"
+- 163 "number of fields"
+-  40 "number of results"
+-  30 others, it seems
+
+Somehow 109 files make it through to ==, 106 of these fail.
+
 
 refstats.pl: Are there unrecognized tags that don't get printed out?
 
