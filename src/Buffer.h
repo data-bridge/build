@@ -51,6 +51,8 @@ class Buffer
 
     unsigned getInternalNumber(const unsigned no) const;
 
+    bool extendLINValue(LineData& vside);
+    void advanceLINPast(size_t pos);
     bool nextLIN(
       LineData& vside,
       const bool skipChat = true);

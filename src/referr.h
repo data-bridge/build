@@ -58,6 +58,8 @@ enum RefErrorsType
 
   ERR_LIN_MC_CLAIM_WRONG,
 
+  ERR_LIN_SYNTAX_ERROR,
+
   ERR_LIN_TOO_FLAWED,
 
   ERR_SIZE
@@ -131,6 +133,10 @@ const vector<RefErrorBundle> RefErrors =
   {ERR_LIN_MC_CLAIM_WRONG,
    "ERR_LIN_MC_CLAIM_WRONG",
    "LIN mc claim wrong"},
+
+  {ERR_LIN_SYNTAX_ERROR,
+   "ERR_LIN_SYNTAX_ERROR",
+   "LIN syntax error"},
 
   {ERR_LIN_TOO_FLAWED,
    "ERR_LIN_TOO_FLAWED",

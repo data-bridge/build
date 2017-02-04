@@ -462,7 +462,8 @@ void Segment::setPlayersList(
       {
         // Pairs.  Permit a trailing comma.
         if (c+1 != 4*LINcount && (c != 4*LINcount || tokens[c] != ""))
-          THROW("Wrong number of fields");
+          THROW("Wrong number of fields: " + STR(c) + " vs. " + 
+            " 4*LINcount " + STR(4*LINcount));
 
         for (size_t b = 0; b < c; b += 4)
         {

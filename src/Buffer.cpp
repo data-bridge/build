@@ -391,6 +391,40 @@ bool Buffer::advance()
 }
 
 
+void Buffer::advanceLINPast(const size_t pos)
+{
+  if (pos+1 >= lines[current].len)
+  {
+    current++;
+    posLIN = 0;
+  }
+  else
+    posLIN = static_cast<unsigned>(pos)+1;
+}
+
+
+bool Buffer::extendLINValue(LineData& vside)
+{
+  bool endFlag = false;
+  while (current < len-1)
+  {
+    current++;
+    size_t e = lines[current].line.find('|');
+    if (e == string::npos)
+      vside.value += lines[current].line;
+    else
+    {
+      endFlag = true;
+      if (e > 0)
+        vside.value += lines[current].line.substr(0, e);
+      Buffer::advanceLINPast(e);
+      break;
+    }
+  }
+  return endFlag;
+}
+
+
 bool Buffer::nextLIN(
   LineData& vside,
   const bool skipChat)
@@ -404,47 +438,72 @@ bool Buffer::nextLIN(
     return false;
 
   size_t e = lines[current].line.find('|', posLIN);
+  if (e == string::npos &&
+      current == len-1 && 
+      (vside.label == "pg" ||
+     (vside.label == "nt" && skipChat)))
+  {
+    return false;
+  }
+
   if (e != posLIN+2 || e == string::npos)
-    THROW("Bad LIN line: " + lines[current].line + ", " + STR(current));
+  {
+    THROW("Bad LIN line: " + lines[current].line + 
+      ", " + STR(current));
+  }
 
   vside.label = lines[current].line.substr(posLIN, 2);
   vside.no = lines[current].no;
 
   posLIN += 3;
   if (posLIN >= lines[current].len)
-    THROW("Bad LIN line: " + lines[current].line + ", " + STR(current));
+  {
+    if (vside.label != "nt" || current == len-1)
+    {
+      THROW("Bad LIN line: " + lines[current].line + 
+        ", " + STR(current));
+    }
+    else
+    {
+      // Could be a continuation of nt| on the next line.
+      current++;
+      posLIN = 0;
+    }
+  }
 
   e = lines[current].line.find('|', posLIN);
-  if (e == string::npos)
-    THROW("Bad LIN line: " + lines[current].line + ", " + STR(current));
+  if (e == posLIN)
+  {
+    vside.value = "";
+    Buffer::advanceLINPast(e);
+  }
+  else if (e != string::npos)
+  {
+    vside.value = lines[current].line.substr(posLIN, e-posLIN);
+    Buffer::advanceLINPast(e);
+  }
+  else
+  {
+    // Could be an untermininated tag.
+    vside.value = lines[current].line.substr(posLIN);
+    if (! Buffer::extendLINValue(vside))
+      THROW("Bad LIN line: " + lines[current].line + 
+        ", " + STR(current));
+  }
 
   vside.type = BRIDGE_BUFFER_STRUCTURED;
-
-  if (e == posLIN)
-    vside.value = "";
-  else
-    vside.value = lines[current].line.substr(posLIN, e-posLIN);
-
   vside.line = vside.label + "|" + vside.value + "|";
   vside.len = 4 + static_cast<unsigned>(vside.value.length());
 
-  if (e == lines[current].len-1)
-  {
-    current++;
-    posLIN = 0;
-  }
-  else
-    posLIN = static_cast<unsigned>(e)+1;
-
-  // Skip over nt, pg and ob (bidding in other room).
-  // Don't quite know what sa is.
-  if ((skipChat && vside.label == "nt") || 
-      vside.label == "pg" || 
-      vside.label == "ob" || 
-      vside.label == "sa" ||
-      vside.label == "mn" || 
-      vside.label == "em" ||
-      vside.label == "bt" ||
+  // Skip over various labels. 
+  if ((skipChat && vside.label == "nt") || // Chat
+      vside.label == "pg" || // "Page"
+      vside.label == "ob" || // Bidding in other room
+      vside.label == "sa" || // ?
+      vside.label == "mn" || // An older header term
+      vside.label == "em" || // ?
+      vside.label == "bt" || // ?
+      vside.label == "tu" || // ?
       (vside.label == "mb" && vside.value == "-"))
     return Buffer::nextLIN(vside, skipChat);
   else

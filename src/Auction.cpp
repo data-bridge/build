@@ -1197,6 +1197,9 @@ string Auction::strVul(const Format format) const
     case BRIDGE_FORMAT_EML:
     case BRIDGE_FORMAT_REC:
       return "Vul: " + VUL_NAMES_TXT[vul];
+
+    case BRIDGE_FORMAT_PAR:
+      return VUL_NAMES_LIN[vul];
     
     default:
       THROW("Invalid format: " + STR(format));

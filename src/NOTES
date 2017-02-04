@@ -5,13 +5,14 @@ multi-line comments.  So the next step is to change reader for this.
 
 Rough break-down of skips:
 - 844 LIN files
-- 177 "Bad LIN" lines (probably multi-line comments)
-- 457 "already set"
-- 163 "number of fields"
--  40 "number of results"
--  30 others, it seems
+- 133 "Label already set"
+- 644 "number of fields"
+    638 line 465
+      8 line 583
+-  16 "Illegal LIN label" (ht)
+-     others
 
-Somehow 109 files make it through to ==, 106 of these fail.
+Somehow 591 files make it through to ==, 588 of these fail.
 
 
 refstats.pl: Are there unrecognized tags that don't get printed out?

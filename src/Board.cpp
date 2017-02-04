@@ -236,6 +236,15 @@ void Board::setAuction(
 }
 
 
+bool Board::hasDealerVul() const
+{
+  if (len == 0)
+    return false;
+  else
+    return auction[0].hasDealerVul();
+}
+
+
 bool Board::auctionIsOver() const
 {
   return auction[numActive].isOver();

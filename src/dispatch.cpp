@@ -819,8 +819,15 @@ static bool storeChunk(
     // Guess dealer and vul from the board number.
     if (chunk[BRIDGE_FORMAT_BOARD_NO] == "")
       guessDealerAndVul(chunk, segment->getActiveExtBoardNo(), format);
+    else if (format == BRIDGE_FORMAT_LIN_VG &&
+        board->hasDealerVul())
+    {
+      chunk[BRIDGE_FORMAT_VULNERABLE] = board->strVul(BRIDGE_FORMAT_PAR);
+    }
     else
+    {
       guessDealerAndVul(chunk, chunk[BRIDGE_FORMAT_BOARD_NO], format);
+    }
   }
 
   unsigned i;

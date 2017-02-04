@@ -119,6 +119,8 @@ class Board
 
     bool auctionIsEmpty() const;
 
+    bool hasDealerVul() const;
+
     bool auctionIsOver() const;
 
     bool isPassedOut() const;
