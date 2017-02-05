@@ -7,14 +7,18 @@ Write detector of multi-line .ref fixes.
 
 Rough break-down of skips:
 - 844 LIN files
-- 133 "Label already set"
+-  27 "Label already set"
 -   4 "Bad number of results"
 -  11 "Wrong number of fields"
--   2 "Illegal LIN label" (ht)
--   4 "Illegal call" (ht)
+-   4 "Illegal call" (dashes on long-bid auction in fileLIN)
+-   4 "is over"
+-   2 "too low"
 -     others
 
-676 comparisons, all good
+785 validations, 65 Osht, 10 Rsht
+785 comparisons, 5 bad
+
+7638.lin has absurd trick numbers.  How to detect?
 
 refstats.pl: Are there unrecognized tags that don't get printed out?
 

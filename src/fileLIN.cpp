@@ -150,6 +150,16 @@ void readLINChunk(
         chunk[labelNo] += value;
       else if (chunk[labelNo] == "")
         chunk[labelNo] = value;
+      else if (labelNo == BRIDGE_FORMAT_PLAYERS_HEADER)
+      {
+        if (value.length() < chunk[labelNo].length() &&
+          chunk[labelNo].substr(0, value.length()) == value)
+        {
+          // Ignore.
+        }
+        else
+          THROW("Label already set in line '" + lineData.line + "'");
+      }
       else
         THROW("Label already set in line '" + lineData.line + "'");
 

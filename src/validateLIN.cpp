@@ -313,6 +313,26 @@ static bool isContracts(
 }
 
 
+static bool isBoard(
+  const string& valueRef,
+  const string& valueOut)
+{
+  if (valueRef == valueOut)
+    return true;
+
+  const unsigned lr = valueRef.length();
+  const unsigned lo = valueOut.length();
+
+  if (lo+8 > lr || valueRef.substr(0, lo) != valueOut)
+    return false;
+
+  if (valueRef.substr(lo, 7) != ",BOARD ")
+    return false;
+  else
+    return true;
+}
+
+
 static void collapseList(
   const vector<string>& in,
   vector<string>& out)
@@ -411,6 +431,7 @@ bool validateLIN(
   ValProfile& prof)
 {
   // TODO: Can write a function to streamline these calls.
+  // TODO: Error names not updated.
 
   if (valState.dataRef.label == "an" &&
       valState.dataRef.value == "!" &&
@@ -425,6 +446,17 @@ bool validateLIN(
       return false;
 
     prof.log(BRIDGE_VAL_LIN_EXCLAIM, valState);
+  }
+  if (valState.dataRef.label == "pf" &&
+      valState.dataOut.label == "vg")
+  {
+    if (! valState.bufferRef.next(valState.dataRef))
+      return false;
+
+    if (valState.dataRef.label != "vg")
+      return false;
+
+    prof.log(BRIDGE_VAL_BOARDS_HEADER, valState);
   }
   if (valState.dataRef.label == "pn" &&
       valState.dataOut.label == "st")
@@ -459,10 +491,50 @@ bool validateLIN(
       return false;
 
     if (valState.dataRef.label != "qx" &&
+        valState.dataRef.label != "bn" &&
         valState.dataRef.label != "pn")
       return false;
 
     prof.log(BRIDGE_VAL_SCORES_HEADER, valState);
+  }
+  if (valState.dataRef.label == "bn" &&
+      valState.dataOut.label == "qx")
+  {
+    // Duplicated on purpose.
+    if (! valState.bufferRef.next(valState.dataRef))
+      return false;
+
+    if (valState.dataRef.label != "qx" &&
+        valState.dataRef.label != "mp" &&
+        valState.dataRef.label != "pn")
+      return false;
+
+    prof.log(BRIDGE_VAL_BOARDS_HEADER, valState);
+  }
+  if (valState.dataRef.label == "mc" &&
+      valState.dataOut.label == "pn")
+  {
+    if (! valState.bufferOut.next(valState.dataOut))
+      return false;
+
+    if (valState.dataOut.label != "qx")
+      return false;
+
+    prof.log(BRIDGE_VAL_LIN_PN_EMBEDDED, valState);
+  }
+  if (valState.dataRef.label == "mc" &&
+      valState.dataOut.label == "qx")
+  {
+    // Assume the global pw takes care of this.
+
+    if (! valState.bufferRef.next(valState.dataRef))
+      return false;
+
+    if (valState.dataRef.label != "qx" &&
+        valState.dataRef.label != "pn")
+      return false;
+
+    prof.log(BRIDGE_VAL_LIN_PN_EMBEDDED, valState);
   }
   if (valState.dataRef.label == "pn" &&
       valState.dataOut.label == "qx")
@@ -472,7 +544,32 @@ bool validateLIN(
     if (! valState.bufferRef.next(valState.dataRef))
       return false;
 
-    if (valState.dataRef.label != "qx")
+    if (valState.dataRef.label != "qx" &&
+        valState.dataRef.label != "mp")
+      return false;
+
+    prof.log(BRIDGE_VAL_LIN_PN_EMBEDDED, valState);
+  }
+  if (valState.dataRef.label == "rh" &&
+      valState.dataOut.label == "st")
+  {
+    if (! valState.bufferRef.next(valState.dataRef))
+      return false;
+
+    if (valState.dataRef.label != "ah" &&
+        valState.dataRef.label != "st")
+      return false;
+
+    prof.log(BRIDGE_VAL_LIN_PN_EMBEDDED, valState);
+  }
+  if (valState.dataRef.label == "ah" &&
+      valState.dataOut.label == "st")
+  {
+    if (! valState.bufferRef.next(valState.dataRef))
+      return false;
+
+    if (valState.dataRef.label != "st" &&
+        valState.dataRef.label != "md")
       return false;
 
     prof.log(BRIDGE_VAL_LIN_PN_EMBEDDED, valState);
@@ -522,6 +619,18 @@ bool validateLIN(
 
     prof.log(BRIDGE_VAL_LIN_SV_MISSING, valState);
   }
+  if (valState.dataRef.label == "mp" &&
+      valState.dataOut.label == "qx")
+  {
+    // Duplicated on purpose.  For now.
+    if (! valState.bufferRef.next(valState.dataRef))
+      return false;
+
+    if (valState.dataRef.label != "qx")
+      return false;
+
+    prof.log(BRIDGE_VAL_SCORES_HEADER, valState);
+  }
 
   if (valState.dataRef.label == valState.dataOut.label)
   {
@@ -550,6 +659,16 @@ bool validateLIN(
       if (isContracts(valState.dataRef.value, valState.dataOut.value))
       {
         prof.log(BRIDGE_VAL_BOARDS_HEADER, valState);
+        return true;
+      }
+      else
+        return false;
+    }
+    else if (valState.dataRef.label == "qx")
+    {
+      if (isBoard(valState.dataRef.value, valState.dataOut.value))
+      {
+        // Should we log for completeness?
         return true;
       }
       else

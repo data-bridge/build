@@ -36,6 +36,7 @@ enum RefErrorsType
 {
   ERR_LIN_RS_CONTRACT_MISSING,
   ERR_LIN_RS_CONTRACT_WRONG,
+  ERR_LIN_RS_RESULT_WRONG,
 
   ERR_LIN_PN_PLAYERS_UNKNOWN,
   ERR_LIN_PN_PLAYERS_WRONG,
@@ -55,6 +56,7 @@ enum RefErrorsType
   ERR_LIN_MB_WRONG,
 
   ERR_LIN_PC_ROTATED,
+  ERR_LIN_PC_WRONG,
 
   ERR_LIN_MC_CLAIM_WRONG,
 
@@ -81,6 +83,10 @@ const vector<RefErrorBundle> RefErrors =
   {ERR_LIN_RS_CONTRACT_WRONG,
    "ERR_LIN_RS_CONTRACT_WRONG",
    "LIN rs wrong contract"},
+
+  {ERR_LIN_RS_RESULT_WRONG,
+   "ERR_LIN_RS_RESULT_WRONG",
+   "LIN rs wrong result"},
 
   {ERR_LIN_PN_PLAYERS_UNKNOWN,
    "ERR_LIN_PN_PLAYERS_UNKNOWN",
@@ -129,6 +135,10 @@ const vector<RefErrorBundle> RefErrors =
   {ERR_LIN_PC_ROTATED,
    "ERR_LIN_PC_ROTATED",
    "LIN pc play rotated"},
+
+  {ERR_LIN_PC_WRONG,
+   "ERR_LIN_PC_WRONG",
+   "LIN pc play wrong"},
 
   {ERR_LIN_MC_CLAIM_WRONG,
    "ERR_LIN_MC_CLAIM_WRONG",
