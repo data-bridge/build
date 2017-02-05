@@ -700,7 +700,7 @@ static void str2board(
 
 
 static void chunkLIN2range(
-  const vector<string>& chunk,
+  vector<string>& chunk,
   Counts& counts)
 {
   const string title = chunk[BRIDGE_FORMAT_TITLE];
@@ -726,16 +726,23 @@ static void chunkLIN2range(
   if (res == "")
     return;
 
-  unsigned commas = 
+  const unsigned commas = 
     static_cast<unsigned>(count(res.begin(), res.end(), ','));
-  if (commas+1 != 2 * (counts.bExtmax - counts.bExtmin + 1))
+  const unsigned expected = 2 * (counts.bExtmax - counts.bExtmin + 1);
+  if (commas+1 != expected)
   {
-    if (commas == 2 * (counts.bExtmax - counts.bExtmin + 1))
+    if (commas == expected)
     {
       // Might have a stray trailing comma -- tolerate.
     }
+    else if (commas == expected || commas+2 == expected)
+    {
+      // Might also miss a comma -- tolerate.
+      chunk[BRIDGE_FORMAT_RESULTS_LIST] += ",";
+    }
     else
-      THROW("Bad number of results, commas " + STR(commas));
+      THROW("Bad number of results, commas " + STR(commas) +
+        " vs. " + STR(expected));
   }
 
   const unsigned l = static_cast<unsigned>(res.length());

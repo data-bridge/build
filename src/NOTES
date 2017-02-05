@@ -1,19 +1,20 @@
-31.01.2017
+05.02.2017
 ----------
 Zero-size skips are now almost all multi-pn/pw, and some also have
 multi-line comments.  So the next step is to change reader for this.
 
+Write detector of multi-line .ref fixes.
+
 Rough break-down of skips:
 - 844 LIN files
 - 133 "Label already set"
-- 644 "number of fields"
-    638 line 465
-      8 line 583
--  16 "Illegal LIN label" (ht)
+-   4 "Bad number of results"
+-  11 "Wrong number of fields"
+-   2 "Illegal LIN label" (ht)
+-   4 "Illegal call" (ht)
 -     others
 
-Somehow 591 files make it through to ==, 588 of these fail.
-
+676 comparisons, all good
 
 refstats.pl: Are there unrecognized tags that don't get printed out?
 

@@ -434,7 +434,8 @@ bool validateLIN(
     if (! valState.bufferRef.next(valState.dataRef))
       return false;
 
-    if (valState.dataRef.label != "st")
+    if (valState.dataRef.label != "st" &&
+        valState.dataRef.label != "md")
       return false;
 
     prof.log(BRIDGE_VAL_LIN_PN_EMBEDDED, valState);

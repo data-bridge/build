@@ -76,23 +76,53 @@ void Players::setLIN(
   const string& text,
   const bool hardFlag)
 {
-  int seen = static_cast<int>(count(text.begin(), text.end(), ','));
-  if (seen != 3 && seen != 7)
-    THROW("Names are not in LIN format: '" + text + "'");
-
+  const int seen = static_cast<int>(count(text.begin(), text.end(), ','));
   vector<string> v(static_cast<unsigned>(seen+1));
   v.clear();
   tokenize(text, v, ",");
 
-  unsigned start = (seen == 7 ? 4u : 0u);
-  if (hardFlag || v[start] != "")
+  if (seen != 3 && seen != 7)
+  {
+    unsigned s0;
+    if (seen > 7)
+      s0 = 8;
+    else if (seen > 3)
+      s0 = 4;
+    else
+      THROW("Names are not in LIN format: '" + text + "'");
+
+    // Allow trailing commas.
+    for (unsigned i = s0; i <= static_cast<unsigned>(seen); i++)
+    {
+      if (v[i] != "")
+        THROW("Names are not in LIN format: '" + text + "'");
+    }
+  }
+
+  const unsigned start = (seen == 7 ? 4u : 0u);
+  if (v[start] == "South" && v[start+1] == "West" &&
+       v[start+2] == "North" && v[start+3] == "East")
+  {
+    // Skip.
+  }
+  else if (hardFlag)
+  {
     players[BRIDGE_SOUTH] = v[start];
-  if (hardFlag || v[start+1] != "")
     players[BRIDGE_WEST] = v[start+1];
-  if (hardFlag || v[start+2] != "")
     players[BRIDGE_NORTH] = v[start+2];
-  if (hardFlag || v[start+3] != "")
     players[BRIDGE_EAST] = v[start+3];
+  }
+  else
+  {
+    if (v[start] != "")
+      players[BRIDGE_SOUTH] = v[start];
+    if (v[start+1] != "")
+      players[BRIDGE_WEST] = v[start+1];
+    if (v[start+2] != "")
+      players[BRIDGE_NORTH] = v[start+2];
+    if (v[start+3] != "")
+      players[BRIDGE_EAST] = v[start+3];
+  }
 }
 
 

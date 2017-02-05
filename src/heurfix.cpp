@@ -59,6 +59,13 @@ static void fixTricksContract(
     contractHeader.pop_back();
     contractHeader.pop_back();
   }
+  else if (contractHeader.at(l-3) == '-')
+  {
+    // Down a lot...
+    contractHeader.pop_back();
+    contractHeader.pop_back();
+    contractHeader.pop_back();
+  }
   else
     THROW("Malformed contract: " + contractHeader);
 

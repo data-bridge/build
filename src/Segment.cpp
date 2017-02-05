@@ -429,12 +429,15 @@ void Segment::setPlayersList(
     THROW("Invalid format: " + STR(format));
 
   size_t c = countDelimiters(text, ",");
+  vector<string> tokens(c+1);
+  tokens.clear();
+  tokenize(text, tokens, ",");
+
+  // TODO: Clean up, make functions for 4 and 8.
+
   if (c == 7)
   {
     // Assume a single set of 8 players repeating.
-    vector<string> tokens(c+1);
-    tokens.clear();
-    tokenize(text, tokens, ",");
 
     for (size_t b = 0; b < LINcount; b++)
     {
@@ -445,40 +448,21 @@ void Segment::setPlayersList(
       }
     }
   }
-  else
+  else if (format == BRIDGE_FORMAT_LIN_VG ||
+      format == BRIDGE_FORMAT_LIN_RP)
   {
-    // Assume all players are given.
-    // TODO: This should probably always be 8.
-
-    vector<string> tokens(c+1);
-    tokens.clear();
-    tokenize(text, tokens, ",");
-
-    if (format == BRIDGE_FORMAT_LIN_VG ||
-        format == BRIDGE_FORMAT_LIN_RP)
+    if (format ==  BRIDGE_FORMAT_LIN_VG &&
+        scoring.str(BRIDGE_FORMAT_LIN) == "P")
     {
-      if (format ==  BRIDGE_FORMAT_LIN_VG &&
-          scoring.str(BRIDGE_FORMAT_LIN) == "P")
+      // Errors in some early LIN_VG files.
+      if (c+2 == 8*LINcount)
       {
-        // Pairs.  Permit a trailing comma.
-        if (c+1 != 4*LINcount && (c != 4*LINcount || tokens[c] != ""))
-          THROW("Wrong number of fields: " + STR(c) + " vs. " + 
-            " 4*LINcount " + STR(4*LINcount));
-
-        for (size_t b = 0; b < c; b += 4)
-        {
-          for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
-          {
-            LINdata[b >> 2].players[0][(d+2) % 4] = tokens[b+d];
-          }
-        }
+        tokens.push_back("");
+        c++;
       }
-      else
+
+      if (c+1 == 8*LINcount)
       {
-        if (c+1 != 8*LINcount)
-          THROW("Wrong number of fields: " + 
-            STR(c+1) + " vs. "  + STR(8*LINcount));
-      
         for (size_t b = 0; b < c; b += 8)
         {
           for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
@@ -488,18 +472,59 @@ void Segment::setPlayersList(
           }
         }
       }
+      else if (c == 3)
+      {
+        // Assume a single set of 4 players repeating.
+        for (size_t b = 0; b < LINcount; b++)
+          for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
+            LINdata[b].players[0][(d+2) % 4] = tokens[d];
+      }
+      else
+      {
+        if (c+5 == 4*LINcount)
+        {
+          tokens.push_back("");
+          tokens.push_back("");
+          tokens.push_back("");
+          tokens.push_back("");
+          c += 4;
+        }
+
+        if (c+1 != 4*LINcount && (c != 4*LINcount || tokens[c] != ""))
+          THROW("Wrong number of fields: " + STR(c) + " vs. " + 
+            " 4*LINcount " + STR(4*LINcount));
+
+        for (size_t b = 0; b < c; b += 4)
+          for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
+            LINdata[b >> 2].players[0][(d+2) % 4] = tokens[b+d];
+      }
     }
     else
     {
-      if (c+1 != 4*LINcount)
-        THROW("Wrong number of fields");
-
-      for (size_t b = 0; b < c; b += 4)
+      if (c+1 != 8*LINcount)
+        THROW("Wrong number of fields: " + 
+          STR(c+1) + " vs. "  + STR(8*LINcount));
+    
+      for (size_t b = 0; b < c; b += 8)
       {
         for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
         {
-          LINdata[b >> 2].players[0][(d+2) % 4] = tokens[b+d];
+          LINdata[b >> 3].players[0][(d+2) % 4] = tokens[b+d];
+          LINdata[b >> 3].players[1][(d+2) % 4] = tokens[b+d+4];
         }
+      }
+    }
+  }
+  else
+  {
+    if (c+1 != 4*LINcount)
+      THROW("Wrong number of fields");
+
+    for (size_t b = 0; b < c; b += 4)
+    {
+      for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
+      {
+        LINdata[b >> 2].players[0][(d+2) % 4] = tokens[b+d];
       }
     }
   }
@@ -579,13 +604,22 @@ void Segment::setPlayersHeader(
   if (format ==  BRIDGE_FORMAT_LIN_VG &&
       scoring.str(BRIDGE_FORMAT_LIN) == "P")
   {
-    // TODO: Probably also need to accept 4 real, 4 empty fields.
-    if (c != 3)
-      THROW("Bad number of fields");
-
-    vector<string> tokens(4);
+    vector<string> tokens(c+1);
     tokens.clear();
     tokenize(text, tokens, ",");
+
+    // TODO: Probably also need to accept 4 real, 4 empty fields.
+    if (c > 3)
+    {
+      for (unsigned i = 4; i <= c; i++)
+      {
+        // Allow trailing commas.
+        if (tokens[i] != "")
+          THROW("Bad number of fields");
+      }
+    }
+    else if (c != 3)
+      THROW("Bad number of fields");
 
     for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
       LINdata[0].players[0][(i+2) % 4] = tokens[i];

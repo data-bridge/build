@@ -804,7 +804,11 @@ string Board::strPlayers(
   {
     case BRIDGE_FORMAT_LIN:
       for (unsigned i = 0; i < len; i++)
+      {
         st1 += Board::strPlayersDelta(refBoard, i, format);
+        if (i != len-1 && refBoard == nullptr)
+          st1 += ",";
+      }
       return st1;
 
     case BRIDGE_FORMAT_LIN_VG:

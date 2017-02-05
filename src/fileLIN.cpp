@@ -104,9 +104,17 @@ void readLINChunk(
     string label, value;
     while (nextLINPair(lineData.line, pos, label, value))
     {
-      // Artificial label to disambiguate.
-      if (label == "pn" && ! qxSeen)
-        label = "px";
+      if (label == "pn")
+      {
+        // Artificial label to disambiguate.
+        if (! qxSeen)
+          label = "px";
+        else if (chunk[BRIDGE_FORMAT_AUCTION] != "")
+        {
+          // Kludge to skip some late pn's.
+          continue;
+        }
+      }
 
       if (label == "an")
       {
