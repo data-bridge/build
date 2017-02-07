@@ -505,6 +505,7 @@ bool Buffer::nextLIN(
       vside.label == "at" || // ?
       vside.label == "bt" || // ?
       vside.label == "ht" || // ?
+      vside.label == "pa" || // ?
       vside.label == "tu" || // ?
       (vside.label == "mb" && vside.value == "-"))
     return Buffer::nextLIN(vside, skipChat);

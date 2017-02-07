@@ -481,13 +481,22 @@ void Segment::setPlayersList(
       }
       else
       {
-        if (c+5 == 4*LINcount)
+        if (c+5 == 4*LINcount || c+9 == 4*LINcount)
         {
-          tokens.push_back("");
-          tokens.push_back("");
-          tokens.push_back("");
-          tokens.push_back("");
-          c += 4;
+          const unsigned cnt = 4*LINcount-c-1;
+          for (unsigned i = 0; i < cnt; i++)
+            tokens.push_back("");
+          c += cnt;
+        }
+        else if (LINcount > 0 && c+1 > 4*LINcount)
+        {
+          for (unsigned i = 4*LINcount; i <= c; i++)
+          {
+            if (tokens[i] != "")
+              THROW("Wrong number of fields: " + STR(c) + " vs. " + 
+                " 4*LINcount " + STR(4*LINcount));
+          }
+          c = 4*LINcount-1;
         }
 
         if (c+1 != 4*LINcount && (c != 4*LINcount || tokens[c] != ""))
@@ -614,7 +623,8 @@ void Segment::setPlayersHeader(
       for (unsigned i = 4; i <= c; i++)
       {
         // Allow trailing commas.
-        if (tokens[i] != "")
+        if (tokens[i] != "" &&
+            tokens[i] != PLAYER_NAMES_LONG[PLAYER_LIN_TO_DDS[i % 4]])
           THROW("Bad number of fields");
       }
     }

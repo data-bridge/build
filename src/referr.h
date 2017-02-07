@@ -34,6 +34,8 @@ struct RefFix
 
 enum RefErrorsType
 {
+  ERR_LIN_VG_WRONG,
+
   ERR_LIN_RS_CONTRACT_MISSING,
   ERR_LIN_RS_CONTRACT_WRONG,
   ERR_LIN_RS_RESULT_WRONG,
@@ -42,6 +44,7 @@ enum RefErrorsType
   ERR_LIN_PN_PLAYERS_WRONG,
 
   ERR_LIN_QX_MISSING,
+  ERR_LIN_QX_WRONG,
 
   ERR_LIN_DISTS_WRONG,
 
@@ -76,6 +79,10 @@ struct RefErrorBundle
 
 const vector<RefErrorBundle> RefErrors =
 {
+  {ERR_LIN_VG_WRONG,
+   "ERR_LIN_VG_WRONG",
+   "LIN vg wrong"},
+
   {ERR_LIN_RS_CONTRACT_MISSING, 
    "ERR_LIN_RS_CONTRACT_MISSING",
    "LIN rs missing contract"},
@@ -99,6 +106,10 @@ const vector<RefErrorBundle> RefErrors =
   {ERR_LIN_QX_MISSING,
    "ERR_LIN_QX_MISSING",
    "LIN qx not present"},
+
+  {ERR_LIN_QX_WRONG,
+   "ERR_LIN_QX_WRONG",
+   "LIN qx wrong"},
 
   {ERR_LIN_DISTS_WRONG,
    "ERR_LIN_DISTS_WRONG",

@@ -741,8 +741,15 @@ static void chunkLIN2range(
       chunk[BRIDGE_FORMAT_RESULTS_LIST] += ",";
     }
     else
-      THROW("Bad number of results, commas " + STR(commas) +
-        " vs. " + STR(expected));
+    {
+      const unsigned delta = commas+1-expected;
+      if (commas <= expected ||
+          res.substr(res.length()-delta) != string(delta, ','))
+      {
+        THROW("Bad number of results, commas " + STR(commas) +
+          " vs. " + STR(expected));
+      }
+    }
   }
 
   const unsigned l = static_cast<unsigned>(res.length());

@@ -90,9 +90,13 @@ void toUpper(string& text);
 
 string basefile(const string& path);
 
-unsigned trimLeading(string& text);
+unsigned trimLeading(
+  string& text,
+  const char c = ' ');
 
-string trimTrailing(const string& str);
+string trimTrailing(
+  const string& str,
+  const char c = ' ');
 
 bool getNextWord(
   string& text,

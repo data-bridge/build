@@ -14,6 +14,7 @@
 #include "Segment.h"
 #include "Board.h"
 #include "fileLIN.h"
+#include "parse.h"
 #include "Bexcept.h"
 
 using namespace std;
@@ -147,15 +148,23 @@ void readLINChunk(
         chunk[labelNo] += value;
       }
       else if (labelNo == BRIDGE_FORMAT_AUCTION)
+      {
+        if (value.length() > 4)
+        {
+          trimLeading(value, '-');
+          value = trimTrailing(value, '-');
+        }
         chunk[labelNo] += value;
+      }
       else if (chunk[labelNo] == "")
         chunk[labelNo] = value;
       else if (labelNo == BRIDGE_FORMAT_PLAYERS_HEADER)
       {
+        value = trimTrailing(value, ',');
         if (value.length() < chunk[labelNo].length() &&
           chunk[labelNo].substr(0, value.length()) == value)
         {
-          // Ignore.
+          // Ignore if a substring.
         }
         else
           THROW("Label already set in line '" + lineData.line + "'");

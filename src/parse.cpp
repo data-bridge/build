@@ -502,11 +502,13 @@ void toUpper(
 }
 
 
-unsigned trimLeading(string& text)
+unsigned trimLeading(
+  string& text,
+  const char c)
 {
   const unsigned l = static_cast<unsigned>(text.length());
   unsigned pos = 0;
-  while (pos < l && text.at(pos) == ' ')
+  while (pos < l && text.at(pos) == c)
     pos++;
 
   if (pos > 0)
@@ -515,10 +517,12 @@ unsigned trimLeading(string& text)
 }
 
 
-string trimTrailing(const string& str)
+string trimTrailing(
+  const string& str,
+  const char c)
 {
   unsigned pos = static_cast<unsigned>(str.length());
-  while (pos >= 1 && str.at(pos-1) == ' ')
+  while (pos >= 1 && str.at(pos-1) == c)
     pos--;
 
   if (pos == 0)

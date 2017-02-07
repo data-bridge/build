@@ -96,7 +96,7 @@ void readRefFix(
     else if (s == "delete")
     {
       rf.type = BRIDGE_REF_DELETE;
-      if (! getNextWord(line, s))
+      if (! getNextWord(line, s) || s.at(0) == '{')
       {
         rf.count = 1;
         rf.partialFlag = false;
