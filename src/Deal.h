@@ -37,6 +37,11 @@ class Deal
       const unsigned offset,
       unsigned pholding[]);
 
+    void setHandAltVoidSyntax(
+      const string& hand,
+      const string& delimiters,
+      unsigned pholding[]);
+
     void setHands();
 
     void setLIN(const string& text);

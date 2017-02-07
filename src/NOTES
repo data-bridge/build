@@ -42,6 +42,8 @@ don't generate .sht files.  Probably a bunch of the other
 files and yet have issues.  We need to determine those issues
 (or enough of them to eliminate all size-0 sht files).
 
+Same players "at both tables", e.g. 494.lin?
+
 
 Turn back temporary changes (or on digest, skip input parsing):
 - Makefile

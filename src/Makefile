@@ -138,10 +138,10 @@ Segment.obj: Play.h ddsIF.h dll.h parse.h Bexcept.h Bdiff.h
 Session.obj: Session.h bconst.h parse.h Bdiff.h Bexcept.h
 Sheet.obj: Buffer.h valint.h bconst.h Segment.h Date.h Location.h Session.h
 Sheet.obj: Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h Players.h
-Sheet.obj: Auction.h Contract.h Play.h ddsIF.h dll.h Sheet.h referr.h parse.h
-Sheet.obj: Bexcept.h
+Sheet.obj: Auction.h Contract.h Play.h ddsIF.h dll.h Sheet.h SheetHand.h
+Sheet.obj: referr.h parse.h Bexcept.h Bdiff.h
 SheetHand.obj: SheetHand.h Contract.h bconst.h Deal.h Auction.h Play.h
-SheetHand.obj: ddsIF.h dll.h parse.h Bexcept.h
+SheetHand.obj: ddsIF.h dll.h parse.h Bexcept.h Bdiff.h
 StackWalker.obj: StackWalker.h
 Tableau.obj: Tableau.h bconst.h Contract.h parse.h Bexcept.h Bdiff.h
 Team.obj: Team.h bconst.h parse.h Bexcept.h Bdiff.h
@@ -160,7 +160,7 @@ dispatch.obj: Auction.h Contract.h Play.h ddsIF.h dll.h dispatch.h Files.h
 dispatch.obj: Timers.h Timer.h ValStats.h ValProfile.h validate.h Buffer.h
 dispatch.obj: valint.h TextStats.h CompStats.h heurfix.h fileLIN.h filePBN.h
 dispatch.obj: fileRBN.h fileTXT.h fileEML.h fileREC.h parse.h Sheet.h
-dispatch.obj: referr.h Bexcept.h Bdiff.h trace.h
+dispatch.obj: SheetHand.h referr.h Bexcept.h Bdiff.h trace.h
 fileEML.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 fileEML.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
 fileEML.obj: Contract.h Play.h ddsIF.h dll.h Canvas.h fileEML.h Buffer.h
@@ -180,7 +180,7 @@ fileTXT.obj: valint.h parse.h Bexcept.h
 fileLIN.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 fileLIN.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
 fileLIN.obj: Contract.h Play.h ddsIF.h dll.h fileLIN.h Buffer.h valint.h
-fileLIN.obj: Bexcept.h
+fileLIN.obj: parse.h Bexcept.h
 fileREC.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 fileREC.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
 fileREC.obj: Contract.h Play.h ddsIF.h dll.h Canvas.h fileREC.h Buffer.h

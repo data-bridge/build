@@ -154,6 +154,41 @@ void Deal::setHand(
 }
 
 
+void Deal::setHandAltVoidSyntax(
+  const string& hand,
+  const string& delimiters,
+  unsigned pholding[])
+{
+  // Some LIN files leave out a suit symbol name if void in that suit.
+  const unsigned l = delimiters.length();
+  for (unsigned s = 0; s < l; s++)
+  {
+    const size_t p0 = hand.find(delimiters.at(s));
+    if (p0 == string::npos || p0+1 == hand.length())
+    {
+      pholding[s] = suitToHolding("");
+      continue;
+    }
+
+    size_t p1 = string::npos;
+    for (unsigned t = s+1; t < l; t++)
+    {
+      const size_t ps = hand.find(delimiters.at(t));
+      if (ps < p1)
+      {
+        p1 = ps;
+        break;
+      }
+    }
+
+    if (p1 == string::npos)
+      pholding[s] = suitToHolding(hand.substr(p0+1));
+    else
+      pholding[s] = suitToHolding(hand.substr(p0+1, p1-p0-1));
+  }
+}
+
+
 void Deal::setHands()
 {
   for (unsigned s = 0; s < BRIDGE_SUITS; s++)
@@ -187,11 +222,15 @@ void Deal::setLIN(const string& text)
   
   for (unsigned plin = 0; plin <= 2; plin++)
   {
-    if (countDelimiters(tokens[plin], "SHDC") != 4)
-      THROW("Not 4 suits");
-
     const Player p = PLAYER_LIN_TO_DDS[plin];
-    Deal::setHand(tokens[plin], "SHDC", 1, holding[p]);
+    const unsigned numDelim = countDelimiters(tokens[plin], "SHDC");
+
+    if (numDelim > 4)
+      THROW("Too many suits");
+    else if (numDelim == 4)
+      Deal::setHand(tokens[plin], "SHDC", 1, holding[p]);
+    else
+      Deal::setHandAltVoidSyntax(tokens[plin], "SHDC", holding[p]);
 
     for (unsigned s = 0; s < BRIDGE_SUITS; s++)
       holding[PLAYER_LIN_TO_DDS[3]][s] ^= holding[p][s];
