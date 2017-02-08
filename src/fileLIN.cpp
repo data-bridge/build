@@ -110,7 +110,8 @@ void readLINChunk(
         // Artificial label to disambiguate.
         if (! qxSeen)
           label = "px";
-        else if (chunk[BRIDGE_FORMAT_AUCTION] != "")
+        else if (chunk[BRIDGE_FORMAT_AUCTION] != "" ||
+            chunk[BRIDGE_FORMAT_RESULT] != "")
         {
           // Kludge to skip some late pn's.
           continue;
@@ -165,6 +166,12 @@ void readLINChunk(
           chunk[labelNo].substr(0, value.length()) == value)
         {
           // Ignore if a substring.
+        }
+        else if (chunk[labelNo].length() < value.length() &&
+          value.substr(0, chunk[labelNo].length()) == chunk[labelNo])
+        {
+          // Swap if the other way round (very rare).
+          chunk[labelNo] = value;
         }
         else
           THROW("Label already set in line '" + lineData.line + "'");

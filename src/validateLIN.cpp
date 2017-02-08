@@ -380,6 +380,10 @@ static void despaceList(
       if (in[i] == "" && in[i+1] == "" && in[i+2] == "" && in[i+3] == "")
         continue;
 
+      if (in[i] == "South" && in[i+1] == "West" && 
+          in[i+2] == "North" && in[i+3] == "East")
+        continue;
+
       for (unsigned j = 0; j < 4; j++)
       {
         if (in[i+j] == "")
@@ -476,6 +480,31 @@ static bool isPlayersList(
 }
 
 
+static bool isCompactSequence(ValState& valState)
+{
+  string refSeq = valState.dataRef.value;
+  trimLeading(refSeq, '-');
+  refSeq = trimTrailing(refSeq, '-');
+  toUpper(refSeq);
+
+  if (! valState.bufferRef.next(valState.dataRef))
+    return false;
+
+  string refOut = valState.dataOut.value;
+  while (valState.bufferOut.next(valState.dataOut) &&
+      valState.dataOut.label == "mb")
+  {
+    refOut += valState.dataOut.value;
+  }
+
+  if (valState.bufferOut.peek() == 0x00)
+    return false;
+
+  toUpper(refOut);
+  return (refSeq == refOut);
+}
+
+
 static bool isDifferentCase(
   const string& value1,
   const string& value2)
@@ -541,6 +570,17 @@ bool validateLIN(
       return false;
 
     if (valState.dataRef.label != "mb")
+      return false;
+
+    prof.log(BRIDGE_VAL_LIN_PN_EMBEDDED, valState);
+  }
+  if (valState.dataRef.label == "pn" &&
+      valState.dataOut.label == "md")
+  {
+    if (! valState.bufferRef.next(valState.dataRef))
+      return false;
+
+    if (valState.dataRef.label != "md")
       return false;
 
     prof.log(BRIDGE_VAL_LIN_PN_EMBEDDED, valState);
@@ -717,7 +757,8 @@ bool validateLIN(
       else
         return false;
     }
-    else if (valState.dataRef.label == "pw")
+    else if (valState.dataRef.label == "pw" ||
+        valState.dataOut.label == "pn")
     {
       if (isPlayersList(valState.dataRef.value, valState.dataOut.value))
       {
@@ -758,7 +799,7 @@ bool validateLIN(
         prof.log(BRIDGE_VAL_VG_MD, valState);
         return true;
       }
-      else if ((lr == 54 || lr == 55) && 
+      else if ((lr == 54 || lr == 55 || (lr >= 69 && lr <= 72)) && 
           valState.dataOut.value.length() == 72)
       {
         Deal dealRef, dealOut;
@@ -810,49 +851,67 @@ bool validateLIN(
       const unsigned lr = valState.dataRef.len;
       const unsigned lo = valState.dataOut.len;
 
-      if (valState.dataRef.label == "mb" &&
-          (lr == 6 || lr == 7) &&
-          lo+1 == lr &&
-          valState.dataRef.value.at(lr-5) == '!')
+      if (valState.dataRef.label == "mb")
       {
-        // Output is already in upper case, as we made it.
-        string ur = valState.dataRef.value.substr(0, lr-5);
-        toUpper(ur);
-        if (ur != valState.dataOut.value)
-          return false;
+        if ((lr == 6 || lr == 7) &&
+            lo+1 == lr &&
+            valState.dataRef.value.at(lr-5) == '!')
+        {
+          // Output is already in upper case, as we made it.
+          string ur = valState.dataRef.value.substr(0, lr-5);
+          toUpper(ur);
+          if (ur != valState.dataOut.value)
+            return false;
 
-        // ref mb|2C!| vs out mb|2C|.
-        if (! valState.bufferRef.next(valState.dataRef))
-          return false;
-        if (! valState.bufferOut.next(valState.dataOut))
-          return false;
-        if (valState.dataRef.label != "an" ||
-            valState.dataOut.label != "an" ||
-            valState.dataRef.value != valState.dataOut.value)
-          return false;
+          // ref mb|2C!| vs out mb|2C|.
+          if (! valState.bufferRef.next(valState.dataRef))
+            return false;
+          if (! valState.bufferOut.next(valState.dataOut))
+            return false;
+          if (valState.dataRef.label != "an" ||
+              valState.dataOut.label != "an" ||
+              valState.dataRef.value != valState.dataOut.value)
+            return false;
 
-        prof.log(BRIDGE_VAL_LIN_EXCLAIM, valState);
-        return true;
-      }
-      else if (valState.dataRef.label == "mb" &&
-          lr+1 == lo &&
-          (lo == 6 || lo == 7) &&
-          valState.dataOut.value.at(lo-5) == '!')
-      {
-        string ur = valState.dataRef.value;
-        toUpper(ur);
-        if (valState.dataOut.value.substr(0, lo-5) != ur)
-          return false;
+          prof.log(BRIDGE_VAL_LIN_EXCLAIM, valState);
+          return true;
+        }
+        else if (lr+1 == lo &&
+            (lo == 6 || lo == 7) &&
+            valState.dataOut.value.at(lo-5) == '!')
+        {
+          string ur = valState.dataRef.value;
+          toUpper(ur);
+          if (valState.dataOut.value.substr(0, lo-5) != ur)
+            return false;
 
-        // ref mb|2C|an|!| vs out mb|2C!|
-        if (! valState.bufferRef.next(valState.dataRef))
-          return false;
-        if (valState.dataRef.label != "an" ||
-            valState.dataRef.value != "!")
-          return false;
+          // ref mb|2C|an|!| vs out mb|2C!|
+          if (! valState.bufferRef.next(valState.dataRef))
+            return false;
+          if (valState.dataRef.label != "an" ||
+              valState.dataRef.value != "!")
+            return false;
 
-        prof.log(BRIDGE_VAL_LIN_EXCLAIM, valState);
-        return true;
+          prof.log(BRIDGE_VAL_LIN_EXCLAIM, valState);
+          return true;
+        }
+        else if (lr > 8)
+        {
+          // Might be a single-entry bidding sequence.
+          if (isCompactSequence(valState))
+          {
+            prof.log(BRIDGE_VAL_LIN_EXCLAIM, valState);
+            if (valState.dataRef.label == valState.dataOut.label &&
+                valState.dataRef.value == valState.dataOut.value)
+              return true;
+            else
+              return false;
+          }
+          else
+            return false;
+        }
+        else
+          return false;
       }
       else
         return false;
@@ -893,5 +952,18 @@ bool validateLIN(
     return isDifferentCase(valState.dataRef.value,
       valState.dataOut.value);
     // Could maybe consider equality an error here, but only w.r.t. case
+}
+
+
+bool validateLINTrailingNoise(ValState& valState)
+{
+  // Accept a dangling st.
+  if (valState.dataRef.label != "st")
+    return false;
+
+  if (! valState.bufferRef.next(valState.dataRef))
+    return true;
+
+  return false;
 }
 

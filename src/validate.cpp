@@ -152,7 +152,15 @@ static bool validateCore(
     prof.log(BRIDGE_VAL_REF_SHORT, valState);
 
   if (valState.bufferRef.next(valState.dataRef))
+  {
+    if (formatRef == BRIDGE_FORMAT_LIN_VG &&
+        validateLINTrailingNoise(valState))
+    {
+      // Kludge: Accept.
+    }
+    else
     prof.log(BRIDGE_VAL_OUT_SHORT, valState);
+  }
 
   if (options.verboseValDetails)
     prof.print(cout);

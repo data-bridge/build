@@ -56,6 +56,7 @@ class Segment
 
     vector<LINData> LINdata;
     unsigned LINcount;
+    bool LINPlayersListFlag;
 
 
     void setTitleLIN(

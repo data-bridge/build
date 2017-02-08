@@ -22,4 +22,6 @@ bool validateLIN_RP(
   ValState& valState,
   ValProfile& prof);
 
+bool validateLINTrailingNoise(ValState& valState);
+
 #endif

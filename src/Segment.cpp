@@ -36,6 +36,7 @@ void Segment::reset()
   boards.clear();
   LINcount = 0;
   LINdata.clear();
+  LINPlayersListFlag = false;
 
   bmin = BIGNUM;
   bmax = 0;
@@ -471,6 +472,7 @@ void Segment::setPlayersList(
             LINdata[b >> 3].players[1][(d+2) % 4] = tokens[b+d+4];
           }
         }
+        LINPlayersListFlag = true;
       }
       else if (c == 3)
       {
@@ -506,6 +508,7 @@ void Segment::setPlayersList(
         for (size_t b = 0; b < c; b += 4)
           for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
             LINdata[b >> 2].players[0][(d+2) % 4] = tokens[b+d];
+        LINPlayersListFlag = true;
       }
     }
     else
@@ -520,6 +523,34 @@ void Segment::setPlayersList(
         {
           LINdata[b >> 3].players[0][(d+2) % 4] = tokens[b+d];
           LINdata[b >> 3].players[1][(d+2) % 4] = tokens[b+d+4];
+          LINPlayersListFlag = true;
+
+          if (tokens[b+d] == "")
+          {
+            // Search backwards for a non-empty entry.
+            for (unsigned e = b; e > 0; e -= 8)
+            {
+              if (tokens[e+d-8] != "")
+              {
+                LINdata[b >> 3].players[0][(d+2) % 4] = tokens[e+d-8];
+                break;
+              }
+            }
+          }
+
+          if (tokens[b+d+4] == "")
+          {
+            // Search backwards for a non-empty entry.
+            for (unsigned e = b; e > 0; e -= 8)
+            {
+              if (tokens[e+d-4] != "")
+              {
+                LINdata[b >> 3].players[0][(d+2) % 4] = tokens[e+d-4];
+                break;
+              }
+            }
+          }
+
         }
       }
     }
@@ -536,6 +567,7 @@ void Segment::setPlayersList(
         LINdata[b >> 2].players[0][(d+2) % 4] = tokens[b+d];
       }
     }
+    LINPlayersListFlag = true;
   }
 }
 
@@ -1172,7 +1204,9 @@ string Segment::strPlayers(const Format format)
       */
 
     case BRIDGE_FORMAT_LIN_VG:
-      if (scoring.str(BRIDGE_FORMAT_LIN) == "P")
+      if (scoring.str(BRIDGE_FORMAT_LIN) == "P" ||
+          scoring.str(BRIDGE_FORMAT_LIN) == "B" ||
+          LINPlayersListFlag)
       {
         return Segment::strPlayersLIN();
       }

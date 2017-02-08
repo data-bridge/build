@@ -1,13 +1,24 @@
-05.02.2017
+08.02.2017
 ----------
-Zero-size skips are now almost all multi-pn/pw, and some also have
-multi-line comments.  So the next step is to change reader for this.
+* run on all VGs
+* rewrite validateLIN with a function
+* rewrite Segment TODO with functions
+* move skips back to VG
+  - backup
+  - delete zero-size skips
+  - copy back .ref files
+* run on all VGs
+* run on RP and other files
+* run -D and refstats to get sheets
+* use perl to find rs\n errors (replace followed by delete)
+* use perl to find deletes of mc|n|pg||
+* in this way, eliminate lines from .ref files (backup first)
+* work to eliminate sheets
+* eliminate Exceptions in b??.txt
+* what is then left in .ref files?
+* automate check of ERR_LIN(a,b,c), different by error type
+* deal with .orig files
 
-Write detector of multi-line .ref fixes.
-
-844 skips, no Exceptions thrown
-844 validations, 12 Osht, 11 Rsht, 7 mc (22 total)
-844 comparisons, 6 bad
 
 7638.lin has absurd trick numbers.  How to detect?
 7832.lin has funny pn's embedded.
