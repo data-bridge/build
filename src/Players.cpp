@@ -271,7 +271,17 @@ bool Players::operator == (const Players& players2) const
 {
   for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
     if (players[p] != players2.players[p])
-      DIFF("Players differ");
+    {
+      if ((players[p] == "" && 
+          players2.players[p] == PLAYER_NAMES_LONG[p]) || 
+          (players[p] == PLAYER_NAMES_LONG[p] && 
+          players2.players[p] == ""))
+      {
+        // Accept.
+      }
+      else
+        DIFF("Players differ");
+    }
 
   if (roomVal != players2.roomVal)
     DIFF("Rooms differ");

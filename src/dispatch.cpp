@@ -838,7 +838,10 @@ static bool storeChunk(
     {
       chunk[BRIDGE_FORMAT_VULNERABLE] = board->strVul(BRIDGE_FORMAT_PAR);
     }
-    else
+    else if ((format != BRIDGE_FORMAT_LIN &&
+        format != BRIDGE_FORMAT_LIN_VG &&
+        format != BRIDGE_FORMAT_LIN_TRN) ||
+        chunk[BRIDGE_FORMAT_VULNERABLE] == "")
     {
       guessDealerAndVul(chunk, chunk[BRIDGE_FORMAT_BOARD_NO], format);
     }

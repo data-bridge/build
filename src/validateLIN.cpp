@@ -296,8 +296,8 @@ static bool isContracts(
   if (outPruned == refPruned)
     return true;
 
-  regex re("P,");
-  const string refPass = regex_replace(refPruned, re, string("PASS,"));
+  regex re("\\bP\\b");
+  const string refPass = regex_replace(refPruned, re, string("PASS"));
 
   if (outPruned == refPass)
     return true;
@@ -361,6 +361,42 @@ static void collapseList(
 }
 
 
+static void despaceList(
+  const vector<string>& in,
+  vector<string>& out)
+{
+  for (unsigned i = 0; i < 4; i++)
+    out.push_back(in[i]);
+  unsigned ol = 4;
+
+  const unsigned l = in.size();
+  for (unsigned i = 4; i+3 < l; i += 4)
+  {
+    if (in[i] != out[ol-4] ||
+        in[i+1] != out[ol-3] ||
+        in[i+2] != out[ol-2] ||
+        in[i+3] != out[ol-1])
+    {
+      if (in[i] == "" && in[i+1] == "" && in[i+2] == "" && in[i+3] == "")
+        continue;
+
+      for (unsigned j = 0; j < 4; j++)
+      {
+        if (in[i+j] == "")
+          out.push_back(out[ol+j-4]);
+        else
+          out.push_back(in[i+j]);
+      }
+      ol += 4;
+    }
+  }
+
+  // Stragglers.
+  for (unsigned i = (l & 0xfffc); i < l; i++)
+    out.push_back(in[i]);
+}
+
+
 static bool isPlayersList(
   const string& valueRef,
   const string& valueOut)
@@ -401,15 +437,41 @@ static bool isPlayersList(
 
   const unsigned lRef = refCollapsed.size();
   const unsigned lOut = outCollapsed.size();
-  if (lRef != lOut)
-    return false;
-
-  for (unsigned i = 0; i < lRef; i++)
+  if (lRef == lOut)
   {
-    if (refCollapsed[i] != outCollapsed[i])
-      return false;
+    for (unsigned i = 0; i < lRef; i++)
+    {
+      if (refCollapsed[i] != outCollapsed[i] &&
+          refCollapsed[i] != "" &&
+          outCollapsed[i] != "")
+        return false;
+    }
   }
 
+  vector<string> refDespaced;
+  vector<string> outDespaced;
+
+  despaceList(refCollapsed, refDespaced);
+  despaceList(outCollapsed, outDespaced);
+
+  const unsigned nRef = refDespaced.size();
+  const unsigned nOut = outDespaced.size();
+  if (nRef != nOut)
+    return false;
+
+  for (unsigned i = 0; i < nRef; i++)
+  {
+    if (refDespaced[i] != outDespaced[i])
+    {
+      for (unsigned j = 0; j < nRef; j++)
+      {
+        cout << j << ": ref " << refDespaced[j] << " out " <<
+          outDespaced[j] << "\n";
+      }
+      cout << "First diff: " << i << "\n";
+      return false;
+    }
+  }
   return true;
 }
 
@@ -468,6 +530,17 @@ bool validateLIN(
 
     if (valState.dataRef.label != "st" &&
         valState.dataRef.label != "md")
+      return false;
+
+    prof.log(BRIDGE_VAL_LIN_PN_EMBEDDED, valState);
+  }
+  if (valState.dataRef.label == "pn" &&
+      valState.dataOut.label == "mb")
+  {
+    if (! valState.bufferRef.next(valState.dataRef))
+      return false;
+
+    if (valState.dataRef.label != "mb")
       return false;
 
     prof.log(BRIDGE_VAL_LIN_PN_EMBEDDED, valState);

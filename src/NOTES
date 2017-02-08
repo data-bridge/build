@@ -5,15 +5,9 @@ multi-line comments.  So the next step is to change reader for this.
 
 Write detector of multi-line .ref fixes.
 
-Rough break-down of skips:
-- 844 LIN files
--   3 "Wrong number of fields"
--   2 "Vulnerability already"
--   1 "Player access"
--   1 "Not 4 suits"
-
-837 validations, 78 Osht, 10 Rsht, 6 mc (88 total)
-837 comparisons, 5 bad
+844 skips, no Exceptions thrown
+844 validations, 12 Osht, 11 Rsht, 7 mc (22 total)
+844 comparisons, 6 bad
 
 7638.lin has absurd trick numbers.  How to detect?
 7832.lin has funny pn's embedded.
