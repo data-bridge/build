@@ -365,12 +365,27 @@ static void despaceList(
   const vector<string>& in,
   vector<string>& out)
 {
-  for (unsigned i = 0; i < 4; i++)
-    out.push_back(in[i]);
-  unsigned ol = 4;
-
   const unsigned l = in.size();
-  for (unsigned i = 4; i+3 < l; i += 4)
+  unsigned start;
+  for (unsigned i = 0; i+3 < l; i += 4)
+  {
+    if (in[i] != "South" || in[i+1] != "West" || 
+        in[i+2] != "North" || in[i+3] != "East")
+    {
+      out.push_back(in[i]);
+      out.push_back(in[i+1]);
+      out.push_back(in[i+2]);
+      out.push_back(in[i+3]);
+      start = i+4;
+      break;
+    }
+  }
+
+  if (out.size() == 0)
+    return;
+
+  unsigned ol = 4;
+  for (unsigned i = start; i+3 < l; i += 4)
   {
     if (in[i] != out[ol-4] ||
         in[i+1] != out[ol-3] ||
@@ -743,6 +758,19 @@ bool validateLIN(
       return false;
 
     prof.log(BRIDGE_VAL_SCORES_HEADER, valState);
+  }
+
+  if (valState.dataRef.label == "pw" &&
+      valState.dataOut.label == "pn")
+  {
+    // Different syntax in a few old VG files.
+    if (valState.dataRef.len < valState.dataOut.len &&
+        valState.dataOut.value.substr(0, valState.dataRef.value.length()) ==
+        valState.dataRef.value)
+    {
+      prof.log(BRIDGE_VAL_LIN_PN_EMBEDDED, valState);
+      return true;
+    }
   }
 
   if (valState.dataRef.label == valState.dataOut.label)

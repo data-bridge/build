@@ -1179,6 +1179,21 @@ string Segment::strPlayersLIN()
 }
 
 
+bool Segment::playersAreUnique()
+{
+  Board * refBoard = nullptr;
+  string pprev, pnew = "";
+  for (auto &p: boards)
+  {
+    pprev = pnew;
+    pnew = p.board.strPlayers(BRIDGE_FORMAT_LIN_VG, refBoard);
+    if (refBoard != nullptr && pprev != pnew)
+      return false;
+  }
+  return true;
+}
+
+
 string Segment::strPlayers(const Format format) 
 {
   Board * board;
@@ -1204,9 +1219,10 @@ string Segment::strPlayers(const Format format)
       */
 
     case BRIDGE_FORMAT_LIN_VG:
-      if (scoring.str(BRIDGE_FORMAT_LIN) == "P" ||
-          scoring.str(BRIDGE_FORMAT_LIN) == "B" ||
-          LINPlayersListFlag)
+      if (LINPlayersListFlag ||
+          ((scoring.str(BRIDGE_FORMAT_LIN) == "P" ||
+          scoring.str(BRIDGE_FORMAT_LIN) == "B") &&
+          ! Segment::playersAreUnique()))
       {
         return Segment::strPlayersLIN();
       }

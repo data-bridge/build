@@ -1,6 +1,9 @@
 08.02.2017
 ----------
 * run on all VGs
+  - e.g. 46107 (P): Segment.cpp line 1207, should check that
+    more than one set of (eight) names
+
 * rewrite validateLIN with a function
 * rewrite Segment TODO with functions
 * move skips back to VG
@@ -22,6 +25,7 @@
 
 7638.lin has absurd trick numbers.  How to detect?
 7832.lin has funny pn's embedded.
+Detect hands with less than 4 players.
 
 refstats.pl: Are there unrecognized tags that don't get printed out?
 
