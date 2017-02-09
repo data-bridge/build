@@ -838,9 +838,7 @@ static bool storeChunk(
     {
       chunk[BRIDGE_FORMAT_VULNERABLE] = board->strVul(BRIDGE_FORMAT_PAR);
     }
-    else if ((chunk[BRIDGE_FORMAT_AUCTION] == "" &&
-        chunk[BRIDGE_FORMAT_VULNERABLE] == "") ||
-        (format != BRIDGE_FORMAT_LIN &&
+    else if ((format != BRIDGE_FORMAT_LIN &&
         format != BRIDGE_FORMAT_LIN_VG &&
         format != BRIDGE_FORMAT_LIN_TRN) ||
         chunk[BRIDGE_FORMAT_VULNERABLE] == "")

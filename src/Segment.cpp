@@ -650,7 +650,15 @@ void Segment::setPlayersHeader(
     tokenize(text, tokens, ",");
 
     // TODO: Probably also need to accept 4 real, 4 empty fields.
-    if (c > 3)
+    if (c == 7)
+    {
+      for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
+      {
+        LINdata[0].players[0][(i+2) % 4] = tokens[i];
+        LINdata[0].players[1][(i+2) % 4] = tokens[i+4];
+      }
+    }
+    else if (c > 3)
     {
       for (unsigned i = 4; i <= c; i++)
       {
