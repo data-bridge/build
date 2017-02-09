@@ -838,7 +838,9 @@ static bool storeChunk(
     {
       chunk[BRIDGE_FORMAT_VULNERABLE] = board->strVul(BRIDGE_FORMAT_PAR);
     }
-    else if ((format != BRIDGE_FORMAT_LIN &&
+    else if ((chunk[BRIDGE_FORMAT_AUCTION] == "" &&
+        chunk[BRIDGE_FORMAT_VULNERABLE] == "") ||
+        (format != BRIDGE_FORMAT_LIN &&
         format != BRIDGE_FORMAT_LIN_VG &&
         format != BRIDGE_FORMAT_LIN_TRN) ||
         chunk[BRIDGE_FORMAT_VULNERABLE] == "")
@@ -943,6 +945,17 @@ static bool fillBoards(
     {
       board = segment->acquireBoard(counts.bno);
       counts.bno++;
+    }
+
+    if (format == BRIDGE_FORMAT_LIN_VG &&
+        expectBoard.no == counts.curr.no)
+    {
+      chunkSynth[BRIDGE_FORMAT_VULNERABLE] = 
+        chunk[BRIDGE_FORMAT_VULNERABLE];
+      chunkSynth[BRIDGE_FORMAT_DEALER] = 
+        chunk[BRIDGE_FORMAT_DEALER];
+      chunkSynth[BRIDGE_FORMAT_DEAL] = 
+        chunk[BRIDGE_FORMAT_DEAL];
     }
 
     lastBoard = expectBoard;

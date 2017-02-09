@@ -451,7 +451,8 @@ void Contract::setDeclarer(const string& text)
 void Contract::setVul(const Vul v)
 {
   if (setVulFlag && vul != v)
-    THROW("Vulnerability already set differently");
+    THROW("Vulnerability already set differently: " +
+      VUL_NAMES_LIN[vul] + " vs. " + VUL_NAMES_LIN[v]);
 
   vul = v;
   setVulFlag = true;
