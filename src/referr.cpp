@@ -201,6 +201,12 @@ static bool deltaLINLists(
   // Get the tag corresponding to a difference in value.
   // i will be at the first tag for which a (tag, value) pair
   // is different.  j will be the last such tag.
+  if (i == lm)
+  {
+    // The lists are identical.  Treat as a problem for now.
+    return false;
+  }
+
   if (i & 1)
     i--;
   

@@ -4,6 +4,15 @@
 * rewrite Segment TODO with functions
 * run on all VGs
 
+Idea for rs:
+* new ref keywords "vreplace", "vinsert" and "vdelete"
+* 4 vreplace "rs 2 3NS+1" means first rs tag, pos 2 (starting from 0),
+  replace with
+* many v's possible for one rs line
+* each can have an ERR_LIN or not
+* script to turn current "x replace "rs..."" into deltas
+* without any ERR_LIN
+
 * eliminate Exceptions in b??.txt
 
 * use perl to find deletes of mc|n|pg||

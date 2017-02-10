@@ -44,6 +44,22 @@ void Teams::setPBN(
 }
 
 
+void Teams::setRBN4(const vector<string>& v)
+{
+  team1.setPair(v[0], v[2]);
+  team2.setPair(v[1], v[3]);
+
+  if (team1.carry == BRIDGE_CARRY_INT && 
+      team2.carry == BRIDGE_CARRY_INT &&
+      team1.carryi == 0 &&
+      team2.carryi == 0)
+  {
+    team1.carry = BRIDGE_CARRY_NONE;
+    team2.carry = BRIDGE_CARRY_NONE;
+  }
+}
+
+
 void Teams::setRBN(const string& text)
 {
   int seen = static_cast<int>(count(text.begin(), text.end(), ':'));
@@ -62,23 +78,47 @@ void Teams::setRBN(const string& text)
     v.clear();
     tokenize(text, v, ":");
 
-    string t1 = v[0] + ":" + v[2]; // A bit wasteful
-    string t2 = v[1] + ":" + v[3];
+    Teams::setRBN4(v);
+  }
+  else if (seen == 4)
+  {
+    // Not really supposed to happen, but we apply some heuristics.
+    vector<string> v(5), w(4);
+    v.clear();
+    tokenize(text, v, ":");
 
-    team1.set(t1, BRIDGE_FORMAT_PBN);
-    team2.set(t2, BRIDGE_FORMAT_PBN);
+    w[2] = v[3];
+    w[3] = v[4];
 
-    if (team1.carry == BRIDGE_CARRY_INT && 
-        team2.carry == BRIDGE_CARRY_INT &&
-        team1.carryi == 0 &&
-        team2.carryi == 0)
+    const unsigned l0 = v[0].length();
+    const unsigned l1 = v[1].length();
+    const unsigned l2 = v[2].length();
+    const char l0end = (l0 > 0 ? v[0].at(l0-1) : '$');
+    const char l1end = (l1 > 0 ? v[1].at(l1-1) : '$');
+
+    if (l0end == 'S' ||
+        l1end == ')' ||
+        (l1end == ' ' && v[2] != ")") ||
+        (l0 > 1 && v[0].substr(l0-2) == "St"))
     {
-      team1.carry = BRIDGE_CARRY_NONE;
-      team2.carry = BRIDGE_CARRY_NONE;
+      w[0] = v[0] + ":" + v[1];
+      w[1] = v[2];
     }
+    else if (l1end == 'S' ||
+        l0end == ')' ||
+        v[2] == ")" ||
+        (l1 > 1 && v[1].substr(l1-2) == "St"))
+    {
+      w[0] = v[0];
+      w[1] = v[1] + ":" + v[2];
+    }
+    else
+      THROW("Malformed RBN team line: " + text);
+
+    Teams::setRBN4(w);
   }
   else
-    THROW("Malformed RBN team line");
+    THROW("Malformed RBN team line: " + text);
 }
 
 

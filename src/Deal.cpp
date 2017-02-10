@@ -125,7 +125,13 @@ unsigned Deal::suitToHolding(const string suit) const
 {
   auto it = SUIT_TO_HOLDING.find(suit);
   if (it == SUIT_TO_HOLDING.end())
-    THROW("No such suit: '" + suit + "'");
+  {
+    string suitUpper = suit;
+    toUpper(suitUpper);
+    it = SUIT_TO_HOLDING.find(suitUpper);
+    if (it == SUIT_TO_HOLDING.end())
+      THROW("No such suit: '" + suit + "'");
+  }
 
   return it->second;
 }

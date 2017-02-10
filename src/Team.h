@@ -65,6 +65,10 @@ class Team
       const string& text,
       const Format format);
       
+    void setPair(
+      const string& text,
+      const string& value);
+      
     bool hasCarry() const;
       
     bool operator == (const Team& t2) const;

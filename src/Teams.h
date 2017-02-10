@@ -28,6 +28,7 @@ class Teams
     void setPBN(
       const string& text1,
       const string& text2);
+    void setRBN4(const vector<string>& v);
     void setRBN(const string& text);
     void setTXT(const string& text);
 

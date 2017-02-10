@@ -449,7 +449,9 @@ bool Buffer::nextLIN(
   if (e != posLIN+2 || e == string::npos)
   {
     THROW("Bad LIN line: " + lines[current].line + 
-      ", " + STR(current));
+      ", remainder: " + lines[current].line.substr(posLIN) + 
+      ", line " + STR(current) + ", posLIN " + 
+      STR(posLIN) + ", e " + STR(e));
   }
 
   vside.label = lines[current].line.substr(posLIN, 2);
@@ -458,7 +460,7 @@ bool Buffer::nextLIN(
   posLIN += 3;
   if (posLIN >= lines[current].len)
   {
-    if (vside.label != "nt" || current == len-1)
+    if (current == len-1)
     {
       THROW("Bad LIN line: " + lines[current].line + 
         ", " + STR(current));
@@ -477,18 +479,41 @@ bool Buffer::nextLIN(
     vside.value = "";
     Buffer::advanceLINPast(e);
   }
-  else if (e != string::npos)
+  else if (e == string::npos)
   {
-    vside.value = lines[current].line.substr(posLIN, e-posLIN);
-    Buffer::advanceLINPast(e);
-  }
-  else
-  {
-    // Could be an untermininated tag.
+    // Could be an unterminated tag.
     vside.value = lines[current].line.substr(posLIN);
     if (! Buffer::extendLINValue(vside))
       THROW("Bad LIN line: " + lines[current].line + 
         ", " + STR(current));
+  }
+  else
+  {
+    if (vside.label == "nt")
+    {
+      while (e+3 < lines[current].len &&
+          lines[current].line.at(e+3) != '|')
+      {
+        // Attempt to complete the comment.
+        e = lines[current].line.find('|', e+1);
+        if (e == string::npos)
+          break;
+      }
+    }
+
+    if (e == string::npos)
+    {
+      // TODO: Combine with above branch.
+      vside.value = lines[current].line.substr(posLIN);
+      if (! Buffer::extendLINValue(vside))
+        THROW("Bad LIN line: " + lines[current].line + 
+          ", " + STR(current));
+    }
+    else
+    {
+      vside.value = lines[current].line.substr(posLIN, e-posLIN);
+      Buffer::advanceLINPast(e);
+    }
   }
 
   vside.type = BRIDGE_BUFFER_STRUCTURED;

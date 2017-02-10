@@ -263,6 +263,10 @@ void SheetHand::finishHand(
   {
     SheetHand::fail("Bad board");
   }
+  else if (ct == "=")
+  {
+    return;
+  }
   else
   {
     contractHdr.setContract(ct, BRIDGE_FORMAT_LIN);

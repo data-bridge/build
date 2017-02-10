@@ -188,7 +188,7 @@ string Sheet::qxToHeaderContract(
   if (index >= clist.size())
     return "-";
   else if (clist[index] == "")
-    return "-";
+    return "=";
   else
     return clist[index];
 }

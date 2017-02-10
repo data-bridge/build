@@ -111,6 +111,15 @@ void Team::set(
 }
 
 
+void Team::setPair(
+  const string& text,
+  const string& value)
+{
+  name = text;
+  Team::extractCarry(value);
+}
+
+
 bool Team::operator == (const Team& team2) const
 {
   if (name != team2.name)
