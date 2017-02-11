@@ -21,6 +21,18 @@ enum FixType
   BRIDGE_REF_INSERT = 0,
   BRIDGE_REF_REPLACE = 1,
   BRIDGE_REF_DELETE = 2,
+  BRIDGE_REF_INSERT_LIN = 3,
+  BRIDGE_REF_REPLACE_LIN = 4,
+  BRIDGE_REF_DELETE_LIN = 5
+};
+
+struct RefFixLIN
+{
+  unsigned tagNo; // Starting from 1
+  unsigned fieldNo; // Starting from 1
+  string tag;
+  string was;
+  string is;
 };
 
 struct RefFix
@@ -28,6 +40,7 @@ struct RefFix
   unsigned lno; // First line is 1
   FixType type;
   string value;
+  RefFixLIN fixLIN;
   unsigned count;
   bool partialFlag;
 };
@@ -188,6 +201,11 @@ void readRefFix(
   vector<RefFix>& refFix);
 
 string strRefFix(const RefFix& refFix);
+
+bool modifyLINLine(
+  const string& line,
+  const RefFix& refFix,
+  string& lineNew);
 
 bool classifyRefLine(
   const RefFix& refEntry,

@@ -26,6 +26,93 @@ static bool lineToLINList(
   vector<string>& list);
 
 
+static string parseRefLINEntry(const string& entry)
+{
+  const unsigned l = entry.length();
+  if (l == 0)
+    return "";
+
+  if (entry.at(0) == '\'')
+  {
+    // Unquote.
+    if (l == 1)
+      THROW("Single quote");
+    if (entry.at(l-1) != '\'')
+      THROW("Not ending on single quote");
+    return entry.substr(1, l-2);
+  }
+  else
+    return entry;
+}
+
+
+static bool parseRefLIN(
+  const string& line,
+  RefFix& rf)
+{
+  regex re("^\\s*\"(.*)\"");
+  smatch match;
+  if (! regex_search(line, match, re) || match.size() < 1)
+    return false;
+  const string arg = match.str(1);
+
+  const unsigned commas = static_cast<unsigned>(
+    count(arg.begin(), arg.end(), ','));
+  if (commas < 2 && commas > 4)
+    return false;
+  
+  vector<string> v(commas+1);
+  v.clear();
+  tokenize(arg, v, ",");
+
+  // First one must be a tag number.
+  if (! str2upos(v[0], rf.fixLIN.tagNo))
+    return false;
+
+  // Optional field number (say in an rs value).
+  unsigned n = 1;
+  if (str2upos(v[1], rf.fixLIN.fieldNo))
+    n = 2;
+  else
+    rf.fixLIN.fieldNo = 0;
+
+  // LIN tag.
+  if (v[n].length() != 2)
+    return false;
+  rf.fixLIN.tag = v[n];
+  n++;
+  if (n > commas)
+    return false;
+
+  const string s1 = parseRefLINEntry(v[n]);
+  if (rf.type == BRIDGE_REF_INSERT_LIN)
+  {
+    if (n < commas)
+      return false;
+    rf.fixLIN.was = "";
+    rf.fixLIN.is = s1;
+  }
+  else if (rf.type == BRIDGE_REF_REPLACE_LIN)
+  {
+    if (n+1 != commas)
+      return false;
+    rf.fixLIN.was = s1;
+    rf.fixLIN.is = parseRefLINEntry(v[n+1]);
+  }
+  else if (rf.type == BRIDGE_REF_DELETE_LIN)
+  {
+    if (n < commas)
+      return false;
+    rf.fixLIN.was = s1;
+    rf.fixLIN.is = "";
+  }
+  else
+    return false;
+  
+  return true;
+}
+
+
 void readRefFix(
   const string& fname,
   vector<RefFix>& refFix)
@@ -111,6 +198,39 @@ void readRefFix(
         rf.partialFlag = false;
 
     }
+    else if (s == "insertLIN")
+    {
+      rf.type = BRIDGE_REF_INSERT_LIN;
+      rf.value = "";
+      if (! parseRefLIN(line, rf))
+        THROW("Ref file " + refName + ": Bad LIN in '" + line + "'");
+      if (regex_search(line, match, rep) && match.size() >= 1)
+        rf.partialFlag = true;
+      else
+        rf.partialFlag = false;
+    }
+    else if (s == "replaceLIN")
+    {
+      rf.type = BRIDGE_REF_REPLACE_LIN;
+      rf.value = "";
+      if (! parseRefLIN(line, rf))
+        THROW("Ref file " + refName + ": Bad LIN in '" + line + "'");
+      if (regex_search(line, match, rep) && match.size() >= 1)
+        rf.partialFlag = true;
+      else
+        rf.partialFlag = false;
+    }
+    else if (s == "deleteLIN")
+    {
+      rf.type = BRIDGE_REF_DELETE_LIN;
+      rf.value = "";
+      if (! parseRefLIN(line, rf))
+        THROW("Ref file " + refName + ": Bad LIN in '" + line + "'");
+      if (regex_search(line, match, rep) && match.size() >= 1)
+        rf.partialFlag = true;
+      else
+        rf.partialFlag = false;
+    }
     else
       THROW("Ref file " + refName + ": Syntax error in '" + line + "'");
 
@@ -120,24 +240,84 @@ void readRefFix(
 }
 
 
-string strRefFix(const RefFix& refFix)
+static string strRefFixNormalRest(const RefFix& refFix)
 {
-  string st;
-  st = STR(refFix.lno) + " ";
-  if (refFix.type == BRIDGE_REF_INSERT)
-    st += "insert";
-  else if (refFix.type == BRIDGE_REF_REPLACE)
-    st += "replace";
-  else if (refFix.type == BRIDGE_REF_DELETE)
-    st += "delete";
-  else
-    st += "ERROR";
-
-  st += " ";
+  string st = " ";
   if (refFix.count == 1)
     st += "\"" + refFix.value + "\"";
   else
     st += STR(refFix.count);
+
+  return st;
+}
+
+
+static string strRefFixLINComponent(const string& text)
+{
+  const unsigned e = text.find(' ');
+  if (e == string::npos)
+    return text;
+  else
+    return "'" + text + "'";
+}
+
+
+static string strRefFixLINRest(const RefFix& refFix)
+{
+  string st = " \"" + STR(refFix.fixLIN.tagNo) + " ";
+  if (refFix.fixLIN.fieldNo > 0)
+    st += STR(refFix.fixLIN.fieldNo) + " ";
+  st += refFix.fixLIN.tag + " ";
+
+  if (refFix.type == BRIDGE_REF_INSERT_LIN)
+    st += strRefFixLINComponent(refFix.fixLIN.is);
+  else if (refFix.type == BRIDGE_REF_REPLACE_LIN)
+  {
+    st += strRefFixLINComponent(refFix.fixLIN.was) + " " +
+        strRefFixLINComponent(refFix.fixLIN.is);
+  }
+  else if (refFix.type == BRIDGE_REF_DELETE_LIN)
+    st += strRefFixLINComponent(refFix.fixLIN.was);
+  else
+    THROW("Bad fixLIN");
+
+  return st + "\"";
+}
+
+
+string strRefFix(const RefFix& refFix)
+{
+  string st;
+  st = STR(refFix.lno) + " ";
+  switch(refFix.type)
+  {
+    case BRIDGE_REF_INSERT:
+      st += "insert" + strRefFixNormalRest(refFix);
+      break;
+
+    case BRIDGE_REF_REPLACE:
+      st += "replace" + strRefFixNormalRest(refFix);
+      break;
+
+    case BRIDGE_REF_DELETE:
+      st += "delete" + strRefFixNormalRest(refFix);
+      break;
+
+    case BRIDGE_REF_INSERT_LIN:
+      st += "insertLIN" + strRefFixLINRest(refFix);
+      break;
+
+    case BRIDGE_REF_REPLACE_LIN:
+      st += "replaceLIN" + strRefFixLINRest(refFix);
+      break;
+
+    case BRIDGE_REF_DELETE_LIN:
+      st += "deleteLIN" + strRefFixLINRest(refFix);
+      break;
+    
+    default:
+      THROW("Bad type");
+  }
 
   return st;
 }
@@ -309,12 +489,155 @@ static bool listIsPure(const vector<string>& list)
 }
 
 
+static void printModify(
+  const string& line,
+  const RefFixLIN& fixLIN)
+{
+  cout << "line   : " << line << "\n";
+  cout << "tagNo  : " << fixLIN.tagNo << "\n";
+  cout << "fieldNo: " << fixLIN.fieldNo << "\n";
+  cout << "tag    : " << fixLIN.tag << "\n";
+  cout << "was    : " << fixLIN.was << "\n";
+  cout << "is     : " << fixLIN.is << "\n";
+}
+
+
+static string concatFields(
+  const vector<string>& list,
+  const string& delim)
+{
+  string st;
+  for (auto &f: list)
+  {
+    st += f + delim;
+  }
+  if (list.size() > 0)
+    st.pop_back(); // Drop last delimiter
+
+  return st;
+}
+
+
+void modifyLINFail(
+  const string& line,
+  const RefFixLIN& fixLIN,
+  const string& text)
+{
+  printModify(line, fixLIN);
+  THROW(text);
+}
+
+
+bool modifyLINLine(
+  const string& line,
+  const RefFix& refFix,
+  string& lineNew)
+{
+  vector<string> v;
+  v.clear();
+  lineToLINList(line, v);
+
+  if (refFix.fixLIN.tagNo == 0)
+    modifyLINFail(line, refFix.fixLIN, "No tag number");
+
+  const unsigned start = 2*(refFix.fixLIN.tagNo-1);
+  if (start+1 >= v.size())
+    modifyLINFail(line, refFix.fixLIN, "Tag number too large");
+
+  bool interiorFlag = false;
+  vector<string> f;
+  if (refFix.fixLIN.fieldNo > 0)
+  {
+    interiorFlag = true;
+
+    const unsigned commas = static_cast<unsigned>(
+      count(v[start+1].begin(), v[start+1].end(), ','));
+    if (commas < 1)
+      modifyLINFail(line, refFix.fixLIN, "No commas");
+
+    f.resize(commas+1);
+    f.clear();
+    tokenize(v[start+1], f, ",");
+
+    if (refFix.fixLIN.fieldNo >= commas+1)
+      modifyLINFail(line, refFix.fixLIN, "Field too far");
+  }
+
+  if (refFix.type == BRIDGE_REF_INSERT_LIN)
+  {
+    if (interiorFlag)
+    {
+      if (v[start] != refFix.fixLIN.tag)
+        modifyLINFail(line, refFix.fixLIN, "Different tags");
+
+      f.insert(f.begin()+static_cast<int>(refFix.fixLIN.fieldNo-1), 
+        refFix.fixLIN.is);
+      v[start+1] = concatFields(f, ",");
+    }
+    else
+    {
+      v.insert(v.begin()+static_cast<int>(start)+1, refFix.fixLIN.is);
+      v.insert(v.begin()+static_cast<int>(start), refFix.fixLIN.tag);
+    }
+  }
+  else if (refFix.type == BRIDGE_REF_REPLACE_LIN)
+  {
+    if (v[start] != refFix.fixLIN.tag)
+      modifyLINFail(line, refFix.fixLIN, "Different tags");
+
+    if (interiorFlag)
+    {
+      if (f[refFix.fixLIN.fieldNo-1] != refFix.fixLIN.was)
+        modifyLINFail(line, refFix.fixLIN, "Old field wrong");
+
+      f[refFix.fixLIN.fieldNo-1] = refFix.fixLIN.is;
+      v[start+1] = concatFields(f, ",");
+    }
+    else
+    {
+      if (v[start+1] != refFix.fixLIN.was)
+        modifyLINFail(line, refFix.fixLIN, "Old value wrong");
+
+      v[start+1] = refFix.fixLIN.is;
+    }
+  }
+  else if (refFix.type == BRIDGE_REF_DELETE_LIN)
+  {
+    if (v[start] != refFix.fixLIN.tag)
+      modifyLINFail(line, refFix.fixLIN, "Different tags");
+
+    if (interiorFlag)
+    {
+      if (f[refFix.fixLIN.fieldNo-1] != refFix.fixLIN.was)
+        modifyLINFail(line, refFix.fixLIN, "Old field wrong");
+
+      f.erase(f.begin() + static_cast<int>(refFix.fixLIN.fieldNo-1));
+      v[start+1] = concatFields(f, ",");
+    }
+    else
+    {
+      if (v[start+1] != refFix.fixLIN.was)
+        modifyLINFail(line, refFix.fixLIN, "Old value wrong");
+
+      auto s = v.begin() + static_cast<int>(start);
+      v.erase(s, s+2);
+    }
+  }
+  else
+    THROW("Bad type");
+  
+  lineNew = concatFields(v, "|") + "|";
+  return true;
+}
+
+
 bool classifyRefLine(
   const RefFix& refEntry,
   const string& bufferLine,
   RefErrorClass& diff)
 {
   vector<string> listRef, listBuf;
+  string dummy;
   diff.type = refEntry.type;
 
   switch (refEntry.type)
@@ -346,6 +669,42 @@ bool classifyRefLine(
       // Split old line.
       diff.list.clear();
       lineToLINList(bufferLine, diff.list);
+      break;
+
+    case BRIDGE_REF_INSERT_LIN:
+      if (! modifyLINLine(bufferLine, refEntry, dummy))
+        return false;
+
+      diff.type = BRIDGE_REF_INSERT;
+      diff.code = ERR_SIZE;
+      diff.list.push_back(refEntry.fixLIN.tag);
+      diff.list.push_back(refEntry.fixLIN.is);
+      diff.pureFlag = true;
+      diff.numTags = 1;
+      break;
+
+    case BRIDGE_REF_REPLACE_LIN:
+      if (! modifyLINLine(bufferLine, refEntry, dummy))
+        return false;
+
+      diff.type = BRIDGE_REF_REPLACE;
+      diff.code = ERR_SIZE;
+      diff.list.push_back(refEntry.fixLIN.tag);
+      diff.list.push_back(refEntry.fixLIN.is);
+      diff.pureFlag = true;
+      diff.numTags = 1;
+      break;
+
+    case BRIDGE_REF_DELETE_LIN:
+      if (! modifyLINLine(bufferLine, refEntry, dummy))
+        return false;
+
+      diff.type = BRIDGE_REF_REPLACE;
+      diff.code = ERR_SIZE;
+      diff.list.push_back(refEntry.fixLIN.tag);
+      diff.list.push_back(refEntry.fixLIN.was);
+      diff.pureFlag = true;
+      diff.numTags = 1;
       break;
 
     default:

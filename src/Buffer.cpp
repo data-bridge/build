@@ -323,22 +323,19 @@ bool Buffer::fix(
 {
   vector<RefFix> refFix;
   readRefFix(fname, refFix);
-
-  if (refFix.size() == 0)
-    return false;
-   
-  unsigned rno = 0;
   bool usedFlag = false;
-  for (unsigned i = 0; i < len; i++)
-  {
-    LineData& ld = lines[i];
-    if (refFix[rno].lno != ld.no)
-      continue;
 
+  for (unsigned rno = 0; rno < refFix.size(); rno++)
+  {
     if (use == BRIDGE_REF_ONLY_PARTIAL && ! refFix[rno].partialFlag)
       continue;
     else if (use == BRIDGE_REF_ONLY_NONPARTIAL && refFix[rno].partialFlag)
       continue;
+
+    const unsigned i = Buffer::getInternalNumber(refFix[rno].lno);
+    if (i == BIGNUM)
+      THROW("Cannot find ref line number " + STR(refFix[rno].lno));
+    LineData& ld = lines[i];
 
     if (refFix[rno].type == BRIDGE_REF_INSERT)
     {
@@ -366,16 +363,21 @@ bool Buffer::fix(
       lines.erase(lines.begin() + static_cast<int>(i), 
           lines.begin() + static_cast<int>(refFix[rno].count + i));
       len -= refFix[rno].count;
-      if (i > 0)
-        i--; // Kludge
+      usedFlag = true;
+    }
+    else if (refFix[rno].type == BRIDGE_REF_INSERT_LIN ||
+        refFix[rno].type == BRIDGE_REF_REPLACE_LIN ||
+        refFix[rno].type == BRIDGE_REF_DELETE_LIN)
+    {
+      if (! modifyLINLine(ld.line, refFix[rno], ld.line))
+        THROW("Could not make LIN ref modification");
+
+      ld.len = static_cast<unsigned>(ld.line.length());
+      Buffer::classify(ld);
       usedFlag = true;
     }
     else
       THROW("Bad reference line type");
-
-    rno++;
-    if (rno == refFix.size())
-      break;
   }
   return usedFlag;
 }
@@ -651,11 +653,14 @@ unsigned Buffer::getInternalNumber(const unsigned no) const
   if (no == 0 || no > lines[len-1].no)
     return BIGNUM;
   
-  if (lines[no-1].no == no)
-    return no-1;
-
   unsigned i = no-1;
-  if (lines[no-1].no > no)
+  if (i >= len)
+    i = len-1;
+
+  if (lines[i].no == no)
+    return i;
+
+  if (lines[i].no > no)
   {
     // Happens with deletions.
     while (i >= 1 && lines[i-1].no != no)
