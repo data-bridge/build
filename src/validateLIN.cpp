@@ -296,8 +296,10 @@ static bool isContracts(
   if (outPruned == refPruned)
     return true;
 
-  regex re("\\bP\\b");
-  const string refPass = regex_replace(refPruned, re, string("PASS"));
+  regex reu("\\bP\\b");
+  string refPass = regex_replace(refPruned, reu, string("PASS"));
+  regex rel("\\bp\\b");
+  refPass = regex_replace(refPass, rel, string("PASS"));
 
   if (outPruned == refPass)
     return true;

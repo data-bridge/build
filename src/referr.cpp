@@ -157,7 +157,7 @@ void readRefFix(
       {
         rf.value = match.str(1);
         rf.count = 1;
-        rf.partialFlag = false;
+        rf.partialFlag = true;
       }
       else
         THROW("Ref file " + refName + ": Syntax error in '" + line + "'");
@@ -183,10 +183,15 @@ void readRefFix(
     else if (s == "delete")
     {
       rf.type = BRIDGE_REF_DELETE;
-      if (! getNextWord(line, s) || s.at(0) == '{')
+      if (! getNextWord(line, s))
       {
         rf.count = 1;
         rf.partialFlag = false;
+      }
+      else if (s.at(0) == '{')
+      {
+        rf.count = 1;
+        rf.partialFlag = true;
       }
       else if (! str2unsigned(s, rf.count))
       {
