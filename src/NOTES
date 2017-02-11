@@ -4,16 +4,6 @@
 * rewrite Segment TODO with functions
 * run on all VGs
 
-Idea for rs:
-* new ref keywords "LINreplace", "LINinsert" and "LINdelete"
-* 4 vreplace "1 rs 2 '3NS=' '3NS+1'" means first rs tag (as a check),
-  pos 2 (starting from 1, enabling another check), replace
-* many v's possible for one rs line
-* each can have an ERR_LIN or not
-* script to turn current "x replace "rs..."" into deltas
-* without any ERR_LIN
-* if more than 3 changes in one rs, flag and don't change
-
 * eliminate Exceptions in b??.txt
 
 * use perl to find deletes of mc|n|pg||

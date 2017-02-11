@@ -113,6 +113,14 @@ void Buffer::readBinaryFile(const string& fname)
       static_cast<unsigned>((buf + bytes_read) - prev));
   }
 
+  if (leftover != "")
+  {
+    lineData.line = leftover;
+    lineData.len = leftover.size();
+    lineData.no = ++no;
+    lines.push_back(lineData);
+  }
+
   len = static_cast<unsigned>(lines.size());
   close(fd);
 }
@@ -203,7 +211,7 @@ void Buffer::classify(LineData& ld)
     return;
   }
   else if (ld.len == 1 &&
-      format == BRIDGE_FORMAT_PBN &&
+      (format == BRIDGE_FORMAT_PBN || format == BRIDGE_FORMAT_LIN_VG) &&
       ld.line == " ")
   {
     // Kludge for some versions of Double Dummy Captain.

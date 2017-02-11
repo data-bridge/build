@@ -559,7 +559,7 @@ bool modifyLINLine(
     f.clear();
     tokenize(v[start+1], f, ",");
 
-    if (refFix.fixLIN.fieldNo >= commas+1)
+    if (refFix.fixLIN.fieldNo-1 >= commas+1)
       modifyLINFail(line, refFix.fixLIN, "Field too far");
   }
 
