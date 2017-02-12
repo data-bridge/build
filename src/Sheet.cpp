@@ -204,6 +204,7 @@ void Sheet::fail(const string& text) const
   catch (Bexcept& bex)
   {
     bex.print(cout);
+    THROW("Sheet fail");
   }
 }
 
@@ -391,12 +392,21 @@ bool Sheet::read(
 {
   Buffer buffer;
 
-  if (! buffer.read(fname, BRIDGE_FORMAT_LIN))
-    return false;
-
-  if (! buffer.fix(fname, BRIDGE_REF_ONLY_PARTIAL))
+  try
   {
-    // Ignore -- file may be missing, or no partials.
+    if (! buffer.read(fname, BRIDGE_FORMAT_LIN))
+      return false;
+
+    if (! buffer.fix(fname, BRIDGE_REF_ONLY_PARTIAL))
+    {
+      // Ignore -- file may be missing, or no partials.
+    }
+  }
+  catch (Bexcept& bex)
+  {
+    bex.print(cout);
+    cout << "Came from " << fname << "\n\n";
+    return false;
   }
 
   try
@@ -417,6 +427,7 @@ bool Sheet::read(
   catch (Bexcept& bex)
   {
     bex.print(cout);
+    cout << "Came from " << fname << "\n\n";
     return false;
   }
 

@@ -246,6 +246,7 @@ void SheetHand::fail(const string& text) const
   catch (Bexcept& bex)
   {
     bex.print(cout);
+    THROW("SheetHand fail");
   }
 }
 

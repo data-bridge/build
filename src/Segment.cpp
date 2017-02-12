@@ -545,7 +545,7 @@ void Segment::setPlayersList(
             {
               if (tokens[e+d-4] != "")
               {
-                LINdata[b >> 3].players[0][(d+2) % 4] = tokens[e+d-4];
+                LINdata[b >> 3].players[1][(d+2) % 4] = tokens[e+d-4];
                 break;
               }
             }
@@ -676,12 +676,21 @@ void Segment::setPlayersHeader(
   }
   else
   {
-    if (c != 7)
+    if (c < 7)
       THROW("Bad number of fields");
 
-    vector<string> tokens(8);
+    vector<string> tokens(c+1);
     tokens.clear();
     tokenize(text, tokens, ",");
+
+    if (c > 7)
+    {
+      for (unsigned i = 8; i <= c; i++)
+      {
+        if (tokens[i] != "")
+          THROW("Bad number of fields");
+      }
+    }
 
     for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
     {

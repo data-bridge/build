@@ -467,6 +467,7 @@ static bool isPlayersList(
           outCollapsed[i] != "")
         return false;
     }
+    return true;
   }
 
   vector<string> refDespaced;

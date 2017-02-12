@@ -460,7 +460,7 @@ bool Buffer::nextLIN(
   {
     THROW("Bad LIN line: " + lines[current].line + 
       ", remainder: " + lines[current].line.substr(posLIN) + 
-      ", line " + STR(current) + ", posLIN " + 
+      ", line " + STR(current+1) + ", posLIN " + 
       STR(posLIN) + ", e " + STR(e));
   }
 

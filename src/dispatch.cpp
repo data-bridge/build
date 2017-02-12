@@ -399,6 +399,7 @@ static void dispatchDigest(
   catch (Bexcept& bex)
   {
     bex.print(flog);
+    cout << "Came from " << task.fileInput << "\n";
   }
 }
 

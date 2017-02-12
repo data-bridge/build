@@ -25,6 +25,10 @@ static bool lineToLINList(
   const string& line,
   vector<string>& list);
 
+static bool lineToLINListRaw(
+  const string& line,
+  vector<string>& list);
+
 
 static string parseRefLINEntry(const string& entry)
 {
@@ -56,33 +60,61 @@ static bool parseRefLIN(
     return false;
   const string arg = match.str(1);
 
+  // TODO: Maybe have a switch on rf.type instead --cleaner.
+
   const unsigned commas = static_cast<unsigned>(
     count(arg.begin(), arg.end(), ','));
-  if (commas < 2 && commas > 4)
-    return false;
-  
+
   vector<string> v(commas+1);
   v.clear();
   tokenize(arg, v, ",");
 
+  if (commas == 0 && rf.type == BRIDGE_REF_DELETE_LIN)
+  {
+    // First one must be a tag number.
+    if (! str2upos(v[0], rf.fixLIN.tagNo))
+      return false;
+    rf.fixLIN.fieldNo = 0;
+    rf.fixLIN.tag = "";
+    rf.fixLIN.is = "";
+    rf.fixLIN.was = "";
+    return true;
+  }
+
+  if (commas < 1 && commas > 4)
+    return false;
+  if (commas == 1 && rf.type != BRIDGE_REF_INSERT_LIN)
+    return false;
+  
   // First one must be a tag number.
   if (! str2upos(v[0], rf.fixLIN.tagNo))
     return false;
 
   // Optional field number (say in an rs value).
+  // Possible collision with INSERT_LIN, hopefully a minor one...
   unsigned n = 1;
   if (str2upos(v[1], rf.fixLIN.fieldNo))
     n = 2;
   else
     rf.fixLIN.fieldNo = 0;
 
-  // LIN tag.
-  if (v[n].length() != 2)
+  // LIN tag except perhaps in deletion.
+  if (v[n].length() != 2 && rf.type != BRIDGE_REF_INSERT_LIN)
     return false;
   rf.fixLIN.tag = v[n];
   n++;
   if (n > commas)
-    return false;
+  {
+    if (rf.type == BRIDGE_REF_INSERT_LIN)
+    {
+      rf.fixLIN.is = rf.fixLIN.tag;
+      rf.fixLIN.tag = "";
+      rf.fixLIN.was = "";
+      return true;
+    }
+    else
+      return false;
+  }
 
   const string s1 = parseRefLINEntry(v[n]);
   if (rf.type == BRIDGE_REF_INSERT_LIN)
@@ -347,7 +379,7 @@ static bool lineToLINList(
 
     if (temp[i] == "nt" || temp[i] == "pg" || temp[i] == "ob" ||
         temp[i] == "sa" || temp[i] == "mn" || temp[i] == "em" ||
-	temp[i] == "bt")
+        temp[i] == "bt")
     {
       // Skip over any chats with embedded |'s.
       i += 2;
@@ -366,6 +398,19 @@ static bool lineToLINList(
       list.push_back(st);
     }
   }
+  return true;
+}
+
+
+static bool lineToLINListRaw(
+  const string& line,
+  vector<string>& list)
+{
+  // Split on |
+  list.clear();
+  tokenize(line, list, "|");
+  if (line.length() > 0 && line.at(line.length()-1) == '|')
+    list.pop_back();
   return true;
 }
 
@@ -540,7 +585,8 @@ bool modifyLINLine(
 {
   vector<string> v;
   v.clear();
-  lineToLINList(line, v);
+  if (! lineToLINListRaw(line, v))
+    modifyLINFail(line, refFix.fixLIN, "Couldn't convert to list");
 
   if (refFix.fixLIN.tagNo == 0)
     modifyLINFail(line, refFix.fixLIN, "No tag number");
@@ -579,9 +625,14 @@ bool modifyLINLine(
         refFix.fixLIN.is);
       v[start+1] = concatFields(f, ",");
     }
+    else if (refFix.fixLIN.tag == "")
+    {
+      // Single insertion, i.e. could be a tag or a value.
+      v.insert(v.begin()+static_cast<int>(start), refFix.fixLIN.is);
+    }
     else
     {
-      v.insert(v.begin()+static_cast<int>(start)+1, refFix.fixLIN.is);
+      v.insert(v.begin()+static_cast<int>(start), refFix.fixLIN.is);
       v.insert(v.begin()+static_cast<int>(start), refFix.fixLIN.tag);
     }
   }
@@ -608,19 +659,29 @@ bool modifyLINLine(
   }
   else if (refFix.type == BRIDGE_REF_DELETE_LIN)
   {
-    if (v[start] != refFix.fixLIN.tag)
-      modifyLINFail(line, refFix.fixLIN, "Different tags");
-
     if (interiorFlag)
     {
+      if (v[start] != refFix.fixLIN.tag)
+        modifyLINFail(line, refFix.fixLIN, "Different tags");
+
       if (f[refFix.fixLIN.fieldNo-1] != refFix.fixLIN.was)
         modifyLINFail(line, refFix.fixLIN, "Old field wrong");
 
       f.erase(f.begin() + static_cast<int>(refFix.fixLIN.fieldNo-1));
       v[start+1] = concatFields(f, ",");
     }
+    else if (refFix.fixLIN.fieldNo == 0 && refFix.fixLIN.tag == "")
+    {
+      // Delete a single entry without checking it.
+      // Only use this when the entry is seriously messed up.
+      auto s = v.begin() + static_cast<int>(start);
+      v.erase(s);
+    }
     else
     {
+      if (v[start] != refFix.fixLIN.tag)
+        modifyLINFail(line, refFix.fixLIN, "Different tags");
+
       if (v[start+1] != refFix.fixLIN.was)
         modifyLINFail(line, refFix.fixLIN, "Old value wrong");
 

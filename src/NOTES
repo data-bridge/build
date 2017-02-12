@@ -1,68 +1,33 @@
-09.02.2017
+12.02.2017
 ----------
+Individual files to check
+* 7638.lin has absurd trick numbers.  How to detect?
+
+General checks to add
+* Same players at both tables?
+* Do doubled contracts get detected in Sheet?
+* Detect hands with less than 4 players.
+* Are there skipped lin files that contain the word "Suggest"?
+* Incomplete auctions, e.g. 30319.  Some MB_OVERLONG may have to be
+  reclassified.
+
+Code
 * rewrite validateLIN with a function
 * rewrite Segment TODO with functions
-* run on all VGs
-
-* eliminate Exceptions in b??.txt
+* Expand referr.cpp: classify function
+* Clean up perl path and @INC
 
 * use perl to find deletes of mc|n|pg||
 * in this way, eliminate lines from .ref files (backup first)
-
 * work to eliminate sheets
 * what is then left in .ref files?
-
 * automate check of ERR_LIN(a,b,c), different by error type
+* Have to look at tag counts, consistent for each type of LIN_ERR.
+* Check #lines in .skip against actual line count.
+
+orig files
 * deal with .orig files
-
-
-7638.lin has absurd trick numbers.  How to detect?
-7832.lin has funny pn's embedded.
-Detect hands with less than 4 players.
-46107 (P): Segment.cpp line 1207, should check that more than 
-one set of (eight) names
-
-Have to look at tag counts, consistent for each type of LIN_ERR.
-Check #lines in .skip against actual line count.
-
-10606.sht has duplicate URLs -- why?
-
-Are there skipped lin files that contain the word "Suggest"? Look at.
-
-In 23085.sht, how is it possible in c31 to have 3 tricks, 0 good,
-and yet 26 plays and 0 bad?
-
-In allskips, could write a script to delete .sht files that end on 
-"Suggest skip".  That should leave 147 files, of which 75 are the
-ones corresponding to 0 .skip file size.  Examine manually.
-
-Same players "at both tables", e.g. 494.lin?
-
-
-Turn back temporary changes (or on digest, skip input parsing):
-- Makefile
-- dispatch function
-
-Clean up perl path and @INC
-
-Need exceptions to go into sheet str somehow, not end up
-in general output.  The -v 30 input should be clean in the end.
-
-- 30020 addPlay (Card D2 not held)
-- 30334 nextLIN (Bad LIN line)
-- 30699 setRBN (Malformed RBN team line)
-- 30706 addPlay (Invalid card)
-
--30849: Why DD difference in equality test?
-
-Do doubled contracts get detected in Sheet (always, sometimes,
-never)?  E.g. 30502.sht o24
-
-30637 c2: Why shown as "Claim 8"?
-
-ref line modification:
-- Expand referr.cpp: classify function
-
+* maybe have a repl file referenced in ref?
 
 Sheet:
 - Another str() function that outputs an IMP sheet,
@@ -72,35 +37,15 @@ Sheet:
 - See whether a hand is completely messed up, or only a few
   cards, or only rotations
 
-
-Complete replacements should go in ref file,
-* replace
-followed by the new file
-
-Statistics on sources
-- Number of (good) hands
-- Number of files
-  - Perfect
-  - Some fixes (say few .ref lines and few .xxx effect lines)
-  - Skips
-
 Quality of fixes
 - No skip or ref file without a data file (lin to start with)
 - No skip file with a ref file
-- Incomplete auctions, e.g. 30319.  Some MB_OVERLONG may have to be
-  reclassified.
 - No duplicates in BBOSH (file names)
 - BBOSH files sorted properly into directories
-- Detect complete skips
 - Fixes in order
 - Screenscrape major championships, compare.
 - Check links (http, www).
-
-
-Number of lines:
-19,306,468 in LIN_VG
-    25,440 in .ref
-
+- Store convention cards?
 
 LIN_VG files with multiple players
 - Could be multiple segments
@@ -110,9 +55,6 @@ LIN_VG files with multiple players
 
 Too harsh fixes especially in BBOVG
 - Try multi-threading of BBOVG and also BBOSH
-- Fixes should only be for real file errors; program should
-  tolerate more
-- Fixes might have a fourth entry with the type of fix
 - May have deleted whole hands due to single bad cards...
 - Maybe tolerate tricks in wrong order within each trick
 
@@ -128,7 +70,6 @@ Code
 - Print example of each validate "error"
 - No % comment except LIN_RP and perhaps PBN
 - Make prettier line break in LIN print except LIN_RP.
-- Buffer should pick up .ref automatically.
 - Still segfault at end?
 - Allow concatenated files, e.g. RBN but also LIN
 - TODOs
@@ -139,12 +80,23 @@ Data
 
 update Pavlicek missive and Excel
 
+Stats
+-----
+19,306,468 in LIN_VG
+    25,440 in .ref
+
+- Number of (good) hands
+- Number of files
+  - Perfect
+  - Some fixes (say few .ref lines and few .xxx effect lines)
+  - Skips
 
 Functionality
 -------------
 Named Entity Recognizers for
 - Player names
 - Tournaments
+- Dates
 
 options
 -------
