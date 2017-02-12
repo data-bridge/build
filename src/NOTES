@@ -1,15 +1,16 @@
 12.02.2017
 ----------
 Individual files to check
-* 7638.lin has absurd trick numbers.  How to detect?
+* cvg6a, 70 cases of impossible claims including 7638.lin
+* skipped files with the word "Suggest", might still be OK,
+  9175, 10250, 19707, 27930, 34670, 35878
 
 General checks to add
 * Same players at both tables?
-* Do doubled contracts get detected in Sheet?
-* Detect hands with less than 4 players.
-* Are there skipped lin files that contain the word "Suggest"?
+* Detect hands with less than 4 real players.
 * Incomplete auctions, e.g. 30319.  Some MB_OVERLONG may have to be
   reclassified.
+* Do doubled contracts get detected in Sheet?
 
 Code
 * rewrite validateLIN with a function
@@ -21,9 +22,6 @@ Code
 * in this way, eliminate lines from .ref files (backup first)
 * work to eliminate sheets
 * what is then left in .ref files?
-* automate check of ERR_LIN(a,b,c), different by error type
-* Have to look at tag counts, consistent for each type of LIN_ERR.
-* Check #lines in .skip against actual line count.
 
 orig files
 * deal with .orig files
@@ -38,11 +36,11 @@ Sheet:
   cards, or only rotations
 
 Quality of fixes
-- No skip or ref file without a data file (lin to start with)
-- No skip file with a ref file
+- automate check of ERR_LIN(a,b,c), different by error type
+- Have to look at tag counts, consistent for each type of LIN_ERR.
+- Check #lines in .skip against actual line count.
 - No duplicates in BBOSH (file names)
 - BBOSH files sorted properly into directories
-- Fixes in order
 - Screenscrape major championships, compare.
 - Check links (http, www).
 - Store convention cards?
@@ -59,7 +57,6 @@ Too harsh fixes especially in BBOVG
 - Maybe tolerate tricks in wrong order within each trick
 
 Too lenient
-- No "real" players (West,North,East,South)
 - Very expensive bids (offering huge upside score).
 - Very expensive or "stupid" plays (quickTricks?).
 - Find unrealistic sequences (opening final contract)
@@ -79,6 +76,14 @@ Data
 - Look for more sources?  Later...
 
 update Pavlicek missive and Excel
+
+Regression
+----------
+* ./reader -I -O -c -s -v 30
+* ./reader -I -D -v 30
+* perl refstats.pl all
+* perl scripts/flagref.pl 019000 (ref file quality)
+* perl checkskip.pl all, perl checkref.pl all
 
 Stats
 -----

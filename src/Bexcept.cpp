@@ -54,3 +54,10 @@ bool Bexcept::isPlayDD() const
       function == "Play::setDeclAndDenom");
 }
 
+
+bool Bexcept::isClaim() const
+{
+  return (file == "Play.cpp" &&
+      function == "Play::makeClaim");
+}
+

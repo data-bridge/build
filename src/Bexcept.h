@@ -43,6 +43,8 @@ class Bexcept: public exception
     bool isPlay() const;
 
     bool isPlayDD() const;
+
+    bool isClaim() const;
 };
 
 #endif

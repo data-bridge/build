@@ -888,6 +888,10 @@ static bool storeChunk(
       cout << board->strDeal(BRIDGE_FORMAT_TXT) << endl;
       cout << board->strContract(BRIDGE_FORMAT_TXT) << endl;
     }
+    else if (bex.isClaim())
+    {
+      heurFixTricks(group, segment, board, buffer, chunk, counts, options);
+    }
     else if (bex.isPlayDD() && 
         FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
     {

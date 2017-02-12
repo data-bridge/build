@@ -526,6 +526,10 @@ void Play::makeClaim(const unsigned tricks)
     else
       THROW("Claim when play is already over");
   }
+  else if (tricks < tricksDecl)
+    THROW("Claim too low: " + STR(tricks) + " vs. " + STR(tricksDecl));
+  else if (tricks + tricksDef > 13)
+    THROW("Claim too high: " + STR(tricks) + " vs. " + STR(13-tricksDecl));
   else
   {
     playOverFlag = true;
