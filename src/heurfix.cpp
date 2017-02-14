@@ -83,12 +83,11 @@ static string fixTricksRS(
   const unsigned tricks)
 {
   string contractHeader = segment->contractFromHeader();
+  string st = "\"1," + STR(segment->getContractSeqNo()) + 
+    ",rs," + contractHeader;
   fixTricksContract(contractHeader, tricks);
-
-  if (! segment->setContractInHeader(contractHeader))
-    THROW("Could not rewrite header contract");
-
-  return "rs|" + segment->strContracts(BRIDGE_FORMAT_PAR) + + "|";
+  st += "," + contractHeader + "\" {ERR_LIN_RS_RESULT_WRONG(1,1,1)}";
+  return st;
 }
 
 
@@ -126,7 +125,7 @@ static void writeTricksRS(
   unsigned rsNo = buffer.firstRS();
   if (refLevel != REF_LEVEL_NONE)
   {
-    appendFile(fname, rsNo, "replace", fixed);
+    appendFile(fname, rsNo, "replaceLIN", fixed);
     cout << "Wrote rs with " << tricks << " tricks\n";
   }
   else
@@ -206,7 +205,7 @@ static void writeDeclarerRS(
   unsigned rsNo = buffer.firstRS();
   if (refLevel != REF_LEVEL_NONE)
   {
-    appendFile(fname, rsNo, "replace", fixed);
+    appendFile(fname, rsNo, "replaceLIN", fixed);
     cout << "Wrote rs with " << declarer << " as declarer\n";
   }
   else
@@ -332,7 +331,7 @@ void heurFixTricks(
         //
         string fixed = fixTricksRS(segment, chunkRes);
         unsigned rsNo = buffer.firstRS();
-        cout << rsNo << " replace \"" << fixed << "\"\n";
+        cout << rsNo << " replaceLIN " << fixed << "\n";
       }
       else if (distHdr < distPlay)
       {
@@ -351,12 +350,13 @@ void heurFixTricks(
         unsigned lineno = counts.lno[BRIDGE_FORMAT_RESULT];
         string fixed;
         fixTricksMC(buffer.getLine(lineno), headerRes, fixed);
-        cout << lineno << " replace \"" << fixed << "\"\n";
+        cout << lineno << " replace \"" << fixed << 
+          "\" {ERR_LIN_MC_WRONG(1,1,1)}\n";
 
         cout << "If fixing rs:\n";
         fixed = fixTricksRS(segment, ddRes);
         unsigned rsNo = buffer.firstRS();
-        cout << rsNo << " replace \"" << fixed << "\"\n";
+        cout << rsNo << " replaceLIN " << fixed << "\n";
       }
 
       cout << board->strDealRemain(BRIDGE_FORMAT_TXT) << endl;

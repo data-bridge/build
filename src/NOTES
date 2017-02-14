@@ -1,10 +1,5 @@
-12.02.2017
+14.02.2017
 ----------
-Individual files to check
-* cvg6a, 70 cases of impossible claims including 7638.lin
-* skipped files with the word "Suggest", might still be OK,
-  9175, 10250, 19707, 27930, 34670, 35878
-
 General checks to add
 * Same players at both tables?
 * Detect hands with less than 4 real players.

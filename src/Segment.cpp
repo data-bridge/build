@@ -844,6 +844,13 @@ bool Segment::setContractInHeader(const string& text)
 }
 
 
+unsigned Segment::getContractSeqNo() const
+{
+  return 2*(boards[activeNo].extNo - bInmin) + 
+    boards[activeNo].board.getInstance() + 1;
+}
+
+
 bool Segment::scoringIsIMPs() const
 {
   return scoring.isIMPs();

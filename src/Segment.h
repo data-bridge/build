@@ -196,6 +196,8 @@ class Segment
     string contractFromHeader() const;
 
     bool setContractInHeader(const string& text);
+
+    unsigned getContractSeqNo() const;
       
     bool scoringIsIMPs() const;
 
