@@ -96,6 +96,10 @@ struct Fix
 };
 
 
+static void checkPlayerCompletion(
+  Group& group,
+  ostream& flog);
+
 static bool readFormattedFile(
   const string& fname,
   const Format format,
@@ -259,6 +263,10 @@ static bool dispatchRead(
   {
     bool b = readFormattedFile(task.fileInput,
       task.formatInput, group, options, flog);
+
+    if (b)
+      checkPlayerCompletion(group, flog);
+
     return b;
   }
   catch (Bexcept& bex)
@@ -902,6 +910,27 @@ static bool storeChunk(
       printChunk(chunk);
     return false;
   }
+
+  if (! board->skipped() && ! board->auctionIsOver())
+  {
+    if (board->lengthAuction() > 0)
+    {
+      printCounts(group.name(), counts);
+      cout << board->strDeal(BRIDGE_FORMAT_TXT) << endl;
+      cout << board->strContract(BRIDGE_FORMAT_TXT) << endl;
+      cout << board->strAuction(BRIDGE_FORMAT_TXT) << endl;
+      cout << board->strPlay(BRIDGE_FORMAT_TXT) << endl;
+
+      cout << "Error: Auction incomplete\n";
+      return false;
+    }
+    else
+    {
+      // If we skip here, we get a validation "error".
+      // board->markInstanceSkip();
+    }
+  }
+
   return true;
 }
 
@@ -977,6 +1006,86 @@ static bool fillBoards(
   }
   while (counts.curr > expectBoard);
   return true;
+}
+
+
+
+static void checkPlayerCompletion(
+  Group& group,
+  ostream& flog)
+{
+  unsigned numSegs = 0;
+  unsigned numCombos = 0;
+  bool overlaps = false;
+  bool nonFull = false;
+  vector<unsigned> completions(65);
+  completions.clear();
+
+  for (auto &segment: group)
+  {
+    numSegs++;
+    for (auto &bpair: segment)
+    {
+      Board& board = bpair.board;
+      unsigned c = 0;
+      for (unsigned i = 0; i < board.count(); i++)
+      {
+        board.setInstance(i);
+        c *= 8;
+        if (! board.skipped())
+          c += board.missingPlayers();
+      }
+      if (c > 65)
+        THROW("Bad combo: " + STR(c));
+      if (c > 0)
+        nonFull = true;
+      if (completions[c] == 0)
+        numCombos++;
+
+      completions[c]++;
+
+      if (board.overlappingPlayers())
+        overlaps = true;
+    }
+  }
+
+  if (numSegs > 1)
+  {
+    flog << "Input: " << group.name() << "\n";
+    flog << "Number of segments: " << numSegs << "\n\n";
+  }
+
+  if (overlaps || nonFull)
+  {
+    if (overlaps)
+      flog << "File " << group.name() << ": Overlaps exist\n\n";
+    if (nonFull)
+      flog << "File " << group.name() << ": Incomplete players exist\n\n";
+    for (auto &segment: group)
+    {
+      flog << segment.strTitle(BRIDGE_FORMAT_LIN_VG);
+      flog << segment.strPlayers(BRIDGE_FORMAT_LIN_VG) << "\n";
+    }
+  }
+
+  if (numCombos <= 1)
+    return;
+
+  flog << "Input: " << group.name() << "\n";
+
+  for (auto &segment: group)
+  {
+    flog << segment.strTitle(BRIDGE_FORMAT_LIN_VG);
+    flog << segment.strPlayers(BRIDGE_FORMAT_LIN_VG);
+  }
+
+  for (unsigned i = 0; i < 65; i++)
+  {
+    if (completions[i] == 0)
+      continue;
+    flog << i/8 << ", " << (i % 8) << ": " << completions[i] << "\n";
+  }
+  flog << "\n";
 }
 
 

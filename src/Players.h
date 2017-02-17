@@ -70,6 +70,9 @@ class Players
 
     Room room() const;
 
+    unsigned missing() const;
+    bool overlap(const Players& players2) const;
+
     bool operator == (const Players& players2) const;
 
     bool operator != (const Players& players2) const;

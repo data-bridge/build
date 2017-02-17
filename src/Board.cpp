@@ -513,6 +513,21 @@ void Board::copyPlayers(const Board& board2)
 }
 
 
+unsigned Board::missingPlayers() const
+{
+  return players[numActive].missing();
+}
+
+
+bool Board::overlappingPlayers() const
+{
+  if (len < 2)
+    return false;
+  else
+    return players[0].overlap(players[1]);
+}
+
+
 void Board::setRoom(
   const string& text,
   const Format format)

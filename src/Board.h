@@ -217,6 +217,9 @@ class Board
 
     void copyPlayers(const Board& board2);
 
+    unsigned missingPlayers() const;
+    bool overlappingPlayers() const;
+
     void setRoom(
       const string& s,
       const Format format);

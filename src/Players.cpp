@@ -267,6 +267,33 @@ Room Players::room() const
 }
 
 
+unsigned Players::missing() const
+{
+  unsigned m = 0;
+  for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
+  {
+    if (players[p] == "" || players[p] == PLAYER_NAMES_LONG[p])
+      m++;
+  }
+  return m;
+}
+
+
+bool Players::overlap(const Players& players2) const
+{
+  for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
+  {
+    if (players[p] == "" || players[p] == PLAYER_NAMES_LONG[p])
+      continue;
+
+    for (unsigned p2 = 0; p2 < BRIDGE_PLAYERS; p2++)
+      if (players[p] == players2.players[p])
+        return true;
+  }
+  return false;
+}
+
+
 bool Players::operator == (const Players& players2) const
 {
   for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)

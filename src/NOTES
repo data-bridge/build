@@ -1,26 +1,31 @@
 14.02.2017
 ----------
-General checks to add
-* Same players at both tables?
+Players check
 * Detect hands with less than 4 real players.
-* Incomplete auctions, e.g. 30319.  Some MB_OVERLONG may have to be
-  reclassified.
+
+Dates
+* Detect conflicts between own extractions and HTML from Japan.
+
+orig files
+* deal with .orig files
+* maybe have a repl file referenced in ref?
+
+Other checks
 * Do doubled contracts get detected in Sheet?
+* 40xxx.ref only in 040000 etc.
 
 Code
 * rewrite validateLIN with a function
 * rewrite Segment TODO with functions
 * Expand referr.cpp: classify function
 * Clean up perl path and @INC
-
-* use perl to find deletes of mc|n|pg||
+* Syntax to allow insertLIN, replaceLIN, deleteLIN -1 (last element)
+* Find instances where this is useful
+* use perl or Sheet to find deletes of mc|n|pg||
 * in this way, eliminate lines from .ref files (backup first)
 * work to eliminate sheets
 * what is then left in .ref files?
-
-orig files
-* deal with .orig files
-* maybe have a repl file referenced in ref?
+* make a flag to run the player issue detection optionally
 
 Sheet:
 - Another str() function that outputs an IMP sheet,
@@ -37,14 +42,8 @@ Quality of fixes
 - No duplicates in BBOSH (file names)
 - BBOSH files sorted properly into directories
 - Screenscrape major championships, compare.
-- Check links (http, www).
+- Check links (http, www).  Also from deleted nt comments.
 - Store convention cards?
-
-LIN_VG files with multiple players
-- Could be multiple segments
-- Could be running changes
-- Tolerate whole files or deleted parts of files as well
-- Normal play files (6939.lin).
 
 Too harsh fixes especially in BBOVG
 - Try multi-threading of BBOVG and also BBOSH
@@ -137,7 +136,7 @@ Be able to store
 - board display number, can check dealer/vul then
 - Files, Dirs (or combine?)
 - Systems, and some characteristics
-- Defenses, and some characteristics
+ Defenses, and some characteristics
 
 Generate each of the tables in an sqlite DB as txt
 
@@ -149,6 +148,8 @@ Output proposed deltas to DB
 Find a way to normalize all important text fields.
 
 Should somehow recognize complete duplicates.
+Remember to skip hands with no auction or with no players.
+
 
 Syntax for .bsf files
 ---------------------
