@@ -29,7 +29,7 @@ struct OptEntry
   unsigned numArgs;
 };
 
-#define BRIDGE_NUM_OPTIONS 15
+#define BRIDGE_NUM_OPTIONS 16
 
 static const OptEntry OPT_LIST[BRIDGE_NUM_OPTIONS] =
 {
@@ -43,6 +43,7 @@ static const OptEntry OPT_LIST[BRIDGE_NUM_OPTIONS] =
   {"D", "digdir", 1},
   {"l", "logfile", 1},
   {"c", "compare", 0},
+  {"p", "players", 0},
   {"f", "format", 1},
   {"w", "write", 1},
   {"s", "stats", 0},
@@ -94,6 +95,9 @@ void usage(
     "-l, --logfile s    Log file for outputs (default: stdout).\n" <<
     "\n" <<
     "-c, --compare      Re-read output and compare internally.\n" <<
+    "                   (Default: not set)\n" <<
+    "\n" <<
+    "-p, --players      Flag incomplete tables of players.\n" <<
     "                   (Default: not set)\n" <<
     "\n" <<
     "-f, --format s     Output format for -O (default: ALL).\n" <<
@@ -181,6 +185,7 @@ static void setDefaults(Options& options)
   options.fileLog = {false, ""};
 
   options.compareFlag = false;
+  options.playersFlag = false;
 
   options.formatSetFlag = false;
   options.format = BRIDGE_FORMAT_SIZE;
@@ -232,6 +237,11 @@ void printOptions(const Options& options)
     cout << setw(12) << "compare" << setw(12) << "set" << "\n";
   else
     cout << setw(12) << "compare" << setw(12) << "not set" << "\n";
+
+  if (options.playersFlag)
+    cout << setw(12) << "players" << setw(12) << "set" << "\n";
+  else
+    cout << setw(12) << "players" << setw(12) << "not set" << "\n";
 
   if (options.formatSetFlag)
   {
@@ -382,6 +392,10 @@ void readArgs(
 
       case 'c':
         options.compareFlag = true;
+        break;
+
+      case 'p':
+        options.playersFlag = true;
         break;
 
       case 'f':

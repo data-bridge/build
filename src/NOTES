@@ -1,14 +1,11 @@
-14.02.2017
+24.02.2017
 ----------
-Players check
-* Detect hands with less than 4 real players.
-
-Dates
-* Detect conflicts between own extractions and HTML from Japan.
-
 orig files
 * deal with .orig files
 * maybe have a repl file referenced in ref?
+
+Dates
+* Detect conflicts between own extractions and HTML from Japan.
 
 Other checks
 * Do doubled contracts get detected in Sheet?
@@ -69,11 +66,14 @@ Data
 - Include BBOVG and BBOSH up to the end of 2016
 - Look for more sources?  Later...
 
+Players check
+* Look again once we check the links in lin files.
+
 update Pavlicek missive and Excel
 
 Regression
 ----------
-* ./reader -I -O -c -s -v 30
+* ./reader -I -R -c -s -v 30 (maybe -p as well)
 * ./reader -I -D -v 30
 * perl refstats.pl all
 * perl scripts/flagref.pl 019000 (ref file quality)

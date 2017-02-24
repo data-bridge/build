@@ -264,7 +264,7 @@ static bool dispatchRead(
     bool b = readFormattedFile(task.fileInput,
       task.formatInput, group, options, flog);
 
-    if (b)
+    if (options.playersFlag && b)
       checkPlayerCompletion(group, flog);
 
     return b;

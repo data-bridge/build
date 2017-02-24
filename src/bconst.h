@@ -246,6 +246,7 @@ struct Options
   FileOption fileLog; // -l, --logfile
 
   bool compareFlag; // -c, --compare
+  bool playersFlag; // -p, --players
 
   bool formatSetFlag; // -f, --format
   Format format;
