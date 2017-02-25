@@ -137,7 +137,13 @@ bool Board::skippedAll() const
 
 unsigned Board::count() const
 {
-  return len;
+  unsigned c = 0;
+  for (unsigned l = 0; l < len; l++)
+  {
+    if (! skip[l])
+      c++;
+  }
+  return c;
 }
 
 

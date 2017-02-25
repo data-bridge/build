@@ -36,8 +36,11 @@ my $ref = "referr.h";
 $indir = "$DIR/*" if ($indir eq "all");
 my @files = glob("$indir/*.ref");
 my @files2 = glob("$indir/*.skip");
+my @files3 = glob("$indir/*.noval");
 
 my (@codes, @accum_expl, @accum_rem, @accum_expl2, @accum_rem2);
+my (@accum_expl3, @accum_rem3);
+
 read_error_codes("$HOMEDIR/$ref", \@codes);
 my %codehash;
 for (my $i = 0; $i <= $#codes; $i++)
@@ -47,22 +50,27 @@ for (my $i = 0; $i <= $#codes; $i++)
   reset_accum(\%{$accum_rem[$i]});
   reset_accum(\%{$accum_expl2[$i]});
   reset_accum(\%{$accum_rem2[$i]});
+  reset_accum(\%{$accum_expl3[$i]});
+  reset_accum(\%{$accum_rem3[$i]});
 }
 
 my $num_lin_files = count_files($indir, "lin");
 my $num_skip_files = count_files($indir, "skip");
+my $num_noval_files = count_files($indir, "noval");
 my $num_orig_files = count_files($indir, "orig");
 my $num_ref_files = count_files($indir, "ref");
 
 
 make_stats(\@files, \@accum_expl, \@accum_rem);
 make_stats(\@files2, \@accum_expl2, \@accum_rem2);
+make_stats(\@files3, \@accum_expl3, \@accum_rem3);
 
 open my $fo, '>', $out or die "Can't open $out $!";
 write_ref_stats($fo, \@codes, \@accum_expl, \@accum_rem);
-write_skip_stats($fo, \@codes, \@accum_expl2, \@accum_rem2);
+write_skip_stats($fo, \@codes, "Skip", \@accum_expl2, \@accum_rem2);
+write_skip_stats($fo, \@codes, "Noval", \@accum_expl3, \@accum_rem3);
 write_file_numbers($fo, $num_lin_files, $num_ref_files, $num_skip_files, 
-  $num_orig_files);
+  $num_orig_files, $num_noval_files);
 close $fo;
 
 
@@ -116,7 +124,8 @@ sub log_entry
 
   if (! defined $codehash{$code})
   {
-    die "Undefined code in $file: $code";
+    warn "Undefined code in $file: $code";
+    return;
   }
 
   my $i = $codehash{$code};
@@ -189,7 +198,7 @@ sub make_stats
       {
         $noLIN = 1;
       }
-      elsif ($file =~ /skip/ && $line =~ /^(\d+)\s+/)
+      elsif (($file =~ /skip/ || $file =~ /noval/) && $line =~ /^(\d+)\s+/)
       {
         $noLIN = $1;
       }
@@ -274,14 +283,14 @@ sub write_ref_stats
 
 sub write_skip_stats
 {
-  my ($fo, $codes_ref, $accum_expl_ref, $accum_rem_ref) = @_;
+  my ($fo, $codes_ref, $tag, $accum_expl_ref, $accum_rem_ref) = @_;
 
   printf $fo "%-28s %21s %8s | %12s\n", 
     "", "Explained", "", "Remaining";
   my $FORMAT = "%-28s %5s %6s %5s %5s %5s | %6s %5s\n";
 
   printf $fo $FORMAT,
-    "Skip", "#file", "#lin", "#ref", "#qx", "#bds",
+    $tag, "#file", "#lin", "#ref", "#qx", "#bds",
     "#lin", "#ref";
 
   my @sum = qw(0 0 0 0 0 0);
@@ -319,7 +328,7 @@ sub write_skip_stats
 sub write_file_numbers
 {
   my ($fo, $num_lin_files, $num_ref_files, $num_skip_files, 
-    $num_orig_files) = @_;
+    $num_orig_files, $num_noval_files) = @_;
 
   printf $fo "%-28s %5s\n",
     "Number of lin files", $num_lin_files;
@@ -329,5 +338,7 @@ sub write_file_numbers
     "Number of skip files", $num_skip_files;
   printf $fo "%-28s %5s\n",
     "Number of orig files", $num_orig_files;
+  printf $fo "%-28s %5s\n",
+    "Number of noval files", $num_noval_files;
 }
 

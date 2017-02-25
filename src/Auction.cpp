@@ -1178,9 +1178,11 @@ string Auction::strVul(const Format format) const
   switch(format)
   {
     case BRIDGE_FORMAT_LIN:
-    case BRIDGE_FORMAT_LIN_VG:
     case BRIDGE_FORMAT_LIN_TRN:
       return "sv|" + VUL_NAMES_LIN[vul] + "|";
+
+    case BRIDGE_FORMAT_LIN_VG:
+      return "sv|" + VUL_NAMES_LIN[vul] + "|\n";
 
     case BRIDGE_FORMAT_LIN_RP:
       return "sv|" + VUL_NAMES_LIN_RP[vul] + "|\npf|y|";
