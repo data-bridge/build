@@ -775,7 +775,7 @@ static void chunkLIN2range(
 
 
 static void advance(
-  boardIDLIN& expectBoard, 
+  boardIDLIN& expectBoard,
   const Counts& counts)
 {
   if (expectBoard.no == 0)
@@ -790,10 +790,23 @@ static void advance(
     expectBoard.no++;
     expectBoard.roomFlag = true;
   }
+}
 
-  if (counts.curr.no < expectBoard.no)
-    THROW("Gone past the end of the board range: " +
-      STR(counts.curr.no) + " " + STR(expectBoard.no));
+
+static bool operator < (
+  const boardIDLIN& lhs,
+  const boardIDLIN& rhs)
+{
+  return (lhs.no < rhs.no ||
+      (lhs.no == rhs.no && ! rhs.roomFlag && lhs.roomFlag));
+}
+
+
+static bool operator == (
+  const boardIDLIN& lhs,
+  const boardIDLIN& rhs)
+{
+  return (lhs.no == rhs.no && rhs.roomFlag == lhs.roomFlag);
 }
 
 
@@ -829,30 +842,34 @@ static bool storeChunk(
   const Counts& counts,
   const Format format,
   const Options& options,
-  ostream& flog)
+  ostream& flog,
+  const bool useDefaultsFlag = true)
 {
-  segment->copyPlayers();
-
-  if (chunk[BRIDGE_FORMAT_AUCTION] == "" ||
-      ((format == BRIDGE_FORMAT_LIN ||
-        format == BRIDGE_FORMAT_LIN_VG ||
-        format == BRIDGE_FORMAT_LIN_TRN) &&
-       chunk[BRIDGE_FORMAT_VULNERABLE] == ""))
+  if (useDefaultsFlag)
   {
-    // Guess dealer and vul from the board number.
-    if (chunk[BRIDGE_FORMAT_BOARD_NO] == "")
-      guessDealerAndVul(chunk, segment->getActiveExtBoardNo(), format);
-    else if (format == BRIDGE_FORMAT_LIN_VG &&
-        board->hasDealerVul())
+    segment->copyPlayers();
+
+    if (chunk[BRIDGE_FORMAT_AUCTION] == "" ||
+        ((format == BRIDGE_FORMAT_LIN ||
+          format == BRIDGE_FORMAT_LIN_VG ||
+          format == BRIDGE_FORMAT_LIN_TRN) &&
+         chunk[BRIDGE_FORMAT_VULNERABLE] == ""))
     {
-      chunk[BRIDGE_FORMAT_VULNERABLE] = board->strVul(BRIDGE_FORMAT_PAR);
-    }
-    else if ((format != BRIDGE_FORMAT_LIN &&
-        format != BRIDGE_FORMAT_LIN_VG &&
-        format != BRIDGE_FORMAT_LIN_TRN) ||
-        chunk[BRIDGE_FORMAT_VULNERABLE] == "")
-    {
-      guessDealerAndVul(chunk, chunk[BRIDGE_FORMAT_BOARD_NO], format);
+      // Guess dealer and vul from the board number.
+      if (chunk[BRIDGE_FORMAT_BOARD_NO] == "")
+        guessDealerAndVul(chunk, segment->getActiveExtBoardNo(), format);
+      else if (format == BRIDGE_FORMAT_LIN_VG &&
+          board->hasDealerVul())
+      {
+        chunk[BRIDGE_FORMAT_VULNERABLE] = board->strVul(BRIDGE_FORMAT_PAR);
+      }
+      else if ((format != BRIDGE_FORMAT_LIN &&
+          format != BRIDGE_FORMAT_LIN_VG &&
+          format != BRIDGE_FORMAT_LIN_TRN) ||
+          chunk[BRIDGE_FORMAT_VULNERABLE] == "")
+      {
+        guessDealerAndVul(chunk, chunk[BRIDGE_FORMAT_BOARD_NO], format);
+      }
     }
   }
 
@@ -863,7 +880,8 @@ static bool storeChunk(
     {
       if (chunk[i] == "")
       {
-        if (i == BRIDGE_FORMAT_CONTRACT && 
+        if (useDefaultsFlag &&
+            i == BRIDGE_FORMAT_CONTRACT && 
             FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
         {
           segment->loadSpecificsFromHeader(
@@ -950,8 +968,30 @@ static bool fillBoards(
   boardIDLIN expectBoard = lastBoard;
   advance(expectBoard, counts);
 
-  if (! (counts.curr > expectBoard))
+  if (counts.curr == expectBoard)
     return true;
+
+  if (counts.curr < expectBoard)
+  {
+    // Boards are not in order.
+    if (counts.curr.no < counts.bExtmin)
+      THROW("Not a valid board: " + STR(counts.curr.no));
+    const unsigned intNo = counts.curr.no - counts.bExtmin;
+
+    board = segment->getBoard(intNo);
+    if (board == nullptr)
+      THROW("Not a board: " + STR(counts.curr.no));
+
+    if (counts.curr.roomFlag)
+      board->setInstance(0);
+    else
+      board->setInstance(1);
+
+    board->unmarkInstanceSkip();
+
+    return storeChunk(group, segment, board, buffer, chunk, 
+        counts, format, options, flog, false);
+  }
 
   vector<string> chunkSynth(BRIDGE_FORMAT_LABELS_SIZE);
   for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
@@ -1238,13 +1278,30 @@ static bool readFormattedFile(
       if (! fillBoards(group, segment, board, buffer, chunk, counts,
           lastBoard, format, options, flog))
         return false;
+      if (counts.curr < lastBoard)
+      {
+        // This was a backfill operation.
+        continue;
+      }
     }
 
-    if (counts.curr.no != 0 && counts.curr.no != lastBoard.no)
+    if (counts.curr.no != 0)
     {
-      // New board.
-      board = segment->acquireBoard(counts.bno);
-      counts.bno++;
+      if (counts.curr.no != lastBoard.no)
+      {
+        // New board.
+        board = segment->acquireBoard(counts.bno);
+        counts.bno++;
+      }
+      else if ((format == BRIDGE_FORMAT_LIN_VG ||
+          format == BRIDGE_FORMAT_LIN_TRN) &&
+          counts.bExtmin + counts.bno != counts.curr.no)
+      {
+        // Usually not needed, but sometimes we moved the board
+        // pointer while backfilling.
+        const unsigned intNo = counts.curr.no - counts.bExtmin;
+        board = segment->getBoard(intNo);
+      }
     }
 
     lastBoard = counts.curr;

@@ -109,6 +109,15 @@ void Board::markInstanceSkip()
 }
 
 
+void Board::unmarkInstanceSkip()
+{
+  if (! skip[numActive])
+    THROW("Instance is not skipped");
+
+  skip[numActive] = false;
+}
+
+
 bool Board::skipped() const
 {
   return skip[numActive];

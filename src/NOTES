@@ -3,17 +3,17 @@
 orig files
 * deal with .orig files
 * maybe have a repl file referenced in ref?
+* 7090 is special case (bad PBN file named .lin)
 
 Dates
 * Detect conflicts between own extractions and HTML from Japan.
-
-Other checks
-* Do doubled contracts get detected in Sheet?
-* 40xxx.ref only in 040000 etc.
+  Also extract directly from BBO
 
 Code
 * rewrite validateLIN with a function
 * rewrite Segment TODO with functions
+* do something about dispatch.cpp
+  make chunk a struct with methods?
 * Expand referr.cpp: classify function
 * Clean up perl path and @INC
 * Syntax to allow insertLIN, replaceLIN, deleteLIN -1 (last element)
@@ -22,15 +22,12 @@ Code
 * in this way, eliminate lines from .ref files (backup first)
 * work to eliminate sheets
 * what is then left in .ref files?
-* make a flag to run the player issue detection optionally
+* Add mutex (like in Play.cpp) to ddsIF.cpp
+* Then check multi-threading of -D
 
 Sheet:
 - Another str() function that outputs an IMP sheet,
   will also need vul
-- Can be extended to the "rotated" plays in early VG files
-- Deal can report #recurring hands out of (up to) 4 cards
-- See whether a hand is completely messed up, or only a few
-  cards, or only rotations
 
 Quality of fixes
 - automate check of ERR_LIN(a,b,c), different by error type
@@ -43,7 +40,6 @@ Quality of fixes
 - Store convention cards?
 
 Too harsh fixes especially in BBOVG
-- Try multi-threading of BBOVG and also BBOSH
 - May have deleted whole hands due to single bad cards...
 - Maybe tolerate tricks in wrong order within each trick
 
@@ -51,8 +47,6 @@ Too lenient
 - Very expensive bids (offering huge upside score).
 - Very expensive or "stupid" plays (quickTricks?).
 - Find unrealistic sequences (opening final contract)
-- 37865.lin, c32: Why is 2NT, W and 1NT, W not flagged apart?
-  (Also perhaps doubled or not?)
 
 Code
 - Print example of each validate "error"

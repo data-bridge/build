@@ -74,6 +74,7 @@ class Board
     unsigned getInstance() const;
 
     void markInstanceSkip();
+    void unmarkInstanceSkip();
 
     bool skipped() const;
 
