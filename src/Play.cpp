@@ -507,6 +507,12 @@ bool Play::isOver() const
 }
 
 
+bool Play::dealIsSet() const
+{
+  return setDealFlag;
+}
+
+
 void Play::makeClaim(const unsigned tricks)
 {
   if (claimMadeFlag)

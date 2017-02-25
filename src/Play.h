@@ -127,6 +127,8 @@ class Play
 
     bool isOver() const;
 
+    bool dealIsSet() const;
+
     void makeClaim(const unsigned tricks);
     
     bool hasClaim() const;

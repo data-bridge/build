@@ -77,6 +77,7 @@ class Board
     void unmarkInstanceSkip();
 
     bool skipped() const;
+    bool skippedAll() const;
 
     unsigned count() const;
 

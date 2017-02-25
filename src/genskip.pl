@@ -5,6 +5,9 @@ use warnings;
 
 # Looks at .lin file and suggests a skip text.
 
+# my $reason = "ERR_LIN_PN_PLAYERS_WRONG";
+my $reason = "ERR_LIN_QX_UNORDERED";
+
 if ($#ARGV < 0)
 {
   print "Usage: perl genskip.pl number\n";
@@ -62,4 +65,4 @@ while (my $line = <$fr>)
 }
 close $fr;
 
-print "$ln {ERR_LIN_PN_PLAYERS_WRONG(0,$qx,$bd)}\n";
+print "$ln {$reason(0,$qx,$bd)}\n";

@@ -124,6 +124,17 @@ bool Board::skipped() const
 }
 
 
+bool Board::skippedAll() const
+{
+  for (unsigned l = 0; l < len; l++)
+  {
+    if (! skip[l])
+      return false;
+  }
+  return true;
+}
+
+
 unsigned Board::count() const
 {
   return len;
@@ -169,16 +180,16 @@ void Board::setDeal(
   const string& text,
   const Format format)
 {
-    // Assume the cards are unchanged.  Don't check for now.
-  if (deal.isSet())
-  // if (numActive > 0)
-    return;
+  // Assume the cards are unchanged.  Don't check for now.
+  if (! deal.isSet())
+    deal.set(text, format);
 
-  deal.set(text, format);
-
-  unsigned cards[BRIDGE_PLAYERS][BRIDGE_SUITS];
-  deal.getDDS(cards);
-  play[numActive].setHoldingDDS(cards);
+  if (! play[numActive].dealIsSet())
+  {
+    unsigned cards[BRIDGE_PLAYERS][BRIDGE_SUITS];
+    deal.getDDS(cards);
+    play[numActive].setHoldingDDS(cards);
+  }
 
   if (format == BRIDGE_FORMAT_LIN ||
       format == BRIDGE_FORMAT_LIN_RP ||
@@ -571,6 +582,15 @@ bool Board::operator == (const Board& board2) const
   if (len != board2.len)
     DIFF("Different number of instances");
 
+  bool wholeSkip = Board::skippedAll();
+  bool wholeSkip2 = board2.skippedAll();
+
+  if (wholeSkip != wholeSkip2)
+    THROW("Whole skips differ");
+
+  if (wholeSkip)
+    return true;
+
   // These object comparisons will actually throw exceptions, not fail.
   if (deal != board2.deal)
     return false;
@@ -579,6 +599,11 @@ bool Board::operator == (const Board& board2) const
 
   for (unsigned b = 0; b < len; b++)
   {
+    if (skip[b] != board2.skip[b])
+      THROW("Individual skips differ");
+    if (skip[b])
+      continue;
+
     if (players[b] != board2.players[b])
       return false;
     if (auction[b] != board2.auction[b])

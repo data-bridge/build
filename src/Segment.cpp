@@ -58,6 +58,7 @@ Board * Segment::getBoard(const unsigned intNo)
     if (p.no == intNo)
     {
       activeBoard = &p.board;
+      activeNo = intNo;
       return &p.board;
     }
   }
