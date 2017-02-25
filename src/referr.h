@@ -59,6 +59,7 @@ enum RefErrorsType
 
   ERR_LIN_QX_MISSING,
   ERR_LIN_QX_WRONG,
+  ERR_LIN_QX_UNORDERED,
 
   ERR_LIN_DISTS_WRONG,
 
@@ -128,6 +129,10 @@ const vector<RefErrorBundle> RefErrors =
   {ERR_LIN_QX_WRONG,
    "ERR_LIN_QX_WRONG",
    "LIN qx wrong"},
+
+  {ERR_LIN_QX_UNORDERED,
+   "ERR_LIN_QX_UNORDERED",
+   "LIN qx unordered"},
 
   {ERR_LIN_DISTS_WRONG,
    "ERR_LIN_DISTS_WRONG",

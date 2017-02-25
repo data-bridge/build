@@ -37,7 +37,8 @@ class Files
     bool fillEntry(
       const string& text,
       FileEntry& entry,
-      const bool checkSkip = false) const;
+      const bool checkSkip = false,
+      const bool checkNoval = false) const;
 
     void list2map(
       const vector<FileEntry>& fileList,
@@ -47,7 +48,8 @@ class Files
       const string& dirName,
       vector<FileEntry>& fileList,
       const Format formatOnly = BRIDGE_FORMAT_SIZE,
-      const bool checkSkip = false);
+      const bool checkSkip = false,
+      const bool checkNoval = false);
 
     Format guessLINFormat(const string& base) const;
 

@@ -63,7 +63,8 @@ void Files::rewind()
 bool Files::fillEntry(
   const string& text,
   FileEntry& entry,
-  const bool checkSkip) const
+  const bool checkSkip,
+  const bool checkNoval) const
 {
   regex re("([^./]+)\\.(\\w+)$");
   smatch match;
@@ -78,12 +79,24 @@ bool Files::fillEntry(
 
     if (entry.format == BRIDGE_FORMAT_SIZE)
       return false;
-    else if (! checkSkip)
-      return true;
     
-    string skip = changeExt(text, ".skip");
-    ifstream fin(skip);
-    return ! fin.good();
+    if (checkSkip)
+    {
+      string skip = changeExt(text, ".skip");
+      ifstream fin(skip);
+      if (fin.good())
+        return false;
+    }
+
+    if (checkNoval)
+    {
+      string noval = changeExt(text, ".noval");
+      ifstream fin(noval);
+      if (fin.good())
+        return false;
+    }
+
+    return true;
   }
   else
     return false;
@@ -94,7 +107,8 @@ void Files::buildFileList(
   const string& dirName,
   vector<FileEntry>& fileList,
   const Format formatOnly,
-  const bool checkSkip)
+  const bool checkSkip,
+  const bool checkNoval)
 {
   DIR *dir;
   struct dirent *ent;
@@ -109,7 +123,7 @@ void Files::buildFileList(
     switch(ent->d_type)
     {
       case DT_REG:
-        if (Files::fillEntry(s, entry, checkSkip))
+        if (Files::fillEntry(s, entry, checkSkip, checkNoval))
         {
           if (formatOnly == BRIDGE_FORMAT_SIZE || 
               entry.format == formatOnly)
@@ -121,7 +135,8 @@ void Files::buildFileList(
         if (strcmp(ent->d_name, ".") != 0 &&
             strcmp(ent->d_name, "..") != 0)
         {
-          Files::buildFileList(s, fileList, formatOnly, checkSkip);
+          Files::buildFileList(s, fileList, formatOnly, 
+            checkSkip, checkNoval);
         }
 
       default:
@@ -222,11 +237,12 @@ void Files::set(const Options& options)
   if (options.fileRef.setFlag)
   {
     FileEntry e;
-    Files::fillEntry(options.fileRef.name, e);
-    refList.push_back(e);
+    if (Files::fillEntry(options.fileRef.name, e, false, true))
+      refList.push_back(e);
   }
   else if (options.dirRef.setFlag)
-    Files::buildFileList(options.dirRef.name, refList, options.format);
+    Files::buildFileList(options.dirRef.name, refList, options.format,
+      false, true);
 
   Files::list2map(refList, refMap);
 
