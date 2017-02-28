@@ -2,6 +2,7 @@
 ----------
 Sheet
 * work to eliminate sheets
+  DONE: 42-46
 * Expand referr.cpp: classify function
 * Another str() function that outputs an IMP sheet,
   will also need vul

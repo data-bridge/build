@@ -693,7 +693,7 @@ unsigned Buffer::getInternalNumber(const unsigned no) const
 
 string Buffer::getLine(const unsigned no) const
 {
-  if (no == 0 || no > len)
+  if (no == 0 || no > lines[len-1].no)
     return "";
 
   const unsigned intNo = Buffer::getInternalNumber(no);
