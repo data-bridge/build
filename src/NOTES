@@ -2,10 +2,12 @@
 ----------
 Sheet
 * work to eliminate sheets
-  DONE: 42-46
+  DONE: 34-46
 * Expand referr.cpp: classify function
 * Another str() function that outputs an IMP sheet,
   will also need vul
+* Look again(?) where play is complete and differs from header
+  and we agree with play
 
 ref files
 * automate check of ERR_LIN(a,b,c), different by error type

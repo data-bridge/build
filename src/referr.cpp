@@ -238,6 +238,7 @@ void readRefFix(
     else if (s == "insertLIN")
     {
       rf.type = BRIDGE_REF_INSERT_LIN;
+      rf.count = 1;
       rf.value = "";
       if (! parseRefLIN(line, rf))
         THROW("Ref file " + refName + ": Bad LIN in '" + line + "'");
@@ -249,6 +250,7 @@ void readRefFix(
     else if (s == "replaceLIN")
     {
       rf.type = BRIDGE_REF_REPLACE_LIN;
+      rf.count = 1;
       rf.value = "";
       if (! parseRefLIN(line, rf))
         THROW("Ref file " + refName + ": Bad LIN in '" + line + "'");
@@ -260,6 +262,7 @@ void readRefFix(
     else if (s == "deleteLIN")
     {
       rf.type = BRIDGE_REF_DELETE_LIN;
+      rf.count = 1;
       rf.value = "";
       if (! parseRefLIN(line, rf))
         THROW("Ref file " + refName + ": Bad LIN in '" + line + "'");

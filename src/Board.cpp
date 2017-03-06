@@ -147,6 +147,12 @@ unsigned Board::count() const
 }
 
 
+unsigned Board::countAll() const
+{
+  return len;
+}
+
+
 void Board::setLINheader(const LINData& lin)
 {
   if (! LINset)

@@ -80,6 +80,7 @@ class Board
     bool skippedAll() const;
 
     unsigned count() const;
+    unsigned countAll() const;
 
     void setLINheader(const LINData& lin);
 

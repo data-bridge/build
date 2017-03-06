@@ -1068,7 +1068,7 @@ static void checkPlayerCompletion(
     {
       Board& board = bpair.board;
       unsigned c = 0;
-      for (unsigned i = 0; i < board.count(); i++)
+      for (unsigned i = 0; i < board.countAll(); i++)
       {
         board.setInstance(i);
         c *= 8;
@@ -1357,7 +1357,7 @@ static void logLengths(
     {
       Board& board = bpair.board;
 
-      for (unsigned i = 0; i < board.count(); i++)
+      for (unsigned i = 0; i < board.countAll(); i++)
       {
         board.setInstance(i);
 
@@ -1434,7 +1434,7 @@ static void writeFormattedFile(
       segment.setBoard(bpair.no);
 
       writeInfo.bno = bpair.no;
-      writeInfo.numInst = board.count();
+      writeInfo.numInst = board.countAll();
 
       for (unsigned i = 0; i < writeInfo.numInst; i++)
       {
