@@ -30,6 +30,7 @@ struct RefFixLIN
 {
   unsigned tagNo; // Starting from 1
   unsigned fieldNo; // Starting from 1
+  bool reverseFlag;
   string tag;
   string was;
   string is;
@@ -81,6 +82,8 @@ enum RefErrorsType
   ERR_LIN_SYNTAX_ERROR,
 
   ERR_LIN_TOO_FLAWED,
+
+  ERR_LIN_DIRECTOR,
 
   ERR_SIZE
 };
@@ -185,6 +188,10 @@ const vector<RefErrorBundle> RefErrors =
   {ERR_LIN_TOO_FLAWED,
    "ERR_LIN_TOO_FLAWED",
    "LIN too flawed"},
+
+  {ERR_LIN_DIRECTOR,
+   "ERR_LIN_DIRECTOR",
+   "LIN director decision"},
 
   {ERR_SIZE,
    "ERR_SIZE",

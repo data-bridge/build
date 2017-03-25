@@ -2,12 +2,19 @@
 ----------
 Sheet
 * work to eliminate sheets
-  DONE: 34-46
+  DONE: 10-46 (<= 34: very carefully done)
 * Expand referr.cpp: classify function
 * Another str() function that outputs an IMP sheet,
   will also need vul
 * Look again(?) where play is complete and differs from header
   and we agree with play
+* Use ERR_LIN_DIRECTOR generally, also >= 020000
+  Search for TD, [Dd]irector
+* Redo >= 35 _RS_
+* Deal with remaining sht files
+* 16002 o4 DBL detected? 17392 o11 too
+* Get rid of all _ROTATE tags in .ref files
+* Make a _ROTATE tag in validateLIN for this
 
 ref files
 * automate check of ERR_LIN(a,b,c), different by error type

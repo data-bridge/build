@@ -86,11 +86,15 @@ class Play
 
     void addPlay(const string& text);
 
+    unsigned getRotationalOffset(const vector<string>& cards) const;
+
     void addTrickPBN(const string& text); // Currently unused
     
     void setPlaysPBN(const vector<string>& list);
 
-    void setPlaysRBN(const string& text);
+    void setPlaysRBN(
+      const string& text,
+      const Format format);
     
     string strLIN() const;
     string strLIN_VG() const;

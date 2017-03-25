@@ -382,7 +382,30 @@ void Play::setPlaysPBN(const vector<string>& list)
 }
 
 
-void Play::setPlaysRBN(const string& text)
+unsigned Play::getRotationalOffset(const vector<string>& cards) const
+{
+  // In early LIN_VG there were sometimes rotated tricks!
+  const Player leader = leads[trickToPlay].leader;
+
+  for (unsigned offset = 0; offset < 4; offset++)
+  {
+    auto it = PLAY_CARD_TO_INFO.find(cards[offset]);
+    if (it == PLAY_CARD_TO_INFO.end())
+      THROW("Invalid card: '" + cards[offset] + "'");
+
+    const CardInfo& info = it->second;
+
+    if ((holding[leader][info.suit] & info.bitValue))
+      return offset;
+  }
+
+  return BRIDGE_PLAYER_SIZE;
+}
+
+
+void Play::setPlaysRBN(
+  const string& text,
+  const Format format)
 {
   string str = text;
   if (str.length() < 2)
@@ -398,6 +421,7 @@ void Play::setPlaysRBN(const string& text)
   tricks.clear();
   tokenize(str, tricks, ":");
 
+  vector<string> cards;
   for (unsigned t = 0; t < tricks.size(); t++)
   {
     const string& trick = tricks[t];
@@ -408,11 +432,9 @@ void Play::setPlaysRBN(const string& text)
     const char suitLed = trick.at(0); // Might be invalid
     stringstream ss;
     unsigned i = 0;
-    unsigned b = 0;
+    cards.clear();
     while (i < l)
     {
-      if (b >= BRIDGE_PLAYERS)
-        THROW("Too many plays in trick " + trick);
 
       ss.str("");
       char next = trick.at(i);
@@ -427,8 +449,26 @@ void Play::setPlaysRBN(const string& text)
         ss << suitLed << next;
         i++;
       }
-      Play::addPlay(ss.str());
-      b++;
+      cards.push_back(ss.str());
+    }
+
+    unsigned cs = cards.size();
+    if (cs > BRIDGE_PLAYERS)
+      THROW("Too many plays in trick " + trick);
+
+    if (format == BRIDGE_FORMAT_LIN_VG && cs == 4)
+    {
+      const unsigned offset = Play::getRotationalOffset(cards);
+      if (offset == BRIDGE_PLAYER_SIZE)
+        THROW("No rotational offset fits: " + tricks[t]);
+
+      for (unsigned cn = offset; cn < offset+4; cn++)
+        Play::addPlay(cards[cn % 4]);
+    }
+    else
+    {
+      for (unsigned cn = 0; cn < cs; cn++)
+        Play::addPlay(cards[cn]);
     }
   }
 
@@ -460,7 +500,7 @@ void Play::setPlays(
     case BRIDGE_FORMAT_EML:
     case BRIDGE_FORMAT_TXT:
     case BRIDGE_FORMAT_REC:
-      Play::setPlaysRBN(text);
+      Play::setPlaysRBN(text, format);
       break;
 
     default:

@@ -535,6 +535,81 @@ static bool isDifferentCase(
 }
 
 
+static bool isRotatedPlay(
+  ValState& valState,
+  ValProfile& prof)
+{
+  UNUSED(prof);
+  vector<string> playRef, playOut;
+
+  do
+  {
+    playRef.clear();
+    playOut.clear();
+
+    do
+    {
+      playRef.push_back(valState.dataRef.value);
+      if (! valState.bufferRef.next(valState.dataRef))
+        return false;
+    }
+    while (valState.dataRef.label == "pc" && playRef.size() < 4);
+
+    do
+    {
+      playOut.push_back(valState.dataOut.value);
+      if (! valState.bufferOut.next(valState.dataOut))
+        return false;
+    }
+    while (valState.dataOut.label == "pc" && playOut.size() < 4);
+
+    if (playRef.size() != 4 || playOut.size() != 4)
+      return false;
+
+    unsigned offset = 0;
+    while (offset < 4 && ! isDifferentCase(playOut[offset], playRef[0]))
+      offset++;
+
+    if (offset == 4)
+      return false;
+
+    for (unsigned i = 1; i < 4; i++)
+    {
+      if (! isDifferentCase(playRef[i], playOut[(offset+i) % 4]))
+        return false;
+    }
+  }
+  while (valState.dataRef.label == "pc" &&
+      valState.dataOut.label == "pc");
+
+  if (valState.dataRef.label == valState.dataOut.label &&
+      valState.dataRef.value == valState.dataOut.value)
+    return true;
+  else if (valState.dataRef.label == "mc" &&
+      valState.dataOut.label == "qx")
+  {
+    // Shouldn't have to do this here -- should be a more global
+    // loop in validateLIN().
+    if (! valState.bufferRef.next(valState.dataRef))
+      return false;
+
+    if (valState.dataRef.label != "qx")
+      return false;
+
+    // TODO: Should be logged as a non-consequential difference.
+    // prof.log(SOMETHING, valState);
+
+    if (valState.dataRef.label == valState.dataOut.label &&
+        valState.dataRef.value == valState.dataOut.value)
+      return true;
+    else
+      return false;
+  }
+  else
+    return false;
+}
+
+
 bool validateLIN(
   ValState& valState,
   ValProfile& prof)
@@ -874,6 +949,18 @@ bool validateLIN(
           (valState.dataRef.value == "E" &&
           valState.dataOut.value == "e"))
         return true;
+      else
+        return false;
+    }
+    else if (valState.dataRef.label == "pc" &&
+      ! isDifferentCase(valState.dataRef.value, valState.dataOut.value))
+    {
+      // Could be a play rotation from an early LIN_VG file.
+      if (isRotatedPlay(valState, prof))
+      {
+        prof.log(BRIDGE_VAL_PLAY, valState);
+        return true;
+      }
       else
         return false;
     }

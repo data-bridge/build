@@ -69,6 +69,15 @@ static bool parseRefLIN(
   v.clear();
   tokenize(arg, v, ",");
 
+  if (v[0].at(0) == '-')
+  {
+    // Permit counts from the back of the line as well.
+    v[0] = v[0].substr(1);
+    rf.fixLIN.reverseFlag = true;
+  }
+  else
+    rf.fixLIN.reverseFlag = false;
+
   if (commas == 0 && rf.type == BRIDGE_REF_DELETE_LIN)
   {
     // First one must be a tag number.
@@ -547,7 +556,10 @@ static void printModify(
   const RefFixLIN& fixLIN)
 {
   cout << "line   : " << line << "\n";
-  cout << "tagNo  : " << fixLIN.tagNo << "\n";
+  if (fixLIN.reverseFlag)
+    cout << "tagNo  : " << fixLIN.tagNo << " (from back)\n";
+  else
+    cout << "tagNo  : " << fixLIN.tagNo << "\n";
   cout << "fieldNo: " << fixLIN.fieldNo << "\n";
   cout << "tag    : " << fixLIN.tag << "\n";
   cout << "was    : " << fixLIN.was << "\n";
@@ -594,9 +606,14 @@ bool modifyLINLine(
   if (refFix.fixLIN.tagNo == 0)
     modifyLINFail(line, refFix.fixLIN, "No tag number");
 
-  const unsigned start = 2*(refFix.fixLIN.tagNo-1);
-  if (start+1 >= v.size())
+  if (2 * refFix.fixLIN.tagNo > v.size())
     modifyLINFail(line, refFix.fixLIN, "Tag number too large");
+
+  unsigned start;
+  if (refFix.fixLIN.reverseFlag)
+    start = v.size() - 2*refFix.fixLIN.tagNo;
+  else
+    start = 2*(refFix.fixLIN.tagNo-1);
 
   bool interiorFlag = false;
   vector<string> f;
@@ -642,7 +659,7 @@ bool modifyLINLine(
   else if (refFix.type == BRIDGE_REF_REPLACE_LIN)
   {
     if (v[start] != refFix.fixLIN.tag)
-      modifyLINFail(line, refFix.fixLIN, "Different tags");
+      modifyLINFail(line, refFix.fixLIN, "Different tags: " + v[start]);
 
     if (interiorFlag)
     {
@@ -655,7 +672,8 @@ bool modifyLINLine(
     else
     {
       if (v[start+1] != refFix.fixLIN.was)
-        modifyLINFail(line, refFix.fixLIN, "Old value wrong");
+        modifyLINFail(line, refFix.fixLIN, 
+          "Old value wrong: " + v[start+1]);
 
       v[start+1] = refFix.fixLIN.is;
     }
@@ -665,7 +683,7 @@ bool modifyLINLine(
     if (interiorFlag)
     {
       if (v[start] != refFix.fixLIN.tag)
-        modifyLINFail(line, refFix.fixLIN, "Different tags");
+        modifyLINFail(line, refFix.fixLIN, "Different tags: " + v[start]);
 
       if (f[refFix.fixLIN.fieldNo-1] != refFix.fixLIN.was)
         modifyLINFail(line, refFix.fixLIN, "Old field wrong");
@@ -683,7 +701,7 @@ bool modifyLINLine(
     else
     {
       if (v[start] != refFix.fixLIN.tag)
-        modifyLINFail(line, refFix.fixLIN, "Different tags");
+        modifyLINFail(line, refFix.fixLIN, "Different tags: " + v[start]);
 
       if (v[start+1] != refFix.fixLIN.was)
         modifyLINFail(line, refFix.fixLIN, "Old value wrong");
