@@ -387,7 +387,7 @@ unsigned Play::getRotationalOffset(const vector<string>& cards) const
   // In early LIN_VG there were sometimes rotated tricks!
   const Player leader = leads[trickToPlay].leader;
 
-  for (unsigned offset = 0; offset < 4; offset++)
+  for (unsigned offset = 0; offset < cards.size(); offset++)
   {
     auto it = PLAY_CARD_TO_INFO.find(cards[offset]);
     if (it == PLAY_CARD_TO_INFO.end())
@@ -456,14 +456,14 @@ void Play::setPlaysRBN(
     if (cs > BRIDGE_PLAYERS)
       THROW("Too many plays in trick " + trick);
 
-    if (format == BRIDGE_FORMAT_LIN_VG && cs == 4)
+    if (format == BRIDGE_FORMAT_LIN_VG && cs > 1)
     {
       const unsigned offset = Play::getRotationalOffset(cards);
       if (offset == BRIDGE_PLAYER_SIZE)
         THROW("No rotational offset fits: " + tricks[t]);
 
-      for (unsigned cn = offset; cn < offset+4; cn++)
-        Play::addPlay(cards[cn % 4]);
+      for (unsigned cn = offset; cn < offset + cs; cn++)
+        Play::addPlay(cards[cn % cs]);
     }
     else
     {

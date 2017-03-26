@@ -87,6 +87,7 @@ void appendFile(
   const string& text);
 
 void toUpper(string& text);
+void toLower(string& text);
 
 string basefile(const string& path);
 

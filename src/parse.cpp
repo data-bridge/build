@@ -502,6 +502,14 @@ void toUpper(
 }
 
 
+void toLower(
+  string& text)
+{
+  for (unsigned i = 0; i < text.size(); i++)
+    text.at(i) = static_cast<char>(tolower(static_cast<int>(text.at(i))));
+}
+
+
 unsigned trimLeading(
   string& text,
   const char c)

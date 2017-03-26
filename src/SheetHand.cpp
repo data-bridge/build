@@ -314,7 +314,7 @@ void SheetHand::finishHand(
 
     try
     {
-      play.setPlays(plays, BRIDGE_FORMAT_RBN);
+      play.setPlays(plays, BRIDGE_FORMAT_LIN_VG);
       hasPlay = true;
       playDistance.numTricks = play.getTricks();
       playDistance.goodTricks = playDistance.numTricks;

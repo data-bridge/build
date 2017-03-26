@@ -128,7 +128,12 @@ void readLINChunk(
 
       auto it = LINmap.find(label);
       if (it == LINmap.end())
-        THROW("Illegal LIN label in line '" + lineData.line + "'");
+      {
+        toLower(label);
+        it = LINmap.find(label);
+        if (it == LINmap.end())
+          THROW("Illegal LIN label in line '" + lineData.line + "'");
+      }
 
       const unsigned labelNo = it->second;
       if (labelNo <= BRIDGE_FORMAT_VISITTEAM)

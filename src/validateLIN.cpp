@@ -547,11 +547,15 @@ static bool isRotatedPlay(
     playRef.clear();
     playOut.clear();
 
+    bool doneRef = false, doneOut = false;
     do
     {
       playRef.push_back(valState.dataRef.value);
       if (! valState.bufferRef.next(valState.dataRef))
-        return false;
+      {
+        doneRef = true;
+        break;
+      }
     }
     while (valState.dataRef.label == "pc" && playRef.size() < 4);
 
@@ -559,31 +563,43 @@ static bool isRotatedPlay(
     {
       playOut.push_back(valState.dataOut.value);
       if (! valState.bufferOut.next(valState.dataOut))
-        return false;
+      {
+        doneOut = true;
+        break;
+      }
     }
     while (valState.dataOut.label == "pc" && playOut.size() < 4);
 
-    if (playRef.size() != 4 || playOut.size() != 4)
+    if (playRef.size() != playOut.size())
       return false;
 
+    const unsigned ps = playRef.size();
     unsigned offset = 0;
-    while (offset < 4 && ! isDifferentCase(playOut[offset], playRef[0]))
+    while (offset < ps && ! isDifferentCase(playOut[offset], playRef[0]))
       offset++;
 
-    if (offset == 4)
+    if (offset == ps)
       return false;
 
-    for (unsigned i = 1; i < 4; i++)
+    for (unsigned i = 1; i < ps; i++)
     {
-      if (! isDifferentCase(playRef[i], playOut[(offset+i) % 4]))
+      if (! isDifferentCase(playRef[i], playOut[(offset+i) % ps]))
         return false;
     }
+
+    if (offset == 0 &&
+        valState.dataRef.label == valState.dataOut.label &&
+        isDifferentCase(valState.dataRef.value, valState.dataOut.value))
+      return true;
+    
+    if (doneRef && doneOut)
+      return true;
   }
   while (valState.dataRef.label == "pc" &&
       valState.dataOut.label == "pc");
 
   if (valState.dataRef.label == valState.dataOut.label &&
-      valState.dataRef.value == valState.dataOut.value)
+      isDifferentCase(valState.dataRef.value, valState.dataOut.value))
     return true;
   else if (valState.dataRef.label == "mc" &&
       valState.dataOut.label == "qx")
@@ -851,7 +867,8 @@ bool validateLIN(
     }
   }
 
-  if (valState.dataRef.label == valState.dataOut.label)
+  // if (valState.dataRef.label == valState.dataOut.label)
+  if (isDifferentCase(valState.dataRef.label, valState.dataOut.label))
   {
     if (valState.dataRef.label == "vg")
     {
