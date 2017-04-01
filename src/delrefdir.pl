@@ -62,23 +62,23 @@ if ($file =~ /2019/)
       if ($delta ne "")
       {
         $line = "$lno deleteLIN \"$delta\"";
-        print "$file:\n";
-        print "$arg\n";
-        print "NEW '$line'\n";
-        print "$delta\n\n";
+        # print "$file:\n";
+        # print "$arg\n";
+        # print "NEW '$line'\n";
+        # print "$delta\n\n";
       }
     }
     push @lines, $line;
   }
   close $fr;
 
-  # open my $fo, '>', $file or die "Can't open $file $!";
+  open my $fo, '>', $file or die "Can't open $file $!";
   for my $ll (@lines)
   {
-    # print $fo "$ll\n";
-    print "$file: $ll\n";
+    print $fo "$ll\n";
+    # print "$file: $ll\n";
   }
-  # close $fo;
+  close $fo;
 }
 
 

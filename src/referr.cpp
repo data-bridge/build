@@ -609,6 +609,9 @@ bool modifyLINLine(
   if (2 * refFix.fixLIN.tagNo > v.size())
     modifyLINFail(line, refFix.fixLIN, "Tag number too large");
 
+  const bool endsOnPipe = 
+    (line.length() > 0 && line.at(line.length()-1) == '|');
+
   unsigned start;
   if (refFix.fixLIN.reverseFlag)
     start = v.size() - 2*refFix.fixLIN.tagNo;
@@ -631,7 +634,12 @@ bool modifyLINLine(
     tokenize(v[start+1], f, ",");
 
     if (refFix.fixLIN.fieldNo-1 >= commas+1)
-      modifyLINFail(line, refFix.fixLIN, "Field too far");
+    {
+      if (refFix.type != BRIDGE_REF_INSERT_LIN)
+        modifyLINFail(line, refFix.fixLIN, "Field too far");
+      else if (refFix.fixLIN.fieldNo-1 >= commas+2)
+        modifyLINFail(line, refFix.fixLIN, "Insert field too far");
+    }
   }
 
   if (refFix.type == BRIDGE_REF_INSERT_LIN)
@@ -713,7 +721,9 @@ bool modifyLINLine(
   else
     THROW("Bad type");
   
-  lineNew = concatFields(v, "|") + "|";
+  lineNew = concatFields(v, "|");
+  if (endsOnPipe)
+    lineNew += "|";
   return true;
 }
 

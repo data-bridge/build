@@ -1,19 +1,31 @@
 25.02.2017
 ----------
 Sheet
-* 30-46: No Exceptions (-R), no sheets (-D), no grep ERR
-* 00, 10-29: Not so many
-* TODO: 01-09 everything, 00 + 10-29 cleanup
-* TODO: Use ERR_LIN_DIRECTOR generally, also 20-29 (10-20 and >= 30 are OK)
+* 00, 10-46: No Exceptions (-R), no sheets (-D), no grep ERR
+
+* TODO: 01-09 everything, 00 cleanup (or done?)
 * Search for TD, [Dd]irector
+
+* 16002 o4 DBL detected? 17392 o11 too.  314 c15
+
+* 09: Two deletions still not as ERR_LIN
+
+* Get rid of all _ROTATE tags in .ref files
+* Make a _ROTATE tag in validateLIN for this
+* Need deleteLIN syntax for multiple tags?
+
+* ERR tags
+  All valid
+  All refer to right tag
+  Counts OK
+  Prefer LIN to non-LIN (avoid mostly non-LIN?)
+  Categories OK (add or delete categories)
+Multiple changes to single line
+Tag for flipped side
 
 * Expand referr.cpp: classify function
 * Another str() function that outputs an IMP sheet,
   will also need vul
-* 16002 o4 DBL detected? 17392 o11 too.  314 c15
-* Get rid of all _ROTATE tags in .ref files
-* Make a _ROTATE tag in validateLIN for this
-* Need deleteLIN syntax for multiple tags?
 
 ref files
 * automate check of ERR_LIN(a,b,c), different by error type
