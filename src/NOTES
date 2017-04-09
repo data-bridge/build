@@ -14,6 +14,8 @@ Sheet
 * Make a _ROTATE tag in validateLIN for this
 * Need deleteLIN syntax for multiple tags?
 
+rs -> SIDE_WRONG, ...
+
 * ERR tags
   All valid
   All refer to right tag

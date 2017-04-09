@@ -1413,10 +1413,6 @@ static void writeFormattedFile(
   const Format format)
 {
   WriteInfo writeInfo;
-  writeInfo.namesOld[0] = "";
-  writeInfo.namesOld[1] = "";
-  writeInfo.score1 = 0;
-  writeInfo.score2 = 0;
 
   writeHeader(text, group, format);
 
@@ -1427,7 +1423,12 @@ static void writeFormattedFile(
 
     (* formatFncs[format].writeSeg)(text, segment, format);
 
+    writeInfo.namesOld[0] = "";
+    writeInfo.namesOld[1] = "";
+    writeInfo.score1 = 0;
+    writeInfo.score2 = 0;
     writeInfo.numBoards = segment.size();
+
     for (auto &bpair: segment)
     {
       Board& board = bpair.board;

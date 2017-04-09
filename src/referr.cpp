@@ -722,7 +722,7 @@ bool modifyLINLine(
     THROW("Bad type");
   
   lineNew = concatFields(v, "|");
-  if (endsOnPipe)
+  if (endsOnPipe && v.size() > 0)
     lineNew += "|";
   return true;
 }

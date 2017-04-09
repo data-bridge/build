@@ -95,7 +95,7 @@ void readLINChunk(
     }
 
     int i = buffer.peek();
-    if (i == 0x00 || (qxSeen && i == 0x71)) // q
+    if (i == 0x00 || (qxSeen && (i == 0x71 || i == 0x76))) // q(x), v(g)
       doneFlag = true;
 
     if (lineData.type == BRIDGE_BUFFER_EMPTY)
