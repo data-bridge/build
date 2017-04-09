@@ -34,6 +34,7 @@ struct RefFixLIN
   string tag;
   string was;
   string is;
+  unsigned extent;
 };
 
 struct RefFix

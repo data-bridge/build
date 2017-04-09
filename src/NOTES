@@ -1,48 +1,32 @@
-25.02.2017
+09.04.2017
 ----------
-Sheet
-* 00, 10-46: No Exceptions (-R), no sheets (-D), no grep ERR
-
-* TODO: 01-09 everything, 00 cleanup (or done?)
-* Search for TD, [Dd]irector
-
+Content
 * 16002 o4 DBL detected? 17392 o11 too.  314 c15
+* TD, director
+* Find unrealistic sequences (opening final contract)
+* Very expensive bids (offering huge upside score).
+* Why does case of LIN tags matter again?
+* out-of-order --> .noval for 8055,6,7,8,9, 60,1,2,3,4, 6
+* Permit X as DBL (I thought I did this)
+* Permit P as PASS (ditto)
 
-* 09: Two deletions still not as ERR_LIN
+Tags
+* No ROTATE
+* Make a ROTATE tag in validateLIN
+* Tag for flipped side
+* Multiples changes to single line
+* New tags, delete some old ones
+* rs -> SIDE_WRONG, ...
+* Reduce insert, delete, replace to minimum (use LIN)
+* automate check of ERR_LIN(a,b,c), different by error type
+* Have to look at tag counts, consistent for each type of LIN_ERR.
+* Move to -1 syntax where counts are large
+* Check #lines in .skip against actual line count.
 
-* Get rid of all _ROTATE tags in .ref files
-* Make a _ROTATE tag in validateLIN for this
-* Need deleteLIN syntax for multiple tags?
-
-rs -> SIDE_WRONG, ...
-
-* ERR tags
-  All valid
-  All refer to right tag
-  Counts OK
-  Prefer LIN to non-LIN (avoid mostly non-LIN?)
-  Categories OK (add or delete categories)
-Multiple changes to single line
-Tag for flipped side
 
 * Expand referr.cpp: classify function
 * Another str() function that outputs an IMP sheet,
   will also need vul
-
-ref files
-* automate check of ERR_LIN(a,b,c), different by error type
-* Have to look at tag counts, consistent for each type of LIN_ERR.
-* Check #lines in .skip against actual line count.
-* what is then left in .ref files (after sheet elimination)
-* Syntax to allow insertLIN, replaceLIN, deleteLIN -1 (last element)
-* Find instances where this is useful
-* use perl or Sheet to find deletes of mc|n|pg||
-* in this way, eliminate lines from .ref files (backup first)
-* May have deleted whole hands due to single bad cards...
-* Maybe tolerate tricks in wrong order within each trick
-* Very expensive bids (offering huge upside score).
-* Very expensive or "stupid" plays (quickTricks?).
-* Find unrealistic sequences (opening final contract)
 
 Dates (NER)
 * Detect conflicts between own extractions and HTML from Japan.

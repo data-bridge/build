@@ -87,6 +87,7 @@ static bool parseRefLIN(
     rf.fixLIN.tag = "";
     rf.fixLIN.is = "";
     rf.fixLIN.was = "";
+    rf.fixLIN.extent = 1;
     return true;
   }
 
@@ -119,6 +120,7 @@ static bool parseRefLIN(
       rf.fixLIN.is = rf.fixLIN.tag;
       rf.fixLIN.tag = "";
       rf.fixLIN.was = "";
+      rf.fixLIN.extent = 1;
       return true;
     }
     else
@@ -126,6 +128,7 @@ static bool parseRefLIN(
   }
 
   const string s1 = parseRefLINEntry(v[n]);
+  rf.fixLIN.extent = 1;
   if (rf.type == BRIDGE_REF_INSERT_LIN)
   {
     if (n < commas)
@@ -142,10 +145,18 @@ static bool parseRefLIN(
   }
   else if (rf.type == BRIDGE_REF_DELETE_LIN)
   {
-    if (n < commas)
-      return false;
     rf.fixLIN.was = s1;
     rf.fixLIN.is = "";
+
+    if (n+1 == commas)
+    {
+      // deleteLIN "1,7,rs,3NW=,4"
+      // deleteLIN "3,mb,p,2"
+      if (! str2upos(v[n+1], rf.fixLIN.extent))
+        return false;
+    }
+    else if (n < commas)
+      return false;
   }
   else
     return false;
@@ -696,7 +707,9 @@ bool modifyLINLine(
       if (f[refFix.fixLIN.fieldNo-1] != refFix.fixLIN.was)
         modifyLINFail(line, refFix.fixLIN, "Old field wrong");
 
-      f.erase(f.begin() + static_cast<int>(refFix.fixLIN.fieldNo-1));
+      auto sf = f.begin() + static_cast<int>(refFix.fixLIN.fieldNo-1);
+      f.erase(sf, sf + static_cast<int>(refFix.fixLIN.extent));
+
       v[start+1] = concatFields(f, ",");
     }
     else if (refFix.fixLIN.fieldNo == 0 && refFix.fixLIN.tag == "")
@@ -715,7 +728,7 @@ bool modifyLINLine(
         modifyLINFail(line, refFix.fixLIN, "Old value wrong");
 
       auto s = v.begin() + static_cast<int>(start);
-      v.erase(s, s+2);
+      v.erase(s, s + static_cast<int>(2*refFix.fixLIN.extent));
     }
   }
   else

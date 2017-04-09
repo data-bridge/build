@@ -83,12 +83,19 @@ void Sheet::parseVG(
 
   unsigned u;
   if (tokens[3] != "" && str2unsigned(tokens[3], u))
-    noHdrFirst = u;
+  {
+    // In case of multiple segments, only take the first one.
+    if (noHdrFirst == 0)
+      noHdrFirst = u;
+  }
   else
     noHdrFirst = BIGNUM;
 
   if (tokens[4] != "" && str2unsigned(tokens[4], u))
+  {
+    // In case of multiple segments, take the last one.
     noHdrLast = u;
+  }
   else
     noHdrLast = BIGNUM;
 }
@@ -219,7 +226,7 @@ void Sheet::parse(
   SheetHandData handTmp;
   Sheet::resetHand(handTmp);
 
-  unsigned noHdrFirst, noHdrLast;
+  unsigned noHdrFirst = 0, noHdrLast = 0;
 
   vector<string> clist;
   vector<unsigned> blist;

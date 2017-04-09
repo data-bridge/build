@@ -681,9 +681,9 @@ unsigned Buffer::getInternalNumber(const unsigned no) const
   else
   {
     // Happens with insertions.
-    while (i < len && lines[i-1].no != no)
+    while (i <= len && lines[i-1].no != no)
       i++;
-    if (i == len)
+    if (i > len)
       return BIGNUM;
     else
       return i-1;
