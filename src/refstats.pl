@@ -189,14 +189,23 @@ sub make_stats
       chomp $line;
       $line =~ s///g;
 
-      my $noLIN;
+      my ($noLIN, $action, $tagLIN, $repeat);
+      $tagLIN = "";
+      $repeat = 0;
       if ($line =~ /^(\d+)\s+(\w+)\s+(\d+)/)
       {
         $noLIN = $3;
+        $action = $2;
       }
       elsif ($line =~ /^(\d+)\s+(\w+)/)
       {
         $noLIN = 1;
+        $action = $2;
+        if ($action =~ /LIN/ && $line =~ /^\d+\s+\w+\s+\"([^"]*)\"/)
+        {
+          my $quotes = $1;
+          quotes_to_content($file, $action, $quotes, \$tagLIN, \$repeat);
+        }
       }
       elsif (($file =~ /skip/ || $file =~ /noval/) && $line =~ /^(\d+)\s+/)
       {
@@ -214,10 +223,25 @@ sub make_stats
         for my $e (@entries)
         {
           if ($e !~ /(.+)\((\d+),(\d+),(\d+)\)/)
-        {
+         {
             die "Bad entry: $e";
           }
           my ($tag, $c1, $c2, $c3) = ($1, $2, $3, $4);
+
+          check_entry($file, $line, $tag, $tagLIN,
+            "ERR_LIN_MC_REPLACE", "mc",
+            $c1, $c2, $c3, $noLIN, 1, 1, 1);
+          check_entry($file, $line, $tag, $tagLIN,
+            "ERR_LIN_MC_INSERT", "mc",
+            $c1, $c2, $c3, $noLIN, 1, 1, 1);
+          check_entry($file, $line, $tag, $tagLIN,
+            "ERR_LIN_MC_DELETE", "mc",
+            $c1, $c2, $c3, $noLIN, 1, 1, 1);
+
+          check_entry($file, $line, $tag, $tagLIN,
+            "ERR_LIN_PC_WRONG", "pc",
+            $c1, $c2, $c3, $noLIN, 1, 0, 0);
+          
           log_entry($file, $accum_expl_ref, $expl_seen{$tag}, 
             $noLIN, $tag, $c1, $c2, $c3);
           $expl_seen{$tag} = 1;
@@ -228,6 +252,7 @@ sub make_stats
         log_entry($file, $accum_rem_ref, $rem_seen{ERR_SIZE}, 
           $noLIN, "ERR_SIZE", 0, 0, 0);
         $rem_seen{ERR_SIZE} = 1;
+        print "File $file: '$line'\n";
       }
     }
     close $fr;
@@ -342,3 +367,86 @@ sub write_file_numbers
     "Number of noval files", $num_noval_files;
 }
 
+
+sub quotes_to_content
+{
+  my ($file, $action, $str, $tagref, $repref) = @_;
+
+  my @list = split ',', $str, -1;
+  my $pos = -1;
+  for my $a (0 .. $#list)
+  {
+    my $t = $list[$a];
+    next if $t =~ /^\d+$/ || $t =~/^-\d+$/;
+    $pos = $a;
+    $$tagref = $t;
+    last;
+  }
+  return if $pos == -1;
+
+  if ($action eq "insertLIN")
+  {
+    if ($pos < $#list-1)
+    {
+      warn "$file, insertLIN has extras: $str";
+      return;
+    }
+    $$repref = 1;
+  }
+  elsif ($action eq "deleteLIN")
+  {
+    if ($pos == $#list-1)
+    {
+      $$repref = 1;
+    }
+    elsif ($pos == $#list-2)
+    {
+      if ($$repref !~ /^\d+$/)
+      {
+        warn "$file, deleteLIN count is non-numeric: $str";
+        return;
+      }
+      $$repref = $list[$#list];
+    }
+    else
+    {
+      warn "$file, deleteLIN has extras: $str";
+        return;
+    }
+  }
+  elsif ($action eq "replaceLIN")
+  {
+    if ($pos != $#list-2)
+    {
+      warn "$file, replaceLIN has extras: $str";
+    }
+    $$repref = 1;
+  }
+}
+
+
+sub check_entry
+{
+  my ($file, $line, $tagERR, $tagLIN, $refERR, $refLIN, 
+    $c1, $c2, $c3, $noLIN, $onehand, $onetag, $oneline) = @_;
+
+  if ($tagERR eq $refERR)
+  {
+    if ($tagLIN ne $refLIN)
+    {
+      warn "$file, $line: Not $refLIN";
+    }
+    if ($onehand && ($c2 != 1 || $c3 != 1))
+    {
+      warn "$file, $line: Not (a,1,1)";
+    }
+    if ($onetag && $c1 != 1)
+    {
+      warn "$file, $line: Not (1,a,a)";
+    }
+    if ($oneline && $noLIN != 1)
+    {
+      warn "$file, $line: NoLIN";
+    }
+  }
+}

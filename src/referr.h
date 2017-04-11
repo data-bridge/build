@@ -50,11 +50,13 @@ struct RefFix
 enum RefErrorsType
 {
   ERR_LIN_VG_WRONG,
+  ERR_LIN_VG_LINE,
 
   ERR_LIN_RS_CONTRACT_MISSING,
   ERR_LIN_RS_CONTRACT_WRONG,
   ERR_LIN_RS_RESULT_MISSING,
   ERR_LIN_RS_RESULT_WRONG,
+  ERR_LIN_RS_LINE,
 
   ERR_LIN_PN_PLAYERS_UNKNOWN,
   ERR_LIN_PN_PLAYERS_WRONG,
@@ -62,6 +64,7 @@ enum RefErrorsType
   ERR_LIN_QX_MISSING,
   ERR_LIN_QX_WRONG,
   ERR_LIN_QX_UNORDERED,
+  ERR_LIN_QX_DUPLICATED,
 
   ERR_LIN_DISTS_WRONG,
 
@@ -78,7 +81,9 @@ enum RefErrorsType
   ERR_LIN_PC_ROTATED,
   ERR_LIN_PC_WRONG,
 
-  ERR_LIN_MC_CLAIM_WRONG,
+  ERR_LIN_MC_REPLACE,
+  ERR_LIN_MC_INSERT,
+  ERR_LIN_MC_DELETE,
 
   ERR_LIN_SYNTAX_ERROR,
 
@@ -102,6 +107,10 @@ const vector<RefErrorBundle> RefErrors =
    "ERR_LIN_VG_WRONG",
    "LIN vg wrong"},
 
+  {ERR_LIN_VG_LINE,
+   "ERR_LIN_VG_LINE",
+   "LIN vg line"},
+
   {ERR_LIN_RS_CONTRACT_MISSING, 
    "ERR_LIN_RS_CONTRACT_MISSING",
    "LIN rs missing contract"},
@@ -117,6 +126,10 @@ const vector<RefErrorBundle> RefErrors =
   {ERR_LIN_RS_RESULT_WRONG,
    "ERR_LIN_RS_RESULT_WRONG",
    "LIN rs wrong result"},
+
+  {ERR_LIN_RS_LINE,
+   "ERR_LIN_RS_LINE",
+   "LIN rs wrong line"},
 
   {ERR_LIN_PN_PLAYERS_UNKNOWN,
    "ERR_LIN_PN_PLAYERS_UNKNOWN",
@@ -137,6 +150,10 @@ const vector<RefErrorBundle> RefErrors =
   {ERR_LIN_QX_UNORDERED,
    "ERR_LIN_QX_UNORDERED",
    "LIN qx unordered"},
+
+  {ERR_LIN_QX_DUPLICATED,
+   "ERR_LIN_QX_DUPLICATED",
+   "LIN qx duplicated"},
 
   {ERR_LIN_DISTS_WRONG,
    "ERR_LIN_DISTS_WRONG",
@@ -178,9 +195,17 @@ const vector<RefErrorBundle> RefErrors =
    "ERR_LIN_PC_WRONG",
    "LIN pc play wrong"},
 
-  {ERR_LIN_MC_CLAIM_WRONG,
-   "ERR_LIN_MC_CLAIM_WRONG",
+  {ERR_LIN_MC_REPLACE,
+   "ERR_LIN_MC_REPLACE",
    "LIN mc claim wrong"},
+
+  {ERR_LIN_MC_INSERT,
+   "ERR_LIN_MC_INSERT",
+   "LIN mc claim missing"},
+
+  {ERR_LIN_MC_DELETE,
+   "ERR_LIN_MC_DELETE",
+   "LIN mc claim surplus"},
 
   {ERR_LIN_SYNTAX_ERROR,
    "ERR_LIN_SYNTAX_ERROR",

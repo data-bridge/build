@@ -535,7 +535,7 @@ void classifyList(RefErrorClass& diff)
     if (diff.type == BRIDGE_REF_REPLACE && l == 2)
     {
       diff.numTags = 1;
-      diff.code = ERR_LIN_MC_CLAIM_WRONG;
+      diff.code = ERR_LIN_MC_REPLACE;
       return;
     }
   }
