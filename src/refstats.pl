@@ -224,10 +224,82 @@ sub make_stats
         {
           if ($e !~ /(.+)\((\d+),(\d+),(\d+)\)/)
          {
-            die "Bad entry: $e";
+            warn "Bad entry: $file, $e";
+            next;
           }
           my ($tag, $c1, $c2, $c3) = ($1, $2, $3, $4);
 
+          # onehand: (a,1,1)
+          # onetag : (1,a,a)
+          # oneline: not "delete 2"
+
+          check_entry($file, $line, $tag, $tagLIN,
+            "ERR_LIN_VG_FIRST", "vg",
+            $c1, $c2, $c3, $noLIN, 0, 1, 1);
+          check_entry($file, $line, $tag, $tagLIN,
+            "ERR_LIN_VG_LAST", "vg",
+            $c1, $c2, $c3, $noLIN, 0, 1, 1);
+          check_entry($file, $line, $tag, $tagLIN,
+            "ERR_LIN_VG_REPLACE", "vg",
+            $c1, $c2, $c3, $noLIN, 0, 1, 1);
+          check_line($file, $line, "ERR_LIN_VG_INSERT",
+            $c1, $c2, $c3, $noLIN, 0, 1, 1);
+          check_line($file, $line, "ERR_LIN_VG_SYNTAX",
+            $c1, $c2, $c3, $noLIN, 0, 1, 1);
+
+          check_line($file, $line, "ERR_LIN_RESULTS_INSERT", 
+            $c1, $c2, $c3, $noLIN, 0, 1, 1);
+
+          check_entry($file, $line, $tag, $tagLIN,
+            "ERR_LIN_RS_REPLACE", "rs",
+            $c1, $c2, $c3, $noLIN, 1, 1, 1);
+          check_entry($file, $line, $tag, $tagLIN,
+            "ERR_LIN_RS_INSERT", "rs",
+            $c1, $c2, $c3, $noLIN, 1, 1, 1);
+          check_entry($file, $line, $tag, $tagLIN,
+            "ERR_LIN_RS_DELETE", "rs",
+            $c1, $c2, $c3, $noLIN, 0, $repeat, 1);
+          check_entry($file, $line, $tag, $tagLIN,
+            "ERR_LIN_RS_INSERT", "rs",
+            $c1, $c2, $c3, $noLIN, 1, 1, 1);
+          check_entry($file, $line, $tag, $tagLIN,
+            "ERR_LIN_RS_DECL_PARD", "rs",
+            $c1, $c2, $c3, $noLIN, 1, 1, 1);
+          check_entry($file, $line, $tag, $tagLIN,
+            "ERR_LIN_RS_DECL_OPP", "rs",
+            $c1, $c2, $c3, $noLIN, 1, 1, 1);
+          check_entry($file, $line, $tag, $tagLIN,
+            "ERR_LIN_RS_DENOM", "rs",
+            $c1, $c2, $c3, $noLIN, 1, 1, 1);
+          check_entry($file, $line, $tag, $tagLIN,
+            "ERR_LIN_RS_LEVEL", "rs",
+            $c1, $c2, $c3, $noLIN, 1, 1, 1);
+          check_entry($file, $line, $tag, $tagLIN,
+            "ERR_LIN_RS_MULT", "rs",
+            $c1, $c2, $c3, $noLIN, 1, 1, 1);
+          check_entry($file, $line, $tag, $tagLIN,
+            "ERR_LIN_RS_TRICKS", "rs",
+            $c1, $c2, $c3, $noLIN, 1, 1, 1);
+          check_entry($file, $line, $tag, $tagLIN,
+            "ERR_LIN_RS_EMPTY", "rs",
+            $c1, $c2, $c3, $noLIN, 1, 1, 1);
+          check_entry($file, $line, $tag, $tagLIN,
+            "ERR_LIN_RS_INCOMPLETE", "rs",
+            $c1, $c2, $c3, $noLIN, 1, 1, 1);
+          check_entry($file, $line, $tag, $tagLIN,
+            "ERR_LIN_RS_SYNTAX", "rs",
+            $c1, $c2, $c3, $noLIN, 1, 1, 1);
+          
+          check_entry($file, $line, $tag, $tagLIN,
+            "ERR_LIN_PC_REPLACE", "pc",
+            $c1, $c2, $c3, $noLIN, 1, 1, 1);
+          check_entry($file, $line, $tag, $tagLIN,
+            "ERR_LIN_PC_INSERT", "pc",
+            $c1, $c2, $c3, $noLIN, 1, 1, 1);
+          check_entry($file, $line, $tag, $tagLIN,
+            "ERR_LIN_PC_DELETE", "pc",
+            $c1, $c2, $c3, $noLIN, 1, $repeat, 1);
+          
           check_entry($file, $line, $tag, $tagLIN,
             "ERR_LIN_MC_REPLACE", "mc",
             $c1, $c2, $c3, $noLIN, 1, 1, 1);
@@ -238,10 +310,11 @@ sub make_stats
             "ERR_LIN_MC_DELETE", "mc",
             $c1, $c2, $c3, $noLIN, 1, 1, 1);
 
-          check_entry($file, $line, $tag, $tagLIN,
-            "ERR_LIN_PC_WRONG", "pc",
+          check_line($file, $line, "ERR_LIN_TRICK_INSERT",
+            $c1, $c2, $c3, $noLIN, 1, 0, 1);
+          check_line($file, $line, "ERR_LIN_TRICK_DELETE", 
             $c1, $c2, $c3, $noLIN, 1, 0, 0);
-          
+
           log_entry($file, $accum_expl_ref, $expl_seen{$tag}, 
             $noLIN, $tag, $c1, $c2, $c3);
           $expl_seen{$tag} = 1;
@@ -401,7 +474,7 @@ sub quotes_to_content
     }
     elsif ($pos == $#list-2)
     {
-      if ($$repref !~ /^\d+$/)
+      if ($list[$#list] !~ /^\d+$/)
       {
         warn "$file, deleteLIN count is non-numeric: $str";
         return;
@@ -440,13 +513,43 @@ sub check_entry
     {
       warn "$file, $line: Not (a,1,1)";
     }
-    if ($onetag && $c1 != 1)
+    if ($onetag && $c1 != 1 && $c1 != $onetag && 
+        ($c1 < 0.5*$onetag || $c1 > 1.5*$onetag))
     {
-      warn "$file, $line: Not (1,a,a)";
+      warn "$file, $line: Not (1,a,a): $onetag, $c1";
+    }
+    if ($c1 == 0)
+    {
+      warn "$file, $line: (0,a,a)";
     }
     if ($oneline && $noLIN != 1)
     {
       warn "$file, $line: NoLIN";
     }
+  }
+}
+
+sub check_line
+{
+  my ($file, $line, $tag,
+    $c1, $c2, $c3, $noLIN, $onehand, $onetag, $oneline) = @_;
+
+  return unless $line =~ /$tag/;
+
+  if ($onehand && ($c2 != 1 || $c3 != 1))
+  {
+    warn "$file, $line: Not (a,1,1)";
+  }
+  if ($onetag && $c1 != $onetag && ($c1 < $onetag || $c1 > 1.5*$onetag))
+  {
+    warn "$file, $line: Not (1,a,a)";
+  }
+  if ($c1 == 0)
+  {
+    warn "$file, $line: (0,a,a)";
+  }
+  if ($oneline && $noLIN != 1)
+  {
+    warn "$file, $line: NoLIN";
   }
 }

@@ -49,14 +49,30 @@ struct RefFix
 
 enum RefErrorsType
 {
-  ERR_LIN_VG_WRONG,
-  ERR_LIN_VG_LINE,
+  ERR_LIN_VG_FIRST,
+  ERR_LIN_VG_LAST,
+  ERR_LIN_VG_REPLACE,
+  ERR_LIN_VG_SYNTAX,
 
-  ERR_LIN_RS_CONTRACT_MISSING,
-  ERR_LIN_RS_CONTRACT_WRONG,
-  ERR_LIN_RS_RESULT_MISSING,
-  ERR_LIN_RS_RESULT_WRONG,
-  ERR_LIN_RS_LINE,
+  ERR_LIN_VHEADER_INSERT,
+  ERR_LIN_VHEADER_SYNTAX,
+
+  ERR_LIN_RESULTS_REPLACE, 
+  ERR_LIN_RESULTS_INSERT, 
+  ERR_LIN_RESULTS_DELETE, 
+
+  ERR_LIN_RS_REPLACE, 
+  ERR_LIN_RS_INSERT, 
+  ERR_LIN_RS_DELETE, 
+  ERR_LIN_RS_DECL_PARD,
+  ERR_LIN_RS_DECL_OPP,
+  ERR_LIN_RS_DENOM,
+  ERR_LIN_RS_LEVEL,
+  ERR_LIN_RS_MULT,
+  ERR_LIN_RS_TRICKS,
+  ERR_LIN_RS_EMPTY,
+  ERR_LIN_RS_INCOMPLETE,
+  ERR_LIN_RS_SYNTAX,
 
   ERR_LIN_PN_PLAYERS_UNKNOWN,
   ERR_LIN_PN_PLAYERS_WRONG,
@@ -79,11 +95,16 @@ enum RefErrorsType
   ERR_LIN_MB_WRONG,
 
   ERR_LIN_PC_ROTATED,
-  ERR_LIN_PC_WRONG,
+  ERR_LIN_PC_REPLACE,
+  ERR_LIN_PC_INSERT,
+  ERR_LIN_PC_DELETE,
 
   ERR_LIN_MC_REPLACE,
   ERR_LIN_MC_INSERT,
   ERR_LIN_MC_DELETE,
+
+  ERR_LIN_TRICK_INSERT,
+  ERR_LIN_TRICK_DELETE,
 
   ERR_LIN_SYNTAX_ERROR,
 
@@ -103,33 +124,94 @@ struct RefErrorBundle
 
 const vector<RefErrorBundle> RefErrors =
 {
-  {ERR_LIN_VG_WRONG,
-   "ERR_LIN_VG_WRONG",
-   "LIN vg wrong"},
+  {ERR_LIN_VG_FIRST,
+   "ERR_LIN_VG_FIRST",
+   "LIN vg first number"},
 
-  {ERR_LIN_VG_LINE,
-   "ERR_LIN_VG_LINE",
-   "LIN vg line"},
+  {ERR_LIN_VG_LAST,
+   "ERR_LIN_VG_LAST",
+   "LIN vg last number"},
 
-  {ERR_LIN_RS_CONTRACT_MISSING, 
-   "ERR_LIN_RS_CONTRACT_MISSING",
-   "LIN rs missing contract"},
+  {ERR_LIN_VG_REPLACE,
+   "ERR_LIN_VG_REPLACE",
+   "LIN vg line replace"},
 
-  {ERR_LIN_RS_CONTRACT_WRONG,
-   "ERR_LIN_RS_CONTRACT_WRONG",
-   "LIN rs wrong contract"},
+  {ERR_LIN_VG_SYNTAX,
+   "ERR_LIN_VG_SYNTAX",
+   "LIN vg syntax"},
 
-  {ERR_LIN_RS_RESULT_MISSING,
-   "ERR_LIN_RS_RESULT_MISSING",
-   "LIN rs missing result"},
 
-  {ERR_LIN_RS_RESULT_WRONG,
-   "ERR_LIN_RS_RESULT_WRONG",
-   "LIN rs wrong result"},
+  {ERR_LIN_VHEADER_INSERT,
+   "ERR_LIN_HEADER_INSERT",
+   "LIN vg line insert"},
 
-  {ERR_LIN_RS_LINE,
-   "ERR_LIN_RS_LINE",
-   "LIN rs wrong line"},
+  {ERR_LIN_VHEADER_SYNTAX,
+   "ERR_LIN_VHEADER_SYNTAX",
+   "LIN vg line syntax"},
+
+
+  {ERR_LIN_RESULTS_REPLACE, 
+   "ERR_LIN_RESULTS_REPLACE",
+   "LIN contract line wrong"},
+
+  {ERR_LIN_RESULTS_INSERT, 
+   "ERR_LIN_RESULTS_INSERT",
+   "LIN contract line missing"},
+
+  {ERR_LIN_RESULTS_DELETE, 
+   "ERR_LIN_RESULTS_DELETE",
+   "LIN contract line delete"},
+
+
+  {ERR_LIN_RS_REPLACE, 
+   "ERR_LIN_RS_REPLACE",
+   "LIN rs replace contract"},
+
+  {ERR_LIN_RS_INSERT, 
+   "ERR_LIN_RS_INSERT",
+   "LIN rs INSERT contract"},
+
+  {ERR_LIN_RS_DELETE, 
+   "ERR_LIN_RS_DELETE",
+   "LIN rs delete contract"},
+
+
+  {ERR_LIN_RS_DECL_PARD,
+   "ERR_LIN_RS_DECL_PARD",
+   "LIN rs partner is declarer"},
+
+  {ERR_LIN_RS_DECL_OPP,
+   "ERR_LIN_RS_DECL_OPP",
+   "LIN rs opponent is declarer"},
+
+  {ERR_LIN_RS_DENOM,
+   "ERR_LIN_RS_DENOM",
+   "LIN rs denomination wrong"},
+
+  {ERR_LIN_RS_LEVEL,
+   "ERR_LIN_RS_LEVEL",
+   "LIN rs level wrong"},
+
+  {ERR_LIN_RS_MULT,
+   "ERR_LIN_RS_MULT",
+   "LIN rs doubling wrong"},
+
+  {ERR_LIN_RS_TRICKS,
+   "ERR_LIN_RS_TRICKS",
+   "LIN rs tricks wrong"},
+
+  {ERR_LIN_RS_EMPTY,
+   "ERR_LIN_RS_EMPTY",
+   "LIN rs field empty"},
+
+  {ERR_LIN_RS_INCOMPLETE,
+   "ERR_LIN_RS_INCOMPLETE",
+   "LIN rs field incomplete"},
+
+  {ERR_LIN_RS_SYNTAX,
+   "ERR_LIN_RS_SYNTAX",
+   "LIN rs field syntax"},
+
 
   {ERR_LIN_PN_PLAYERS_UNKNOWN,
    "ERR_LIN_PN_PLAYERS_UNKNOWN",
@@ -191,8 +273,16 @@ const vector<RefErrorBundle> RefErrors =
    "ERR_LIN_PC_ROTATED",
    "LIN pc play rotated"},
 
-  {ERR_LIN_PC_WRONG,
-   "ERR_LIN_PC_WRONG",
+  {ERR_LIN_PC_REPLACE,
+   "ERR_LIN_PC_REPLACE",
+   "LIN pc play wrong"},
+
+  {ERR_LIN_PC_INSERT,
+   "ERR_LIN_PC_INSERT",
+   "LIN pc play missing"},
+
+  {ERR_LIN_PC_DELETE,
+   "ERR_LIN_PC_DELETE",
    "LIN pc play wrong"},
 
   {ERR_LIN_MC_REPLACE,
@@ -206,6 +296,14 @@ const vector<RefErrorBundle> RefErrors =
   {ERR_LIN_MC_DELETE,
    "ERR_LIN_MC_DELETE",
    "LIN mc claim surplus"},
+
+  {ERR_LIN_TRICK_INSERT,
+   "ERR_LIN_TRICK_INSERT",
+   "LIN insert trick"},
+
+  {ERR_LIN_TRICK_DELETE,
+   "ERR_LIN_TRICK_DELETE",
+   "LIN delete trick"},
 
   {ERR_LIN_SYNTAX_ERROR,
    "ERR_LIN_SYNTAX_ERROR",

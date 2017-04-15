@@ -240,6 +240,8 @@ void Sheet::parse(
     if (lineData.type != BRIDGE_BUFFER_STRUCTURED)
       continue;
 
+    toLower(lineData.label);
+
     if (lineData.label == "vg")
     {
       segment.setTitle(lineData.value, BRIDGE_FORMAT_LIN_VG);
