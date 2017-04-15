@@ -213,7 +213,8 @@ sub make_stats
       }
       else
       {
-        die "Bad line: File '$file', line '$line'";
+        warn "Bad line: File '$file', line '$line'";
+        next;
       }
 
       if ($line =~ /\{(.*)\}\s*$/)
@@ -290,6 +291,22 @@ sub make_stats
             "ERR_LIN_RS_SYNTAX", "rs",
             $c1, $c2, $c3, $noLIN, 1, 1, 1);
           
+          check_entry($file, $line, $tag, $tagLIN,
+            "ERR_LIN_MB_TRAILING", "mb",
+            $c1, $c2, $c3, $noLIN, 1, 0, 1);
+          check_entry($file, $line, $tag, $tagLIN,
+            "ERR_LIN_MB_REPLACE", "mb",
+            $c1, $c2, $c3, $noLIN, 1, 1, 1);
+          check_entry($file, $line, $tag, $tagLIN,
+            "ERR_LIN_MB_INSERT", "mb",
+            $c1, $c2, $c3, $noLIN, 1, 0, 1);
+          check_entry($file, $line, $tag, $tagLIN,
+            "ERR_LIN_MB_DELETE", "mb",
+            $c1, $c2, $c3, $noLIN, 1, 0, 1);
+          check_entry($file, $line, $tag, $tagLIN,
+            "ERR_LIN_MB_SYNTAX", "mb",
+            $c1, $c2, $c3, $noLIN, 1, 1, 1);
+
           check_entry($file, $line, $tag, $tagLIN,
             "ERR_LIN_PC_REPLACE", "pc",
             $c1, $c2, $c3, $noLIN, 1, 1, 1);
@@ -507,7 +524,7 @@ sub check_entry
   {
     if ($tagLIN ne $refLIN)
     {
-      warn "$file, $line: Not $refLIN";
+      warn "$file, $line: Not $refLIN" unless $refERR eq "ERR_LIN_MB_INSERT";
     }
     if ($onehand && ($c2 != 1 || $c3 != 1))
     {

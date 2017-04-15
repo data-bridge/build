@@ -535,6 +535,25 @@ static bool isDifferentCase(
 }
 
 
+static bool isXDouble(
+  const string& valRef,
+  const string& valOut)
+{
+  if (valRef == "X" || valRef == "x")
+  {
+    return (valOut == "D");
+  }
+  else if (valRef == "X!" || valRef == "x!")
+  {
+    return (valOut == "D!");
+  }
+  else
+  {
+    return isDifferentCase(valRef, valOut);
+  }
+}
+
+
 static bool isRotatedPlay(
   ValState& valState,
   ValProfile& prof)
@@ -966,6 +985,17 @@ bool validateLIN(
           (valState.dataRef.value == "E" &&
           valState.dataOut.value == "e"))
         return true;
+      else
+        return false;
+    }
+    else if (valState.dataRef.label == "mb" &&
+        valState.dataRef.len == valState.dataOut.len)
+    {
+      if (isXDouble(valState.dataRef.value, valState.dataOut.value))
+      {
+        prof.log(BRIDGE_VAL_AUCTION, valState);
+        return true;
+      }
       else
         return false;
     }

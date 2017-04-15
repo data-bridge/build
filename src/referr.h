@@ -91,8 +91,15 @@ enum RefErrorsType
   ERR_LIN_SV_MISSING,
   ERR_LIN_SV_WRONG,
 
-  ERR_LIN_MB_OVERLONG,
-  ERR_LIN_MB_WRONG,
+  ERR_LIN_MBIDDING_WRONG,
+
+  ERR_LIN_MB_TRAILING,
+  ERR_LIN_MB_REPLACE,
+  ERR_LIN_MB_INSERT,
+  ERR_LIN_MB_DELETE,
+  ERR_LIN_MB_SYNTAX,
+
+  ERR_LIN_AN_DELETE,
 
   ERR_LIN_PC_ROTATED,
   ERR_LIN_PC_REPLACE,
@@ -261,13 +268,35 @@ const vector<RefErrorBundle> RefErrors =
    "ERR_LIN_SV_WRONG",
    "LIN sv wrong"},
 
-  {ERR_LIN_MB_OVERLONG,
-   "ERR_LIN_MB_OVERLONG",
-   "LIN mb auction too long"},
 
-  {ERR_LIN_MB_WRONG,
-   "ERR_LIN_MB_WRONG",
+  {ERR_LIN_MBIDDING_WRONG,
+   "ERR_LIN_MBIDDING_WRONG",
    "LIN mb auction wrong"},
+
+  {ERR_LIN_MB_TRAILING,
+   "ERR_LIN_MB_TRAILING",
+   "LIN mb auction long"},
+
+  {ERR_LIN_MB_REPLACE,
+   "ERR_LIN_MB_REPLACE",
+   "LIN mb bid wrong"},
+
+  {ERR_LIN_MB_INSERT,
+   "ERR_LIN_MB_INSERT",
+   "LIN mb bid missing"},
+
+  {ERR_LIN_MB_DELETE,
+   "ERR_LIN_MB_DELETE",
+   "LIN mb bid spare"},
+
+  {ERR_LIN_MB_SYNTAX,
+   "ERR_LIN_MB_SYNTAX",
+   "LIN mb syntax"},
+
+  {ERR_LIN_AN_DELETE,
+   "ERR_LIN_AN_DELETE",
+   "LIN an spare"},
+
 
   {ERR_LIN_PC_ROTATED,
    "ERR_LIN_PC_ROTATED",
@@ -283,7 +312,7 @@ const vector<RefErrorBundle> RefErrors =
 
   {ERR_LIN_PC_DELETE,
    "ERR_LIN_PC_DELETE",
-   "LIN pc play wrong"},
+   "LIN pc play spare"},
 
   {ERR_LIN_MC_REPLACE,
    "ERR_LIN_MC_REPLACE",

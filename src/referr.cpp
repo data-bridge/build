@@ -526,7 +526,7 @@ void classifyList(RefErrorClass& diff)
     if (diff.type == BRIDGE_REF_DELETE)
     {
       diff.numTags = l / 2;
-      diff.code = ERR_LIN_MB_OVERLONG;
+      diff.code = ERR_LIN_MB_TRAILING;
       return;
     }
   }
