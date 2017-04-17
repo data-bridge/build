@@ -77,6 +77,13 @@ enum RefErrorsType
   ERR_LIN_PN_PLAYERS_UNKNOWN,
   ERR_LIN_PN_PLAYERS_WRONG,
 
+  ERR_LIN_PLAYERS_REPLACE,
+  ERR_LIN_PLAYERS_DELETE,
+
+  ERR_LIN_PN_REPLACE,
+  ERR_LIN_PN_INSERT,
+  ERR_LIN_PN_DELETE,
+
   ERR_LIN_QX_MISSING,
   ERR_LIN_QX_WRONG,
   ERR_LIN_QX_UNORDERED,
@@ -87,9 +94,13 @@ enum RefErrorsType
   ERR_LIN_MD_FORMAT,
   ERR_LIN_MD_CONTENT,
   ERR_LIN_MD_MISSING,
+  ERR_LIN_MD_SYNTAX,
 
-  ERR_LIN_SV_MISSING,
-  ERR_LIN_SV_WRONG,
+  ERR_LIN_NT_SYNTAX,
+
+  ERR_LIN_SV_REPLACE,
+  ERR_LIN_SV_INSERT,
+  ERR_LIN_SV_DELETE,
 
   ERR_LIN_MBIDDING_WRONG,
 
@@ -117,7 +128,8 @@ enum RefErrorsType
 
   ERR_LIN_TOO_FLAWED,
 
-  ERR_LIN_DIRECTOR,
+  ERR_LIN_HAND_DIRECTOR,
+  ERR_LIN_HAND_PLAYERS,
 
   ERR_SIZE
 };
@@ -228,6 +240,27 @@ const vector<RefErrorBundle> RefErrors =
    "ERR_LIN_PN_PLAYERS_WRONG",
    "LIN pn name commas"},
 
+  {ERR_LIN_PLAYERS_REPLACE,
+   "ERR_LIN_PLAYERS_REPLACE",
+   "LIN replace player line"},
+
+  {ERR_LIN_PLAYERS_DELETE,
+   "ERR_LIN_PLAYERS_DELETE",
+   "LIN delete player line"},
+
+  {ERR_LIN_PN_REPLACE,
+   "ERR_LIN_PN_REPLACE",
+   "LIN player replace"},
+
+  {ERR_LIN_PN_INSERT,
+   "ERR_LIN_PN_INSERT",
+   "LIN player insert"},
+
+  {ERR_LIN_PN_DELETE,
+   "ERR_LIN_PN_DELETE",
+   "LIN player delete"},
+
+
   {ERR_LIN_QX_MISSING,
    "ERR_LIN_QX_MISSING",
    "LIN qx not present"},
@@ -260,13 +293,27 @@ const vector<RefErrorBundle> RefErrors =
    "ERR_LIN_MD_MISSING",
    "LIN md deal missing"},
 
-  {ERR_LIN_SV_MISSING,
-   "ERR_LIN_SV_MISSING",
+  {ERR_LIN_MD_SYNTAX,
+   "ERR_LIN_MD_SYNTAX",
+   "LIN md syntax"},
+
+
+  {ERR_LIN_NT_SYNTAX,
+   "ERR_LIN_NT_SYNTAX",
+   "LIN nt syntax"},
+
+
+  {ERR_LIN_SV_REPLACE,
+   "ERR_LIN_SV_REPLACE",
+   "LIN sv wrong"},
+
+  {ERR_LIN_SV_INSERT,
+   "ERR_LIN_SV_INSERT",
    "LIN sv missing"},
 
-  {ERR_LIN_SV_WRONG,
-   "ERR_LIN_SV_WRONG",
-   "LIN sv wrong"},
+  {ERR_LIN_SV_DELETE,
+   "ERR_LIN_SV_DELETE",
+   "LIN sv spare"},
 
 
   {ERR_LIN_MBIDDING_WRONG,
@@ -342,9 +389,12 @@ const vector<RefErrorBundle> RefErrors =
    "ERR_LIN_TOO_FLAWED",
    "LIN too flawed"},
 
-  {ERR_LIN_DIRECTOR,
-   "ERR_LIN_DIRECTOR",
+  {ERR_LIN_HAND_DIRECTOR,
+   "ERR_LIN_HAND_DIRECTOR",
    "LIN director decision"},
+  {ERR_LIN_HAND_PLAYERS,
+   "ERR_LIN_HAND_PLAYERS",
+   "LIN players in hand wrong"},
 
   {ERR_SIZE,
    "ERR_SIZE",

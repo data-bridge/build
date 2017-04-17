@@ -2,10 +2,9 @@
 ----------
 Content
 * 16002 o4 DBL detected? 17392 o11 too.  314 c15
-* TD, director
+* TD, director.  Also check new RS_REPLACE tag for clues.
 * Find unrealistic sequences (opening final contract)
 * Very expensive bids (offering huge upside score).
-* Why does case of LIN tags matter again?
 * out-of-order --> .noval for 8055,6,7,8,9, 60,1,2,3,4, 6
 * Permit X as DBL (I thought I did this)
 * Permit P as PASS (ditto)
@@ -13,10 +12,8 @@ Content
 Tags
 * No ROTATE
 * Make a ROTATE tag in validateLIN
-* Tag for flipped side
 * Multiples changes to single line
 * New tags, delete some old ones
-* rs -> SIDE_WRONG, ...
 * Reduce insert, delete, replace to minimum (use LIN)
 * automate check of ERR_LIN(a,b,c), different by error type
 * Have to look at tag counts, consistent for each type of LIN_ERR.

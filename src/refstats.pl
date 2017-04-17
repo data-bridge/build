@@ -243,12 +243,20 @@ sub make_stats
           check_entry($file, $line, $tag, $tagLIN,
             "ERR_LIN_VG_REPLACE", "vg",
             $c1, $c2, $c3, $noLIN, 0, 1, 1);
-          check_line($file, $line, "ERR_LIN_VG_INSERT",
+          check_entry($file, $line, $tag, $tagLIN,
+            "ERR_LIN_VG_SYNTAX", "vg",
+            $c1, $c2, $c3, $noLIN, 0, 0, 1);
+
+          check_line($file, $line, "ERR_LIN_VHEADER_INSERT",
             $c1, $c2, $c3, $noLIN, 0, 1, 1);
-          check_line($file, $line, "ERR_LIN_VG_SYNTAX",
+          check_line($file, $line, "ERR_LIN_VHEADER_SYNTAX",
             $c1, $c2, $c3, $noLIN, 0, 1, 1);
 
+          check_line($file, $line, "ERR_LIN_RESULTS_REPLACE", 
+            $c1, $c2, $c3, $noLIN, 0, 1, 1);
           check_line($file, $line, "ERR_LIN_RESULTS_INSERT", 
+            $c1, $c2, $c3, $noLIN, 0, 1, 1);
+          check_line($file, $line, "ERR_LIN_RESULTS_DELETE", 
             $c1, $c2, $c3, $noLIN, 0, 1, 1);
 
           check_entry($file, $line, $tag, $tagLIN,
@@ -260,9 +268,6 @@ sub make_stats
           check_entry($file, $line, $tag, $tagLIN,
             "ERR_LIN_RS_DELETE", "rs",
             $c1, $c2, $c3, $noLIN, 0, $repeat, 1);
-          check_entry($file, $line, $tag, $tagLIN,
-            "ERR_LIN_RS_INSERT", "rs",
-            $c1, $c2, $c3, $noLIN, 1, 1, 1);
           check_entry($file, $line, $tag, $tagLIN,
             "ERR_LIN_RS_DECL_PARD", "rs",
             $c1, $c2, $c3, $noLIN, 1, 1, 1);
@@ -291,6 +296,34 @@ sub make_stats
             "ERR_LIN_RS_SYNTAX", "rs",
             $c1, $c2, $c3, $noLIN, 1, 1, 1);
           
+          check_line($file, $line, "ERR_LIN_PLAYERS_REPLACE",
+            $c1, $c2, $c3, $noLIN, 0, 1, 1);
+          check_line($file, $line, "ERR_LIN_PLAYERS_DELETE",
+            $c1, $c2, $c3, $noLIN, 0, 1, 1);
+
+          check_entry($file, $line, $tag, $tagLIN,
+            "ERR_LIN_PN_REPLACE", "pn",
+            $c1, $c2, $c3, $noLIN, 0, 1, 1);
+          check_entry($file, $line, $tag, $tagLIN,
+            "ERR_LIN_PN_INSERT", "pn",
+            $c1, $c2, $c3, $noLIN, 0, 1, 1);
+          check_entry($file, $line, $tag, $tagLIN,
+            "ERR_LIN_PN_DELETE", "pn",
+            $c1, $c2, $c3, $noLIN, 0, 1, 1);
+
+          check_entry($file, $line, $tag, $tagLIN,
+            "ERR_LIN_SV_REPLACE", "sv",
+            $c1, $c2, $c3, $noLIN, 1, 1, 1);
+          check_entry($file, $line, $tag, $tagLIN,
+            "ERR_LIN_SV_INSERT", "sv",
+            $c1, $c2, $c3, $noLIN, 1, 1, 1);
+          check_entry($file, $line, $tag, $tagLIN,
+            "ERR_LIN_SV_DELETE", "sv",
+            $c1, $c2, $c3, $noLIN, 1, 1, 1);
+
+          check_hand_line($file, $line, "ERR_LIN_MBIDDING_WRONG",
+            $c1, $c2, $c3, 0);
+
           check_entry($file, $line, $tag, $tagLIN,
             "ERR_LIN_MB_TRAILING", "mb",
             $c1, $c2, $c3, $noLIN, 1, 0, 1);
@@ -305,6 +338,10 @@ sub make_stats
             $c1, $c2, $c3, $noLIN, 1, 0, 1);
           check_entry($file, $line, $tag, $tagLIN,
             "ERR_LIN_MB_SYNTAX", "mb",
+            $c1, $c2, $c3, $noLIN, 1, 1, 1);
+
+          check_entry($file, $line, $tag, $tagLIN,
+            "ERR_LIN_AN_DELETE", "an",
             $c1, $c2, $c3, $noLIN, 1, 1, 1);
 
           check_entry($file, $line, $tag, $tagLIN,
@@ -561,12 +598,30 @@ sub check_line
   {
     warn "$file, $line: Not (1,a,a)";
   }
-  if ($c1 == 0)
-  {
-    warn "$file, $line: (0,a,a)";
-  }
   if ($oneline && $noLIN != 1)
   {
     warn "$file, $line: NoLIN";
+  }
+}
+
+sub check_hand_line
+{
+  my ($file, $line, $tag, $c1, $c2, $c3, $onetag) = @_;
+
+  return unless $line =~ /$tag/;
+
+  if ($c2 == 0 || $c3 == 0)
+  {
+    warn "$file, $line: (a,0,0)";
+  }
+
+  if ($c2 < $c3 || $c2 > 2*$c3)
+  {
+    warn "$file, $line: Not (a,1..2,1)";
+  }
+
+  if ($onetag && $c1 != $onetag)
+  {
+    warn "$file, $line: Not (1,a,a)";
   }
 }
