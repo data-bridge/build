@@ -101,6 +101,7 @@ enum RefErrorsType
   ERR_LIN_SV_REPLACE,
   ERR_LIN_SV_INSERT,
   ERR_LIN_SV_DELETE,
+  ERR_LIN_SV_SYNTAX,
 
   ERR_LIN_MBIDDING_WRONG,
 
@@ -120,16 +121,21 @@ enum RefErrorsType
   ERR_LIN_MC_REPLACE,
   ERR_LIN_MC_INSERT,
   ERR_LIN_MC_DELETE,
+  ERR_LIN_MC_SYNTAX,
 
   ERR_LIN_TRICK_INSERT,
   ERR_LIN_TRICK_DELETE,
 
+  ERR_LIN_SYNTAX,
   ERR_LIN_SYNTAX_ERROR,
 
   ERR_LIN_TOO_FLAWED,
 
-  ERR_LIN_HAND_DIRECTOR,
+  ERR_LIN_HAND_DUPLICATED,
   ERR_LIN_HAND_PLAYERS,
+  ERR_LIN_HAND_CARDS_MISSING,
+  ERR_LIN_HAND_PLAY_MISSING,
+  ERR_LIN_HAND_DIRECTOR,
 
   ERR_SIZE
 };
@@ -315,6 +321,10 @@ const vector<RefErrorBundle> RefErrors =
    "ERR_LIN_SV_DELETE",
    "LIN sv spare"},
 
+  {ERR_LIN_SV_SYNTAX,
+   "ERR_LIN_SV_SYNTAX",
+   "LIN sv syntax"},
+
 
   {ERR_LIN_MBIDDING_WRONG,
    "ERR_LIN_MBIDDING_WRONG",
@@ -373,6 +383,10 @@ const vector<RefErrorBundle> RefErrors =
    "ERR_LIN_MC_DELETE",
    "LIN mc claim surplus"},
 
+  {ERR_LIN_MC_SYNTAX,
+   "ERR_LIN_MC_SYNTAX",
+   "LIN mc syntax"},
+
   {ERR_LIN_TRICK_INSERT,
    "ERR_LIN_TRICK_INSERT",
    "LIN insert trick"},
@@ -380,6 +394,10 @@ const vector<RefErrorBundle> RefErrors =
   {ERR_LIN_TRICK_DELETE,
    "ERR_LIN_TRICK_DELETE",
    "LIN delete trick"},
+
+  {ERR_LIN_SYNTAX,
+   "ERR_LIN_SYNTAX",
+   "LIN syntax"},
 
   {ERR_LIN_SYNTAX_ERROR,
    "ERR_LIN_SYNTAX_ERROR",
@@ -389,12 +407,25 @@ const vector<RefErrorBundle> RefErrors =
    "ERR_LIN_TOO_FLAWED",
    "LIN too flawed"},
 
-  {ERR_LIN_HAND_DIRECTOR,
-   "ERR_LIN_HAND_DIRECTOR",
-   "LIN director decision"},
+  {ERR_LIN_HAND_DUPLICATED,
+   "ERR_LIN_HAND_DUPLICATED",
+   "LIN duplicated"},
+
   {ERR_LIN_HAND_PLAYERS,
    "ERR_LIN_HAND_PLAYERS",
    "LIN players in hand wrong"},
+
+  {ERR_LIN_HAND_CARDS_MISSING,
+   "ERR_LIN_CARDS_MISSING",
+   "LIN cards missing"},
+
+  {ERR_LIN_HAND_PLAY_MISSING,
+   "ERR_LIN_PLAY_MISSING",
+   "LIN play missing"},
+
+  {ERR_LIN_HAND_DIRECTOR,
+   "ERR_LIN_HAND_DIRECTOR",
+   "LIN director decision"},
 
   {ERR_SIZE,
    "ERR_SIZE",
