@@ -300,6 +300,8 @@ static bool isContracts(
   string refPass = regex_replace(refPruned, reu, string("PASS"));
   regex rel("\\bp\\b");
   refPass = regex_replace(refPass, rel, string("PASS"));
+  regex rep("\\bPass\\b");
+  refPass = regex_replace(refPass, rep, string("PASS"));
 
   if (outPruned == refPass)
     return true;

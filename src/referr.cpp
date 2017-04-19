@@ -43,7 +43,10 @@ static string parseRefLINEntry(const string& entry)
       THROW("Single quote");
     if (entry.at(l-1) != '\'')
       THROW("Not ending on single quote");
-    return entry.substr(1, l-2);
+    if (l == 2)
+      return "";
+    else
+      return entry.substr(1, l-2);
   }
   else
     return entry;
@@ -78,13 +81,16 @@ static bool parseRefLIN(
   else
     rf.fixLIN.reverseFlag = false;
 
-  if (commas == 0 && rf.type == BRIDGE_REF_DELETE_LIN)
+  if (rf.type == BRIDGE_REF_DELETE_LIN && commas <= 1)
   {
     // First one must be a tag number.
     if (! str2upos(v[0], rf.fixLIN.tagNo))
       return false;
     rf.fixLIN.fieldNo = 0;
-    rf.fixLIN.tag = "";
+    if (commas == 1)
+      rf.fixLIN.tag = parseRefLINEntry(v[1]);
+    else
+      rf.fixLIN.tag = "";
     rf.fixLIN.is = "";
     rf.fixLIN.was = "";
     rf.fixLIN.extent = 1;
@@ -724,11 +730,21 @@ bool modifyLINLine(
       if (v[start] != refFix.fixLIN.tag)
         modifyLINFail(line, refFix.fixLIN, "Different tags: " + v[start]);
 
-      if (v[start+1] != refFix.fixLIN.was)
-        modifyLINFail(line, refFix.fixLIN, "Old value wrong");
+      if (refFix.fixLIN.is == "" && refFix.fixLIN.was == "")
+      {
+        // Delete a single entry.
+        // Only use this when the entry is seriously messed up.
+        auto s = v.begin() + static_cast<int>(start);
+        v.erase(s);
+      }
+      else
+      {
+        if (v[start+1] != refFix.fixLIN.was)
+          modifyLINFail(line, refFix.fixLIN, "Old value wrong");
 
-      auto s = v.begin() + static_cast<int>(start);
-      v.erase(s, s + static_cast<int>(2*refFix.fixLIN.extent));
+        auto s = v.begin() + static_cast<int>(start);
+        v.erase(s, s + static_cast<int>(2*refFix.fixLIN.extent));
+      }
     }
   }
   else
