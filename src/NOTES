@@ -6,8 +6,11 @@ Content
 * Find unrealistic sequences (opening final contract)
 * Very expensive bids (offering huge upside score).
 * out-of-order --> .noval for 8055,6,7,8,9, 60,1,2,3,4, 6
-* Permit X as DBL (I thought I did this)
-* Permit P as PASS (ditto)
+* Difference between bidding wrong and bidding missing
+* MBIDDING should become HAND_BIDDING_WRONG or _MISSING
+* Some MBIDDING are there because of an mc without bidding.
+  Can be tolerate this instead?
+  Go through each of AUCTION_ABBR, could also be WRONG
 
 Tags
 * No ROTATE

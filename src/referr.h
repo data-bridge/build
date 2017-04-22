@@ -77,6 +77,8 @@ enum RefErrorsType
   ERR_LIN_PN_PLAYERS_UNKNOWN,
   ERR_LIN_PN_PLAYERS_WRONG,
 
+  ERR_LIN_PLAYERS_UNKNOWN,
+  ERR_LIN_PLAYERS_WRONG,
   ERR_LIN_PLAYERS_REPLACE,
   ERR_LIN_PLAYERS_DELETE,
 
@@ -93,6 +95,7 @@ enum RefErrorsType
 
   ERR_LIN_MD_FORMAT,
   ERR_LIN_MD_CONTENT,
+  ERR_LIN_MD_REPLACE,
   ERR_LIN_MD_MISSING,
   ERR_LIN_MD_SYNTAX,
 
@@ -117,6 +120,9 @@ enum RefErrorsType
   ERR_LIN_PC_REPLACE,
   ERR_LIN_PC_INSERT,
   ERR_LIN_PC_DELETE,
+  ERR_LIN_PC_SYNTAX,
+
+  ERR_LIN_PLAY_MISSING,
 
   ERR_LIN_MC_REPLACE,
   ERR_LIN_MC_INSERT,
@@ -130,11 +136,19 @@ enum RefErrorsType
   ERR_LIN_SYNTAX_ERROR,
 
   ERR_LIN_TOO_FLAWED,
+  ERR_LIN_OMIT,
 
+  ERR_LIN_HAND_OUT_OF_RANGE,
   ERR_LIN_HAND_DUPLICATED,
   ERR_LIN_HAND_PLAYERS,
+  ERR_LIN_HAND_AUCTION_NONE,
+  ERR_LIN_HAND_AUCTION_WRONG,
+  ERR_LIN_HAND_AUCTION_LIVE,
+  ERR_LIN_HAND_AUCTION_ABBR,
   ERR_LIN_HAND_CARDS_MISSING,
+  ERR_LIN_HAND_CARDS_WRONG,
   ERR_LIN_HAND_PLAY_MISSING,
+  ERR_LIN_HAND_PLAY_WRONG,
   ERR_LIN_HAND_DIRECTOR,
 
   ERR_SIZE
@@ -246,6 +260,14 @@ const vector<RefErrorBundle> RefErrors =
    "ERR_LIN_PN_PLAYERS_WRONG",
    "LIN pn name commas"},
 
+  {ERR_LIN_PLAYERS_UNKNOWN,
+   "ERR_LIN_PLAYERS_UNKNOWN",
+   "LIN not all player names"},
+
+  {ERR_LIN_PLAYERS_WRONG,
+   "ERR_LIN_PLAYERS_WRONG",
+   "LIN player name commas"},
+
   {ERR_LIN_PLAYERS_REPLACE,
    "ERR_LIN_PLAYERS_REPLACE",
    "LIN replace player line"},
@@ -294,6 +316,10 @@ const vector<RefErrorBundle> RefErrors =
   {ERR_LIN_MD_CONTENT,
    "ERR_LIN_MD_CONTENT",
    "LIN md deal content"},
+
+  {ERR_LIN_MD_REPLACE,
+   "ERR_LIN_MD_REPLACE",
+   "LIN md deal replace"},
 
   {ERR_LIN_MD_MISSING,
    "ERR_LIN_MD_MISSING",
@@ -371,6 +397,14 @@ const vector<RefErrorBundle> RefErrors =
    "ERR_LIN_PC_DELETE",
    "LIN pc play spare"},
 
+  {ERR_LIN_PC_SYNTAX,
+   "ERR_LIN_PC_SYNTAX",
+   "LIN pc syntax"},
+
+  {ERR_LIN_PLAY_MISSING,
+   "ERR_LIN_PLAY_MISSING",
+   "LIN play missing"},
+
   {ERR_LIN_MC_REPLACE,
    "ERR_LIN_MC_REPLACE",
    "LIN mc claim wrong"},
@@ -407,6 +441,14 @@ const vector<RefErrorBundle> RefErrors =
    "ERR_LIN_TOO_FLAWED",
    "LIN too flawed"},
 
+  {ERR_LIN_OMIT,
+   "ERR_LIN_OMIT",
+   "LIN omit in general"},
+
+  {ERR_LIN_HAND_OUT_OF_RANGE,
+   "ERR_LIN_HAND_OUT_OF_RANGE",
+   "LIN hand out of range"},
+
   {ERR_LIN_HAND_DUPLICATED,
    "ERR_LIN_HAND_DUPLICATED",
    "LIN duplicated"},
@@ -419,9 +461,33 @@ const vector<RefErrorBundle> RefErrors =
    "ERR_LIN_CARDS_MISSING",
    "LIN cards missing"},
 
+  {ERR_LIN_HAND_CARDS_WRONG,
+   "ERR_LIN_CARDS_WRONG",
+   "LIN cards wrong"},
+
+  {ERR_LIN_HAND_AUCTION_NONE,
+   "ERR_LIN_AUCTION_NONE",
+   "LIN no auction"},
+
+  {ERR_LIN_HAND_AUCTION_WRONG,
+   "ERR_LIN_AUCTION_WRONG",
+   "LIN auction wrong"},
+
+  {ERR_LIN_HAND_AUCTION_LIVE,
+   "ERR_LIN_AUCTION_LIVE",
+   "LIN auction not over"},
+
+  {ERR_LIN_HAND_AUCTION_ABBR,
+   "ERR_LIN_AUCTION_ABBR",
+   "LIN auction abbreviated"},
+
   {ERR_LIN_HAND_PLAY_MISSING,
    "ERR_LIN_PLAY_MISSING",
    "LIN play missing"},
+
+  {ERR_LIN_HAND_PLAY_WRONG,
+   "ERR_LIN_PLAY_WRONG",
+   "LIN play wrong"},
 
   {ERR_LIN_HAND_DIRECTOR,
    "ERR_LIN_HAND_DIRECTOR",

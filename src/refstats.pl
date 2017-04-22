@@ -15,11 +15,18 @@ if ($#ARGV < 0)
 my $HOMEDIR = glob("~/GitHub/Build/src");
 my $out = "refstats.txt";
 
-# PC
-my $DIR = "../../../bridgedata/hands/BBOVG";
+my $DIR;
+if (`uname -a` =~ /CDD/)
+{
+  # Laptop
+  $DIR = "../../../bridgedata/BBOVG";
+}
+else
+{
+  # PC
+  $DIR = "../../../bridgedata/hands/BBOVG";
+}
 
-# Laptop
-# my $DIR = "../../../bridgedata/BBOVG";
 
 my $indir = $ARGV[0];
 if ($indir =~ /^\d+$/)
@@ -537,8 +544,7 @@ sub quotes_to_content
     }
     else
     {
-      warn "$file, deleteLIN has extras: $str";
-        return;
+      $$repref = 1;
     }
   }
   elsif ($action eq "replaceLIN")

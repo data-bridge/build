@@ -152,7 +152,14 @@ static bool parseRefLIN(
   else if (rf.type == BRIDGE_REF_DELETE_LIN)
   {
     rf.fixLIN.was = s1;
-    rf.fixLIN.is = "";
+
+    if (s1 == "")
+      // Kludge
+      rf.fixLIN.is = "non-empty";
+    else
+      rf.fixLIN.is = "";
+
+
 
     if (n+1 == commas)
     {

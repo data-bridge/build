@@ -14,11 +14,17 @@ if ($#ARGV < 0)
   exit;
 }
 
-# PC
-my $DIR = "../../../bridgedata/hands/BBOVG";
-
-# Laptop
-# my $DIR = "../../../bridgedata/BBOVG";
+my $DIR;
+if (`uname -a` =~ /CDD/)
+{
+  # Laptop
+  $DIR = "../../../bridgedata/BBOVG";
+}
+else
+{
+  # PC
+  $DIR = "../../../bridgedata/hands/BBOVG";
+}
 
 my $file;
 if ($ARGV[0] =~ /^\d+$/ && length($ARGV[0]) > 2)
