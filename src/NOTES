@@ -6,17 +6,11 @@ Content
 * Find unrealistic sequences (opening final contract)
 * Very expensive bids (offering huge upside score).
 * out-of-order --> .noval for 8055,6,7,8,9, 60,1,2,3,4, 6
-* Difference between bidding wrong and bidding missing
-* MBIDDING should become HAND_BIDDING_WRONG or _MISSING
-* Some MBIDDING are there because of an mc without bidding.
-  Can be tolerate this instead?
-  Go through each of AUCTION_ABBR, could also be WRONG
+* New refstats.pl comes up with own comment line, counts qx'es etc.
 
 Tags
-* No ROTATE
 * Make a ROTATE tag in validateLIN
-* Multiples changes to single line
-* New tags, delete some old ones
+* Multiple changes to single line
 * Reduce insert, delete, replace to minimum (use LIN)
 * automate check of ERR_LIN(a,b,c), different by error type
 * Have to look at tag counts, consistent for each type of LIN_ERR.

@@ -704,8 +704,15 @@ bool modifyLINLine(
     else
     {
       if (v[start+1] != refFix.fixLIN.was)
+      {
+        // Permit a not too short prefix.
+        const unsigned l = refFix.fixLIN.was.length();
+        if (l < 2 || 
+            l >= v[start+1].length() ||
+            v[start+1].substr(0, l) != refFix.fixLIN.was)
         modifyLINFail(line, refFix.fixLIN, 
           "Old value wrong: " + v[start+1]);
+      }
 
       v[start+1] = refFix.fixLIN.is;
     }
