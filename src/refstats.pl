@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 # Reads all files in directory argument that end on .ref,
-# and generates statistics in refstats.txt.
+# generates statistics in refstats.txt, and tests content.
 
 if ($#ARGV < 0)
 {
@@ -26,6 +26,11 @@ else
   # PC
   $DIR = "../../../bridgedata/hands/BBOVG";
 }
+
+my $ASSOC_TAG_UNKNOWN = 0;
+my $ASSOC_ASSOC_UNKNOWN = 1;
+my $ASSOC_OK_GLOBAL = 2;
+my $ASSOC_OK_LOCAL = 3;
 
 
 my $indir = $ARGV[0];
@@ -61,6 +66,9 @@ for (my $i = 0; $i <= $#codes; $i++)
   reset_accum(\%{$accum_rem3[$i]});
 }
 
+my (%tag_lists, %tag_global, %tag_no_global_count, %tag_global_count);
+set_tag_assocs();
+
 my $num_lin_files = count_files($indir, "lin");
 my $num_skip_files = count_files($indir, "skip");
 my $num_noval_files = count_files($indir, "noval");
@@ -90,6 +98,130 @@ sub reset_accum
   $accum_ref->{tags} = 0;
   $accum_ref->{qxs} = 0;
   $accum_ref->{boards} = 0;
+}
+
+
+sub set_tag_assocs
+{
+  $tag_global{vg} = 1;
+  $tag_global{pn} = 1;
+
+  $tag_no_global_count{ERR_LIN_VG_FIRST} = 1;
+  $tag_no_global_count{ERR_LIN_VG_LAST} = 1;
+  $tag_no_global_count{ERR_LIN_VG_SYNTAX} = 1;
+  $tag_no_global_count{ERR_LIN_PN_DELETE} = 1;
+
+  $tag_no_global_count{ERR_LIN_VHEADER_INSERT} = 1;
+  $tag_no_global_count{ERR_LIN_VHEADER_SYNTAX} = 1;
+  $tag_no_global_count{ERR_LIN_RESULTS_INSERT} = 1;
+  $tag_no_global_count{ERR_LIN_RESULTS_DELETE} = 1;
+  $tag_no_global_count{ERR_LIN_PLAYERS_DELETE} = 1;
+
+  $tag_global_count{ERR_LIN_MD_MISSING} = 1;
+  $tag_global_count{ERR_LIN_HAND_OUT_OF_RANGE} = 1;
+  $tag_global_count{ERR_LIN_HAND_DUPLICATE} = 1;
+  $tag_global_count{ERR_LIN_HAND_AUCTION_NONE} = 1;
+  $tag_global_count{ERR_LIN_HAND_AUCTION_WRONG} = 1;
+  $tag_global_count{ERR_LIN_HAND_AUCTION_LIVE} = 1;
+  $tag_global_count{ERR_LIN_HAND_AUCTION_ABBR} = 1;
+  $tag_global_count{ERR_LIN_HAND_CARDS_MISSING} = 1;
+  $tag_global_count{ERR_LIN_HAND_CARDS_WRONG} = 1;
+  $tag_global_count{ERR_LIN_HAND_PLAY_MISSING} = 1;
+  $tag_global_count{ERR_LIN_HAND_PLAY_WRONG} = 1;
+  $tag_global_count{ERR_LIN_HAND_DIRECTOR} = 1;
+
+  @{$tag_lists{vg}} = qw(
+    ERR_LIN_VG_FIRST
+    ERR_LIN_VG_LAST
+    ERR_LIN_VG_REPLACE
+    ERR_LIN_VG_SYNTAX
+  );
+
+  @{$tag_lists{rs}} = qw(
+    ERR_LIN_RS_REPLACE
+    ERR_LIN_RS_INSERT 
+    ERR_LIN_RS_DELETE
+    ERR_LIN_RS_DECL_PARD
+    ERR_LIN_RS_DECL_OPP
+    ERR_LIN_RS_DENOM
+    ERR_LIN_RS_LEVEL
+    ERR_LIN_RS_MULT
+    ERR_LIN_RS_TRICKS
+    ERR_LIN_RS_EMPTY
+    ERR_LIN_RS_INCOMPLETE
+    ERR_LIN_RS_SYNTAX
+  );
+
+  @{$tag_lists{pn}} = qw(
+    ERR_LIN_PN_REPLACE
+    ERR_LIN_PN_INSERT
+    ERR_LIN_PN_DELETE
+  );
+
+  @{$tag_lists{qx}} = qw(
+    ERR_LIN_QX_REPLACE
+    ERR_LIN_QX_UNORDERED
+  );
+
+  @{$tag_lists{md}} = qw(
+    ERR_LIN_MD_REPLACE
+    ERR_LIN_MD_MISSING
+    ERR_LIN_MD_SYNTAX
+  );
+
+  @{$tag_lists{nt}} = qw(
+    ERR_LIN_NT_SYNTAX
+  );
+
+  @{$tag_lists{sv}} = qw(
+    ERR_LIN_SV_REPLACE
+    ERR_LIN_SV_INSERT
+    ERR_LIN_SV_DELETE
+    ERR_LIN_SV_SYNTAX
+  );
+
+  @{$tag_lists{mb}} = qw(
+    ERR_LIN_MB_TRAILING
+    ERR_LIN_MB_REPLACE
+    ERR_LIN_MB_INSERT
+    ERR_LIN_MB_DELETE
+    ERR_LIN_MB_SYNTAX
+  );
+
+  @{$tag_lists{an}} = qw(
+    ERR_LIN_AN_REPLACE
+    ERR_LIN_AN_DELETE
+  );
+
+  @{$tag_lists{pc}} = qw(
+    ERR_LIN_PC_REPLACE
+    ERR_LIN_PC_INSERT
+    ERR_LIN_PC_DELETE
+    ERR_LIN_PC_SYNTAX
+    ERR_LIN_TRICK_DELETE
+  );
+
+  @{$tag_lists{mc}} = qw(
+    ERR_LIN_MC_REPLACE
+    ERR_LIN_MC_INSERT
+    ERR_LIN_MC_DELETE
+    ERR_LIN_MC_SYNTAX
+  );
+}
+
+
+sub assoc_ok
+{
+  my ($tag, $assoc) = @_;
+
+  return $ASSOC_TAG_UNKNOWN unless defined $tag_lists{$tag};
+
+  for my $a (@{$tag_lists{$tag}})
+  {
+    return (defined $tag_global{$tag} ? $ASSOC_OK_GLOBAL : $ASSOC_OK_LOCAL) 
+      if $a eq $assoc;
+  }
+  return $ASSOC_ASSOC_UNKNOWN;
 }
 
 
@@ -167,8 +299,6 @@ sub make_stats
   foreach my $file (@$files_ref)
   {
     my (%expl_seen, %rem_seen);
-    # my $expl_seen = 0;
-    # my $rem_seen = 0;
 
     if ($file =~ /skip/ && -z $file)
     {
@@ -196,27 +326,31 @@ sub make_stats
       chomp $line;
       $line =~ s///g;
 
-      my ($noLIN, $action, $tagLIN, $repeat);
+      my ($refNo, $noLIN, $action, $tagNo, $tagLIN, $repeat);
       $tagLIN = "";
       $repeat = 0;
+      $refNo = 0;
       if ($line =~ /^(\d+)\s+(\w+)\s+(\d+)/)
       {
         $noLIN = $3;
         $action = $2;
+        $refNo = $1;
       }
       elsif ($line =~ /^(\d+)\s+(\w+)/)
       {
         $noLIN = 1;
         $action = $2;
+        $refNo = $1;
         if ($action =~ /LIN/ && $line =~ /^\d+\s+\w+\s+\"([^"]*)\"/)
         {
           my $quotes = $1;
-          quotes_to_content($file, $action, $quotes, \$tagLIN, \$repeat);
+          quotes_to_content($file, $action, $quotes, \$tagNo, \$tagLIN, \$repeat);
         }
       }
       elsif (($file =~ /skip/ || $file =~ /noval/) && $line =~ /^(\d+)\s+/)
       {
         $noLIN = $1;
+        $action = "";
       }
       else
       {
@@ -224,169 +358,260 @@ sub make_stats
         next;
       }
 
-      if ($line =~ /\{(.*)\}\s*$/)
-      {
-        my $text = $1;
-        my @entries = split ';', $text;
-        for my $e (@entries)
-        {
-          if ($e !~ /(.+)\((\d+),(\d+),(\d+)\)/)
-         {
-            warn "Bad entry: $file, $e";
-            next;
-          }
-          my ($tag, $c1, $c2, $c3) = ($1, $2, $3, $4);
-
-          # onehand: (a,1,1)
-          # onetag : (1,a,a)
-          # oneline: not "delete 2"
-
-          check_entry($file, $line, $tag, $tagLIN,
-            "ERR_LIN_VG_FIRST", "vg",
-            $c1, $c2, $c3, $noLIN, 0, 1, 1);
-          check_entry($file, $line, $tag, $tagLIN,
-            "ERR_LIN_VG_LAST", "vg",
-            $c1, $c2, $c3, $noLIN, 0, 1, 1);
-          check_entry($file, $line, $tag, $tagLIN,
-            "ERR_LIN_VG_REPLACE", "vg",
-            $c1, $c2, $c3, $noLIN, 0, 1, 1);
-          check_entry($file, $line, $tag, $tagLIN,
-            "ERR_LIN_VG_SYNTAX", "vg",
-            $c1, $c2, $c3, $noLIN, 0, 0, 1);
-
-          check_line($file, $line, "ERR_LIN_VHEADER_INSERT",
-            $c1, $c2, $c3, $noLIN, 0, 1, 1);
-          check_line($file, $line, "ERR_LIN_VHEADER_SYNTAX",
-            $c1, $c2, $c3, $noLIN, 0, 1, 1);
-
-          check_line($file, $line, "ERR_LIN_RESULTS_REPLACE", 
-            $c1, $c2, $c3, $noLIN, 0, 1, 1);
-          check_line($file, $line, "ERR_LIN_RESULTS_INSERT", 
-            $c1, $c2, $c3, $noLIN, 0, 1, 1);
-          check_line($file, $line, "ERR_LIN_RESULTS_DELETE", 
-            $c1, $c2, $c3, $noLIN, 0, 1, 1);
-
-          check_entry($file, $line, $tag, $tagLIN,
-            "ERR_LIN_RS_REPLACE", "rs",
-            $c1, $c2, $c3, $noLIN, 1, 1, 1);
-          check_entry($file, $line, $tag, $tagLIN,
-            "ERR_LIN_RS_INSERT", "rs",
-            $c1, $c2, $c3, $noLIN, 1, 1, 1);
-          check_entry($file, $line, $tag, $tagLIN,
-            "ERR_LIN_RS_DELETE", "rs",
-            $c1, $c2, $c3, $noLIN, 0, $repeat, 1);
-          check_entry($file, $line, $tag, $tagLIN,
-            "ERR_LIN_RS_DECL_PARD", "rs",
-            $c1, $c2, $c3, $noLIN, 1, 1, 1);
-          check_entry($file, $line, $tag, $tagLIN,
-            "ERR_LIN_RS_DECL_OPP", "rs",
-            $c1, $c2, $c3, $noLIN, 1, 1, 1);
-          check_entry($file, $line, $tag, $tagLIN,
-            "ERR_LIN_RS_DENOM", "rs",
-            $c1, $c2, $c3, $noLIN, 1, 1, 1);
-          check_entry($file, $line, $tag, $tagLIN,
-            "ERR_LIN_RS_LEVEL", "rs",
-            $c1, $c2, $c3, $noLIN, 1, 1, 1);
-          check_entry($file, $line, $tag, $tagLIN,
-            "ERR_LIN_RS_MULT", "rs",
-            $c1, $c2, $c3, $noLIN, 1, 1, 1);
-          check_entry($file, $line, $tag, $tagLIN,
-            "ERR_LIN_RS_TRICKS", "rs",
-            $c1, $c2, $c3, $noLIN, 1, 1, 1);
-          check_entry($file, $line, $tag, $tagLIN,
-            "ERR_LIN_RS_EMPTY", "rs",
-            $c1, $c2, $c3, $noLIN, 1, 1, 1);
-          check_entry($file, $line, $tag, $tagLIN,
-            "ERR_LIN_RS_INCOMPLETE", "rs",
-            $c1, $c2, $c3, $noLIN, 1, 1, 1);
-          check_entry($file, $line, $tag, $tagLIN,
-            "ERR_LIN_RS_SYNTAX", "rs",
-            $c1, $c2, $c3, $noLIN, 1, 1, 1);
-          
-          check_line($file, $line, "ERR_LIN_PLAYERS_REPLACE",
-            $c1, $c2, $c3, $noLIN, 0, 1, 1);
-          check_line($file, $line, "ERR_LIN_PLAYERS_DELETE",
-            $c1, $c2, $c3, $noLIN, 0, 1, 1);
-
-          check_entry($file, $line, $tag, $tagLIN,
-            "ERR_LIN_PN_REPLACE", "pn",
-            $c1, $c2, $c3, $noLIN, 0, 1, 1);
-          check_entry($file, $line, $tag, $tagLIN,
-            "ERR_LIN_PN_INSERT", "pn",
-            $c1, $c2, $c3, $noLIN, 0, 1, 1);
-          check_entry($file, $line, $tag, $tagLIN,
-            "ERR_LIN_PN_DELETE", "pn",
-            $c1, $c2, $c3, $noLIN, 0, 1, 1);
-
-          check_entry($file, $line, $tag, $tagLIN,
-            "ERR_LIN_SV_REPLACE", "sv",
-            $c1, $c2, $c3, $noLIN, 1, 1, 1);
-          check_entry($file, $line, $tag, $tagLIN,
-            "ERR_LIN_SV_INSERT", "sv",
-            $c1, $c2, $c3, $noLIN, 1, 1, 1);
-          check_entry($file, $line, $tag, $tagLIN,
-            "ERR_LIN_SV_DELETE", "sv",
-            $c1, $c2, $c3, $noLIN, 1, 1, 1);
-
-          check_hand_line($file, $line, "ERR_LIN_MBIDDING_WRONG",
-            $c1, $c2, $c3, 0);
-
-          check_entry($file, $line, $tag, $tagLIN,
-            "ERR_LIN_MB_TRAILING", "mb",
-            $c1, $c2, $c3, $noLIN, 1, 0, 1);
-          check_entry($file, $line, $tag, $tagLIN,
-            "ERR_LIN_MB_REPLACE", "mb",
-            $c1, $c2, $c3, $noLIN, 1, 1, 1);
-          check_entry($file, $line, $tag, $tagLIN,
-            "ERR_LIN_MB_INSERT", "mb",
-            $c1, $c2, $c3, $noLIN, 1, 0, 1);
-          check_entry($file, $line, $tag, $tagLIN,
-            "ERR_LIN_MB_DELETE", "mb",
-            $c1, $c2, $c3, $noLIN, 1, 0, 1);
-          check_entry($file, $line, $tag, $tagLIN,
-            "ERR_LIN_MB_SYNTAX", "mb",
-            $c1, $c2, $c3, $noLIN, 1, 1, 1);
-
-          check_entry($file, $line, $tag, $tagLIN,
-            "ERR_LIN_AN_DELETE", "an",
-            $c1, $c2, $c3, $noLIN, 1, 1, 1);
-
-          check_entry($file, $line, $tag, $tagLIN,
-            "ERR_LIN_PC_REPLACE", "pc",
-            $c1, $c2, $c3, $noLIN, 1, 1, 1);
-          check_entry($file, $line, $tag, $tagLIN,
-            "ERR_LIN_PC_INSERT", "pc",
-            $c1, $c2, $c3, $noLIN, 1, 1, 1);
-          check_entry($file, $line, $tag, $tagLIN,
-            "ERR_LIN_PC_DELETE", "pc",
-            $c1, $c2, $c3, $noLIN, 1, $repeat, 1);
-          
-          check_entry($file, $line, $tag, $tagLIN,
-            "ERR_LIN_MC_REPLACE", "mc",
-            $c1, $c2, $c3, $noLIN, 1, 1, 1);
-          check_entry($file, $line, $tag, $tagLIN,
-            "ERR_LIN_MC_INSERT", "mc",
-            $c1, $c2, $c3, $noLIN, 1, 1, 1);
-          check_entry($file, $line, $tag, $tagLIN,
-            "ERR_LIN_MC_DELETE", "mc",
-            $c1, $c2, $c3, $noLIN, 1, 1, 1);
-
-          check_line($file, $line, "ERR_LIN_TRICK_INSERT",
-            $c1, $c2, $c3, $noLIN, 1, 0, 1);
-          check_line($file, $line, "ERR_LIN_TRICK_DELETE", 
-            $c1, $c2, $c3, $noLIN, 1, 0, 0);
-
-          log_entry($file, $accum_expl_ref, $expl_seen{$tag}, 
-            $noLIN, $tag, $c1, $c2, $c3);
-          $expl_seen{$tag} = 1;
-        }
-      }
-      else
+      if ($line !~ /\{(.*)\}\s*$/)
       {
         log_entry($file, $accum_rem_ref, $rem_seen{ERR_SIZE}, 
           $noLIN, "ERR_SIZE", 0, 0, 0);
         $rem_seen{ERR_SIZE} = 1;
         print "File $file: '$line'\n";
+        next;
+      }
+
+      my $text = $1;
+      my @entries = split ';', $text;
+      for my $e (@entries)
+      {
+        if ($e !~ /(.+)\((\d+),(\d+),(\d+)\)/)
+        {
+          warn "Bad entry: $file, $e";
+          next;
+        }
+        my ($tag, $c1, $c2, $c3) = ($1, $2, $3, $4);
+        log_entry($file, $accum_expl_ref, $expl_seen{$tag},
+          $noLIN, $tag, $c1, $c2, $c3);
+        $expl_seen{$tag} = 1;
+
+        if ($tagLIN eq "" && $action !~ /LIN/)
+        {
+          if ($action eq "")
+          {
+            if ($file =~ /skip/ || $file =~ /noval/)
+            {
+              my $noln;
+              check_whole_file_count($file, 1, 0, $tag, $e, 
+                $c1, $c2, $c3, \$noln);
+              if ($noLIN != $noln)
+              {
+                warn "$file: Bad line $noLIN vs. count $noln";
+                next;
+              }
+            }
+            else
+            {
+              warn "$file: $line\n";
+            }
+          }
+          elsif (defined $tag_global_count{$tag})
+          {
+            my %count;
+            my $filelin = $file;
+            $filelin =~ s/skip$/lin/;
+            $filelin =~ s/ref$/lin/;
+            $filelin =~ s/noval$/lin/;
+            count_tags($filelin, $refNo, $refNo+$noLIN-1, \%count);
+          
+            if ($c1 != 0 || $c2 != $count{qx} || $c3 != $count{bd})
+            {
+              next if defined $tag_no_global_count{$tag};
+
+              warn "Bad non-LIN count $file,\n$line, $count{qx}, $count{bd}\n\n";
+              next;
+            }
+          }
+          elsif ($action eq "replace")
+          {
+            if ($tag eq 'ERR_LIN_PLAYERS_REPLACE' ||
+                $tag eq 'ERR_LIN_VHEADER_SYNTAX')
+            {
+              my $noln;
+              check_whole_file_count($file, 1, 1, $tag, $e, 
+                $c1, $c2, $c3, \$noln);
+            }
+            else
+            {
+              # TODO
+              print "$file: $line\n";
+            }
+          }
+          elsif ($action eq "insert")
+          {
+            if ($tag eq 'ERR_LIN_RESULTS_INSERT' ||
+                $tag eq 'ERR_LIN_VHEADER_INSERT')
+            {
+              # Too hard to reproduce automatically.
+            }
+            else
+            {
+              my $filelin = $file;
+              $filelin =~ s/skip$/lin/;
+              $filelin =~ s/ref$/lin/;
+              $filelin =~ s/noval$/lin/;
+              my $fline = getline($filelin, $refNo);
+
+              my %count;
+              count_tags($filelin, $refNo, $refNo+$noLIN-1, \%count);
+              if ($c1 != $count{realtags})
+              {
+                warn "Bad local repeat $file,\n$e, stated $c1, counted $count{realtags}\n\n";
+                next;
+              }
+
+              if ($c2 != 1 || $c3 != 1)
+              {
+                warn "$file, $line: Not (a,1,1)";
+              }
+            }
+
+          }
+          elsif ($action eq "delete")
+          {
+            if ($tag eq 'ERR_LIN_TRICK_DELETE')
+            {
+              my $filelin = $file;
+              $filelin =~ s/skip$/lin/;
+              $filelin =~ s/ref$/lin/;
+              $filelin =~ s/noval$/lin/;
+              my $fline = getline($filelin, $refNo);
+
+              my %count;
+              count_tags($filelin, $refNo, $refNo+$noLIN-1, \%count);
+              if ($c1 != $count{realtags})
+              {
+                warn "Bad local repeat $file,\n$e, stated $c1, counted $count{realtags}\n\n";
+                next;
+              }
+
+              if ($c2 != 1 || $c3 != 1)
+              {
+                warn "$file, $line: Not (a,1,1)";
+              }
+            }
+            elsif ($tag eq 'ERR_LIN_SYNTAX' || 
+                $tag eq 'ERR_LIN_HAND_DUPLICATED')
+            {
+              my %count;
+              my $filelin = $file;
+              $filelin =~ s/skip$/lin/;
+              $filelin =~ s/ref$/lin/;
+              $filelin =~ s/noval$/lin/;
+              count_tags($filelin, $refNo, $refNo+$noLIN-1, \%count);
+          
+              if ($count{qx} == 0 && $count{bd} == 0 && $c2 == 1 && $c3 == 1)
+              {
+                # OK
+              }
+              elsif ($c1 != 0 || $c2 != $count{qx} || $c3 != $count{bd})
+              {
+                next if defined $tag_no_global_count{$tag};
+  
+                warn "Bad non-LIN count $file,\n$line, $count{qx}, $count{bd}\n\n";
+                next;
+              }
+            }
+            else
+            {
+              my $noln;
+              check_whole_file_count($file, 1, 1, $tag, $e, 
+                $c1, $c2, $c3, \$noln);
+            }
+          }
+          else
+          {
+            warn "$file, $line: Bad action $action";
+          }
+        }
+        else
+        {
+          # Check replaceLIN, insertLIN, deleteLIN.
+
+          my $assoc = assoc_ok($tagLIN, $tag);
+          if ($assoc == $ASSOC_TAG_UNKNOWN)
+          {
+            next if ($tag eq "ERR_LIN_SYNTAX"); # Accept any tag
+            next if ($tagLIN eq "" && $tag eq "ERR_LIN_PC_SYNTAX"); 
+            # Accept empty tag in ERR_LIN_PC_SYNTAX
+
+            $assoc = assoc_ok(lc($tagLIN), $tag);
+            next if ($assoc == $ASSOC_OK_GLOBAL || 
+                $assoc == $ASSOC_OK_LOCAL);
+
+            warn "Bad tag $file,\n$e, $tagLIN, $tag\n\n";
+            next;
+          }
+          elsif ($assoc == $ASSOC_ASSOC_UNKNOWN)
+          {
+            next if ($tag eq "ERR_LIN_SYNTAX"); # Accept any tag
+
+            warn "Bad association $file,\n$e, $tagLIN, $tag\n\n";
+            next;
+          }
+          elsif ($assoc == $ASSOC_OK_GLOBAL)
+          {
+            if ($c1 != $repeat && ! defined $tag_no_global_count{$tag})
+            {
+              warn "Bad global repeat $file,\n$e, $c1, $repeat\n\n";
+              next;
+            }
+
+            my $noln;
+            check_whole_file_count($file, 0, 0, $tag, $e, 
+              $c1, $c2, $c3, \$noln);
+          }
+          elsif ($assoc == $ASSOC_OK_LOCAL)
+          {
+            if ($repeat == 1)
+            {
+              if ($c1 != 1)
+              {
+                my $numpipes = ($line =~ tr/\|//);
+                if (($numpipes % 2 == 0) &&
+                    $c1 == (1 + $numpipes/2))
+                {
+                  next;
+                }
+                warn "Bad local repeat $file,\n$e, $c1, $repeat\n\n";
+                next;
+              }
+            }
+            elsif ($c1 != $repeat)
+            {
+              if ($tag eq "ERR_LIN_RS_DELETE")
+              {
+                if ($c1 == 1 && $c2 == $repeat && $c3 == $repeat/2)
+                {
+                  next;
+                }
+
+                warn "Accepting repeat $file,\n$e, $tagLIN, $tag\n\n";
+                next;
+              }
+
+              my $filelin = $file;
+              $filelin =~ s/skip$/lin/;
+              $filelin =~ s/ref$/lin/;
+              $filelin =~ s/noval$/lin/;
+              my $fline = getline($filelin, $refNo);
+
+              my %count;
+              incr_tag_count($fline, $tagNo-1, $repeat, \%count);
+              if ($c1 != $count{realtags})
+              {
+                warn "Bad local repeat $file,\n$e, stated $c1, counted $count{realtags}\n\n";
+                next;
+              }
+            }
+          
+            if ($c2 != 1 || $c3 != 1)
+            {
+              warn "Bad local count $file,\n$e, $c2, $c3\n\n";
+              next;
+            }
+          }
+          else
+          {
+            die "Bad assoc return $assoc";
+          }
+        }
       }
     }
     close $fr;
@@ -504,10 +729,11 @@ sub write_file_numbers
 
 sub quotes_to_content
 {
-  my ($file, $action, $str, $tagref, $repref) = @_;
+  my ($file, $action, $str, $tagnoref, $tagref, $repref) = @_;
 
   my @list = split ',', $str, -1;
   my $pos = -1;
+  $$tagnoref = $list[0];
   for my $a (0 .. $#list)
   {
     my $t = $list[$a];
@@ -558,76 +784,138 @@ sub quotes_to_content
 }
 
 
-sub check_entry
+sub count_tags
 {
-  my ($file, $line, $tagERR, $tagLIN, $refERR, $refLIN, 
-    $c1, $c2, $c3, $noLIN, $onehand, $onetag, $oneline) = @_;
+  my ($file, $first, $last, $cref) = @_;
 
-  if ($tagERR eq $refERR)
+  $cref->{lines} = 0;
+  $cref->{qx} = 0;
+  $cref->{bd} = 0;
+  $cref->{tags} = 0;
+  $cref->{realtags} = 0;
+
+  my $prev = "";
+  my $curr;
+  my $lno = 0;
+
+  my @seen;
+  open my $fr, '<', $file or die "Can't open $file $!";
+  while (my $line = <$fr>)
   {
-    if ($tagLIN ne $refLIN)
+    $lno++;
+    next unless $lno >= $first;
+    last unless $lno <= $last;
+    $cref->{lines}++;
+
+    if ($line =~ /^qx\|([^,\|]+)/ || $line =~ /\|qx\|([^,\|]+)/)
     {
-      warn "$file, $line: Not $refLIN" unless $refERR eq "ERR_LIN_MB_INSERT";
+      $curr = $1;
+      $curr = substr $curr, 1;
+      if (! defined $seen[$curr])
+      {
+        $seen[$curr] = 1;
+        $cref->{bd}++;
+      }
+
+      $cref->{qx}++;
+      # $cref->{bd}++ if ($curr ne $prev);
+      $prev = $curr;
     }
-    if ($onehand && ($c2 != 1 || $c3 != 1))
+    next if $line !~ /\|/;
+    incr_tag_count($line, 0, 0, $cref);
+  }
+  close $fr;
+}
+
+
+sub incr_tag_count
+{
+  my ($line, $start, $count, $cref) = @_;
+
+  my @list = split /\|/, $line, -1;
+  my $l = $#list;
+  $l-- unless ($l % 2);
+  my $p;
+  if ($start >= 0)
+  {
+    $p = 2*$start;
+  }
+  else
+  {
+    $p = $l + 3 + 2*$start;
+  }
+
+  if ($p > $l)
+  {
+    die "Start $start is too large ($l)\n";
+  }
+
+  if ($count != 0)
+  {
+    if ($p + 2*$count -1 > $l)
     {
-      warn "$file, $line: Not (a,1,1)";
+      die "Huh?";
     }
-    if ($onetag && $c1 != 1 && $c1 != $onetag && 
-        ($c1 < 0.5*$onetag || $c1 > 1.5*$onetag))
+    $l = $p + 2*$count - 1;
+  }
+
+  my $i;
+  for ($i = $p; $i <= $l; $i += 2)
+  {
+    $cref->{tags}++;
+    if ($list[$i] ne 'pg' && $list[$i] ne 'nt')
     {
-      warn "$file, $line: Not (1,a,a): $onetag, $c1";
-    }
-    if ($c1 == 0)
-    {
-      warn "$file, $line: (0,a,a)";
-    }
-    if ($oneline && $noLIN != 1)
-    {
-      warn "$file, $line: NoLIN";
+      $cref->{realtags}++;
     }
   }
 }
 
-sub check_line
+
+sub getline
 {
-  my ($file, $line, $tag,
-    $c1, $c2, $c3, $noLIN, $onehand, $onetag, $oneline) = @_;
+  my ($fn, $lno) = @_;
+  open my $fr, '<', $fn or die "Can't open $fn $!";
 
-  return unless $line =~ /$tag/;
+  my $running = 0;
+  while (my $line = <$fr>)
+  {
+    chomp $line;
+    $line =~ s///g;
+    $running++;
 
-  if ($onehand && ($c2 != 1 || $c3 != 1))
-  {
-    warn "$file, $line: Not (a,1,1)";
+    if ($running == $lno)
+    {
+      close $fr;
+      return $line;
+    }
   }
-  if ($onetag && $c1 != $onetag && ($c1 < $onetag || $c1 > 1.5*$onetag))
-  {
-    warn "$file, $line: Not (1,a,a)";
-  }
-  if ($oneline && $noLIN != 1)
-  {
-    warn "$file, $line: NoLIN";
-  }
+  close $fr;
+  die "$fn, $lno: Not found";
 }
 
-sub check_hand_line
+
+sub check_whole_file_count
 {
-  my ($file, $line, $tag, $c1, $c2, $c3, $onetag) = @_;
+  my ($file, $checkc1, $c1target, $tag, $line, $c1, $c2, $c3, $noref) = @_;
 
-  return unless $line =~ /$tag/;
+  my %count;
+  my $filelin = $file;
+  $filelin =~ s/skip$/lin/;
+  $filelin =~ s/ref$/lin/;
+  $filelin =~ s/noval$/lin/;
+  count_tags($filelin, 0, 999999, \%count);
 
-  if ($c2 == 0 || $c3 == 0)
+  if ($checkc1 && $c1 != $c1target)
   {
-    warn "$file, $line: (a,0,0)";
+    warn "$file, $line:\n$c1 should be $c1target by convention\n";
   }
 
-  if ($c2 < $c3 || $c2 > 2*$c3)
+  if (($c2 != $count{qx} || $c3 != $count{bd}) && 
+      $tag !~ /_VG_/ && $tag !~ /_PN_/)
   {
-    warn "$file, $line: Not (a,1..2,1)";
+    warn "Bad skip count $file,\n$line, $count{qx}, $count{bd}\n\n";
   }
 
-  if ($onetag && $c1 != $onetag)
-  {
-    warn "$file, $line: Not (1,a,a)";
-  }
+  $$noref = $count{lines};
 }
+

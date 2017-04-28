@@ -103,6 +103,7 @@ enum RefErrorsType
   ERR_LIN_MB_DELETE,
   ERR_LIN_MB_SYNTAX,
 
+  ERR_LIN_AN_REPLACE,
   ERR_LIN_AN_DELETE,
 
   ERR_LIN_PC_REPLACE,
@@ -327,6 +328,10 @@ const vector<RefErrorBundle> RefErrors =
    "ERR_LIN_MB_SYNTAX",
    "LIN mb syntax"},
 
+
+  {ERR_LIN_AN_REPLACE,
+   "ERR_LIN_AN_REPLACE",
+   "LIN an replace"},
 
   {ERR_LIN_AN_DELETE,
    "ERR_LIN_AN_DELETE",

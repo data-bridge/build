@@ -6,21 +6,15 @@ Content
 * Find unrealistic sequences (opening final contract)
 * Very expensive bids (offering huge upside score).
 * out-of-order --> .noval for 8055,6,7,8,9, 60,1,2,3,4, 6
-* New refstats.pl comes up with own comment line, counts qx'es etc.
 
 Tags
 * Make a ROTATE tag in validateLIN
-* Multiple changes to single line
-* Reduce insert, delete, replace to minimum (use LIN)
-* automate check of ERR_LIN(a,b,c), different by error type
-* Have to look at tag counts, consistent for each type of LIN_ERR.
 * Move to -1 syntax where counts are large
-* Check #lines in .skip against actual line count.
 
-
-* Expand referr.cpp: classify function
 * Another str() function that outputs an IMP sheet,
   will also need vul
+
+* clean up refstats.pl
 
 Dates (NER)
 * Detect conflicts between own extractions and HTML from Japan.
