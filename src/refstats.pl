@@ -300,23 +300,10 @@ sub make_stats
   {
     my (%expl_seen, %rem_seen);
 
-    if ($file =~ /skip/ && -z $file)
+    if (($file =~ /skip$/ || $file =~ /noval$/) && -z $file)
     {
-      # Zero size.
-      my $filelin = $file;
-      $filelin =~ s/skip$/lin/;
-      my $wc = `wc -l $filelin`;
-      if ($wc =~ /^(\d+)/)
-      {
-        my $noLIN = $1;
-        log_entry($file, $accum_rem_ref, $rem_seen{ERR_SIZE}, 
-          $noLIN, "ERR_SIZE", 0, 0, 0);
-        $rem_seen{ERR_SIZE} = 1;
-      }
-      else
-      {
-        die "Bad wc line: $wc";
-      }
+      warn "$file has zero size";
+      next;
     }
 
     open my $fr, '<', $file or die "Can't open $file: $!";
@@ -326,48 +313,21 @@ sub make_stats
       chomp $line;
       $line =~ s///g;
 
+      if ($line !~ /\{(.*)\}\s*$/)
+      {
+        warn "File $file: '$line' has no valid \{...\}\n";
+        next;
+      }
+      my $text = $1;
+
       my ($refNo, $noLIN, $action, $tagNo, $tagLIN, $repeat);
-      $tagLIN = "";
-      $repeat = 0;
-      $refNo = 0;
-      if ($line =~ /^(\d+)\s+(\w+)\s+(\d+)/)
-      {
-        $noLIN = $3;
-        $action = $2;
-        $refNo = $1;
-      }
-      elsif ($line =~ /^(\d+)\s+(\w+)/)
-      {
-        $noLIN = 1;
-        $action = $2;
-        $refNo = $1;
-        if ($action =~ /LIN/ && $line =~ /^\d+\s+\w+\s+\"([^"]*)\"/)
-        {
-          my $quotes = $1;
-          quotes_to_content($file, $action, $quotes, \$tagNo, \$tagLIN, \$repeat);
-        }
-      }
-      elsif (($file =~ /skip/ || $file =~ /noval/) && $line =~ /^(\d+)\s+/)
-      {
-        $noLIN = $1;
-        $action = "";
-      }
-      else
+      if (! parse_line($file, $line, \$refNo, \$noLIN, \$action,
+        \$tagNo, \$tagLIN, \$repeat))
       {
         warn "Bad line: File '$file', line '$line'";
         next;
       }
 
-      if ($line !~ /\{(.*)\}\s*$/)
-      {
-        log_entry($file, $accum_rem_ref, $rem_seen{ERR_SIZE}, 
-          $noLIN, "ERR_SIZE", 0, 0, 0);
-        $rem_seen{ERR_SIZE} = 1;
-        print "File $file: '$line'\n";
-        next;
-      }
-
-      my $text = $1;
       my @entries = split ';', $text;
       for my $e (@entries)
       {
@@ -616,6 +576,46 @@ sub make_stats
     }
     close $fr;
   }
+}
+
+
+sub parse_line
+{
+  my ($file, $line, $refNoref, $noLINref, $actionref, 
+      $tagNoref, $tagLINref, $repeatref) = @_;
+
+  $$tagLINref = "";
+  $$repeatref = 0;
+  $$refNoref = 0;
+  if ($line =~ /^(\d+)\s+(\w+)\s+(\d+)/)
+  {
+    $$noLINref = $3;
+    $$actionref = $2;
+    $$refNoref = $1;
+  }
+  elsif ($line =~ /^(\d+)\s+(\w+)/)
+  {
+    $$noLINref = 1;
+    $$actionref = $2;
+    $$refNoref = $1;
+    if ($$actionref =~ /LIN/ && $line =~ /^\d+\s+\w+\s+\"([^"]*)\"/)
+    {
+      my $quotes = $1;
+      quotes_to_content($file, $$actionref, $quotes, 
+        $tagNoref, $tagLINref, $repeatref);
+    }
+  }
+  elsif (($file =~ /skip/ || $file =~ /noval/) && $line =~ /^(\d+)\s+/)
+  {
+    $$noLINref = $1;
+    $$actionref = "";
+  }
+  else
+  {
+    return 0;
+  }
+
+  return 1;
 }
 
 
