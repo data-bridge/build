@@ -117,6 +117,8 @@ sub set_tag_assocs
   $tag_no_global_count{ERR_LIN_RESULTS_DELETE} = 1;
   $tag_no_global_count{ERR_LIN_PLAYERS_DELETE} = 1;
 
+  $tag_global_count{ERR_LIN_VHEADER_INSERT} = 1;
+  $tag_global_count{ERR_LIN_RESULTS_INSERT} = 1;
   $tag_global_count{ERR_LIN_MD_MISSING} = 1;
   $tag_global_count{ERR_LIN_HAND_OUT_OF_RANGE} = 1;
   $tag_global_count{ERR_LIN_HAND_DUPLICATED} = 1;
@@ -379,90 +381,31 @@ sub make_stats
           next;
         }
 
-        if ($tagLIN eq "" && $action !~ /LIN/)
+        if ($action eq "insert" || $tag eq 'ERR_LIN_TRICK_DELETE')
         {
-          if ($action eq "replace")
-          {
-            if ($tag eq 'ERR_LIN_PLAYERS_REPLACE' ||
-                $tag eq 'ERR_LIN_VHEADER_SYNTAX')
-            {
-              my $noln;
-              check_whole_file_count($file, 1, 1, $tag, $e, 
-                $c1, $c2, $c3, \$noln);
-            }
-            else
-            {
-              # TODO
-              print "$file: $line\n";
-            }
-          }
-          elsif ($action eq "insert")
-          {
-            if ($tag eq 'ERR_LIN_RESULTS_INSERT' ||
-                $tag eq 'ERR_LIN_VHEADER_INSERT')
-            {
-              # Too hard to reproduce automatically.
-            }
-            else
-            {
-              my $filelin = $file;
-              $filelin =~ s/skip$/lin/;
-              $filelin =~ s/ref$/lin/;
-              $filelin =~ s/noval$/lin/;
-              my $fline = getline($filelin, $refNo);
+          my $filelin = $file;
+          $filelin =~ s/skip$/lin/;
+          $filelin =~ s/ref$/lin/;
+          $filelin =~ s/noval$/lin/;
+          my $fline = getline($filelin, $refNo);
 
-              my %count;
-              count_tags($filelin, $refNo, $refNo+$noLIN-1, \%count);
-              if ($c1 != $count{realtags})
-              {
-                warn "Bad local repeat $file,\n$e, stated $c1, counted $count{realtags}\n\n";
-                next;
-              }
-
-              if ($c2 != 1 || $c3 != 1)
-              {
-                warn "$file, $line: Not (a,1,1)";
-              }
-            }
-
-          }
-          elsif ($action eq "delete")
-          {
-            if ($tag eq 'ERR_LIN_TRICK_DELETE')
-            {
-              my $filelin = $file;
-              $filelin =~ s/skip$/lin/;
-              $filelin =~ s/ref$/lin/;
-              $filelin =~ s/noval$/lin/;
-              my $fline = getline($filelin, $refNo);
-
-              my %count;
-              count_tags($filelin, $refNo, $refNo+$noLIN-1, \%count);
-              if ($c1 != $count{realtags})
-              {
-                warn "Bad local repeat $file,\n$e, stated $c1, counted $count{realtags}\n\n";
-                next;
-              }
-
-              if ($c2 != 1 || $c3 != 1)
-              {
-                warn "$file, $line: Not (a,1,1)";
-              }
-            }
-            else
-            {
-              my $noln;
-              check_whole_file_count($file, 1, 1, $tag, $e, 
-                $c1, $c2, $c3, \$noln);
-            }
-          }
-          else
-          {
-            warn "$file, $line: Bad action $action";
-          }
+          my %count;
+          count_tags($filelin, $refNo, $refNo+$noLIN-1, \%count);
+          warn "Bad repeat $file,\n$e, stated $c1 vs $count{realtags}\n\n"
+            unless ($c1 == $count{realtags} ||
+              ($tag eq 'ERR_LIN_TRICK_DELETE' && $c1 < 3*$count{realtags}));
+          warn "$file, $line: Not (a,1,1)" unless ($c2 == 1 && $c3 == 1);
+          next;
         }
-        else
+
+        if ($action !~ /LIN/)
         {
+          my $noln;
+          check_whole_file_count($file, 1, 1, $tag, $e, 
+            $c1, $c2, $c3, \$noln);
+          next;
+        }
+
           # Check replaceLIN, insertLIN, deleteLIN.
 
           my $assoc = assoc_ok($tagLIN, $tag);
@@ -552,7 +495,6 @@ sub make_stats
           {
             die "Bad assoc return $assoc";
           }
-        }
       }
     }
     close $fr;
