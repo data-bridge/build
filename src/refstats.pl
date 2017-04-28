@@ -406,95 +406,94 @@ sub make_stats
           next;
         }
 
-          # Check replaceLIN, insertLIN, deleteLIN.
+        # Check replaceLIN, insertLIN, deleteLIN.
+        my $assoc = assoc_ok($tagLIN, $tag);
 
-          my $assoc = assoc_ok($tagLIN, $tag);
-          if ($assoc == $ASSOC_TAG_UNKNOWN)
+        if ($assoc == $ASSOC_TAG_UNKNOWN)
+        {
+          next if ($tag eq "ERR_LIN_SYNTAX"); # Accept any tag
+          next if ($tagLIN eq "" && $tag eq "ERR_LIN_PC_SYNTAX"); 
+          # Accept empty tag in ERR_LIN_PC_SYNTAX
+
+          $assoc = assoc_ok(lc($tagLIN), $tag);
+          next if ($assoc == $ASSOC_OK_GLOBAL || $assoc == $ASSOC_OK_LOCAL);
+
+          warn "Bad tag $file,\n$e, $tagLIN, $tag\n\n";
+          next;
+        }
+        elsif ($assoc == $ASSOC_ASSOC_UNKNOWN)
+        {
+          next if ($tag eq "ERR_LIN_SYNTAX"); # Accept any tag
+
+          warn "Bad association $file,\n$e, $tagLIN, $tag\n\n";
+          next;
+        }
+        elsif ($assoc == $ASSOC_OK_GLOBAL)
+        {
+          if ($c1 != $repeat && ! defined $tag_no_global_count{$tag})
           {
-            next if ($tag eq "ERR_LIN_SYNTAX"); # Accept any tag
-            next if ($tagLIN eq "" && $tag eq "ERR_LIN_PC_SYNTAX"); 
-            # Accept empty tag in ERR_LIN_PC_SYNTAX
-
-            $assoc = assoc_ok(lc($tagLIN), $tag);
-            next if ($assoc == $ASSOC_OK_GLOBAL || 
-                $assoc == $ASSOC_OK_LOCAL);
-
-            warn "Bad tag $file,\n$e, $tagLIN, $tag\n\n";
+            warn "Bad global repeat $file,\n$e, $c1, $repeat\n\n";
             next;
-          }
-          elsif ($assoc == $ASSOC_ASSOC_UNKNOWN)
-          {
-            next if ($tag eq "ERR_LIN_SYNTAX"); # Accept any tag
+            }
 
-            warn "Bad association $file,\n$e, $tagLIN, $tag\n\n";
-            next;
-          }
-          elsif ($assoc == $ASSOC_OK_GLOBAL)
+          my $noln;
+          check_whole_file_count($file, 0, 0, $tag, $e, 
+            $c1, $c2, $c3, \$noln);
+        }
+        elsif ($assoc == $ASSOC_OK_LOCAL)
+        {
+          if ($repeat == 1)
           {
-            if ($c1 != $repeat && ! defined $tag_no_global_count{$tag})
+            if ($c1 != 1)
             {
-              warn "Bad global repeat $file,\n$e, $c1, $repeat\n\n";
+              my $numpipes = ($line =~ tr/\|//);
+              if (($numpipes % 2 == 0) &&
+                  $c1 == (1 + $numpipes/2))
+              {
+                next;
+              }
+              warn "Bad local repeat $file,\n$e, $c1, $repeat\n\n";
+              next;
+            }
+          }
+          elsif ($c1 != $repeat)
+          {
+            if ($tag eq "ERR_LIN_RS_DELETE")
+            {
+              if ($c1 == 1 && $c2 == $repeat && $c3 == $repeat/2)
+              {
+                next;
+              }
+
+              warn "Accepting repeat $file,\n$e, $tagLIN, $tag\n\n";
               next;
             }
 
-            my $noln;
-            check_whole_file_count($file, 0, 0, $tag, $e, 
-              $c1, $c2, $c3, \$noln);
+            my $filelin = $file;
+            $filelin =~ s/skip$/lin/;
+            $filelin =~ s/ref$/lin/;
+            $filelin =~ s/noval$/lin/;
+            my $fline = getline($filelin, $refNo);
+
+            my %count;
+            incr_tag_count($fline, $tagNo-1, $repeat, \%count);
+            if ($c1 != $count{realtags})
+            {
+              warn "Bad repeat $file,\n$e, stated $c1 vs $count{realtags}\n\n";
+              next;
+            }
           }
-          elsif ($assoc == $ASSOC_OK_LOCAL)
-          {
-            if ($repeat == 1)
-            {
-              if ($c1 != 1)
-              {
-                my $numpipes = ($line =~ tr/\|//);
-                if (($numpipes % 2 == 0) &&
-                    $c1 == (1 + $numpipes/2))
-                {
-                  next;
-                }
-                warn "Bad local repeat $file,\n$e, $c1, $repeat\n\n";
-                next;
-              }
-            }
-            elsif ($c1 != $repeat)
-            {
-              if ($tag eq "ERR_LIN_RS_DELETE")
-              {
-                if ($c1 == 1 && $c2 == $repeat && $c3 == $repeat/2)
-                {
-                  next;
-                }
-
-                warn "Accepting repeat $file,\n$e, $tagLIN, $tag\n\n";
-                next;
-              }
-
-              my $filelin = $file;
-              $filelin =~ s/skip$/lin/;
-              $filelin =~ s/ref$/lin/;
-              $filelin =~ s/noval$/lin/;
-              my $fline = getline($filelin, $refNo);
-
-              my %count;
-              incr_tag_count($fline, $tagNo-1, $repeat, \%count);
-              if ($c1 != $count{realtags})
-              {
-                warn "Bad local repeat $file,\n$e, stated $c1, counted $count{realtags}\n\n";
-                next;
-              }
-            }
           
-            if ($c2 != 1 || $c3 != 1)
-            {
-              warn "Bad local count $file,\n$e, $c2, $c3\n\n";
-              next;
-            }
-          }
-          else
+          if ($c2 != 1 || $c3 != 1)
           {
-            die "Bad assoc return $assoc";
+            warn "Bad local count $file,\n$e, $c2, $c3\n\n";
+            next;
           }
+        }
+        else
+        {
+          die "Bad assoc return $assoc";
+        }
       }
     }
     close $fr;
