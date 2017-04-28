@@ -336,30 +336,27 @@ sub make_stats
           warn "Bad entry: $file, $e";
           next;
         }
+
         my ($tag, $c1, $c2, $c3) = ($1, $2, $3, $4);
         log_entry($file, $accum_expl_ref, $expl_seen{$tag},
           $noLIN, $tag, $c1, $c2, $c3);
         $expl_seen{$tag} = 1;
 
+        if ($file =~ /skip/ || $file =~ /noval/)
+        {
+          my $noln;
+          check_whole_file_count($file, 1, 0, $tag, $e, 
+            $c1, $c2, $c3, \$noln);
+          warn "$file: Bad line $noLIN vs. count $noln" 
+            unless $noLIN == $noln;
+          next;
+        }
+
         if ($tagLIN eq "" && $action !~ /LIN/)
         {
           if ($action eq "")
           {
-            if ($file =~ /skip/ || $file =~ /noval/)
-            {
-              my $noln;
-              check_whole_file_count($file, 1, 0, $tag, $e, 
-                $c1, $c2, $c3, \$noln);
-              if ($noLIN != $noln)
-              {
-                warn "$file: Bad line $noLIN vs. count $noln";
-                next;
-              }
-            }
-            else
-            {
-              warn "$file: $line\n";
-            }
+            die "Can't happen";
           }
           elsif (defined $tag_global_count{$tag})
           {
