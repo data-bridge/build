@@ -119,7 +119,7 @@ sub set_tag_assocs
 
   $tag_global_count{ERR_LIN_MD_MISSING} = 1;
   $tag_global_count{ERR_LIN_HAND_OUT_OF_RANGE} = 1;
-  $tag_global_count{ERR_LIN_HAND_DUPLICATE} = 1;
+  $tag_global_count{ERR_LIN_HAND_DUPLICATED} = 1;
   $tag_global_count{ERR_LIN_HAND_AUCTION_NONE} = 1;
   $tag_global_count{ERR_LIN_HAND_AUCTION_WRONG} = 1;
   $tag_global_count{ERR_LIN_HAND_AUCTION_LIVE} = 1;
@@ -129,6 +129,7 @@ sub set_tag_assocs
   $tag_global_count{ERR_LIN_HAND_PLAY_MISSING} = 1;
   $tag_global_count{ERR_LIN_HAND_PLAY_WRONG} = 1;
   $tag_global_count{ERR_LIN_HAND_DIRECTOR} = 1;
+  $tag_global_count{ERR_LIN_SYNTAX} = 1;
 
   @{$tag_lists{vg}} = qw(
     ERR_LIN_VG_FIRST
@@ -352,30 +353,35 @@ sub make_stats
           next;
         }
 
+        if (defined $tag_global_count{$tag})
+        {
+          next if defined $tag_no_global_count{$tag};
+
+          my %count;
+          my $filelin = $file;
+          $filelin =~ s/skip$/lin/;
+          $filelin =~ s/ref$/lin/;
+          $filelin =~ s/noval$/lin/;
+          count_tags($filelin, $refNo, $refNo+$noLIN-1, \%count);
+
+          if (($tag eq 'ERR_LIN_SYNTAX' || 
+               $tag eq 'ERR_LIN_HAND_DUPLICATED') &&
+              $count{qx} == 0 && $count{bd} == 0 && $c2 == 1 && $c3 == 1)
+          {
+            # OK
+            next;
+          }
+          
+          warn "Bad file count $file,\n$line, $count{qx}, $count{bd}\n\n"
+            unless (($c1 == 0 || ($c1 == 1 && $action =~ /LIN/)) && 
+                $c2 == $count{qx} && $c3 == $count{bd});
+
+          next;
+        }
+
         if ($tagLIN eq "" && $action !~ /LIN/)
         {
-          if ($action eq "")
-          {
-            die "Can't happen";
-          }
-          elsif (defined $tag_global_count{$tag})
-          {
-            my %count;
-            my $filelin = $file;
-            $filelin =~ s/skip$/lin/;
-            $filelin =~ s/ref$/lin/;
-            $filelin =~ s/noval$/lin/;
-            count_tags($filelin, $refNo, $refNo+$noLIN-1, \%count);
-          
-            if ($c1 != 0 || $c2 != $count{qx} || $c3 != $count{bd})
-            {
-              next if defined $tag_no_global_count{$tag};
-
-              warn "Bad non-LIN count $file,\n$line, $count{qx}, $count{bd}\n\n";
-              next;
-            }
-          }
-          elsif ($action eq "replace")
+          if ($action eq "replace")
           {
             if ($tag eq 'ERR_LIN_PLAYERS_REPLACE' ||
                 $tag eq 'ERR_LIN_VHEADER_SYNTAX')
@@ -441,28 +447,6 @@ sub make_stats
               if ($c2 != 1 || $c3 != 1)
               {
                 warn "$file, $line: Not (a,1,1)";
-              }
-            }
-            elsif ($tag eq 'ERR_LIN_SYNTAX' || 
-                $tag eq 'ERR_LIN_HAND_DUPLICATED')
-            {
-              my %count;
-              my $filelin = $file;
-              $filelin =~ s/skip$/lin/;
-              $filelin =~ s/ref$/lin/;
-              $filelin =~ s/noval$/lin/;
-              count_tags($filelin, $refNo, $refNo+$noLIN-1, \%count);
-          
-              if ($count{qx} == 0 && $count{bd} == 0 && $c2 == 1 && $c3 == 1)
-              {
-                # OK
-              }
-              elsif ($c1 != 0 || $c2 != $count{qx} || $c3 != $count{bd})
-              {
-                next if defined $tag_no_global_count{$tag};
-  
-                warn "Bad non-LIN count $file,\n$line, $count{qx}, $count{bd}\n\n";
-                next;
               }
             }
             else
