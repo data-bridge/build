@@ -631,7 +631,15 @@ bool modifyLINLine(
     modifyLINFail(line, refFix.fixLIN, "No tag number");
 
   if (2 * refFix.fixLIN.tagNo > v.size())
-    modifyLINFail(line, refFix.fixLIN, "Tag number too large");
+  {
+    if (refFix.fixLIN.is == "" && refFix.fixLIN.was == "" &&
+        2 * refFix.fixLIN.tagNo == v.size() + 1)
+    {
+      // Last tag, no argument.
+    }
+    else
+      modifyLINFail(line, refFix.fixLIN, "Tag number too large");
+  }
 
   const bool endsOnPipe = 
     (line.length() > 0 && line.at(line.length()-1) == '|');

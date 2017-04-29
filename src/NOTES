@@ -1,53 +1,55 @@
-09.04.2017
+29.04.2017
 ----------
-Content
+New scripts
+* director.pl
+  regex for td, director (lc)
+  note qx sequence in lin file and hands with this content
+  from ref file if any, note hands skipped due to director
+  attempt to match up, count when it succeeds
+  when it doesn't, propose lines for
+  - current hand
+  - previous hand in same room
+  - hand in other room
+  to determine manually
+  also note contract in header vs qx? and RS_REPLACE tag for hand
+
+Sheet
 * 16002 o4 DBL detected? 17392 o11 too.  314 c15
-* TD, director.  Also check new RS_REPLACE tag for clues.
-* Find unrealistic sequences (opening final contract)
-* Very expensive bids (offering huge upside score).
-* out-of-order --> .noval for 8055,6,7,8,9, 60,1,2,3,4, 6
-
-Tags
-* Make a ROTATE tag in validateLIN
-* Move to -1 syntax where counts are large
-
-* Another str() function that outputs an IMP sheet,
-  will also need vul
-
-* clean up refstats.pl
-
-Dates (NER)
-* Detect conflicts between own extractions and HTML from Japan.
-  Also extract directly from BBO
-* Extract dates with perl from .lin files (mn and vg)
-
-Tourneys (NER)
-
-Player names (NER)
+* Another str() function that outputs an IMP sheet, will also need vul
 
 C++ code
 * rewrite validateLIN with a function and a loop
+* Make a ROTATE tag in validateLIN
 * rewrite Segment TODO with functions
 * do something about dispatch.cpp; make chunk a struct with methods?
 * Print example of each validate "error"
 * Still segfault at end?
 * Allow concatenated files, e.g. RBN but also LIN
 * TODOs
+* Go through once for cleanup
 
 Perl
 * Clean up perl path and @INC
-
-Quality of fixes
-* No duplicates in BBOSH (file names)
-* BBOSH files sorted properly into directories
-* Screenscrape major championships, compare.
-* Check links (http, www).  Also from deleted nt comments.
-* Look again at players once we check the links in lin files.
-* Store convention cards?
+* Move scripts around, only keep the keepers
 
 Data
 - Include BBOVG and BBOSH up to today
 - Look for more sources?  Later...
+
+
+NERs
+* Dates: Write extractor for embedded dates in tags
+* Tourneys
+* Player names
+
+Higher semantics
+* No duplicates in BBOSH (file names)
+* Find unrealistic sequences (opening final contract) [valuation]
+* Very expensive bids (offering huge upside score).
+* Check links (http, www).  Also from deleted nt comments.
+* Look again at players once we check the links in lin files.
+* Store convention cards?
+* Screenscrape major championships, compare.
 
 update Pavlicek missive and Excel
 
@@ -59,25 +61,6 @@ Regression
 * perl scripts/flagref.pl 019000 (ref file quality)
 * perl checkskip.pl all, perl checkref.pl all
 
-Stats
------
-19,306,468 in LIN_VG
-    25,440 in .ref
-
-- Number of (good) hands
-- Number of files
-  - Perfect
-  - Some fixes (say few .ref lines and few .xxx effect lines)
-  - Skips
-
-Functionality
--------------
-
-options
--------
--A analyse DD
--p play analyze DD
--n output all names to appropriately named text files
 
 Makefiles
 ---------

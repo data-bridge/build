@@ -2,6 +2,7 @@
 
 use strict;
 use warnings;
+use File::Basename;
 
 # Reads all files in directory argument that end on .ref,
 # generates statistics in refstats.txt, and tests content.
@@ -9,11 +10,12 @@ use warnings;
 if ($#ARGV < 0)
 {
   print "Usage: perl refstats.pl dir|30|all\n";
+  print "Usage: perl refstats.pl year 2009\n";
   exit;
 }
 
 my $HOMEDIR = glob("~/GitHub/Build/src");
-my $out = "refstats.txt";
+my $dates = "dates.log";
 
 my $DIR;
 if (`uname -a` =~ /CDD/)
@@ -32,20 +34,48 @@ my $ASSOC_ASSOC_UNKNOWN = 1;
 my $ASSOC_OK_GLOBAL = 2;
 my $ASSOC_OK_LOCAL = 3;
 
-
-my $indir = $ARGV[0];
-if ($indir =~ /^\d+$/)
+my ($out, $year, @years, $indir);
+if ($ARGV[0] eq 'year')
 {
+  $indir = "$DIR/*";
+  $year = $ARGV[1];
+  $out = "refstats$year.txt";
+  
+  open my $fy, '<', "$DIR/$dates" or die "Can't open $out $!";
+  while (my $line = <$fy>)
+  {
+    die "Bad date line: $line" unless
+      $line =~ /^(\d+).lin\s+(\d+)-(\d+)-(\d+)\s*$/;
+    my ($fn, $yyyy, $mm, $dd) = ($1, $2, $3, $4);
+    $years[$fn] = $yyyy;
+  }
+  close $fy;
+}
+elsif ($ARGV[0] =~ /^\d+$/)
+{
+  $indir = "$DIR/0$ARGV[0]000";
+  $year = 0;
+
   $out = "z${indir}_0.txt";
   if (-e $out)
   {
     $out = "z${indir}_1.txt";
   }
-  $indir = "$DIR/0${indir}000";
+}
+elsif ($ARGV[0] eq "all")
+{
+  $indir = "$DIR/*";
+  $year = 0;
+  $out = "refstats.txt";
+}
+else
+{
+  $indir = $ARGV[0];
+  $year = 0;
+  $out = "refstats.txt";
 }
 
 my $ref = "referr.h";
-$indir = "$DIR/*" if ($indir eq "all");
 my @files = glob("$indir/*.ref");
 my @files2 = glob("$indir/*.skip");
 my @files3 = glob("$indir/*.noval");
@@ -76,6 +106,7 @@ my $num_orig_files = count_files($indir, "orig");
 my $num_ref_files = count_files($indir, "ref");
 
 
+my @yearhisto;
 make_stats(\@files, \@accum_expl, \@accum_rem);
 make_stats(\@files2, \@accum_expl2, \@accum_rem2);
 make_stats(\@files3, \@accum_expl3, \@accum_rem3);
@@ -86,6 +117,7 @@ write_skip_stats($fo, \@codes, "Skip", \@accum_expl2, \@accum_rem2);
 write_skip_stats($fo, \@codes, "Noval", \@accum_expl3, \@accum_rem3);
 write_file_numbers($fo, $num_lin_files, $num_ref_files, $num_skip_files, 
   $num_orig_files, $num_noval_files);
+write_year_histo($fo, \@yearhisto) if $year > 0;
 close $fo;
 
 
@@ -288,6 +320,19 @@ sub count_files
   {
     return 0;
   }
+  elsif ($year > 0)
+  {
+    my $c = 0;
+    for my $f (@files)
+    {
+      my $b = basename($f, ".lin", ".ref", ".skip", ".noval", ".orig");
+      warn "Bad file $f" unless $b =~ /^(\d+)$/;
+      my $no = $1;
+      next unless defined $years[$no] && $years[$no] == $year;
+      $c++;
+    }
+    return $c;
+  }
   else
   {
     return $#files+1;
@@ -301,13 +346,22 @@ sub make_stats
 
   foreach my $file (@$files_ref)
   {
-    my (%expl_seen, %rem_seen);
+    if ($year > 0)
+    {
+      my $b = basename($file, ".ref", ".skip", ".noval");
+      warn "Bad file $file" unless $b =~ /^(\d+)$/;
+      my $no = $1;
+      next unless defined $years[$no] && $years[$no] == $year;
+      $yearhisto[$no / 1000]++;
+    }
 
     if (($file =~ /skip$/ || $file =~ /noval$/) && -z $file)
     {
       warn "$file has zero size";
       next;
     }
+
+    my (%expl_seen, %rem_seen);
 
     open my $fr, '<', $file or die "Can't open $file: $!";
 
@@ -646,6 +700,18 @@ sub write_file_numbers
     "Number of orig files", $num_orig_files;
   printf $fo "%-28s %5s\n",
     "Number of noval files", $num_noval_files;
+}
+
+
+sub write_year_histo
+{
+  my ($fo, $href) = @_;
+  print $fo "\nDirectories:\n";
+  for my $i (0 .. $#$href)
+  {
+    next unless defined $href->[$i];
+    printf $fo "%-28d %5d\n", $i, $href->[$i];
+  }
 }
 
 
