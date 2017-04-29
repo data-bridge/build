@@ -513,7 +513,6 @@ bool Buffer::nextLIN(
 
     if (e == string::npos)
     {
-      // TODO: Combine with above branch.
       vside.value = lines[current].line.substr(posLIN);
       if (! Buffer::extendLINValue(vside))
         THROW("Bad LIN line: " + lines[current].line + 

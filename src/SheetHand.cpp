@@ -384,7 +384,7 @@ bool SheetHand::playIsFlawed() const
 SheetPlayType SheetHand::playValidity() const
 {
   // Expected value if random is about 2 distance units per trick.
-  //
+
   if (playDistance.numCards < 4)
   {
     return (playDistance.distance == 0 ? SHEET_PLAY_OPEN : SHEET_PLAY_BAD);

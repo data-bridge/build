@@ -7,6 +7,7 @@
 */
 
 #include <iomanip>
+#include <assert.h>
 
 #include "ValProfile.h"
 #include "valint.h"
@@ -45,6 +46,7 @@ void ValProfile::log(
   const ValState& valState)
 {
   // Only keep the first example of each kind.
+  assert(label < BRIDGE_VAL_SIZE);
   if (example[label].out.line == "" && example[label].ref.line == "")
   {
     example[label].out.line = valState.dataOut.line;
@@ -60,6 +62,7 @@ void ValProfile::log(
 
 bool ValProfile::labelIsSet(const unsigned label) const
 {
+  assert(label < BRIDGE_VAL_SIZE);
   return (count[label] > 0);
 }
 
@@ -80,6 +83,7 @@ bool ValProfile::hasError(const bool minorFlag) const
 
 unsigned ValProfile::getCount(const unsigned label) const
 {
+  assert(label < BRIDGE_VAL_SIZE);
   return count[label];
 }
 
@@ -102,6 +106,7 @@ void ValProfile::addRange(
   const unsigned upper,
   bool& flag)
 {
+  assert(upper < BRIDGE_VAL_SIZE);
   flag = false;
   for (unsigned v = lower; v < upper; v++)
   {

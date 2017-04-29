@@ -635,10 +635,6 @@ bool validatePBNChunk(
       cout << LABEL_NAMES[i] << ":\n";
       cout << "Ref " << chunkRef[i] << "\n";
       cout << "Out " << chunkOut[i] << "\n" << endl;
-if (i == BRIDGE_FORMAT_DATE)
-  cout << "HEREDATE\n";
-else if (i == BRIDGE_FORMAT_SCORE)
-  cout << "HERESCORE\n";
       prof.log(BRIDGE_VAL_ERROR, valState);
       return true;
     }

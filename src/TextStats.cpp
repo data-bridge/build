@@ -98,9 +98,12 @@ void TextStats::add(
   const Label label,
   const Format format)
 {
+  assert(format < BRIDGE_FORMAT_SIZE);
   unsigned lb = BRIDGE_STATS_MAP[label];
   assert(lb < BRIDGE_STATS_NUM_FIELDS);
   unsigned len = static_cast<unsigned>(text.length());
+  assert(len < BRIDGE_STATS_MAX_LENGTH);
+
   if (stats[format][lb].datum[len].count == 0)
   {
     stats[format][lb].datum[len].source = basefile(source);
@@ -117,8 +120,11 @@ void TextStats::add(
   const Label label,
   const Format format)
 {
+  assert(format < BRIDGE_FORMAT_SIZE);
   unsigned lb = BRIDGE_STATS_MAP[label];
   assert(lb < BRIDGE_STATS_NUM_FIELDS);
+  assert(len < BRIDGE_STATS_MAX_LENGTH);
+
   if (stats[format][lb].datum[len].count == 0)
     stats[format][lb].datum[len].source = basefile(source);
 
@@ -164,6 +170,8 @@ void TextStats::printDetails(
   const unsigned label,
   ostream& fstr) const
 {
+  assert(label < BRIDGE_STATS_NUM_FIELDS);
+
   fstr << setw(10) << left << BRIDGE_STATS_NAMES[label] <<
     setw(6) << right << "count" << "  " <<
     setw(24) << left << "source" <<

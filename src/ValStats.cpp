@@ -8,6 +8,7 @@
 
 #include <iomanip>
 #include <sstream>
+#include <assert.h>
 
 #include "ValStats.h"
 #include "valint.h"
@@ -43,6 +44,9 @@ void ValStats::add(
   const Format formatRef,
   const ValProfile& prof)
 {
+  assert(formatOrig != BRIDGE_FORMAT_LABELS_SIZE);
+  assert(formatRef != BRIDGE_FORMAT_LABELS_SIZE);
+
   ValStat& current = stats[formatOrig][formatRef];
 
   bool minorFlag, pavlicekBugFlag, programErrorFlag;
@@ -111,6 +115,8 @@ bool ValStats::summRowHasEntries(
   const ValStat stat[],
   const unsigned summLabel) const
 {
+  assert(summLabel < BRIDGE_VAL_SUMM_SIZE);
+
   for (auto &g: FORMAT_ACTIVE)
     if (stat[g].count[summLabel])
       return true;

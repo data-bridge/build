@@ -33,7 +33,6 @@
 #include "Sheet.h"
 #include "Bexcept.h"
 #include "Bdiff.h"
-#include "trace.h"
 
 
 // Modulo 4, so West for Board "0" (4, 8, ...) etc.
@@ -514,14 +513,12 @@ catch (Bexcept& bex)
   // TODO Can probably go at some point.
   cout << "Bex loose: " << task.fileInput << "\n";
   bex.print(flog);
-  trace();
 }
 catch (Bdiff& bdiff)
 {
   // TODO Can probably go at some point.
   cout << "Bdiff loose: " << task.fileInput << "\n";
   bdiff.print(flog);
-  trace();
 }
 }
 

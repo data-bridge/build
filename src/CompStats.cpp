@@ -9,6 +9,7 @@
 #include <string>
 #include <iomanip>
 #include <sstream>
+#include <assert.h>
 
 #include "CompStats.h"
 
@@ -38,6 +39,7 @@ void CompStats::add(
   const bool agreeFlag,
   const Format format)
 {
+  assert(format != BRIDGE_FORMAT_SIZE);
   stats[format].count++;
   if (! agreeFlag)
     stats[format].errors++;

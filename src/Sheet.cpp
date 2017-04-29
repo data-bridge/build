@@ -365,8 +365,6 @@ void Sheet::parseRefs(const Buffer& buffer)
   
   for (unsigned refNo = 0; refNo < refFix.size(); refNo++)
   {
-    // TODO: Could be the rs line
-
     if (refFix[refNo].partialFlag)
       continue;
 
@@ -653,7 +651,7 @@ string Sheet::str() const
         }
       }
 
-      // TODO: For MB errors, could check that auctionIsFlawed().
+      // For mb errors, could check that auctionIsFlawed().
 
       notes << "\nActive ref lines: " << ho.label << "\n";
       for (auto &no: ho.refSource)

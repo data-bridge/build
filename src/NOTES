@@ -1,18 +1,5 @@
 29.04.2017
 ----------
-New scripts
-* director.pl
-  regex for td, director (lc)
-  note qx sequence in lin file and hands with this content
-  from ref file if any, note hands skipped due to director
-  attempt to match up, count when it succeeds
-  when it doesn't, propose lines for
-  - current hand
-  - previous hand in same room
-  - hand in other room
-  to determine manually
-  also note contract in header vs qx? and RS_REPLACE tag for hand
-
 Sheet
 * 16002 o4 DBL detected? 17392 o11 too.  314 c15
 * Another str() function that outputs an IMP sheet, will also need vul
@@ -28,14 +15,13 @@ C++ code
 * TODOs
 * Go through once for cleanup
 
-Perl
-* Clean up perl path and @INC
-* Move scripts around, only keep the keepers
-
 Data
 - Include BBOVG and BBOSH up to today
 - Look for more sources?  Later...
 
+Perl scripts in BBOVG
+- Make them run without warnings (so have log files of
+  acceptable deviations)
 
 NERs
 * Dates: Write extractor for embedded dates in tags
@@ -58,7 +44,9 @@ Regression
 * ./reader -I -R -c -s -v 30 (maybe -p as well)
 * ./reader -I -D -v 30
 * perl refstats.pl all
-* perl scripts/flagref.pl 019000 (ref file quality)
+* perl skipnames.pl all (make it generate skip files)
+* perl skiphands.pl all (make it generate skip files)
+* perl director.pl dir (a lot, unfortunately)
 * perl checkskip.pl all, perl checkref.pl all
 
 

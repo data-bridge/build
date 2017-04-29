@@ -86,7 +86,7 @@ static string fixTricksRS(
   string st = "\"1," + STR(segment->getContractSeqNo()) + 
     ",rs," + contractHeader;
   fixTricksContract(contractHeader, tricks);
-  st += "," + contractHeader + "\" {ERR_LIN_RS_RESULT_WRONG(1,1,1)}";
+  st += "," + contractHeader + "\" {ERR_LIN_RS_REPLACE(1,1,1)}";
   return st;
 }
 
@@ -103,6 +103,7 @@ static void writeTricksMC(
   fixTricksMC(buffer.getLine(lineno), tricks, fixed);
   if (refLevel != REF_LEVEL_NONE)
   {
+    // TODO
     appendFile(fname, lineno, "replace", fixed);
     cout << "Wrote mc with " << tricks << " tricks\n";
   }
@@ -125,6 +126,7 @@ static void writeTricksRS(
   unsigned rsNo = buffer.firstRS();
   if (refLevel != REF_LEVEL_NONE)
   {
+    // TODO check
     appendFile(fname, rsNo, "replaceLIN", fixed);
     cout << "Wrote rs with " << tricks << " tricks\n";
   }
@@ -176,6 +178,7 @@ static string fixDeclarerRS(
   if (! segment->setContractInHeader(contractHeader))
     THROW("Could not rewrite header contract");
 
+  // TODO check
   return "rs|" + segment->strContracts(BRIDGE_FORMAT_PAR) + + "|";
 }
 
@@ -190,6 +193,7 @@ static string fixDenomRS(
   if (! segment->setContractInHeader(contractHeader))
     THROW("Could not rewrite header contract");
 
+  // TODO check
   return "rs|" + segment->strContracts(BRIDGE_FORMAT_PAR) + + "|";
 }
 
@@ -205,6 +209,7 @@ static void writeDeclarerRS(
   unsigned rsNo = buffer.firstRS();
   if (refLevel != REF_LEVEL_NONE)
   {
+    // TODO check
     appendFile(fname, rsNo, "replaceLIN", fixed);
     cout << "Wrote rs with " << declarer << " as declarer\n";
   }
@@ -227,6 +232,7 @@ static void writeDenomRS(
   unsigned rsNo = buffer.firstRS();
   if (refLevel != REF_LEVEL_NONE)
   {
+    // TODO check
     appendFile(fname, rsNo, "replace", fixed);
     cout << "Wrote rs with " << denom << " as denom\n";
   }

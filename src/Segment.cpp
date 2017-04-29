@@ -1222,26 +1222,11 @@ bool Segment::playersAreUnique()
 string Segment::strPlayers(const Format format) 
 {
   Board * board;
-  // Board * refBoard = nullptr;
-  // string st;
-  // TODO: Delete unused lines
 
   switch(format)
   {
     case BRIDGE_FORMAT_LIN:
       return Segment::strPlayersLIN();
-      /*
-      st = "pw|";
-      for (auto &p: boards)
-      {
-        st += p.board.strPlayers(format, refBoard);
-        if (refBoard == nullptr)
-          st += ",";
-        refBoard = &p.board;
-      }
-      st.pop_back();
-      return st + "|\n";
-      */
 
     case BRIDGE_FORMAT_LIN_VG:
       if (LINPlayersListFlag ||
