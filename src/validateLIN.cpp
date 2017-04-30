@@ -39,12 +39,16 @@ enum FixTag
   VAL_LIN_MC = 4,
   VAL_LIN_MD = 5,
   VAL_LIN_MP = 6,
-  VAL_LIN_PN = 7,
-  VAL_LIN_QX = 8,
-  VAL_LIN_RH = 9,
-  VAL_LIN_ST = 10,
-  VAL_LIN_SV = 11,
-  VAL_LIN_FIX_SIZE = 12
+  VAL_LIN_PC = 7,
+  VAL_LIN_PN = 8,
+  VAL_LIN_PW = 9,
+  VAL_LIN_QX = 10,
+  VAL_LIN_RH = 11,
+  VAL_LIN_RS = 12,
+  VAL_LIN_ST = 13,
+  VAL_LIN_SV = 14,
+  VAL_LIN_VG = 15,
+  VAL_LIN_FIX_SIZE = 16
 };
 
 struct FixInfo
@@ -60,11 +64,59 @@ static map<string, FixTag> tagMap;
 
 FixInfo fixTable[VAL_LIN_FIX_SIZE][VAL_LIN_FIX_SIZE];
 
+typedef bool (*ValFncPtr)(const string&, const string&);
+
+struct ValLINEntry
+{
+  bool set;
+  ValError error;
+  ValFncPtr fptr;
+};
+
+ValLINEntry valLINPtr[VAL_LIN_FIX_SIZE];
+
+static bool isDeal(const string& valueRef, const string& valueOut);
+static bool isPlayersList(const string& valueRef, const string& valueOut);
+static bool isBoard(const string& valueRef, const string& valueOut);
+static bool isContracts(const string& valueRef, const string& valueOut);
+static bool isVul(const string& valueRef, const string& valueOut);
+static bool isTitleBoards(const string& valueRef, const string& valueOut);
 
 // Initialization functions
 
 void setValidateLINTables()
 {
+  for (size_t i = 0; i < VAL_LIN_FIX_SIZE; i++)
+    valLINPtr[i].set = false;
+
+  valLINPtr[VAL_LIN_MD].set = true;
+  valLINPtr[VAL_LIN_MD].error = BRIDGE_VAL_LIN_MD;
+  valLINPtr[VAL_LIN_MD].fptr = &isDeal;
+
+  valLINPtr[VAL_LIN_PN].set = true;
+  valLINPtr[VAL_LIN_PN].error = BRIDGE_VAL_PLAYERS_HEADER;
+  valLINPtr[VAL_LIN_PN].fptr = &isPlayersList;
+
+  valLINPtr[VAL_LIN_PW].set = true;
+  valLINPtr[VAL_LIN_PW].error = BRIDGE_VAL_PLAYERS_HEADER;
+  valLINPtr[VAL_LIN_PW].fptr = &isPlayersList;
+
+  valLINPtr[VAL_LIN_QX].set = true;
+  valLINPtr[VAL_LIN_QX].error = BRIDGE_VAL_LIN_QX;
+  valLINPtr[VAL_LIN_QX].fptr = &isBoard;
+
+  valLINPtr[VAL_LIN_RS].set = true;
+  valLINPtr[VAL_LIN_RS].error = BRIDGE_VAL_BOARDS_HEADER;
+  valLINPtr[VAL_LIN_RS].fptr = &isContracts;
+
+  valLINPtr[VAL_LIN_SV].set = true;
+  valLINPtr[VAL_LIN_SV].error = BRIDGE_VAL_VUL;
+  valLINPtr[VAL_LIN_SV].fptr = &isVul;
+
+  valLINPtr[VAL_LIN_VG].set = true;
+  valLINPtr[VAL_LIN_VG].error = BRIDGE_VAL_TITLE;
+  valLINPtr[VAL_LIN_VG].fptr = &isTitleBoards;
+
   tagMap["ah"] = VAL_LIN_AH;
   tagMap["an"] = VAL_LIN_AN;
   tagMap["bn"] = VAL_LIN_BN;
@@ -72,11 +124,15 @@ void setValidateLINTables()
   tagMap["mc"] = VAL_LIN_MC;
   tagMap["md"] = VAL_LIN_MD;
   tagMap["mp"] = VAL_LIN_MP;
+  tagMap["pc"] = VAL_LIN_PC;
   tagMap["pn"] = VAL_LIN_PN;
+  tagMap["pw"] = VAL_LIN_PW;
   tagMap["qx"] = VAL_LIN_QX;
   tagMap["rh"] = VAL_LIN_RH;
+  tagMap["rs"] = VAL_LIN_RS;
   tagMap["st"] = VAL_LIN_ST;
   tagMap["sv"] = VAL_LIN_SV;
+  tagMap["vg"] = VAL_LIN_VG;
 
   for (size_t i = 0; i < VAL_LIN_FIX_SIZE; i++)
   {
@@ -747,11 +803,6 @@ static bool isDeal(
       return false;
     }
   }
-  else if (valueRef == valueOut)
-  {
-assert(false);
-    return true;
-  }
   else
     return false;
 }
@@ -768,25 +819,6 @@ static bool isVul(
     return true;
   else
     return false;
-}
-
-
-static bool isXDouble(
-  const string& valRef,
-  const string& valOut)
-{
-  if (valRef == "X" || valRef == "x")
-  {
-    return (valOut == "D");
-  }
-  else if (valRef == "X!" || valRef == "x!")
-  {
-    return (valOut == "D!");
-  }
-  else
-  {
-    return isDifferentCase(valRef, valOut);
-  }
 }
 
 
@@ -881,6 +913,52 @@ static bool isRotatedPlay(
 }
 
 
+static bool isXDouble(
+  const string& valueRef,
+  const string& valueOut)
+{
+  if (valueRef == "X" || valueRef == "x")
+  {
+    return (valueOut == "D");
+  }
+  else if (valueRef == "X!" || valueRef == "x!")
+  {
+    return (valueOut == "D!");
+  }
+  else
+  {
+    return isDifferentCase(valueRef, valueOut);
+  }
+}
+
+
+static bool isCall(
+  const string& valueRef,
+  const string& valueOut)
+{
+  const unsigned lr = valueRef.length();
+  const unsigned lo = valueOut.length();
+
+  if ((lr == 2 || lr == 3) && lo+1 == lr && valueRef.at(lo) == '!')
+  {
+    // Output is already in upper case, as we made it.
+    // ref mb|2C!| vs out mb|2C|?
+    string ur = valueRef.substr(0, lo);
+    toUpper(ur);
+    return (ur == valueOut);
+  }
+  else if (lr+1 == lo && (lo == 2 || lo == 3) && valueOut.at(lr) == '!')
+  {
+    // ref mb|2C|an|!| vs out mb|2C!|?
+    string ur = valueRef;
+    toUpper(ur);
+    return (valueOut.substr(0, lr) == ur);
+  }
+  else
+    return false;
+}
+
+
 bool validateLINTrailingNoise(ValState& valState)
 {
   // Accept a dangling st.
@@ -963,7 +1041,13 @@ bool validateLIN(
 
     const FixInfo& fixInfo = fixTable[tRef][tOut];
     if (fixInfo.advancer == VAL_LIN_NONE)
-      return false;
+    {
+      if (valState.dataRef.label == "pw" &&
+          valState.dataOut.label == "pn")
+        break;
+      else
+        return false;
+    }
 
     if (fixInfo.valFlag && fixInfo.val != valState.dataRef.value)
       return false;
@@ -991,73 +1075,37 @@ bool validateLIN(
       prof.log(BRIDGE_VAL_LIN_PN_EXTRA, valState);
       return true;
     }
+    else
+      return false;
   }
 
-  if (isDifferentCase(valState.dataRef.label, valState.dataOut.label))
+  FixTag tOut = str2tag(valState.dataOut.label);
+  ValLINEntry ventry = valLINPtr[tOut];
+  if (ventry.set)
   {
-    if (valState.dataRef.label == "vg")
+    // Currently md, pn, pw, qx, rs, sv, vg.
+    if ((* ventry.fptr)(valState.dataRef.value, valState.dataOut.value))
     {
-      if (isTitleBoards(valState.dataRef.value, valState.dataOut.value))
-      {
-        prof.log(BRIDGE_VAL_BOARDS_HEADER, valState);
-        return true;
-      }
-      else
-        return false;
+      prof.log(ventry.error, valState);
+      return true;
     }
-    else if (valState.dataRef.label == "pw" ||
-        valState.dataOut.label == "pn")
+    else
+      return false;
+  }
+  else if (valState.dataRef.label == "pc")
+  {
+    // Could be a play rotation from an early LIN_VG file.
+    if (isRotatedPlay(valState, prof))
     {
-      if (isPlayersList(valState.dataRef.value, valState.dataOut.value))
-      {
-        prof.log(BRIDGE_VAL_PLAYERS_HEADER, valState);
-        return true;
-      }
-      else
-        return false;
+      prof.log(BRIDGE_VAL_LIN_PC_ROTATED, valState);
+      return true;
     }
-    else if (valState.dataRef.label == "rs")
-    {
-      if (isContracts(valState.dataRef.value, valState.dataOut.value))
-      {
-        prof.log(BRIDGE_VAL_BOARDS_HEADER, valState);
-        return true;
-      }
-      else
-        return false;
-    }
-    else if (valState.dataRef.label == "qx")
-    {
-      if (isBoard(valState.dataRef.value, valState.dataOut.value))
-      {
-        // Should we log for completeness?
-        return true;
-      }
-      else
-        return false;
-    }
-    else if (valState.dataRef.label == "md")
-    {
-      if (isDeal(valState.dataRef.value, valState.dataOut.value))
-      {
-        prof.log(BRIDGE_VAL_VG_MD, valState);
-        return true;
-      }
-      else
-        return false;
-    }
-    else if (valState.dataRef.label == "sv")
-    {
-      if (isVul(valState.dataRef.value, valState.dataOut.value))
-      {
-        prof.log(BRIDGE_VAL_VUL, valState);
-        return true;
-      }
-      else
-        return false;
-    }
-    else if (valState.dataRef.label == "mb" &&
-        valState.dataRef.len == valState.dataOut.len)
+    else
+      return false;
+  }
+  else if (valState.dataRef.label == "mb")
+  {
+    if (valState.dataRef.len == valState.dataOut.len)
     {
       if (isXDouble(valState.dataRef.value, valState.dataOut.value))
       {
@@ -1067,105 +1115,22 @@ bool validateLIN(
       else
         return false;
     }
-    else if (valState.dataRef.label == "pc" &&
-      ! isDifferentCase(valState.dataRef.value, valState.dataOut.value))
+    else if (isCall(valState.dataRef.value, valState.dataOut.value))
     {
-      // Could be a play rotation from an early LIN_VG file.
-      if (isRotatedPlay(valState, prof))
-      {
-        prof.log(BRIDGE_VAL_PLAY, valState);
-        return true;
-      }
-      else
-        return false;
+      prof.log(BRIDGE_VAL_LIN_AN_ERROR, valState);
+      return true;
     }
-    else if (valState.dataRef.label == "pc")
+    else if (isCompactSequence(valState))
     {
-assert(false);
-    }
-    else if (valState.dataRef.len != valState.dataOut.len)
-    {
-      if (valState.dataRef.label == "mb")
-      {
-        const unsigned lr = valState.dataRef.len;
-        const unsigned lo = valState.dataOut.len;
-
-        if ((lr == 6 || lr == 7) &&
-            lo+1 == lr &&
-            valState.dataRef.value.at(lr-5) == '!')
-        {
-          // Output is already in upper case, as we made it.
-          string ur = valState.dataRef.value.substr(0, lr-5);
-          toUpper(ur);
-          if (ur != valState.dataOut.value)
-            return false;
-
-          // ref mb|2C!| vs out mb|2C|.
-          if (! valState.bufferRef.next(valState.dataRef))
-            return false;
-          if (! valState.bufferOut.next(valState.dataOut))
-            return false;
-          if (valState.dataRef.label != "an" ||
-              valState.dataOut.label != "an" ||
-              valState.dataRef.value != valState.dataOut.value)
-            return false;
-
-          prof.log(BRIDGE_VAL_LIN_AN_ERROR, valState);
-          return true;
-        }
-        else if (lr+1 == lo &&
-            (lo == 6 || lo == 7) &&
-            valState.dataOut.value.at(lo-5) == '!')
-        {
-          string ur = valState.dataRef.value;
-          toUpper(ur);
-          if (valState.dataOut.value.substr(0, lo-5) != ur)
-            return false;
-
-          // ref mb|2C|an|!| vs out mb|2C!|
-          if (! valState.bufferRef.next(valState.dataRef))
-            return false;
-          if (valState.dataRef.label != "an" ||
-              valState.dataRef.value != "!")
-            return false;
-
-          prof.log(BRIDGE_VAL_LIN_AN_ERROR, valState);
-          return true;
-        }
-        else if (lr > 8)
-        {
-          // Might be a single-entry bidding sequence.
-          if (isCompactSequence(valState))
-          {
-            prof.log(BRIDGE_VAL_LIN_AN_ERROR, valState);
-            if (valState.dataRef.label == valState.dataOut.label &&
-                valState.dataRef.value == valState.dataOut.value)
-              return true;
-            else
-              return false;
-          }
-          else
-            return false;
-        }
-        else
-          return false;
-      }
-      else
-        return false;
+      // Might be a single-entry bidding sequence.
+      prof.log(BRIDGE_VAL_LIN_AN_ERROR, valState);
+      return (valState.dataRef.label == valState.dataOut.label &&
+              valState.dataRef.value == valState.dataOut.value);
     }
     else
-      return isDifferentCase(valState.dataRef.value,
-        valState.dataOut.value);
-    // Could maybe consider equality an error here, but only w.r.t. case
+      return false;
   }
-
-  if (valState.dataRef.label != valState.dataOut.label)
-    return false;
-  else if (valState.dataRef.len != valState.dataOut.len)
-    return false;
   else
-    return isDifferentCase(valState.dataRef.value,
-      valState.dataOut.value);
-    // Could maybe consider equality an error here, but only w.r.t. case
+    return false;
 }
 
