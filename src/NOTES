@@ -7,8 +7,6 @@ Sheet
   Good outputs (try deleting a ref file), CHOOSE (line1) (line2)
 
 C++ code
-* rewrite validateLIN with a function and a loop
-* Make a ROTATE tag in validateLIN
 * do something about dispatch.cpp; make chunk a struct with methods?
 * Go through once for cleanup (TODO)
 * Allow concatenated files, e.g. RBN but also LIN

@@ -14,7 +14,6 @@
 #include <algorithm>
 #include <map>
 #include <regex>
-#include <assert.h>
 
 #include "Deal.h"
 #include "validateLIN.h"
@@ -56,7 +55,6 @@ struct FixInfo
   bool valFlag;
   string val;
   FixEntry advancer;
-  vector<FixTag> list;
   ValError error;
 };
 
@@ -140,18 +138,14 @@ void setValidateLINTables()
     {
       fixTable[i][j].valFlag = false;
       fixTable[i][j].advancer = VAL_LIN_NONE;
-      fixTable[i][j].list.clear();
       fixTable[i][j].error = BRIDGE_VAL_SIZE;
     }
   }
 
   fixTable[VAL_LIN_AH][VAL_LIN_ST].advancer = VAL_LIN_REF;
-  fixTable[VAL_LIN_AH][VAL_LIN_ST].list.push_back(VAL_LIN_MD);
-  fixTable[VAL_LIN_AH][VAL_LIN_ST].list.push_back(VAL_LIN_ST);
   fixTable[VAL_LIN_AH][VAL_LIN_ST].error = BRIDGE_VAL_LIN_AH_EXTRA;
 
   fixTable[VAL_LIN_AH][VAL_LIN_SV].advancer = VAL_LIN_REF;
-  fixTable[VAL_LIN_AH][VAL_LIN_SV].list.push_back(VAL_LIN_SV);
   fixTable[VAL_LIN_AH][VAL_LIN_SV].error = BRIDGE_VAL_LIN_AH_EXTRA;
 
   // Probably the previous values were mb|bid!|, but ref has a 
@@ -159,77 +153,52 @@ void setValidateLINTables()
   fixTable[VAL_LIN_AN][VAL_LIN_MB].valFlag = true;
   fixTable[VAL_LIN_AN][VAL_LIN_MB].val = "!";
   fixTable[VAL_LIN_AN][VAL_LIN_MB].advancer = VAL_LIN_REF;
-  fixTable[VAL_LIN_AN][VAL_LIN_MB].list.push_back(VAL_LIN_MB);
   fixTable[VAL_LIN_AN][VAL_LIN_MB].error = BRIDGE_VAL_LIN_AN_EXTRA;
 
   fixTable[VAL_LIN_BN][VAL_LIN_QX].advancer = VAL_LIN_REF;
-  fixTable[VAL_LIN_BN][VAL_LIN_QX].list.push_back(VAL_LIN_MP);
-  fixTable[VAL_LIN_BN][VAL_LIN_QX].list.push_back(VAL_LIN_PN);
-  fixTable[VAL_LIN_BN][VAL_LIN_QX].list.push_back(VAL_LIN_QX);
   fixTable[VAL_LIN_BN][VAL_LIN_QX].error = BRIDGE_VAL_BOARDS_HEADER;
 
   fixTable[VAL_LIN_MB][VAL_LIN_SV].advancer = VAL_LIN_OUT;
-  fixTable[VAL_LIN_MB][VAL_LIN_SV].list.push_back(VAL_LIN_MB);
   fixTable[VAL_LIN_MB][VAL_LIN_SV].error = BRIDGE_VAL_LIN_SV_MISSING;
 
   // Assume the global pw takes care of this.
   fixTable[VAL_LIN_MC][VAL_LIN_PN].advancer = VAL_LIN_OUT;
-  fixTable[VAL_LIN_MC][VAL_LIN_PN].list.push_back(VAL_LIN_QX);
   fixTable[VAL_LIN_MC][VAL_LIN_PN].error = BRIDGE_VAL_LIN_PN_MISSING;
 
   // Assume the global pw takes care of this.
   fixTable[VAL_LIN_MC][VAL_LIN_QX].advancer = VAL_LIN_REF;
-  fixTable[VAL_LIN_MC][VAL_LIN_QX].list.push_back(VAL_LIN_PN);
-  fixTable[VAL_LIN_MC][VAL_LIN_QX].list.push_back(VAL_LIN_QX);
   fixTable[VAL_LIN_MC][VAL_LIN_QX].error = BRIDGE_VAL_LIN_MC_EXTRA;
 
   fixTable[VAL_LIN_MD][VAL_LIN_ST].advancer = VAL_LIN_OUT;
-  fixTable[VAL_LIN_MD][VAL_LIN_ST].list.push_back(VAL_LIN_MD);
   fixTable[VAL_LIN_MD][VAL_LIN_ST].error = BRIDGE_VAL_LIN_ST_MISSING;
 
   fixTable[VAL_LIN_MP][VAL_LIN_QX].advancer = VAL_LIN_REF;
-  fixTable[VAL_LIN_MP][VAL_LIN_QX].list.push_back(VAL_LIN_BN);
-  fixTable[VAL_LIN_MP][VAL_LIN_QX].list.push_back(VAL_LIN_PN);
-  fixTable[VAL_LIN_MP][VAL_LIN_QX].list.push_back(VAL_LIN_QX);
   fixTable[VAL_LIN_MP][VAL_LIN_QX].error = BRIDGE_VAL_SCORES_HEADER;
 
   fixTable[VAL_LIN_QX][VAL_LIN_SV].advancer = VAL_LIN_OUT;
-  fixTable[VAL_LIN_QX][VAL_LIN_SV].list.push_back(VAL_LIN_QX);
   fixTable[VAL_LIN_QX][VAL_LIN_SV].error = BRIDGE_VAL_LIN_SV_MISSING;
 
   fixTable[VAL_LIN_PN][VAL_LIN_MB].advancer = VAL_LIN_REF;
-  fixTable[VAL_LIN_PN][VAL_LIN_MB].list.push_back(VAL_LIN_MB);
   fixTable[VAL_LIN_PN][VAL_LIN_MB].error = BRIDGE_VAL_LIN_PN_EXTRA;
 
   fixTable[VAL_LIN_PN][VAL_LIN_MD].advancer = VAL_LIN_REF;
-  fixTable[VAL_LIN_PN][VAL_LIN_MD].list.push_back(VAL_LIN_MD);
   fixTable[VAL_LIN_PN][VAL_LIN_MD].error = BRIDGE_VAL_LIN_PN_EXTRA;
 
   fixTable[VAL_LIN_PN][VAL_LIN_QX].advancer = VAL_LIN_REF;
-  fixTable[VAL_LIN_PN][VAL_LIN_QX].list.push_back(VAL_LIN_MP);
-  fixTable[VAL_LIN_PN][VAL_LIN_QX].list.push_back(VAL_LIN_QX);
   fixTable[VAL_LIN_PN][VAL_LIN_QX].error = BRIDGE_VAL_LIN_PN_EXTRA;
 
   // Could be pn|...| embedded in qx|o1|, which we choose to
   // disregard, as it is hopefully consistent with the pn header.
   fixTable[VAL_LIN_PN][VAL_LIN_ST].advancer = VAL_LIN_REF;
-  fixTable[VAL_LIN_PN][VAL_LIN_ST].list.push_back(VAL_LIN_MB);
-  fixTable[VAL_LIN_PN][VAL_LIN_ST].list.push_back(VAL_LIN_MD);
-  fixTable[VAL_LIN_PN][VAL_LIN_ST].list.push_back(VAL_LIN_ST);
   fixTable[VAL_LIN_PN][VAL_LIN_ST].error = BRIDGE_VAL_LIN_ST_EXTRA;
 
   fixTable[VAL_LIN_RH][VAL_LIN_ST].advancer = VAL_LIN_REF;
-  fixTable[VAL_LIN_RH][VAL_LIN_ST].list.push_back(VAL_LIN_AH);
-  fixTable[VAL_LIN_RH][VAL_LIN_ST].list.push_back(VAL_LIN_ST);
   fixTable[VAL_LIN_RH][VAL_LIN_ST].error = BRIDGE_VAL_LIN_RH_EXTRA;
 
   fixTable[VAL_LIN_RH][VAL_LIN_SV].advancer = VAL_LIN_REF;
-  fixTable[VAL_LIN_RH][VAL_LIN_SV].list.push_back(VAL_LIN_AH);
-  fixTable[VAL_LIN_RH][VAL_LIN_SV].list.push_back(VAL_LIN_SV);
   fixTable[VAL_LIN_RH][VAL_LIN_SV].error = BRIDGE_VAL_LIN_RH_EXTRA;
 
   fixTable[VAL_LIN_ST][VAL_LIN_MB].advancer = VAL_LIN_REF;
-  fixTable[VAL_LIN_ST][VAL_LIN_MB].list.push_back(VAL_LIN_MB);
   fixTable[VAL_LIN_ST][VAL_LIN_MB].error = BRIDGE_VAL_LIN_ST_EXTRA;
 }
 
@@ -972,52 +941,6 @@ bool validateLINTrailingNoise(ValState& valState)
 }
 
 
-bool advanceRef(
-  ValState& valState,
-  ValProfile& prof,
-  // const vector<FixTag>& tokens,
-  const ValError error)
-{
-  if (! valState.bufferRef.next(valState.dataRef))
-    return false;
-
-  // FixTag tRef = str2tag(valState.dataRef.label);
-  // for (auto &token: tokens)
-  // {
-    // if (tRef == token)
-    // {
-      prof.log(error, valState);
-      return true;
-    // }
-  // }
-
-  // return false;
-}
-
-
-bool advanceOut(
-  ValState& valState,
-  ValProfile& prof,
-  // const vector<FixTag>& tokens,
-  const ValError error)
-{
-  if (! valState.bufferOut.next(valState.dataOut))
-    return false;
-
-  // FixTag tOut = str2tag(valState.dataOut.label);
-  // for (auto &token: tokens)
-  // {
-    // if (tOut == token)
-    // {
-      prof.log(error, valState);
-      return true;
-    // }
-  // }
-
-  // return false;
-}
-
-
 bool validateLIN(
   ValState& valState,
   ValProfile& prof)
@@ -1054,16 +977,16 @@ bool validateLIN(
 
     if (fixInfo.advancer == VAL_LIN_REF)
     {
-      if (! advanceRef(valState, prof, 
-        // fixInfo.list, 
-          fixInfo.error))
+      if (valState.bufferRef.next(valState.dataRef))
+        prof.log(fixInfo.error, valState);
+      else
         return false;
     }
     else
     {
-      if (! advanceOut(valState, prof, 
-        // fixInfo.list, 
-        fixInfo.error))
+      if (valState.bufferOut.next(valState.dataOut))
+        prof.log(fixInfo.error, valState);
+      else
         return false;
     }
   }
