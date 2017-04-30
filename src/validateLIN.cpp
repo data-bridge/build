@@ -975,46 +975,46 @@ bool validateLINTrailingNoise(ValState& valState)
 bool advanceRef(
   ValState& valState,
   ValProfile& prof,
-  const vector<FixTag>& tokens,
+  // const vector<FixTag>& tokens,
   const ValError error)
 {
   if (! valState.bufferRef.next(valState.dataRef))
     return false;
 
-  FixTag tRef = str2tag(valState.dataRef.label);
-  for (auto &token: tokens)
-  {
-    if (tRef == token)
-    {
+  // FixTag tRef = str2tag(valState.dataRef.label);
+  // for (auto &token: tokens)
+  // {
+    // if (tRef == token)
+    // {
       prof.log(error, valState);
       return true;
-    }
-  }
+    // }
+  // }
 
-  return false;
+  // return false;
 }
 
 
 bool advanceOut(
   ValState& valState,
   ValProfile& prof,
-  const vector<FixTag>& tokens,
+  // const vector<FixTag>& tokens,
   const ValError error)
 {
   if (! valState.bufferOut.next(valState.dataOut))
     return false;
 
-  FixTag tOut = str2tag(valState.dataOut.label);
-  for (auto &token: tokens)
-  {
-    if (tOut == token)
-    {
+  // FixTag tOut = str2tag(valState.dataOut.label);
+  // for (auto &token: tokens)
+  // {
+    // if (tOut == token)
+    // {
       prof.log(error, valState);
       return true;
-    }
-  }
+    // }
+  // }
 
-  return false;
+  // return false;
 }
 
 
@@ -1054,12 +1054,16 @@ bool validateLIN(
 
     if (fixInfo.advancer == VAL_LIN_REF)
     {
-      if (! advanceRef(valState, prof, fixInfo.list, fixInfo.error))
+      if (! advanceRef(valState, prof, 
+        // fixInfo.list, 
+          fixInfo.error))
         return false;
     }
     else
     {
-      if (! advanceOut(valState, prof, fixInfo.list, fixInfo.error))
+      if (! advanceOut(valState, prof, 
+        // fixInfo.list, 
+        fixInfo.error))
         return false;
     }
   }
