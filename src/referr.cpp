@@ -57,16 +57,18 @@ static bool parseRefLIN(
   const string& line,
   RefFix& rf)
 {
+  // Only does insertLIN, replaceLIN and deleteLIN.
+
   regex re("^\\s*\"(.*)\"");
   smatch match;
   if (! regex_search(line, match, re) || match.size() < 1)
     return false;
   const string arg = match.str(1);
 
-  // TODO: Maybe have a switch on rf.type instead --cleaner.
-
   const unsigned commas = static_cast<unsigned>(
     count(arg.begin(), arg.end(), ','));
+  if (commas > 4)
+    return false;
 
   vector<string> v(commas+1);
   v.clear();
@@ -81,99 +83,123 @@ static bool parseRefLIN(
   else
     rf.fixLIN.reverseFlag = false;
 
-  if (rf.type == BRIDGE_REF_DELETE_LIN && commas <= 1)
+
+  if (rf.type == BRIDGE_REF_INSERT_LIN)
   {
+    if (commas < 1)
+      return false;
+  
     // First one must be a tag number.
     if (! str2upos(v[0], rf.fixLIN.tagNo))
       return false;
-    rf.fixLIN.fieldNo = 0;
-    if (commas == 1)
-      rf.fixLIN.tag = parseRefLINEntry(v[1]);
+
+    // Optional field number (say in an rs value).
+    unsigned n = 1;
+    if (str2upos(v[1], rf.fixLIN.fieldNo))
+      n = 2;
     else
-      rf.fixLIN.tag = "";
-    rf.fixLIN.is = "";
-    rf.fixLIN.was = "";
-    rf.fixLIN.extent = 1;
-    return true;
-  }
+      rf.fixLIN.fieldNo = 0;
 
-  if (commas < 1 && commas > 4)
-    return false;
-  if (commas == 1 && rf.type != BRIDGE_REF_INSERT_LIN)
-    return false;
-  
-  // First one must be a tag number.
-  if (! str2upos(v[0], rf.fixLIN.tagNo))
-    return false;
-
-  // Optional field number (say in an rs value).
-  // Possible collision with INSERT_LIN, hopefully a minor one...
-  unsigned n = 1;
-  if (str2upos(v[1], rf.fixLIN.fieldNo))
-    n = 2;
-  else
-    rf.fixLIN.fieldNo = 0;
-
-  // LIN tag except perhaps in deletion.
-  if (v[n].length() != 2 && rf.type != BRIDGE_REF_INSERT_LIN)
-    return false;
-  rf.fixLIN.tag = v[n];
-  n++;
-  if (n > commas)
-  {
-    if (rf.type == BRIDGE_REF_INSERT_LIN)
+    // LIN tag.
+    if (n == commas)
     {
-      rf.fixLIN.is = rf.fixLIN.tag;
+      // Short version with no argument.
       rf.fixLIN.tag = "";
       rf.fixLIN.was = "";
+      rf.fixLIN.is = v[n];
       rf.fixLIN.extent = 1;
-      return true;
+    }
+    else if (n == commas-1)
+    {
+      // Normal version.
+      if (v[n].length() != 2)
+        return false;
+      rf.fixLIN.tag = v[n];
+      rf.fixLIN.was = "";
+      rf.fixLIN.is = parseRefLINEntry(v[n+1]);
+      rf.fixLIN.extent = 1;
     }
     else
       return false;
-  }
-
-  const string s1 = parseRefLINEntry(v[n]);
-  rf.fixLIN.extent = 1;
-  if (rf.type == BRIDGE_REF_INSERT_LIN)
-  {
-    if (n < commas)
-      return false;
-    rf.fixLIN.was = "";
-    rf.fixLIN.is = s1;
+  
   }
   else if (rf.type == BRIDGE_REF_REPLACE_LIN)
   {
-    if (n+1 != commas)
+    if (commas <= 1)
       return false;
-    rf.fixLIN.was = s1;
-    rf.fixLIN.is = parseRefLINEntry(v[n+1]);
+  
+    // First one must be a tag number.
+    if (! str2upos(v[0], rf.fixLIN.tagNo))
+      return false;
+
+    // Optional field number (say in an rs value).
+    unsigned n = 1;
+    if (str2upos(v[1], rf.fixLIN.fieldNo))
+      n = 2;
+    else
+      rf.fixLIN.fieldNo = 0;
+
+    // LIN tag except perhaps in deletion.
+    if (v[n].length() != 2 || n+2 != commas)
+      return false;
+    rf.fixLIN.tag = v[n];
+    rf.fixLIN.was = parseRefLINEntry(v[n+1]);
+    rf.fixLIN.is = parseRefLINEntry(v[n+2]);
+    rf.fixLIN.extent = 1;
   }
   else if (rf.type == BRIDGE_REF_DELETE_LIN)
   {
-    rf.fixLIN.was = s1;
-
-    if (s1 == "")
-      // Kludge
-      rf.fixLIN.is = "non-empty";
-    else
-      rf.fixLIN.is = "";
-
-
-
-    if (n+1 == commas)
+    if (commas <= 1)
     {
-      // deleteLIN "1,7,rs,3NW=,4"
-      // deleteLIN "3,mb,p,2"
-      if (! str2upos(v[n+1], rf.fixLIN.extent))
+      // First one must be a tag number.
+      if (! str2upos(v[0], rf.fixLIN.tagNo))
+        return false;
+      rf.fixLIN.fieldNo = 0;
+      if (commas == 1)
+        rf.fixLIN.tag = parseRefLINEntry(v[1]);
+      else
+        rf.fixLIN.tag = "";
+      rf.fixLIN.was = "";
+      rf.fixLIN.is = "";
+      rf.fixLIN.extent = 1;
+    }
+    else
+    {
+      // First one must be a tag number.
+      if (! str2upos(v[0], rf.fixLIN.tagNo))
+        return false;
+
+      // Optional field number (say in an rs value).
+      unsigned n = 1;
+      if (str2upos(v[1], rf.fixLIN.fieldNo))
+        n = 2;
+      else
+        rf.fixLIN.fieldNo = 0;
+
+      // LIN tag except perhaps in deletion.
+      if (v[n].length() != 2)
+        return false;
+
+      // Kludge in "is".
+      rf.fixLIN.tag = v[n];
+      rf.fixLIN.was = parseRefLINEntry(v[n+1]);
+      rf.fixLIN.is = (rf.fixLIN.was == "" ? "non-empty" : "");
+      rf.fixLIN.extent = 1;
+
+      if (n+2 == commas)
+      {
+        // deleteLIN "1,7,rs,3NW=,4"
+        // deleteLIN "3,mb,p,2"
+        if (! str2upos(v[n+2], rf.fixLIN.extent))
+          return false;
+      }
+      else if (n+1 != commas)
         return false;
     }
-    else if (n < commas)
-      return false;
   }
   else
     return false;
-  
+
   return true;
 }
 
@@ -464,6 +490,7 @@ static bool deltaLINLists(
   unsigned i = 0;
   while (i < lm && list1[i] == list2[i])
     i++;
+
   // Get the tag corresponding to a difference in value.
   // i will be at the first tag for which a (tag, value) pair
   // is different.  j will be the last such tag.
@@ -483,7 +510,6 @@ static bool deltaLINLists(
     j--;
   
   listDelta.clear();
-// cout << "i " << i << ", j " << j << endl;
   if (i+j+1 > l1)
   {
     if (i > l2-1-j)
@@ -517,24 +543,9 @@ void classifyList(RefErrorClass& diff)
 {
   const unsigned l = diff.list.size();
   const string& tag = diff.list[0];
-  if (tag == "rs")
-  {
-    if (diff.type == BRIDGE_REF_REPLACE && l == 2)
-    {
-      // TODO: Should really count individual contracts.
-    }
-  }
-  else if (tag == "md")
-  {
-    if (diff.type == BRIDGE_REF_REPLACE && l == 2)
-    {
-      // TODO: Do we distinguish between format and content?
-    }
-  }
-  else if (tag == "sv")
-  {
-  }
-  else if (tag == "mb")
+
+  // Can be expanded.
+  if (tag == "mb")
   {
     if (diff.type == BRIDGE_REF_DELETE)
     {

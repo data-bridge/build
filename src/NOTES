@@ -20,8 +20,8 @@ Data
 - Look for more sources?  Later...
 
 Perl scripts in BBOVG
-- Make them run without warnings (so have log files of
-  acceptable deviations)
+- Make director.pl run without warnings 
+  (so have log files of acceptable deviations)
 
 NERs
 * Dates: Write extractor for embedded dates in tags

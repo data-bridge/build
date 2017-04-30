@@ -106,7 +106,7 @@ void ValProfile::addRange(
   const unsigned upper,
   bool& flag)
 {
-  assert(upper < BRIDGE_VAL_SIZE);
+  assert(upper <= BRIDGE_VAL_SIZE);
   flag = false;
   for (unsigned v = lower; v < upper; v++)
   {
