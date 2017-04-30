@@ -11,7 +11,6 @@
 #include <assert.h>
 
 #include "ValStats.h"
-#include "valint.h"
 
 
 ValStats::ValStats()
@@ -130,7 +129,7 @@ void ValStats::printRow(
   const ValStat stat[],
   const unsigned label) const
 {
-  fstr << "  " << setw(5) << left << ValErrorNameShort[label];
+  fstr << "  " << setw(5) << left << ValErrors[label].nameShort;
   for (auto &g: FORMAT_ACTIVE)
     fstr << setw(7) << right << posOrDash(stat[g].profile.getCount(label));
   fstr << "\n";

@@ -715,6 +715,62 @@ static bool isBoard(
 }
 
 
+static bool isDeal(
+  const string& valueRef,
+  const string& valueOut)
+{
+  const unsigned lr = valueRef.length();
+  const unsigned lo = valueOut.length();
+
+  if (lr == 54 && lo == 72 && valueOut.substr(0, lr-4) == valueRef)
+  {
+    return true;
+  }
+  else if ((lr == 54 || lr == 55 || (lr >= 69 && lr <= 72)) && lo == 72)
+  {
+    Deal dealRef, dealOut;
+    try
+    {
+      dealRef.set(valueRef, BRIDGE_FORMAT_LIN);
+      dealOut.set(valueOut, BRIDGE_FORMAT_LIN);
+
+      return (dealRef == dealOut);
+    }
+    catch (Bexcept& bex)
+    {
+      UNUSED(bex);
+      return false;
+    }
+    catch (Bdiff& bdiff)
+    {
+      UNUSED(bdiff);
+      return false;
+    }
+  }
+  else if (valueRef == valueOut)
+  {
+assert(false);
+    return true;
+  }
+  else
+    return false;
+}
+
+
+static bool isVul(
+  const string& valueRef,
+  const string& valueOut)
+{
+  if ((valueRef == "0" && valueOut == "o") ||
+      (valueRef == "B" && valueOut == "b") ||
+      (valueRef == "N" && valueOut == "n") ||
+      (valueRef == "E" && valueOut == "e"))
+    return true;
+  else
+    return false;
+}
+
+
 static bool isXDouble(
   const string& valRef,
   const string& valOut)
@@ -982,59 +1038,21 @@ bool validateLIN(
     }
     else if (valState.dataRef.label == "md")
     {
-      const unsigned lr = static_cast<unsigned>
-        (valState.dataRef.value.length());
-      if (lr == 54 &&
-          valState.dataOut.value.length() == 72 &&
-          valState.dataOut.value.substr(0, lr) == valState.dataRef.value)
+      if (isDeal(valState.dataRef.value, valState.dataOut.value))
       {
         prof.log(BRIDGE_VAL_VG_MD, valState);
         return true;
       }
-      else if ((lr == 54 || lr == 55 || (lr >= 69 && lr <= 72)) && 
-          valState.dataOut.value.length() == 72)
-      {
-        Deal dealRef, dealOut;
-        try
-        {
-          dealRef.set(valState.dataRef.value, BRIDGE_FORMAT_LIN);
-          dealOut.set(valState.dataOut.value, BRIDGE_FORMAT_LIN);
-
-          if (dealRef == dealOut)
-          {
-            prof.log(BRIDGE_VAL_VG_MD, valState);
-            return true;
-          }
-          else
-            return false;
-        }
-        catch (Bexcept& bex)
-        {
-          UNUSED(bex);
-          return false;
-        }
-        catch (Bdiff& bdiff)
-        {
-          UNUSED(bdiff);
-          return false;
-        }
-      }
-      else if (valState.dataRef.value == valState.dataOut.value)
-        return true;
       else
         return false;
     }
     else if (valState.dataRef.label == "sv")
     {
-      if ((valState.dataRef.value == "0" &&
-          valState.dataOut.value == "o") ||
-          (valState.dataRef.value == "B" &&
-          valState.dataOut.value == "b") ||
-          (valState.dataRef.value == "N" &&
-          valState.dataOut.value == "n") ||
-          (valState.dataRef.value == "E" &&
-          valState.dataOut.value == "e"))
+      if (isVul(valState.dataRef.value, valState.dataOut.value))
+      {
+        prof.log(BRIDGE_VAL_VUL, valState);
         return true;
+      }
       else
         return false;
     }
@@ -1061,13 +1079,17 @@ bool validateLIN(
       else
         return false;
     }
+    else if (valState.dataRef.label == "pc")
+    {
+assert(false);
+    }
     else if (valState.dataRef.len != valState.dataOut.len)
     {
-      const unsigned lr = valState.dataRef.len;
-      const unsigned lo = valState.dataOut.len;
-
       if (valState.dataRef.label == "mb")
       {
+        const unsigned lr = valState.dataRef.len;
+        const unsigned lo = valState.dataOut.len;
+
         if ((lr == 6 || lr == 7) &&
             lo+1 == lr &&
             valState.dataRef.value.at(lr-5) == '!')
@@ -1138,29 +1160,7 @@ bool validateLIN(
   }
 
   if (valState.dataRef.label != valState.dataOut.label)
-  {
-    // Normal LIN has rh|| and ah|Board|, not in LIN_VG.
-    if (valState.dataOut.label == "sv" &&
-        valState.dataRef.label == "rh" &&
-        valState.dataRef.value == "")
-    {
-assert(false);
-      if (! valState.bufferRef.next(valState.dataRef))
-        return false;
-      if (valState.dataRef.label != "ah")
-        return false;
-      if (! valState.bufferRef.next(valState.dataRef))
-        return false;
-      if (valState.dataRef.label != "sv")
-        return false;
-      if (valState.dataRef.value != valState.dataOut.value)
-        return false;
-
-      return true;
-    }
-
     return false;
-  }
   else if (valState.dataRef.len != valState.dataOut.len)
     return false;
   else

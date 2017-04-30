@@ -74,6 +74,64 @@ enum ValError
   BRIDGE_VAL_SIZE = 42
 };
 
+struct ValErrorBundle
+{
+  ValError valError;
+  string nameLong;
+  string nameShort;
+};
+
+const vector<ValErrorBundle> ValErrors =
+{
+  {BRIDGE_VAL_TITLE, "Title", "T"},
+  {BRIDGE_VAL_DATE, "Date", "D"},
+  {BRIDGE_VAL_LOCATION, "Location", "L"},
+  {BRIDGE_VAL_EVENT, "Event", "E"},
+  {BRIDGE_VAL_SESSION, "Session", "S"},
+  {BRIDGE_VAL_PLAYERS_HEADER, "Players list", "Plist"},
+  {BRIDGE_VAL_BOARDS_HEADER, "Board numbers", "Bnos"},
+  {BRIDGE_VAL_SCORES_HEADER, "Scores list", "List"},
+  {BRIDGE_VAL_SCORING, "Scoring", "F"},
+  {BRIDGE_VAL_TEAMS, "Teams", "K"},
+  {BRIDGE_VAL_ROOM, "Room", "Room"},
+  {BRIDGE_VAL_DEAL, "Deal", "Deal"},
+  {BRIDGE_VAL_VUL, "Vul", "Vul"},
+  {BRIDGE_VAL_AUCTION, "Auction", "Auct"},
+  {BRIDGE_VAL_PLAY, "Play", "Play"},
+  {BRIDGE_VAL_SCORE, "Score", "Scor"},
+  {BRIDGE_VAL_DD, "Double-dummy", "DD"},
+  {BRIDGE_VAL_NAMES_SHORT, "Names-short", "Nsht"},
+  {BRIDGE_VAL_TXT_DASHES, "TXT-dashes", "Dash"},
+  {BRIDGE_VAL_VG_MD, "VG-cards", "Hlen"},
+  {BRIDGE_VAL_VG_CHAT, "VG-chat", "Chat"},
+
+  {BRIDGE_VAL_TXT_ALL_PASS, "All-pass", "Apass"},
+  {BRIDGE_VAL_LIN_AH_EXTRA, "Lin-ah+", "ah+"},
+  {BRIDGE_VAL_LIN_AN_ERROR, "Lin-an", "an"},
+  {BRIDGE_VAL_LIN_AN_EXTRA, "Lin-an+", "an+"},
+  {BRIDGE_VAL_LIN_MC_EXTRA, "Lin-mc+", "mc+"},
+  {BRIDGE_VAL_LIN_PN_EXTRA, "Lin-pn+", "pn+"},
+  {BRIDGE_VAL_LIN_PN_MISSING, "Lin-pn-", "pn-"},
+  {BRIDGE_VAL_LIN_PN_ROTATED, "Lin-pn tor", "pnrot"},
+  {BRIDGE_VAL_LIN_RH_EXTRA, "Lin-rh+", "rh+"},
+  {BRIDGE_VAL_LIN_ST_EXTRA, "Lin-st+", "st+"},
+  {BRIDGE_VAL_LIN_ST_MISSING, "Lin-st-", "st-"},
+  {BRIDGE_VAL_LIN_SV_MISSING, "Lin-sv-", "sv-"},
+
+  {BRIDGE_VAL_LIN_PLAY_NL, "Play-newline", "Pline"},
+  {BRIDGE_VAL_PLAY_SHORT, "Play-short", "Psht"},
+  {BRIDGE_VAL_REC_MADE_32, "Made-32", "R32"},
+  {BRIDGE_VAL_TXT_RESULT, "TXT-result", "RTXT"},
+  {BRIDGE_VAL_RECORD_NUMBER, "Rec-comment", "Comm"},
+
+  {BRIDGE_VAL_ERROR, "Error", "Error"},
+  {BRIDGE_VAL_OUT_SHORT, "Out-short", "Osht"},
+  {BRIDGE_VAL_REF_SHORT, "Ref-short", "Rsht"},
+  {BRIDGE_VAL_VG_MC, "VG-mc", "mc"},
+  {BRIDGE_VAL_SIZE, "", ""},
+
+};
+
 
 class ValProfile 
 {

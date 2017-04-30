@@ -10,7 +10,6 @@
 #include <assert.h>
 
 #include "ValProfile.h"
-#include "valint.h"
 
 
 ValProfile::ValProfile():
@@ -132,7 +131,7 @@ void ValProfile::print(
     if (count[v] == 0)
       continue;
 
-    fstr << setw(12) << left << ValErrorName[v] <<
+    fstr << setw(12) << left << ValErrors[v].nameLong <<
       setw(4) << right << count[v] << "\n";
     showFlag = true;
   }
@@ -146,7 +145,7 @@ void ValProfile::print(
     if (count[v] == 0)
       continue;
     
-    fstr << ValErrorName[v] << ":\n";
+    fstr << ValErrors[v].nameLong << ":\n";
     fstr << "Out (" << setw(4) << example[v].out.lno << "): " <<
       example[v].out.line << "\n";
     fstr << "Ref (" << setw(4) << example[v].ref.lno << "): " <<

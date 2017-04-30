@@ -645,6 +645,12 @@ void Segment::setPlayersHeader(
   if (c < 3)
       THROW("Bad number of fields");
 
+  if (c > 7)
+  {
+    Segment::checkPlayersTrailing(8, c, tokens);
+    c = 7;
+  }
+
   if (c == 7)
   {
     for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
@@ -664,21 +670,8 @@ void Segment::setPlayersHeader(
     for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
       LINdata[0].players[0][(i+2) % 4] = tokens[i];
   }
-  else
-  {
-    if (c < 7)
-      THROW("Bad number of fields");
-
-    if (c > 7)
-      Segment::checkPlayersTrailing(8, c, tokens);
-
-    for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
-    {
-      LINdata[0].players[0][(i+2) % 4] = tokens[i];
-      LINdata[0].players[1][(i+2) % 4] = tokens[i+4];
-    }
-    return;
-  }
+  else if (c < 7)
+    THROW("Bad number of fields");
 }
 
 

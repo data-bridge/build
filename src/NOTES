@@ -3,6 +3,8 @@
 Sheet
 * 16002 o4 DBL detected? 17392 o11 too.  314 c15
 * Another str() function that outputs an IMP sheet, will also need vul
+* Get rid of heurfix in favor of Sheet?
+  Good outputs (try deleting a ref file), CHOOSE (line1) (line2)
 
 C++ code
 * rewrite validateLIN with a function and a loop
