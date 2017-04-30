@@ -63,6 +63,18 @@ class Segment
       const string& text,
       const Format format);
 
+    string getEffectivePlayer(
+      const unsigned start,
+      const unsigned offset,
+      const vector<string>& token) const;
+
+    void checkPlayersTrailing(
+      const unsigned first,
+      const unsigned lastIncl,
+      const vector<string>& token) const;
+
+    unsigned getLINActiveNo() const;
+
     string strTitleLINCore(const bool swapFlag = false) const;
     string strTitleLIN() const;
     string strTitleLIN_RP() const;

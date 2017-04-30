@@ -435,8 +435,6 @@ void Segment::setPlayersList(
   tokens.clear();
   tokenize(text, tokens, ",");
 
-  // TODO: Clean up, make functions for 4 and 8.
-
   if (c == 7)
   {
     // Assume a single set of 8 players repeating.
@@ -448,6 +446,16 @@ void Segment::setPlayersList(
         LINdata[b].players[0][(d+2) % 4] = tokens[d];
         LINdata[b].players[1][(d+2) % 4] = tokens[d+4];
       }
+    }
+  }
+  else if (c == 3)
+  {
+    // Assume a single set of 4 players repeating.
+    //
+    for (size_t b = 0; b < LINcount; b++)
+    {
+      for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
+        LINdata[b].players[0][(d+2) % 4] = tokens[d];
     }
   }
   else if (format == BRIDGE_FORMAT_LIN_VG ||
@@ -463,6 +471,7 @@ void Segment::setPlayersList(
         c++;
       }
 
+      // Guess whether players repeat in blocks of 4 or 8.
       if (c+1 == 8*LINcount)
       {
         for (size_t b = 0; b < c; b += 8)
@@ -475,13 +484,6 @@ void Segment::setPlayersList(
         }
         LINPlayersListFlag = true;
       }
-      else if (c == 3)
-      {
-        // Assume a single set of 4 players repeating.
-        for (size_t b = 0; b < LINcount; b++)
-          for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
-            LINdata[b].players[0][(d+2) % 4] = tokens[d];
-      }
       else
       {
         if (c+5 == 4*LINcount || c+9 == 4*LINcount)
@@ -493,12 +495,7 @@ void Segment::setPlayersList(
         }
         else if (LINcount > 0 && c+1 > 4*LINcount)
         {
-          for (unsigned i = 4*LINcount; i <= c; i++)
-          {
-            if (tokens[i] != "")
-              THROW("Wrong number of fields: " + STR(c) + " vs. " + 
-                " 4*LINcount " + STR(4*LINcount));
-          }
+          Segment::checkPlayersTrailing(4*LINcount, c, tokens);
           c = 4*LINcount-1;
         }
 
@@ -522,36 +519,12 @@ void Segment::setPlayersList(
       {
         for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
         {
-          LINdata[b >> 3].players[0][(d+2) % 4] = tokens[b+d];
-          LINdata[b >> 3].players[1][(d+2) % 4] = tokens[b+d+4];
+          LINdata[b >> 3].players[0][(d+2) % 4] = 
+            Segment::getEffectivePlayer(b, d, tokens);
+          LINdata[b >> 3].players[1][(d+2) % 4] = 
+            Segment::getEffectivePlayer(b, d+4, tokens);
+
           LINPlayersListFlag = true;
-
-          if (tokens[b+d] == "")
-          {
-            // Search backwards for a non-empty entry.
-            for (unsigned e = b; e > 0; e -= 8)
-            {
-              if (tokens[e+d-8] != "")
-              {
-                LINdata[b >> 3].players[0][(d+2) % 4] = tokens[e+d-8];
-                break;
-              }
-            }
-          }
-
-          if (tokens[b+d+4] == "")
-          {
-            // Search backwards for a non-empty entry.
-            for (unsigned e = b; e > 0; e -= 8)
-            {
-              if (tokens[e+d-4] != "")
-              {
-                LINdata[b >> 3].players[1][(d+2) % 4] = tokens[e+d-4];
-                break;
-              }
-            }
-          }
-
         }
       }
     }
@@ -570,6 +543,32 @@ void Segment::setPlayersList(
     }
     LINPlayersListFlag = true;
   }
+}
+
+
+string Segment::getEffectivePlayer(
+  const unsigned start,
+  const unsigned offset,
+  const vector<string>& tokens) const
+{
+  // start must be a multiple of 8.
+  // Search backwards for the first non-empty entry.
+
+  for (unsigned e = 0; e <= start; e += 8)
+  {
+    if (tokens[(start-e)+offset] != "")
+      return tokens[(start-e)+offset];
+  }
+  return "";
+}
+  
+
+unsigned Segment::getLINActiveNo() const
+{
+  const unsigned eno = boards[activeNo].extNo;
+  if (eno < bInmin || eno > bInmax)
+    THROW("Board number out of range of LIN header");
+  return(eno - bInmin);
 }
 
 
@@ -604,11 +603,7 @@ void Segment::loadSpecificsFromHeader(
   else
   {
     // At the right place, perhaps with gaps.
-    // TODO: Should be a function, also used in contractFromHeader.
-    unsigned eno = boards[activeNo].extNo;
-    if (eno < bInmin || eno > bInmax)
-      THROW("Board number out of range of LIN header");
-    linTableNo = eno - bInmin;
+    linTableNo = Segment::getLINActiveNo();
   }
 
   if (LINdata[linTableNo].contract[r] != "")
@@ -643,34 +638,28 @@ void Segment::setPlayersHeader(
     THROW("Invalid format: " + STR(format));
 
   size_t c = countDelimiters(text, ",");
+  vector<string> tokens(c+1);
+  tokens.clear();
+  tokenize(text, tokens, ",");
+
+  if (c < 3)
+      THROW("Bad number of fields");
+
+  if (c == 7)
+  {
+    for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
+    {
+      LINdata[0].players[0][(i+2) % 4] = tokens[i];
+      LINdata[0].players[1][(i+2) % 4] = tokens[i+4];
+    }
+    return;
+  }
+
   if (format ==  BRIDGE_FORMAT_LIN_VG &&
       scoring.str(BRIDGE_FORMAT_LIN) == "P")
   {
-    vector<string> tokens(c+1);
-    tokens.clear();
-    tokenize(text, tokens, ",");
-
-    // TODO: Probably also need to accept 4 real, 4 empty fields.
-    if (c == 7)
-    {
-      for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
-      {
-        LINdata[0].players[0][(i+2) % 4] = tokens[i];
-        LINdata[0].players[1][(i+2) % 4] = tokens[i+4];
-      }
-    }
-    else if (c > 3)
-    {
-      for (unsigned i = 4; i <= c; i++)
-      {
-        // Allow trailing commas.
-        if (tokens[i] != "" &&
-            tokens[i] != PLAYER_NAMES_LONG[PLAYER_LIN_TO_DDS[i % 4]])
-          THROW("Bad number of fields");
-      }
-    }
-    else if (c != 3)
-      THROW("Bad number of fields");
+    if (c > 3)
+      Segment::checkPlayersTrailing(4, c, tokens);
 
     for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
       LINdata[0].players[0][(i+2) % 4] = tokens[i];
@@ -680,25 +669,29 @@ void Segment::setPlayersHeader(
     if (c < 7)
       THROW("Bad number of fields");
 
-    vector<string> tokens(c+1);
-    tokens.clear();
-    tokenize(text, tokens, ",");
-
     if (c > 7)
-    {
-      for (unsigned i = 8; i <= c; i++)
-      {
-        if (tokens[i] != "")
-          THROW("Bad number of fields");
-      }
-    }
+      Segment::checkPlayersTrailing(8, c, tokens);
 
     for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
     {
       LINdata[0].players[0][(i+2) % 4] = tokens[i];
       LINdata[0].players[1][(i+2) % 4] = tokens[i+4];
     }
+    return;
   }
+}
+
+
+void Segment::checkPlayersTrailing(
+  const unsigned first,
+  const unsigned lastIncl,
+  const vector<string>& tokens) const
+{
+  for (unsigned i = first; i <= lastIncl; i++)
+    if (tokens[i] != "" &&
+        tokens[i] != PLAYER_NAMES_LONG[PLAYER_LIN_TO_DDS[i % 4]])
+      THROW("Bad number of fields: " + STR(first) + " vs. " + 
+                " lastIncl " + STR(lastIncl));
 }
 
 
@@ -817,12 +810,7 @@ string Segment::contractFromHeader() const
   if (LINcount == 0)
     return "";
 
-  // TODO: Should be a function, see also further up.
-  unsigned eno = boards[activeNo].extNo;
-  if (eno < bInmin || eno > bInmax)
-    THROW("Board number out of range of LIN header");
-  const unsigned linTableNo = eno - bInmin;
-
+  const unsigned linTableNo = Segment::getLINActiveNo();
   const unsigned instNo = boards[activeNo].board.getInstance();
   return LINdata[linTableNo].contract[instNo];
 }
@@ -833,12 +821,7 @@ bool Segment::setContractInHeader(const string& text)
   if (LINcount == 0)
     return false;
 
-  // TODO: Should be a function, see also further up.
-  unsigned eno = boards[activeNo].extNo;
-  if (eno < bInmin || eno > bInmax)
-    THROW("Board number out of range of LIN header");
-  const unsigned linTableNo = eno - bInmin;
-
+  const unsigned linTableNo = Segment::getLINActiveNo();
   const unsigned instNo = boards[activeNo].board.getInstance();
   LINdata[linTableNo].contract[instNo] = text;
   return true;

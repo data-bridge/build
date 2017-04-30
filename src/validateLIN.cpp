@@ -12,13 +12,187 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
+#include <map>
 #include <regex>
+#include <assert.h>
 
 #include "Deal.h"
 #include "validateLIN.h"
 #include "parse.h"
 #include "Bexcept.h"
 #include "Bdiff.h"
+
+
+enum FixEntry
+{
+  VAL_LIN_NONE = 0,
+  VAL_LIN_REF = 1,
+  VAL_LIN_OUT = 2
+};
+
+enum FixTag
+{
+  VAL_LIN_AH = 0,
+  VAL_LIN_AN = 1,
+  VAL_LIN_BN = 2,
+  VAL_LIN_MB = 3,
+  VAL_LIN_MC = 4,
+  VAL_LIN_MD = 5,
+  VAL_LIN_MP = 6,
+  VAL_LIN_PN = 7,
+  VAL_LIN_QX = 8,
+  VAL_LIN_RH = 9,
+  VAL_LIN_ST = 10,
+  VAL_LIN_SV = 11,
+  VAL_LIN_FIX_SIZE = 12
+};
+
+struct FixInfo
+{
+  bool valFlag;
+  string val;
+  FixEntry advancer;
+  vector<FixTag> list;
+  ValError error;
+};
+
+static map<string, FixTag> tagMap;
+
+FixInfo fixTable[VAL_LIN_FIX_SIZE][VAL_LIN_FIX_SIZE];
+
+
+// Initialization functions
+
+void setValidateLINTables()
+{
+  tagMap["ah"] = VAL_LIN_AH;
+  tagMap["an"] = VAL_LIN_AN;
+  tagMap["bn"] = VAL_LIN_BN;
+  tagMap["mb"] = VAL_LIN_MB;
+  tagMap["mc"] = VAL_LIN_MC;
+  tagMap["md"] = VAL_LIN_MD;
+  tagMap["mp"] = VAL_LIN_MP;
+  tagMap["pn"] = VAL_LIN_PN;
+  tagMap["qx"] = VAL_LIN_QX;
+  tagMap["rh"] = VAL_LIN_RH;
+  tagMap["st"] = VAL_LIN_ST;
+  tagMap["sv"] = VAL_LIN_SV;
+
+  for (size_t i = 0; i < VAL_LIN_FIX_SIZE; i++)
+  {
+    for (size_t j = 0; j < VAL_LIN_FIX_SIZE; j++)
+    {
+      fixTable[i][j].valFlag = false;
+      fixTable[i][j].advancer = VAL_LIN_NONE;
+      fixTable[i][j].list.clear();
+      fixTable[i][j].error = BRIDGE_VAL_SIZE;
+    }
+  }
+
+  fixTable[VAL_LIN_AH][VAL_LIN_ST].advancer = VAL_LIN_REF;
+  fixTable[VAL_LIN_AH][VAL_LIN_ST].list.push_back(VAL_LIN_MD);
+  fixTable[VAL_LIN_AH][VAL_LIN_ST].list.push_back(VAL_LIN_ST);
+  fixTable[VAL_LIN_AH][VAL_LIN_ST].error = BRIDGE_VAL_LIN_AH_EXTRA;
+
+  fixTable[VAL_LIN_AH][VAL_LIN_SV].advancer = VAL_LIN_REF;
+  fixTable[VAL_LIN_AH][VAL_LIN_SV].list.push_back(VAL_LIN_SV);
+  fixTable[VAL_LIN_AH][VAL_LIN_SV].error = BRIDGE_VAL_LIN_AH_EXTRA;
+
+  // Probably the previous values were mb|bid!|, but ref has a 
+  // trailing an|!| which we must get rid of.
+  fixTable[VAL_LIN_AN][VAL_LIN_MB].valFlag = true;
+  fixTable[VAL_LIN_AN][VAL_LIN_MB].val = "!";
+  fixTable[VAL_LIN_AN][VAL_LIN_MB].advancer = VAL_LIN_REF;
+  fixTable[VAL_LIN_AN][VAL_LIN_MB].list.push_back(VAL_LIN_MB);
+  fixTable[VAL_LIN_AN][VAL_LIN_MB].error = BRIDGE_VAL_LIN_AN_EXTRA;
+
+  fixTable[VAL_LIN_BN][VAL_LIN_QX].advancer = VAL_LIN_REF;
+  fixTable[VAL_LIN_BN][VAL_LIN_QX].list.push_back(VAL_LIN_MP);
+  fixTable[VAL_LIN_BN][VAL_LIN_QX].list.push_back(VAL_LIN_PN);
+  fixTable[VAL_LIN_BN][VAL_LIN_QX].list.push_back(VAL_LIN_QX);
+  fixTable[VAL_LIN_BN][VAL_LIN_QX].error = BRIDGE_VAL_BOARDS_HEADER;
+
+  fixTable[VAL_LIN_MB][VAL_LIN_SV].advancer = VAL_LIN_OUT;
+  fixTable[VAL_LIN_MB][VAL_LIN_SV].list.push_back(VAL_LIN_MB);
+  fixTable[VAL_LIN_MB][VAL_LIN_SV].error = BRIDGE_VAL_LIN_SV_MISSING;
+
+  // Assume the global pw takes care of this.
+  fixTable[VAL_LIN_MC][VAL_LIN_PN].advancer = VAL_LIN_OUT;
+  fixTable[VAL_LIN_MC][VAL_LIN_PN].list.push_back(VAL_LIN_QX);
+  fixTable[VAL_LIN_MC][VAL_LIN_PN].error = BRIDGE_VAL_LIN_PN_MISSING;
+
+  // Assume the global pw takes care of this.
+  fixTable[VAL_LIN_MC][VAL_LIN_QX].advancer = VAL_LIN_REF;
+  fixTable[VAL_LIN_MC][VAL_LIN_QX].list.push_back(VAL_LIN_PN);
+  fixTable[VAL_LIN_MC][VAL_LIN_QX].list.push_back(VAL_LIN_QX);
+  fixTable[VAL_LIN_MC][VAL_LIN_QX].error = BRIDGE_VAL_LIN_MC_EXTRA;
+
+  fixTable[VAL_LIN_MD][VAL_LIN_ST].advancer = VAL_LIN_OUT;
+  fixTable[VAL_LIN_MD][VAL_LIN_ST].list.push_back(VAL_LIN_MD);
+  fixTable[VAL_LIN_MD][VAL_LIN_ST].error = BRIDGE_VAL_LIN_ST_MISSING;
+
+  fixTable[VAL_LIN_MP][VAL_LIN_QX].advancer = VAL_LIN_REF;
+  fixTable[VAL_LIN_MP][VAL_LIN_QX].list.push_back(VAL_LIN_BN);
+  fixTable[VAL_LIN_MP][VAL_LIN_QX].list.push_back(VAL_LIN_PN);
+  fixTable[VAL_LIN_MP][VAL_LIN_QX].list.push_back(VAL_LIN_QX);
+  fixTable[VAL_LIN_MP][VAL_LIN_QX].error = BRIDGE_VAL_SCORES_HEADER;
+
+  fixTable[VAL_LIN_QX][VAL_LIN_SV].advancer = VAL_LIN_OUT;
+  fixTable[VAL_LIN_QX][VAL_LIN_SV].list.push_back(VAL_LIN_QX);
+  fixTable[VAL_LIN_QX][VAL_LIN_SV].error = BRIDGE_VAL_LIN_SV_MISSING;
+
+  fixTable[VAL_LIN_PN][VAL_LIN_MB].advancer = VAL_LIN_REF;
+  fixTable[VAL_LIN_PN][VAL_LIN_MB].list.push_back(VAL_LIN_MB);
+  fixTable[VAL_LIN_PN][VAL_LIN_MB].error = BRIDGE_VAL_LIN_PN_EXTRA;
+
+  fixTable[VAL_LIN_PN][VAL_LIN_MD].advancer = VAL_LIN_REF;
+  fixTable[VAL_LIN_PN][VAL_LIN_MD].list.push_back(VAL_LIN_MD);
+  fixTable[VAL_LIN_PN][VAL_LIN_MD].error = BRIDGE_VAL_LIN_PN_EXTRA;
+
+  fixTable[VAL_LIN_PN][VAL_LIN_QX].advancer = VAL_LIN_REF;
+  fixTable[VAL_LIN_PN][VAL_LIN_QX].list.push_back(VAL_LIN_MP);
+  fixTable[VAL_LIN_PN][VAL_LIN_QX].list.push_back(VAL_LIN_QX);
+  fixTable[VAL_LIN_PN][VAL_LIN_QX].error = BRIDGE_VAL_LIN_PN_EXTRA;
+
+  // Could be pn|...| embedded in qx|o1|, which we choose to
+  // disregard, as it is hopefully consistent with the pn header.
+  fixTable[VAL_LIN_PN][VAL_LIN_ST].advancer = VAL_LIN_REF;
+  fixTable[VAL_LIN_PN][VAL_LIN_ST].list.push_back(VAL_LIN_MB);
+  fixTable[VAL_LIN_PN][VAL_LIN_ST].list.push_back(VAL_LIN_MD);
+  fixTable[VAL_LIN_PN][VAL_LIN_ST].list.push_back(VAL_LIN_ST);
+  fixTable[VAL_LIN_PN][VAL_LIN_ST].error = BRIDGE_VAL_LIN_ST_EXTRA;
+
+  fixTable[VAL_LIN_RH][VAL_LIN_ST].advancer = VAL_LIN_REF;
+  fixTable[VAL_LIN_RH][VAL_LIN_ST].list.push_back(VAL_LIN_AH);
+  fixTable[VAL_LIN_RH][VAL_LIN_ST].list.push_back(VAL_LIN_ST);
+  fixTable[VAL_LIN_RH][VAL_LIN_ST].error = BRIDGE_VAL_LIN_RH_EXTRA;
+
+  fixTable[VAL_LIN_RH][VAL_LIN_SV].advancer = VAL_LIN_REF;
+  fixTable[VAL_LIN_RH][VAL_LIN_SV].list.push_back(VAL_LIN_AH);
+  fixTable[VAL_LIN_RH][VAL_LIN_SV].list.push_back(VAL_LIN_SV);
+  fixTable[VAL_LIN_RH][VAL_LIN_SV].error = BRIDGE_VAL_LIN_RH_EXTRA;
+
+  fixTable[VAL_LIN_ST][VAL_LIN_MB].advancer = VAL_LIN_REF;
+  fixTable[VAL_LIN_ST][VAL_LIN_MB].list.push_back(VAL_LIN_MB);
+  fixTable[VAL_LIN_ST][VAL_LIN_MB].error = BRIDGE_VAL_LIN_ST_EXTRA;
+}
+
+
+// General functions
+
+static FixTag str2tag(const string& str)
+{
+  auto it = tagMap.find(str);
+  if (it == tagMap.end())
+  {
+    string strl = str;
+    toLower(strl);
+    it = tagMap.find(strl);
+    if (it == tagMap.end())
+      return VAL_LIN_FIX_SIZE;
+  }
+  return it->second;
+}
 
 
 static bool firstContainsSecondLIN(
@@ -69,6 +243,153 @@ static bool LINtoList(
   return true;
 }
 
+
+static string pruneCommas(
+  const string& text,
+  unsigned& p,
+  unsigned& q)
+{
+  p = 0;
+  const unsigned l = static_cast<unsigned>(text.length());
+  while (p < l && text.at(p) == ',')
+    p++;
+
+  if (p >= l)
+    return "";
+
+  q = l;
+  while (q >= 1 && text.at(q-1) == ',')
+    q--;
+
+  // Trailing commas.
+  if (q <= p)
+    return "";
+
+  return text.substr(p, q-p);
+}
+
+
+static void collapseList(
+  const vector<string>& in,
+  vector<string>& out)
+{
+  for (unsigned i = 0; i < 4; i++)
+    out.push_back(in[i]);
+
+  const unsigned l = in.size();
+  for (unsigned i = 4; i+3 < l; i += 4)
+  {
+    if (in[i] != in[i-4] ||
+        in[i+1] != in[i-3] ||
+        in[i+2] != in[i-2] ||
+        in[i+3] != in[i-1])
+    {
+      out.push_back(in[i]);
+      out.push_back(in[i+1]);
+      out.push_back(in[i+2]);
+      out.push_back(in[i+3]);
+    }
+  }
+
+  // Stragglers.
+  for (unsigned i = (l & 0xfffc); i < l; i++)
+    out.push_back(in[i]);
+}
+
+
+static void despaceList(
+  const vector<string>& in,
+  vector<string>& out)
+{
+  const unsigned l = in.size();
+  unsigned start;
+  for (unsigned i = 0; i+3 < l; i += 4)
+  {
+    if (in[i] != "South" || in[i+1] != "West" || 
+        in[i+2] != "North" || in[i+3] != "East")
+    {
+      out.push_back(in[i]);
+      out.push_back(in[i+1]);
+      out.push_back(in[i+2]);
+      out.push_back(in[i+3]);
+      start = i+4;
+      break;
+    }
+  }
+
+  if (out.size() == 0)
+    return;
+
+  unsigned ol = 4;
+  for (unsigned i = start; i+3 < l; i += 4)
+  {
+    if (in[i] != out[ol-4] ||
+        in[i+1] != out[ol-3] ||
+        in[i+2] != out[ol-2] ||
+        in[i+3] != out[ol-1])
+    {
+      if (in[i] == "" && in[i+1] == "" && in[i+2] == "" && in[i+3] == "")
+        continue;
+
+      if (in[i] == "South" && in[i+1] == "West" && 
+          in[i+2] == "North" && in[i+3] == "East")
+        continue;
+
+      for (unsigned j = 0; j < 4; j++)
+      {
+        if (in[i+j] == "")
+          out.push_back(out[ol+j-4]);
+        else
+          out.push_back(in[i+j]);
+      }
+      ol += 4;
+    }
+  }
+
+  // Stragglers.
+  for (unsigned i = (l & 0xfffc); i < l; i++)
+    out.push_back(in[i]);
+}
+
+
+static bool isCompactSequence(ValState& valState)
+{
+  string refSeq = valState.dataRef.value;
+  trimLeading(refSeq, '-');
+  refSeq = trimTrailing(refSeq, '-');
+  toUpper(refSeq);
+
+  if (! valState.bufferRef.next(valState.dataRef))
+    return false;
+
+  string refOut = valState.dataOut.value;
+  while (valState.bufferOut.next(valState.dataOut) &&
+      valState.dataOut.label == "mb")
+  {
+    refOut += valState.dataOut.value;
+  }
+
+  if (valState.bufferOut.peek() == 0x00)
+    return false;
+
+  toUpper(refOut);
+  return (refSeq == refOut);
+}
+
+
+static bool isDifferentCase(
+  const string& value1,
+  const string& value2)
+{
+  string v1 = value1;
+  string v2 = value2;
+  toUpper(v1);
+  toUpper(v2);
+  return (v1 == v2);
+}
+
+
+// RP functions
 
 static bool isLINHeaderLine(
   const ValState& valState,
@@ -225,6 +546,8 @@ bool validateLIN_RP(
 }
 
 
+// Other LIN-type functions
+
 static bool isTitleBoards(
   const string& valueRef,
   const string& valueOut)
@@ -250,173 +573,6 @@ static bool isTitleBoards(
     }
   }
   return true;
-}
-
-
-static string pruneCommas(
-  const string& text,
-  unsigned& p,
-  unsigned& q)
-{
-  p = 0;
-  const unsigned l = static_cast<unsigned>(text.length());
-  while (p < l && text.at(p) == ',')
-    p++;
-
-  if (p >= l)
-    return "";
-
-  q = l;
-  while (q >= 1 && text.at(q-1) == ',')
-    q--;
-
-  // Trailing commas.
-  if (q <= p)
-    return "";
-
-  return text.substr(p, q-p);
-}
-
-
-static bool isContracts(
-  const string& valueRef,
-  const string& valueOut)
-{
-  unsigned p, q;
-  const string refPruned = pruneCommas(valueRef, p, q);
-  if (refPruned == "")
-    return false;
-
-  if (valueOut == refPruned)
-    return true;
-
-  unsigned p1, q1;
-  const string outPruned = pruneCommas(valueOut, p1, q1);
-
-  if (outPruned == refPruned)
-    return true;
-
-  regex reu("\\bP\\b");
-  string refPass = regex_replace(refPruned, reu, string("PASS"));
-  regex rel("\\bp\\b");
-  refPass = regex_replace(refPass, rel, string("PASS"));
-  regex rep("\\bPass\\b");
-  refPass = regex_replace(refPass, rep, string("PASS"));
-
-  if (outPruned == refPass)
-    return true;
-
-  // Tolerate single stray comma in reference.
-  const unsigned lr = refPass.length();
-  if (outPruned.length()+1 == lr &&
-      refPass.at(lr-1) == ',' &&
-      outPruned == refPass.substr(0, lr-1))
-    return true;
-  else
-    return false;
-}
-
-
-static bool isBoard(
-  const string& valueRef,
-  const string& valueOut)
-{
-  if (valueRef == valueOut)
-    return true;
-
-  const unsigned lr = valueRef.length();
-  const unsigned lo = valueOut.length();
-
-  if (lo+8 > lr || valueRef.substr(0, lo) != valueOut)
-    return false;
-
-  if (valueRef.substr(lo, 7) != ",BOARD ")
-    return false;
-  else
-    return true;
-}
-
-
-static void collapseList(
-  const vector<string>& in,
-  vector<string>& out)
-{
-  for (unsigned i = 0; i < 4; i++)
-    out.push_back(in[i]);
-
-  const unsigned l = in.size();
-  for (unsigned i = 4; i+3 < l; i += 4)
-  {
-    if (in[i] != in[i-4] ||
-        in[i+1] != in[i-3] ||
-        in[i+2] != in[i-2] ||
-        in[i+3] != in[i-1])
-    {
-      out.push_back(in[i]);
-      out.push_back(in[i+1]);
-      out.push_back(in[i+2]);
-      out.push_back(in[i+3]);
-    }
-  }
-
-  // Stragglers.
-  for (unsigned i = (l & 0xfffc); i < l; i++)
-    out.push_back(in[i]);
-}
-
-
-static void despaceList(
-  const vector<string>& in,
-  vector<string>& out)
-{
-  const unsigned l = in.size();
-  unsigned start;
-  for (unsigned i = 0; i+3 < l; i += 4)
-  {
-    if (in[i] != "South" || in[i+1] != "West" || 
-        in[i+2] != "North" || in[i+3] != "East")
-    {
-      out.push_back(in[i]);
-      out.push_back(in[i+1]);
-      out.push_back(in[i+2]);
-      out.push_back(in[i+3]);
-      start = i+4;
-      break;
-    }
-  }
-
-  if (out.size() == 0)
-    return;
-
-  unsigned ol = 4;
-  for (unsigned i = start; i+3 < l; i += 4)
-  {
-    if (in[i] != out[ol-4] ||
-        in[i+1] != out[ol-3] ||
-        in[i+2] != out[ol-2] ||
-        in[i+3] != out[ol-1])
-    {
-      if (in[i] == "" && in[i+1] == "" && in[i+2] == "" && in[i+3] == "")
-        continue;
-
-      if (in[i] == "South" && in[i+1] == "West" && 
-          in[i+2] == "North" && in[i+3] == "East")
-        continue;
-
-      for (unsigned j = 0; j < 4; j++)
-      {
-        if (in[i+j] == "")
-          out.push_back(out[ol+j-4]);
-        else
-          out.push_back(in[i+j]);
-      }
-      ol += 4;
-    }
-  }
-
-  // Stragglers.
-  for (unsigned i = (l & 0xfffc); i < l; i++)
-    out.push_back(in[i]);
 }
 
 
@@ -500,40 +656,62 @@ static bool isPlayersList(
 }
 
 
-static bool isCompactSequence(ValState& valState)
+static bool isContracts(
+  const string& valueRef,
+  const string& valueOut)
 {
-  string refSeq = valState.dataRef.value;
-  trimLeading(refSeq, '-');
-  refSeq = trimTrailing(refSeq, '-');
-  toUpper(refSeq);
-
-  if (! valState.bufferRef.next(valState.dataRef))
+  unsigned p, q;
+  const string refPruned = pruneCommas(valueRef, p, q);
+  if (refPruned == "")
     return false;
 
-  string refOut = valState.dataOut.value;
-  while (valState.bufferOut.next(valState.dataOut) &&
-      valState.dataOut.label == "mb")
-  {
-    refOut += valState.dataOut.value;
-  }
+  if (valueOut == refPruned)
+    return true;
 
-  if (valState.bufferOut.peek() == 0x00)
+  unsigned p1, q1;
+  const string outPruned = pruneCommas(valueOut, p1, q1);
+
+  if (outPruned == refPruned)
+    return true;
+
+  regex reu("\\bP\\b");
+  string refPass = regex_replace(refPruned, reu, string("PASS"));
+  regex rel("\\bp\\b");
+  refPass = regex_replace(refPass, rel, string("PASS"));
+  regex rep("\\bPass\\b");
+  refPass = regex_replace(refPass, rep, string("PASS"));
+
+  if (outPruned == refPass)
+    return true;
+
+  // Tolerate single stray comma in reference.
+  const unsigned lr = refPass.length();
+  if (outPruned.length()+1 == lr &&
+      refPass.at(lr-1) == ',' &&
+      outPruned == refPass.substr(0, lr-1))
+    return true;
+  else
     return false;
-
-  toUpper(refOut);
-  return (refSeq == refOut);
 }
 
 
-static bool isDifferentCase(
-  const string& value1,
-  const string& value2)
+static bool isBoard(
+  const string& valueRef,
+  const string& valueOut)
 {
-  string v1 = value1;
-  string v2 = value2;
-  toUpper(v1);
-  toUpper(v2);
-  return (v1 == v2);
+  if (valueRef == valueOut)
+    return true;
+
+  const unsigned lr = valueRef.length();
+  const unsigned lo = valueOut.length();
+
+  if (lo+8 > lr || valueRef.substr(0, lo) != valueOut)
+    return false;
+
+  if (valueRef.substr(lo, 7) != ",BOARD ")
+    return false;
+  else
+    return true;
 }
 
 
@@ -647,232 +825,103 @@ static bool isRotatedPlay(
 }
 
 
+bool validateLINTrailingNoise(ValState& valState)
+{
+  // Accept a dangling st.
+  if (valState.dataRef.label != "st")
+    return false;
+
+  if (! valState.bufferRef.next(valState.dataRef))
+    return true;
+
+  return false;
+}
+
+
+bool advanceRef(
+  ValState& valState,
+  ValProfile& prof,
+  const vector<FixTag>& tokens,
+  const ValError error)
+{
+  if (! valState.bufferRef.next(valState.dataRef))
+    return false;
+
+  FixTag tRef = str2tag(valState.dataRef.label);
+  for (auto &token: tokens)
+  {
+    if (tRef == token)
+    {
+      prof.log(error, valState);
+      return true;
+    }
+  }
+
+  return false;
+}
+
+
+bool advanceOut(
+  ValState& valState,
+  ValProfile& prof,
+  const vector<FixTag>& tokens,
+  const ValError error)
+{
+  if (! valState.bufferOut.next(valState.dataOut))
+    return false;
+
+  FixTag tOut = str2tag(valState.dataOut.label);
+  for (auto &token: tokens)
+  {
+    if (tOut == token)
+    {
+      prof.log(error, valState);
+      return true;
+    }
+  }
+
+  return false;
+}
+
+
 bool validateLIN(
   ValState& valState,
   ValProfile& prof)
 {
-  // TODO: Can write a function to streamline these calls.
-  // TODO: Error names not updated.
+  // Loop over combinations of different tags that we tolerate.
 
-  if (valState.dataRef.label == "an" &&
-      valState.dataRef.value == "!" &&
-      valState.dataOut.label == "mb")
+  while (true)
   {
-    // Probably the previous values were mb|bid!|, but ref has a 
-    // trailing an|!| which we must get rid of.
-    if (! valState.bufferRef.next(valState.dataRef))
+    if (isDifferentCase(valState.dataRef.label, valState.dataOut.label))
+    {
+      if (isDifferentCase(valState.dataRef.value, valState.dataOut.value))
+        return true;
+      else
+        break;
+    }
+
+    FixTag tRef = str2tag(valState.dataRef.label);
+    FixTag tOut = str2tag(valState.dataOut.label);
+    if (tRef == VAL_LIN_FIX_SIZE || tOut == VAL_LIN_FIX_SIZE)
+      break;
+
+    const FixInfo& fixInfo = fixTable[tRef][tOut];
+    if (fixInfo.advancer == VAL_LIN_NONE)
       return false;
 
-    if (valState.dataRef.label != "mb")
+    if (fixInfo.valFlag && fixInfo.val != valState.dataRef.value)
       return false;
 
-    prof.log(BRIDGE_VAL_LIN_EXCLAIM, valState);
-  }
-  if (valState.dataRef.label == "pf" &&
-      valState.dataOut.label == "vg")
-  {
-    if (! valState.bufferRef.next(valState.dataRef))
-      return false;
-
-    if (valState.dataRef.label != "vg")
-      return false;
-
-    prof.log(BRIDGE_VAL_BOARDS_HEADER, valState);
-  }
-  if (valState.dataRef.label == "pn" &&
-      valState.dataOut.label == "st")
-  {
-    // Could be pn|...| embedded in qx|o1|, which we choose to
-    // disregard, as it is hopefully consistent with the pn header.
-    if (! valState.bufferRef.next(valState.dataRef))
-      return false;
-
-    if (valState.dataRef.label != "st" &&
-        valState.dataRef.label != "md")
-      return false;
-
-    prof.log(BRIDGE_VAL_LIN_PN_EMBEDDED, valState);
-  }
-  if (valState.dataRef.label == "pn" &&
-      valState.dataOut.label == "mb")
-  {
-    if (! valState.bufferRef.next(valState.dataRef))
-      return false;
-
-    if (valState.dataRef.label != "mb")
-      return false;
-
-    prof.log(BRIDGE_VAL_LIN_PN_EMBEDDED, valState);
-  }
-  if (valState.dataRef.label == "pn" &&
-      valState.dataOut.label == "md")
-  {
-    if (! valState.bufferRef.next(valState.dataRef))
-      return false;
-
-    if (valState.dataRef.label != "md")
-      return false;
-
-    prof.log(BRIDGE_VAL_LIN_PN_EMBEDDED, valState);
-  }
-  if (valState.dataRef.label == "bn" &&
-      valState.dataOut.label == "qx")
-  {
-    if (! valState.bufferRef.next(valState.dataRef))
-      return false;
-
-    if (valState.dataRef.label != "qx" &&
-        valState.dataRef.label != "mp")
-      return false;
-
-    prof.log(BRIDGE_VAL_BOARDS_HEADER, valState);
-  }
-  if (valState.dataRef.label == "mp" &&
-      valState.dataOut.label == "qx")
-  {
-    if (! valState.bufferRef.next(valState.dataRef))
-      return false;
-
-    if (valState.dataRef.label != "qx" &&
-        valState.dataRef.label != "bn" &&
-        valState.dataRef.label != "pn")
-      return false;
-
-    prof.log(BRIDGE_VAL_SCORES_HEADER, valState);
-  }
-  if (valState.dataRef.label == "bn" &&
-      valState.dataOut.label == "qx")
-  {
-    // Duplicated on purpose.
-    if (! valState.bufferRef.next(valState.dataRef))
-      return false;
-
-    if (valState.dataRef.label != "qx" &&
-        valState.dataRef.label != "mp" &&
-        valState.dataRef.label != "pn")
-      return false;
-
-    prof.log(BRIDGE_VAL_BOARDS_HEADER, valState);
-  }
-  if (valState.dataRef.label == "mc" &&
-      valState.dataOut.label == "pn")
-  {
-    if (! valState.bufferOut.next(valState.dataOut))
-      return false;
-
-    if (valState.dataOut.label != "qx")
-      return false;
-
-    prof.log(BRIDGE_VAL_LIN_PN_EMBEDDED, valState);
-  }
-  if (valState.dataRef.label == "mc" &&
-      valState.dataOut.label == "qx")
-  {
-    // Assume the global pw takes care of this.
-
-    if (! valState.bufferRef.next(valState.dataRef))
-      return false;
-
-    if (valState.dataRef.label != "qx" &&
-        valState.dataRef.label != "pn")
-      return false;
-
-    prof.log(BRIDGE_VAL_LIN_PN_EMBEDDED, valState);
-  }
-  if (valState.dataRef.label == "pn" &&
-      valState.dataOut.label == "qx")
-  {
-    // Assume the global pw takes care of this.
-
-    if (! valState.bufferRef.next(valState.dataRef))
-      return false;
-
-    if (valState.dataRef.label != "qx" &&
-        valState.dataRef.label != "mp")
-      return false;
-
-    prof.log(BRIDGE_VAL_LIN_PN_EMBEDDED, valState);
-  }
-  if (valState.dataRef.label == "rh" &&
-      valState.dataOut.label == "st")
-  {
-    if (! valState.bufferRef.next(valState.dataRef))
-      return false;
-
-    if (valState.dataRef.label != "ah" &&
-        valState.dataRef.label != "st")
-      return false;
-
-    prof.log(BRIDGE_VAL_LIN_PN_EMBEDDED, valState);
-  }
-  if (valState.dataRef.label == "ah" &&
-      valState.dataOut.label == "st")
-  {
-    if (! valState.bufferRef.next(valState.dataRef))
-      return false;
-
-    if (valState.dataRef.label != "st" &&
-        valState.dataRef.label != "md")
-      return false;
-
-    prof.log(BRIDGE_VAL_LIN_PN_EMBEDDED, valState);
-  }
-  if (valState.dataRef.label == "st" &&
-      valState.dataOut.label == "mb")
-  {
-    if (! valState.bufferRef.next(valState.dataRef))
-      return false;
-
-    if (valState.dataRef.label != "mb")
-      return false;
-
-    prof.log(BRIDGE_VAL_LIN_PN_EMBEDDED, valState);
-  }
-  if (valState.dataRef.label == "md" &&
-      valState.dataOut.label == "st")
-  {
-    // Could be missing st before md in ref.
-    if (! valState.bufferOut.next(valState.dataOut))
-      return false;
-
-    if (valState.dataOut.label != "md")
-      return false;
-
-    prof.log(BRIDGE_VAL_LIN_ST_MISSING, valState);
-  }
-  if (valState.dataRef.label == "mb" &&
-      valState.dataOut.label == "sv")
-  {
-    if (! valState.bufferOut.next(valState.dataOut))
-      return false;
-
-    if (valState.dataOut.label != "mb")
-      return false;
-
-    prof.log(BRIDGE_VAL_LIN_SV_MISSING, valState);
-  }
-  if (valState.dataRef.label == "qx" &&
-      valState.dataOut.label == "sv")
-  {
-    if (! valState.bufferOut.next(valState.dataOut))
-      return false;
-
-    if (valState.dataOut.label != "qx")
-      return false;
-
-    prof.log(BRIDGE_VAL_LIN_SV_MISSING, valState);
-  }
-  if (valState.dataRef.label == "mp" &&
-      valState.dataOut.label == "qx")
-  {
-    // Duplicated on purpose.  For now.
-    if (! valState.bufferRef.next(valState.dataRef))
-      return false;
-
-    if (valState.dataRef.label != "qx")
-      return false;
-
-    prof.log(BRIDGE_VAL_SCORES_HEADER, valState);
+    if (fixInfo.advancer == VAL_LIN_REF)
+    {
+      if (! advanceRef(valState, prof, fixInfo.list, fixInfo.error))
+        return false;
+    }
+    else
+    {
+      if (! advanceOut(valState, prof, fixInfo.list, fixInfo.error))
+        return false;
+    }
   }
 
   if (valState.dataRef.label == "pw" &&
@@ -880,15 +929,14 @@ bool validateLIN(
   {
     // Different syntax in a few old VG files.
     if (valState.dataRef.len < valState.dataOut.len &&
-        valState.dataOut.value.substr(0, valState.dataRef.value.length()) ==
-        valState.dataRef.value)
+        valState.dataOut.value.substr(0, valState.dataRef.value.length()) 
+          == valState.dataRef.value)
     {
-      prof.log(BRIDGE_VAL_LIN_PN_EMBEDDED, valState);
+      prof.log(BRIDGE_VAL_LIN_PN_EXTRA, valState);
       return true;
     }
   }
 
-  // if (valState.dataRef.label == valState.dataOut.label)
   if (isDifferentCase(valState.dataRef.label, valState.dataOut.label))
   {
     if (valState.dataRef.label == "vg")
@@ -1040,7 +1088,7 @@ bool validateLIN(
               valState.dataRef.value != valState.dataOut.value)
             return false;
 
-          prof.log(BRIDGE_VAL_LIN_EXCLAIM, valState);
+          prof.log(BRIDGE_VAL_LIN_AN_ERROR, valState);
           return true;
         }
         else if (lr+1 == lo &&
@@ -1059,7 +1107,7 @@ bool validateLIN(
               valState.dataRef.value != "!")
             return false;
 
-          prof.log(BRIDGE_VAL_LIN_EXCLAIM, valState);
+          prof.log(BRIDGE_VAL_LIN_AN_ERROR, valState);
           return true;
         }
         else if (lr > 8)
@@ -1067,7 +1115,7 @@ bool validateLIN(
           // Might be a single-entry bidding sequence.
           if (isCompactSequence(valState))
           {
-            prof.log(BRIDGE_VAL_LIN_EXCLAIM, valState);
+            prof.log(BRIDGE_VAL_LIN_AN_ERROR, valState);
             if (valState.dataRef.label == valState.dataOut.label &&
                 valState.dataRef.value == valState.dataOut.value)
               return true;
@@ -1096,6 +1144,7 @@ bool validateLIN(
         valState.dataRef.label == "rh" &&
         valState.dataRef.value == "")
     {
+assert(false);
       if (! valState.bufferRef.next(valState.dataRef))
         return false;
       if (valState.dataRef.label != "ah")
@@ -1107,7 +1156,6 @@ bool validateLIN(
       if (valState.dataRef.value != valState.dataOut.value)
         return false;
 
-      prof.log(BRIDGE_VAL_LIN_RH_AH, valState);
       return true;
     }
 
@@ -1119,18 +1167,5 @@ bool validateLIN(
     return isDifferentCase(valState.dataRef.value,
       valState.dataOut.value);
     // Could maybe consider equality an error here, but only w.r.t. case
-}
-
-
-bool validateLINTrailingNoise(ValState& valState)
-{
-  // Accept a dangling st.
-  if (valState.dataRef.label != "st")
-    return false;
-
-  if (! valState.bufferRef.next(valState.dataRef))
-    return true;
-
-  return false;
 }
 

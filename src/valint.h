@@ -34,17 +34,25 @@ const string ValErrorName[] =
   "Auction",
   "Play",
   "Score",
+  "Double-dummy",
   "Names-short",
   "TXT-dashes",
   "VG-cards",
   "VG-chat",
 
   "All-pass",
-  "Lin-players2",
-  "Lin-rh-ah",
-  "Lin-!",
-  "Lin-no-st",
-  "Lin-no-sv",
+  "Lin-ah+",
+  "Lin-an",
+  "Lin-an+",
+  "Lin-mc+",
+  "Lin-pn+",
+  "Lin-pn-",
+  "Lin-pn rot",
+  "Lin-rh+",
+  "Lin-st+",
+  "Lin-st-",
+  "Lin-sv-",
+
   "Play-newline",
   "Play-short",
   "Made-32",
@@ -75,17 +83,25 @@ const string ValErrorNameShort[] =
   "Auct",
   "Play",
   "Scor",
+  "DD",
   "Nsht",
   "Dash",
   "Hlen",
   "Chat",
 
   "Apass",
-  "Psrep",
-  "ah-rh",
-  "Alert",
-  "No-st",
-  "No-sv",
+  "ah+",
+  "an",
+  "an+",
+  "mc+",
+  "pn+",
+  "pn-",
+  "pnr",
+  "rh+",
+  "st+",
+  "st-",
+  "sv-",
+
   "Pline",
   "Psht",
   "R32",
@@ -120,3 +136,6 @@ struct LineData
 };
 
 #endif
+
+
+

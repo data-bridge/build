@@ -14,6 +14,8 @@
 using namespace std;
 
 
+void setValidateLINTables();
+
 bool validateLIN(
   ValState& valState,
   ValProfile& prof);

@@ -69,6 +69,8 @@ void setValidateTables()
   valPtr[BRIDGE_FORMAT_TXT] = &validateTXT;
   valPtr[BRIDGE_FORMAT_EML] = &validateEML;
   valPtr[BRIDGE_FORMAT_REC] = &validateREC;
+
+  setValidateLINTables();
 }
 
 

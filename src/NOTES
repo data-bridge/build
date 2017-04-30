@@ -7,13 +7,9 @@ Sheet
 C++ code
 * rewrite validateLIN with a function and a loop
 * Make a ROTATE tag in validateLIN
-* rewrite Segment TODO with functions
 * do something about dispatch.cpp; make chunk a struct with methods?
-* Print example of each validate "error"
-* Still segfault at end?
+* Go through once for cleanup (TODO)
 * Allow concatenated files, e.g. RBN but also LIN
-* TODOs
-* Go through once for cleanup
 
 Data
 - Include BBOVG and BBOSH up to today
