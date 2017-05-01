@@ -860,20 +860,15 @@ static bool isRotatedPlay(
   else if (valState.dataRef.label == "mc" &&
       valState.dataOut.label == "qx")
   {
-    // Shouldn't have to do this here -- should be a more global
-    // loop in validateLIN().
+    // Would be nice if this went back into the global loop.
     if (! valState.bufferRef.next(valState.dataRef))
       return false;
 
-    if (valState.dataRef.label != "qx")
-      return false;
-
-    // TODO: Should be logged as a non-consequential difference.
-    // prof.log(SOMETHING, valState);
-
-    if (valState.dataRef.label == valState.dataOut.label &&
-        valState.dataRef.value == valState.dataOut.value)
-      return true;
+    if (valState.dataRef.label == "qx")
+    {
+      prof.log(BRIDGE_VAL_LIN_MC_EXTRA, valState);
+      return (valState.dataRef.value == valState.dataOut.value);
+    }
     else
       return false;
   }

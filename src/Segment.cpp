@@ -403,9 +403,17 @@ void Segment::setResultsList(
   tokens.clear();
   tokenize(text, tokens, ",");
 
-  // There may or may not be a trailing comma
   if (c % 2 == 0)
-    c--;
+  {
+    if (tokens[c] == "")
+      c--;
+    else
+    {
+      // Some old lin files lack a single trailing comma.
+      c++;
+      tokens.push_back("");
+    }
+  }
 
   if (c+1 > 2*LINcount)
   {

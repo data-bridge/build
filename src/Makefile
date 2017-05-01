@@ -7,6 +7,7 @@ SOURCE_FILES 	=		\
         Board.cpp               \
 	Buffer.cpp		\
 	Canvas.cpp		\
+	Chunk.cpp		\
 	CompStats.cpp		\
 	Contract.cpp		\
 	Date.cpp		\
