@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "Buffer.h"
+#include "Chunk.h"
 
 using namespace std;
 
@@ -24,7 +25,7 @@ void setEMLTables();
 void readEMLChunk(
   Buffer& buffer,
   vector<unsigned>& lno,
-  vector<string>& chunk,
+  Chunk& chunk,
   bool& newSegFlag);
 
 bool writeEML(

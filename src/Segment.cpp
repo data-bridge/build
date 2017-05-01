@@ -723,7 +723,12 @@ void Segment::setScoresList(
     for (size_t b = 0, d = 0; b < c; b += 2, d++)
     {
       if (tokens[b] == "")
-        LINdata[d].mp[0] = "-" + tokens[b+1];
+      {
+        if (tokens[b+1] == "")
+          LINdata[d].mp[0] = "";
+        else
+          LINdata[d].mp[0] = "-" + tokens[b+1];
+      }
       else
         LINdata[d].mp[0] = tokens[b];
     }

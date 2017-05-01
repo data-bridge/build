@@ -22,7 +22,7 @@ using namespace std;
 
 
 static bool tryRECMethod(
-  const vector<string>& chunk,
+  const Chunk& chunk,
   Segment * segment,
   Board * board,
   const unsigned label,
@@ -42,20 +42,20 @@ static void getRECFields(
   const vector<string>& canvas,
   const unsigned playLine,
   const bool playExists,
-  vector<string>& chunk);
+  Chunk& chunk);
 
 static void getRECDeal(
   const vector<string>& canvas,
-  vector<string>& chunk);
+  Chunk& chunk);
 
 static void getRECAuction(
   const vector<string>& canvas,
-  vector<string>& chunk);
+  Chunk& chunk);
 
 static void getRECPlay(
   const vector<string>& canvas,
   const unsigned& offset,
-  vector<string>& chunk);
+  Chunk& chunk);
 
 
 static void readRECCanvas(
@@ -112,7 +112,7 @@ static void getRECFields(
   const vector<string>& canvas,
   const unsigned playLine,
   const bool playExists,
-  vector<string>& chunk)
+  Chunk& chunk)
 {
   if (canvas[0].size() < 30 || 
       canvas[1].size() < 30 ||
@@ -122,38 +122,47 @@ static void getRECFields(
     THROW("Some deal lines are too short");
   }
 
-  if (! readNextWord(canvas[0], 0, chunk[BRIDGE_FORMAT_SCORING])) 
-    THROW("Couldn't read format: '" + chunk[BRIDGE_FORMAT_SCORING] + "'");
+  string st;
+  if (! readNextWord(canvas[0], 0, st)) 
+    THROW("Couldn't read format: '" + st + "'");
+  chunk.set(BRIDGE_FORMAT_SCORING, st);
 
-  if (! readNextWord(canvas[0], 29, chunk[BRIDGE_FORMAT_DEALER])) 
-    THROW("Couldn't read dealer: '" + chunk[BRIDGE_FORMAT_DEALER] + "'");
+  if (! readNextWord(canvas[0], 29, st)) 
+    THROW("Couldn't read dealer: '" + st + "'");
+  chunk.set(BRIDGE_FORMAT_DEALER, st);
 
-  if (! readNextWord(canvas[1], 6, chunk[BRIDGE_FORMAT_BOARD_NO])) 
-    THROW("Couldn't read board: '" + chunk[BRIDGE_FORMAT_BOARD_NO] + "'");
+  if (! readNextWord(canvas[1], 6, st)) 
+    THROW("Couldn't read board: '" + st + "'");
+  chunk.set(BRIDGE_FORMAT_BOARD_NO, st);
 
-  if (! readNextWord(canvas[1], 29, chunk[BRIDGE_FORMAT_VULNERABLE])) 
-    THROW("Couldn't read vul: '" + chunk[BRIDGE_FORMAT_VULNERABLE] + "'");
+  if (! readNextWord(canvas[1], 29, st)) 
+    THROW("Couldn't read vul: '" + st + "'");
+  chunk.set(BRIDGE_FORMAT_VULNERABLE, st);
 
-  if (! readAllWords(canvas[3], 0, 11, chunk[BRIDGE_FORMAT_WEST])) 
-    THROW("Couldn't read West: '" + chunk[BRIDGE_FORMAT_WEST] + "'");
+  if (! readAllWords(canvas[3], 0, 11, st)) 
+    THROW("Couldn't read West: '" + st + "'");
   // Let's hope West doesn't sit West :-)
-  if (chunk[BRIDGE_FORMAT_WEST] == "West")
-    chunk[BRIDGE_FORMAT_WEST] = "";
+  if (st == "West")
+    st = "";
+  chunk.set(BRIDGE_FORMAT_WEST, st);
 
-  if (! readAllWords(canvas[0], 12, 23, chunk[BRIDGE_FORMAT_NORTH])) 
-    THROW("Couldn't read North: '" + chunk[BRIDGE_FORMAT_NORTH] + "'");
-  if (chunk[BRIDGE_FORMAT_NORTH] == "North")
-    chunk[BRIDGE_FORMAT_NORTH] = "";
+  if (! readAllWords(canvas[0], 12, 23, st)) 
+    THROW("Couldn't read North: '" + st + "'");
+  if (st == "North")
+    st = "";
+  chunk.set(BRIDGE_FORMAT_NORTH, st);
 
-  if (! readAllWords(canvas[3], 24, 35, chunk[BRIDGE_FORMAT_EAST])) 
-    THROW("Couldn't read East: '" + chunk[BRIDGE_FORMAT_EAST] + "'");
-  if (chunk[BRIDGE_FORMAT_EAST] == "East")
-    chunk[BRIDGE_FORMAT_EAST] = "";
+  if (! readAllWords(canvas[3], 24, 35, st)) 
+    THROW("Couldn't read East: '" + st + "'");
+  if (st == "East")
+    st = "";
+  chunk.set(BRIDGE_FORMAT_EAST, st);
 
-  if (! readAllWords(canvas[6], 12, 23, chunk[BRIDGE_FORMAT_SOUTH])) 
-    THROW("Couldn't read South: '" + chunk[BRIDGE_FORMAT_SOUTH] + "'");
-  if (chunk[BRIDGE_FORMAT_SOUTH] == "South")
-    chunk[BRIDGE_FORMAT_SOUTH] = "";
+  if (! readAllWords(canvas[6], 12, 23, st)) 
+    THROW("Couldn't read South: '" + st + "'");
+  if (st == "South")
+    st = "";
+  chunk.set(BRIDGE_FORMAT_SOUTH, st);
 
   getRECDeal(canvas, chunk);
   getRECAuction(canvas, chunk);
@@ -165,23 +174,22 @@ static void getRECFields(
     if (canvas[playLine-2].size() < 30)
       THROW("The score line is too short");
 
-    chunk[BRIDGE_FORMAT_RESULT] = canvas[playLine-2].substr(28);
+    chunk.set(BRIDGE_FORMAT_RESULT, canvas[playLine-2].substr(28));
   }
   else
   {
-    chunk[BRIDGE_FORMAT_RESULT] = canvas[canvas.size()-2].substr(28);
+    chunk.set(BRIDGE_FORMAT_RESULT, canvas[canvas.size()-2].substr(28));
 
     // Pavlicek bug.
-    if (chunk[BRIDGE_FORMAT_RESULT] == "Won 32")
-      chunk[BRIDGE_FORMAT_RESULT] = "";
+    if (chunk.get(BRIDGE_FORMAT_RESULT) == "Won 32")
+      chunk.set(BRIDGE_FORMAT_RESULT, "");
   }
-
 }
 
 
 static void getRECDeal(
   const vector<string>& canvas,
-  vector<string>& chunk)
+  Chunk& chunk)
 {
   string sts, sth, std, stc;
 
@@ -213,17 +221,17 @@ static void getRECDeal(
   d << sts << "." << sth <<  "." << std << "." << stc;
 
   // Void is shown as empty in REC.
-  chunk[BRIDGE_FORMAT_DEAL] = d.str();
+  chunk.set(BRIDGE_FORMAT_DEAL, d.str());
 }
 
 
 static void getRECAuction(
   const vector<string>& canvas,
-  vector<string>& chunk)
+  Chunk& chunk)
 {
   if (canvas[13].length() > 7 && canvas[13].substr(0, 7) == "Opening")
   {
-    chunk[BRIDGE_FORMAT_AUCTION] = "";
+    chunk.set(BRIDGE_FORMAT_AUCTION, "");
     return;
   }
   
@@ -303,14 +311,14 @@ static void getRECAuction(
   if (l == canvas.size())
     THROW("Ran out of canvas");
 
-  chunk[BRIDGE_FORMAT_AUCTION] = d.str();
+  chunk.set(BRIDGE_FORMAT_AUCTION, d.str());
 }
 
 
 static void getRECPlay(
   const vector<string>& canvas,
   const unsigned& offset,
-  vector<string>& chunk)
+  Chunk& chunk)
 {
   stringstream d;
   d.clear();
@@ -338,14 +346,14 @@ static void getRECPlay(
   }
 
   regex re(" ");
-  chunk[BRIDGE_FORMAT_PLAY] = regex_replace(d.str(), re, string(""));
+  chunk.set(BRIDGE_FORMAT_PLAY, regex_replace(d.str(), re, string("")));
 }
 
 
 void readRECChunk(
   Buffer& buffer,
   vector<unsigned>& lno,
-  vector<string>& chunk,
+  Chunk& chunk,
   bool& newSegFlag)
 {
   // First get all the lines of a hand.

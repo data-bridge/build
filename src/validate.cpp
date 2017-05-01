@@ -111,14 +111,6 @@ static bool isOfRPOrigin(const string& fileRef)
 }
 
 
-static bool chunkIsEmpty(const vector<string>& chunk)
-{
-  return (chunk[BRIDGE_FORMAT_BOARD_NO] == "" &&
-      chunk[BRIDGE_FORMAT_RESULT] == "" &&
-      chunk[BRIDGE_FORMAT_AUCTION] == "");
-}
-
-
 static bool validateCore(
   ValState& valState,
   const Format formatOrig,
@@ -172,46 +164,6 @@ static bool validateCore(
 }
 
 
-const vector<Label> PBNFields =
-{
-  BRIDGE_FORMAT_TITLE,
-  BRIDGE_FORMAT_EVENT,
-  BRIDGE_FORMAT_DATE,
-  BRIDGE_FORMAT_LOCATION,
-  BRIDGE_FORMAT_EVENT,
-  BRIDGE_FORMAT_SESSION,
-  BRIDGE_FORMAT_SCORING,
-  BRIDGE_FORMAT_HOMETEAM,
-  BRIDGE_FORMAT_VISITTEAM,
-  BRIDGE_FORMAT_WEST,
-  BRIDGE_FORMAT_NORTH,
-  BRIDGE_FORMAT_EAST,
-  BRIDGE_FORMAT_SOUTH,
-  BRIDGE_FORMAT_BOARD_NO,
-  BRIDGE_FORMAT_ROOM
-};
-
-static void copyChunkHeader(
-  const vector<string>& chunk,
-  vector<string>& prev)
-{
-  for (auto &lb: PBNFields)
-    prev[lb] = chunk[lb];
-}
-
-
-static void restoreChunkHeader(
-  vector<string>& chunk,
-  vector<string>& prev)
-{
-  for (auto &lb: PBNFields)
-  {
-    if (chunk[lb] == "")
-      chunk[lb] = prev[lb];
-  }
-}
-
-
 static bool validateCorePBN(
   ValState& valState,
   const Format formatOrig,
@@ -220,46 +172,28 @@ static bool validateCorePBN(
   ValStats& vstats)
 {
   ValProfile prof;
-
-  vector<string> chunkRef(BRIDGE_FORMAT_LABELS_SIZE),
-    chunkOut(BRIDGE_FORMAT_LABELS_SIZE);
-  vector<string> prevRef(BRIDGE_FORMAT_LABELS_SIZE),
-    prevOut(BRIDGE_FORMAT_LABELS_SIZE);
+  Chunk chunkRef, chunkOut, prevRef, prevOut;
   vector<unsigned> lnoRef(BRIDGE_FORMAT_LABELS_SIZE), 
     lnoOut(BRIDGE_FORMAT_LABELS_SIZE);
   bool newSegRef = false, newSegOut = false;
   bool doneRef, doneOut;
 
-  for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
-  {
-    chunkRef[i].reserve(128);
-    chunkOut[i].reserve(128);
-    chunkRef[i] = "";
-    chunkOut[i] = "";
-
-    prevRef[i].reserve(128);
-    prevOut[i].reserve(128);
-  }
-
   while (true)
   {
-    copyChunkHeader(chunkRef, prevRef);
-    copyChunkHeader(chunkOut, prevOut);
+    prevRef.copyFrom(chunkRef, CHUNK_PBN);
+    prevOut.copyFrom(chunkOut, CHUNK_PBN);
 
-    for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
-    {
-      chunkRef[i] = "";
-      chunkOut[i] = "";
-    }
+    chunkRef.reset();
+    chunkOut.reset();
 
     readPBNChunk(valState.bufferRef, lnoRef, chunkRef, newSegRef);
     readPBNChunk(valState.bufferOut, lnoOut, chunkOut, newSegOut);
 
-    doneRef = chunkIsEmpty(chunkRef);
-    doneOut = chunkIsEmpty(chunkOut);
+    doneRef = chunkRef.seemsEmpty();
+    doneOut = chunkOut.seemsEmpty();
 
-    restoreChunkHeader(chunkRef, prevRef);
-    restoreChunkHeader(chunkOut, prevOut);
+    chunkRef.copyFrom(prevRef, CHUNK_PBN_SOFTLY);
+    chunkOut.copyFrom(prevOut, CHUNK_PBN_SOFTLY);
 
     if (! doneRef && !doneOut)
     {

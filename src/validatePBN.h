@@ -10,6 +10,7 @@
 #define BRIDGE_VALPBN_H
 
 #include "ValProfile.h"
+#include "Chunk.h"
 
 using namespace std;
 
@@ -19,8 +20,8 @@ bool validatePBN(
   ValProfile& prof);
 
 bool validatePBNChunk(
-  const vector<string>& chunkRef,
-  const vector<string>& chunkOut,
+  const Chunk& chunkRef,
+  const Chunk& chunkOut,
   ValState& valState,
   ValProfile& prof);
 

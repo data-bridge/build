@@ -49,6 +49,25 @@ static const Vul BOARD_TO_VUL[16] =
   BRIDGE_VUL_NORTH_SOUTH
 };
 
+const vector<Label> PBNFields =
+{
+  BRIDGE_FORMAT_TITLE,
+  BRIDGE_FORMAT_EVENT,
+  BRIDGE_FORMAT_DATE,
+  BRIDGE_FORMAT_LOCATION,
+  BRIDGE_FORMAT_EVENT,
+  BRIDGE_FORMAT_SESSION,
+  BRIDGE_FORMAT_SCORING,
+  BRIDGE_FORMAT_HOMETEAM,
+  BRIDGE_FORMAT_VISITTEAM,
+  BRIDGE_FORMAT_WEST,
+  BRIDGE_FORMAT_NORTH,
+  BRIDGE_FORMAT_EAST,
+  BRIDGE_FORMAT_SOUTH,
+  BRIDGE_FORMAT_BOARD_NO,
+  BRIDGE_FORMAT_ROOM
+};
+
 
 Chunk::Chunk()
 {
@@ -100,11 +119,27 @@ bool Chunk::isEmpty(const Label label) const
 }
 
 
+bool Chunk::seemsEmpty() const
+{
+  return (chunk[BRIDGE_FORMAT_BOARD_NO] == "" &&
+      chunk[BRIDGE_FORMAT_RESULT] == "" &&
+      chunk[BRIDGE_FORMAT_AUCTION] == "");
+}
+
+
 void Chunk::set(
   const Label label,
   const string& value)
 {
   chunk[label] = value;
+}
+
+
+void Chunk::append(
+  const Label label,
+  const string& value)
+{
+  chunk[label] += value;
 }
 
 
@@ -225,6 +260,21 @@ void Chunk::copyFrom(
     chunk[BRIDGE_FORMAT_VULNERABLE] = chunk2.chunk[BRIDGE_FORMAT_VULNERABLE];
     chunk[BRIDGE_FORMAT_DEALER] = chunk2.chunk[BRIDGE_FORMAT_DEALER];
     chunk[BRIDGE_FORMAT_DEAL] = chunk2.chunk[BRIDGE_FORMAT_DEAL];
+    return;
+  }
+  else if (range == CHUNK_PBN)
+  {
+    for (auto &i: PBNFields)
+      chunk[i] = chunk2.chunk[i];
+    return;
+  }
+  else if (range == CHUNK_PBN_SOFTLY)
+  {
+    for (auto &i: PBNFields)
+    {
+      if (chunk[i] == "")
+        chunk[i] = chunk2.chunk[i];
+    }
     return;
   }
   else

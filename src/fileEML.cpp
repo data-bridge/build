@@ -44,12 +44,12 @@ static void getEMLCanvasOffset(
 static void getEMLSimpleFields(
   const vector<string>& canvas,
   const unsigned resultLine,
-  vector<string>& chunk);
+  Chunk& chunk);
 
 static void getEMLAuction(
   const vector<string>& canvas,
   const unsigned resultLine,
-  vector<string>& chunk);
+  Chunk& chunk);
 
 static void getEMLPlay(
   const vector<string>& canvas,
@@ -57,7 +57,7 @@ static void getEMLPlay(
   const unsigned resultLine,
   const unsigned westLine,
   const unsigned cardStart,
-  vector<string>& chunk);
+  Chunk& chunk);
 
 
 void setEMLTables()
@@ -154,45 +154,66 @@ static void getEMLCanvasOffset(
 static void getEMLSimpleFields(
   const vector<string>& canvas,
   const unsigned resultLine,
-  vector<string>& chunk)
+  Chunk& chunk)
 {
-  if (! readNextWord(canvas[0], 0, chunk[BRIDGE_FORMAT_SCORING]))
+  string st;
+  if (! readNextWord(canvas[0], 0, st))
     THROW("Cannot find scoring");
+  chunk.set(BRIDGE_FORMAT_SCORING, st);
 
-  if (! readAllWords(canvas[1], 16, 23, chunk[BRIDGE_FORMAT_NORTH]))
-    chunk[BRIDGE_FORMAT_NORTH] = "";
-  if (! readAllWords(canvas[7], 4, 11, chunk[BRIDGE_FORMAT_WEST]))
-    chunk[BRIDGE_FORMAT_WEST] = "";
-  if (! readAllWords(canvas[7], 27, 34, chunk[BRIDGE_FORMAT_EAST]))
-    chunk[BRIDGE_FORMAT_EAST] = "";
-  if (! readAllWords(canvas[13], 16, 23, chunk[BRIDGE_FORMAT_SOUTH]))
-    chunk[BRIDGE_FORMAT_SOUTH] = "";
+  if (! readAllWords(canvas[1], 16, 23, st))
+    chunk.set(BRIDGE_FORMAT_NORTH, "");
+  else
+    chunk.set(BRIDGE_FORMAT_NORTH, st);
+    
+  if (! readAllWords(canvas[7], 4, 11, st))
+    chunk.set(BRIDGE_FORMAT_WEST, "");
+  else
+    chunk.set(BRIDGE_FORMAT_WEST, st);
 
-  if (! readNextWord(canvas[0], 54, chunk[BRIDGE_FORMAT_BOARD_NO]))
+  if (! readAllWords(canvas[7], 27, 34, st))
+    chunk.set(BRIDGE_FORMAT_EAST, "");
+  else
+    chunk.set(BRIDGE_FORMAT_EAST, st);
+
+  if (! readAllWords(canvas[13], 16, 23, st))
+    chunk.set(BRIDGE_FORMAT_SOUTH, "");
+  else
+    chunk.set(BRIDGE_FORMAT_SOUTH, st);
+
+  if (! readNextWord(canvas[0], 54, st))
     THROW("Cannot find board number");
-  if (! readNextWord(canvas[1], 5, chunk[BRIDGE_FORMAT_DEALER]))
+  chunk.set(BRIDGE_FORMAT_BOARD_NO, st);
+
+  if (! readNextWord(canvas[1], 5, st))
     THROW("Cannot find dealer");
-  if (! readNextWord(canvas[2], 5, chunk[BRIDGE_FORMAT_VULNERABLE]))
+  chunk.set(BRIDGE_FORMAT_DEALER, st);
+
+  if (! readNextWord(canvas[2], 5, st))
     THROW("Cannot find vulnerability");
+  chunk.set(BRIDGE_FORMAT_VULNERABLE, st);
 
-  if (! readNextWord(canvas[resultLine], 50, chunk[BRIDGE_FORMAT_RESULT]))
+  if (! readNextWord(canvas[resultLine], 50, st))
     THROW("Cannot find result");
+  chunk.set(BRIDGE_FORMAT_RESULT, st);
 
-  if (! readNextWord(canvas[resultLine+1], 49, chunk[BRIDGE_FORMAT_SCORE]))
+  if (! readNextWord(canvas[resultLine+1], 49, st))
     THROW("Cannot find score");
-  chunk[BRIDGE_FORMAT_SCORE].pop_back(); // Drop trailing comma
+  st.pop_back(); // Drop trailing comma
+  chunk.set(BRIDGE_FORMAT_SCORE, st);
 
   if (canvas[resultLine+1].back() != ':')
   {
-    if (! readLastWord(canvas[resultLine+1], chunk[BRIDGE_FORMAT_SCORE_IMP]))
+    if (! readLastWord(canvas[resultLine+1], st))
       THROW("Cannot find IMP result");
+    chunk.set(BRIDGE_FORMAT_SCORE_IMP, st);
   }
 }
 
 
 static void getEMLDeal(
   const vector<string>& canvas,
-  vector<string>& chunk)
+  Chunk& chunk)
 {
   string sts, sth, std, stc;
 
@@ -223,14 +244,14 @@ static void getEMLDeal(
   if (! readNextWord(canvas[17], 18, stc)) stc = "";
   d << sts << "." << sth <<  "." << std << "." << stc;
 
-  chunk[BRIDGE_FORMAT_DEAL] = d.str();
+  chunk.set(BRIDGE_FORMAT_DEAL, d.str());
 }
 
 
 static void getEMLAuction(
   const vector<string>& canvas,
   const unsigned resultLine,
-  vector<string>& chunk)
+  Chunk& chunk)
 {
   stringstream d;
   d.clear();
@@ -281,7 +302,7 @@ static void getEMLAuction(
     }
   }
 
-  chunk[BRIDGE_FORMAT_AUCTION] = d.str();
+  chunk.set(BRIDGE_FORMAT_AUCTION, d.str());
 }
 
 
@@ -291,7 +312,7 @@ static void getEMLPlay(
   const unsigned resultLine,
   const unsigned westLine,
   const unsigned cardStart,
-  vector<string>& chunk)
+  Chunk& chunk)
 {
   stringstream d;
   d.clear();
@@ -309,7 +330,7 @@ static void getEMLPlay(
 
   if (! playIsPresent)
   {
-    chunk[BRIDGE_FORMAT_PLAY] = opld;
+    chunk.set(BRIDGE_FORMAT_PLAY, opld);
     return;
   }
 
@@ -378,14 +399,14 @@ static void getEMLPlay(
     pos0 += 3;
   }
       
-  chunk[BRIDGE_FORMAT_PLAY] = d.str();
+  chunk.set(BRIDGE_FORMAT_PLAY, d.str());
 }
 
 
 void readEMLChunk(
   Buffer& buffer,
   vector<unsigned>& lno,
-  vector<string>& chunk,
+  Chunk& chunk,
   bool& newSegFlag)
 {
   newSegFlag = false;

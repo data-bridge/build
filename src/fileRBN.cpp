@@ -50,7 +50,7 @@ void setRBNTables()
 void readRBNChunk(
   Buffer& buffer,
   vector<unsigned>& lno,
-  vector<string>& chunk,
+  Chunk& chunk,
   bool& newSegFlag)
 {
   LineData lineData;
@@ -74,10 +74,10 @@ void readRBNChunk(
     if (labelNo <= BRIDGE_FORMAT_VISITTEAM)
       newSegFlag = true;
 
-    if (chunk[labelNo] != "")
+    if (chunk.isSet(labelNo))
       THROW("RBN label already set in line:\n" + lineData.line);
 
-    chunk[labelNo] = lineData.value;
+    chunk.set(labelNo, lineData.value);
     lno[labelNo] = lineData.no;
   }
 }

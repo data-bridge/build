@@ -15,6 +15,7 @@
 #include "Segment.h"
 #include "Board.h"
 #include "Buffer.h"
+#include "Chunk.h"
 
 using namespace std;
 
@@ -26,7 +27,7 @@ void setPBNTables();
 void readPBNChunk(
   Buffer& buffer,
   vector<unsigned>& lno,
-  vector<string>& chunk,
+  Chunk& chunk,
   bool& newSegFlag);
 
 void writePBNSegmentLevel(

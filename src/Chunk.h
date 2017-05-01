@@ -20,7 +20,9 @@ enum ChunkRange
   CHUNK_HEADER = 0,
   CHUNK_BOARD = 1,
   CHUNK_ALL = 2,
-  CHUNK_DVD = 3
+  CHUNK_DVD = 3,
+  CHUNK_PBN = 4,
+  CHUNK_PBN_SOFTLY = 5
 };
 
 
@@ -43,7 +45,13 @@ class Chunk
     bool isSet(const Label label) const;
     bool isEmpty(const Label label) const;
 
+    bool seemsEmpty() const;
+
     void set(
+      const Label label,
+      const string& value);
+
+    void append(
       const Label label,
       const string& value);
 

@@ -41,7 +41,7 @@ using namespace std;
 
 struct FormatFunctions
 {
-  void (* readChunk)(Buffer&, vector<unsigned>&, vector<string>&, bool&);
+  void (* readChunk)(Buffer&, vector<unsigned>&, Chunk&, bool&);
   void (* writeSeg)(string&, Segment&, Format);
   void (* writeBoard)(string&, Segment&, Board&, 
     WriteInfo&, const Format);
@@ -530,18 +530,14 @@ static void readFix(
 
 
 static void fixChunk(
-  vector<string>& chunk,
-  Chunk& clunk,
+  Chunk& chunk,
   bool& newSegFlag,
   vector<Fix>& fix)
 {
   if (fix[0].label == BRIDGE_FORMAT_LABELS_SIZE)
     newSegFlag = (fix[0].value != "0");
   else
-  {
-    chunk[fix[0].label] = fix[0].value;
-    clunk.set(fix[0].label, fix[0].value);
-  }
+    chunk.set(fix[0].label, fix[0].value);
 
   fix.erase(fix.begin());
 }
@@ -679,6 +675,7 @@ static bool storeChunk(
     if (chunk.isEmpty(BRIDGE_FORMAT_AUCTION) ||
         ((format == BRIDGE_FORMAT_LIN ||
           format == BRIDGE_FORMAT_LIN_VG ||
+          format == BRIDGE_FORMAT_LIN_RP ||
           format == BRIDGE_FORMAT_LIN_TRN) &&
          chunk.isEmpty(BRIDGE_FORMAT_VULNERABLE)))
     {
@@ -693,6 +690,7 @@ static bool storeChunk(
       }
       else if ((format != BRIDGE_FORMAT_LIN &&
           format != BRIDGE_FORMAT_LIN_VG &&
+          format != BRIDGE_FORMAT_LIN_RP &&
           format != BRIDGE_FORMAT_LIN_TRN) ||
           chunk.isEmpty(BRIDGE_FORMAT_VULNERABLE))
       {
@@ -840,7 +838,8 @@ static bool fillBoards(
       counts.bno++;
     }
 
-    if (format == BRIDGE_FORMAT_LIN_VG &&
+    if ((format == BRIDGE_FORMAT_LIN_VG ||
+         format == BRIDGE_FORMAT_LIN_RP) &&
         expectBoard.no == counts.curr.no)
     {
       chunkSynth.copyFrom(chunk, CHUNK_DVD);
@@ -975,21 +974,7 @@ static bool readFormattedFile(
 {
   group.setFormat(format);
 
-  vector<string> chunk(BRIDGE_FORMAT_LABELS_SIZE);
-  vector<string> prevChunk(BRIDGE_FORMAT_VISITTEAM+1);
-  Chunk clunk, prevClunk;
-  for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
-    chunk[i].reserve(128);
-
-  if (format == BRIDGE_FORMAT_PBN)
-  {
-    for (unsigned i = 0; i <= BRIDGE_FORMAT_VISITTEAM; i++)
-    {
-      chunk[i] = "";
-      prevChunk[i].reserve(128);
-    }
-  }
-
+  Chunk chunk, prevChunk;
   Segment * segment = nullptr;
   bool newSegFlag = false;
 
@@ -1008,29 +993,20 @@ static bool readFormattedFile(
     try
     {
       if (format == BRIDGE_FORMAT_PBN)
-      {
-        prevClunk.copyFrom(clunk, CHUNK_HEADER);
-        for (unsigned i = 0; i <= BRIDGE_FORMAT_VISITTEAM; i++)
-          prevChunk[i] = chunk[i];
-      }
+        prevChunk.copyFrom(chunk, CHUNK_HEADER);
 
       newSegFlag = false;
-      clunk.reset();
+      chunk.reset();
       for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
-      {
-        chunk[i] = "";
         counts.lno[i] = BIGNUM;
-      }
 
 
       (* formatFncs[format].readChunk)
         (buffer, counts.lno, chunk, newSegFlag);
-      for (unsigned ii = 0; ii < BRIDGE_FORMAT_LABELS_SIZE; ii++)
-        clunk.set(static_cast<Label>(ii), chunk[ii]);
 
-      if (clunk.isEmpty(BRIDGE_FORMAT_BOARD_NO) && 
-          clunk.isEmpty(BRIDGE_FORMAT_RESULT) &&
-          clunk.isEmpty(BRIDGE_FORMAT_AUCTION))
+      if (chunk.isEmpty(BRIDGE_FORMAT_BOARD_NO) && 
+          chunk.isEmpty(BRIDGE_FORMAT_RESULT) &&
+          chunk.isEmpty(BRIDGE_FORMAT_AUCTION))
         break;
     }
     catch (Bexcept& bex)
@@ -1041,19 +1017,19 @@ static bool readFormattedFile(
       bex.print(flog);
 
       if (options.verboseBatch)
-        cout << clunk.str();
+        cout << chunk.str();
       return false;
     }
 
     while (fix.size() > 0 && fix[0].no == counts.chunkno)
-      fixChunk(chunk, clunk, newSegFlag, fix);
+      fixChunk(chunk, newSegFlag, fix);
 
     counts.chunkno++;
 
     if (newSegFlag && format == BRIDGE_FORMAT_PBN)
     {
       // May not really be a new segment.
-      newSegFlag = clunk.differsFrom(prevClunk, CHUNK_HEADER);
+      newSegFlag = chunk.differsFrom(prevChunk, CHUNK_HEADER);
     }
 
     if (newSegFlag || segment == nullptr)
@@ -1061,12 +1037,12 @@ static bool readFormattedFile(
       segment = group.make();
       counts.segno++;
       counts.bno = 0;
-      if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN &&
-          format != BRIDGE_FORMAT_LIN_RP)
+      if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
+          // format != BRIDGE_FORMAT_LIN_RP)
       {
         try
         {
-          clunk.getRange(counts);
+          chunk.getRange(counts);
         }
         catch(Bexcept& bex)
         {
@@ -1076,18 +1052,19 @@ static bool readFormattedFile(
           bex.print(flog);
 
           if (options.verboseBatch)
-            cout << clunk.str();
+            cout << chunk.str();
           return false;
         }
       }
     }
 
-    str2board(clunk.get(BRIDGE_FORMAT_BOARD_NO), format, counts);
+    str2board(chunk.get(BRIDGE_FORMAT_BOARD_NO), format, counts);
 
     if (format == BRIDGE_FORMAT_LIN_VG ||
+        format == BRIDGE_FORMAT_LIN_RP ||
         format == BRIDGE_FORMAT_LIN_TRN)
     {
-      if (! fillBoards(group, segment, board, buffer, clunk, counts,
+      if (! fillBoards(group, segment, board, buffer, chunk, counts,
           lastBoard, format, options, flog))
         return false;
       if (counts.curr < lastBoard)
@@ -1106,6 +1083,7 @@ static bool readFormattedFile(
         counts.bno++;
       }
       else if ((format == BRIDGE_FORMAT_LIN_VG ||
+          format == BRIDGE_FORMAT_LIN_RP ||
           format == BRIDGE_FORMAT_LIN_TRN) &&
           counts.bExtmin + counts.bno != counts.curr.no)
       {
@@ -1119,18 +1097,20 @@ static bool readFormattedFile(
     lastBoard = counts.curr;
 
     board->newInstance();
-    if (! storeChunk(group, segment, board, buffer, clunk,
+    if (! storeChunk(group, segment, board, buffer, chunk,
         counts, format, options, flog))
       return false;
   }
 
-  if (format == BRIDGE_FORMAT_LIN_VG && board != nullptr)
+  if ((format == BRIDGE_FORMAT_LIN_VG ||
+       format == BRIDGE_FORMAT_LIN_RP) && 
+       board != nullptr)
   {
     // Fill out trailing skips.
     counts.curr.no = counts.bExtmax+1;
     counts.curr.roomFlag = true;
 
-    if (! fillBoards(group, segment, board, buffer, clunk, counts,
+    if (! fillBoards(group, segment, board, buffer, chunk, counts,
         lastBoard, format, options, flog))
       return false;
   }

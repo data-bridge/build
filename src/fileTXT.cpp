@@ -26,27 +26,27 @@ string TXTdashes;
 static void getTXTCanvasOffset(
   const vector<string>& canvas,
   unsigned& auctionLine,
-  vector<string>& chunk);
+  Chunk& chunk);
 
 static void getTXTFields(
   vector<string>& canvas,
   const unsigned auctionLine,
-  vector<string>& chunk);
+  Chunk& chunk);
 
 static void getTXTDeal(
   const vector<string>& canvas,
   const unsigned offset,
-  vector<string>& chunk);
+  Chunk& chunk);
 
 static void getTXTAuction(
   vector<string>& canvas,
   unsigned& offset,
-  vector<string>& chunk);
+  Chunk& chunk);
 
 static void getTXTPlay(
   const vector<string>& canvas,
   unsigned& offset,
-  vector<string>& chunk);
+  Chunk& chunk);
 
 
 void setTXTTables()
@@ -114,7 +114,7 @@ static void readTXTCanvas(
 static void getTXTCanvasOffset(
   const vector<string>& canvas,
   unsigned& auctionLine,
-  vector<string>& chunk)
+  Chunk& chunk)
 {
   auctionLine = 0;
   string wd = "";
@@ -146,36 +146,40 @@ static void getTXTCanvasOffset(
   if (ll > 13u && ll < 36u && canvas[aline].substr(12, 2) == "C ")
     return;
 
-  if (readAllWordsOverlong(canvas[aline], n, n+11, 
-      chunk[BRIDGE_FORMAT_WEST])) 
-    n += static_cast<unsigned>
-      (Max(12, chunk[BRIDGE_FORMAT_WEST].length()+1));
+  string st;
+  if (readAllWordsOverlong(canvas[aline], n, n+11, st))
+  {
+    n += static_cast<unsigned>(Max(12, st.length()+1));
+    chunk.set(BRIDGE_FORMAT_WEST, st);
+  }
   else
     n += 12;
 
-  if (readAllWordsOverlong(canvas[aline], n, n+11, 
-      chunk[BRIDGE_FORMAT_NORTH])) 
-    n += static_cast<unsigned>
-      (Max(12, chunk[BRIDGE_FORMAT_NORTH].length()+1));
+  if (readAllWordsOverlong(canvas[aline], n, n+11, st))
+  {
+    n += static_cast<unsigned>(Max(12, st.length()+1));
+    chunk.set(BRIDGE_FORMAT_NORTH, st);
+  }
   else
     n += 12;
 
-  if (readAllWordsOverlong(canvas[aline], n, n+11, 
-      chunk[BRIDGE_FORMAT_EAST])) 
-    n += static_cast<unsigned>
-      (Max(12, chunk[BRIDGE_FORMAT_EAST].length()+1));
+  if (readAllWordsOverlong(canvas[aline], n, n+11, st))
+  {
+    n += static_cast<unsigned>(Max(12, st.length()+1));
+    chunk.set(BRIDGE_FORMAT_EAST, st);
+  }
   else
     n += 12;
 
-  (void) readAllWordsOverlong(canvas[aline], n, n+11, 
-      chunk[BRIDGE_FORMAT_SOUTH]);
+  (void) readAllWordsOverlong(canvas[aline], n, n+11, st);
+  chunk.set(BRIDGE_FORMAT_SOUTH, st);
 }
 
 
 static void getTXTFields(
   vector<string>& canvas,
   const unsigned aline,
-  vector<string>& chunk)
+  Chunk& chunk)
 {
   unsigned bline = 0;
   if (canvas[0].size() < 19 || 
@@ -192,23 +196,23 @@ static void getTXTFields(
 
     if (bline == 6)
     {
-      chunk[BRIDGE_FORMAT_TITLE] = canvas[0];
-      chunk[BRIDGE_FORMAT_DATE] = canvas[1];
-      chunk[BRIDGE_FORMAT_LOCATION] = canvas[2];
-      chunk[BRIDGE_FORMAT_EVENT] = canvas[3];
-      chunk[BRIDGE_FORMAT_SESSION] = canvas[4];
-      chunk[BRIDGE_FORMAT_SCORING] = "IMPs"; // Maybe others possible
-      chunk[BRIDGE_FORMAT_TEAMS] = canvas[5];
+      chunk.set(BRIDGE_FORMAT_TITLE, canvas[0]);
+      chunk.set(BRIDGE_FORMAT_DATE, canvas[1]);
+      chunk.set(BRIDGE_FORMAT_LOCATION, canvas[2]);
+      chunk.set(BRIDGE_FORMAT_EVENT, canvas[3]);
+      chunk.set(BRIDGE_FORMAT_SESSION, canvas[4]);
+      chunk.set(BRIDGE_FORMAT_SCORING, "IMPs"); // Maybe others possible
+      chunk.set(BRIDGE_FORMAT_TEAMS, canvas[5]);
     }
     else if (bline == 5)
     {
       // Probably.  Could do a better job here.
-      chunk[BRIDGE_FORMAT_TITLE] = canvas[0];
-      chunk[BRIDGE_FORMAT_DATE] = canvas[1];
-      chunk[BRIDGE_FORMAT_EVENT] = canvas[2];
-      chunk[BRIDGE_FORMAT_SESSION] = canvas[3];
-      chunk[BRIDGE_FORMAT_SCORING] = "IMPs"; // Maybe others possible
-      chunk[BRIDGE_FORMAT_TEAMS] = canvas[4];
+      chunk.set(BRIDGE_FORMAT_TITLE, canvas[0]);
+      chunk.set(BRIDGE_FORMAT_DATE, canvas[1]);
+      chunk.set(BRIDGE_FORMAT_EVENT, canvas[2]);
+      chunk.set(BRIDGE_FORMAT_SESSION, canvas[3]);
+      chunk.set(BRIDGE_FORMAT_SCORING, "IMPs"); // Maybe others possible
+      chunk.set(BRIDGE_FORMAT_TEAMS, canvas[4]);
     }
     else
       THROW("Cannot locate header");
@@ -216,17 +220,21 @@ static void getTXTFields(
 
   if (aline > 11)
   {
-    if (! readNextWord(canvas[bline], 0, chunk[BRIDGE_FORMAT_BOARD_NO])) 
+    string st;
+    if (! readNextWord(canvas[bline], 0, st)) 
       THROW("Cannot find board number");
-    chunk[BRIDGE_FORMAT_BOARD_NO].pop_back(); // Drop trailing point
+    st.pop_back(); // Drop trailing point
+    chunk.set(BRIDGE_FORMAT_BOARD_NO, st); 
 
     // Attempt to read dealer.  Pavlicek only puts a dealer
     // when the auction is not given.
 
-    (void) readNextWord(canvas[bline+13], 0, chunk[BRIDGE_FORMAT_DEALER]);
+    (void) readNextWord(canvas[bline+13], 0, st);
+    chunk.set(BRIDGE_FORMAT_DEALER, st);
 
-    if (! readNextWord(canvas[bline+14], 0, chunk[BRIDGE_FORMAT_VULNERABLE])) 
+    if (! readNextWord(canvas[bline+14], 0, st)) 
       THROW("Cannot find vulnerability");
+    chunk.set(BRIDGE_FORMAT_VULNERABLE, st);
 
     getTXTDeal(canvas, bline, chunk);
   }
@@ -237,7 +245,7 @@ static void getTXTFields(
   if (canvas[cline].length() < 10 ||
       canvas[cline].substr(0, 10) != "Passed out")
   {
-    chunk[BRIDGE_FORMAT_CONTRACT] = canvas[cline++];
+    chunk.set(BRIDGE_FORMAT_CONTRACT, canvas[cline++]);
 
     if (canvas[cline].size() < 5)
       THROW("Cannot find trick");
@@ -254,15 +262,15 @@ static void getTXTFields(
       if (! readLastWord(canvas[cline], wd))
         THROW("Cannot find lead");
       if (wd.size() == 3 && wd.substr(1, 2) == "10")
-        chunk[BRIDGE_FORMAT_PLAY] = wd.substr(0, 1) + "T";
+        chunk.set(BRIDGE_FORMAT_PLAY, wd.substr(0, 1) + "T");
       else
-        chunk[BRIDGE_FORMAT_PLAY] = wd;
+        chunk.set(BRIDGE_FORMAT_PLAY, wd);
       cline++;
     }
 
     if (canvas[cline].size() < 5)
       THROW("Cannot find result");
-    chunk[BRIDGE_FORMAT_RESULT] = canvas[cline];
+    chunk.set(BRIDGE_FORMAT_RESULT, canvas[cline]);
   }
 
   // Ignore running IMP score, as we regenerate this.
@@ -272,7 +280,7 @@ static void getTXTFields(
 static void getTXTDeal(
   const vector<string>& canvas,
   const unsigned offset,
-  vector<string>& chunk)
+  Chunk& chunk)
 {
   string sts, sth, std, stc;
 
@@ -305,20 +313,20 @@ static void getTXTDeal(
 
   // Turn -- (void) into nothing.
   regex re("--");
-  chunk[BRIDGE_FORMAT_DEAL] = regex_replace(d.str(), re, string(""));
+  chunk.set(BRIDGE_FORMAT_DEAL, regex_replace(d.str(), re, string("")));
 }
 
 
 static void getTXTAuction(
   vector<string>& canvas,
   unsigned& offset,
-  vector<string>& chunk)
+  Chunk& chunk)
 {
   const unsigned l0 = static_cast<unsigned>(canvas[offset].length());
   if (l0 > 6 && l0 < 11 && canvas[offset] != "All Pass")
   {
     // No auction, e.g. "5Cx North".
-    chunk[BRIDGE_FORMAT_AUCTION] = "";
+    chunk.set(BRIDGE_FORMAT_AUCTION, "");
     return;
   }
 
@@ -332,8 +340,8 @@ static void getTXTAuction(
   if (firstStart == l0)
     THROW("Cannot fine start of auction");
 
-  chunk[BRIDGE_FORMAT_DEALER] = PLAYER_NAMES_LONG[
-    ((firstStart/12) + BRIDGE_WEST) % 4];
+  chunk.set(BRIDGE_FORMAT_DEALER, 
+    PLAYER_NAMES_LONG[((firstStart/12) + BRIDGE_WEST) % 4]);
 
   string wd;
   unsigned no = 0;
@@ -405,7 +413,7 @@ static void getTXTAuction(
   if (l == canvas.size())
     THROW("Canvas too short for auction");
 
-  chunk[BRIDGE_FORMAT_AUCTION] = d.str();
+  chunk.set(BRIDGE_FORMAT_AUCTION, d.str());
   offset = l+1;
 }
 
@@ -413,7 +421,7 @@ static void getTXTAuction(
 static void getTXTPlay(
   const vector<string>& canvas,
   unsigned& offset,
-  vector<string>& chunk)
+  Chunk& chunk)
 {
   stringstream d;
   d.clear();
@@ -457,14 +465,14 @@ static void getTXTPlay(
   if (l == canvas.size())
     THROW("Cannot find play");
   offset = l;
-  chunk[BRIDGE_FORMAT_PLAY] = d.str();
+  chunk.set(BRIDGE_FORMAT_PLAY, d.str());
 }
 
 
 void readTXTChunk(
   Buffer& buffer,
   vector<unsigned>& lno,
-  vector<string>& chunk,
+  Chunk& chunk,
   bool& newSegFlag)
 {
   // First get all the lines of a hand.

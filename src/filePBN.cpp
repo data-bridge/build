@@ -70,17 +70,17 @@ void setPBNTables()
 }
 
 
-static void setModifiedContract(
+static string modifyContract(
   const string& st,
-  vector<string>& chunk)
+  const string& decl)
 {
   const unsigned l = st.length();
   // Can be P, or 1NT.
   if (l == 1 || (l == 4 && st == "Pass"))
-    chunk[BRIDGE_FORMAT_CONTRACT] = st;
+    return st;
   else if (l <= 2 || 
     (l == 3 && st.at(2) == 'T'))
-    chunk[BRIDGE_FORMAT_CONTRACT] = st + chunk[BRIDGE_FORMAT_DECLARER];
+    return (st + decl);
   else
   {
     // Could be of form 4HX or even 4H X.
@@ -90,11 +90,9 @@ static void setModifiedContract(
       p++;
 
     if (p == l)
-      chunk[BRIDGE_FORMAT_CONTRACT] = 
-        st.substr(0, start) + chunk[BRIDGE_FORMAT_DECLARER];
+      return(st.substr(0, start) + decl);
     else
-      chunk[BRIDGE_FORMAT_CONTRACT] = 
-        st.substr(0, start) + chunk[BRIDGE_FORMAT_DECLARER] + st.substr(p);
+      return(st.substr(0, start) + decl + st.substr(p));
   }
 }
 
@@ -102,7 +100,7 @@ static void setModifiedContract(
 void readPBNChunk(
   Buffer& buffer,
   vector<unsigned>& lno,
-  vector<string>& chunk,
+  Chunk& chunk,
   bool& newSegFlag)
 {
   LineData lineData;
@@ -133,7 +131,7 @@ void readPBNChunk(
       }
       else
       {
-        chunk[BRIDGE_FORMAT_AUCTION] += lineData.line + "\n";
+        chunk.append(BRIDGE_FORMAT_AUCTION, lineData.line + "\n");
         lno[BRIDGE_FORMAT_AUCTION] = lineData.no; // Could be range...
         continue;
       }
@@ -151,7 +149,7 @@ void readPBNChunk(
       }
       else
       {
-        chunk[BRIDGE_FORMAT_PLAY] += lineData.line + "\n";
+        chunk.append(BRIDGE_FORMAT_PLAY, lineData.line + "\n");
         lno[BRIDGE_FORMAT_PLAY] = lineData.no; // Could be range...
         continue;
       }
@@ -162,7 +160,7 @@ void readPBNChunk(
         inDD = false;
       else
       {
-        chunk[BRIDGE_FORMAT_DOUBLE_DUMMY] += lineData.line + "\n";
+        chunk.append(BRIDGE_FORMAT_DOUBLE_DUMMY, lineData.line + "\n");
         lno[BRIDGE_FORMAT_DOUBLE_DUMMY] = lineData.no; // Could be range...
         continue;
       }
@@ -175,13 +173,13 @@ void readPBNChunk(
     if (it == PBNmap.end())
       THROW("Unknown PBN label: '" + lineData.label + "'");
 
-    const unsigned labelNo = static_cast<unsigned>(it->second);
+    const Label labelNo = it->second;
 
     // Skip certain labels.
     if (labelNo == BRIDGE_FORMAT_LABELS_SIZE)
       continue;
 
-    if (chunk[labelNo] != "")
+    if (chunk.isSet(labelNo))
       THROW("Label already set in line '" + lineData.line + "'");
 
     if (labelNo == BRIDGE_FORMAT_CONTRACT)
@@ -189,32 +187,33 @@ void readPBNChunk(
       // Kludge to get declarer onto contract.  According to the PBN
       // standard, declarer should always come before contract.
       if (lineData.value.length() <= 2)
-        chunk[labelNo] = lineData.value + chunk[BRIDGE_FORMAT_DECLARER];
+        chunk.set(labelNo, lineData.value + chunk.get(BRIDGE_FORMAT_DECLARER));
       else
       {
         // Could be of form 4HX or even 4H X.
       }
-      setModifiedContract(lineData.value, chunk);
+      chunk.set(BRIDGE_FORMAT_CONTRACT, 
+        modifyContract(lineData.value, chunk.get(BRIDGE_FORMAT_DECLARER)));
       lno[labelNo] = lineData.no;
     }
     else if (labelNo == BRIDGE_FORMAT_AUCTION)
     {
       // Multi-line.
-      chunk[BRIDGE_FORMAT_AUCTION] += lineData.value + "\n";
+      chunk.append(BRIDGE_FORMAT_AUCTION, lineData.value + "\n");
       lno[labelNo] = lineData.no; // Could be range...
       inAuction = true;
     }
     else if (labelNo == BRIDGE_FORMAT_PLAY)
     {
       // Multi-line.
-      chunk[BRIDGE_FORMAT_PLAY] += lineData.value + "\n";
+      chunk.append(BRIDGE_FORMAT_PLAY, lineData.value + "\n");
       lno[labelNo] = lineData.no; // Could be range...
       inPlay = true;
     }
     else if (labelNo == BRIDGE_FORMAT_DOUBLE_DUMMY)
     {
       // Multi-line.
-      chunk[BRIDGE_FORMAT_DOUBLE_DUMMY] += lineData.value + "\n";
+      chunk.append(BRIDGE_FORMAT_DOUBLE_DUMMY, lineData.value + "\n");
       lno[labelNo] = lineData.no; // Could be range...
       inDD = true;
     }
@@ -223,21 +222,21 @@ void readPBNChunk(
       if (lineData.value.length() > 2 &&
           lineData.value.at(0) == '#' &&
           lineData.value.at(1) == '#')
-        chunk[labelNo] = lineData.value.substr(2);
+        chunk.set(labelNo, lineData.value.substr(2));
       else
-        chunk[labelNo] = lineData.value;
+        chunk.set(labelNo, lineData.value);
 
       lno[labelNo] = lineData.no; // Could be range...
       if (labelNo <= BRIDGE_FORMAT_VISITTEAM)
       {
         // Kludge to avoid new segment on [Site ""].
-        if (labelNo != BRIDGE_FORMAT_LOCATION || chunk[labelNo] != "")
+        if (labelNo != BRIDGE_FORMAT_LOCATION || chunk.isSet(labelNo))
           newSegFlag = true;
       }
     }
   }
 
-  chunk[BRIDGE_FORMAT_AUCTION] += alerts;
+  chunk.append(BRIDGE_FORMAT_AUCTION, alerts);
 }
 
 

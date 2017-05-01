@@ -118,13 +118,13 @@ bool validatePBN(
 
 
 bool titleInWrongPlace(
-  const vector<string>& chunkRef,
-  const vector<string>& chunkOut)
+  const Chunk& chunkRef,
+  const Chunk& chunkOut)
 {
-  if (chunkRef[BRIDGE_FORMAT_TITLE] == "" &&
-      chunkRef[BRIDGE_FORMAT_EVENT] != "" &&
-      chunkOut[BRIDGE_FORMAT_TITLE] == chunkRef[BRIDGE_FORMAT_EVENT] &&
-      chunkOut[BRIDGE_FORMAT_EVENT] == "Bridge Base Online")
+  if (chunkRef.isEmpty(BRIDGE_FORMAT_TITLE) &&
+      chunkRef.isSet(BRIDGE_FORMAT_EVENT) &&
+      chunkOut.get(BRIDGE_FORMAT_TITLE) == chunkRef.get(BRIDGE_FORMAT_EVENT) &&
+      chunkOut.get(BRIDGE_FORMAT_EVENT) == "Bridge Base Online")
     return true;
   else
     return false;
@@ -341,14 +341,14 @@ bool auctionFormat(
 
 
 bool declarerPassout(
-  const vector<string>& chunkRef,
-  const vector<string>& chunkOut)
+  const Chunk& chunkRef,
+  const Chunk& chunkOut)
 {
-  if (chunkRef[BRIDGE_FORMAT_DECLARER] != "" &&
-      chunkOut[BRIDGE_FORMAT_DECLARER] == "" &&
-      (chunkRef[BRIDGE_FORMAT_CONTRACT] == "P" ||
-       chunkRef[BRIDGE_FORMAT_CONTRACT] == "Pass") &&
-      chunkOut[BRIDGE_FORMAT_CONTRACT] == "Pass")
+  if (chunkRef.isSet(BRIDGE_FORMAT_DECLARER) &&
+      chunkOut.isEmpty(BRIDGE_FORMAT_DECLARER) &&
+      (chunkRef.get(BRIDGE_FORMAT_CONTRACT) == "P" ||
+       chunkRef.get(BRIDGE_FORMAT_CONTRACT) == "Pass") &&
+      chunkOut.get(BRIDGE_FORMAT_CONTRACT) == "Pass")
     return true;
   else
     return false;
@@ -545,14 +545,14 @@ bool scoreIMPFormat(
 
 
 bool validatePBNChunk(
-  const vector<string>& chunkRef,
-  const vector<string>& chunkOut,
+  const Chunk& chunkRef,
+  const Chunk& chunkOut,
   ValState& valState,
   ValProfile& prof)
 {
   for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
   {
-    if (chunkRef[i] == chunkOut[i])
+    if (chunkRef.get(i) == chunkOut.get(i))
       continue;
     
     if ((i == BRIDGE_FORMAT_TITLE || i == BRIDGE_FORMAT_EVENT) && 
@@ -561,37 +561,37 @@ bool validatePBNChunk(
       prof.log(BRIDGE_VAL_TITLE, valState);
     }
     else if (i == BRIDGE_FORMAT_DATE && 
-        datePunctuation(chunkRef[i], chunkOut[i]))
+        datePunctuation(chunkRef.get(i), chunkOut.get(i)))
     {
       prof.log(BRIDGE_VAL_DATE, valState);
     }
     else if (i == BRIDGE_FORMAT_LOCATION && 
-        locationNone(chunkRef[i], chunkOut[i]))
+        locationNone(chunkRef.get(i), chunkOut.get(i)))
     {
       prof.log(BRIDGE_VAL_LOCATION, valState);
     }
     else if (i == BRIDGE_FORMAT_SCORING &&
-        scoringName(chunkRef[i], chunkOut[i]))
+        scoringName(chunkRef.get(i), chunkOut.get(i)))
     {
       prof.log(BRIDGE_VAL_SCORING, valState);
     }
     else if (i == BRIDGE_FORMAT_ROOM &&
-        roomRefMissing(chunkRef[i], chunkOut[i]))
+        roomRefMissing(chunkRef.get(i), chunkOut.get(i)))
     {
       prof.log(BRIDGE_VAL_ROOM, valState);
     }
     else if (i == BRIDGE_FORMAT_DEAL &&
-        dealRotated(chunkRef[i], chunkOut[i]))
+        dealRotated(chunkRef.get(i), chunkOut.get(i)))
     {
       prof.log(BRIDGE_VAL_DEAL, valState);
     }
     else if (i == BRIDGE_FORMAT_VULNERABLE &&
-        vulCapitalization(chunkRef[i], chunkOut[i]))
+        vulCapitalization(chunkRef.get(i), chunkOut.get(i)))
     {
       prof.log(BRIDGE_VAL_VUL, valState);
     }
     else if (i == BRIDGE_FORMAT_AUCTION &&
-        auctionFormat(chunkRef[i], chunkOut[i]))
+        auctionFormat(chunkRef.get(i), chunkOut.get(i)))
     {
       prof.log(BRIDGE_VAL_AUCTION, valState);
     }
@@ -601,40 +601,40 @@ bool validatePBNChunk(
       prof.log(BRIDGE_VAL_AUCTION, valState);
     }
     else if (i == BRIDGE_FORMAT_CONTRACT &&
-        contractPassout(chunkRef[i], chunkOut[i]))
+        contractPassout(chunkRef.get(i), chunkOut.get(i)))
     {
       prof.log(BRIDGE_VAL_AUCTION, valState);
     }
     else if (i == BRIDGE_FORMAT_PLAY &&
-        playFormat(chunkRef[i], chunkOut[i]))
+        playFormat(chunkRef.get(i), chunkOut.get(i)))
     {
       prof.log(BRIDGE_VAL_AUCTION, valState);
     }
     else if (i == BRIDGE_FORMAT_RESULT &&
-        resultPassout(chunkRef[i], chunkOut[i]))
+        resultPassout(chunkRef.get(i), chunkOut.get(i)))
     {
       prof.log(BRIDGE_VAL_AUCTION, valState);
     }
     else if (i == BRIDGE_FORMAT_SCORE &&
-        scoreFormat(chunkRef[i], chunkOut[i]))
+        scoreFormat(chunkRef.get(i), chunkOut.get(i)))
     {
       prof.log(BRIDGE_VAL_AUCTION, valState);
     }
     else if (i == BRIDGE_FORMAT_SCORE_IMP &&
-        scoreIMPFormat(chunkRef[i], chunkOut[i]))
+        scoreIMPFormat(chunkRef.get(i), chunkOut.get(i)))
     {
       prof.log(BRIDGE_VAL_AUCTION, valState);
     }
     else if (i == BRIDGE_FORMAT_DOUBLE_DUMMY &&
-        doubleDummyFormat(chunkRef[i], chunkOut[i]))
+        doubleDummyFormat(chunkRef.get(i), chunkOut.get(i)))
     {
       prof.log(BRIDGE_VAL_DD, valState);
     }
     else
     {
       cout << LABEL_NAMES[i] << ":\n";
-      cout << "Ref " << chunkRef[i] << "\n";
-      cout << "Out " << chunkOut[i] << "\n" << endl;
+      cout << "Ref " << chunkRef.get(i) << "\n";
+      cout << "Out " << chunkOut.get(i) << "\n" << endl;
       prof.log(BRIDGE_VAL_ERROR, valState);
       return true;
     }

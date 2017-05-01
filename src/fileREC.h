@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "Buffer.h"
+#include "Chunk.h"
 
 using namespace std;
 
@@ -22,7 +23,7 @@ class Group;
 void readRECChunk(
   Buffer& buffer,
   vector<unsigned>& lno,
-  vector<string>& chunk,
+  Chunk& chunk,
   bool& newSegFlag);
 
 bool writeREC(

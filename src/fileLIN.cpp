@@ -75,7 +75,7 @@ static bool nextLINPair(
 void readLINChunk(
   Buffer& buffer,
   vector<unsigned>& lno,
-  vector<string>& chunk,
+  Chunk& chunk,
   bool& newSegFlag)
 {
   LineData lineData;
@@ -110,8 +110,8 @@ void readLINChunk(
         // Artificial label to disambiguate.
         if (! qxSeen)
           label = "px";
-        else if (chunk[BRIDGE_FORMAT_AUCTION] != "" ||
-            chunk[BRIDGE_FORMAT_RESULT] != "")
+        else if (chunk.isSet(BRIDGE_FORMAT_AUCTION) ||
+            chunk.isSet(BRIDGE_FORMAT_RESULT))
         {
           // Kludge to skip some late pn's.
           continue;
@@ -121,7 +121,7 @@ void readLINChunk(
       if (label == "an")
       {
         alerts << aNo << " " << value << "\n";
-        chunk[BRIDGE_FORMAT_AUCTION] += "^" + STR(aNo);
+        chunk.append(BRIDGE_FORMAT_AUCTION, "^" + STR(aNo));
         aNo++;
         continue;
       }
@@ -135,7 +135,7 @@ void readLINChunk(
           THROW("Illegal LIN label in line '" + lineData.line + "'");
       }
 
-      const unsigned labelNo = it->second;
+      const Label labelNo = it->second;
       if (labelNo <= BRIDGE_FORMAT_VISITTEAM)
         newSegFlag = true;
 
@@ -147,11 +147,11 @@ void readLINChunk(
       {
         // This is not rigorously correct
         if (cardCount > 0 && cardCount % 4 == 0)
-          chunk[labelNo] += ":";
+          chunk.append(labelNo, ":");
 
         cardCount += (value.size() > 2 ? 4u : 1u);
 
-        chunk[labelNo] += value;
+        chunk.append(labelNo, value);
       }
       else if (labelNo == BRIDGE_FORMAT_AUCTION)
       {
@@ -160,23 +160,24 @@ void readLINChunk(
           trimLeading(value, '-');
           value = trimTrailing(value, '-');
         }
-        chunk[labelNo] += value;
+        chunk.append(labelNo, value);
       }
-      else if (chunk[labelNo] == "")
-        chunk[labelNo] = value;
+      else if (chunk.isEmpty(labelNo))
+        chunk.set(labelNo, value);
       else if (labelNo == BRIDGE_FORMAT_PLAYERS_HEADER)
       {
         value = trimTrailing(value, ',');
-        if (value.length() < chunk[labelNo].length() &&
-          chunk[labelNo].substr(0, value.length()) == value)
+        const string ch = chunk.get(labelNo);
+        if (value.length() < ch.length() &&
+          ch.substr(0, value.length()) == value)
         {
           // Ignore if a substring.
         }
-        else if (chunk[labelNo].length() < value.length() &&
-          value.substr(0, chunk[labelNo].length()) == chunk[labelNo])
+        else if (ch.length() < value.length() &&
+          value.substr(0, ch.length()) == ch)
         {
           // Swap if the other way round (very rare).
-          chunk[labelNo] = value;
+          chunk.set(labelNo, value);
         }
         else
           THROW("Label already set in line '" + lineData.line + "'");
@@ -189,11 +190,11 @@ void readLINChunk(
   }
 
   if (alerts.str() != "")
-    chunk[BRIDGE_FORMAT_AUCTION] += "\n" + alerts.str();
+    chunk.append(BRIDGE_FORMAT_AUCTION, "\n" + alerts.str());
   if (! qxSeen && buffer.peek() != 0x00)
     THROW("No deal found");
-  if (chunk[BRIDGE_FORMAT_BOARD_NO] != "" &&
-      chunk[BRIDGE_FORMAT_DEAL] == "")
+  if (chunk.isSet(BRIDGE_FORMAT_BOARD_NO) &&
+      chunk.isEmpty(BRIDGE_FORMAT_DEAL))
     THROW("No LIN cards found (md)");
 }
 

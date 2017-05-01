@@ -1,23 +1,46 @@
-29.04.2017
+01.05.2017
 ----------
+* Write a script to detect c1, o1, c2, o2 with no exceptions.
+- Check that .noval exists
+- Rename it to .rev
+* Modify dispatch to write in reverse order
+
+* Check on BBOVG
+* Check on RPmajors
+
+* Get RPmajors to work again
+- LIN-LIN
+- RBN-RBN
+- etc.
+- All crosses
+
+* Extend refstats.pl to all formats
+
+* Fix .ref and .fix files for all formats
+
+* Introduce replaceTXT? replacePBN? replaceRBN/RBX picking out
+  the colon-separated target
+
+* In dispatch, make boardIDLIN into an object?
+
+* I think it was 4763.lin where the header % output was 476.lin
+
 Sheet
 * 16002 o4 DBL detected? 17392 o11 too.  314 c15
 * Another str() function that outputs an IMP sheet, will also need vul
 * Get rid of heurfix in favor of Sheet?
   Good outputs (try deleting a ref file), CHOOSE (line1) (line2)
+* Can we then delete heurfix?
 
-C++ code
-* do something about dispatch.cpp; make chunk a struct with methods?
-* Go through once for cleanup (TODO)
-* Allow concatenated files, e.g. RBN but also LIN
-
-Data
-- Include BBOVG and BBOSH up to today
-- Look for more sources?  Later...
+* Allow concatenated files: LIN, PBN (those two may work), RBN/RBX
 
 Perl scripts in BBOVG
 - Make director.pl run without warnings 
   (so have log files of acceptable deviations)
+
+Data
+- Include BBOVG and BBOSH up to today
+- Look for more sources?  Later...
 
 NERs
 * Dates: Write extractor for embedded dates in tags
@@ -32,6 +55,8 @@ Higher semantics
 * Look again at players once we check the links in lin files.
 * Store convention cards?
 * Screenscrape major championships, compare.
+
+* Write dispatch language suitable also for later SQL queries
 
 update Pavlicek missive and Excel
 
