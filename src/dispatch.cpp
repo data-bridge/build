@@ -665,8 +665,7 @@ static bool storeChunk(
   Segment * segment,
   Board * board,
   const Buffer& buffer,
-  vector<string>& chunk,
-  Chunk& clunk,
+  Chunk& chunk,
   const Counts& counts,
   const Format format,
   const Options& options,
@@ -677,33 +676,27 @@ static bool storeChunk(
   {
     segment->copyPlayers();
 
-    if (clunk.isEmpty(BRIDGE_FORMAT_AUCTION) ||
+    if (chunk.isEmpty(BRIDGE_FORMAT_AUCTION) ||
         ((format == BRIDGE_FORMAT_LIN ||
           format == BRIDGE_FORMAT_LIN_VG ||
           format == BRIDGE_FORMAT_LIN_TRN) &&
-         clunk.isEmpty(BRIDGE_FORMAT_VULNERABLE)))
+         chunk.isEmpty(BRIDGE_FORMAT_VULNERABLE)))
     {
       // Guess dealer and vul from the board number.
-      if (clunk.isEmpty(BRIDGE_FORMAT_BOARD_NO))
+      if (chunk.isEmpty(BRIDGE_FORMAT_BOARD_NO))
       {
-        clunk.guessDealerAndVul(segment->getActiveExtBoardNo(), format);
-        chunk[BRIDGE_FORMAT_DEALER] = clunk.get(BRIDGE_FORMAT_DEALER);
-        chunk[BRIDGE_FORMAT_VULNERABLE] = clunk.get(BRIDGE_FORMAT_VULNERABLE);
+        chunk.guessDealerAndVul(segment->getActiveExtBoardNo(), format);
       }
-      else if (format == BRIDGE_FORMAT_LIN_VG &&
-          board->hasDealerVul())
+      else if (format == BRIDGE_FORMAT_LIN_VG && board->hasDealerVul())
       {
-        clunk.set(BRIDGE_FORMAT_VULNERABLE, board->strVul(BRIDGE_FORMAT_PAR));
-        chunk[BRIDGE_FORMAT_VULNERABLE] = clunk.get(BRIDGE_FORMAT_VULNERABLE);
+        chunk.set(BRIDGE_FORMAT_VULNERABLE, board->strVul(BRIDGE_FORMAT_PAR));
       }
       else if ((format != BRIDGE_FORMAT_LIN &&
           format != BRIDGE_FORMAT_LIN_VG &&
           format != BRIDGE_FORMAT_LIN_TRN) ||
-          clunk.isEmpty(BRIDGE_FORMAT_VULNERABLE))
+          chunk.isEmpty(BRIDGE_FORMAT_VULNERABLE))
       {
-        clunk.guessDealerAndVul(format);
-        chunk[BRIDGE_FORMAT_DEALER] = clunk.get(BRIDGE_FORMAT_DEALER);
-        chunk[BRIDGE_FORMAT_VULNERABLE] = clunk.get(BRIDGE_FORMAT_VULNERABLE);
+        chunk.guessDealerAndVul(format);
       }
     }
   }
@@ -713,20 +706,20 @@ static bool storeChunk(
   {
     for (i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
     {
-      if (clunk.isEmpty(static_cast<Label>(i)))
+      if (chunk.isEmpty(static_cast<Label>(i)))
       {
         if (useDefaultsFlag &&
             i == BRIDGE_FORMAT_CONTRACT && 
             FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
         {
           segment->loadSpecificsFromHeader(
-            clunk.get(BRIDGE_FORMAT_BOARD_NO), format);
+            chunk.get(BRIDGE_FORMAT_BOARD_NO), format);
         }
 
         continue;
       }
 
-      tryFormatMethod(format, clunk.get(static_cast<Label>(i)), segment, board, i);
+      tryFormatMethod(format, chunk.get(i), segment, board, i);
     }
   }
   catch (Bexcept& bex)
@@ -734,14 +727,14 @@ static bool storeChunk(
     if (options.verboseThrow)
     {
       printCounts(group.name(), counts);
-      clunk.str(static_cast<Label>(i));
+      chunk.str(static_cast<Label>(i));
     }
 
     bex.print(flog);
 
     if (bex.isTricks() && FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
     {
-      heurFixTricks(group, segment, board, buffer, clunk, counts, options);
+      heurFixTricks(group, segment, board, buffer, chunk, counts, options);
     }
     else if (bex.isPlay())
     {
@@ -750,16 +743,16 @@ static bool storeChunk(
     }
     else if (bex.isClaim())
     {
-      heurFixTricks(group, segment, board, buffer, clunk, counts, options);
+      heurFixTricks(group, segment, board, buffer, chunk, counts, options);
     }
     else if (bex.isPlayDD() && 
         FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
     {
-      heurFixPlayDD(group, segment, board, buffer, clunk, options);
+      heurFixPlayDD(group, segment, board, buffer, chunk, options);
     }
 
     if (options.verboseBatch)
-      cout << clunk.str();
+      cout << chunk.str();
     return false;
   }
 
@@ -792,8 +785,7 @@ static bool fillBoards(
   Segment * segment, 
   Board *& board, 
   const Buffer& buffer,
-  vector<string>& chunk, 
-  Chunk& clunk, 
+  Chunk& chunk, 
   Counts& counts,
   boardIDLIN& lastBoard,
   const Format format,
@@ -824,34 +816,22 @@ static bool fillBoards(
 
     board->unmarkInstanceSkip();
 
-    return storeChunk(group, segment, board, buffer, chunk, clunk,
+    return storeChunk(group, segment, board, buffer, chunk,
         counts, format, options, flog, false);
   }
 
-  vector<string> chunkSynth(BRIDGE_FORMAT_LABELS_SIZE);
-  Chunk clunkSynth;
-  // for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
-    // chunkSynth[i] = "";
+  Chunk chunkSynth;
 
   // Need the header for the very first synthetic board.
-  if (clunk.isSet(BRIDGE_FORMAT_TITLE))
+  if (chunk.isSet(BRIDGE_FORMAT_TITLE))
   {
-    clunkSynth.copyFrom(clunk, CHUNK_BOARD);
-    clunk.reset(CHUNK_BOARD);
-
-    for (unsigned i = 0; i <= BRIDGE_FORMAT_BOARDS_LIST; i++)
-    {
-      // chunkSynth[i] = chunk[i];
-      chunk[i] = "";
-    }
+    chunkSynth.copyFrom(chunk, CHUNK_BOARD);
+    chunk.reset(CHUNK_BOARD);
   }
 
   do
   {
-    // chunkSynth[BRIDGE_FORMAT_BOARD_NO] =
-      // (expectBoard.roomFlag ? 'o' : 'c') +
-      // STR(expectBoard.no);
-    clunkSynth.set(BRIDGE_FORMAT_BOARD_NO, 
+    chunkSynth.set(BRIDGE_FORMAT_BOARD_NO, 
       (expectBoard.roomFlag ? 'o' : 'c') + STR(expectBoard.no));
 
     if (expectBoard.no != lastBoard.no)
@@ -863,30 +843,20 @@ static bool fillBoards(
     if (format == BRIDGE_FORMAT_LIN_VG &&
         expectBoard.no == counts.curr.no)
     {
-      // chunkSynth[BRIDGE_FORMAT_VULNERABLE] = 
-        // clunk.get(BRIDGE_FORMAT_VULNERABLE);
-      // chunkSynth[BRIDGE_FORMAT_DEALER] = 
-        // clunk.get(BRIDGE_FORMAT_DEALER);
-      // chunkSynth[BRIDGE_FORMAT_DEAL] = 
-        // clunk.get(BRIDGE_FORMAT_DEAL);
-
-      clunkSynth.copyFrom(clunk, CHUNK_DVD);
+      chunkSynth.copyFrom(chunk, CHUNK_DVD);
     }
 
     lastBoard = expectBoard;
     board->newInstance();
     board->markInstanceSkip();
-    if (! storeChunk(group, segment, board, buffer, chunkSynth, 
-        clunkSynth,
+    if (! storeChunk(group, segment, board, buffer, chunkSynth,
         counts, format, options, flog))
       return false;
     advance(expectBoard, counts);
 
-    if (clunkSynth.isSet(BRIDGE_FORMAT_TITLE))
+    if (chunkSynth.isSet(BRIDGE_FORMAT_TITLE))
     {
-      clunkSynth.reset(CHUNK_BOARD);
-      // for (unsigned i = 0; i <= BRIDGE_FORMAT_BOARDS_LIST; i++)
-        // chunkSynth[i] = "";
+      chunkSynth.reset(CHUNK_BOARD);
     }
   }
   while (counts.curr > expectBoard);
@@ -1083,19 +1053,7 @@ static bool readFormattedFile(
     if (newSegFlag && format == BRIDGE_FORMAT_PBN)
     {
       // May not really be a new segment.
-      bool newFlag = false;
-      for (unsigned i = 0; i <= BRIDGE_FORMAT_VISITTEAM; i++)
-      {
-        if (chunk[i] != prevChunk[i] && chunk[i] != "")
-        {
-          newFlag = true;
-          break;
-        }
-      }
-      newSegFlag = newFlag;
-
-      bool newFlag2 = clunk.differsFrom(prevClunk, CHUNK_HEADER);
-assert(newFlag == newFlag2);
+      newSegFlag = clunk.differsFrom(prevClunk, CHUNK_HEADER);
     }
 
     if (newSegFlag || segment == nullptr)
@@ -1124,13 +1082,12 @@ assert(newFlag == newFlag2);
       }
     }
 
-    // str2board(chunk[BRIDGE_FORMAT_BOARD_NO], format, counts);
     str2board(clunk.get(BRIDGE_FORMAT_BOARD_NO), format, counts);
 
     if (format == BRIDGE_FORMAT_LIN_VG ||
         format == BRIDGE_FORMAT_LIN_TRN)
     {
-      if (! fillBoards(group, segment, board, buffer, chunk, clunk, counts,
+      if (! fillBoards(group, segment, board, buffer, clunk, counts,
           lastBoard, format, options, flog))
         return false;
       if (counts.curr < lastBoard)
@@ -1162,7 +1119,7 @@ assert(newFlag == newFlag2);
     lastBoard = counts.curr;
 
     board->newInstance();
-    if (! storeChunk(group, segment, board, buffer, chunk, clunk,
+    if (! storeChunk(group, segment, board, buffer, clunk,
         counts, format, options, flog))
       return false;
   }
@@ -1173,7 +1130,7 @@ assert(newFlag == newFlag2);
     counts.curr.no = counts.bExtmax+1;
     counts.curr.roomFlag = true;
 
-    if (! fillBoards(group, segment, board, buffer, chunk, clunk, counts,
+    if (! fillBoards(group, segment, board, buffer, clunk, counts,
         lastBoard, format, options, flog))
       return false;
   }

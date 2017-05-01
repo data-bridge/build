@@ -114,6 +114,14 @@ string Chunk::get(const Label label) const
 }
 
 
+string Chunk::get(const unsigned label) const
+{
+  if (label >= BRIDGE_FORMAT_LABELS_SIZE)
+    THROW("label out of range");
+  return chunk[label];
+}
+
+
 void Chunk::getRange(Counts& counts) const
 {
   const string title = chunk[BRIDGE_FORMAT_TITLE];

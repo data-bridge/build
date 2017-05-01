@@ -48,6 +48,7 @@ class Chunk
       const string& value);
 
     string get(const Label label) const;
+    string get(const unsigned label) const;
 
     void getRange(Counts& counts) const;
 
