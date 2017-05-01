@@ -37,40 +37,6 @@
 #include "Bdiff.h"
 
 
-// Modulo 4, so West for Board "0" (4, 8, ...) etc.
-
-static const Player BOARD_TO_DEALER[4] = 
-{
-  BRIDGE_WEST, BRIDGE_NORTH, BRIDGE_EAST, BRIDGE_SOUTH
-};
-
-// Modulo 16, so EW for Board "0" (16, 32, ...) etc.
-
-static const Vul BOARD_TO_VUL[16] =
-{
-  BRIDGE_VUL_EAST_WEST, 
-  BRIDGE_VUL_NONE, 
-  BRIDGE_VUL_NORTH_SOUTH, 
-  BRIDGE_VUL_EAST_WEST,
-
-  BRIDGE_VUL_BOTH,
-  BRIDGE_VUL_NORTH_SOUTH,
-  BRIDGE_VUL_EAST_WEST,
-  BRIDGE_VUL_BOTH,
-
-  BRIDGE_VUL_NONE, 
-  BRIDGE_VUL_EAST_WEST,
-  BRIDGE_VUL_BOTH,
-  BRIDGE_VUL_NONE, 
-
-  BRIDGE_VUL_NORTH_SOUTH,
-  BRIDGE_VUL_BOTH,
-  BRIDGE_VUL_NONE, 
-  BRIDGE_VUL_NORTH_SOUTH
-};
-
-
-
 using namespace std;
 
 struct FormatFunctions
@@ -256,10 +222,8 @@ static bool dispatchRead(
   const FileTask& task,
   Group& group,
   const Options& options,
-  Timers &timers,
   ostream& flog)
 {
-  UNUSED(timers);
   try
   {
     bool b = readFormattedFile(task.fileInput,
@@ -365,7 +329,6 @@ static void dispatchCompare(
       FORMAT_NAMES[format] << "\n";
 
     bdiff.print(flog);
-    UNUSED(bdiff);
     cstats.add(false, format);
   }
   catch (Bexcept& bex)
@@ -430,8 +393,7 @@ void dispatch(
   FileTask task;
   string text;
   text.reserve(100000);
-try
-{
+
   while (files.next(task))
   {
     if (options.verboseIO)
@@ -444,7 +406,7 @@ try
       goto DIGEST;
 
     timers.start(BRIDGE_TIMER_READ, task.formatInput);
-    bool b = dispatchRead(task, group, options, timers, flog);
+    bool b = dispatchRead(task, group, options, flog);
     timers.stop(BRIDGE_TIMER_READ, task.formatInput);
     if (! b)
     {
@@ -508,63 +470,6 @@ try
       dispatchDigest(options, task, flog);
       timers.stop(BRIDGE_TIMER_DIGEST, task.formatInput);
     }
-  }
-}
-catch (Bexcept& bex)
-{
-  // TODO Can probably go at some point.
-  cout << "Bex loose: " << task.fileInput << "\n";
-  bex.print(flog);
-}
-catch (Bdiff& bdiff)
-{
-  // TODO Can probably go at some point.
-  cout << "Bdiff loose: " << task.fileInput << "\n";
-  bdiff.print(flog);
-}
-}
-
-
-static void guessDealerAndVul(
-  vector<string>& chunk, 
-  const unsigned b,
-  const Format format)
-{
-  // This is not quite fool-proof, as there are LIN files where
-  // the board numbers don't match...
-
-  if (format == BRIDGE_FORMAT_RBN ||
-      format == BRIDGE_FORMAT_RBX)
-  {
-    chunk[BRIDGE_FORMAT_DEALER] = PLAYER_NAMES_SHORT[BOARD_TO_DEALER[b % 4]];
-    chunk[BRIDGE_FORMAT_VULNERABLE] = VUL_NAMES_PBN[BOARD_TO_VUL[b % 16]];
-  }
-}
-
-
-static void guessDealerAndVul(
-  vector<string>& chunk, 
-  const string& st,
-  const Format format)
-{
-  unsigned u;
-  if (format == BRIDGE_FORMAT_LIN || 
-      format == BRIDGE_FORMAT_LIN_VG ||
-      format == BRIDGE_FORMAT_LIN_TRN)
-  {
-    if (st.length() <= 1 || ! str2upos(st.substr(1), u))
-      return;
-
-    chunk[BRIDGE_FORMAT_DEALER] = 
-      STR(PLAYER_DDS_TO_LIN_DEALER[BOARD_TO_DEALER[u % 4]]);
-    chunk[BRIDGE_FORMAT_VULNERABLE] = 
-      VUL_NAMES_LIN[BOARD_TO_VUL[u % 16]];
-  }
-  else
-  {
-    if (! str2upos(st, u))
-      return;
-    guessDealerAndVul(chunk, u, format);
   }
 }
 
@@ -865,22 +770,24 @@ assert(chunk[BRIDGE_FORMAT_VULNERABLE] == clunk.get(BRIDGE_FORMAT_VULNERABLE));
       // Guess dealer and vul from the board number.
       if (chunk[BRIDGE_FORMAT_BOARD_NO] == "")
       {
-        guessDealerAndVul(chunk, segment->getActiveExtBoardNo(), format);
         clunk.guessDealerAndVul(segment->getActiveExtBoardNo(), format);
+        chunk[BRIDGE_FORMAT_DEALER] = clunk.get(BRIDGE_FORMAT_DEALER);
+        chunk[BRIDGE_FORMAT_VULNERABLE] = clunk.get(BRIDGE_FORMAT_VULNERABLE);
       }
       else if (format == BRIDGE_FORMAT_LIN_VG &&
           board->hasDealerVul())
       {
-        chunk[BRIDGE_FORMAT_VULNERABLE] = board->strVul(BRIDGE_FORMAT_PAR);
         clunk.set(BRIDGE_FORMAT_VULNERABLE, board->strVul(BRIDGE_FORMAT_PAR));
+        chunk[BRIDGE_FORMAT_VULNERABLE] = clunk.get(BRIDGE_FORMAT_VULNERABLE);
       }
       else if ((format != BRIDGE_FORMAT_LIN &&
           format != BRIDGE_FORMAT_LIN_VG &&
           format != BRIDGE_FORMAT_LIN_TRN) ||
           chunk[BRIDGE_FORMAT_VULNERABLE] == "")
       {
-        guessDealerAndVul(chunk, chunk[BRIDGE_FORMAT_BOARD_NO], format);
         clunk.guessDealerAndVul(format);
+        chunk[BRIDGE_FORMAT_DEALER] = clunk.get(BRIDGE_FORMAT_DEALER);
+        chunk[BRIDGE_FORMAT_VULNERABLE] = clunk.get(BRIDGE_FORMAT_VULNERABLE);
       }
     }
   }
@@ -1292,12 +1199,19 @@ static bool readFormattedFile(
       segment = group.make();
       counts.segno++;
       counts.bno = 0;
+      Counts clounts = counts;
       if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN &&
           format != BRIDGE_FORMAT_LIN_RP)
       {
         try
         {
           chunkLIN2range(chunk, counts);
+          clunk.getRange(clounts);
+          if (counts.bExtmin != clounts.bExtmin ||
+              counts.bExtmax != clounts.bExtmax)
+          {
+            THROW("Different ranges");
+          }
         }
         catch(Bexcept& bex)
         {
