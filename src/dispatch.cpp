@@ -547,21 +547,6 @@ static void fixChunk(
 }
 
 
-static void printChunk(const vector<string>& chunk)
-{
-  cout << endl;
-  for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
-  {
-    if (chunk[i] != "")
-    {
-      cout << setw(15) << LABEL_NAMES[i] <<
-          " (" << setw(2) << i << "), '" <<
-          chunk[i] << "'" << endl;
-    }
-  }
-}
-
-
 static void printCounts(
   const string& fname,
   const Counts& counts)
@@ -613,72 +598,6 @@ static void str2board(
     if (! str2upos(bno, counts.curr.no))
       THROW("Not a board number");
   }
-}
-
-
-static void chunkLIN2range(
-  vector<string>& chunk,
-  Counts& counts)
-{
-  const string title = chunk[BRIDGE_FORMAT_TITLE];
-  if (title == "")
-    return;
-
-  if (count(title.begin(), title.end(), ',') != 8)
-    THROW("LIN vg need exactly 8 commas");
-
-  vector<string> v(9);
-  v.clear();
-  tokenize(title, v, ",");
-  
-  if (v[3] == "" || v[4] == "")
-    return;
-  
-  if (! str2upos(v[3], counts.bExtmin))
-    THROW("Not a board number");
-  if (! str2upos(v[4], counts.bExtmax))
-    THROW("Not a board number");
-
-  const string res = chunk[BRIDGE_FORMAT_RESULTS_LIST];
-  if (res == "")
-    return;
-
-  const unsigned commas = 
-    static_cast<unsigned>(count(res.begin(), res.end(), ','));
-  const unsigned expected = 2 * (counts.bExtmax - counts.bExtmin + 1);
-  if (commas+1 != expected)
-  {
-    if (commas == expected)
-    {
-      // Might have a stray trailing comma -- tolerate.
-    }
-    else if (commas == expected || commas+2 == expected)
-    {
-      // Might also miss a comma -- tolerate.
-      chunk[BRIDGE_FORMAT_RESULTS_LIST] += ",";
-    }
-    else
-    {
-      const unsigned delta = commas+1-expected;
-      if (commas <= expected ||
-          res.substr(res.length()-delta) != string(delta, ','))
-      {
-        THROW("Bad number of results, commas " + STR(commas) +
-          " vs. " + STR(expected));
-      }
-    }
-  }
-
-  const unsigned l = static_cast<unsigned>(res.length());
-  unsigned p = 0;
-  while (p+1 < l && res.substr(p, 2) == ",,")
-  {
-    p += 2;
-    counts.bExtmin++;
-  }
-
-  if (counts.bExtmax < counts.bExtmin)
-    THROW("Bad board range");
 }
 
 
@@ -757,18 +676,15 @@ static bool storeChunk(
   if (useDefaultsFlag)
   {
     segment->copyPlayers();
-assert(chunk[BRIDGE_FORMAT_AUCTION] == clunk.get(BRIDGE_FORMAT_AUCTION));
-assert(chunk[BRIDGE_FORMAT_BOARD_NO] == clunk.get(BRIDGE_FORMAT_BOARD_NO));
-assert(chunk[BRIDGE_FORMAT_VULNERABLE] == clunk.get(BRIDGE_FORMAT_VULNERABLE));
 
-    if (chunk[BRIDGE_FORMAT_AUCTION] == "" ||
+    if (clunk.isEmpty(BRIDGE_FORMAT_AUCTION) ||
         ((format == BRIDGE_FORMAT_LIN ||
           format == BRIDGE_FORMAT_LIN_VG ||
           format == BRIDGE_FORMAT_LIN_TRN) &&
-         chunk[BRIDGE_FORMAT_VULNERABLE] == ""))
+         clunk.isEmpty(BRIDGE_FORMAT_VULNERABLE)))
     {
       // Guess dealer and vul from the board number.
-      if (chunk[BRIDGE_FORMAT_BOARD_NO] == "")
+      if (clunk.isEmpty(BRIDGE_FORMAT_BOARD_NO))
       {
         clunk.guessDealerAndVul(segment->getActiveExtBoardNo(), format);
         chunk[BRIDGE_FORMAT_DEALER] = clunk.get(BRIDGE_FORMAT_DEALER);
@@ -783,7 +699,7 @@ assert(chunk[BRIDGE_FORMAT_VULNERABLE] == clunk.get(BRIDGE_FORMAT_VULNERABLE));
       else if ((format != BRIDGE_FORMAT_LIN &&
           format != BRIDGE_FORMAT_LIN_VG &&
           format != BRIDGE_FORMAT_LIN_TRN) ||
-          chunk[BRIDGE_FORMAT_VULNERABLE] == "")
+          clunk.isEmpty(BRIDGE_FORMAT_VULNERABLE))
       {
         clunk.guessDealerAndVul(format);
         chunk[BRIDGE_FORMAT_DEALER] = clunk.get(BRIDGE_FORMAT_DEALER);
@@ -797,34 +713,20 @@ assert(chunk[BRIDGE_FORMAT_VULNERABLE] == clunk.get(BRIDGE_FORMAT_VULNERABLE));
   {
     for (i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
     {
-const string sc = clunk.get(static_cast<Label>(i));
-if (chunk[i] != sc)
-{
-  if (i == BRIDGE_FORMAT_RESULTS_LIST &&
-      chunk[i].length() > sc.length() &&
-      chunk[i].substr(0, sc.length()) == sc)
-  {
-    chunk[i] = sc;
-  }
-  else
-  {
-assert(chunk[i] == clunk.get(static_cast<Label>(i)));
-  }
-}
-      if (chunk[i] == "")
+      if (clunk.isEmpty(static_cast<Label>(i)))
       {
         if (useDefaultsFlag &&
             i == BRIDGE_FORMAT_CONTRACT && 
             FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
         {
           segment->loadSpecificsFromHeader(
-            chunk[BRIDGE_FORMAT_BOARD_NO], format);
+            clunk.get(BRIDGE_FORMAT_BOARD_NO), format);
         }
 
         continue;
       }
 
-      tryFormatMethod(format, chunk[i], segment, board, i);
+      tryFormatMethod(format, clunk.get(static_cast<Label>(i)), segment, board, i);
     }
   }
   catch (Bexcept& bex)
@@ -832,8 +734,7 @@ assert(chunk[i] == clunk.get(static_cast<Label>(i)));
     if (options.verboseThrow)
     {
       printCounts(group.name(), counts);
-      cout << "label " << LABEL_NAMES[i] << " (" << i << "), '" <<
-          chunk[i] << "'" << endl << endl;
+      clunk.str(static_cast<Label>(i));
     }
 
     bex.print(flog);
@@ -858,7 +759,7 @@ assert(chunk[i] == clunk.get(static_cast<Label>(i)));
     }
 
     if (options.verboseBatch)
-      printChunk(chunk);
+      cout << clunk.str();
     return false;
   }
 
@@ -962,11 +863,11 @@ static bool fillBoards(
         expectBoard.no == counts.curr.no)
     {
       chunkSynth[BRIDGE_FORMAT_VULNERABLE] = 
-        chunk[BRIDGE_FORMAT_VULNERABLE];
+        clunk.get(BRIDGE_FORMAT_VULNERABLE);
       chunkSynth[BRIDGE_FORMAT_DEALER] = 
-        chunk[BRIDGE_FORMAT_DEALER];
+        clunk.get(BRIDGE_FORMAT_DEALER);
       chunkSynth[BRIDGE_FORMAT_DEAL] = 
-        chunk[BRIDGE_FORMAT_DEAL];
+        clunk.get(BRIDGE_FORMAT_DEAL);
 
       clunkSynth.copyFrom(clunk, CHUNK_DVD);
     }
@@ -980,8 +881,7 @@ static bool fillBoards(
       return false;
     advance(expectBoard, counts);
 
-assert(chunkSynth[BRIDGE_FORMAT_TITLE] == clunkSynth.get(BRIDGE_FORMAT_TITLE));
-    if (chunkSynth[BRIDGE_FORMAT_TITLE] != "")
+    if (clunkSynth.get(BRIDGE_FORMAT_TITLE) != "")
     {
       clunkSynth.reset(CHUNK_BOARD);
       for (unsigned i = 0; i <= BRIDGE_FORMAT_BOARDS_LIST; i++)
@@ -1157,9 +1057,9 @@ static bool readFormattedFile(
       for (unsigned ii = 0; ii < BRIDGE_FORMAT_LABELS_SIZE; ii++)
         clunk.set(static_cast<Label>(ii), chunk[ii]);
 
-      if (chunk[BRIDGE_FORMAT_BOARD_NO] == "" && 
-          chunk[BRIDGE_FORMAT_RESULT] == "" &&
-          chunk[BRIDGE_FORMAT_AUCTION] == "")
+      if (clunk.isEmpty(BRIDGE_FORMAT_BOARD_NO) && 
+          clunk.isEmpty(BRIDGE_FORMAT_RESULT) &&
+          clunk.isEmpty(BRIDGE_FORMAT_AUCTION))
         break;
     }
     catch (Bexcept& bex)
@@ -1170,7 +1070,7 @@ static bool readFormattedFile(
       bex.print(flog);
 
       if (options.verboseBatch)
-        printChunk(chunk);
+        cout << clunk.str();
       return false;
     }
 
@@ -1192,6 +1092,9 @@ static bool readFormattedFile(
         }
       }
       newSegFlag = newFlag;
+
+      bool newFlag2 = clunk.differsFrom(prevClunk, CHUNK_HEADER);
+assert(newFlag == newFlag2);
     }
 
     if (newSegFlag || segment == nullptr)
@@ -1199,19 +1102,12 @@ static bool readFormattedFile(
       segment = group.make();
       counts.segno++;
       counts.bno = 0;
-      Counts clounts = counts;
       if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN &&
           format != BRIDGE_FORMAT_LIN_RP)
       {
         try
         {
-          chunkLIN2range(chunk, counts);
-          clunk.getRange(clounts);
-          if (counts.bExtmin != clounts.bExtmin ||
-              counts.bExtmax != clounts.bExtmax)
-          {
-            THROW("Different ranges");
-          }
+          clunk.getRange(counts);
         }
         catch(Bexcept& bex)
         {
@@ -1221,13 +1117,14 @@ static bool readFormattedFile(
           bex.print(flog);
 
           if (options.verboseBatch)
-            printChunk(chunk);
+            cout << clunk.str();
           return false;
         }
       }
     }
 
-    str2board(chunk[BRIDGE_FORMAT_BOARD_NO], format, counts);
+    // str2board(chunk[BRIDGE_FORMAT_BOARD_NO], format, counts);
+    str2board(clunk.get(BRIDGE_FORMAT_BOARD_NO), format, counts);
 
     if (format == BRIDGE_FORMAT_LIN_VG ||
         format == BRIDGE_FORMAT_LIN_TRN)
