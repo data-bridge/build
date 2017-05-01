@@ -249,7 +249,7 @@ void heurFixTricks(
   Segment * segment,
   Board * board,
   const Buffer& buffer,
-  const vector<string>& chunk,
+  const Chunk& chunk,
   const Counts& counts,
   const Options& options)
 {
@@ -292,10 +292,10 @@ void heurFixTricks(
     }
 
     if (! str2unsigned(headerRes, hdrRes) || 
-        ! str2unsigned(chunk[BRIDGE_FORMAT_RESULT], chunkRes))
+        ! str2unsigned(chunk.get(BRIDGE_FORMAT_RESULT), chunkRes))
     {
       cout << "Bad trick strings: " << headerRes << ", " <<
-        chunk[BRIDGE_FORMAT_RESULT] << endl;
+        chunk.get(BRIDGE_FORMAT_RESULT) << endl;
     }
     else if (hdrRes == ddRes)
     {
@@ -312,7 +312,7 @@ void heurFixTricks(
       // Hodge-podge.
 
       cout << "Header " << setw(2) << right << headerRes << 
-        " mc " << setw(2) << right << chunk[BRIDGE_FORMAT_RESULT] << 
+        " mc " << setw(2) << right << chunk.get(BRIDGE_FORMAT_RESULT) << 
         " vs. DD " << setw(2) << right << ddRes << 
         " (min " << setw(2) << right << runningDD.tricksDecl << 
         ", max " << setw(2) << right << 13-runningDD.tricksDef << 
@@ -376,7 +376,7 @@ void heurFixPlayDD(
   Segment * segment,
   Board * board,
   const Buffer& buffer,
-  const vector<string>& chunk,
+  const Chunk& chunk,
   const Options& options)
 {
   cout << board->strDeal(BRIDGE_FORMAT_TXT) << endl;
@@ -390,9 +390,9 @@ void heurFixPlayDD(
   const string denomAuction = board->strDenomPlay(BRIDGE_FORMAT_PAR);
 
   string declLead = "";
-  if (chunk[BRIDGE_FORMAT_PLAY].length() >= 2)
+  if (chunk.get(BRIDGE_FORMAT_PLAY).length() >= 2)
   {
-    string lead = chunk[BRIDGE_FORMAT_PLAY].substr(0, 2);
+    string lead = chunk.get(BRIDGE_FORMAT_PLAY).substr(0, 2);
     toUpper(lead);
     const Player leader = board->holdsCard(lead);
     if (leader != BRIDGE_PLAYER_SIZE)

@@ -16,6 +16,7 @@
 #include "Segment.h"
 #include "Board.h"
 #include "Buffer.h"
+#include "Chunk.h"
 #include "bconst.h"
 
 using namespace std;
@@ -25,7 +26,7 @@ void heurFixTricks(
   Segment * segment,
   Board * board,
   const Buffer& buffer,
-  const vector<string>& chunk,
+  const Chunk& chunk,
   const Counts& counts,
   const Options& options);
 
@@ -34,7 +35,7 @@ void heurFixPlayDD(
   Segment * segment,
   Board * board,
   const Buffer& buffer,
-  const vector<string>& chunk,
+  const Chunk& chunk,
   const Options& options);
 
 #endif

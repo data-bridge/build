@@ -741,7 +741,7 @@ static bool storeChunk(
 
     if (bex.isTricks() && FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
     {
-      heurFixTricks(group, segment, board, buffer, chunk, counts, options);
+      heurFixTricks(group, segment, board, buffer, clunk, counts, options);
     }
     else if (bex.isPlay())
     {
@@ -750,12 +750,12 @@ static bool storeChunk(
     }
     else if (bex.isClaim())
     {
-      heurFixTricks(group, segment, board, buffer, chunk, counts, options);
+      heurFixTricks(group, segment, board, buffer, clunk, counts, options);
     }
     else if (bex.isPlayDD() && 
         FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
     {
-      heurFixPlayDD(group, segment, board, buffer, chunk, options);
+      heurFixPlayDD(group, segment, board, buffer, clunk, options);
     }
 
     if (options.verboseBatch)
@@ -830,28 +830,29 @@ static bool fillBoards(
 
   vector<string> chunkSynth(BRIDGE_FORMAT_LABELS_SIZE);
   Chunk clunkSynth;
-  for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
-    chunkSynth[i] = "";
+  // for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
+    // chunkSynth[i] = "";
 
   // Need the header for the very first synthetic board.
-  if (chunk[BRIDGE_FORMAT_TITLE] != "")
+  if (clunk.isSet(BRIDGE_FORMAT_TITLE))
   {
     clunkSynth.copyFrom(clunk, CHUNK_BOARD);
     clunk.reset(CHUNK_BOARD);
 
     for (unsigned i = 0; i <= BRIDGE_FORMAT_BOARDS_LIST; i++)
     {
-      chunkSynth[i] = chunk[i];
+      // chunkSynth[i] = chunk[i];
       chunk[i] = "";
     }
   }
 
   do
   {
-    chunkSynth[BRIDGE_FORMAT_BOARD_NO] =
-      (expectBoard.roomFlag ? 'o' : 'c') +
-      STR(expectBoard.no);
-    clunkSynth.set(BRIDGE_FORMAT_BOARD_NO, chunkSynth[BRIDGE_FORMAT_BOARD_NO]);
+    // chunkSynth[BRIDGE_FORMAT_BOARD_NO] =
+      // (expectBoard.roomFlag ? 'o' : 'c') +
+      // STR(expectBoard.no);
+    clunkSynth.set(BRIDGE_FORMAT_BOARD_NO, 
+      (expectBoard.roomFlag ? 'o' : 'c') + STR(expectBoard.no));
 
     if (expectBoard.no != lastBoard.no)
     {
@@ -862,12 +863,12 @@ static bool fillBoards(
     if (format == BRIDGE_FORMAT_LIN_VG &&
         expectBoard.no == counts.curr.no)
     {
-      chunkSynth[BRIDGE_FORMAT_VULNERABLE] = 
-        clunk.get(BRIDGE_FORMAT_VULNERABLE);
-      chunkSynth[BRIDGE_FORMAT_DEALER] = 
-        clunk.get(BRIDGE_FORMAT_DEALER);
-      chunkSynth[BRIDGE_FORMAT_DEAL] = 
-        clunk.get(BRIDGE_FORMAT_DEAL);
+      // chunkSynth[BRIDGE_FORMAT_VULNERABLE] = 
+        // clunk.get(BRIDGE_FORMAT_VULNERABLE);
+      // chunkSynth[BRIDGE_FORMAT_DEALER] = 
+        // clunk.get(BRIDGE_FORMAT_DEALER);
+      // chunkSynth[BRIDGE_FORMAT_DEAL] = 
+        // clunk.get(BRIDGE_FORMAT_DEAL);
 
       clunkSynth.copyFrom(clunk, CHUNK_DVD);
     }
@@ -881,11 +882,11 @@ static bool fillBoards(
       return false;
     advance(expectBoard, counts);
 
-    if (clunkSynth.get(BRIDGE_FORMAT_TITLE) != "")
+    if (clunkSynth.isSet(BRIDGE_FORMAT_TITLE))
     {
       clunkSynth.reset(CHUNK_BOARD);
-      for (unsigned i = 0; i <= BRIDGE_FORMAT_BOARDS_LIST; i++)
-        chunkSynth[i] = "";
+      // for (unsigned i = 0; i <= BRIDGE_FORMAT_BOARDS_LIST; i++)
+        // chunkSynth[i] = "";
     }
   }
   while (counts.curr > expectBoard);
