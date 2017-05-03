@@ -327,10 +327,13 @@ bool Buffer::split(
 
 bool Buffer::fix(
   const string& fname,
+  RefControl& refControl,
   const RefUse use)
 {
   vector<RefFix> refFix;
-  readRefFix(fname, refFix);
+  readRefFix(fname, refFix, refControl);
+  if (refControl == ERR_REF_SKIP)
+    return false;
   bool usedFlag = false;
 
   for (unsigned rno = 0; rno < refFix.size(); rno++)

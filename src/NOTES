@@ -1,25 +1,47 @@
 01.05.2017
 ----------
-* Write a script to detect c1, o1, c2, o2 with no exceptions.
-- Check that .noval exists
-- Rename it to .rev
-* Modify dispatch to write in reverse order
+* Maybe we can eliminate .noval
+  COCO 101
+  OOCC  50
+  CCOO   0
+  rest  23
+  SYNT   1
 
-* Check on BBOVG
-* Check on RPmajors
+1. On top of .ref, have
+  output {COCO,OOCC} {ERR_LIN_QX_ORDER_COCO, OOCC}
+  noval {ERR_LIN_QX_UNORDERED or SYNTAX}, where 1st value is line number
+    (not tag count)
+  script to take the .noval files into this
 
-* Get RPmajors to work again
-- LIN-LIN
-- RBN-RBN
-- etc.
-- All crosses
+2. dispatch to output in this order
 
-* Extend refstats.pl to all formats
+3. noval causes dispatch to skip validation
 
-* Fix .ref and .fix files for all formats
+4. eliminate noval as file
 
-* Introduce replaceTXT? replacePBN? replaceRBN/RBX picking out
-  the colon-separated target
+5. simplify Files.cpp (no noval)
+
+6. Run on BBOVG, BBOSH, BBOJEC
+
+For RPmajors:
+
+7. Same script for LIN
+   LIN-LIN -R should then work (better)
+   Some of the sick ordering in dispatch (and Segment?) may then resolve
+
+8. Can probably take the same output lines for RBN, RBX, PBN
+   Does this remove the "Room" tags in 3408 .fix lines?
+
+9. Get whole RPmajors matrix to work
+
+10. Extend refstats.pl to all formats
+
+11. How much of .fix can we move into .ref?
+   Introduce replaceTXT? replacePBN? replaceRBN/RBX picking out
+   the colon-separated target
+
+12. Move skip into .ref header as well?
+
 
 * In dispatch, make boardIDLIN into an object?
 

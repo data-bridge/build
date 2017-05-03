@@ -16,6 +16,16 @@
 using namespace std;
 
 
+enum RefControl
+{
+  ERR_REF_STANDARD = 0,
+  ERR_REF_SKIP = 1,
+  ERR_REF_NOVAL = 2,
+  ERR_REF_OUT_COCO = 3,
+  ERR_REF_OUT_OOCC = 4
+};
+
+
 enum FixType
 {
   BRIDGE_REF_INSERT = 0,
@@ -452,7 +462,8 @@ struct RefErrorClass
 
 void readRefFix(
   const string& fname,
-  vector<RefFix>& refFix);
+  vector<RefFix>& refFix,
+  RefControl refControl);
 
 string strRefFix(const RefFix& refFix);
 

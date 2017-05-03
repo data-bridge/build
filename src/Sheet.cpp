@@ -404,9 +404,12 @@ bool Sheet::read(
     if (! buffer.read(fname, BRIDGE_FORMAT_LIN))
       return false;
 
-    if (! buffer.fix(fname, BRIDGE_REF_ONLY_PARTIAL))
+    RefControl refControl;
+    if (! buffer.fix(fname, refControl, BRIDGE_REF_ONLY_PARTIAL))
     {
       // Ignore -- file may be missing, or no partials.
+      if (refControl == ERR_REF_SKIP)
+        return true;
     }
   }
   catch (Bexcept& bex)
@@ -420,11 +423,15 @@ bool Sheet::read(
   {
     Sheet::parse(buffer, headerOrig, handsOrig);
 
-    readRefFix(fname, refFix);
+    RefControl refControl = ERR_REF_STANDARD;
+    readRefFix(fname, refFix, refControl);
+    if (refControl == ERR_REF_SKIP)
+      return true;
+
     refEffects.resize(refFix.size());
     Sheet::parseRefs(buffer);
 
-    if (! buffer.fix(fname, BRIDGE_REF_ONLY_NONPARTIAL))
+    if (! buffer.fix(fname, refControl, BRIDGE_REF_ONLY_NONPARTIAL))
       return true; // No ref file
 
     buffer.rewind();

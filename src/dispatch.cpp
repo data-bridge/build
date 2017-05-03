@@ -72,6 +72,7 @@ static bool readFormattedFile(
   const Format format,
   Group& group,
   const Options& options,
+  RefControl& refControl,
   ostream& flog);
 
 static bool readFormattedFile(
@@ -95,6 +96,7 @@ static void readFix(
 static void writeFormattedFile(
   Group& group,
   const string& fname,
+  const RefControl refControl,
   string& text,
   const Format format);
 
@@ -222,12 +224,15 @@ static bool dispatchRead(
   const FileTask& task,
   Group& group,
   const Options& options,
+  RefControl& refControl,
   ostream& flog)
 {
   try
   {
     bool b = readFormattedFile(task.fileInput,
-      task.formatInput, group, options, flog);
+      task.formatInput, group, options, refControl, flog);
+    if (refControl == ERR_REF_SKIP)
+      return true;
 
     if (options.playersFlag && b)
       checkPlayerCompletion(group, flog);
@@ -261,6 +266,7 @@ static void dispatchStats(
 
 static void dispatchWrite(
   const FileOutputTask& otask,
+  const RefControl refControl,
   Group& group,
   string& text,
   ostream& flog)
@@ -268,7 +274,8 @@ static void dispatchWrite(
   try
   {
     text = "";
-    writeFormattedFile(group, otask.fileOutput, text, otask.formatOutput);
+    writeFormattedFile(group, otask.fileOutput, refControl, 
+      text, otask.formatOutput);
   }
   catch (Bexcept& bex)
   {
@@ -394,6 +401,8 @@ void dispatch(
   string text;
   text.reserve(100000);
 
+  RefControl refControl;
+
   while (files.next(task))
   {
     if (options.verboseIO)
@@ -406,13 +415,15 @@ void dispatch(
       goto DIGEST;
 
     timers.start(BRIDGE_TIMER_READ, task.formatInput);
-    bool b = dispatchRead(task, group, options, flog);
+    bool b = dispatchRead(task, group, options, refControl, flog);
     timers.stop(BRIDGE_TIMER_READ, task.formatInput);
     if (! b)
     {
       flog << "Failed to read " << task.fileInput << endl;
       continue;
     }
+    if (refControl == ERR_REF_SKIP)
+      continue;
 
     if (options.statsFlag)
     {
@@ -430,10 +441,10 @@ void dispatch(
         flog << "Output " << t.fileOutput << endl;
 
       timers.start(BRIDGE_TIMER_WRITE, t.formatOutput);
-      dispatchWrite(t, group, text, flog);
+      dispatchWrite(t, refControl, group, text, flog);
       timers.stop(BRIDGE_TIMER_WRITE, t.formatOutput);
 
-      if (t.refFlag)
+      if (t.refFlag && refControl != ERR_REF_NOVAL)
       {
         if (options.verboseIO)
           flog << "Validating " << t.fileOutput <<
@@ -948,11 +959,14 @@ static bool readFormattedFile(
   const Format format,
   Group& group,
   const Options& options,
+  RefControl& refControl,
   ostream& flog)
 {
   Buffer buffer;
   buffer.read(fname, format);
-  buffer.fix(fname);
+  buffer.fix(fname, refControl);
+  if (refControl == ERR_REF_SKIP)
+    return true;
 
   vector<Fix> fix;
   fix.clear();
@@ -1201,6 +1215,7 @@ static void writeHeader(
 static void writeFormattedFile(
   Group& group,
   const string& fname,
+  const RefControl refControl,
   string &text,
   const Format format)
 {
@@ -1221,23 +1236,34 @@ static void writeFormattedFile(
     writeInfo.score2 = 0;
     writeInfo.numBoards = segment.size();
 
-    for (auto &bpair: segment)
+    if (refControl == ERR_REF_OUT_COCO)
     {
-      Board& board = bpair.board;
-      segment.setBoard(bpair.no);
-
-      writeInfo.bno = bpair.no;
-      writeInfo.numInst = board.countAll();
-
-      for (unsigned i = 0; i < writeInfo.numInst; i++)
+      THROW("TODO");
+    }
+    else if (refControl == ERR_REF_OUT_OOCC)
+    {
+      THROW("TODO");
+    }
+    else
+    {
+      for (auto &bpair: segment)
       {
-        board.setInstance(i);
-        if (board.skipped())
-          continue;
+        Board& board = bpair.board;
+        segment.setBoard(bpair.no);
 
-        writeInfo.ino = i;
-        (* formatFncs[format].writeBoard)
-          (text, segment, board, writeInfo, format);
+        writeInfo.bno = bpair.no;
+        writeInfo.numInst = board.countAll();
+
+        for (unsigned i = 0; i < writeInfo.numInst; i++)
+        {
+          board.setInstance(i);
+          if (board.skipped())
+            continue;
+
+          writeInfo.ino = i;
+          (* formatFncs[format].writeBoard)
+            (text, segment, board, writeInfo, format);
+        }
       }
     }
   }

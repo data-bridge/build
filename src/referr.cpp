@@ -206,10 +206,12 @@ static bool parseRefLIN(
 
 void readRefFix(
   const string& fname,
-  vector<RefFix>& refFix)
+  vector<RefFix>& refFix,
+  RefControl refControl)
 {
   regex re("\\.\\w+$");
   string refName = regex_replace(fname, re, string(".ref"));
+  refControl = ERR_REF_STANDARD;
 
   // There might not be a .ref file (not an error).
   ifstream refstr(refName.c_str());
@@ -230,7 +232,18 @@ void readRefFix(
       THROW("Ref file " + refName + ": Syntax error in '" + line + "'");
 
     if (! str2unsigned(s, rf.lno))
-      THROW("Ref file " + refName + ": Bad number in '" + line + "'");
+    {
+      if (s == "skip")
+        refControl = ERR_REF_SKIP;
+      else if (s == "noval")
+        refControl = ERR_REF_NOVAL;
+      else if (s == "outCOCO")
+        refControl = ERR_REF_OUT_COCO;
+      else if (s == "outOOCC")
+        refControl = ERR_REF_OUT_OOCC;
+      else
+        THROW("Ref file " + refName + ": Bad number in '" + line + "'");
+    }
       
     if (! getNextWord(line, s))
       THROW("Ref file " + refName + ": Syntax error in '" + line + "'");

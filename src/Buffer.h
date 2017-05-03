@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "valint.h"
+#include "referr.h"
 #include "bconst.h"
 
 using namespace std;
@@ -79,6 +80,7 @@ class Buffer
 
     bool fix(
       const string& fname,
+      RefControl& refcontrol,
       const RefUse use = BRIDGE_REF_ALL);
 
     bool advance();
