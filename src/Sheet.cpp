@@ -401,16 +401,13 @@ bool Sheet::read(
 
   try
   {
-    if (! buffer.read(fname, BRIDGE_FORMAT_LIN))
+    RefControl refControl;
+    if (! buffer.read(fname, BRIDGE_FORMAT_LIN, refControl,
+        BRIDGE_REF_ONLY_PARTIAL))
       return false;
 
-    RefControl refControl;
-    if (! buffer.fix(fname, refControl, BRIDGE_REF_ONLY_PARTIAL))
-    {
-      // Ignore -- file may be missing, or no partials.
-      if (refControl == ERR_REF_SKIP)
-        return true;
-    }
+    if (refControl == ERR_REF_SKIP)
+      return true;
   }
   catch (Bexcept& bex)
   {

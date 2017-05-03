@@ -48,6 +48,10 @@ class Buffer
     bool isRBN(LineData& ld);
     bool isRBX(LineData& ld);
 
+    bool fix(
+      const vector<RefFix> refFix,
+      const RefUse use);
+
     void classify(LineData& ld);
 
     unsigned getInternalNumber(const unsigned no) const;
@@ -72,7 +76,9 @@ class Buffer
 
     bool read(
       const string& fname,
-      const Format format);
+      const Format format,
+      RefControl& refControl,
+      const RefUse use = BRIDGE_REF_ALL);
 
     bool split(
       const string& st,

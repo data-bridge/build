@@ -963,8 +963,7 @@ static bool readFormattedFile(
   ostream& flog)
 {
   Buffer buffer;
-  buffer.read(fname, format);
-  buffer.fix(fname, refControl);
+  buffer.read(fname, format, refControl);
   if (refControl == ERR_REF_SKIP)
     return true;
 

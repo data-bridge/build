@@ -279,16 +279,27 @@ void Buffer::classify(LineData& ld)
 
 bool Buffer::read(
   const string& fname,
-  const Format formatIn)
+  const Format formatIn,
+  RefControl& refControl,
+  const RefUse use)
 {
   fileName = fname;
   format = formatIn;
+
+  vector<RefFix> refFix;
+  readRefFix(fname, refFix, refControl);
+  if (refControl == ERR_REF_SKIP)
+    return false;
+
   Buffer::readBinaryFile(fname);
   if (len == 0)
     return false;
 
   for (auto &ld: lines)
     Buffer::classify(ld);
+
+  return Buffer::fix(refFix, use);
+
   return true;
 }
 
@@ -334,6 +345,15 @@ bool Buffer::fix(
   readRefFix(fname, refFix, refControl);
   if (refControl == ERR_REF_SKIP)
     return false;
+
+  return Buffer::fix(refFix, use);
+}
+
+
+bool Buffer::fix(
+  const vector<RefFix> refFix,
+  const RefUse use)
+{
   bool usedFlag = false;
 
   for (unsigned rno = 0; rno < refFix.size(); rno++)
