@@ -1,5 +1,21 @@
 01.05.2017
 ----------
+*  Run refstats.pl and keep the result stored
+
+*  Finish skip2ref.pl
+   Delete .skip file
+   Add to .ref file (or create it)
+
+*  Modify refstats.pl to read the new .ref file (count as .skip)
+
+*  diff
+
+
+* ./reader -i 7090.pbn -O tmp -c -s -v 31 dies after 
+  "Output tmp/PBN/7090.LIN", probably trying to compare/validate?
+
+* Does it seem right that reader got so much faster with the .ref code change?
+
 * Maybe we can eliminate .noval
   COCO 101
   OOCC  50
@@ -40,7 +56,6 @@ For RPmajors:
    Introduce replaceTXT? replacePBN? replaceRBN/RBX picking out
    the colon-separated target
 
-12. Move skip into .ref header as well?
 
 
 * In dispatch, make boardIDLIN into an object?
