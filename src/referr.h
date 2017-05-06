@@ -94,6 +94,8 @@ enum RefErrorsType
   ERR_LIN_PN_DELETE,
 
   ERR_LIN_QX_REPLACE,
+  ERR_LIN_QX_ORDER_COCO,
+  ERR_LIN_QX_ORDER_OOCC,
   ERR_LIN_QX_UNORDERED,
 
   ERR_LIN_MD_REPLACE,
@@ -143,6 +145,17 @@ enum RefErrorsType
 
   ERR_LIN_SYNTAX,
   ERR_LIN_OMIT,
+
+  ERR_PBN_DECLARER_REPLACE,
+  ERR_PBN_RESULT_REPLACE,
+  ERR_PBN_SCORE_REPLACE,
+  ERR_PBN_ALERT_REPLACE,
+  ERR_PBN_ALERT_DELETE,
+  ERR_PBN_NOTE_REPLACE,
+  ERR_PBN_NOTE_INSERT,
+  ERR_PBN_NOTE_DELETE,
+  ERR_PBN_SYNTAX,
+  ERR_PBN_OMIT,
 
   ERR_SIZE
 };
@@ -277,6 +290,14 @@ const vector<RefErrorBundle> RefErrors =
   {ERR_LIN_QX_REPLACE,
    "ERR_LIN_QXREPLACE",
    "LIN qx replace"},
+
+  {ERR_LIN_QX_ORDER_COCO,
+   "ERR_LIN_QX_ORDER_COCO",
+   "LIN qx order COCO"},
+
+  {ERR_LIN_QX_ORDER_OOCC,
+   "ERR_LIN_QX_ORDER_OOCC",
+   "LIN qx order OOCC"},
 
   {ERR_LIN_QX_UNORDERED,
    "ERR_LIN_QX_UNORDERED",
@@ -443,6 +464,47 @@ const vector<RefErrorBundle> RefErrors =
   {ERR_LIN_OMIT,
    "ERR_LIN_OMIT",
    "LIN omit in general"},
+
+
+  {ERR_PBN_DECLARER_REPLACE,
+   "ERR_PBN_DECLARER_REPLACE",
+   "PBN declarer replce"},
+
+  {ERR_PBN_RESULT_REPLACE,
+   "ERR_PBN_RESULT_REPLACE",
+   "PBN result replce"},
+
+  {ERR_PBN_SCORE_REPLACE,
+   "ERR_SCORE_REPLACE",
+   "PBN score replace"},
+
+  {ERR_PBN_ALERT_REPLACE,
+   "ERR_PBN_ALERT_REPLACE",
+   "PBN alert replace"},
+
+  {ERR_PBN_ALERT_DELETE,
+   "ERR_PBN_ALERT_DELETE",
+   "PBN alert delete"},
+
+  {ERR_PBN_NOTE_REPLACE,
+   "ERR_PBN_NOTE_REPLACE",
+   "PBN note replace"},
+
+  {ERR_PBN_NOTE_INSERT,
+   "ERR_PBN_NOTE_INSERT",
+   "PBN note insert"},
+
+  {ERR_PBN_NOTE_DELETE,
+   "ERR_PBN_NOTE_DELETE",
+   "PBN note delete"},
+
+  {ERR_PBN_SYNTAX,
+   "ERR_PBN_SYNTAX",
+   "PBN syntax"},
+
+  {ERR_PBN_OMIT,
+   "ERR_PBN_OMIT",
+   "PBN omit in general"},
 
 
   {ERR_SIZE,

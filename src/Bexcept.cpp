@@ -41,6 +41,14 @@ bool Bexcept::isTricks() const
 }
 
 
+bool Bexcept::isNoCards() const
+{
+  return (file == "fileLIN.cpp" &&
+      function == "readLINChunk" &&
+      message == "No LIN cards found (md)");
+}
+
+
 bool Bexcept::isPlay() const
 {
   return (file == "Play.cpp" &&

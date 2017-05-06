@@ -1017,13 +1017,22 @@ static bool readFormattedFile(
       (* formatFncs[format].readChunk)
         (buffer, counts.lno, chunk, newSegFlag);
 
-      if (chunk.isEmpty(BRIDGE_FORMAT_BOARD_NO) && 
+      if (chunk.isEmpty(BRIDGE_FORMAT_BOARD_NO) &&
           chunk.isEmpty(BRIDGE_FORMAT_RESULT) &&
           chunk.isEmpty(BRIDGE_FORMAT_AUCTION))
         break;
     }
     catch (Bexcept& bex)
     {
+      if ((format == BRIDGE_FORMAT_LIN ||
+           format == BRIDGE_FORMAT_LIN_TRN) &&
+          bex.isNoCards() &&
+          chunk.isEmpty(BRIDGE_FORMAT_TITLE))
+      {
+        // Empty hand.
+        continue;
+      }
+          
       if (options.verboseThrow)
         printCounts(group.name(), counts);
 
@@ -1237,14 +1246,56 @@ static void writeFormattedFile(
 
     if (refControl == ERR_REF_OUT_COCO)
     {
-      THROW("TODO");
+      // c1, o1, c2, o2, ...
+      for (auto &bpair: segment)
+      {
+        Board& board = bpair.board;
+        segment.setBoard(bpair.no);
+
+        writeInfo.bno = bpair.no;
+        writeInfo.numInst = board.countAll();
+
+        for (unsigned i = 0, j = writeInfo.numInst-1; 
+            i < writeInfo.numInst; i++, j--)
+        {
+          board.setInstance(j);
+          if (board.skipped())
+            continue;
+
+          writeInfo.ino = j;
+          (* formatFncs[format].writeBoard)
+            (text, segment, board, writeInfo, format);
+        }
+      }
     }
     else if (refControl == ERR_REF_OUT_OOCC)
     {
-      THROW("TODO");
+      // o1, o2, ..., c1, c2, ...
+      for (unsigned i = 0; i < 2; i++)
+      {
+        for (auto &bpair: segment)
+        {
+          Board& board = bpair.board;
+          segment.setBoard(bpair.no);
+
+          writeInfo.bno = bpair.no;
+          writeInfo.numInst = board.countAll();
+          if (writeInfo.numInst > 2)
+            THROW("Too many instances for OOCC output order");
+
+          board.setInstance(i);
+          if (board.skipped())
+            continue;
+
+          writeInfo.ino = i;
+          (* formatFncs[format].writeBoard)
+            (text, segment, board, writeInfo, format);
+        }
+      }
     }
     else
     {
+      // o1, c1, o2, c2, ...
       for (auto &bpair: segment)
       {
         Board& board = bpair.board;

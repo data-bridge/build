@@ -237,9 +237,9 @@ void readRefFix(
         refControl = ERR_REF_SKIP;
       else if (s == "noval")
         refControl = ERR_REF_NOVAL;
-      else if (s == "outCOCO")
+      else if (s == "orderCOCO")
         refControl = ERR_REF_OUT_COCO;
-      else if (s == "outOOCC")
+      else if (s == "orderOOCC")
         refControl = ERR_REF_OUT_OOCC;
       else
         THROW("Ref file " + refName + ": Bad number in '" + line + "'");
