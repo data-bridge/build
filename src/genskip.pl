@@ -6,7 +6,8 @@ use warnings;
 # Looks at .lin file and suggests a skip text.
 
 # my $reason = "ERR_LIN_PN_PLAYERS_WRONG";
-my $reason = "ERR_LIN_QX_UNORDERED";
+my $reason = "ERR_LIN_QX_ORDER_COCO";
+my $filetag = "orderCOCO";
 
 if ($#ARGV < 0)
 {
@@ -45,6 +46,10 @@ if ($ARGV[0] =~ /^\d+$/ && length($ARGV[0]) > 2)
     $file = "$DIR/0${t}000/$base.lin";
   }
 }
+elsif ($ARGV[0] =~ /.lin$/ || $ARGV[0] =~ /.LIN$/)
+{
+  $file = $ARGV[0];
+}
 else
 {
   print "Usage: perl genskip.pl number\n";
@@ -71,4 +76,4 @@ while (my $line = <$fr>)
 }
 close $fr;
 
-print "$ln {$reason(0,$qx,$bd)}\n";
+print "$filetag {$reason($ln,$qx,$bd)}\n";

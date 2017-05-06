@@ -401,7 +401,7 @@ void dispatch(
   string text;
   text.reserve(100000);
 
-  RefControl refControl;
+  RefControl refControl = ERR_REF_STANDARD;
 
   while (files.next(task))
   {

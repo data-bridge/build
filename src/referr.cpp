@@ -207,7 +207,7 @@ static bool parseRefLIN(
 void readRefFix(
   const string& fname,
   vector<RefFix>& refFix,
-  RefControl refControl)
+  RefControl& refControl)
 {
   regex re("\\.\\w+$");
   string refName = regex_replace(fname, re, string(".ref"));
@@ -243,6 +243,7 @@ void readRefFix(
         refControl = ERR_REF_OUT_OOCC;
       else
         THROW("Ref file " + refName + ": Bad number in '" + line + "'");
+      continue;
     }
       
     if (! getNextWord(line, s))

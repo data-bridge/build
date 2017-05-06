@@ -463,7 +463,7 @@ struct RefErrorClass
 void readRefFix(
   const string& fname,
   vector<RefFix>& refFix,
-  RefControl refControl);
+  RefControl& refControl);
 
 string strRefFix(const RefFix& refFix);
 
