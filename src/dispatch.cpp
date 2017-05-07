@@ -1024,15 +1024,6 @@ static bool readFormattedFile(
     }
     catch (Bexcept& bex)
     {
-      if ((format == BRIDGE_FORMAT_LIN ||
-           format == BRIDGE_FORMAT_LIN_TRN) &&
-          bex.isNoCards() &&
-          chunk.isEmpty(BRIDGE_FORMAT_TITLE))
-      {
-        // Empty hand.
-        continue;
-      }
-          
       if (options.verboseThrow)
         printCounts(group.name(), counts);
 

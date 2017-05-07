@@ -218,6 +218,23 @@ void Buffer::classify(LineData& ld)
     ld.type = BRIDGE_BUFFER_EMPTY;
     return;
   }
+  else if ((format == BRIDGE_FORMAT_LIN || format == BRIDGE_FORMAT_LIN_TRN) &&
+      ld.len >= 17 && ld.len <= 23 &&
+      ld.line.substr(0, 3) == "qx|")
+  {
+    // Kludge for some empty hands from actual own BBO play.
+    //
+    if (ld.len >= 21 && ld.line.substr(ld.len-15) == "pn|,,,,,,,|pg||")
+    {
+      ld.type = BRIDGE_BUFFER_EMPTY;
+      return;
+    }
+    else if (ld.len <= 19 && ld.line.substr(ld.len-11) == "pn|,,,|pg||")
+    {
+      ld.type = BRIDGE_BUFFER_EMPTY;
+      return;
+    }
+  }
   else if (format == BRIDGE_FORMAT_TXT &&
       ld.len > 5 &&
       ld.line.substr(0, 5) == "-----")

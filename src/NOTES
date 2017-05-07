@@ -1,13 +1,16 @@
 01.05.2017
 ----------
+* Get reader to work on RPmajors
+  - Get whole RPmajors matrix to work
+* Get refstats to work on RPmajors
+  - Extend to all formats
+* Think about ref syntax for replacePBN, replaceTXT
+* simplify Files.cpp (no noval and skip)
+
 * ./reader -i 7090.pbn -O tmp -c -s -v 31 dies after 
   "Output tmp/PBN/7090.LIN", probably trying to compare/validate?
 
 * Does it seem right that reader got so much faster with the .ref code change?
-
-5. simplify Files.cpp (no noval)
-
-6. Run on BBOVG, BBOSH, BBOJEC
 
 For RPmajors:
 
@@ -17,10 +20,6 @@ For RPmajors:
 
 8. Can probably take the same output lines for RBN, RBX, PBN
    Does this remove the "Room" tags in 3408 .fix lines?
-
-9. Get whole RPmajors matrix to work
-
-10. Extend refstats.pl to all formats
 
 11. How much of .fix can we move into .ref?
    Introduce replaceTXT? replacePBN? replaceRBN/RBX picking out
@@ -71,7 +70,7 @@ Regression
 ----------
 * ./reader -I -R -c -s -v 30 (maybe -p as well)
 * ./reader -I -D -v 30
-* perl refstats.pl all
+* perl refstats.pl BBOVG, BBOSH, BBOJEC, RPmajors
 * perl skipnames.pl all (make it generate skip files)
 * perl skiphands.pl all (make it generate skip files)
 * perl director.pl dir (a lot, unfortunately)
