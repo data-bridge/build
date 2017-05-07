@@ -216,6 +216,7 @@ void Chunk::guessDealerAndVul(const Format format)
   const string st = chunk[BRIDGE_FORMAT_BOARD_NO];
   unsigned u;
   if (format == BRIDGE_FORMAT_LIN || 
+      format == BRIDGE_FORMAT_LIN_RP ||
       format == BRIDGE_FORMAT_LIN_VG ||
       format == BRIDGE_FORMAT_LIN_TRN)
   {

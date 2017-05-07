@@ -695,7 +695,8 @@ static bool storeChunk(
       {
         chunk.guessDealerAndVul(segment->getActiveExtBoardNo(), format);
       }
-      else if (format == BRIDGE_FORMAT_LIN_VG && board->hasDealerVul())
+      else if (format == BRIDGE_FORMAT_LIN_VG && 
+          board->hasDealerVul())
       {
         chunk.set(BRIDGE_FORMAT_VULNERABLE, board->strVul(BRIDGE_FORMAT_PAR));
       }

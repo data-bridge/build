@@ -2,6 +2,16 @@
 ----------
 * Get reader to work on RPmajors
   - Get whole RPmajors matrix to work
+
+i\o     LIN     PBN     RBN     RBX     TXT     EML     REC
+LIN     OK
+PBN
+RBN
+RBX
+TXT
+EML
+REC
+
 * Get refstats to work on RPmajors
   - Extend to all formats
 * Think about ref syntax for replacePBN, replaceTXT
