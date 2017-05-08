@@ -27,6 +27,8 @@ class Group
 
     vector<Segment> segments;
 
+    bool flagCOCO;
+
 
   public:
 
@@ -47,6 +49,8 @@ class Group
     Format format() const;
 
     Segment * make();
+
+    void setCOCO();
 
     unsigned count();
 

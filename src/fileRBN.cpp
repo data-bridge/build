@@ -123,7 +123,7 @@ void writeRBNBoardLevel(
   st += board.strAuction(format);
   st += board.strContract(format);
   st += board.strPlay(format);
-  st += board.strResult(format, segment.scoringIsIMPs());
+  st += board.strResult(format, segment.scoringIsIMPs(), segment.getCOCO());
   st += "\n";
 }
 

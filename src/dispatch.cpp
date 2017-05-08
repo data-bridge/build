@@ -973,6 +973,12 @@ static bool readFormattedFile(
   readFix(fname, fix);
 
   group.setName(fname);
+  // TODO: Probably other formats as well.
+  if ((format == BRIDGE_FORMAT_LIN_RP ||
+       format == BRIDGE_FORMAT_PBN ||
+       format == BRIDGE_FORMAT_RBN) && 
+      refControl == ERR_REF_OUT_COCO)
+    group.setCOCO();
 
   return readFormattedFile(buffer, fix, format, group, options, flog);
 }
@@ -1254,7 +1260,7 @@ static void writeFormattedFile(
           if (board.skipped())
             continue;
 
-          writeInfo.ino = j;
+          writeInfo.ino = i;
           (* formatFncs[format].writeBoard)
             (text, segment, board, writeInfo, format);
         }

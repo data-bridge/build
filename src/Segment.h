@@ -43,6 +43,7 @@ class Segment
     Session session;
     Scoring scoring;
     Teams teams;
+    bool flagCOCO; // Team order is swapped in the input
 
     unsigned len;
     vector<BoardPair> boards;
@@ -114,6 +115,9 @@ class Segment
     unsigned size() const;
 
     unsigned count() const;
+
+    void setCOCO();
+    bool getCOCO() const;
 
     void setTitle(
       const string& text,
@@ -232,8 +236,12 @@ class Segment
       const int score2,
       const Format format) const;
 
-    string strFirstTeam(const Format format) const;
-    string strSecondTeam(const Format format) const;
+    string strFirstTeam(
+      const Format format,
+      const bool swapFlag = false) const;
+    string strSecondTeam(
+      const Format format,
+      const bool swapFlag = false) const;
 
     string strNumber(
       const unsigned intNo,

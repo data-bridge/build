@@ -56,6 +56,7 @@ my $ASSOC_OK_GLOBAL = 2;
 my $ASSOC_OK_LOCAL = 3;
 
 my (%tag_lists, %tag_global, %tag_no_global_count, %tag_global_count);
+my (%tag_globalRBN);
 set_tag_assocs();
 
 # {lin .. rec}{ref,skip,noval,order}
@@ -212,6 +213,8 @@ sub set_tag_assocs
   $tag_global_count{ERR_LIN_HAND_DIRECTOR} = 1;
   $tag_global_count{ERR_LIN_SYNTAX} = 1;
 
+  $tag_globalRBN{ERR_RBN_N_REPLACE} = 1;
+
   @{$tag_lists{vg}} = qw(
     ERR_LIN_VG_FIRST
     ERR_LIN_VG_LAST
@@ -357,6 +360,16 @@ sub make_stats
         }
 
         check_refPBN($file, $src_file, $line, \%counts);
+      }
+      elsif ($src_ext eq 'rbn')
+      {
+        if (! parse_refRBN($file, $line, \%counts))
+        {
+          warn "$file, $line: Could not parse";
+          next;
+        }
+
+        check_refRBN($file, $src_file, $line, \%counts);
       }
       else
       {
@@ -514,10 +527,56 @@ sub parse_refPBN
     $counts_ref->{action} = $2;
     $counts_ref->{repeat_lines} = 1;
 
-    if ($counts_ref->{action} =~ /PBN/ && $line =~ /^\d+\s+\w+\s+\"([^"]*)\"/)
+    if ($counts_ref->{action} =~ /PBN/ && $line =~ /^\d+\s+\w+\s+\"(.*)\" \{/)
     {
       my $quoted = $1;
       quotes_to_contentPBN($file, $quoted, $counts_ref);
+    }
+    return 1;
+  }
+  else
+  {
+    return 0;
+  }
+
+}
+
+
+sub parse_refRBN
+{
+  my ($file, $line, $counts_ref) = @_;
+
+  $counts_ref->{lno} = 0;
+  $counts_ref->{action} = "";
+  $counts_ref->{repeat_lines} = 0;
+
+  if ($line !~ /\{(.+)\((\d+),(\d+),(\d+)\)\}/)
+  {
+    warn "Bad entry: $file, $line";
+    return 0;
+  }
+  $counts_ref->{tag_ref} = $1;
+  $counts_ref->{tags} = $2;
+  $counts_ref->{qxs} = $3;
+  $counts_ref->{bds} = $4;
+
+  if ($line =~ /^(\d+)\s+(\w+)\s+(\d+)/)
+  {
+    $counts_ref->{lno} = $1;
+    $counts_ref->{action} = $2;
+    $counts_ref->{repeat_lines} = $3;
+    return 1;
+  }
+  elsif ($line =~ /^(\d+)\s+(\w+)/)
+  {
+    $counts_ref->{lno} = $1;
+    $counts_ref->{action} = $2;
+    $counts_ref->{repeat_lines} = 1;
+
+    if ($counts_ref->{action} =~ /RBN/ && $line =~ /^\d+\s+\w+\s+\"([^"]*)\"/)
+    {
+      my $quoted = $1;
+      quotes_to_contentRBN($file, $quoted, $counts_ref);
     }
     return 1;
   }
@@ -542,7 +601,7 @@ sub count_file
   }
   elsif ($ext eq 'rbn')
   {
-    die "TODO extension 'ext'";
+    countRBN($src_file, 0, 999999, $counts_ref);
   }
   elsif ($ext eq 'rbx')
   {
@@ -631,7 +690,7 @@ sub countPBN
     last unless $lno <= $last;
     $cref->{lines}++;
 
-    if ($line =~ /^\[Board \"(.*)\"\]$/)
+    if ($line =~ /^\[Board \"(.*)\"\]/)
     {
       $curr = $1;
       $cref->{qxs}++;
@@ -643,6 +702,44 @@ sub countPBN
     }
   }
   close $fr;
+
+  if ($cref->{qxs} == 1 && $cref->{bds} == 0)
+  {
+    $cref->{bds} = 1;
+  }
+}
+
+
+sub countRBN
+{
+  my ($file, $first, $last, $cref) = @_;
+
+  $cref->{lines} = 0;
+  $cref->{qxs} = 0;
+  $cref->{bds} = 0;
+
+  my $curr;
+  my $lno = 0;
+
+  my @seen;
+  open my $fr, '<', $file or die "Can't open $file $!";
+  while (my $line = <$fr>)
+  {
+    $lno++;
+    next unless $lno >= $first;
+    last unless $lno <= $last;
+    $cref->{lines}++;
+
+    chomp $line;
+    $cref->{bds}++ if ($line =~ /^B (\d+)/);
+    $cref->{qxs}++ if ($line =~ /^R /);
+  }
+  close $fr;
+
+  if ($cref->{qxs} == 1 && $cref->{bds} == 0)
+  {
+    $cref->{bds} = 1;
+  }
 }
 
 
@@ -1087,7 +1184,68 @@ sub check_refPBN
     check_warn($file, $line, "qx count", $counts_ref, \%file_counts);
     return;
   }
-  elsif ($counts_ref->{lines} != $file_counts{lines})
+  elsif ($counts_ref->{bds} != $file_counts{bds})
+  {
+    check_warn($file, $line, "bd count", $counts_ref, \%file_counts);
+    return;
+  }
+  elsif ($counts_ref->{repeat_lines} != $file_counts{lines})
+  {
+    check_warn($file, $line, "lines count", $counts_ref, \%file_counts);
+    return;
+  }
+}
+
+
+sub check_refRBN
+{
+  my ($file, $src_file, $line, $counts_ref) = @_;
+
+  my %file_counts;
+  countRBN($src_file, $counts_ref->{lno}, 
+    $counts_ref->{lno} + $counts_ref->{repeat_lines} - 1, \%file_counts);
+
+  if ($counts_ref->{repeat_lines} != $file_counts{lines})
+  {
+    check_warn($file, $line, "Line count", $counts_ref, \%file_counts);
+    return;
+  }
+
+  if ($counts_ref->{qxs} == 1 &&
+      $counts_ref->{bds} == 1 &&
+      $file_counts{qxs} == 0 &&
+      $file_counts{bds} == 0)
+  {
+    # OK
+  }
+  elsif (defined $counts_ref->{tag_ref} &&
+      defined $tag_globalRBN{$counts_ref->{tag_ref}})
+  {
+    my %whole_counts;
+    countRBN($src_file, 0, 999999, \%whole_counts);
+
+    if ($counts_ref->{qxs} != $whole_counts{qxs})
+    {
+      check_warn($file, $line, "qx count", $counts_ref, \%whole_counts);
+      return;
+    }
+    elsif ($counts_ref->{bds} != $whole_counts{bds})
+    {
+      check_warn($file, $line, "bd count", $counts_ref, \%whole_counts);
+      return;
+    }
+  }
+  elsif ($counts_ref->{qxs} != $file_counts{qxs})
+  {
+    check_warn($file, $line, "qx count", $counts_ref, \%file_counts);
+    return;
+  }
+  elsif ($counts_ref->{bds} != $file_counts{bds})
+  {
+    check_warn($file, $line, "bd count", $counts_ref, \%file_counts);
+    return;
+  }
+  elsif ($counts_ref->{repeat_lines} != $file_counts{lines})
   {
     check_warn($file, $line, "bd count", $counts_ref, \%file_counts);
     return;

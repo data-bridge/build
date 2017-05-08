@@ -48,6 +48,7 @@ void Segment::reset()
   session.reset(); 
   scoring.reset();
   teams.reset();
+  flagCOCO = false;
 }
 
 
@@ -145,6 +146,18 @@ void Segment::loadFromHeader(
 }
 
 
+void Segment::setCOCO()
+{
+  flagCOCO = true;
+}
+
+
+bool Segment::getCOCO() const
+{
+  return flagCOCO;
+}
+
+
 void Segment::setTitleLIN(
   const string& t,
   const Format format)
@@ -222,12 +235,25 @@ void Segment::setTitleLIN(
 
   // Teams (5-8): Synthesize an RBN-like team line (a bit wasteful).
   stringstream s;
-  s << v[5] << ":" << v[7];
-  if (v[6] != "" || v[8] != "")
-  {
-    s << ":" << (v[6] == "" ? "0" : v[6]);
-    s << ":" << (v[8] == "" ? "0" : v[8]);
-  }
+  // if (flagCOCO)
+  // {
+    // Pavlicek bug.
+    // s << v[7] << ":" << v[5];
+    // if (v[8] != "" || v[6] != "")
+    // {
+      // s << ":" << (v[8] == "" ? "0" : v[8]);
+      // s << ":" << (v[6] == "" ? "0" : v[6]);
+    // }
+  // }
+  // else
+  // {
+    s << v[5] << ":" << v[7];
+    if (v[6] != "" || v[8] != "")
+    {
+      s << ":" << (v[6] == "" ? "0" : v[6]);
+      s << ":" << (v[8] == "" ? "0" : v[8]);
+    }
+  // }
   Segment::setTeams(s.str(), BRIDGE_FORMAT_LIN);
 }
 
@@ -322,6 +348,12 @@ void Segment::setTeams(
   const Format format)
 {
   teams.set(text, format); 
+  if (format == BRIDGE_FORMAT_RBN)
+  {
+    // TODO: Probably more format.s
+    if (flagCOCO)
+      teams.swap();
+  }
 }
 
 
@@ -924,15 +956,16 @@ string Segment::strTitleLIN() const
 
 string Segment::strTitleLIN_RP() const
 {
-  bool swapFlag = false;
-  activeBoard->setInstance(0);
-  if (activeBoard->room() == BRIDGE_ROOM_CLOSED)
-    swapFlag = true;
+  // bool swapFlag = false;
+  // activeBoard->setInstance(0);
+  // if (activeBoard->room() == BRIDGE_ROOM_CLOSED)
+    // swapFlag = true;
 
   return "vg|" + title +
       session.str(BRIDGE_FORMAT_LIN_RP) + "," +
       scoring.str(BRIDGE_FORMAT_LIN) + "," +
-      Segment::strTitleLINCore(swapFlag) + "pf|y|\n";
+      Segment::strTitleLINCore() + "pf|y|\n";
+      // Segment::strTitleLINCore(swapFlag) + "pf|y|\n";
 }
 
 
@@ -1047,7 +1080,11 @@ string Segment::strScoring(const Format format) const
 
 string Segment::strTeams(const Format format) const
 {
-  return teams.str(format);
+  if (format == BRIDGE_FORMAT_RBN)
+    // Maybe more formats.
+    return teams.str(format, flagCOCO);
+  else
+    return teams.str(format);
 }
 
 
@@ -1060,15 +1097,19 @@ string Segment::strTeams(
 }
 
 
-string Segment::strFirstTeam(const Format format) const
+string Segment::strFirstTeam(
+  const Format format,
+  const bool swapFlag) const
 {
-  return teams.strFirst(format);
+  return teams.strFirst(format, swapFlag);
 }
 
 
-string Segment::strSecondTeam(const Format format) const
+string Segment::strSecondTeam(
+  const Format format,
+  const bool swapFlag) const
 {
-  return teams.strSecond(format);
+  return teams.strSecond(format, swapFlag);
 }
 
 

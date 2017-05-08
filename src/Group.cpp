@@ -29,6 +29,7 @@ void Group::reset()
   nameVal = "";
   formatVal = BRIDGE_FORMAT_SIZE;
   segments.clear();
+  flagCOCO = false;
 }
 
 
@@ -56,9 +57,17 @@ Format Group::format() const
 }
 
 
+void Group::setCOCO()
+{
+  flagCOCO = true;
+}
+
+
 Segment * Group::make()
 {
   segments.resize(segments.size()+1);
+  if (flagCOCO)
+    segments[segments.size()-1].setCOCO();
   return &segments[segments.size()-1];
 }
 

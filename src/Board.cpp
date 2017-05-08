@@ -124,6 +124,12 @@ bool Board::skipped() const
 }
 
 
+bool Board::skipped(const unsigned no) const
+{
+  return skip[no];
+}
+
+
 bool Board::skippedAll() const
 {
   for (unsigned l = 0; l < len; l++)
@@ -746,15 +752,17 @@ string Board::strTricks(const Format format) const
 
 string Board::strScore(
   const Format format,
-  const bool scoringIsIMPs) const
+  const bool scoringIsIMPs,
+  const bool swapFlag) const
 {
-  if (numActive != 1 || 
+  const unsigned baseInst = (swapFlag ? 1u : 0u);
+  if (numActive == baseInst || 
      ! scoringIsIMPs ||
      ! contract[0].hasResult() ||
      ! contract[1].hasResult())
     return contract[numActive].strScore(format);
   else
-    return contract[numActive].strScore(format, contract[0].getScore());
+    return contract[numActive].strScore(format, contract[baseInst].getScore());
 }
 
 
@@ -958,14 +966,16 @@ string Board::strContracts(
 
 string Board::strResult(
   const Format format,
-  const bool scoringIsIMPs) const
+  const bool scoringIsIMPs,
+  const bool swapFlag) const
 {
-  if (numActive != 1 || 
+  const unsigned baseInst = (swapFlag ? 1u : 0u);
+  if (numActive == baseInst || 
      ! scoringIsIMPs ||
-     ! contract[0].hasResult())
+     ! contract[baseInst].hasResult())
     return contract[numActive].strResult(format);
   else
-    return contract[numActive].strResult(format, contract[0].getScore());
+    return contract[numActive].strResult(format, contract[baseInst].getScore());
 }
 
 

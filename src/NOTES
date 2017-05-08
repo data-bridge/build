@@ -3,8 +3,8 @@
 * Get reader to work on RPmajors
   - Get whole RPmajors matrix to work
 
-i\o     LIN     PBN     RBN     RBX     TXT     EML     REC
-LIN     OK
+i\o     LIN     PBN     RBN     RBX     TXT     EML     REC     RPmajors
+LIN     OK      OK      OK
 PBN
 RBN
 RBX
@@ -12,10 +12,19 @@ TXT
 EML
 REC
 
-* Get refstats to work on RPmajors
-  - Extend to all formats
+refstats
+LIN     OK
+PBN     simple syntax
+RBN     simple syntax
+RBX
+TXT
+EML
+REC
+
 * Think about ref syntax for replacePBN, replaceTXT
 * simplify Files.cpp (no noval and skip)
+* Detect COCO at least in LIN, PBN, RBN, RBX
+  Then remove from those .ref files, also in BBOVG
 
 * ./reader -i 7090.pbn -O tmp -c -s -v 31 dies after 
   "Output tmp/PBN/7090.LIN", probably trying to compare/validate?

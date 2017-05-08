@@ -233,7 +233,7 @@ string Teams::strLIN(const bool swapFlag) const
 }
 
 
-string Teams::strRBNCore() const
+string Teams::strRBNCore(const bool swapFlag) const
 {
   if (team1.name == "" && team2.name == "" &&
       team1.carry == BRIDGE_CARRY_NONE &&
@@ -241,18 +241,29 @@ string Teams::strRBNCore() const
     return "";
 
   stringstream ss;
-  ss << team1.name << ":" << team2.name;
+  if (swapFlag)
+  {
+    ss << team2.name << ":" << team1.name;
 
-  if (team1.carry != BRIDGE_CARRY_NONE ||
-      team2.carry != BRIDGE_CARRY_NONE)
-    ss << ":" << team1.strCarry() << ":" << team2.strCarry();
+    if (team1.carry != BRIDGE_CARRY_NONE ||
+        team2.carry != BRIDGE_CARRY_NONE)
+      ss << ":" << team2.strCarry() << ":" << team1.strCarry();
+  }
+  else
+  {
+    ss << team1.name << ":" << team2.name;
+
+    if (team1.carry != BRIDGE_CARRY_NONE ||
+        team2.carry != BRIDGE_CARRY_NONE)
+      ss << ":" << team1.strCarry() << ":" << team2.strCarry();
+  }
 
   return ss.str();
 }
 
-string Teams::strRBN() const
+string Teams::strRBN(const bool swapFlag) const
 {
-  const string c = Teams::strRBNCore();
+  const string c = Teams::strRBNCore(swapFlag);
   if (c == "")
     return "";
 
@@ -333,7 +344,7 @@ string Teams::str(
       return Teams::strLIN(swapFlag);
 
     case BRIDGE_FORMAT_RBN:
-      return Teams::strRBN();
+      return Teams::strRBN(swapFlag);
     
     case BRIDGE_FORMAT_RBX:
       return Teams::strRBX();
@@ -364,12 +375,16 @@ string Teams::str(
 
 
 string Teams::strFirst(
-  const Format format) const
+  const Format format,
+  const bool swapFlag) const
 {
   switch(format)
   {
     case BRIDGE_FORMAT_PBN:
-      return team1.str(format, "HomeTeam");
+      if (swapFlag)
+        return team2.str(format, "HomeTeam");
+      else
+        return team1.str(format, "HomeTeam");
 
     case BRIDGE_FORMAT_TXT:
     case BRIDGE_FORMAT_PAR:
@@ -382,12 +397,16 @@ string Teams::strFirst(
 
 
 string Teams::strSecond(
-  const Format format) const
+  const Format format,
+  const bool swapFlag) const
 {
   switch(format)
   {
     case BRIDGE_FORMAT_PBN:
-      return team2.str(format, "VisitTeam");
+      if (swapFlag)
+        return team1.str(format, "VisitTeam");
+      else
+        return team2.str(format, "VisitTeam");
 
     case BRIDGE_FORMAT_TXT:
     case BRIDGE_FORMAT_PAR:

@@ -276,7 +276,7 @@ void writePBNBoardLevel(
     st += "[Date \"#\"]\n";
   }
 
-  if (writeInfo.ino == 0)
+  if (writeInfo.ino == 0 || (writeInfo.ino == 1 && board.skipped(0)))
     st += segment.strNumber(writeInfo.bno, format);
   else
     st += "[Board \"#\"]\n";
@@ -301,12 +301,13 @@ void writePBNBoardLevel(
   st += board.strAuction(format);
   st += board.strPlay(format);
 
+  const bool swapFlag = segment.getCOCO();
   if (writeInfo.bno == 0 && writeInfo.ino == 0)
   {
     st += segment.strTitle(format);
     st += segment.strSession(format);
-    st += segment.strFirstTeam(format);
-    st += segment.strSecondTeam(format);
+    st += segment.strFirstTeam(format, swapFlag);
+    st += segment.strSecondTeam(format, swapFlag);
   }
   else
   {
@@ -317,7 +318,7 @@ void writePBNBoardLevel(
   }
 
   st += board.strRoom(0, format);
-  st += board.strScore(format, segment.scoringIsIMPs());
+  st += board.strScore(format, segment.scoringIsIMPs(), swapFlag);
   if (writeInfo.ino == 0)
     st += board.strGivenScore(format);
   st += board.strTableau(format);

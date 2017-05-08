@@ -77,6 +77,7 @@ class Board
     void unmarkInstanceSkip();
 
     bool skipped() const;
+    bool skipped(const unsigned no) const;
     bool skippedAll() const;
 
     unsigned count() const;
@@ -257,7 +258,8 @@ class Board
 
     string strScore(
       const Format format,
-      const bool scoringIsIMPs) const;
+      const bool scoringIsIMPs,
+      const bool swapFlag = false) const;
 
     string strGivenScore(const Format format) const;
 
@@ -288,7 +290,8 @@ class Board
 
     string strResult(
       const Format format,
-      const bool scoringIsIMPs) const;
+      const bool scoringIsIMPs,
+      const bool swapFlag = false) const;
 
     string strResult(
       const Format format,

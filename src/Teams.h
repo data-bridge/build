@@ -33,8 +33,8 @@ class Teams
     void setTXT(const string& text);
 
     string strLIN(const bool swapFlag) const;
-    string strRBNCore() const;
-    string strRBN() const;
+    string strRBNCore(const bool swapFlag = false) const;
+    string strRBN(const bool swapFlag) const;
     string strRBX() const;
     string strTXT() const;
     string strTXT(
@@ -79,9 +79,13 @@ class Teams
       const int score2,
       const Format format) const;
 
-    string strFirst(const Format format) const;
+    string strFirst(
+      const Format format,
+      const bool swapFlag = false) const;
 
-    string strSecond(const Format format) const;
+    string strSecond(
+      const Format format,
+      const bool swapFlag = false) const;
 };
 
 #endif
