@@ -341,4 +341,9 @@ bool classifyRefLine(
   const string& bufferLine,
   RefErrorClass& diff);
 
+void modifyLINFail(
+  const string& line,
+  const RefFixLIN& fixLIN,
+  const string& text);
+
 #endif

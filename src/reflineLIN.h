@@ -41,4 +41,28 @@ void parseDeleteLIN(
   smatch& match,
   RefFix& rf);
 
+void modifyReplaceLIN(
+ const string& line,
+ const unsigned start,
+ const bool interiorFlag,
+ const RefFix& rf,
+ vector<string>& vLIN,
+ vector<string>& fields);
+
+void modifyInsertLIN(
+ const string& line,
+ const unsigned start,
+ const bool interiorFlag,
+ const RefFix& rf,
+ vector<string>& vLIN,
+ vector<string>& fields);
+
+void modifyDeleteLIN(
+ const string& line,
+ const unsigned start,
+ const bool interiorFlag,
+ const RefFix& rf,
+ vector<string>& vLIN,
+ vector<string>& fields);
+
 #endif

@@ -36,6 +36,10 @@ bool getWords(
   const int maxCount,
   unsigned& actualCount);
 
+string concat(
+  const vector<string>& list,
+  const string& delim);
+
 bool str2unsigned(
   const string& text,
   unsigned& res);

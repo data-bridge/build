@@ -259,3 +259,122 @@ void parseDeleteLIN(
     rf.partialFlag = false;
 }
 
+
+void modifyReplaceLIN(
+ const string& line,
+ const unsigned start,
+ const bool interiorFlag,
+ const RefFix& rf,
+ vector<string>& vLIN,
+ vector<string>& fields)
+{
+  if (vLIN[start] != rf.fixLIN.tag)
+    modifyLINFail(line, rf.fixLIN, "Different tags: " + vLIN[start]);
+
+  if (interiorFlag)
+  {
+    if (fields[rf.fixLIN.fieldNo-1] != rf.fixLIN.was)
+      modifyLINFail(line, rf.fixLIN, "Old field wrong");
+
+    fields[rf.fixLIN.fieldNo-1] = rf.fixLIN.is;
+    vLIN[start+1] = concat(fields, ",");
+  }
+  else
+  {
+    if (vLIN[start+1] != rf.fixLIN.was)
+    {
+      // Permit a not too short prefix.
+      const unsigned l = rf.fixLIN.was.length();
+      if (l < 2 || 
+          l >= vLIN[start+1].length() ||
+          vLIN[start+1].substr(0, l) != rf.fixLIN.was)
+      modifyLINFail(line, rf.fixLIN, 
+        "Old value wrong: " + vLIN[start+1]);
+    }
+
+    vLIN[start+1] = rf.fixLIN.is;
+  }
+}
+
+
+void modifyInsertLIN(
+ const string& line,
+ const unsigned start,
+ const bool interiorFlag,
+ const RefFix& rf,
+ vector<string>& vLIN,
+ vector<string>& fields)
+{
+  if (interiorFlag)
+  {
+    if (vLIN[start] != rf.fixLIN.tag)
+      modifyLINFail(line, rf.fixLIN, "Different tags");
+
+    fields.insert(fields.begin()+static_cast<int>(rf.fixLIN.fieldNo-1), 
+      rf.fixLIN.is);
+    vLIN[start+1] = concat(fields, ",");
+  }
+  else if (rf.fixLIN.tag == "")
+  {
+    // Single insertion, i.e. could be a tag or a value.
+    vLIN.insert(vLIN.begin()+static_cast<int>(start), rf.fixLIN.is);
+  }
+  else
+  {
+    vLIN.insert(vLIN.begin()+static_cast<int>(start), rf.fixLIN.is);
+    vLIN.insert(vLIN.begin()+static_cast<int>(start), rf.fixLIN.tag);
+  }
+}
+
+
+void modifyDeleteLIN(
+ const string& line,
+ const unsigned start,
+ const bool interiorFlag,
+ const RefFix& rf,
+ vector<string>& vLIN,
+ vector<string>& fields)
+{
+  if (interiorFlag)
+  {
+    if (vLIN[start] != rf.fixLIN.tag)
+      modifyLINFail(line, rf.fixLIN, "Different tags: " + vLIN[start]);
+
+    if (fields[rf.fixLIN.fieldNo-1] != rf.fixLIN.was)
+      modifyLINFail(line, rf.fixLIN, "Old field wrong");
+
+    auto sf = fields.begin() + static_cast<int>(rf.fixLIN.fieldNo-1);
+    fields.erase(sf, sf + static_cast<int>(rf.fixLIN.extent));
+
+    vLIN[start+1] = concat(fields, ",");
+  }
+  else if (rf.fixLIN.fieldNo == 0 && rf.fixLIN.tag == "")
+  {
+    // Delete a single entry without checking it.
+    // Only use this when the entry is seriously messed up.
+    auto s = vLIN.begin() + static_cast<int>(start);
+    vLIN.erase(s);
+  }
+  else
+  {
+    if (vLIN[start] != rf.fixLIN.tag)
+      modifyLINFail(line, rf.fixLIN, "Different tags: " + vLIN[start]);
+
+    if (rf.fixLIN.is == "" && rf.fixLIN.was == "")
+    {
+      // Delete a single entry.
+      // Only use this when the entry is seriously messed up.
+      auto s = vLIN.begin() + static_cast<int>(start);
+      vLIN.erase(s);
+    }
+    else
+    {
+      if (vLIN[start+1] != rf.fixLIN.was)
+        modifyLINFail(line, rf.fixLIN, "Old value wrong");
+
+      auto s = vLIN.begin() + static_cast<int>(start);
+      vLIN.erase(s, s + static_cast<int>(2*rf.fixLIN.extent));
+    }
+  }
+}
+

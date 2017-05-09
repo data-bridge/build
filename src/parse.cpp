@@ -124,6 +124,21 @@ bool getWords(
   return true;
 }
 
+string concat(
+  const vector<string>& list,
+  const string& delim)
+{
+  string st;
+  for (auto &f: list)
+  {
+    st += f + delim;
+  }
+  if (list.size() > 0)
+    st.pop_back(); // Drop last delimiter
+
+  return st;
+}
+
 
 bool str2unsigned(
   const string& text,

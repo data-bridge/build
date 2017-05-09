@@ -390,22 +390,6 @@ static void printModify(
 }
 
 
-static string concatFields(
-  const vector<string>& list,
-  const string& delim)
-{
-  string st;
-  for (auto &f: list)
-  {
-    st += f + delim;
-  }
-  if (list.size() > 0)
-    st.pop_back(); // Drop last delimiter
-
-  return st;
-}
-
-
 void modifyLINFail(
   const string& line,
   const RefFixLIN& fixLIN,
@@ -473,105 +457,16 @@ bool modifyLINLine(
     }
   }
 
-  if (refFix.type == BRIDGE_REF_INSERT_LIN)
-  {
-    if (interiorFlag)
-    {
-      if (v[start] != refFix.fixLIN.tag)
-        modifyLINFail(line, refFix.fixLIN, "Different tags");
-
-      f.insert(f.begin()+static_cast<int>(refFix.fixLIN.fieldNo-1), 
-        refFix.fixLIN.is);
-      v[start+1] = concatFields(f, ",");
-    }
-    else if (refFix.fixLIN.tag == "")
-    {
-      // Single insertion, i.e. could be a tag or a value.
-      v.insert(v.begin()+static_cast<int>(start), refFix.fixLIN.is);
-    }
-    else
-    {
-      v.insert(v.begin()+static_cast<int>(start), refFix.fixLIN.is);
-      v.insert(v.begin()+static_cast<int>(start), refFix.fixLIN.tag);
-    }
-  }
-  else if (refFix.type == BRIDGE_REF_REPLACE_LIN)
-  {
-    if (v[start] != refFix.fixLIN.tag)
-      modifyLINFail(line, refFix.fixLIN, "Different tags: " + v[start]);
-
-    if (interiorFlag)
-    {
-      if (f[refFix.fixLIN.fieldNo-1] != refFix.fixLIN.was)
-        modifyLINFail(line, refFix.fixLIN, "Old field wrong");
-
-      f[refFix.fixLIN.fieldNo-1] = refFix.fixLIN.is;
-      v[start+1] = concatFields(f, ",");
-    }
-    else
-    {
-      if (v[start+1] != refFix.fixLIN.was)
-      {
-        // Permit a not too short prefix.
-        const unsigned l = refFix.fixLIN.was.length();
-        if (l < 2 || 
-            l >= v[start+1].length() ||
-            v[start+1].substr(0, l) != refFix.fixLIN.was)
-        modifyLINFail(line, refFix.fixLIN, 
-          "Old value wrong: " + v[start+1]);
-      }
-
-      v[start+1] = refFix.fixLIN.is;
-    }
-  }
+  if (refFix.type == BRIDGE_REF_REPLACE_LIN)
+    modifyReplaceLIN(line, start, interiorFlag, refFix, v, f);
+  else if (refFix.type == BRIDGE_REF_INSERT_LIN)
+    modifyInsertLIN(line, start, interiorFlag, refFix, v, f);
   else if (refFix.type == BRIDGE_REF_DELETE_LIN)
-  {
-    if (interiorFlag)
-    {
-      if (v[start] != refFix.fixLIN.tag)
-        modifyLINFail(line, refFix.fixLIN, "Different tags: " + v[start]);
-
-      if (f[refFix.fixLIN.fieldNo-1] != refFix.fixLIN.was)
-        modifyLINFail(line, refFix.fixLIN, "Old field wrong");
-
-      auto sf = f.begin() + static_cast<int>(refFix.fixLIN.fieldNo-1);
-      f.erase(sf, sf + static_cast<int>(refFix.fixLIN.extent));
-
-      v[start+1] = concatFields(f, ",");
-    }
-    else if (refFix.fixLIN.fieldNo == 0 && refFix.fixLIN.tag == "")
-    {
-      // Delete a single entry without checking it.
-      // Only use this when the entry is seriously messed up.
-      auto s = v.begin() + static_cast<int>(start);
-      v.erase(s);
-    }
-    else
-    {
-      if (v[start] != refFix.fixLIN.tag)
-        modifyLINFail(line, refFix.fixLIN, "Different tags: " + v[start]);
-
-      if (refFix.fixLIN.is == "" && refFix.fixLIN.was == "")
-      {
-        // Delete a single entry.
-        // Only use this when the entry is seriously messed up.
-        auto s = v.begin() + static_cast<int>(start);
-        v.erase(s);
-      }
-      else
-      {
-        if (v[start+1] != refFix.fixLIN.was)
-          modifyLINFail(line, refFix.fixLIN, "Old value wrong");
-
-        auto s = v.begin() + static_cast<int>(start);
-        v.erase(s, s + static_cast<int>(2*refFix.fixLIN.extent));
-      }
-    }
-  }
+    modifyDeleteLIN(line, start, interiorFlag, refFix, v, f);
   else
     THROW("Bad type");
   
-  lineNew = concatFields(v, "|");
+  lineNew = concat(v, "|");
   if (endsOnPipe && v.size() > 0)
     lineNew += "|";
   return true;
