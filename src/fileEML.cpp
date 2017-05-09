@@ -498,7 +498,8 @@ void writeEMLBoardLevel(
     p = a+4;
   }
   canvas.setLine(board.strResult(format, false), p, 42);
-  canvas.setLine(board.strScore(format, segment.scoringIsIMPs()), p+1, 42);
+  canvas.setLine(board.strScore(format, segment.scoringIsIMPs(),
+    segment.getCOCO()), p+1, 42);
 
   st += canvas.str() + "\n";
 

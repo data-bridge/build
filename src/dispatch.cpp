@@ -31,6 +31,7 @@
 #include "fileEML.h"
 #include "fileREC.h"
 
+#include "referr.h"
 #include "parse.h"
 #include "Sheet.h"
 #include "Bexcept.h"
@@ -217,6 +218,7 @@ void setTables()
   setIO();
   setInterface();
   setValidateTables();
+  setRefTable();
 }
 
 

@@ -322,6 +322,8 @@ struct RefErrorClass
 };
 
 
+void setRefTable();
+
 void readRefFix(
   const string& fname,
   vector<RefFix>& refFix,
