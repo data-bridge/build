@@ -53,7 +53,19 @@ void tokenize(
         static_cast<string::size_type>(pos - lastPos)));
     }
     lastPos = pos + 1;
-   }
+  }
+}
+
+
+void tokenizeMinus(
+  const string& text, 
+  vector<string>& tokens,
+  const string& delimiters)
+{
+  // Only works for a length-1 delimiters string.
+  tokenize(text, tokens, delimiters);
+  if (text.length() > 0 && text.substr(text.length()-1) == delimiters)
+    tokens.pop_back();
 }
 
 

@@ -16,6 +16,7 @@
 #include <map>
 
 #include "referr.h"
+#include "refcodes.h"
 #include "reflineGen.h"
 #include "reflineLIN.h"
 #include "reflinePBN.h"
