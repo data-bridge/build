@@ -376,13 +376,25 @@ bool Buffer::fix(
 {
   bool usedFlag = false;
 
+if (refFix.size() != reflines.size())
+{
+  THROW("Diffsize");
+}
   for (unsigned rno = 0; rno < refFix.size(); rno++)
   {
+if (refFix[rno].partialFlag != reflines[rno].isCommented())
+{
+  THROW("Diffcomm");
+}
     if (use == BRIDGE_REF_ONLY_PARTIAL && ! refFix[rno].partialFlag)
       continue;
     else if (use == BRIDGE_REF_ONLY_NONPARTIAL && refFix[rno].partialFlag)
       continue;
 
+if (refFix[rno].lno != reflines[rno].lineno())
+{
+  THROW("Difflno");
+}
     const unsigned i = Buffer::getInternalNumber(refFix[rno].lno);
     if (i == BIGNUM)
       THROW("Cannot find ref line number " + STR(refFix[rno].lno));
@@ -391,7 +403,15 @@ bool Buffer::fix(
     if (refFix[rno].type == BRIDGE_REF_INSERT_GEN)
     {
       LineData lnew;
+string ll0 = lnew.line;
+string ll1 = lnew.line;
+reflines[rno].modify(ll1);
       lnew.line = refFix[rno].value;
+if (lnew.line != ll1)
+{
+  cout << reflines[rno].str() << "\n";
+  THROW(ll0 + "\n" + ll1 + "\n" + ld.line + "\n");
+}
       lnew.len = static_cast<unsigned>(lnew.line.length());
       lnew.no = 0;
       Buffer::classify(lnew);
@@ -401,15 +421,7 @@ bool Buffer::fix(
     }
     else if (refFix[rno].type == BRIDGE_REF_REPLACE_GEN)
     {
-string ll0 = ld.line;
-string ll1 = ld.line;
-reflines[rno].modify(ll1);
-      ld.line = refFix[rno].value;
-if (ld.line != ll1)
-{
-  cout << reflines[rno].str() << "\n";
-  THROW(ll0 + "\n" + ll1 + "\n" + ld.line + "\n");
-}
+      reflines[rno].modify(ld.line);
       ld.len = static_cast<unsigned>(ld.line.length());
       Buffer::classify(ld);
       usedFlag = true;
