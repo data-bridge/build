@@ -31,7 +31,6 @@
 #include "fileEML.h"
 #include "fileREC.h"
 
-#include "referr.h"
 #include "parse.h"
 #include "Sheet.h"
 #include "Bexcept.h"
@@ -73,7 +72,7 @@ static bool readFormattedFile(
   const Format format,
   Group& group,
   const Options& options,
-  RefControl& refControl,
+  Reflines& reflines,
   ostream& flog);
 
 static bool readFormattedFile(
@@ -97,7 +96,7 @@ static void readFix(
 static void writeFormattedFile(
   Group& group,
   const string& fname,
-  const RefControl refControl,
+  const Reflines& reflines,
   string& text,
   const Format format);
 
@@ -225,14 +224,14 @@ static bool dispatchRead(
   const FileTask& task,
   Group& group,
   const Options& options,
-  RefControl& refControl,
+  Reflines& reflines,
   ostream& flog)
 {
   try
   {
     bool b = readFormattedFile(task.fileInput,
-      task.formatInput, group, options, refControl, flog);
-    if (refControl == ERR_REF_SKIP)
+      task.formatInput, group, options, reflines, flog);
+    if (reflines.skip())
       return true;
 
     if (options.playersFlag && b)
@@ -267,7 +266,7 @@ static void dispatchStats(
 
 static void dispatchWrite(
   const FileOutputTask& otask,
-  const RefControl refControl,
+  const Reflines& reflines,
   Group& group,
   string& text,
   ostream& flog)
@@ -275,7 +274,7 @@ static void dispatchWrite(
   try
   {
     text = "";
-    writeFormattedFile(group, otask.fileOutput, refControl, 
+    writeFormattedFile(group, otask.fileOutput, reflines, 
       text, otask.formatOutput);
   }
   catch (Bexcept& bex)
@@ -402,7 +401,7 @@ void dispatch(
   string text;
   text.reserve(100000);
 
-  RefControl refControl = ERR_REF_STANDARD;
+  Reflines reflines;
 
   while (files.next(task))
   {
@@ -415,15 +414,16 @@ void dispatch(
     if (options.fileDigest.setFlag || options.dirDigest.setFlag)
       goto DIGEST;
 
+    reflines.reset();
     timers.start(BRIDGE_TIMER_READ, task.formatInput);
-    bool b = dispatchRead(task, group, options, refControl, flog);
+    bool b = dispatchRead(task, group, options, reflines, flog);
     timers.stop(BRIDGE_TIMER_READ, task.formatInput);
     if (! b)
     {
       flog << "Failed to read " << task.fileInput << endl;
       continue;
     }
-    if (refControl == ERR_REF_SKIP)
+    if (reflines.skip())
       continue;
 
     if (options.statsFlag)
@@ -442,10 +442,10 @@ void dispatch(
         flog << "Output " << t.fileOutput << endl;
 
       timers.start(BRIDGE_TIMER_WRITE, t.formatOutput);
-      dispatchWrite(t, refControl, group, text, flog);
+      dispatchWrite(t, reflines, group, text, flog);
       timers.stop(BRIDGE_TIMER_WRITE, t.formatOutput);
 
-      if (t.refFlag && refControl != ERR_REF_NOVAL)
+      if (t.refFlag && reflines.validate())
       {
         if (options.verboseIO)
           flog << "Validating " << t.fileOutput <<
@@ -961,12 +961,12 @@ static bool readFormattedFile(
   const Format format,
   Group& group,
   const Options& options,
-  RefControl& refControl,
+  Reflines& reflines,
   ostream& flog)
 {
   Buffer buffer;
-  buffer.read(fname, format, refControl);
-  if (refControl == ERR_REF_SKIP)
+  buffer.read(fname, format, reflines);
+  if (reflines.skip())
     return true;
 
   vector<Fix> fix;
@@ -978,7 +978,7 @@ static bool readFormattedFile(
   if ((format == BRIDGE_FORMAT_LIN_RP ||
        format == BRIDGE_FORMAT_PBN ||
        format == BRIDGE_FORMAT_RBN) && 
-      refControl == ERR_REF_OUT_COCO)
+       reflines.orderCOCO())
     group.setCOCO();
 
   return readFormattedFile(buffer, fix, format, group, options, flog);
@@ -1222,7 +1222,7 @@ static void writeHeader(
 static void writeFormattedFile(
   Group& group,
   const string& fname,
-  const RefControl refControl,
+  const Reflines& reflines,
   string &text,
   const Format format)
 {
@@ -1243,7 +1243,7 @@ static void writeFormattedFile(
     writeInfo.score2 = 0;
     writeInfo.numBoards = segment.size();
 
-    if (refControl == ERR_REF_OUT_COCO)
+    if (reflines.orderCOCO())
     {
       // c1, o1, c2, o2, ...
       for (auto &bpair: segment)
@@ -1267,7 +1267,7 @@ static void writeFormattedFile(
         }
       }
     }
-    else if (refControl == ERR_REF_OUT_OOCC)
+    else if (reflines.orderOOCC())
     {
       // o1, o2, ..., c1, c2, ...
       for (unsigned i = 0; i < 2; i++)

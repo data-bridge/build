@@ -40,9 +40,8 @@ class Reflines
 
     ~Reflines();
 
-    vector<Refline>::iterator begin() { return lines.begin(); }
-
-    vector<Refline>::iterator end() { return lines.end(); }
+    vector<Refline>::const_iterator begin() const { return lines.begin(); }
+    vector<Refline>::const_iterator end() const { return lines.end(); }
 
     void reset();
 

@@ -22,7 +22,6 @@
 
 #include "Buffer.h"
 #include "parse.h"
-#include "referr.h"
 #include "Bexcept.h"
 
 #define CHUNK_SIZE 1024
@@ -297,15 +296,14 @@ void Buffer::classify(LineData& ld)
 bool Buffer::read(
   const string& fname,
   const Format formatIn,
-  RefControl& refControl,
+  Reflines& reflines,
   const RefUse use)
 {
   fileName = fname;
   format = formatIn;
 
-  vector<Refline> reflines;
-  readRefFile(fname, reflines, refControl);
-  if (refControl == ERR_REF_SKIP)
+  reflines.read(fname);
+  if (reflines.skip())
     return false;
 
   Buffer::readBinaryFile(fname);
@@ -316,8 +314,6 @@ bool Buffer::read(
     Buffer::classify(ld);
 
   return Buffer::fix(reflines, use);
-
-  return true;
 }
 
 
@@ -355,12 +351,11 @@ bool Buffer::split(
 
 bool Buffer::fix(
   const string& fname,
-  RefControl& refControl,
+  Reflines& reflines,
   const RefUse use)
 {
-  vector<Refline> reflines;
-  readRefFile(fname, reflines, refControl);
-  if (refControl == ERR_REF_SKIP)
+  reflines.read(fname);
+  if (reflines.skip())
     return false;
 
   return Buffer::fix(reflines, use);
@@ -368,30 +363,28 @@ bool Buffer::fix(
 
 
 bool Buffer::fix(
-  const vector<Refline>& reflines,
+  const Reflines& reflines,
   const RefUse use)
 {
   bool usedFlag = false;
 
-  for (unsigned rno = 0; rno < reflines.size(); rno++)
+  for (auto &rl: reflines)
   {
-    if (use == BRIDGE_REF_ONLY_PARTIAL && 
-        reflines[rno].isUncommented())
+    if (use == BRIDGE_REF_ONLY_PARTIAL && rl.isUncommented())
       continue;
-    else if (use == BRIDGE_REF_ONLY_NONPARTIAL && 
-        reflines[rno].isCommented())
+    else if (use == BRIDGE_REF_ONLY_NONPARTIAL && rl.isCommented())
       continue;
 
-    const unsigned i = Buffer::getInternalNumber(reflines[rno].lineno());
+    const unsigned i = Buffer::getInternalNumber(rl.lineno());
     if (i == BIGNUM)
-      THROW("Cannot find ref line number " + STR(reflines[rno].lineno()));
+      THROW("Cannot find ref line number " + STR(rl.lineno()));
     LineData& ld = lines[i];
 
-    const int refType = reflines[rno].type();
+    const int refType = rl.type();
     if (refType == BRIDGE_REF_INSERT_GEN)
     {
       LineData lnew;
-      reflines[rno].modify(lnew.line);
+      rl.modify(lnew.line);
       lnew.len = static_cast<unsigned>(lnew.line.length());
       lnew.no = 0;
       Buffer::classify(lnew);
@@ -401,14 +394,14 @@ bool Buffer::fix(
     }
     else if (refType == BRIDGE_REF_REPLACE_GEN)
     {
-      reflines[rno].modify(ld.line);
+      rl.modify(ld.line);
       ld.len = static_cast<unsigned>(ld.line.length());
       Buffer::classify(ld);
       usedFlag = true;
     }
     else if (refType == BRIDGE_REF_DELETE_GEN)
     {
-      const unsigned deletion = reflines[rno].deletion();
+      const unsigned deletion = rl.deletion();
       if (i + deletion > len)
         THROW("Too large deletion");
 
@@ -421,7 +414,7 @@ bool Buffer::fix(
         refType == BRIDGE_REF_REPLACE_LIN ||
         refType == BRIDGE_REF_DELETE_LIN)
     {
-      reflines[rno].modify(ld.line);
+      rl.modify(ld.line);
       ld.len = static_cast<unsigned>(ld.line.length());
       Buffer::classify(ld);
       usedFlag = true;

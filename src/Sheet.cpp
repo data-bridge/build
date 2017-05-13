@@ -385,12 +385,11 @@ bool Sheet::read(
 
   try
   {
-    RefControl refControl;
-    if (! buffer.read(fname, BRIDGE_FORMAT_LIN, refControl,
+    if (! buffer.read(fname, BRIDGE_FORMAT_LIN, reflines,
         BRIDGE_REF_ONLY_PARTIAL))
       return false;
 
-    if (refControl == ERR_REF_SKIP)
+    if (reflines.skip())
       return true;
   }
   catch (Bexcept& bex)
@@ -403,15 +402,9 @@ bool Sheet::read(
   try
   {
     Sheet::parse(buffer, headerOrig, handsOrig);
-
-    RefControl refControl = ERR_REF_STANDARD;
-    readRefFile(fname, reflines, refControl);
-    if (refControl == ERR_REF_SKIP)
-      return true;
-
     Sheet::parseRefs();
 
-    if (! buffer.fix(fname, refControl, BRIDGE_REF_ONLY_NONPARTIAL))
+    if (! buffer.fix(fname, reflines, BRIDGE_REF_ONLY_NONPARTIAL))
       return true; // No ref file
 
     buffer.rewind();

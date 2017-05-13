@@ -17,8 +17,7 @@
 #include "Auction.h"
 #include "Play.h"
 #include "SheetHand.h"
-#include "Refline.h"
-#include "referr.h"
+#include "Reflines.h"
 
 
 using namespace std;
@@ -54,7 +53,7 @@ class Sheet
     vector<SheetHandData> handsFixed;
     bool hasFixed;
 
-    vector<Refline> reflines;
+    Reflines reflines;
 
 
     void resetHeader(SheetHeader& hdr);

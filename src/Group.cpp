@@ -91,7 +91,7 @@ bool Group::operator == (const Group& group2) const
     DIFF("Different lengths: " + STR(s1) + " vs. " + STR(s2));
   }
 
-  for (unsigned i = 0; i< segments.size(); i++)
+  for (unsigned i = 0; i < segments.size(); i++)
   {
     if (segments[i] != group2.segments[i])
       return false;

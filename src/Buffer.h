@@ -14,7 +14,7 @@
 #include <vector>
 
 #include "valint.h"
-#include "referr.h"
+#include "Reflines.h"
 #include "bconst.h"
 
 using namespace std;
@@ -49,7 +49,7 @@ class Buffer
     bool isRBX(LineData& ld);
 
     bool fix(
-      const vector<Refline>& reflines,
+      const Reflines& reflines,
       const RefUse use);
 
     void classify(LineData& ld);
@@ -77,7 +77,7 @@ class Buffer
     bool read(
       const string& fname,
       const Format format,
-      RefControl& refControl,
+      Reflines& reflines,
       const RefUse use = BRIDGE_REF_ALL);
 
     bool split(
@@ -86,7 +86,7 @@ class Buffer
 
     bool fix(
       const string& fname,
-      RefControl& refcontrol,
+      Reflines& reflines,
       const RefUse use = BRIDGE_REF_ALL);
 
     bool advance();

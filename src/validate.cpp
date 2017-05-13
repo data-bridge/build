@@ -230,9 +230,10 @@ void validate(
   ValStats& vstats)
 {
   ValState valState;
-  RefControl refControl;
-  valState.bufferOut.read(fileOut, formatRef, refControl);
-  valState.bufferRef.read(fileRef, formatRef, refControl);
+  Reflines reflines;
+  valState.bufferOut.read(fileOut, formatRef, reflines);
+  reflines.reset();
+  valState.bufferRef.read(fileRef, formatRef, reflines);
 
   if (formatRef == BRIDGE_FORMAT_PBN && ! isOfRPOrigin(fileRef))
   {
@@ -259,11 +260,12 @@ void validate(
   ValStats& vstats)
 {
   ValState valState;
-  RefControl refControl;
   valState.bufferOut.split(strOut, formatRef);
-  valState.bufferOut.fix(fileOut, refControl);
 
-  valState.bufferRef.read(fileRef, formatRef, refControl);
+  Reflines reflines;
+  valState.bufferOut.fix(fileOut, reflines);
+
+  valState.bufferRef.read(fileRef, formatRef, reflines);
 
   if (formatRef == BRIDGE_FORMAT_PBN && ! isOfRPOrigin(fileRef))
   {
