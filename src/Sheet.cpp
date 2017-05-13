@@ -369,11 +369,11 @@ void Sheet::parseRefs(const Buffer& buffer)
       continue;
 
     const unsigned handNoFirst = 
-      Sheet::refLineNoToHandNo(refFix[refNo].lno);
+      Sheet::refLineNoToHandNo(reflines[refNo].lineno());
     const unsigned handNoLast = 
       (refFix[refNo].count == 1 ?  handNoFirst : 
       Sheet::refLineNoToHandNo(
-        refFix[refNo].lno + refFix[refNo].count - 1));
+        reflines[refNo].lineno() + refFix[refNo].count - 1));
 
     if (handNoFirst == BIGNUM || handNoLast == BIGNUM)
       continue;
@@ -385,7 +385,7 @@ void Sheet::parseRefs(const Buffer& buffer)
     }
 
     RefErrorClass refError;
-    classifyRefLine(refFix[refNo], reflines[refNo],
+    classifyRefLine(reflines[refNo],
       buffer.getLine(refFix[refNo].lno), refError);
     refEffects[refNo].type = refError.code;
     refEffects[refNo].numTags = refError.numTags;
@@ -421,11 +421,11 @@ bool Sheet::read(
     Sheet::parse(buffer, headerOrig, handsOrig);
 
     RefControl refControl = ERR_REF_STANDARD;
-    readRefFix(fname, refFix, reflines, refControl);
+    readRefFix(fname, reflines, refControl);
     if (refControl == ERR_REF_SKIP)
       return true;
 
-    refEffects.resize(refFix.size());
+    refEffects.resize(reflines.size());
     Sheet::parseRefs(buffer);
 
     if (! buffer.fix(fname, refControl, BRIDGE_REF_ONLY_NONPARTIAL))

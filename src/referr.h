@@ -64,7 +64,6 @@ void setRefTable();
 
 void readRefFix(
   const string& fname,
-  vector<RefFix>& refFix,
   vector<Refline>& reflines,
   RefControl& refControl);
 
@@ -77,7 +76,6 @@ bool modifyLINLine(
   string& lineNew);
 
 bool classifyRefLine(
-  const RefFix& refEntry,
   const Refline& refline,
   const string& bufferLine,
   RefErrorClass& diff);

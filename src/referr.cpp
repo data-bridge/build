@@ -73,7 +73,6 @@ void setRefTable()
 
 void readRefFix(
   const string& fname,
-  vector<RefFix>& refFix,
   vector<Refline>& reflines,
   RefControl& refControl)
 {
@@ -87,56 +86,35 @@ void readRefFix(
     return;
 
   string line, s;
-  RefFix rf;
-  regex rer("^\\s*\"(.*)\"\\s*$");
-  regex rep("^\\s*\"(.*)\"\\s+\\{.*\\}\\s*$");
   smatch match;
   while (getline(refstr, line))
   {
     if (line.empty() || line.at(0) == '%')
       continue;
 
-    bool newOK = false;
     Refline refline;
     if (refline.parse(fname, line))
     {
-      newOK = true;
       reflines.push_back(refline);
-    }
-
-    if (! getNextWord(line, s))
-      THROW("Ref file " + refName + ": Syntax error in '" + line + "'");
-
-    if (! str2unsigned(s, rf.lno))
-    {
-      if (s == "skip")
-        refControl = ERR_REF_SKIP;
-      else if (s == "noval")
-        refControl = ERR_REF_NOVAL;
-      else if (s == "orderCOCO")
-        refControl = ERR_REF_OUT_COCO;
-      else if (s == "orderOOCC")
-        refControl = ERR_REF_OUT_OOCC;
-      else
-        THROW("Ref file " + refName + ": Bad number in '" + line + "'");
-      if (newOK)
-        THROW("Ref file " + refName + ": New could parse '" + line + "'");
       continue;
     }
-      
+
+    // TODO: Check the skip reason and numbers.
+
     if (! getNextWord(line, s))
-      THROW("Ref file " + refName + ": Syntax error in '" + line + "'");
+      THROW("Ref file " + refName + ": No special word in '" + line + "'");
 
-    auto it = RefMap.find(s);
-    if (it == RefMap.end())
-      THROW("Ref file " + refName + ": Syntax error in '" + line + "'");
-    
-    (* it->second)(refName, line, rer, rep, match, rf);
-
-    if (! newOK)
-      THROW("Ref file " + refName + ": New couldn't parse '" + line + "'");
-
-    refFix.push_back(rf);
+    if (s == "skip")
+      refControl = ERR_REF_SKIP;
+    else if (s == "noval")
+      refControl = ERR_REF_NOVAL;
+    else if (s == "orderCOCO")
+      refControl = ERR_REF_OUT_COCO;
+    else if (s == "orderOOCC")
+      refControl = ERR_REF_OUT_OOCC;
+    else
+      THROW("Ref file " + refName + ": Bad number in '" + line + "'");
+    continue;
   }
   refstr.close();
 }
@@ -416,21 +394,20 @@ bool modifyLINLine(
 
 
 bool classifyRefLine(
-  const RefFix& refEntry,
   const Refline& refline,
   const string& bufferLine,
   RefErrorClass& diff)
 {
   vector<string> listRef, listBuf;
   string dummy;
-  diff.type = refEntry.type;
+  diff.type = refline.type();
 
-  switch (refEntry.type)
+  switch (diff.type)
   {
     case BRIDGE_REF_INSERT_GEN:
       // Split ref line
       diff.list.clear();
-      lineToLINList(refEntry.value, diff.list);
+      lineToLINList(refline.is(), diff.list);
       break;
 
     case BRIDGE_REF_REPLACE_GEN:
@@ -438,7 +415,7 @@ bool classifyRefLine(
       listRef.clear();
       listBuf.clear();
       lineToLINList(bufferLine, listBuf);
-      lineToLINList(refEntry.value, listRef);
+      lineToLINList(refline.is(), listRef);
 
       // If there's a single stretch of differences, work on this.
       // If not, fail for now.
@@ -462,8 +439,8 @@ bool classifyRefLine(
 
       diff.type = BRIDGE_REF_INSERT_GEN;
       diff.code = ERR_SIZE;
-      diff.list.push_back(refEntry.fixLIN.tag);
-      diff.list.push_back(refEntry.fixLIN.is);
+      diff.list.push_back(refline.tag());
+      diff.list.push_back(refline.is());
       diff.pureFlag = true;
       diff.numTags = 1;
       break;
@@ -474,8 +451,8 @@ bool classifyRefLine(
 
       diff.type = BRIDGE_REF_REPLACE_GEN;
       diff.code = ERR_SIZE;
-      diff.list.push_back(refEntry.fixLIN.tag);
-      diff.list.push_back(refEntry.fixLIN.is);
+      diff.list.push_back(refline.tag());
+      diff.list.push_back(refline.is());
       diff.pureFlag = true;
       diff.numTags = 1;
       break;
@@ -486,8 +463,8 @@ bool classifyRefLine(
 
       diff.type = BRIDGE_REF_REPLACE_GEN;
       diff.code = ERR_SIZE;
-      diff.list.push_back(refEntry.fixLIN.tag);
-      diff.list.push_back(refEntry.fixLIN.was);
+      diff.list.push_back(refline.tag());
+      diff.list.push_back(refline.was());
       diff.pureFlag = true;
       diff.numTags = 1;
       break;

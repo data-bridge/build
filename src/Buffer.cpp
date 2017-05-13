@@ -303,9 +303,8 @@ bool Buffer::read(
   fileName = fname;
   format = formatIn;
 
-  vector<RefFix> refFix;
   vector<Refline> reflines;
-  readRefFix(fname, refFix, reflines, refControl);
+  readRefFix(fname, reflines, refControl);
   if (refControl == ERR_REF_SKIP)
     return false;
 
@@ -316,7 +315,7 @@ bool Buffer::read(
   for (auto &ld: lines)
     Buffer::classify(ld);
 
-  return Buffer::fix(refFix, reflines, use);
+  return Buffer::fix(reflines, use);
 
   return true;
 }
@@ -359,18 +358,16 @@ bool Buffer::fix(
   RefControl& refControl,
   const RefUse use)
 {
-  vector<RefFix> refFix;
   vector<Refline> reflines;
-  readRefFix(fname, refFix, reflines, refControl);
+  readRefFix(fname, reflines, refControl);
   if (refControl == ERR_REF_SKIP)
     return false;
 
-  return Buffer::fix(refFix, reflines, use);
+  return Buffer::fix(reflines, use);
 }
 
 
 bool Buffer::fix(
-  const vector<RefFix>& refFix,
   const vector<Refline>& reflines,
   const RefUse use)
 {
@@ -390,7 +387,8 @@ bool Buffer::fix(
       THROW("Cannot find ref line number " + STR(reflines[rno].lineno()));
     LineData& ld = lines[i];
 
-    if (refFix[rno].type == BRIDGE_REF_INSERT_GEN)
+    const int refType = reflines[rno].type();
+    if (refType == BRIDGE_REF_INSERT_GEN)
     {
       LineData lnew;
       reflines[rno].modify(lnew.line);
@@ -401,31 +399,29 @@ bool Buffer::fix(
       usedFlag = true;
       len++;
     }
-    else if (refFix[rno].type == BRIDGE_REF_REPLACE_GEN)
+    else if (refType == BRIDGE_REF_REPLACE_GEN)
     {
       reflines[rno].modify(ld.line);
       ld.len = static_cast<unsigned>(ld.line.length());
       Buffer::classify(ld);
       usedFlag = true;
     }
-    else if (refFix[rno].type == BRIDGE_REF_DELETE_GEN)
+    else if (refType == BRIDGE_REF_DELETE_GEN)
     {
-      if (i + refFix[rno].count > len)
+      const unsigned deletion = reflines[rno].deletion();
+      if (i + deletion > len)
         THROW("Too large deletion");
 
       lines.erase(lines.begin() + static_cast<int>(i), 
-          lines.begin() + static_cast<int>(refFix[rno].count + i));
-      len -= refFix[rno].count;
+          lines.begin() + static_cast<int>(deletion + i));
+      len -= deletion;
       usedFlag = true;
     }
-    else if (refFix[rno].type == BRIDGE_REF_INSERT_LIN ||
-        refFix[rno].type == BRIDGE_REF_REPLACE_LIN ||
-        refFix[rno].type == BRIDGE_REF_DELETE_LIN)
+    else if (refType == BRIDGE_REF_INSERT_LIN ||
+        refType == BRIDGE_REF_REPLACE_LIN ||
+        refType == BRIDGE_REF_DELETE_LIN)
     {
       reflines[rno].modify(ld.line);
-      // if (! modifyLINLine(ld.line, refFix[rno], reflines[rno], ld.line))
-        // THROW("Could not make LIN ref modification");
-
       ld.len = static_cast<unsigned>(ld.line.length());
       Buffer::classify(ld);
       usedFlag = true;

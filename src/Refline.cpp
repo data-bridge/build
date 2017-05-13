@@ -368,7 +368,7 @@ bool Refline::parse(
   // Check whether there is a comment.
   Refline::parseComment(refName, line, start, end);
 
-  if (start+1 >= end)
+  if (start >= end)
   {
     setFlag = true;
     return true;
@@ -772,6 +772,24 @@ bool Refline::isCommented() const
 }
 
 
+string Refline::tag() const
+{
+  return edit.tag;
+}
+
+
+string Refline::is() const
+{
+  return edit.is;
+}
+
+
+string Refline::was() const
+{
+  return edit.was;
+}
+
+
 bool Refline::isUncommented() const
 {
   return ! comment.setFlag;
@@ -781,6 +799,12 @@ bool Refline::isUncommented() const
 FixType Refline::type() const
 {
   return fix;
+}
+
+
+unsigned Refline::deletion() const
+{
+  return range.lcount;
 }
 
 

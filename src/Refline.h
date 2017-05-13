@@ -190,10 +190,14 @@ class Refline
     unsigned lineno() const;
 
     bool isSet() const;
+
+    string tag() const;
+    string is() const;
+    string was() const;
     bool isCommented() const;
     bool isUncommented() const;
-
     FixType type() const;
+    unsigned deletion() const;
 
     void modify(string& line) const;
 
