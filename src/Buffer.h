@@ -49,7 +49,8 @@ class Buffer
     bool isRBX(LineData& ld);
 
     bool fix(
-      const vector<RefFix> refFix,
+      const vector<RefFix>& refFix,
+      const vector<Refline>& reflines,
       const RefUse use);
 
     void classify(LineData& ld);

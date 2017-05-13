@@ -1,5 +1,15 @@
-01.05.2017
+11.05.2017
 ----------
+
+* Get Refline.cpp to work
+  - Also fill out the two acceptance matrices
+  - Add the current (old) a delete b format
+* Run it next to referr
+* Delete the parts of referr
+* Add count/tag checks to Refline::modify
+* Delete the old "10 delete 7" format, modify .ref file
+* Add the PBN, RBN, TXT functions
+
 * Get reader to work on RPmajors
   - Get whole RPmajors matrix to work
 

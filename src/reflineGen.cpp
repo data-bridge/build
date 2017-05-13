@@ -28,7 +28,7 @@ void parseReplaceGen(
   smatch& match,
   RefFix& rf)
 {
-  rf.type = BRIDGE_REF_REPLACE;
+  rf.type = BRIDGE_REF_REPLACE_GEN;
   if (regex_search(line, match, rer) && match.size() >= 1)
   {
     rf.value = match.str(1);
@@ -54,7 +54,7 @@ void parseInsertGen(
   smatch& match,
   RefFix& rf)
 {
-  rf.type = BRIDGE_REF_INSERT;
+  rf.type = BRIDGE_REF_INSERT_GEN;
   if (regex_search(line, match, rer) && match.size() >= 1)
   {
     rf.value = match.str(1);
@@ -84,7 +84,7 @@ void parseDeleteGen(
   UNUSED(rep);
   UNUSED(match);
 
-  rf.type = BRIDGE_REF_DELETE;
+  rf.type = BRIDGE_REF_DELETE_GEN;
   string line2 = line, s;
   if (! getNextWord(line2, s))
   {

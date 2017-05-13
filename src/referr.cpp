@@ -74,6 +74,7 @@ void setRefTable()
 void readRefFix(
   const string& fname,
   vector<RefFix>& refFix,
+  vector<Refline>& reflines,
   RefControl& refControl)
 {
   regex re("\\.\\w+$");
@@ -95,6 +96,14 @@ void readRefFix(
     if (line.empty() || line.at(0) == '%')
       continue;
 
+    bool newOK = false;
+    Refline refline;
+    if (refline.parse(fname, line))
+    {
+      newOK = true;
+      reflines.push_back(refline);
+    }
+
     if (! getNextWord(line, s))
       THROW("Ref file " + refName + ": Syntax error in '" + line + "'");
 
@@ -110,6 +119,8 @@ void readRefFix(
         refControl = ERR_REF_OUT_OOCC;
       else
         THROW("Ref file " + refName + ": Bad number in '" + line + "'");
+      if (newOK)
+        THROW("Ref file " + refName + ": New could parse '" + line + "'");
       continue;
     }
       
@@ -121,6 +132,9 @@ void readRefFix(
       THROW("Ref file " + refName + ": Syntax error in '" + line + "'");
     
     (* it->second)(refName, line, rer, rep, match, rf);
+
+    if (! newOK)
+      THROW("Ref file " + refName + ": New couldn't parse '" + line + "'");
 
     refFix.push_back(rf);
   }
@@ -179,15 +193,15 @@ string strRefFix(const RefFix& refFix)
   st = STR(refFix.lno) + " ";
   switch(refFix.type)
   {
-    case BRIDGE_REF_INSERT:
+    case BRIDGE_REF_INSERT_GEN:
       st += "insert" + strRefFixNormalRest(refFix);
       break;
 
-    case BRIDGE_REF_REPLACE:
+    case BRIDGE_REF_REPLACE_GEN:
       st += "replace" + strRefFixNormalRest(refFix);
       break;
 
-    case BRIDGE_REF_DELETE:
+    case BRIDGE_REF_DELETE_GEN:
       st += "delete" + strRefFixNormalRest(refFix);
       break;
 
@@ -304,21 +318,21 @@ static bool deltaLINLists(
     if (i > l2-1-j)
       return false;
 
-    fix = BRIDGE_REF_INSERT;
+    fix = BRIDGE_REF_INSERT_GEN;
     for (unsigned k = i; k <= l2-1-j; k++)
       listDelta.push_back(list2[k]);
     return true;
   }
   else if (i+j+1 > l2)
   {
-    fix = BRIDGE_REF_DELETE;
+    fix = BRIDGE_REF_DELETE_GEN;
     for (unsigned k = i; k <= l1-1-j; k++)
       listDelta.push_back(list1[k]);
     return true;
   }
   else if (l1 == l2)
   {
-    fix = BRIDGE_REF_REPLACE;
+    fix = BRIDGE_REF_REPLACE_GEN;
     for (unsigned k = i; k <= l1-1-j; k++)
       listDelta.push_back(list2[k]);
     return true;
@@ -336,7 +350,7 @@ void classifyList(RefErrorClass& diff)
   // Can be expanded.
   if (tag == "mb")
   {
-    if (diff.type == BRIDGE_REF_DELETE)
+    if (diff.type == BRIDGE_REF_DELETE_GEN)
     {
       diff.numTags = l / 2;
       diff.code = ERR_LIN_MB_TRAILING;
@@ -345,7 +359,7 @@ void classifyList(RefErrorClass& diff)
   }
   else if (tag == "mc")
   {
-    if (diff.type == BRIDGE_REF_REPLACE && l == 2)
+    if (diff.type == BRIDGE_REF_REPLACE_GEN && l == 2)
     {
       diff.numTags = 1;
       diff.code = ERR_LIN_MC_REPLACE;
@@ -485,13 +499,13 @@ bool classifyRefLine(
 
   switch (refEntry.type)
   {
-    case BRIDGE_REF_INSERT:
+    case BRIDGE_REF_INSERT_GEN:
       // Split ref line
       diff.list.clear();
       lineToLINList(refEntry.value, diff.list);
       break;
 
-    case BRIDGE_REF_REPLACE:
+    case BRIDGE_REF_REPLACE_GEN:
       // Split old and new line.
       listRef.clear();
       listBuf.clear();
@@ -508,7 +522,7 @@ bool classifyRefLine(
       }
       break;
 
-    case BRIDGE_REF_DELETE:
+    case BRIDGE_REF_DELETE_GEN:
       // Split old line.
       diff.list.clear();
       lineToLINList(bufferLine, diff.list);
@@ -518,7 +532,7 @@ bool classifyRefLine(
       if (! modifyLINLine(bufferLine, refEntry, dummy))
         return false;
 
-      diff.type = BRIDGE_REF_INSERT;
+      diff.type = BRIDGE_REF_INSERT_GEN;
       diff.code = ERR_SIZE;
       diff.list.push_back(refEntry.fixLIN.tag);
       diff.list.push_back(refEntry.fixLIN.is);
@@ -530,7 +544,7 @@ bool classifyRefLine(
       if (! modifyLINLine(bufferLine, refEntry, dummy))
         return false;
 
-      diff.type = BRIDGE_REF_REPLACE;
+      diff.type = BRIDGE_REF_REPLACE_GEN;
       diff.code = ERR_SIZE;
       diff.list.push_back(refEntry.fixLIN.tag);
       diff.list.push_back(refEntry.fixLIN.is);
@@ -542,7 +556,7 @@ bool classifyRefLine(
       if (! modifyLINLine(bufferLine, refEntry, dummy))
         return false;
 
-      diff.type = BRIDGE_REF_REPLACE;
+      diff.type = BRIDGE_REF_REPLACE_GEN;
       diff.code = ERR_SIZE;
       diff.list.push_back(refEntry.fixLIN.tag);
       diff.list.push_back(refEntry.fixLIN.was);

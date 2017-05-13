@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "refcodes.h"
+#include "Refline.h"
 
 using namespace std;
 
@@ -27,16 +28,6 @@ enum RefControl
   ERR_REF_OUT_OOCC = 4
 };
 
-
-enum FixType
-{
-  BRIDGE_REF_INSERT = 0,
-  BRIDGE_REF_REPLACE = 1,
-  BRIDGE_REF_DELETE = 2,
-  BRIDGE_REF_INSERT_LIN = 3,
-  BRIDGE_REF_REPLACE_LIN = 4,
-  BRIDGE_REF_DELETE_LIN = 5
-};
 
 struct RefFixLIN
 {
@@ -74,6 +65,7 @@ void setRefTable();
 void readRefFix(
   const string& fname,
   vector<RefFix>& refFix,
+  vector<Refline>& reflines,
   RefControl& refControl);
 
 string strRefFix(const RefFix& refFix);

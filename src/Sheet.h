@@ -17,6 +17,7 @@
 #include "Auction.h"
 #include "Play.h"
 #include "SheetHand.h"
+#include "Refline.h"
 #include "referr.h"
 
 
@@ -53,6 +54,7 @@ class Sheet
     vector<SheetHandData> handsFixed;
     bool hasFixed;
 
+    vector<Refline> reflines;
     vector<RefFix> refFix;
 
     // ref fixes can affect multiple qx's

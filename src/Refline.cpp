@@ -38,20 +38,23 @@ enum RefTags
   REF_TAGS_LIN_MD = 6,
   REF_TAGS_LIN_SV = 7,
   REF_TAGS_LIN_MB = 8,
-  REF_TAGS_LIN_PC = 9,
-  REF_TAGS_LIN_MC = 10,
+  REF_TAGS_LIN_AN = 9,
+  REF_TAGS_LIN_PC = 10,
+  REF_TAGS_LIN_MC = 11,
+  REF_TAGS_LIN_PG = 12,
+  REF_TAGS_LIN_NT = 13,
 
-  REF_TAGS_PBN_DECLARER = 11,
-  REF_TAGS_PBN_NOTE = 12,
-  REF_TAGS_PBN_RESULT = 13,
-  REF_TAGS_PBN_SCORE = 14,
-  REF_TAGS_PBN_SCORE_IMP = 15,
+  REF_TAGS_PBN_DECLARER = 14,
+  REF_TAGS_PBN_NOTE = 15,
+  REF_TAGS_PBN_RESULT = 16,
+  REF_TAGS_PBN_SCORE = 17,
+  REF_TAGS_PBN_SCORE_IMP = 18,
 
-  REF_TAGS_RBN_L = 16,
-  REF_TAGS_RBN_P = 17,
-  REF_TAGS_RBN_R = 18,
+  REF_TAGS_RBN_L = 19,
+  REF_TAGS_RBN_P = 20,
+  REF_TAGS_RBN_R = 21,
 
-  REF_TAGS_SIZE = 19
+  REF_TAGS_SIZE = 22
 };
 
 
@@ -165,8 +168,11 @@ void Refline::setTables()
   refTags["md"] = REF_TAGS_LIN_MD;
   refTags["sv"] = REF_TAGS_LIN_SV;
   refTags["mb"] = REF_TAGS_LIN_MB;
+  refTags["an"] = REF_TAGS_LIN_AN;
   refTags["pc"] = REF_TAGS_LIN_PC;
   refTags["mc"] = REF_TAGS_LIN_MC;
+  refTags["pg"] = REF_TAGS_LIN_PG;
+  refTags["nt"] = REF_TAGS_LIN_NT;
 
   refTags["Declarer"] = REF_TAGS_PBN_DECLARER;
   refTags["Note"] = REF_TAGS_PBN_NOTE;
@@ -307,7 +313,7 @@ void Refline::parseComment(
 
   end = openb-1;
 
-  const regex rep("\\{.*\\((\\d+),(\\d+),(\\d+)\\)\\}\\s*$");
+  const regex rep("\\{(.*)\\((\\d+),(\\d+),(\\d+)\\)\\}\\s*$");
   smatch match;
   const string str = line.substr(openb);
   if (! regex_search(str, match, rep) || match.size() < 4)
@@ -369,12 +375,23 @@ bool Refline::parse(
   }
 
   if (line.at(start) != '"')
+  {
+    // TODO: For now we permit the old "10 delete 7" format as well.
+    if (fix == BRIDGE_REF_DELETE_GEN &&
+        str2upos(line.substr(start), range.lcount))
+      return true;
+
     THROW("Ref file " + refName + ": No opening quote in '" + line + "'");
-  if (line.at(end) != '"')
+  }
+
+  while (line.at(end) != '"')
+    end--;
+
+  if (start == end)
     THROW("Ref file " + refName + ": No closing quote in '" + line + "'");
 
   // The details of the quoted string depend heavily on the action.
-  q = line.substr(start+1, end-start+1);
+  q = line.substr(start+1, end-start-1);
   (this->*ParseList[fix])(refName, q);
 
   setFlag = true;
@@ -429,10 +446,20 @@ void Refline::commonCheck(
     THROW("Ref file " + refName + ": " + FixTable[fix] + 
         " comment '" + quote + "'");
 
+  if (tag == "")
+    return;
+
   auto it = refTags.find(tag);
   if (it == refTags.end())
-    THROW("Ref file " + refName + ": " + FixTable[fix] + 
-        " tag name '" + quote + "'");
+  {
+    // Try lower-case as well.
+    string taglc = tag;
+    toLower(taglc);
+    it = refTags.find(taglc);
+    if (it == refTags.end())
+      THROW("Ref file " + refName + ": " + FixTable[fix] + 
+          " tag name '" + quote + "'");
+  }
 
   if (! CommentTagPermitted[fix][it->second])
     THROW("Ref file " + refName + ": " + FixTable[fix] + 
@@ -575,14 +602,26 @@ void Refline::parseDeleteLIN(
   tokenize(quote, v, ",");
   const unsigned vlen = v.size();
 
-  if (vlen <= 1)
+  if (vlen == 0)
     THROW("Ref file " + refName + ": Short quotes '" + quote + "'");
 
   Refline::parseFlexibleNumber(refName, v[0]);
 
+  // delete "3" is allowed for desperate cases.
+  if (vlen == 1)
+    return;
+
   unsigned n = 1;
   if (str2upos(v[1], edit.fieldno))
     n = 2;
+
+  if (vlen == n+1)
+  {
+    // Special case "deleteLIN "1,general text", for serious cases.
+    Refline::commonCheck(refName, quote, "");
+    edit.was = Refline::unquote(v[n]);
+    return;
+  }
 
   if (vlen != n+2 && vlen != n+3)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
@@ -770,19 +809,20 @@ void Refline::modify(string& line) const
 
 void Refline::modifyReplaceGen(string& line) const
 {
-  UNUSED(line);
+  line = edit.is;
 }
 
 
 void Refline::modifyInsertGen(string& line) const
 {
-  UNUSED(line);
+  line = edit.is;
 }
 
 
 void Refline::modifyDeleteGen(string& line) const
 {
   UNUSED(line);
+  THROW("modifyDeleteGen not implemented");
 }
 
 
@@ -933,6 +973,9 @@ void Refline::modifyDeleteLIN(string& line) const
   {
     // Delete a single entry without checking it.
     // Only use this when the entry is seriously messed up.
+    if (edit.was != "" && v[start] != edit.was)
+      modifyFail(line, "Old value wrong");
+      
     v.erase(v.begin() + static_cast<int>(start));
   }
   else
@@ -1047,41 +1090,41 @@ string Refline::str() const
     return "Line number not set\n";
     
   stringstream ss;
-  ss << setw(12) << "Action" << FixTable[fix] << "\n";
+  ss << setw(14) << left << "Action" << FixTable[fix] << "\n";
 
   if (range.lcount <= 1)
-    ss << setw(12) << "Line number" << range.lno << "\n";
+    ss << setw(14) << "Line number" << range.lno << "\n";
   else
-    ss << setw(12) << "Lines" << range.lno << " to " << 
+    ss << setw(14) << "Lines" << range.lno << " to " << 
       range.lno + range.lcount - 1 << "\n";
 
   if (edit.reverseFlag)
-    ss << setw(12) << "Tag number" << edit.tagno << " (from the back)\n";
+    ss << setw(14) << "Tag number" << edit.tagno << " (from the back)\n";
   else
-    ss << setw(12) << "Tag number" << edit.tagno << "\n";
+    ss << setw(14) << "Tag number" << edit.tagno << "\n";
 
-  ss << setw(12) << "Tag" << edit.tag << "\n";
+  ss << setw(14) << "Tag" << edit.tag << "\n";
   if (edit.fieldno > 0)
   {
     if (edit.tagcount == 0)
-      ss << setw(12) << "Field" << edit.fieldno << "\n";
+      ss << setw(14) << "Field" << edit.fieldno << "\n";
     else
-      ss << setw(12) << "Fields" << edit.fieldno << " to " <<
+      ss << setw(14) << "Fields" << edit.fieldno << " to " <<
         edit.fieldno + edit.tagcount - 1 << "\n";
   }
 
   if (edit.charno > 0)
-    ss << setw(12) << "Char. number" << edit.charno << "\n";
+    ss << setw(14) << "Char. number" << edit.charno << "\n";
   
-  ss << setw(12) << "String was" << edit.was << "\n";
-  ss << setw(12) << "String is" << edit.is << "\n";
+  ss << setw(14) << "String was" << "'" << edit.was << "'" << "\n";
+  ss << setw(14) << "String is" << "'" << edit.is << "'" << "\n";
 
   if (comment.setFlag)
   {
-    ss << setw(12) << "Comment" << RefErrors[comment.category].name << "\n";
-    ss << setw(12) << "Count tags" << comment.count1 << "\n";
-    ss << setw(12) << "Count hands" << comment.count2 << "\n";
-    ss << setw(12) << "Count boards" << comment.count2 << "\n";
+    ss << setw(14) << "Comment" << RefErrors[comment.category].name << "\n";
+    ss << setw(14) << "Count tags" << comment.count1 << "\n";
+    ss << setw(14) << "Count hands" << comment.count2 << "\n";
+    ss << setw(14) << "Count boards" << comment.count2 << "\n";
   }
 
   return ss.str();

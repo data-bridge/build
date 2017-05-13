@@ -421,7 +421,7 @@ bool Sheet::read(
     Sheet::parse(buffer, headerOrig, handsOrig);
 
     RefControl refControl = ERR_REF_STANDARD;
-    readRefFix(fname, refFix, refControl);
+    readRefFix(fname, refFix, reflines, refControl);
     if (refControl == ERR_REF_SKIP)
       return true;
 
