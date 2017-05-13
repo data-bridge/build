@@ -1,12 +1,17 @@
 11.05.2017
 ----------
-* What vectors should be forward lists?
-* Get Refline.cpp to work
-  - Also fill out the two acceptance matrices
-  - Add the current (old) a delete b format
-* Add count/tag checks to Refline::modify
+* 16002 o4 DBL detected? 17392 o11 too.  314 c15
+* I think it was 4763.lin where the header % output was 476.lin
 * Delete the old "10 delete 7" format, modify .ref file
-* Add the PBN, RBN, TXT functions
+* Delete the format from Refline
+* Add count checks to Refline::modify
+* Add the PBN, PBX, RBN, TXT functions to Refline
+* Change the corresponding ref files to the new syntax
+* simplify Files.cpp (no noval and skip)
+
+* In dispatch, make boardIDLIN into an object?
+* Detect COCO at least in LIN, PBN, RBN, RBX
+  Then remove from those .ref files, also in BBOVG
 
 * Get reader to work on RPmajors
   - Get whole RPmajors matrix to work
@@ -29,11 +34,6 @@ TXT
 EML
 REC
 
-* Think about ref syntax for replacePBN, replaceTXT
-* simplify Files.cpp (no noval and skip)
-* Detect COCO at least in LIN, PBN, RBN, RBX
-  Then remove from those .ref files, also in BBOVG
-
 * ./reader -i 7090.pbn -O tmp -c -s -v 31 dies after 
   "Output tmp/PBN/7090.LIN", probably trying to compare/validate?
 
@@ -54,12 +54,8 @@ For RPmajors:
 
 
 
-* In dispatch, make boardIDLIN into an object?
-
-* I think it was 4763.lin where the header % output was 476.lin
 
 Sheet
-* 16002 o4 DBL detected? 17392 o11 too.  314 c15
 * Another str() function that outputs an IMP sheet, will also need vul
 * Get rid of heurfix in favor of Sheet?
   Good outputs (try deleting a ref file), CHOOSE (line1) (line2)
