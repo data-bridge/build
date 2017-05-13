@@ -71,7 +71,7 @@ static ParsePtr ParseList[BRIDGE_REF_FIX_SIZE];
 typedef void (Refline::*ModifyPtr)(string& line) const;
 static ModifyPtr ModifyList[BRIDGE_REF_FIX_SIZE];
 
-static bool CommentActionPermitted[BRIDGE_REF_FIX_SIZE][ERR_SIZE];
+static bool CommentActionOK[BRIDGE_REF_FIX_SIZE][ERR_SIZE];
 
 static map<string, RefTags> refTags;
 
@@ -238,7 +238,77 @@ void Refline::setCommentAction()
 {
   for (unsigned i = 0; i < BRIDGE_REF_FIX_SIZE; i++)
     for (unsigned j = 0; j < ERR_SIZE; j++)
-      CommentActionPermitted[i][j] = true; // TODO: For now
+      CommentActionOK[i][j] = false;
+  
+  bool * CAO = CommentActionOK[BRIDGE_REF_REPLACE_GEN];
+  CAO[ERR_LIN_VHEADER_SYNTAX] = true;
+  CAO[ERR_LIN_PLAYERS_REPLACE] = true;
+
+  CAO = CommentActionOK[BRIDGE_REF_INSERT_GEN];
+  CAO[ERR_LIN_VHEADER_INSERT] = true;
+  CAO[ERR_LIN_RESULTS_INSERT] = true;
+  CAO[ERR_LIN_TRICK_INSERT] = true;
+
+  CAO = CommentActionOK[BRIDGE_REF_DELETE_GEN];
+  CAO[ERR_LIN_TRICK_DELETE] = true;
+  CAO[ERR_LIN_HAND_AUCTION_LIVE] = true;
+  CAO[ERR_LIN_HAND_CARDS_MISSING] = true;
+  CAO[ERR_LIN_HAND_CARDS_WRONG] = true;
+
+  CAO = CommentActionOK[BRIDGE_REF_REPLACE_LIN];
+  CAO[ERR_LIN_VG_FIRST] = true;
+  CAO[ERR_LIN_VG_LAST] = true;
+  CAO[ERR_LIN_VG_REPLACE] = true;
+  CAO[ERR_LIN_VG_SYNTAX] = true;
+  CAO[ERR_LIN_RS_REPLACE] = true;
+  CAO[ERR_LIN_RS_DECL_PARD] = true;
+  CAO[ERR_LIN_RS_DECL_OPP] = true;
+  CAO[ERR_LIN_RS_DENOM] = true;
+  CAO[ERR_LIN_RS_LEVEL] = true;
+  CAO[ERR_LIN_RS_MULT] = true;
+  CAO[ERR_LIN_RS_TRICKS] = true;
+  CAO[ERR_LIN_RS_EMPTY] = true;
+  CAO[ERR_LIN_RS_INCOMPLETE] = true;
+  CAO[ERR_LIN_RS_SYNTAX] = true;
+  CAO[ERR_LIN_PN_REPLACE] = true;
+  CAO[ERR_LIN_QX_REPLACE] = true;
+  CAO[ERR_LIN_MD_REPLACE] = true;
+  CAO[ERR_LIN_SV_REPLACE] = true;
+  CAO[ERR_LIN_MB_REPLACE] = true;
+  CAO[ERR_LIN_MB_SYNTAX] = true;
+  CAO[ERR_LIN_AN_REPLACE] = true;
+  CAO[ERR_LIN_PC_REPLACE] = true;
+  CAO[ERR_LIN_PC_SYNTAX] = true;
+  CAO[ERR_LIN_MC_REPLACE] = true;
+  CAO[ERR_LIN_MC_SYNTAX] = true;
+
+  CAO = CommentActionOK[BRIDGE_REF_INSERT_LIN];
+  CAO[ERR_LIN_RS_INSERT] = true;
+  CAO[ERR_LIN_PN_INSERT] = true;
+  CAO[ERR_LIN_SV_INSERT] = true;
+  CAO[ERR_LIN_MB_INSERT] = true;
+  CAO[ERR_LIN_MB_SYNTAX] = true;
+  CAO[ERR_LIN_PC_INSERT] = true;
+  CAO[ERR_LIN_MC_INSERT] = true;
+  CAO[ERR_LIN_SYNTAX] = true;
+
+  CAO = CommentActionOK[BRIDGE_REF_DELETE_LIN];
+  CAO[ERR_LIN_VG_SYNTAX] = true;
+  CAO[ERR_LIN_RS_DELETE] = true;
+  CAO[ERR_LIN_PN_DELETE] = true;
+  CAO[ERR_LIN_MD_SYNTAX] = true;
+  CAO[ERR_LIN_NT_SYNTAX] = true;
+  CAO[ERR_LIN_SV_DELETE] = true;
+  CAO[ERR_LIN_SV_SYNTAX] = true;
+  CAO[ERR_LIN_MB_TRAILING] = true;
+  CAO[ERR_LIN_MB_DELETE] = true;
+  CAO[ERR_LIN_MB_SYNTAX] = true;
+  CAO[ERR_LIN_AN_DELETE] = true;
+  CAO[ERR_LIN_PC_DELETE] = true;
+  CAO[ERR_LIN_MC_DELETE] = true;
+  CAO[ERR_LIN_MC_SYNTAX] = true;
+  CAO[ERR_LIN_TRICK_DELETE] = true;
+  CAO[ERR_LIN_SYNTAX] = true;
 }
 
 
@@ -473,9 +543,10 @@ void Refline::commonCheck(
   const string& quote,
   const string& tag) const
 {
-  if (comment.setFlag && ! CommentActionPermitted[fix][comment.category])
+  if (comment.setFlag && ! CommentActionOK[fix][comment.category])
     THROW("Ref file " + refName + ": " + FixTable[fix] + 
-        " comment '" + quote + "'");
+        " comment '" + quote + "'\n" +
+        RefErrors[comment.category].name + "\n");
 
   if (tag == "")
     return;
@@ -513,7 +584,7 @@ void Refline::parseReplaceGen(
     THROW("Ref file " + refName + ": replace line count '" + quote + "'");
 
   if (comment.setFlag && 
-      ! CommentActionPermitted[BRIDGE_REF_REPLACE_GEN][comment.category])
+      ! CommentActionOK[BRIDGE_REF_REPLACE_GEN][comment.category])
     THROW("Ref file " + refName + ": replace comment name '" + quote + "'");
 
   edit.is = quote;
@@ -528,7 +599,7 @@ void Refline::parseInsertGen(
     THROW("Ref file " + refName + ": insert line count '" + quote + "'");
 
   if (comment.setFlag && 
-      ! CommentActionPermitted[BRIDGE_REF_INSERT_GEN][comment.category])
+      ! CommentActionOK[BRIDGE_REF_INSERT_GEN][comment.category])
     THROW("Ref file " + refName + ": insert comment name '" + quote + "'");
 
   edit.is = quote;
@@ -543,7 +614,7 @@ void Refline::parseDeleteGen(
     THROW("Ref file " + refName + ": delete line count '" + quote + "'");
 
   if (comment.setFlag && 
-      ! CommentActionPermitted[BRIDGE_REF_DELETE_GEN][comment.category])
+      ! CommentActionOK[BRIDGE_REF_DELETE_GEN][comment.category])
     THROW("Ref file " + refName + ": delete comment name '" + quote + "'");
 
   edit.is = quote;
