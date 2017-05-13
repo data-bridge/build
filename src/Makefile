@@ -44,6 +44,7 @@ SOURCE_FILES 	=		\
 	parse.cpp		\
 	referr.cpp		\
 	Refline.cpp		\
+	Reflines.cpp		\
 	validate.cpp		\
 	validateLIN.cpp		\
 	validatePBN.cpp		\
@@ -196,6 +197,7 @@ heurfix.obj: referr.h refcodes.h Refline.h Chunk.h parse.h Bexcept.h
 parse.obj: parse.h bconst.h
 referr.obj: referr.h refcodes.h Refline.h parse.h bconst.h Bexcept.h
 Refline.obj: Refline.h refcodes.h parse.h bconst.h Bexcept.h
+Reflines.obj: Reflines.h Refline.h refcodes.h parse.h bconst.h Bexcept.h
 validate.obj: ValStats.h ValProfile.h validate.h Buffer.h valint.h referr.h
 validate.obj: refcodes.h Refline.h bconst.h filePBN.h Segment.h Date.h
 validate.obj: Location.h Session.h Scoring.h Teams.h Team.h Board.h Deal.h
