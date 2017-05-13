@@ -46,23 +46,29 @@ void modifyReplaceLIN(
  const unsigned start,
  const bool interiorFlag,
  const RefFix& rf,
+ const Refline& rl,
  vector<string>& vLIN,
- vector<string>& fields);
+ vector<string>& fields,
+ string& llNew);
 
 void modifyInsertLIN(
  const string& line,
  const unsigned start,
  const bool interiorFlag,
  const RefFix& rf,
+ const Refline& rl,
  vector<string>& vLIN,
- vector<string>& fields);
+ vector<string>& fields,
+ string& llNew);
 
 void modifyDeleteLIN(
  const string& line,
  const unsigned start,
  const bool interiorFlag,
  const RefFix& rf,
+ const Refline& rl,
  vector<string>& vLIN,
- vector<string>& fields);
+ vector<string>& fields,
+ string& llNew);
 
 #endif

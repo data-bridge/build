@@ -385,7 +385,7 @@ void Sheet::parseRefs(const Buffer& buffer)
     }
 
     RefErrorClass refError;
-    classifyRefLine(refFix[refNo],
+    classifyRefLine(refFix[refNo], reflines[refNo],
       buffer.getLine(refFix[refNo].lno), refError);
     refEffects[refNo].type = refError.code;
     refEffects[refNo].numTags = refError.numTags;

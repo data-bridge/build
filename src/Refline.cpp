@@ -212,23 +212,23 @@ void Refline::setTables()
 
   ModifyList[BRIDGE_REF_REPLACE_GEN] = &Refline::modifyReplaceGen;
   ModifyList[BRIDGE_REF_INSERT_GEN] = &Refline::modifyInsertGen;
-  ModifyList[BRIDGE_REF_DELETE_GEN] = &Refline::modifyInsertGen;
+  ModifyList[BRIDGE_REF_DELETE_GEN] = &Refline::modifyDeleteGen;
 
   ModifyList[BRIDGE_REF_REPLACE_LIN] = &Refline::modifyReplaceLIN;
   ModifyList[BRIDGE_REF_INSERT_LIN] = &Refline::modifyInsertLIN;
-  ModifyList[BRIDGE_REF_DELETE_LIN] = &Refline::modifyInsertLIN;
+  ModifyList[BRIDGE_REF_DELETE_LIN] = &Refline::modifyDeleteLIN;
 
   ModifyList[BRIDGE_REF_REPLACE_PBN] = &Refline::modifyReplacePBN;
   ModifyList[BRIDGE_REF_INSERT_PBN] = &Refline::modifyInsertPBN;
-  ModifyList[BRIDGE_REF_DELETE_PBN] = &Refline::modifyInsertPBN;
+  ModifyList[BRIDGE_REF_DELETE_PBN] = &Refline::modifyDeletePBN;
 
   ModifyList[BRIDGE_REF_REPLACE_RBN] = &Refline::modifyReplaceRBN;
   ModifyList[BRIDGE_REF_INSERT_RBN] = &Refline::modifyInsertRBN;
-  ModifyList[BRIDGE_REF_DELETE_RBN] = &Refline::modifyInsertRBN;
+  ModifyList[BRIDGE_REF_DELETE_RBN] = &Refline::modifyDeleteRBN;
 
   ModifyList[BRIDGE_REF_REPLACE_TXT] = &Refline::modifyReplaceTXT;
   ModifyList[BRIDGE_REF_INSERT_TXT] = &Refline::modifyInsertTXT;
-  ModifyList[BRIDGE_REF_DELETE_TXT] = &Refline::modifyInsertTXT;
+  ModifyList[BRIDGE_REF_DELETE_TXT] = &Refline::modifyDeleteTXT;
 }
 
 
@@ -637,7 +637,7 @@ void Refline::parseDeleteLIN(
   // deleteLIN "3,mb,p,2"
   if (vlen == n+2)
     edit.type = EDIT_TAG_ONLY;
-  else if (str2upos(v[n+2], edit.tagno))
+  else if (str2upos(v[n+2], edit.tagcount))
     edit.type = EDIT_TAG_FIELD;
   else
     THROW("Ref file " + refName + ": Bad tag/field count '" + quote + "'");
@@ -848,7 +848,9 @@ void Refline::modifyLINCommon(
 
   if (2 * edit.tagno > vlen)
   {
-    if (edit.is == "" && edit.was == "" && 2 * edit.tagno == vlen+1)
+    if (edit.is == "" && 
+       edit.tag == "" && 
+       2 * edit.tagno == vlen+1)
     {
       // Last tag, no argument.
     }
@@ -965,7 +967,8 @@ void Refline::modifyDeleteLIN(string& line) const
       modifyFail(line, "Old field wrong");
 
     auto sf = f.begin() + static_cast<int>(edit.fieldno-1);
-    f.erase(sf, sf + static_cast<int>(edit.tagcount));
+    const unsigned d = (edit.tagcount == 0 ? 1 : edit.tagcount);
+    f.erase(sf, sf + static_cast<int>(d));
 
     v[start+1] = concat(f, ",");
   }
@@ -983,7 +986,7 @@ void Refline::modifyDeleteLIN(string& line) const
     if (v[start] != edit.tag)
       modifyFail(line, "Different LIN tags");
     
-    if (edit.is == "" && edit.was == "")
+    if (edit.is == "" && edit.tag == "")
     {
       // Delete a single entry without checking it.
       // Only use this when the entry is seriously messed up.
@@ -995,7 +998,8 @@ void Refline::modifyDeleteLIN(string& line) const
         modifyFail(line, "Old value wrong");
       
       auto s = v.begin() + static_cast<int>(start);
-      v.erase(s, s + static_cast<int>(2*edit.tagcount));
+      const unsigned d = (edit.tagcount == 0 ? 2 : 2*edit.tagcount);
+      v.erase(s, s + static_cast<int>(d));
     }
   }
 

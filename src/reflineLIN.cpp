@@ -261,13 +261,18 @@ void parseDeleteLIN(
 
 
 void modifyReplaceLIN(
- const string& line,
- const unsigned start,
- const bool interiorFlag,
- const RefFix& rf,
- vector<string>& vLIN,
- vector<string>& fields)
+  const string& line,
+  const unsigned start,
+  const bool interiorFlag,
+  const RefFix& rf,
+  const Refline& rl,
+  vector<string>& vLIN,
+  vector<string>& fields,
+  string& llNew)
 {
+  llNew = line;
+  rl.modify(llNew);
+
   if (vLIN[start] != rf.fixLIN.tag)
     modifyLINFail(line, rf.fixLIN, "Different tags: " + vLIN[start]);
 
@@ -298,13 +303,18 @@ void modifyReplaceLIN(
 
 
 void modifyInsertLIN(
- const string& line,
- const unsigned start,
- const bool interiorFlag,
- const RefFix& rf,
- vector<string>& vLIN,
- vector<string>& fields)
+  const string& line,
+  const unsigned start,
+  const bool interiorFlag,
+  const RefFix& rf,
+  const Refline& rl,
+  vector<string>& vLIN,
+  vector<string>& fields,
+  string& llNew)
 {
+  llNew = line;
+  rl.modify(llNew);
+
   if (interiorFlag)
   {
     if (vLIN[start] != rf.fixLIN.tag)
@@ -328,13 +338,18 @@ void modifyInsertLIN(
 
 
 void modifyDeleteLIN(
- const string& line,
- const unsigned start,
- const bool interiorFlag,
- const RefFix& rf,
- vector<string>& vLIN,
- vector<string>& fields)
+  const string& line,
+  const unsigned start,
+  const bool interiorFlag,
+  const RefFix& rf,
+  const Refline& rl,
+  vector<string>& vLIN,
+  vector<string>& fields,
+  string& llNew)
 {
+  llNew = line;
+  rl.modify(llNew);
+
   if (interiorFlag)
   {
     if (vLIN[start] != rf.fixLIN.tag)

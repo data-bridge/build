@@ -418,6 +418,7 @@ void modifyLINFail(
 bool modifyLINLine(
   const string& line,
   const RefFix& refFix,
+  const Refline& refline,
   string& lineNew)
 {
   vector<string> v;
@@ -472,24 +473,30 @@ bool modifyLINLine(
     }
   }
 
+  string llNew;
   if (refFix.type == BRIDGE_REF_REPLACE_LIN)
-    modifyReplaceLIN(line, start, interiorFlag, refFix, v, f);
+    modifyReplaceLIN(line, start, interiorFlag, refFix, refline, v, f, llNew);
   else if (refFix.type == BRIDGE_REF_INSERT_LIN)
-    modifyInsertLIN(line, start, interiorFlag, refFix, v, f);
+    modifyInsertLIN(line, start, interiorFlag, refFix, refline, v, f, llNew);
   else if (refFix.type == BRIDGE_REF_DELETE_LIN)
-    modifyDeleteLIN(line, start, interiorFlag, refFix, v, f);
+    modifyDeleteLIN(line, start, interiorFlag, refFix, refline, v, f, llNew);
   else
     THROW("Bad type");
   
   lineNew = concat(v, "|");
   if (endsOnPipe && v.size() > 0)
     lineNew += "|";
+if (llNew != lineNew)
+{
+  THROW("line diff: \n" + lineNew + "\n" + llNew + "\n");
+}
   return true;
 }
 
 
 bool classifyRefLine(
   const RefFix& refEntry,
+  const Refline& refline,
   const string& bufferLine,
   RefErrorClass& diff)
 {
@@ -529,7 +536,7 @@ bool classifyRefLine(
       break;
 
     case BRIDGE_REF_INSERT_LIN:
-      if (! modifyLINLine(bufferLine, refEntry, dummy))
+      if (! modifyLINLine(bufferLine, refEntry, refline, dummy))
         return false;
 
       diff.type = BRIDGE_REF_INSERT_GEN;
@@ -541,7 +548,7 @@ bool classifyRefLine(
       break;
 
     case BRIDGE_REF_REPLACE_LIN:
-      if (! modifyLINLine(bufferLine, refEntry, dummy))
+      if (! modifyLINLine(bufferLine, refEntry, refline, dummy))
         return false;
 
       diff.type = BRIDGE_REF_REPLACE_GEN;
@@ -553,7 +560,7 @@ bool classifyRefLine(
       break;
 
     case BRIDGE_REF_DELETE_LIN:
-      if (! modifyLINLine(bufferLine, refEntry, dummy))
+      if (! modifyLINLine(bufferLine, refEntry, refline, dummy))
         return false;
 
       diff.type = BRIDGE_REF_REPLACE_GEN;

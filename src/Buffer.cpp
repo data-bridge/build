@@ -376,42 +376,28 @@ bool Buffer::fix(
 {
   bool usedFlag = false;
 
-if (refFix.size() != reflines.size())
-{
-  THROW("Diffsize");
-}
-  for (unsigned rno = 0; rno < refFix.size(); rno++)
+  for (unsigned rno = 0; rno < reflines.size(); rno++)
   {
 if (refFix[rno].partialFlag != reflines[rno].isCommented())
 {
   THROW("Diffcomm");
 }
-    if (use == BRIDGE_REF_ONLY_PARTIAL && ! refFix[rno].partialFlag)
+    if (use == BRIDGE_REF_ONLY_PARTIAL && 
+        reflines[rno].isUncommented())
       continue;
-    else if (use == BRIDGE_REF_ONLY_NONPARTIAL && refFix[rno].partialFlag)
+    else if (use == BRIDGE_REF_ONLY_NONPARTIAL && 
+        reflines[rno].isCommented())
       continue;
 
-if (refFix[rno].lno != reflines[rno].lineno())
-{
-  THROW("Difflno");
-}
-    const unsigned i = Buffer::getInternalNumber(refFix[rno].lno);
+    const unsigned i = Buffer::getInternalNumber(reflines[rno].lineno());
     if (i == BIGNUM)
-      THROW("Cannot find ref line number " + STR(refFix[rno].lno));
+      THROW("Cannot find ref line number " + STR(reflines[rno].lineno()));
     LineData& ld = lines[i];
 
     if (refFix[rno].type == BRIDGE_REF_INSERT_GEN)
     {
       LineData lnew;
-string ll0 = lnew.line;
-string ll1 = lnew.line;
-reflines[rno].modify(ll1);
-      lnew.line = refFix[rno].value;
-if (lnew.line != ll1)
-{
-  cout << reflines[rno].str() << "\n";
-  THROW(ll0 + "\n" + ll1 + "\n" + ld.line + "\n");
-}
+      reflines[rno].modify(lnew.line);
       lnew.len = static_cast<unsigned>(lnew.line.length());
       lnew.no = 0;
       Buffer::classify(lnew);
@@ -440,7 +426,7 @@ if (lnew.line != ll1)
         refFix[rno].type == BRIDGE_REF_REPLACE_LIN ||
         refFix[rno].type == BRIDGE_REF_DELETE_LIN)
     {
-      if (! modifyLINLine(ld.line, refFix[rno], ld.line))
+      if (! modifyLINLine(ld.line, refFix[rno], reflines[rno], ld.line))
         THROW("Could not make LIN ref modification");
 
       ld.len = static_cast<unsigned>(ld.line.length());

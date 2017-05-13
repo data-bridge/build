@@ -73,10 +73,12 @@ string strRefFix(const RefFix& refFix);
 bool modifyLINLine(
   const string& line,
   const RefFix& refFix,
+  const Refline& refline,
   string& lineNew);
 
 bool classifyRefLine(
   const RefFix& refEntry,
+  const Refline& refline,
   const string& bufferLine,
   RefErrorClass& diff);
 
