@@ -90,6 +90,12 @@ class Refline
     Comment comment;
 
 
+    void setFixTables();
+    void setRefTags();
+    void setDispatch();
+    void setCommentMap();
+    void setCommentAction();
+    void setCommentTag();
     void setTables();
 
     bool isSpecial(const string& word) const;

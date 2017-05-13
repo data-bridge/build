@@ -126,7 +126,7 @@ void Refline::reset()
 }
 
 
-void Refline::setTables()
+void Refline::setFixTables()
 {
   FixMap["replace"] = BRIDGE_REF_REPLACE_GEN;
   FixMap["insert"] = BRIDGE_REF_INSERT_GEN;
@@ -150,15 +150,11 @@ void Refline::setTables()
 
   for (auto &s: FixMap)
     FixTable[s.second] = s.first;
-
-  for (auto &e: RefErrors)
-    CommentMap[e.name] = e.val;
-
-  for (unsigned i = 0; i < BRIDGE_REF_FIX_SIZE; i++)
-    for (unsigned j = 0; j < ERR_SIZE; j++)
-      CommentActionPermitted[i][j] = true; // TODO: For now
+}
 
 
+void Refline::setRefTags()
+{
   refTags["vg"] = REF_TAGS_LIN_VG;
   refTags["rs"] = REF_TAGS_LIN_RS;
   refTags["pw"] = REF_TAGS_LIN_PW;
@@ -183,12 +179,11 @@ void Refline::setTables()
   refTags["L"] = REF_TAGS_RBN_L;
   refTags["P"] = REF_TAGS_RBN_P;
   refTags["R"] = REF_TAGS_RBN_R;
-
-  for (unsigned i = 0; i < BRIDGE_REF_FIX_SIZE; i++)
-    for (unsigned j = 0; j < ERR_SIZE; j++)
-      CommentTagPermitted[i][j] = true; // TODO: For now
+}
 
 
+void Refline::setDispatch()
+{
   ParseList[BRIDGE_REF_REPLACE_GEN] = &Refline::parseReplaceGen;
   ParseList[BRIDGE_REF_INSERT_GEN] = &Refline::parseInsertGen;
   ParseList[BRIDGE_REF_DELETE_GEN] = &Refline::parseDeleteGen;
@@ -229,6 +224,40 @@ void Refline::setTables()
   ModifyList[BRIDGE_REF_REPLACE_TXT] = &Refline::modifyReplaceTXT;
   ModifyList[BRIDGE_REF_INSERT_TXT] = &Refline::modifyInsertTXT;
   ModifyList[BRIDGE_REF_DELETE_TXT] = &Refline::modifyDeleteTXT;
+}
+
+
+void Refline::setCommentMap()
+{
+  for (auto &e: RefErrors)
+    CommentMap[e.name] = e.val;
+}
+
+
+void Refline::setCommentAction()
+{
+  for (unsigned i = 0; i < BRIDGE_REF_FIX_SIZE; i++)
+    for (unsigned j = 0; j < ERR_SIZE; j++)
+      CommentActionPermitted[i][j] = true; // TODO: For now
+}
+
+
+void Refline::setCommentTag()
+{
+  for (unsigned i = 0; i < BRIDGE_REF_FIX_SIZE; i++)
+    for (unsigned j = 0; j < ERR_SIZE; j++)
+      CommentTagPermitted[i][j] = true; // TODO: For now
+}
+
+
+void Refline::setTables()
+{
+  Refline::setFixTables();
+  Refline::setRefTags();
+  Refline::setDispatch();
+  Refline::setCommentMap();
+  Refline::setCommentAction();
+  Refline::setCommentTag();
 }
 
 
