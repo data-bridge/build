@@ -354,42 +354,26 @@ unsigned Sheet::refLineNoToHandNo(const unsigned lineNo) const
 }
 
 
-void Sheet::parseRefs(const Buffer& buffer)
+void Sheet::parseRefs()
 {
   // reflines contains a list of line entries from ref file.
-  // For each entry, refEffects contains the type of change
-  // (e.g. the mc claim is wrong) and a list of hand numbers
-  // affected by it.
-  // For each hand, refSource contains a list of line entries
+  // For each hand, refSource contains a list of ref line numbers
   // affecting that hand.
   
-  for (unsigned refNo = 0; refNo < reflines.size(); refNo++)
+  for (auto &rl: reflines)
   {
-    if (reflines[refNo].isCommented())
+    if (rl.isCommented())
       continue;
 
-    const unsigned handNoFirst = 
-      Sheet::refLineNoToHandNo(reflines[refNo].lineno());
-    const unsigned handNoLast = 
-      (reflines[refNo].deletion() <= 1 ?  handNoFirst : 
-      Sheet::refLineNoToHandNo(
-        reflines[refNo].lineno() + reflines[refNo].deletion() - 1));
+    const unsigned handNoFirst = Sheet::refLineNoToHandNo(rl.lineno());
+    const unsigned handNoLast = (rl.deletion() <= 1 ?  handNoFirst : 
+      Sheet::refLineNoToHandNo(rl.lineno() + rl.deletion() - 1));
 
     if (handNoFirst == BIGNUM || handNoLast == BIGNUM)
       continue;
 
     for (unsigned hno = handNoFirst; hno <= handNoLast; hno++)
-    {
-      handsOrig[hno].refSource.push_back(refNo);
-      refEffects[refNo].list.push_back(hno);
-    }
-
-    RefErrorClass refError;
-    classifyRefLine(reflines[refNo],
-      buffer.getLine(reflines[refNo].lineno()), refError);
-    refEffects[refNo].type = refError.code;
-    refEffects[refNo].numTags = refError.numTags;
-    refEffects[refNo].line = reflines[refNo].line();
+      handsOrig[hno].refSource.push_back(rl.line());
   }
 }
 
@@ -425,8 +409,7 @@ bool Sheet::read(
     if (refControl == ERR_REF_SKIP)
       return true;
 
-    refEffects.resize(reflines.size());
-    Sheet::parseRefs(buffer);
+    Sheet::parseRefs();
 
     if (! buffer.fix(fname, refControl, BRIDGE_REF_ONLY_NONPARTIAL))
       return true; // No ref file
@@ -658,10 +641,8 @@ string Sheet::str() const
       // For mb errors, could check that auctionIsFlawed().
 
       notes << "\nActive ref lines: " << ho.label << "\n";
-      for (auto &no: ho.refSource)
-        notes << refEffects[no].line << " {" << 
-        RefErrors[refEffects[no].type].name << "(" <<
-        refEffects[no].numTags << ",1,1)}\n";
+      for (auto &line: ho.refSource)
+        notes << line << "\n";
 
       notes << "\n----------\n\n";
     }

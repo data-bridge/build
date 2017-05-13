@@ -29,24 +29,9 @@ enum RefControl
 };
 
 
-struct RefErrorClass
-{
-  FixType type;
-  RefErrorsType code;
-  vector<string> list;
-  bool pureFlag;
-  unsigned numTags;
-};
-
-
 void readRefFile(
   const string& fname,
   vector<Refline>& reflines,
   RefControl& refControl);
-
-bool classifyRefLine(
-  const Refline& refline,
-  const string& bufferLine,
-  RefErrorClass& diff);
 
 #endif

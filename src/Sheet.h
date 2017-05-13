@@ -44,7 +44,7 @@ class Sheet
 
       SheetHand hand;
 
-      vector<unsigned> refSource;
+      vector<string> refSource;
     };
 
     SheetHeader headerOrig;
@@ -55,17 +55,6 @@ class Sheet
     bool hasFixed;
 
     vector<Refline> reflines;
-
-    // ref fixes can affect multiple qx's
-    struct RefEffects
-    {
-      RefErrorsType type;
-      vector<unsigned> list;
-      string line;
-      unsigned numTags;
-    };
-
-    vector<RefEffects> refEffects;
 
 
     void resetHeader(SheetHeader& hdr);
@@ -110,7 +99,7 @@ class Sheet
       const string& line,
       vector<string>& list) const;
 
-    void parseRefs(const Buffer& buffer);
+    void parseRefs();
 
     unsigned findFixed(const string& label) const;
     unsigned findOrig(const string& label) const;

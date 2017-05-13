@@ -343,6 +343,8 @@ bool Refline::parse(
   if (setFlag)
     THROW("Refline already set: " + line);
 
+  inputLine = line;
+
   string r, a, q;
   unsigned start = 0;
   unsigned end = line.length()-1;
@@ -763,6 +765,12 @@ unsigned Refline::lineno() const
 bool Refline::isSet() const
 {
   return setFlag;
+}
+
+
+string Refline::line() const
+{
+  return inputLine;
 }
 
 
