@@ -60,8 +60,6 @@ struct RefErrorClass
 };
 
 
-void setRefTable();
-
 void readRefFix(
   const string& fname,
   vector<Refline>& reflines,
@@ -69,20 +67,9 @@ void readRefFix(
 
 string strRefFix(const RefFix& refFix);
 
-bool modifyLINLine(
-  const string& line,
-  const RefFix& refFix,
-  const Refline& refline,
-  string& lineNew);
-
 bool classifyRefLine(
   const Refline& refline,
   const string& bufferLine,
   RefErrorClass& diff);
-
-void modifyLINFail(
-  const string& line,
-  const RefFixLIN& fixLIN,
-  const string& text);
 
 #endif

@@ -17,26 +17,11 @@
 
 #include "referr.h"
 #include "refcodes.h"
-#include "reflineGen.h"
-#include "reflineLIN.h"
-#include "reflinePBN.h"
-#include "reflineRBN.h"
-#include "reflineTXT.h"
 #include "parse.h"
 #include "Bexcept.h"
 
 using namespace std;
 
-
-typedef void (*RefParsePtr)(
-  const string& refName,
-  const string& line,
-  const regex& rer,
-  const regex& rep,
-  smatch& match,
-  RefFix& rf);
-
-static map<string, RefParsePtr> RefMap;
 
 static bool lineToLINList(
   const string& line,
@@ -45,30 +30,6 @@ static bool lineToLINList(
 static bool lineToLINListRaw(
   const string& line,
   vector<string>& list);
-
-
-void setRefTable()
-{
-  RefMap["replace"] = &parseReplaceGen;
-  RefMap["insert"] = &parseInsertGen;
-  RefMap["delete"] = &parseDeleteGen;
-
-  RefMap["replaceLIN"] = &parseReplaceLIN;
-  RefMap["insertLIN"] = &parseInsertLIN;
-  RefMap["deleteLIN"] = &parseDeleteLIN;
-
-  RefMap["replacePBN"] = &parseReplacePBN;
-  RefMap["insertPBN"] = &parseInsertPBN;
-  RefMap["deletePBN"] = &parseDeletePBN;
-
-  RefMap["replaceRBN"] = &parseReplaceRBN;
-  RefMap["insertRBN"] = &parseInsertRBN;
-  RefMap["deleteRBN"] = &parseDeleteRBN;
-
-  RefMap["replaceTXT"] = &parseReplaceTXT;
-  RefMap["insertTXT"] = &parseInsertTXT;
-  RefMap["deleteTXT"] = &parseDeleteTXT;
-}
 
 
 void readRefFix(
@@ -350,45 +311,6 @@ static bool listIsPure(const vector<string>& list)
     if (list[i] != tag)
       return false;
   }
-  return true;
-}
-
-
-static void printModify(
-  const string& line,
-  const RefFixLIN& fixLIN)
-{
-  cout << "line   : " << line << "\n";
-  if (fixLIN.reverseFlag)
-    cout << "tagNo  : " << fixLIN.tagNo << " (from back)\n";
-  else
-    cout << "tagNo  : " << fixLIN.tagNo << "\n";
-  cout << "fieldNo: " << fixLIN.fieldNo << "\n";
-  cout << "tag    : " << fixLIN.tag << "\n";
-  cout << "was    : " << fixLIN.was << "\n";
-  cout << "is     : " << fixLIN.is << "\n";
-}
-
-
-void modifyLINFail(
-  const string& line,
-  const RefFixLIN& fixLIN,
-  const string& text)
-{
-  printModify(line, fixLIN);
-  THROW(text);
-}
-
-
-bool modifyLINLine(
-  const string& line,
-  const RefFix& refFix,
-  const Refline& refline,
-  string& lineNew)
-{
-  UNUSED(refFix);
-  lineNew = line;
-  refline.modify(lineNew);
   return true;
 }
 

@@ -44,11 +44,6 @@ SOURCE_FILES 	=		\
 	parse.cpp		\
 	referr.cpp		\
 	Refline.cpp		\
-	reflineGen.cpp		\
-	reflineLIN.cpp		\
-	reflinePBN.cpp		\
-	reflineRBN.cpp		\
-	reflineTXT.cpp		\
 	validate.cpp		\
 	validateLIN.cpp		\
 	validatePBN.cpp		\
@@ -199,19 +194,8 @@ heurfix.obj: Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h Players.h
 heurfix.obj: Auction.h Contract.h Play.h ddsIF.h dll.h Buffer.h valint.h
 heurfix.obj: referr.h refcodes.h Refline.h Chunk.h parse.h Bexcept.h
 parse.obj: parse.h bconst.h
-referr.obj: referr.h refcodes.h Refline.h reflineGen.h reflineLIN.h
-referr.obj: reflinePBN.h reflineRBN.h reflineTXT.h parse.h bconst.h Bexcept.h
+referr.obj: referr.h refcodes.h Refline.h parse.h bconst.h Bexcept.h
 Refline.obj: Refline.h refcodes.h parse.h bconst.h Bexcept.h
-reflineGen.obj: reflineGen.h referr.h refcodes.h Refline.h parse.h bconst.h
-reflineGen.obj: Bexcept.h
-reflineLIN.obj: reflineLIN.h referr.h refcodes.h Refline.h parse.h bconst.h
-reflineLIN.obj: Bexcept.h
-reflinePBN.obj: reflinePBN.h referr.h refcodes.h Refline.h parse.h bconst.h
-reflinePBN.obj: Bexcept.h
-reflineRBN.obj: reflineRBN.h referr.h refcodes.h Refline.h parse.h bconst.h
-reflineRBN.obj: Bexcept.h
-reflineTXT.obj: reflineTXT.h referr.h refcodes.h Refline.h parse.h bconst.h
-reflineTXT.obj: Bexcept.h
 validate.obj: ValStats.h ValProfile.h validate.h Buffer.h valint.h referr.h
 validate.obj: refcodes.h Refline.h bconst.h filePBN.h Segment.h Date.h
 validate.obj: Location.h Session.h Scoring.h Teams.h Team.h Board.h Deal.h

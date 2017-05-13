@@ -218,7 +218,6 @@ void setTables()
   setIO();
   setInterface();
   setValidateTables();
-  setRefTable();
 }
 
 
