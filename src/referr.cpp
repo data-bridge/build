@@ -267,19 +267,6 @@ static bool lineToLINList(
 }
 
 
-static bool lineToLINListRaw(
-  const string& line,
-  vector<string>& list)
-{
-  // Split on |
-  list.clear();
-  tokenize(line, list, "|");
-  if (line.length() > 0 && line.at(line.length()-1) == '|')
-    list.pop_back();
-  return true;
-}
-
-
 static bool deltaLINLists(
   const vector<string>& list1,
   const vector<string>& list2,
@@ -421,75 +408,9 @@ bool modifyLINLine(
   const Refline& refline,
   string& lineNew)
 {
-  vector<string> v;
-  v.clear();
-  if (! lineToLINListRaw(line, v))
-    modifyLINFail(line, refFix.fixLIN, "Couldn't convert to list");
-
-  if (refFix.fixLIN.tagNo == 0)
-    modifyLINFail(line, refFix.fixLIN, "No tag number");
-
-  if (2 * refFix.fixLIN.tagNo > v.size())
-  {
-    if (refFix.fixLIN.is == "" && refFix.fixLIN.was == "" &&
-        2 * refFix.fixLIN.tagNo == v.size() + 1)
-    {
-      // Last tag, no argument.
-    }
-    else
-      modifyLINFail(line, refFix.fixLIN, "Tag number too large");
-  }
-
-  const bool endsOnPipe = 
-    (line.length() > 0 && line.at(line.length()-1) == '|');
-
-  unsigned start;
-  if (refFix.fixLIN.reverseFlag)
-    start = v.size() - 2*refFix.fixLIN.tagNo;
-  else
-    start = 2*(refFix.fixLIN.tagNo-1);
-
-  bool interiorFlag = false;
-  vector<string> f;
-  if (refFix.fixLIN.fieldNo > 0)
-  {
-    interiorFlag = true;
-
-    const unsigned commas = static_cast<unsigned>(
-      count(v[start+1].begin(), v[start+1].end(), ','));
-    if (commas < 1)
-      modifyLINFail(line, refFix.fixLIN, "No commas");
-
-    f.resize(commas+1);
-    f.clear();
-    tokenize(v[start+1], f, ",");
-
-    if (refFix.fixLIN.fieldNo-1 >= commas+1)
-    {
-      if (refFix.type != BRIDGE_REF_INSERT_LIN)
-        modifyLINFail(line, refFix.fixLIN, "Field too far");
-      else if (refFix.fixLIN.fieldNo-1 >= commas+2)
-        modifyLINFail(line, refFix.fixLIN, "Insert field too far");
-    }
-  }
-
-  string llNew;
-  if (refFix.type == BRIDGE_REF_REPLACE_LIN)
-    modifyReplaceLIN(line, start, interiorFlag, refFix, refline, v, f, llNew);
-  else if (refFix.type == BRIDGE_REF_INSERT_LIN)
-    modifyInsertLIN(line, start, interiorFlag, refFix, refline, v, f, llNew);
-  else if (refFix.type == BRIDGE_REF_DELETE_LIN)
-    modifyDeleteLIN(line, start, interiorFlag, refFix, refline, v, f, llNew);
-  else
-    THROW("Bad type");
-  
-  lineNew = concat(v, "|");
-  if (endsOnPipe && v.size() > 0)
-    lineNew += "|";
-if (llNew != lineNew)
-{
-  THROW("line diff: \n" + lineNew + "\n" + llNew + "\n");
-}
+  UNUSED(refFix);
+  lineNew = line;
+  refline.modify(lineNew);
   return true;
 }
 
@@ -536,8 +457,8 @@ bool classifyRefLine(
       break;
 
     case BRIDGE_REF_INSERT_LIN:
-      if (! modifyLINLine(bufferLine, refEntry, refline, dummy))
-        return false;
+      dummy = bufferLine;
+      refline.modify(dummy);
 
       diff.type = BRIDGE_REF_INSERT_GEN;
       diff.code = ERR_SIZE;
@@ -548,8 +469,8 @@ bool classifyRefLine(
       break;
 
     case BRIDGE_REF_REPLACE_LIN:
-      if (! modifyLINLine(bufferLine, refEntry, refline, dummy))
-        return false;
+      dummy = bufferLine;
+      refline.modify(dummy);
 
       diff.type = BRIDGE_REF_REPLACE_GEN;
       diff.code = ERR_SIZE;
@@ -560,8 +481,8 @@ bool classifyRefLine(
       break;
 
     case BRIDGE_REF_DELETE_LIN:
-      if (! modifyLINLine(bufferLine, refEntry, refline, dummy))
-        return false;
+      dummy = bufferLine;
+      refline.modify(dummy);
 
       diff.type = BRIDGE_REF_REPLACE_GEN;
       diff.code = ERR_SIZE;

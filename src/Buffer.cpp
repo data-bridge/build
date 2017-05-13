@@ -378,10 +378,6 @@ bool Buffer::fix(
 
   for (unsigned rno = 0; rno < reflines.size(); rno++)
   {
-if (refFix[rno].partialFlag != reflines[rno].isCommented())
-{
-  THROW("Diffcomm");
-}
     if (use == BRIDGE_REF_ONLY_PARTIAL && 
         reflines[rno].isUncommented())
       continue;
@@ -426,8 +422,9 @@ if (refFix[rno].partialFlag != reflines[rno].isCommented())
         refFix[rno].type == BRIDGE_REF_REPLACE_LIN ||
         refFix[rno].type == BRIDGE_REF_DELETE_LIN)
     {
-      if (! modifyLINLine(ld.line, refFix[rno], reflines[rno], ld.line))
-        THROW("Could not make LIN ref modification");
+      reflines[rno].modify(ld.line);
+      // if (! modifyLINLine(ld.line, refFix[rno], reflines[rno], ld.line))
+        // THROW("Could not make LIN ref modification");
 
       ld.len = static_cast<unsigned>(ld.line.length());
       Buffer::classify(ld);

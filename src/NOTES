@@ -1,6 +1,6 @@
 11.05.2017
 ----------
-
+* What vectors should be forward lists?
 * Get Refline.cpp to work
   - Also fill out the two acceptance matrices
   - Add the current (old) a delete b format
