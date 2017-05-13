@@ -29,27 +29,6 @@ enum RefControl
 };
 
 
-struct RefFixLIN
-{
-  unsigned tagNo; // Starting from 1
-  unsigned fieldNo; // Starting from 1
-  bool reverseFlag;
-  string tag;
-  string was;
-  string is;
-  unsigned extent;
-};
-
-struct RefFix
-{
-  unsigned lno; // First line is 1
-  FixType type;
-  string value;
-  RefFixLIN fixLIN;
-  unsigned count;
-  bool partialFlag;
-};
-
 struct RefErrorClass
 {
   FixType type;
@@ -60,12 +39,10 @@ struct RefErrorClass
 };
 
 
-void readRefFix(
+void readRefFile(
   const string& fname,
   vector<Refline>& reflines,
   RefControl& refControl);
-
-string strRefFix(const RefFix& refFix);
 
 bool classifyRefLine(
   const Refline& refline,

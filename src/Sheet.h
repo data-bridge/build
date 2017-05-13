@@ -55,7 +55,6 @@ class Sheet
     bool hasFixed;
 
     vector<Refline> reflines;
-    vector<RefFix> refFix;
 
     // ref fixes can affect multiple qx's
     struct RefEffects

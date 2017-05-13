@@ -304,7 +304,7 @@ bool Buffer::read(
   format = formatIn;
 
   vector<Refline> reflines;
-  readRefFix(fname, reflines, refControl);
+  readRefFile(fname, reflines, refControl);
   if (refControl == ERR_REF_SKIP)
     return false;
 
@@ -359,7 +359,7 @@ bool Buffer::fix(
   const RefUse use)
 {
   vector<Refline> reflines;
-  readRefFix(fname, reflines, refControl);
+  readRefFile(fname, reflines, refControl);
   if (refControl == ERR_REF_SKIP)
     return false;
 

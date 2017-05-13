@@ -356,24 +356,24 @@ unsigned Sheet::refLineNoToHandNo(const unsigned lineNo) const
 
 void Sheet::parseRefs(const Buffer& buffer)
 {
-  // refFix contains a list of line entries from ref file.
+  // reflines contains a list of line entries from ref file.
   // For each entry, refEffects contains the type of change
   // (e.g. the mc claim is wrong) and a list of hand numbers
   // affected by it.
   // For each hand, refSource contains a list of line entries
   // affecting that hand.
   
-  for (unsigned refNo = 0; refNo < refFix.size(); refNo++)
+  for (unsigned refNo = 0; refNo < reflines.size(); refNo++)
   {
-    if (refFix[refNo].partialFlag)
+    if (reflines[refNo].isCommented())
       continue;
 
     const unsigned handNoFirst = 
       Sheet::refLineNoToHandNo(reflines[refNo].lineno());
     const unsigned handNoLast = 
-      (refFix[refNo].count == 1 ?  handNoFirst : 
+      (reflines[refNo].deletion() <= 1 ?  handNoFirst : 
       Sheet::refLineNoToHandNo(
-        reflines[refNo].lineno() + refFix[refNo].count - 1));
+        reflines[refNo].lineno() + reflines[refNo].deletion() - 1));
 
     if (handNoFirst == BIGNUM || handNoLast == BIGNUM)
       continue;
@@ -386,10 +386,10 @@ void Sheet::parseRefs(const Buffer& buffer)
 
     RefErrorClass refError;
     classifyRefLine(reflines[refNo],
-      buffer.getLine(refFix[refNo].lno), refError);
+      buffer.getLine(reflines[refNo].lineno()), refError);
     refEffects[refNo].type = refError.code;
     refEffects[refNo].numTags = refError.numTags;
-    refEffects[refNo].line = strRefFix(refFix[refNo]);
+    refEffects[refNo].line = reflines[refNo].line();
   }
 }
 
@@ -421,7 +421,7 @@ bool Sheet::read(
     Sheet::parse(buffer, headerOrig, handsOrig);
 
     RefControl refControl = ERR_REF_STANDARD;
-    readRefFix(fname, reflines, refControl);
+    readRefFile(fname, reflines, refControl);
     if (refControl == ERR_REF_SKIP)
       return true;
 

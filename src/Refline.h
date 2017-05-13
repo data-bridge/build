@@ -83,6 +83,7 @@ class Refline
     };
 
     bool setFlag;
+    string inputLine;
     Range range;
     FixType fix;
     Edit edit;
@@ -190,7 +191,7 @@ class Refline
     unsigned lineno() const;
 
     bool isSet() const;
-
+    string line() const;
     string tag() const;
     string is() const;
     string was() const;

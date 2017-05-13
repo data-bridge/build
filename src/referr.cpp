@@ -27,12 +27,8 @@ static bool lineToLINList(
   const string& line,
   vector<string>& list);
 
-static bool lineToLINListRaw(
-  const string& line,
-  vector<string>& list);
 
-
-void readRefFix(
+void readRefFile(
   const string& fname,
   vector<Refline>& reflines,
   RefControl& refControl)
@@ -78,89 +74,6 @@ void readRefFix(
     continue;
   }
   refstr.close();
-}
-
-
-static string strRefFixNormalRest(const RefFix& refFix)
-{
-  string st = " ";
-  if (refFix.count == 1)
-    st += "\"" + refFix.value + "\"";
-  else
-    st += STR(refFix.count);
-
-  return st;
-}
-
-
-static string strRefFixLINComponent(const string& text)
-{
-  const unsigned e = text.find(' ');
-  if (e == string::npos)
-    return text;
-  else
-    return "'" + text + "'";
-}
-
-
-static string strRefFixLINRest(const RefFix& refFix)
-{
-  string st = " \"" + STR(refFix.fixLIN.tagNo) + " ";
-  if (refFix.fixLIN.fieldNo > 0)
-    st += STR(refFix.fixLIN.fieldNo) + " ";
-  st += refFix.fixLIN.tag + " ";
-
-  if (refFix.type == BRIDGE_REF_INSERT_LIN)
-    st += strRefFixLINComponent(refFix.fixLIN.is);
-  else if (refFix.type == BRIDGE_REF_REPLACE_LIN)
-  {
-    st += strRefFixLINComponent(refFix.fixLIN.was) + " " +
-        strRefFixLINComponent(refFix.fixLIN.is);
-  }
-  else if (refFix.type == BRIDGE_REF_DELETE_LIN)
-    st += strRefFixLINComponent(refFix.fixLIN.was);
-  else
-    THROW("Bad fixLIN");
-
-  return st + "\"";
-}
-
-
-string strRefFix(const RefFix& refFix)
-{
-  string st;
-  st = STR(refFix.lno) + " ";
-  switch(refFix.type)
-  {
-    case BRIDGE_REF_INSERT_GEN:
-      st += "insert" + strRefFixNormalRest(refFix);
-      break;
-
-    case BRIDGE_REF_REPLACE_GEN:
-      st += "replace" + strRefFixNormalRest(refFix);
-      break;
-
-    case BRIDGE_REF_DELETE_GEN:
-      st += "delete" + strRefFixNormalRest(refFix);
-      break;
-
-    case BRIDGE_REF_INSERT_LIN:
-      st += "insertLIN" + strRefFixLINRest(refFix);
-      break;
-
-    case BRIDGE_REF_REPLACE_LIN:
-      st += "replaceLIN" + strRefFixLINRest(refFix);
-      break;
-
-    case BRIDGE_REF_DELETE_LIN:
-      st += "deleteLIN" + strRefFixLINRest(refFix);
-      break;
-    
-    default:
-      THROW("Bad type");
-  }
-
-  return st;
 }
 
 
