@@ -259,11 +259,14 @@ void Refline::setCommentAction()
   bool * CAO = ActionCommentOK[BRIDGE_REF_REPLACE_GEN];
   CAO[ERR_LIN_VHEADER_SYNTAX] = true;
   CAO[ERR_LIN_PLAYERS_REPLACE] = true;
+  CAO[ERR_PBN_SCORE_REPLACE] = true; // TODO: Get rid of, JEC
+  CAO[ERR_PBN_ALERT_REPLACE] = true; // TODO: Get rid of, JEC
 
   CAO = ActionCommentOK[BRIDGE_REF_INSERT_GEN];
   CAO[ERR_LIN_VHEADER_INSERT] = true;
   CAO[ERR_LIN_RESULTS_INSERT] = true;
   CAO[ERR_LIN_TRICK_INSERT] = true;
+  CAO[ERR_PBN_NOTE_INSERT] = true; // TODO: Get rid of, JEC
 
   CAO = ActionCommentOK[BRIDGE_REF_DELETE_GEN];
   CAO[ERR_LIN_TRICK_DELETE] = true;
@@ -325,6 +328,14 @@ void Refline::setCommentAction()
   CAO[ERR_LIN_MC_SYNTAX] = true;
   CAO[ERR_LIN_TRICK_DELETE] = true;
   CAO[ERR_LIN_SYNTAX] = true;
+
+  CAO = ActionCommentOK[BRIDGE_REF_REPLACE_PBN];
+  CAO[ERR_PBN_RESULT_REPLACE] = true;
+  CAO[ERR_PBN_SCORE_REPLACE] = true;
+  CAO[ERR_PBN_DECLARER_REPLACE] = true;
+
+  CAO = ActionCommentOK[BRIDGE_REF_INSERT_PBN];
+  CAO[ERR_PBN_NOTE_INSERT] = true;
 }
 
 
@@ -849,9 +860,19 @@ void Refline::parseReplacePBN(
   const string& refName,
   const string& quote)
 {
-  UNUSED(refName);
-  UNUSED(quote);
-  THROW("parseReplacePBN not yet implemented");
+  vector<string> v;
+  v.clear();
+  tokenize(quote, v, ",");
+  const unsigned vlen = v.size();
+
+  if (vlen != 3)
+    THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
+
+  Refline::commonCheck(refName, quote, v[0]);
+  edit.type = EDIT_TAG_ONLY;
+  edit.tag = v[0];
+  edit.was = v[1];
+  edit.is = v[2];
 }
 
 
@@ -1241,15 +1262,27 @@ void Refline::modifyDeleteLIN(string& line) const
 
 void Refline::modifyReplacePBN(string& line) const
 {
-  UNUSED(line);
-  THROW("modifyReplacePBN not yet implemented");
+  const regex rep("^\\[(\\w+)\\s+\"(.*)\"\\]\\s*$");
+  smatch match;
+  if (! regex_search(line, match, rep))
+    THROW("Bad PBN line: " + line);
+
+  if (edit.tag != match.str(1))
+    modifyFail(line, "Different PBN tags");
+
+  if (edit.was != match.str(2))
+    modifyFail(line, "Old value wrong");
+
+  line = "[" + edit.tag + " \"" + edit.is + "\"" + "]";
 }
+
 
 void Refline::modifyInsertPBN(string& line) const
 {
   UNUSED(line);
   THROW("modifyInsertPBN not yet implemented");
 }
+
 
 void Refline::modifyDeletePBN(string& line) const
 {

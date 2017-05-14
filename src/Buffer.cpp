@@ -410,17 +410,15 @@ bool Buffer::fix(
       len -= deletion;
       usedFlag = true;
     }
-    else if (refType == BRIDGE_REF_INSERT_LIN ||
-        refType == BRIDGE_REF_REPLACE_LIN ||
-        refType == BRIDGE_REF_DELETE_LIN)
+    else if (refType == BRIDGE_REF_FIX_SIZE)
+      THROW("Bad reference line type");
+    else 
     {
       rl.modify(ld.line);
       ld.len = static_cast<unsigned>(ld.line.length());
       Buffer::classify(ld);
       usedFlag = true;
     }
-    else
-      THROW("Bad reference line type");
   }
   return usedFlag;
 }

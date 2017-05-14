@@ -42,7 +42,7 @@ else
 
 my (@codes, %code_hash);
 my $CODE_DIR = glob("~/GitHub/Build/src");
-my $CODE_FILE = "referr.h";
+my $CODE_FILE = "refcodes.h";
 read_error_codes("$CODE_DIR/$CODE_FILE", \@codes, \%code_hash);
 
 my @INPUTS = qw(lin pbn rbn rbx eml txt rec);
@@ -463,11 +463,11 @@ sub parse_refLIN
   $counts_ref->{qxs} = $3;
   $counts_ref->{bds} = $4;
 
-  if ($line =~ /^(\d+)\s+(\w+)\s+(\d+)/)
+  if ($line =~ /^(\d+)-(\d+)\s+(\w+)/)
   {
     $counts_ref->{lno} = $1;
-    $counts_ref->{action} = $2;
-    $counts_ref->{repeat_lines} = $3;
+    $counts_ref->{action} = $3;
+    $counts_ref->{repeat_lines} = $2 - $counts_ref->{lno} + 1;
     return 1;
   }
   elsif ($line =~ /^(\d+)\s+(\w+)/)

@@ -774,16 +774,27 @@ string guessOriginalLine(
   const string& fname,
   const unsigned count)
 {
-  regex re("(.*)\\....$");
-  smatch match;
-  if (! regex_search(fname, match, re) || match.size() == 0)
-    return "";
-  
-  string base = match.str(1);
-  if (base.size() > 6)
-    base = base.substr(base.size()-6, base.size());
+  string basename(fname);
+  const size_t l = basename.find_last_of("\\/");
+  if (l != string::npos)
+    basename.erase(0, l+1);
 
-  return base.substr(0, 3) + ".RBN " + STR(count+1) + " records " + 
-    STR(count/2) + " deals";
+  regex re("^[a-zA-Z]\\d\\d");
+  smatch match;
+  if (regex_search(basename, match, re))
+  {
+    // Looks like RPmajors origin.
+    string base = match.str(1);
+    if (base.size() > 6)
+      base = base.substr(base.size()-6, base.size());
+
+    return base.substr(0, 3) + ".RBN " + STR(count+1) + " records " + 
+      STR(count/2) + " deals";
+  }
+  else
+  {
+    return basename + " " + STR(count) + " records " + 
+      STR(count/2) + " deals";
+  }
 }
 
