@@ -336,6 +336,9 @@ void Refline::setCommentAction()
 
   CAO = ActionCommentOK[BRIDGE_REF_INSERT_PBN];
   CAO[ERR_PBN_NOTE_INSERT] = true;
+
+  CAO = ActionCommentOK[BRIDGE_REF_DELETE_PBN];
+  CAO[ERR_PBN_NOTE_DELETE] = true;
 }
 
 
@@ -880,18 +883,16 @@ void Refline::parseInsertPBN(
   const string& refName,
   const string& quote)
 {
-  vector<string> v;
-  v.clear();
-  tokenize(quote, v, ",");
-  const unsigned vlen = v.size();
-
-  if (vlen != 2)
+  const size_t pos = quote.find(",");
+  if (pos == 0 || pos == string::npos)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
 
-  Refline::commonCheck(refName, quote, v[0]);
+  const string t = quote.substr(0, pos);
+  const string v = quote.substr(pos+1);
+  Refline::commonCheck(refName, quote, t);
   edit.type = EDIT_TAG_ONLY;
-  edit.tag = v[0];
-  edit.is = v[1];
+  edit.tag = t;
+  edit.is = v;
 }
 
 
@@ -899,9 +900,16 @@ void Refline::parseDeletePBN(
   const string& refName,
   const string& quote)
 {
-  UNUSED(refName);
-  UNUSED(quote);
-  THROW("parseDeletePBN not yet implemented");
+  const size_t pos = quote.find(",");
+  if (pos == 0 || pos == string::npos)
+    THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
+
+  const string t = quote.substr(0, pos);
+  const string v = quote.substr(pos+1);
+  Refline::commonCheck(refName, quote, t);
+  edit.type = EDIT_TAG_ONLY;
+  edit.tag = t;
+  edit.was = v;
 }
 
 
@@ -1294,8 +1302,18 @@ void Refline::modifyInsertPBN(string& line) const
 
 void Refline::modifyDeletePBN(string& line) const
 {
-  UNUSED(line);
-  THROW("modifyDeletePBN not yet implemented");
+  const regex rep("^\\[(\\w+)\\s+\"(.*)\"\\]\\s*$");
+  smatch match;
+  if (! regex_search(line, match, rep))
+    THROW("Bad PBN line: " + line);
+
+  if (edit.tag != match.str(1))
+    modifyFail(line, "Different PBN tags");
+
+  if (edit.was != match.str(2))
+    modifyFail(line, "Old value wrong");
+
+  line = "";
 }
 
 

@@ -400,11 +400,15 @@ bool Buffer::fix(
       Buffer::classify(ld);
       usedFlag = true;
     }
-    else if (refType == BRIDGE_REF_DELETE_GEN)
+    else if (refType == BRIDGE_REF_DELETE_GEN ||
+        refType == BRIDGE_REF_DELETE_PBN)
     {
       const unsigned deletion = rl.deletion();
       if (i + deletion > len)
         THROW("Too large deletion");
+
+      if (refType == BRIDGE_REF_DELETE_PBN)
+        rl.modify(ld.line); // For completeness, even though deleted
 
       lines.erase(lines.begin() + static_cast<int>(i), 
           lines.begin() + static_cast<int>(deletion + i));

@@ -2,6 +2,7 @@
 ----------
 * Add count checks to Refline::modify
 * Add the PBN, PBX, RBN, TXT functions to Refline
+  - In JEC, need something like replaceWORD "3,=1=,$15"
 * Change the corresponding ref files to the new syntax
 * simplify Files.cpp (no noval and skip)
 
