@@ -39,7 +39,11 @@ enum FixType
   BRIDGE_REF_INSERT_TXT = 13,
   BRIDGE_REF_DELETE_TXT = 14,
 
-  BRIDGE_REF_FIX_SIZE = 15
+  BRIDGE_REF_REPLACE_WORD = 15,
+  BRIDGE_REF_INSERT_WORD = 16,
+  BRIDGE_REF_DELETE_WORD = 17,
+
+  BRIDGE_REF_FIX_SIZE = 18
 };
 
 
@@ -53,7 +57,8 @@ class Refline
       EDIT_TAG_FIELD = 1,
       EDIT_CHAR = 2,
       EDIT_MATCH = 3,
-      EDIT_TYPE_SIZE = 4
+      EDIT_WORD = 4,
+      EDIT_TYPE_SIZE = 5
     };
 
     struct Range
@@ -150,6 +155,10 @@ class Refline
     void parseInsertTXT(const string& refName, const string& line);
     void parseDeleteTXT(const string& refName, const string& line);
 
+    void parseReplaceWORD(const string& refName, const string& line);
+    void parseInsertWORD(const string& refName, const string& line);
+    void parseDeleteWORD(const string& refName, const string& line);
+
     void modifyFail(
       const string& line,
       const string& reason) const;
@@ -180,6 +189,10 @@ class Refline
     void modifyReplaceTXT(string& line) const;
     void modifyInsertTXT(string& line) const;
     void modifyDeleteTXT(string& line) const;
+
+    void modifyReplaceWORD(string& line) const;
+    void modifyInsertWORD(string& line) const;
+    void modifyDeleteWORD(string& line) const;
 
 
   public:

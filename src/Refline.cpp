@@ -156,6 +156,10 @@ void Refline::setFixTables()
   FixMap["insertTXT"] = BRIDGE_REF_INSERT_TXT;
   FixMap["deleteTXT"] = BRIDGE_REF_DELETE_TXT;
 
+  FixMap["replaceWORD"] = BRIDGE_REF_REPLACE_WORD;
+  FixMap["insertWORD"] = BRIDGE_REF_INSERT_WORD;
+  FixMap["deleteWORD"] = BRIDGE_REF_DELETE_WORD;
+
   for (auto &s: FixMap)
     FixTable[s.second] = s.first;
 }
@@ -220,6 +224,10 @@ void Refline::setDispatch()
   ParseList[BRIDGE_REF_INSERT_TXT] = &Refline::parseInsertTXT;
   ParseList[BRIDGE_REF_DELETE_TXT] = &Refline::parseDeleteTXT;
 
+  ParseList[BRIDGE_REF_REPLACE_WORD] = &Refline::parseReplaceWORD;
+  ParseList[BRIDGE_REF_INSERT_WORD] = &Refline::parseInsertWORD;
+  ParseList[BRIDGE_REF_DELETE_WORD] = &Refline::parseDeleteWORD;
+
 
   ModifyList[BRIDGE_REF_REPLACE_GEN] = &Refline::modifyReplaceGen;
   ModifyList[BRIDGE_REF_INSERT_GEN] = &Refline::modifyInsertGen;
@@ -240,6 +248,10 @@ void Refline::setDispatch()
   ModifyList[BRIDGE_REF_REPLACE_TXT] = &Refline::modifyReplaceTXT;
   ModifyList[BRIDGE_REF_INSERT_TXT] = &Refline::modifyInsertTXT;
   ModifyList[BRIDGE_REF_DELETE_TXT] = &Refline::modifyDeleteTXT;
+
+  ModifyList[BRIDGE_REF_REPLACE_WORD] = &Refline::modifyReplaceWORD;
+  ModifyList[BRIDGE_REF_INSERT_WORD] = &Refline::modifyInsertWORD;
+  ModifyList[BRIDGE_REF_DELETE_WORD] = &Refline::modifyDeleteWORD;
 }
 
 
@@ -256,89 +268,96 @@ void Refline::setCommentAction()
     for (unsigned j = 0; j < ERR_SIZE; j++)
       ActionCommentOK[i][j] = false;
   
-  bool * CAO = ActionCommentOK[BRIDGE_REF_REPLACE_GEN];
-  CAO[ERR_LIN_VHEADER_SYNTAX] = true;
-  CAO[ERR_LIN_PLAYERS_REPLACE] = true;
-  CAO[ERR_PBN_SCORE_REPLACE] = true; // TODO: Get rid of, JEC
-  CAO[ERR_PBN_ALERT_REPLACE] = true; // TODO: Get rid of, JEC
+  bool * ACO = ActionCommentOK[BRIDGE_REF_REPLACE_GEN];
+  ACO[ERR_LIN_VHEADER_SYNTAX] = true;
+  ACO[ERR_LIN_PLAYERS_REPLACE] = true;
+  ACO[ERR_PBN_SCORE_REPLACE] = true; // TODO: Get rid of, JEC
+  ACO[ERR_PBN_ALERT_REPLACE] = true; // TODO: Get rid of, JEC
 
-  CAO = ActionCommentOK[BRIDGE_REF_INSERT_GEN];
-  CAO[ERR_LIN_VHEADER_INSERT] = true;
-  CAO[ERR_LIN_RESULTS_INSERT] = true;
-  CAO[ERR_LIN_TRICK_INSERT] = true;
-  CAO[ERR_PBN_NOTE_INSERT] = true; // TODO: Get rid of, JEC
+  ACO = ActionCommentOK[BRIDGE_REF_INSERT_GEN];
+  ACO[ERR_LIN_VHEADER_INSERT] = true;
+  ACO[ERR_LIN_RESULTS_INSERT] = true;
+  ACO[ERR_LIN_TRICK_INSERT] = true;
+  ACO[ERR_PBN_NOTE_INSERT] = true; // TODO: Get rid of, JEC
 
-  CAO = ActionCommentOK[BRIDGE_REF_DELETE_GEN];
-  CAO[ERR_LIN_TRICK_DELETE] = true;
-  CAO[ERR_LIN_HAND_AUCTION_LIVE] = true;
-  CAO[ERR_LIN_HAND_CARDS_MISSING] = true;
-  CAO[ERR_LIN_HAND_CARDS_WRONG] = true;
+  ACO = ActionCommentOK[BRIDGE_REF_DELETE_GEN];
+  ACO[ERR_LIN_TRICK_DELETE] = true;
+  ACO[ERR_LIN_HAND_AUCTION_LIVE] = true;
+  ACO[ERR_LIN_HAND_CARDS_MISSING] = true;
+  ACO[ERR_LIN_HAND_CARDS_WRONG] = true;
 
-  CAO = ActionCommentOK[BRIDGE_REF_REPLACE_LIN];
-  CAO[ERR_LIN_VG_FIRST] = true;
-  CAO[ERR_LIN_VG_LAST] = true;
-  CAO[ERR_LIN_VG_REPLACE] = true;
-  CAO[ERR_LIN_VG_SYNTAX] = true;
-  CAO[ERR_LIN_RS_REPLACE] = true;
-  CAO[ERR_LIN_RS_DECL_PARD] = true;
-  CAO[ERR_LIN_RS_DECL_OPP] = true;
-  CAO[ERR_LIN_RS_DENOM] = true;
-  CAO[ERR_LIN_RS_LEVEL] = true;
-  CAO[ERR_LIN_RS_MULT] = true;
-  CAO[ERR_LIN_RS_TRICKS] = true;
-  CAO[ERR_LIN_RS_EMPTY] = true;
-  CAO[ERR_LIN_RS_INCOMPLETE] = true;
-  CAO[ERR_LIN_RS_SYNTAX] = true;
-  CAO[ERR_LIN_PN_REPLACE] = true;
-  CAO[ERR_LIN_QX_REPLACE] = true;
-  CAO[ERR_LIN_MD_REPLACE] = true;
-  CAO[ERR_LIN_SV_REPLACE] = true;
-  CAO[ERR_LIN_MB_REPLACE] = true;
-  CAO[ERR_LIN_MB_SYNTAX] = true;
-  CAO[ERR_LIN_AN_REPLACE] = true;
-  CAO[ERR_LIN_PC_REPLACE] = true;
-  CAO[ERR_LIN_PC_SYNTAX] = true;
-  CAO[ERR_LIN_MC_REPLACE] = true;
-  CAO[ERR_LIN_MC_SYNTAX] = true;
+  ACO = ActionCommentOK[BRIDGE_REF_REPLACE_LIN];
+  ACO[ERR_LIN_VG_FIRST] = true;
+  ACO[ERR_LIN_VG_LAST] = true;
+  ACO[ERR_LIN_VG_REPLACE] = true;
+  ACO[ERR_LIN_VG_SYNTAX] = true;
+  ACO[ERR_LIN_RS_REPLACE] = true;
+  ACO[ERR_LIN_RS_DECL_PARD] = true;
+  ACO[ERR_LIN_RS_DECL_OPP] = true;
+  ACO[ERR_LIN_RS_DENOM] = true;
+  ACO[ERR_LIN_RS_LEVEL] = true;
+  ACO[ERR_LIN_RS_MULT] = true;
+  ACO[ERR_LIN_RS_TRICKS] = true;
+  ACO[ERR_LIN_RS_EMPTY] = true;
+  ACO[ERR_LIN_RS_INCOMPLETE] = true;
+  ACO[ERR_LIN_RS_SYNTAX] = true;
+  ACO[ERR_LIN_PN_REPLACE] = true;
+  ACO[ERR_LIN_QX_REPLACE] = true;
+  ACO[ERR_LIN_MD_REPLACE] = true;
+  ACO[ERR_LIN_SV_REPLACE] = true;
+  ACO[ERR_LIN_MB_REPLACE] = true;
+  ACO[ERR_LIN_MB_SYNTAX] = true;
+  ACO[ERR_LIN_AN_REPLACE] = true;
+  ACO[ERR_LIN_PC_REPLACE] = true;
+  ACO[ERR_LIN_PC_SYNTAX] = true;
+  ACO[ERR_LIN_MC_REPLACE] = true;
+  ACO[ERR_LIN_MC_SYNTAX] = true;
 
-  CAO = ActionCommentOK[BRIDGE_REF_INSERT_LIN];
-  CAO[ERR_LIN_RS_INSERT] = true;
-  CAO[ERR_LIN_PN_INSERT] = true;
-  CAO[ERR_LIN_SV_INSERT] = true;
-  CAO[ERR_LIN_MB_INSERT] = true;
-  CAO[ERR_LIN_MB_SYNTAX] = true;
-  CAO[ERR_LIN_PC_INSERT] = true;
-  CAO[ERR_LIN_MC_INSERT] = true;
-  CAO[ERR_LIN_SYNTAX] = true;
+  ACO = ActionCommentOK[BRIDGE_REF_INSERT_LIN];
+  ACO[ERR_LIN_RS_INSERT] = true;
+  ACO[ERR_LIN_PN_INSERT] = true;
+  ACO[ERR_LIN_SV_INSERT] = true;
+  ACO[ERR_LIN_MB_INSERT] = true;
+  ACO[ERR_LIN_MB_SYNTAX] = true;
+  ACO[ERR_LIN_PC_INSERT] = true;
+  ACO[ERR_LIN_MC_INSERT] = true;
+  ACO[ERR_LIN_SYNTAX] = true;
 
-  CAO = ActionCommentOK[BRIDGE_REF_DELETE_LIN];
-  CAO[ERR_LIN_VG_SYNTAX] = true;
-  CAO[ERR_LIN_RS_DELETE] = true;
-  CAO[ERR_LIN_PN_DELETE] = true;
-  CAO[ERR_LIN_MD_SYNTAX] = true;
-  CAO[ERR_LIN_NT_SYNTAX] = true;
-  CAO[ERR_LIN_SV_DELETE] = true;
-  CAO[ERR_LIN_SV_SYNTAX] = true;
-  CAO[ERR_LIN_MB_TRAILING] = true;
-  CAO[ERR_LIN_MB_DELETE] = true;
-  CAO[ERR_LIN_MB_SYNTAX] = true;
-  CAO[ERR_LIN_AN_DELETE] = true;
-  CAO[ERR_LIN_PC_DELETE] = true;
-  CAO[ERR_LIN_MC_DELETE] = true;
-  CAO[ERR_LIN_MC_SYNTAX] = true;
-  CAO[ERR_LIN_TRICK_DELETE] = true;
-  CAO[ERR_LIN_SYNTAX] = true;
+  ACO = ActionCommentOK[BRIDGE_REF_DELETE_LIN];
+  ACO[ERR_LIN_VG_SYNTAX] = true;
+  ACO[ERR_LIN_RS_DELETE] = true;
+  ACO[ERR_LIN_PN_DELETE] = true;
+  ACO[ERR_LIN_MD_SYNTAX] = true;
+  ACO[ERR_LIN_NT_SYNTAX] = true;
+  ACO[ERR_LIN_SV_DELETE] = true;
+  ACO[ERR_LIN_SV_SYNTAX] = true;
+  ACO[ERR_LIN_MB_TRAILING] = true;
+  ACO[ERR_LIN_MB_DELETE] = true;
+  ACO[ERR_LIN_MB_SYNTAX] = true;
+  ACO[ERR_LIN_AN_DELETE] = true;
+  ACO[ERR_LIN_PC_DELETE] = true;
+  ACO[ERR_LIN_MC_DELETE] = true;
+  ACO[ERR_LIN_MC_SYNTAX] = true;
+  ACO[ERR_LIN_TRICK_DELETE] = true;
+  ACO[ERR_LIN_SYNTAX] = true;
 
-  CAO = ActionCommentOK[BRIDGE_REF_REPLACE_PBN];
-  CAO[ERR_PBN_RESULT_REPLACE] = true;
-  CAO[ERR_PBN_SCORE_REPLACE] = true;
-  CAO[ERR_PBN_DECLARER_REPLACE] = true;
+  ACO = ActionCommentOK[BRIDGE_REF_REPLACE_PBN];
+  ACO[ERR_PBN_RESULT_REPLACE] = true;
+  ACO[ERR_PBN_SCORE_REPLACE] = true;
+  ACO[ERR_PBN_DECLARER_REPLACE] = true;
 
-  CAO = ActionCommentOK[BRIDGE_REF_INSERT_PBN];
-  CAO[ERR_PBN_NOTE_INSERT] = true;
+  ACO = ActionCommentOK[BRIDGE_REF_INSERT_PBN];
+  ACO[ERR_PBN_NOTE_INSERT] = true;
 
-  CAO = ActionCommentOK[BRIDGE_REF_DELETE_PBN];
-  CAO[ERR_PBN_NOTE_DELETE] = true;
+  ACO = ActionCommentOK[BRIDGE_REF_DELETE_PBN];
+  ACO[ERR_PBN_NOTE_DELETE] = true;
+
+  ACO = ActionCommentOK[BRIDGE_REF_REPLACE_WORD];
+  ACO[ERR_PBN_ALERT_REPLACE] = true;
+
+  ACO = ActionCommentOK[BRIDGE_REF_INSERT_WORD];
+
+  ACO = ActionCommentOK[BRIDGE_REF_DELETE_WORD];
 }
 
 
@@ -664,7 +683,7 @@ void Refline::commonCheck(
     it = refTags.find(taglc);
     if (it == refTags.end())
       THROW("Ref file " + refName + ": " + FixTable[fix] + 
-          " tag name '" + quote + "'");
+          " quote '" + quote + "'" + " tag name " + tag);
   }
 
   if (! TagCommentOK[it->second][comment.category])
@@ -983,6 +1002,75 @@ void Refline::parseDeleteTXT(
   UNUSED(refName);
   UNUSED(quote);
   THROW("parseDeleteTXT not yet implemented");
+}
+
+
+////////////////////////////////////////////////////////////////////////
+//                                                                    //
+// parseWORD functions                                                //
+//                                                                    //
+////////////////////////////////////////////////////////////////////////
+
+
+void Refline::parseReplaceWORD(
+  const string& refName,
+  const string& quote)
+{
+  vector<string> v;
+  v.clear();
+  tokenize(quote, v, ",");
+  const unsigned vlen = v.size();
+
+  if (vlen != 3)
+    THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
+
+  Refline::commonCheck(refName, quote, "");
+  edit.type = EDIT_WORD;
+  if (! str2upos(v[0], edit.tagno))
+    THROW("Ref file " + refName + ": Not a word number '" + quote + "'");
+    
+  edit.was = v[1];
+  edit.is = v[2];
+}
+
+
+void Refline::parseInsertWORD(
+  const string& refName,
+  const string& quote)
+{
+  vector<string> v;
+  v.clear();
+  tokenize(quote, v, ",");
+  const unsigned vlen = v.size();
+
+  if (vlen != 2)
+    THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
+
+  Refline::commonCheck(refName, quote, v[0]);
+  edit.type = EDIT_WORD;
+  if (! str2upos(v[0], edit.tagno))
+    THROW("Ref file " + refName + ": Not a word number '" + quote + "'");
+  edit.is = v[1];
+}
+
+
+void Refline::parseDeleteWORD(
+  const string& refName,
+  const string& quote)
+{
+  vector<string> v;
+  v.clear();
+  tokenize(quote, v, ",");
+  const unsigned vlen = v.size();
+
+  if (vlen != 2)
+    THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
+
+  Refline::commonCheck(refName, quote, v[0]);
+  edit.type = EDIT_WORD;
+  if (! str2upos(v[0], edit.tagno))
+    THROW("Ref file " + refName + ": Not a word number '" + quote + "'");
+  edit.was = v[1];
 }
 
 
@@ -1367,6 +1455,71 @@ void Refline::modifyDeleteTXT(string& line) const
   THROW("modifyDeleteTXT not yet implemented");
 }
 
+
+////////////////////////////////////////////////////////////////////////
+//                                                                    //
+// modifyWORD functions                                               //
+//                                                                    //
+////////////////////////////////////////////////////////////////////////
+
+void Refline::modifyReplaceWORD(string& line) const
+{
+  vector<string> words;
+  words.clear();
+  splitIntoWords(line, words);
+
+  if (words.size() < edit.tagno)
+    modifyFail(line, "ReplaceWORD: Too few words");
+
+  if (edit.was != words[edit.tagno-1])
+    modifyFail(line, "Old value wrong");
+
+  words[edit.tagno-1] = edit.is;
+
+  line = "";
+  for (auto &w: words)
+    line += w + " ";
+  line.pop_back();
+}
+
+void Refline::modifyInsertWORD(string& line) const
+{
+  vector<string> words;
+  words.clear();
+  splitIntoWords(line, words);
+
+  if (words.size()+1 < edit.tagno)
+    modifyFail(line, "ReplaceWORD: Too few words");
+  else if (words.size()+1 == edit.tagno)
+    words.push_back(edit.is);
+  else
+    words.insert(words.begin() + static_cast<int>(edit.tagno-1), edit.is);
+
+  line = "";
+  for (auto &w: words)
+    line += w + " ";
+  line.pop_back();
+}
+
+void Refline::modifyDeleteWORD(string& line) const
+{
+  vector<string> words;
+  words.clear();
+  splitIntoWords(line, words);
+
+  if (words.size() < edit.tagno)
+    modifyFail(line, "ReplaceWORD: Too few words");
+
+  if (words[edit.tagno-1] != edit.was)
+    modifyFail(line, "ReplaceWORD: Wrong word");
+
+    words.erase(words.begin() + static_cast<int>(edit.tagno-1));
+
+  line = "";
+  for (auto &w: words)
+    line += w + " ";
+  line.pop_back();
+}
 
 
 string Refline::str() const
