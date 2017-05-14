@@ -1,8 +1,11 @@
 11.05.2017
 ----------
+* Refline:
+  Done BBOVG (LIN), BBOSH (LIN), BBOJEC (PBN)
+  Done RPmajors LIN, PBN
+
 * Add count checks to Refline::modify
-* Add the PBN, PBX, RBN, TXT functions to Refline
-  - In JEC, need something like replaceWORD "3,=1=,$15"
+* Add the RBN, RBX, TXT functions to Refline
 * Change the corresponding ref files to the new syntax
 * simplify Files.cpp (no noval and skip)
 
@@ -16,7 +19,7 @@
   - Get whole RPmajors matrix to work
 
 i\o     LIN     PBN     RBN     RBX     TXT     EML     REC     RPmajors
-LIN     OK      OK      OK
+LIN     OK      OK        
 PBN
 RBN
 RBX

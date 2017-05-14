@@ -779,16 +779,12 @@ string guessOriginalLine(
   if (l != string::npos)
     basename.erase(0, l+1);
 
-  regex re("^[a-zA-Z]\\d\\d");
+  regex re("^([a-zA-Z]\\d\\d)");
   smatch match;
   if (regex_search(basename, match, re))
   {
     // Looks like RPmajors origin.
-    string base = match.str(1);
-    if (base.size() > 6)
-      base = base.substr(base.size()-6, base.size());
-
-    return base.substr(0, 3) + ".RBN " + STR(count+1) + " records " + 
+    return match.str(1) + ".RBN " + STR(count+1) + " records " + 
       STR(count/2) + " deals";
   }
   else
