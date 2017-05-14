@@ -381,7 +381,8 @@ bool Buffer::fix(
     LineData& ld = lines[i];
 
     const int refType = rl.type();
-    if (refType == BRIDGE_REF_INSERT_GEN)
+    if (refType == BRIDGE_REF_INSERT_GEN ||
+        refType == BRIDGE_REF_INSERT_PBN)
     {
       LineData lnew;
       rl.modify(lnew.line);

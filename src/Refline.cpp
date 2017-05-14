@@ -880,9 +880,18 @@ void Refline::parseInsertPBN(
   const string& refName,
   const string& quote)
 {
-  UNUSED(refName);
-  UNUSED(quote);
-  THROW("parseInsertPBN not yet implemented");
+  vector<string> v;
+  v.clear();
+  tokenize(quote, v, ",");
+  const unsigned vlen = v.size();
+
+  if (vlen != 2)
+    THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
+
+  Refline::commonCheck(refName, quote, v[0]);
+  edit.type = EDIT_TAG_ONLY;
+  edit.tag = v[0];
+  edit.is = v[1];
 }
 
 
@@ -1279,8 +1288,7 @@ void Refline::modifyReplacePBN(string& line) const
 
 void Refline::modifyInsertPBN(string& line) const
 {
-  UNUSED(line);
-  THROW("modifyInsertPBN not yet implemented");
+  line = "[" + edit.tag + " \"" + edit.is + "\"" + "]";
 }
 
 
