@@ -573,14 +573,7 @@ bool Refline::parse(
   }
 
   if (line.at(start) != '"')
-  {
-    // TODO: For now we permit the old "10 delete 7" format as well.
-    if (fix == BRIDGE_REF_DELETE_GEN &&
-        str2upos(line.substr(start), range.lcount))
-      return true;
-
     THROW("Ref file " + refName + ": No opening quote in '" + line + "'");
-  }
 
   while (line.at(end) != '"')
     end--;
