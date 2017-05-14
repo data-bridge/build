@@ -157,6 +157,8 @@ class SheetHand
 
     bool playIsFlawed() const;
 
+    bool contractsDiffer() const;
+
     SheetPlayType playValidity() const;
 
     const SheetPlayDistance& getPlayDistance() const;

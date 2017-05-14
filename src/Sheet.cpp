@@ -540,28 +540,66 @@ string Sheet::strPlays() const
 }
 
 
+string Sheet::strHand(
+  const SheetHandData& ho,
+  const unsigned indexFixed) const
+{
+  stringstream ss;
+
+  ss << "Board " << ho.label << "\n";
+  if (indexFixed == BIGNUM)
+    ss << ho.hand.strNotes();
+  else
+    ss << ho.hand.strNotes(handsFixed[indexFixed].hand);
+  ss << ho.hand.strChat();
+
+  const unsigned indexOrig = Sheet::findOrig(ho.label);
+  if (indexOrig != BIGNUM)
+  {
+    const unsigned l = handsOrig.size();
+    if (indexOrig < l-1)
+    {
+      ss << "--\n";
+      ss << handsOrig[indexOrig+1].hand.strChat();
+      if (indexOrig < l-2)
+      {
+        ss << "--\n";
+        ss << handsOrig[indexOrig+2].hand.strChat();
+      }
+    }
+  }
+
+  // For mb errors, could check that auctionIsFlawed().
+
+  ss << "\nActive ref lines: " << ho.label << "\n";
+  for (auto &line: ho.refSource)
+    ss << line << "\n";
+
+  ss << "\n----------\n\n";
+  return ss.str();
+}
+
+
 string Sheet::str() const
 {
   stringstream ss;
 
-  bool hasFlaw = false;
+  bool hasPlayFlaw = false;
+  bool contractsDiffer = false;
   for (auto &ho: handsOrig)
   {
     if (ho.hand.playIsFlawed())
-    {
-      hasFlaw = true;
-      break;
-    }
+      hasPlayFlaw = true;
+    if (ho.hand.contractsDiffer())
+      contractsDiffer = true;
   }
-  if (hasFlaw)
+  if (hasPlayFlaw)
     ss << Sheet::strPlays();
 
-  if (! hasFixed)
+  if (! hasFixed && ! contractsDiffer)
     return ss.str();
 
-
-  bool hasDiffs = false;
-  if (! hasFlaw)
+  if (! hasPlayFlaw)
     ss << Sheet::strHeader();
 
   ss << setw(6) << "Board " <<
@@ -576,6 +614,7 @@ string Sheet::str() const
     setw(6) << "Tplay" <<
     setw(6) << "Tclm" << "\n";
 
+  bool hasDiffs = false;
   stringstream notes;
   for (auto &ho: handsOrig)
   {
@@ -583,10 +622,10 @@ string Sheet::str() const
 
     const unsigned index = Sheet::findFixed(ho.label);
     bool hasDiff = false;
-    if (index == BIGNUM)
+
+    if (! hasFixed || index == BIGNUM)
     {
       ss << ho.hand.strDummy();
-      hasDiff = true;
     }
     else
     {
@@ -605,39 +644,13 @@ string Sheet::str() const
       }
     }
 
-    if (hasDiff || ho.hand.auctionIsFlawed() || ho.hand.playIsFlawed())
+    if (hasDiff || 
+        ho.hand.auctionIsFlawed() || 
+        ho.hand.playIsFlawed() ||
+        ho.hand.contractsDiffer())
     {
       hasDiffs = true;
-      notes << "Board " << ho.label << "\n";
-      if (index == BIGNUM)
-        notes << ho.hand.strNotes();
-      else
-        notes << ho.hand.strNotes(handsFixed[index].hand);
-      notes << ho.hand.strChat();
-
-      const unsigned indexOrig = Sheet::findOrig(ho.label);
-      if (indexOrig != BIGNUM)
-      {
-        const unsigned l = handsOrig.size();
-        if (indexOrig < l-1)
-        {
-          notes << "--\n";
-          notes << handsOrig[indexOrig+1].hand.strChat();
-          if (indexOrig < l-2)
-          {
-            notes << "--\n";
-            notes << handsOrig[indexOrig+2].hand.strChat();
-          }
-        }
-      }
-
-      // For mb errors, could check that auctionIsFlawed().
-
-      notes << "\nActive ref lines: " << ho.label << "\n";
-      for (auto &line: ho.refSource)
-        notes << line << "\n";
-
-      notes << "\n----------\n\n";
+      notes << Sheet::strHand(ho, index);
     }
   }
 

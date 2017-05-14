@@ -106,6 +106,9 @@ class Sheet
     string Sheet::strHeader() const;
     string Sheet::strLinks() const;
     string Sheet::strPlays() const;
+    string Sheet::strHand(
+      const SheetHandData& ho,
+      const unsigned indexFixed) const;
 
 
   public:

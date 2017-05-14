@@ -374,6 +374,20 @@ bool SheetHand::auctionIsFlawed() const
   return auctionFlawed;
 }
 
+bool SheetHand::contractsDiffer() const
+{
+  if (contractHeader.has)
+  {
+    if (contractAuction.has)
+      return (contractHeader.value != contractAuction.value);
+    else
+      // May just be missing, so we accept
+      return false;
+  }
+  else
+    return contractAuction.has;
+}
+
 
 bool SheetHand::playIsFlawed() const
 {

@@ -1,9 +1,5 @@
 11.05.2017
 ----------
-* 16002 o4 DBL detected? 17392 o11 too.  314 c15
-* I think it was 4763.lin where the header % output was 476.lin
-* Delete the old "10 delete 7" format, modify .ref file
-* Delete the format from Refline
 * Add count checks to Refline::modify
 * Add the PBN, PBX, RBN, TXT functions to Refline
 * Change the corresponding ref files to the new syntax
@@ -12,6 +8,8 @@
 * In dispatch, make boardIDLIN into an object?
 * Detect COCO at least in LIN, PBN, RBN, RBX
   Then remove from those .ref files, also in BBOVG
+
+* Do the rest of -D (377 files)
 
 * Get reader to work on RPmajors
   - Get whole RPmajors matrix to work
