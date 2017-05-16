@@ -271,9 +271,9 @@ string Teams::strRBN(const bool swapFlag) const
 }
 
 
-string Teams::strRBX() const
+string Teams::strRBX(const bool swapFlag) const
 {
-  const string c = Teams::strRBNCore();
+  const string c = Teams::strRBNCore(swapFlag);
   if (c == "")
     return "";
 
@@ -347,7 +347,7 @@ string Teams::str(
       return Teams::strRBN(swapFlag);
     
     case BRIDGE_FORMAT_RBX:
-      return Teams::strRBX();
+      return Teams::strRBX(swapFlag);
     
     case BRIDGE_FORMAT_TXT:
       return Teams::strTXT();

@@ -35,15 +35,19 @@ enum FixType
   BRIDGE_REF_INSERT_RBN = 10,
   BRIDGE_REF_DELETE_RBN = 11,
 
-  BRIDGE_REF_REPLACE_TXT = 12,
-  BRIDGE_REF_INSERT_TXT = 13,
-  BRIDGE_REF_DELETE_TXT = 14,
+  BRIDGE_REF_REPLACE_RBX = 12,
+  BRIDGE_REF_INSERT_RBX = 13,
+  BRIDGE_REF_DELETE_RBX = 14,
 
-  BRIDGE_REF_REPLACE_WORD = 15,
-  BRIDGE_REF_INSERT_WORD = 16,
-  BRIDGE_REF_DELETE_WORD = 17,
+  BRIDGE_REF_REPLACE_TXT = 15,
+  BRIDGE_REF_INSERT_TXT = 16,
+  BRIDGE_REF_DELETE_TXT = 17,
 
-  BRIDGE_REF_FIX_SIZE = 18
+  BRIDGE_REF_REPLACE_WORD = 18,
+  BRIDGE_REF_INSERT_WORD = 19,
+  BRIDGE_REF_DELETE_WORD = 20,
+
+  BRIDGE_REF_FIX_SIZE = 21
 };
 
 
@@ -178,6 +182,12 @@ class Refline
       const string& line,
       string& s) const;
 
+    bool modifyCommonRBX(
+      const string& line,
+      vector<string>& v,
+      string& s,
+      unsigned& pos) const;
+
     void modifyReplaceLIN(string& line) const;
     void modifyInsertLIN(string& line) const;
     void modifyDeleteLIN(string& line) const;
@@ -189,6 +199,10 @@ class Refline
     void modifyReplaceRBN(string& line) const;
     void modifyInsertRBN(string& line) const;
     void modifyDeleteRBN(string& line) const;
+
+    void modifyReplaceRBX(string& line) const;
+    void modifyInsertRBX(string& line) const;
+    void modifyDeleteRBX(string& line) const;
 
     void modifyReplaceTXT(string& line) const;
     void modifyInsertTXT(string& line) const;

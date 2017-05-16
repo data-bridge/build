@@ -152,6 +152,10 @@ void Refline::setFixTables()
   FixMap["insertRBN"] = BRIDGE_REF_INSERT_RBN;
   FixMap["deleteRBN"] = BRIDGE_REF_DELETE_RBN;
 
+  FixMap["replaceRBX"] = BRIDGE_REF_REPLACE_RBX;
+  FixMap["insertRBX"] = BRIDGE_REF_INSERT_RBX;
+  FixMap["deleteRBX"] = BRIDGE_REF_DELETE_RBX;
+
   FixMap["replaceTXT"] = BRIDGE_REF_REPLACE_TXT;
   FixMap["insertTXT"] = BRIDGE_REF_INSERT_TXT;
   FixMap["deleteTXT"] = BRIDGE_REF_DELETE_TXT;
@@ -220,6 +224,10 @@ void Refline::setDispatch()
   ParseList[BRIDGE_REF_INSERT_RBN] = &Refline::parseInsertRBN;
   ParseList[BRIDGE_REF_DELETE_RBN] = &Refline::parseDeleteRBN;
 
+  ParseList[BRIDGE_REF_REPLACE_RBX] = &Refline::parseReplaceRBN;
+  ParseList[BRIDGE_REF_INSERT_RBX] = &Refline::parseInsertRBN;
+  ParseList[BRIDGE_REF_DELETE_RBX] = &Refline::parseDeleteRBN;
+
   ParseList[BRIDGE_REF_REPLACE_TXT] = &Refline::parseReplaceTXT;
   ParseList[BRIDGE_REF_INSERT_TXT] = &Refline::parseInsertTXT;
   ParseList[BRIDGE_REF_DELETE_TXT] = &Refline::parseDeleteTXT;
@@ -244,6 +252,10 @@ void Refline::setDispatch()
   ModifyList[BRIDGE_REF_REPLACE_RBN] = &Refline::modifyReplaceRBN;
   ModifyList[BRIDGE_REF_INSERT_RBN] = &Refline::modifyInsertRBN;
   ModifyList[BRIDGE_REF_DELETE_RBN] = &Refline::modifyDeleteRBN;
+
+  ModifyList[BRIDGE_REF_REPLACE_RBX] = &Refline::modifyReplaceRBX;
+  ModifyList[BRIDGE_REF_INSERT_RBX] = &Refline::modifyInsertRBX;
+  ModifyList[BRIDGE_REF_DELETE_RBX] = &Refline::modifyDeleteRBX;
 
   ModifyList[BRIDGE_REF_REPLACE_TXT] = &Refline::modifyReplaceTXT;
   ModifyList[BRIDGE_REF_INSERT_TXT] = &Refline::modifyInsertTXT;
@@ -288,6 +300,7 @@ void Refline::setCommentAction()
   ACO[ERR_LIN_HAND_CARDS_WRONG] = true;
   ACO[ERR_PBN_HAND_AUCTION_LIVE] = true;
   ACO[ERR_RBN_HAND_AUCTION_LIVE] = true;
+  ACO[ERR_RBX_HAND_AUCTION_LIVE] = true;
 
   ACO = ActionCommentOK[BRIDGE_REF_REPLACE_LIN];
   ACO[ERR_LIN_VG_FIRST] = true;
@@ -368,6 +381,16 @@ void Refline::setCommentAction()
 
   ACO = ActionCommentOK[BRIDGE_REF_DELETE_RBN];
   ACO[ERR_RBN_L_DELETE] = true;
+
+  ACO = ActionCommentOK[BRIDGE_REF_REPLACE_RBX];
+  ACO[ERR_RBX_P_REPLACE] = true;
+  ACO[ERR_RBX_R_REPLACE] = true;
+
+  ACO = ActionCommentOK[BRIDGE_REF_INSERT_RBX];
+  ACO[ERR_RBX_N_INSERT] = true;
+
+  ACO = ActionCommentOK[BRIDGE_REF_DELETE_RBX];
+  ACO[ERR_RBX_L_DELETE] = true;
 
   ACO = ActionCommentOK[BRIDGE_REF_REPLACE_WORD];
   ACO[ERR_PBN_PLAY_REPLACE] = true;
@@ -468,6 +491,13 @@ void Refline::setCommentTag()
   TagCommentOK[REF_TAGS_RBN_P][ERR_RBN_P_REPLACE] = true;
   TagCommentOK[REF_TAGS_RBN_R][ERR_RBN_R_REPLACE] = true;
   TagCommentOK[REF_TAGS_RBN_A][ERR_RBN_HAND_AUCTION_LIVE] = true;
+
+  TagCommentOK[REF_TAGS_RBN_L][ERR_RBX_L_DELETE] = true;
+  TagCommentOK[REF_TAGS_RBN_N][ERR_RBX_N_REPLACE] = true;
+  TagCommentOK[REF_TAGS_RBN_N][ERR_RBX_N_INSERT] = true;
+  TagCommentOK[REF_TAGS_RBN_P][ERR_RBX_P_REPLACE] = true;
+  TagCommentOK[REF_TAGS_RBN_R][ERR_RBX_R_REPLACE] = true;
+  TagCommentOK[REF_TAGS_RBN_A][ERR_RBX_HAND_AUCTION_LIVE] = true;
 }
 
 
@@ -955,7 +985,7 @@ void Refline::parseDeletePBN(
 
 ////////////////////////////////////////////////////////////////////////
 //                                                                    //
-// parseRBN functions                                                 //
+// parseRBN functions (also RBX)                                      //
 //                                                                    //
 ////////////////////////////////////////////////////////////////////////
 
@@ -1000,17 +1030,31 @@ void Refline::parseInsertRBN(
   tokenize(quote, v, ",");
   const unsigned vlen = v.size();
 
-  if (vlen != 3)
+  if (vlen != 3 && vlen != 4)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
 
   Refline::commonCheck(refName, quote, v[0]);
   edit.tag = v[0];
 
-  edit.type = EDIT_TAG_FIELD;
-  if (! str2upos(v[1], edit.fieldno))
-    THROW("Ref file " + refName + ": Bad field '" + quote + "'");
+  if (vlen == 3)
+  {
+    edit.type = EDIT_TAG_FIELD;
+    if (! str2upos(v[1], edit.fieldno))
+      THROW("Ref file " + refName + ": Bad field '" + quote + "'");
 
-  edit.is = v[2];
+    edit.is = v[2];
+  }
+  else
+  {
+    // N,7,3,C.  Should only be used for RBX.
+    edit.type = EDIT_TAG_FIELD;
+    if (! str2upos(v[1], edit.tagno))
+      THROW("Ref file " + refName + ": Bad field '" + quote + "'");
+    if (! str2upos(v[2], edit.fieldno))
+      THROW("Ref file " + refName + ": Bad field '" + quote + "'");
+
+    edit.is = v[3];
+  }
 }
 
 
@@ -1489,16 +1533,16 @@ void Refline::modifyRBNCommon(
   string& s) const
 {
   const unsigned l = line.length();
-  if (l < 2)
+  if (l == 0)
     THROW("RBN line too short: " + line);
 
   if (line.substr(0, 1) != edit.tag)
     THROW("RBN tag wrong: " + line);
 
-  if (line.at(1) != ' ')
+  if (l > 1 && line.at(1) != ' ')
     THROW("RBN syntax: " + line);
 
-  if (l == 2)
+  if (l <= 2)
     s = "";
   else
     s = line.substr(2);
@@ -1558,7 +1602,8 @@ void Refline::modifyInsertRBN(string& line) const
 void Refline::modifyDeleteRBN(string& line) const
 {
   string s;
-  Refline::modifyRBNCommon(line, s);
+  if (line != "" || edit.was != "")
+    Refline::modifyRBNCommon(line, s);
 
   if (edit.fieldno == 0)
   {
@@ -1582,6 +1627,114 @@ void Refline::modifyDeleteRBN(string& line) const
   }
 }
 
+
+
+////////////////////////////////////////////////////////////////////////
+//                                                                    //
+// modifyRBX functions                                                //
+//                                                                    //
+////////////////////////////////////////////////////////////////////////
+
+
+bool Refline::modifyCommonRBX(
+  const string& line,
+  vector<string>& v,
+  string& s,
+  unsigned& pos) const
+{
+  v.clear();
+  tokenize(line, v, "}");
+  v.pop_back(); // Last empty field
+  const unsigned vlen = v.size();
+
+  for (unsigned i = 0; i < vlen; i++)
+  {
+    const unsigned flen = v[i].length();
+    if (flen <= 1)
+      continue;
+
+    if (v[i].substr(0, 1) == edit.tag && v[i].at(1) == '{')
+    {
+      pos = i;
+      if (flen == 2)
+        s = "";
+      else
+        s = edit.tag + " " + v[i].substr(2);
+      return true;
+    }
+  }
+  return false;
+}
+
+
+void Refline::modifyReplaceRBX(string& line) const
+{
+  vector<string> v;
+  string s;
+  unsigned pos;
+
+  if (! Refline::modifyCommonRBX(line, v, s, pos))
+    THROW("RBN tag not found: " + line);
+
+  Refline::modifyReplaceRBN(s);
+  if (s.length() <= 2)
+    v[pos] = edit.tag + "{";
+  else
+    v[pos] = edit.tag + "{" + s.substr(2);
+
+  line = concat(v, "}") + "}";
+}
+
+
+void Refline::modifyInsertRBX(string& line) const
+{
+  vector<string> v;
+  string s;
+  unsigned pos;
+
+  if (Refline::modifyCommonRBX(line, v, s, pos))
+  {
+    // Insertion of a field in an existing tag.
+    if (edit.fieldno == 0)
+      THROW("RBX tag already present: " + line);
+    Refline::modifyInsertRBN(s);
+    if (s.length() <= 2)
+      v[pos] = edit.tag + "{";
+    else
+      v[pos] = edit.tag + "{" + s.substr(2);
+  }
+  else
+  {
+    // Insertion of a new tag.
+    if (edit.tagno > v.size()+1)
+      THROW("RBX tag number too large: " + line);
+    if (edit.tagno == 0)
+      THROW("RBX tag number too small: " + line);
+      
+    s = edit.tag + "{" + edit.is;
+    if (edit.tagno == v.size()+1)
+      v.push_back(s);
+    else
+      v.insert(v.begin() + static_cast<int>(edit.tagno-1), s);
+  }
+  line = concat(v, "}") + "}";
+}
+
+
+void Refline::modifyDeleteRBX(string& line) const
+{
+  vector<string> v;
+  string s;
+  unsigned pos;
+
+  if (! Refline::modifyCommonRBX(line, v, s, pos))
+    THROW("RBN tag not found: " + line);
+
+  Refline::modifyDeleteRBN(s);
+  v.erase(v.begin() + static_cast<int>(pos));
+
+  line = concat(v, "}") + "}";
+}
 
 
 ////////////////////////////////////////////////////////////////////////

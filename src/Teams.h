@@ -35,7 +35,7 @@ class Teams
     string strLIN(const bool swapFlag) const;
     string strRBNCore(const bool swapFlag = false) const;
     string strRBN(const bool swapFlag) const;
-    string strRBX() const;
+    string strRBX(const bool swapFlag) const;
     string strTXT() const;
     string strTXT(
       const int score1,

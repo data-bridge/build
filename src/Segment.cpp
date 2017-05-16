@@ -348,7 +348,8 @@ void Segment::setTeams(
   const Format format)
 {
   teams.set(text, format); 
-  if (format == BRIDGE_FORMAT_RBN)
+  if (format == BRIDGE_FORMAT_RBN &&
+      format == BRIDGE_FORMAT_RBX)
   {
     // TODO: Probably more format.s
     if (flagCOCO)
@@ -1080,7 +1081,8 @@ string Segment::strScoring(const Format format) const
 
 string Segment::strTeams(const Format format) const
 {
-  if (format == BRIDGE_FORMAT_RBN)
+  if (format == BRIDGE_FORMAT_RBN ||
+      format == BRIDGE_FORMAT_RBX)
     // Maybe more formats.
     return teams.str(format, flagCOCO);
   else

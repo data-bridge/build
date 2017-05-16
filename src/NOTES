@@ -2,7 +2,7 @@
 ----------
 * Refline:
   Done BBOVG (LIN), BBOSH (LIN), BBOJEC (PBN)
-  Done RPmajors LIN, PBN
+  Done RPmajors LIN, PBN, RBN
   Move the permitted pairs into a text file that we read?
   Rename RefLine
   Split into RefComment and maybe also RefEdit
@@ -24,7 +24,7 @@
   - Get whole RPmajors matrix to work
 
 i\o     LIN     PBN     RBN     RBX     TXT     EML     REC     RPmajors
-LIN     OK      OK        
+LIN     OK      OK      OK
 PBN
 RBN
 RBX
