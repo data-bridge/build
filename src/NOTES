@@ -3,6 +3,9 @@
 * Refline:
   Done BBOVG (LIN), BBOSH (LIN), BBOJEC (PBN)
   Done RPmajors LIN, PBN
+  Move the permitted pairs into a text file that we read?
+  Rename RefLine
+  Split into RefComment and maybe also RefEdit
 
 * Add count checks to Refline::modify
 * Add the RBN, RBX, TXT functions to Refline
@@ -14,6 +17,8 @@
   Then remove from those .ref files, also in BBOVG
 
 * Do the rest of -D (377 files)
+  Actually, improve Sheet.cpp first to make suggestions.
+  This can then also eliminate heurfix.
 
 * Get reader to work on RPmajors
   - Get whole RPmajors matrix to work

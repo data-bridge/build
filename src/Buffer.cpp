@@ -401,7 +401,8 @@ bool Buffer::fix(
       usedFlag = true;
     }
     else if (refType == BRIDGE_REF_DELETE_GEN ||
-        refType == BRIDGE_REF_DELETE_PBN)
+        refType == BRIDGE_REF_DELETE_PBN ||
+        refType == BRIDGE_REF_DELETE_RBN)
     {
       const unsigned deletion = rl.deletion();
       if (i + deletion > len)

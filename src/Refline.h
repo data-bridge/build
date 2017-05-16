@@ -174,6 +174,10 @@ class Refline
       vector<string>& f,
       bool& endsOnPipe) const;
 
+    void modifyRBNCommon(
+      const string& line,
+      string& s) const;
+
     void modifyReplaceLIN(string& line) const;
     void modifyInsertLIN(string& line) const;
     void modifyDeleteLIN(string& line) const;
