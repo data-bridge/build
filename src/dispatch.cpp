@@ -1253,6 +1253,7 @@ static void writeFormattedFile(
 
         writeInfo.bno = bpair.no;
         writeInfo.numInst = board.countAll();
+        writeInfo.numInstActive = board.count();
 
         for (unsigned i = 0, j = writeInfo.numInst-1; 
             i < writeInfo.numInst; i++, j--)
@@ -1279,6 +1280,7 @@ static void writeFormattedFile(
 
           writeInfo.bno = bpair.no;
           writeInfo.numInst = board.countAll();
+          writeInfo.numInstActive = board.count();
           if (writeInfo.numInst > 2)
             THROW("Too many instances for OOCC output order");
 
@@ -1302,6 +1304,7 @@ static void writeFormattedFile(
 
         writeInfo.bno = bpair.no;
         writeInfo.numInst = board.countAll();
+        writeInfo.numInstActive = board.count();
 
         for (unsigned i = 0; i < writeInfo.numInst; i++)
         {

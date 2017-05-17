@@ -2,15 +2,16 @@
 ----------
 * Refline:
   Done BBOVG (LIN), BBOSH (LIN), BBOJEC (PBN)
-  Done RPmajors LIN, PBN, RBN
+  Done RPmajors LIN, PBN, RBN, RBX, EML
   Move the permitted pairs into a text file that we read?
   Rename RefLine
   Split into RefComment and maybe also RefEdit
 
 * Add count checks to Refline::modify
-* Add the RBN, RBX, TXT functions to Refline
+* Add the TXT functions to Refline
 * Change the corresponding ref files to the new syntax
 * simplify Files.cpp (no noval and skip)
+* Simplify Buffer fix (always fix, not PARTIAL etc.)
 
 * In dispatch, make boardIDLIN into an object?
 * Detect COCO at least in LIN, PBN, RBN, RBX
@@ -24,7 +25,7 @@
   - Get whole RPmajors matrix to work
 
 i\o     LIN     PBN     RBN     RBX     TXT     EML     REC     RPmajors
-LIN     OK      OK      OK
+LIN     OK      OK      OK      OK              OK
 PBN
 RBN
 RBX

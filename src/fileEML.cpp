@@ -503,7 +503,7 @@ void writeEMLBoardLevel(
 
   st += canvas.str() + "\n";
 
-  if (writeInfo.ino < writeInfo.numInst-1)
+  if (writeInfo.ino < writeInfo.numInst-1 && writeInfo.numInstActive > 1)
     st += EMLdashes + "\n\n";
   else if (writeInfo.bno < writeInfo.numBoards-1)
     st += EMLequals + "\n\n";

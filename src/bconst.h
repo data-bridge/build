@@ -204,6 +204,7 @@ struct WriteInfo
   unsigned ino;
   unsigned numBoards;
   unsigned numInst;
+  unsigned numInstActive;
 
   string namesOld[2];
 

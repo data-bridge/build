@@ -188,6 +188,9 @@ class Refline
       string& s,
       unsigned& pos) const;
 
+    unsigned modifyCommonTXT(const string& line) const;
+    unsigned modifyCommonWORD(const string& line) const;
+
     void modifyReplaceLIN(string& line) const;
     void modifyInsertLIN(string& line) const;
     void modifyDeleteLIN(string& line) const;

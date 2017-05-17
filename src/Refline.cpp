@@ -301,6 +301,7 @@ void Refline::setCommentAction()
   ACO[ERR_PBN_HAND_AUCTION_LIVE] = true;
   ACO[ERR_RBN_HAND_AUCTION_LIVE] = true;
   ACO[ERR_RBX_HAND_AUCTION_LIVE] = true;
+  ACO[ERR_EML_HAND_AUCTION_LIVE] = true;
 
   ACO = ActionCommentOK[BRIDGE_REF_REPLACE_LIN];
   ACO[ERR_LIN_VG_FIRST] = true;
@@ -392,9 +393,19 @@ void Refline::setCommentAction()
   ACO = ActionCommentOK[BRIDGE_REF_DELETE_RBX];
   ACO[ERR_RBX_L_DELETE] = true;
 
+  ACO = ActionCommentOK[BRIDGE_REF_REPLACE_TXT];
+  ACO[ERR_EML_RESULT_REPLACE] = true;
+  ACO[ERR_EML_SCORE_REPLACE] = true;
+  ACO[ERR_EML_SCORE_IMP_REPLACE] = true;
+
+  ACO = ActionCommentOK[BRIDGE_REF_INSERT_TXT];
+
+  ACO = ActionCommentOK[BRIDGE_REF_DELETE_TXT];
+
   ACO = ActionCommentOK[BRIDGE_REF_REPLACE_WORD];
   ACO[ERR_PBN_PLAY_REPLACE] = true;
   ACO[ERR_PBN_ALERT_REPLACE] = true;
+  ACO[ERR_EML_PLAY_REPLACE] = true;
 
   ACO = ActionCommentOK[BRIDGE_REF_INSERT_WORD];
 
@@ -1096,9 +1107,28 @@ void Refline::parseReplaceTXT(
   const string& refName,
   const string& quote)
 {
-  UNUSED(refName);
-  UNUSED(quote);
-  THROW("parseReplaceTXT not yet implemented");
+  vector<string> v;
+  v.clear();
+  tokenize(quote, v, ",");
+  const unsigned vlen = v.size();
+
+  if (vlen < 2 && vlen > 3)
+    THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
+
+  edit.type = EDIT_CHAR;
+  if (vlen == 3)
+  {
+    if (! str2upos(v[0], edit.charno))
+      THROW("Ref file " + refName + ": Bad charno '" + quote + "'");
+
+    edit.was = v[1];
+    edit.was = v[2];
+  }
+  else
+  {
+    edit.was = v[0];
+    edit.is = v[1];
+  }
 }
 
 
@@ -1106,9 +1136,19 @@ void Refline::parseInsertTXT(
   const string& refName,
   const string& quote)
 {
-  UNUSED(refName);
-  UNUSED(quote);
-  THROW("parseInsertTXT not yet implemented");
+  vector<string> v;
+  v.clear();
+  tokenize(quote, v, ",");
+  const unsigned vlen = v.size();
+
+  if (vlen != 2)
+    THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
+
+  edit.type = EDIT_CHAR;
+  if (! str2upos(v[0], edit.charno))
+    THROW("Ref file " + refName + ": Bad charno '" + quote + "'");
+
+  edit.is = v[1];
 }
 
 
@@ -1116,9 +1156,24 @@ void Refline::parseDeleteTXT(
   const string& refName,
   const string& quote)
 {
-  UNUSED(refName);
-  UNUSED(quote);
-  THROW("parseDeleteTXT not yet implemented");
+  vector<string> v;
+  v.clear();
+  tokenize(quote, v, ",");
+  const unsigned vlen = v.size();
+
+  if (vlen != 1 && vlen != 2)
+    THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
+
+  edit.type = EDIT_CHAR;
+  if (vlen == 1)
+    edit.is = v[0];
+  else
+  {
+    if (! str2upos(v[0], edit.charno))
+      THROW("Ref file " + refName + ": Bad charno '" + quote + "'");
+
+    edit.is = v[1];
+  }
 }
 
 
@@ -1743,22 +1798,66 @@ void Refline::modifyDeleteRBX(string& line) const
 //                                                                    //
 ////////////////////////////////////////////////////////////////////////
 
+unsigned Refline::modifyCommonTXT(const string& line) const
+{
+  if (edit.charno == 0)
+  {
+    const unsigned p = line.find(edit.was);
+    if (p == string::npos)
+      return 0;
+    else
+      return p;
+  }
+  else
+    return edit.charno;
+}
+
+
 void Refline::modifyReplaceTXT(string& line) const
 {
-  UNUSED(line);
-  THROW("modifyReplaceTXT not yet implemented");
+  const unsigned p = modifyCommonTXT(line);
+  if (p == 0)
+    THROW("No character position and string not found");
+
+  unsigned lw = edit.was.length();
+  unsigned li = edit.is.length();
+
+  if (line.substr(p, lw) != edit.was)
+    THROW("Old TXT value");
+
+  if (lw > li)
+    line.erase(p, lw-li);
+  else if (lw < li)
+    line.insert(p, " ", li-lw);
+
+  line.replace(p, li, edit.is);
 }
+
 
 void Refline::modifyInsertTXT(string& line) const
 {
-  UNUSED(line);
-  THROW("modifyInsertTXT not yet implemented");
+  if (edit.charno == 0)
+    THROW("No character position");
+
+  if (edit.charno > line.length())
+    THROW("Character position too large");
+  else if (edit.charno == line.length())
+    line += edit.is;
+  else
+    line.insert(edit.charno, edit.is);
 }
+
 
 void Refline::modifyDeleteTXT(string& line) const
 {
-  UNUSED(line);
-  THROW("modifyDeleteTXT not yet implemented");
+  const unsigned p = modifyCommonTXT(line);
+  if (p == 0)
+    THROW("No character position and string not found");
+
+  if (line.substr(p, edit.was.length()) != edit.was)
+    THROW("Old TXT value");
+
+  line.erase(p, edit.was.length());
 }
 
 
@@ -1768,63 +1867,70 @@ void Refline::modifyDeleteTXT(string& line) const
 //                                                                    //
 ////////////////////////////////////////////////////////////////////////
 
+unsigned Refline::modifyCommonWORD(const string& line) const
+{
+  unsigned pos = 0;
+  const unsigned l = line.length();
+  for (unsigned wno = 0; wno < edit.tagno; wno++)
+  {
+    while (pos < l && line.at(pos) == ' ')
+      pos++;
+
+    if (wno == edit.tagno-1)
+      break;
+
+    while (pos < l && line.at(pos) != ' ')
+      pos++;
+  }
+
+  if (pos == l)
+    return 0;
+  else
+    return pos+1;
+}
+
+
 void Refline::modifyReplaceWORD(string& line) const
 {
-  vector<string> words;
-  words.clear();
-  splitIntoWords(line, words);
+  const unsigned pos = Refline::modifyCommonWORD(line);
+  if (pos == 0)
+    modifyFail(line, "replaceWORD: Too few words");
 
-  if (words.size() < edit.tagno)
-    modifyFail(line, "ReplaceWORD: Too few words");
+  const unsigned lw = edit.was.length();
+  const unsigned li = edit.is.length();
 
-  if (edit.was != words[edit.tagno-1])
+  if (line.substr(pos-1, lw) != edit.was)
     modifyFail(line, "Old value wrong");
 
-  words[edit.tagno-1] = edit.is;
+  if (lw > li)
+    line.erase(pos-1, lw-li);
+  else if (lw < li)
+    line.insert(pos-1, " ", li-lw);
 
-  line = "";
-  for (auto &w: words)
-    line += w + " ";
-  line.pop_back();
+  line.replace(pos-1, li, edit.is);
 }
+
 
 void Refline::modifyInsertWORD(string& line) const
 {
-  vector<string> words;
-  words.clear();
-  splitIntoWords(line, words);
+  const unsigned pos = Refline::modifyCommonWORD(line);
+  if (pos == 0)
+    modifyFail(line, "insertWORD: Too few words");
 
-  if (words.size()+1 < edit.tagno)
-    modifyFail(line, "ReplaceWORD: Too few words");
-  else if (words.size()+1 == edit.tagno)
-    words.push_back(edit.is);
-  else
-    words.insert(words.begin() + static_cast<int>(edit.tagno-1), edit.is);
-
-  line = "";
-  for (auto &w: words)
-    line += w + " ";
-  line.pop_back();
+  line.insert(pos-1, edit.is);
 }
 
 void Refline::modifyDeleteWORD(string& line) const
 {
-  vector<string> words;
-  words.clear();
-  splitIntoWords(line, words);
+  const unsigned pos = Refline::modifyCommonWORD(line);
+  if (pos == 0)
+    modifyFail(line, "replaceWORD: Too few words");
 
-  if (words.size() < edit.tagno)
-    modifyFail(line, "ReplaceWORD: Too few words");
+  const unsigned lw = edit.was.length();
+  if (line.substr(pos-1, lw) != edit.was)
+    modifyFail(line, "Old value wrong");
 
-  if (words[edit.tagno-1] != edit.was)
-    modifyFail(line, "ReplaceWORD: Wrong word");
-
-    words.erase(words.begin() + static_cast<int>(edit.tagno-1));
-
-  line = "";
-  for (auto &w: words)
-    line += w + " ";
-  line.pop_back();
+  line.erase(pos-1, lw);
 }
 
 
