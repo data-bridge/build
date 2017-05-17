@@ -805,17 +805,20 @@ string Board::strGivenScore(const Format format) const
 
 string Board::strScoreIMP(
   const Format format,
-  const bool showFlag) const
+  const bool showFlag,
+  const bool swapFlag) const
 {
   if (format != BRIDGE_FORMAT_REC)
     return "";
 
+  const unsigned baseInst = (swapFlag ? 1u : 0u);
   if (! showFlag || 
       ! contract[0].hasResult() ||
       ! contract[1].hasResult())
     return "Points:       ";
 
-  return contract[numActive].strScoreIMP(format, contract[0].getScore());
+  return contract[numActive].strScoreIMP(format, 
+    contract[baseInst].getScore());
 }
 
 

@@ -420,7 +420,8 @@ void writeRECBoardLevel(
   st += board.strLead(format) + "    ";
   st += board.strResult(format, false) + "\n";
   st += board.strScore(format, false);
-  st += board.strScoreIMP(format, writeInfo.ino == 1) + "\n\n";
+  st += board.strScoreIMP(format, writeInfo.ino == 1,
+    segment.getCOCO()) + "\n\n";
 
   st += board.strPlay(format);
 }

@@ -265,7 +265,8 @@ class Board
 
     string strScoreIMP(
       const Format format,
-      const bool showFlag) const;
+      const bool showFlag,
+      const bool swapFlag = false) const;
 
     int IMPScore() const;
 

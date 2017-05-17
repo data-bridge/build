@@ -301,7 +301,9 @@ void Refline::setCommentAction()
   ACO[ERR_PBN_HAND_AUCTION_LIVE] = true;
   ACO[ERR_RBN_HAND_AUCTION_LIVE] = true;
   ACO[ERR_RBX_HAND_AUCTION_LIVE] = true;
+  ACO[ERR_TXT_HAND_AUCTION_LIVE] = true;
   ACO[ERR_EML_HAND_AUCTION_LIVE] = true;
+  ACO[ERR_REC_HAND_AUCTION_LIVE] = true;
 
   ACO = ActionCommentOK[BRIDGE_REF_REPLACE_LIN];
   ACO[ERR_LIN_VG_FIRST] = true;
@@ -394,9 +396,15 @@ void Refline::setCommentAction()
   ACO[ERR_RBX_L_DELETE] = true;
 
   ACO = ActionCommentOK[BRIDGE_REF_REPLACE_TXT];
+  ACO[ERR_TXT_RESULT_REPLACE] = true;
+  ACO[ERR_TXT_SCORE_REPLACE] = true;
+  ACO[ERR_TXT_SCORE_IMP_REPLACE] = true;
   ACO[ERR_EML_RESULT_REPLACE] = true;
   ACO[ERR_EML_SCORE_REPLACE] = true;
   ACO[ERR_EML_SCORE_IMP_REPLACE] = true;
+  ACO[ERR_REC_RESULT_REPLACE] = true;
+  ACO[ERR_REC_SCORE_REPLACE] = true;
+  ACO[ERR_REC_SCORE_IMP_REPLACE] = true;
 
   ACO = ActionCommentOK[BRIDGE_REF_INSERT_TXT];
 
@@ -405,7 +413,9 @@ void Refline::setCommentAction()
   ACO = ActionCommentOK[BRIDGE_REF_REPLACE_WORD];
   ACO[ERR_PBN_PLAY_REPLACE] = true;
   ACO[ERR_PBN_ALERT_REPLACE] = true;
+  ACO[ERR_TXT_PLAY_REPLACE] = true;
   ACO[ERR_EML_PLAY_REPLACE] = true;
+  ACO[ERR_REC_PLAY_REPLACE] = true;
 
   ACO = ActionCommentOK[BRIDGE_REF_INSERT_WORD];
 
@@ -1122,7 +1132,7 @@ void Refline::parseReplaceTXT(
       THROW("Ref file " + refName + ": Bad charno '" + quote + "'");
 
     edit.was = v[1];
-    edit.was = v[2];
+    edit.is = v[2];
   }
   else
   {
@@ -1806,10 +1816,10 @@ unsigned Refline::modifyCommonTXT(const string& line) const
     if (p == string::npos)
       return 0;
     else
-      return p;
+      return p+1;
   }
   else
-    return edit.charno;
+    return edit.charno; // As already 1-based
 }
 
 
@@ -1822,15 +1832,15 @@ void Refline::modifyReplaceTXT(string& line) const
   unsigned lw = edit.was.length();
   unsigned li = edit.is.length();
 
-  if (line.substr(p, lw) != edit.was)
-    THROW("Old TXT value");
+  if (line.substr(p-1, lw) != edit.was)
+    THROW("Old TXT value: " + line.substr(p-1, lw) + " vs " + edit.was);
 
   if (lw > li)
-    line.erase(p, lw-li);
+    line.erase(p-1, lw-li);
   else if (lw < li)
-    line.insert(p, " ", li-lw);
+    line.insert(p-1, " ", li-lw);
 
-  line.replace(p, li, edit.is);
+  line.replace(p-1, li, edit.is);
 }
 
 
@@ -1854,10 +1864,10 @@ void Refline::modifyDeleteTXT(string& line) const
   if (p == 0)
     THROW("No character position and string not found");
 
-  if (line.substr(p, edit.was.length()) != edit.was)
+  if (line.substr(p-1, edit.was.length()) != edit.was)
     THROW("Old TXT value");
 
-  line.erase(p, edit.was.length());
+  line.erase(p-1, edit.was.length());
 }
 
 
