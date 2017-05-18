@@ -42,6 +42,7 @@ SOURCE_FILES 	=		\
 	fileREC.cpp		\
 	heurfix.cpp		\
 	parse.cpp		\
+	RefAction.cpp		\
 	RefComment.cpp		\
 	RefEdit.cpp		\
 	RefLine.cpp		\

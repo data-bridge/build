@@ -27,13 +27,13 @@
 using namespace std;
 
 
-struct FixBundle
+struct ActionBundle
 {
   FixType val;
   string name;
 };
 
-const vector<FixBundle> FixList =
+const vector<ActionBundle> ActionList =
 {
   {BRIDGE_REF_REPLACE_GEN, "replace"},
   {BRIDGE_REF_INSERT_GEN, "insert"},
@@ -107,13 +107,13 @@ const vector<TagBundle> TagList =
   {REF_TAGS_RBN_R, "R"}
 };
 
-struct RefErrorBundle
+struct CommentBundle
 {
-  RefErrorsType val;
+  CommentType val;
   string name;
 };
 
-const vector<RefErrorBundle> RefErrors =
+const vector<CommentBundle> CommentList =
 {
   {ERR_LIN_VG_FIRST, "ERR_LIN_VG_FIRST"},
   {ERR_LIN_VG_LAST, "ERR_LIN_VG_LAST"},
@@ -260,8 +260,8 @@ const vector<RefErrorBundle> RefErrors =
 };
 
 
-static map<string, RefErrorsType> CommentMap;
-static map<string, RefTag> refTag;
+static map<string, CommentType> CommentMap;
+static map<string, RefTag> TagMap;
 static bool ActionCommentOK[BRIDGE_REF_FIX_SIZE][ERR_SIZE];
 static bool TagCommentOK[REF_TAGS_SIZE][ERR_SIZE];
 
@@ -312,7 +312,7 @@ void RefComment::setTables()
 
 void RefComment::setCommentMap()
 {
-  for (auto &e: RefErrors)
+  for (auto &e: CommentList)
     CommentMap[e.name] = e.val;
 }
 
@@ -320,7 +320,7 @@ void RefComment::setCommentMap()
 void RefComment::setRefTag()
 {
   for (auto &e: TagList)
-    refTag[e.name] = e.val;
+    TagMap[e.name] = e.val;
 }
 
 
@@ -624,9 +624,9 @@ void RefComment::checkAction(const FixType action) const
 
   if (! ActionCommentOK[action][category])
     THROW("Ref file " + fileName + ":\n" + 
-      FixList[action].name + "\n" +
+      ActionList[action].name + "\n" +
       "comment '" + quote + "'\n" +
-      RefErrors[category].name + "\n" +
+      CommentList[category].name + "\n" +
       "Action and comment don't match");
 }
 
@@ -636,14 +636,14 @@ void RefComment::checkTag(const string& tag) const
   if (tag == "")
     return;
 
-  auto it = refTag.find(tag);
-  if (it == refTag.end())
+  auto it = TagMap.find(tag);
+  if (it == TagMap.end())
   {
     // Try lower-case as well.
     string taglc = tag;
     toLower(taglc);
-    it = refTag.find(taglc);
-    if (it == refTag.end())
+    it = TagMap.find(taglc);
+    if (it == TagMap.end())
       THROW("Ref file " + fileName + ":\n" + 
         " quote '" + quote + "'" + 
         " tag name not found: " + tag);
@@ -652,7 +652,7 @@ void RefComment::checkTag(const string& tag) const
   if (! TagCommentOK[it->second][category])
     THROW("Ref file " + fileName + ":\n" +
       "comment '" + quote + "'" + "\n" +
-      RefErrors[category].name + "\n" +
+      CommentList[category].name + "\n" +
       "tag " + tag + "\n" + 
       "Tag and comment don't match");
 }
@@ -676,7 +676,7 @@ string RefComment::str() const
     return "";
 
   stringstream ss;
-  ss << setw(14) << "Count detail" << RefErrors[category].name << "\n";
+  ss << setw(14) << "Count detail" << CommentList[category].name << "\n";
   ss << setw(14) << "Count tags" << count1 << "\n";
   ss << setw(14) << "Count hands" << count2 << "\n";
   ss << setw(14) << "Count boards" << count3 << "\n";
