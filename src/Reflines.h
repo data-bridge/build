@@ -33,6 +33,10 @@ class RefLines
     vector<RefLine> lines;
     RefControl control;
 
+    unsigned bufferLines;
+    unsigned numHands;
+    unsigned numBoards;
+
 
   public:
 
@@ -44,6 +48,11 @@ class RefLines
     vector<RefLine>::const_iterator end() const { return lines.end(); }
 
     void reset();
+
+    void setFileData(
+      const unsigned bufIn,
+      const unsigned numHandsIn,
+      const unsigned numBoardsIn);
 
     void read(const string& fname);
 

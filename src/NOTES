@@ -1,6 +1,8 @@
 11.05.2017
 ----------
 * Add count checks to Refline::modify
+  Multi-lines should only generate one refLine in refLines
+
 * Eliminate refstats.pl
 
 * Get reader to work on RPmajors
