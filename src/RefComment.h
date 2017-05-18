@@ -52,6 +52,8 @@ class RefComment
 
     void checkTag(const string& tag) const;
 
+    RefCountType countType(const ActionType action) const;
+
     bool isCommented() const;
 
     bool isUncommented() const;

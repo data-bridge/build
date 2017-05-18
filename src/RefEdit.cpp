@@ -9,6 +9,7 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <algorithm>
 #include <regex>
 #include <map>
 
@@ -63,6 +64,16 @@ void RefEdit::reset()
   charno = 0;
   wasVal = "";
   isVal = "";
+
+  RefEdit::setCount(0);
+}
+
+
+void RefEdit::setCount(const unsigned v)
+{
+  count.units = v;
+  count.hands = v;
+  count.boards = v;
 }
 
 
@@ -257,6 +268,17 @@ void RefEdit::modifyLINCommon(
         modifyFail(line, "Insert field too far");
     }
   }
+}
+
+
+unsigned RefEdit::countUnitsLIN() const
+{
+  unsigned numPipes = static_cast<unsigned>
+    (std::count(isVal.begin(), isVal.end(), '|'));
+  if (numPipes % 2)
+    THROW("Uneven isVal: " + isVal);
+
+  return 1 + numPipes/2;
 }
 
 
@@ -507,6 +529,7 @@ void RefEdit::modifyInsertRBN(string& line) const
     f.push_back(isVal);
   else
     f.insert(f.begin() + static_cast<int>(fieldno-1), isVal);
+
   line = tagVal + " " + concat(f, ":");
 }
 

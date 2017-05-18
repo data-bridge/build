@@ -20,6 +20,13 @@ class RefEdit
 {
   private:
 
+    struct RefCount
+    {
+      unsigned units;
+      unsigned hands;
+      unsigned boards;
+    };
+
     unsigned tagno;
     bool reverseFlag; // tag is counted from the back, starting from -1
     string tagVal; // "rs", for example
@@ -28,6 +35,10 @@ class RefEdit
     unsigned charno;
     string wasVal;
     string isVal;
+    RefCount count;
+
+
+    void setCount(const unsigned v);
 
     void setTables();
 
@@ -46,6 +57,8 @@ class RefEdit
       vector<string>& v,
       vector<string>& f,
       bool& endsOnPipe) const;
+
+    unsigned countUnitsLIN() const;
 
     void modifyRBNCommon(
       const string& line,
