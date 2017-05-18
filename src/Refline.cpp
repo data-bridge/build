@@ -27,49 +27,8 @@
 using namespace std;
 
 
-enum RefTags
-{
-  REF_TAGS_LIN_VG = 0,
-  REF_TAGS_LIN_RS = 1,
-  REF_TAGS_LIN_PW = 2,
-  REF_TAGS_LIN_BN = 3,
-  REF_TAGS_LIN_QX = 4,
-  REF_TAGS_LIN_PN = 5,
-  REF_TAGS_LIN_MD = 6,
-  REF_TAGS_LIN_SV = 7,
-  REF_TAGS_LIN_MB = 8,
-  REF_TAGS_LIN_AN = 9,
-  REF_TAGS_LIN_PC = 10,
-  REF_TAGS_LIN_MC = 11,
-  REF_TAGS_LIN_PG = 12,
-  REF_TAGS_LIN_NT = 13,
-
-  REF_TAGS_PBN_SITE = 14,
-  REF_TAGS_PBN_BOARD = 15,
-  REF_TAGS_PBN_PLAYER = 16,
-  REF_TAGS_PBN_DECLARER = 17,
-  REF_TAGS_PBN_RESULT = 18,
-  REF_TAGS_PBN_AUCTION = 19,
-  REF_TAGS_PBN_NOTE = 20,
-  REF_TAGS_PBN_PLAY = 21,
-  REF_TAGS_PBN_ROOM = 22,
-  REF_TAGS_PBN_SCORE = 23,
-  REF_TAGS_PBN_SCORE_IMP = 24,
-
-  REF_TAGS_RBN_A = 25,
-  REF_TAGS_RBN_L = 26,
-  REF_TAGS_RBN_N = 27,
-  REF_TAGS_RBN_P = 28,
-  REF_TAGS_RBN_R = 29,
-
-  REF_TAGS_SIZE = 30
-};
-
-
 static map<string, FixType> FixMap;
 static string FixTable[BRIDGE_REF_FIX_SIZE];
-
-static map<string, RefErrorsType> CommentMap;
 
 typedef void (RefLine::*ParsePtr)(
   const string& refName, 
@@ -78,12 +37,6 @@ static ParsePtr ParseList[BRIDGE_REF_FIX_SIZE];
 
 typedef void (RefLine::*ModifyPtr)(string& line) const;
 static ModifyPtr ModifyList[BRIDGE_REF_FIX_SIZE];
-
-static bool ActionCommentOK[BRIDGE_REF_FIX_SIZE][ERR_SIZE];
-
-static map<string, RefTags> refTags;
-
-static bool TagCommentOK[REF_TAGS_SIZE][ERR_SIZE];
 
 static mutex mtx;
 static bool setRefLineTables = false;
@@ -126,11 +79,7 @@ void RefLine::reset()
   edit.was = "";
   edit.is = "";
 
-  comment.setFlag = false;
-  comment.category = ERR_SIZE;
-  comment.count1 = 0;
-  comment.count2 = 0;
-  comment.count3 = 0;
+  comment.reset();
 }
 
 
@@ -166,43 +115,6 @@ void RefLine::setFixTables()
 
   for (auto &s: FixMap)
     FixTable[s.second] = s.first;
-}
-
-
-void RefLine::setRefTags()
-{
-  refTags["vg"] = REF_TAGS_LIN_VG;
-  refTags["rs"] = REF_TAGS_LIN_RS;
-  refTags["pw"] = REF_TAGS_LIN_PW;
-  refTags["bn"] = REF_TAGS_LIN_BN;
-  refTags["qx"] = REF_TAGS_LIN_QX;
-  refTags["pn"] = REF_TAGS_LIN_PN;
-  refTags["md"] = REF_TAGS_LIN_MD;
-  refTags["sv"] = REF_TAGS_LIN_SV;
-  refTags["mb"] = REF_TAGS_LIN_MB;
-  refTags["an"] = REF_TAGS_LIN_AN;
-  refTags["pc"] = REF_TAGS_LIN_PC;
-  refTags["mc"] = REF_TAGS_LIN_MC;
-  refTags["pg"] = REF_TAGS_LIN_PG;
-  refTags["nt"] = REF_TAGS_LIN_NT;
-
-  refTags["Site"] = REF_TAGS_PBN_SITE;
-  refTags["Room"] = REF_TAGS_PBN_ROOM;
-  refTags["Board"] = REF_TAGS_PBN_BOARD;
-  refTags["Player"] = REF_TAGS_PBN_PLAYER;
-  refTags["Auction"] = REF_TAGS_PBN_AUCTION;
-  refTags["Declarer"] = REF_TAGS_PBN_DECLARER;
-  refTags["Note"] = REF_TAGS_PBN_NOTE;
-  refTags["Play"] = REF_TAGS_PBN_PLAY;
-  refTags["Result"] = REF_TAGS_PBN_RESULT;
-  refTags["Score"] = REF_TAGS_PBN_SCORE;
-  refTags["ScoreIMP"] = REF_TAGS_PBN_SCORE_IMP;
-
-  refTags["A"] = REF_TAGS_RBN_A;
-  refTags["N"] = REF_TAGS_RBN_N;
-  refTags["L"] = REF_TAGS_RBN_L;
-  refTags["P"] = REF_TAGS_RBN_P;
-  refTags["R"] = REF_TAGS_RBN_R;
 }
 
 
@@ -267,271 +179,10 @@ void RefLine::setDispatch()
 }
 
 
-void RefLine::setCommentMap()
-{
-  for (auto &e: RefErrors)
-    CommentMap[e.name] = e.val;
-}
-
-
-void RefLine::setCommentAction()
-{
-  for (unsigned i = 0; i < BRIDGE_REF_FIX_SIZE; i++)
-    for (unsigned j = 0; j < ERR_SIZE; j++)
-      ActionCommentOK[i][j] = false;
-  
-  bool * ACO = ActionCommentOK[BRIDGE_REF_REPLACE_GEN];
-  ACO[ERR_LIN_VHEADER_SYNTAX] = true;
-  ACO[ERR_LIN_PLAYERS_REPLACE] = true;
-  ACO[ERR_LIN_RESULTS_REPLACE] = true;
-  ACO[ERR_PBN_SCORE_REPLACE] = true; // TODO: Get rid of, JEC
-  ACO[ERR_PBN_ALERT_REPLACE] = true; // TODO: Get rid of, JEC
-  ACO[ERR_TXT_PLAY_REPLACE] = true;
-
-  ACO = ActionCommentOK[BRIDGE_REF_INSERT_GEN];
-  ACO[ERR_LIN_VHEADER_INSERT] = true;
-  ACO[ERR_LIN_RESULTS_INSERT] = true;
-  ACO[ERR_LIN_TRICK_INSERT] = true;
-  ACO[ERR_PBN_NOTE_INSERT] = true; // TODO: Get rid of, JEC
-
-  ACO = ActionCommentOK[BRIDGE_REF_DELETE_GEN];
-  ACO[ERR_LIN_TRICK_DELETE] = true;
-  ACO[ERR_LIN_HAND_AUCTION_LIVE] = true;
-  ACO[ERR_LIN_HAND_CARDS_MISSING] = true;
-  ACO[ERR_LIN_HAND_CARDS_WRONG] = true;
-  ACO[ERR_PBN_HAND_AUCTION_LIVE] = true;
-  ACO[ERR_RBN_HAND_AUCTION_LIVE] = true;
-  ACO[ERR_RBX_HAND_AUCTION_LIVE] = true;
-  ACO[ERR_TXT_HAND_AUCTION_LIVE] = true;
-  ACO[ERR_EML_HAND_AUCTION_LIVE] = true;
-  ACO[ERR_REC_HAND_AUCTION_LIVE] = true;
-
-  ACO = ActionCommentOK[BRIDGE_REF_REPLACE_LIN];
-  ACO[ERR_LIN_VG_FIRST] = true;
-  ACO[ERR_LIN_VG_LAST] = true;
-  ACO[ERR_LIN_VG_REPLACE] = true;
-  ACO[ERR_LIN_VG_SYNTAX] = true;
-  ACO[ERR_LIN_RS_REPLACE] = true;
-  ACO[ERR_LIN_RS_DECL_PARD] = true;
-  ACO[ERR_LIN_RS_DECL_OPP] = true;
-  ACO[ERR_LIN_RS_DENOM] = true;
-  ACO[ERR_LIN_RS_LEVEL] = true;
-  ACO[ERR_LIN_RS_MULT] = true;
-  ACO[ERR_LIN_RS_TRICKS] = true;
-  ACO[ERR_LIN_RS_EMPTY] = true;
-  ACO[ERR_LIN_RS_INCOMPLETE] = true;
-  ACO[ERR_LIN_RS_SYNTAX] = true;
-  ACO[ERR_LIN_PN_REPLACE] = true;
-  ACO[ERR_LIN_QX_REPLACE] = true;
-  ACO[ERR_LIN_MD_REPLACE] = true;
-  ACO[ERR_LIN_SV_REPLACE] = true;
-  ACO[ERR_LIN_MB_REPLACE] = true;
-  ACO[ERR_LIN_MB_SYNTAX] = true;
-  ACO[ERR_LIN_AN_REPLACE] = true;
-  ACO[ERR_LIN_PC_REPLACE] = true;
-  ACO[ERR_LIN_PC_SYNTAX] = true;
-  ACO[ERR_LIN_MC_REPLACE] = true;
-  ACO[ERR_LIN_MC_SYNTAX] = true;
-
-  ACO = ActionCommentOK[BRIDGE_REF_INSERT_LIN];
-  ACO[ERR_LIN_RS_INSERT] = true;
-  ACO[ERR_LIN_PN_INSERT] = true;
-  ACO[ERR_LIN_SV_INSERT] = true;
-  ACO[ERR_LIN_MB_INSERT] = true;
-  ACO[ERR_LIN_MB_SYNTAX] = true;
-  ACO[ERR_LIN_PC_INSERT] = true;
-  ACO[ERR_LIN_MC_INSERT] = true;
-  ACO[ERR_LIN_SYNTAX] = true;
-
-  ACO = ActionCommentOK[BRIDGE_REF_DELETE_LIN];
-  ACO[ERR_LIN_VG_SYNTAX] = true;
-  ACO[ERR_LIN_RS_DELETE] = true;
-  ACO[ERR_LIN_PN_DELETE] = true;
-  ACO[ERR_LIN_MD_SYNTAX] = true;
-  ACO[ERR_LIN_NT_SYNTAX] = true;
-  ACO[ERR_LIN_SV_DELETE] = true;
-  ACO[ERR_LIN_SV_SYNTAX] = true;
-  ACO[ERR_LIN_MB_TRAILING] = true;
-  ACO[ERR_LIN_MB_DELETE] = true;
-  ACO[ERR_LIN_MB_SYNTAX] = true;
-  ACO[ERR_LIN_AN_DELETE] = true;
-  ACO[ERR_LIN_PC_DELETE] = true;
-  ACO[ERR_LIN_MC_DELETE] = true;
-  ACO[ERR_LIN_MC_SYNTAX] = true;
-  ACO[ERR_LIN_TRICK_DELETE] = true;
-  ACO[ERR_LIN_SYNTAX] = true;
-
-  ACO = ActionCommentOK[BRIDGE_REF_REPLACE_PBN];
-  ACO[ERR_PBN_SITE_REPLACE] = true;
-  ACO[ERR_PBN_BOARD_REPLACE] = true;
-  ACO[ERR_PBN_DECLARER_REPLACE] = true;
-  ACO[ERR_PBN_RESULT_REPLACE] = true;
-  ACO[ERR_PBN_SCORE_REPLACE] = true;
-  ACO[ERR_PBN_SCORE_IMP_REPLACE] = true;
-
-  ACO = ActionCommentOK[BRIDGE_REF_INSERT_PBN];
-  ACO[ERR_PBN_ROOM_INSERT] = true;
-  ACO[ERR_PBN_NOTE_INSERT] = true;
-
-  ACO = ActionCommentOK[BRIDGE_REF_DELETE_PBN];
-  ACO[ERR_PBN_NOTE_DELETE] = true;
-
-  ACO = ActionCommentOK[BRIDGE_REF_REPLACE_RBN];
-  ACO[ERR_RBN_P_REPLACE] = true;
-  ACO[ERR_RBN_R_REPLACE] = true;
-
-  ACO = ActionCommentOK[BRIDGE_REF_INSERT_RBN];
-  ACO[ERR_RBN_N_INSERT] = true;
-
-  ACO = ActionCommentOK[BRIDGE_REF_DELETE_RBN];
-  ACO[ERR_RBN_L_DELETE] = true;
-
-  ACO = ActionCommentOK[BRIDGE_REF_REPLACE_RBX];
-  ACO[ERR_RBX_P_REPLACE] = true;
-  ACO[ERR_RBX_R_REPLACE] = true;
-
-  ACO = ActionCommentOK[BRIDGE_REF_INSERT_RBX];
-  ACO[ERR_RBX_N_INSERT] = true;
-
-  ACO = ActionCommentOK[BRIDGE_REF_DELETE_RBX];
-  ACO[ERR_RBX_L_DELETE] = true;
-
-  ACO = ActionCommentOK[BRIDGE_REF_REPLACE_TXT];
-  ACO[ERR_TXT_RESULT_REPLACE] = true;
-  ACO[ERR_TXT_SCORE_REPLACE] = true;
-  ACO[ERR_TXT_SCORE_IMP_REPLACE] = true;
-  ACO[ERR_TXT_RUNNING_REPLACE] = true;
-  ACO[ERR_EML_RESULT_REPLACE] = true;
-  ACO[ERR_EML_SCORE_REPLACE] = true;
-  ACO[ERR_EML_SCORE_IMP_REPLACE] = true;
-  ACO[ERR_REC_RESULT_REPLACE] = true;
-  ACO[ERR_REC_SCORE_REPLACE] = true;
-  ACO[ERR_REC_SCORE_IMP_REPLACE] = true;
-
-  ACO = ActionCommentOK[BRIDGE_REF_INSERT_TXT];
-
-  ACO = ActionCommentOK[BRIDGE_REF_DELETE_TXT];
-
-  ACO = ActionCommentOK[BRIDGE_REF_REPLACE_WORD];
-  ACO[ERR_PBN_PLAY_REPLACE] = true;
-  ACO[ERR_PBN_ALERT_REPLACE] = true;
-  ACO[ERR_TXT_PLAY_REPLACE] = true;
-  ACO[ERR_EML_PLAY_REPLACE] = true;
-  ACO[ERR_REC_PLAY_REPLACE] = true;
-
-  ACO = ActionCommentOK[BRIDGE_REF_INSERT_WORD];
-
-  ACO = ActionCommentOK[BRIDGE_REF_DELETE_WORD];
-}
-
-
-void RefLine::setCommentTag()
-{
-  for (unsigned i = 0; i < BRIDGE_REF_FIX_SIZE; i++)
-    for (unsigned j = 0; j < REF_TAGS_SIZE; j++)
-      TagCommentOK[i][j] = false;
-
-  TagCommentOK[REF_TAGS_LIN_VG][ERR_LIN_VG_FIRST] = true;
-  TagCommentOK[REF_TAGS_LIN_VG][ERR_LIN_VG_LAST] = true;
-  TagCommentOK[REF_TAGS_LIN_VG][ERR_LIN_VG_REPLACE] = true;
-  TagCommentOK[REF_TAGS_LIN_VG][ERR_LIN_VG_SYNTAX] = true;
-
-  TagCommentOK[REF_TAGS_LIN_RS][ERR_LIN_RS_REPLACE] = true;
-  TagCommentOK[REF_TAGS_LIN_RS][ERR_LIN_RS_INSERT] = true;
-  TagCommentOK[REF_TAGS_LIN_RS][ERR_LIN_RS_DELETE] = true;
-  TagCommentOK[REF_TAGS_LIN_RS][ERR_LIN_RS_DECL_PARD] = true;
-  TagCommentOK[REF_TAGS_LIN_RS][ERR_LIN_RS_DECL_OPP] = true;
-  TagCommentOK[REF_TAGS_LIN_RS][ERR_LIN_RS_DENOM] = true;
-  TagCommentOK[REF_TAGS_LIN_RS][ERR_LIN_RS_LEVEL] = true;
-  TagCommentOK[REF_TAGS_LIN_RS][ERR_LIN_RS_MULT] = true;
-  TagCommentOK[REF_TAGS_LIN_RS][ERR_LIN_RS_TRICKS] = true;
-  TagCommentOK[REF_TAGS_LIN_RS][ERR_LIN_RS_EMPTY] = true;
-  TagCommentOK[REF_TAGS_LIN_RS][ERR_LIN_RS_INCOMPLETE] = true;
-  TagCommentOK[REF_TAGS_LIN_RS][ERR_LIN_RS_SYNTAX] = true;
-
-  TagCommentOK[REF_TAGS_LIN_PN][ERR_LIN_PN_REPLACE] = true;
-  TagCommentOK[REF_TAGS_LIN_PN][ERR_LIN_PN_INSERT] = true;
-  TagCommentOK[REF_TAGS_LIN_PN][ERR_LIN_PN_DELETE] = true;
-
-  TagCommentOK[REF_TAGS_LIN_QX][ERR_LIN_QX_REPLACE] = true;
-
-  TagCommentOK[REF_TAGS_LIN_MD][ERR_LIN_MD_REPLACE] = true;
-  TagCommentOK[REF_TAGS_LIN_MD][ERR_LIN_MD_MISSING] = true;
-  TagCommentOK[REF_TAGS_LIN_MD][ERR_LIN_MD_SYNTAX] = true;
-
-  TagCommentOK[REF_TAGS_LIN_SV][ERR_LIN_SV_REPLACE] = true;
-  TagCommentOK[REF_TAGS_LIN_SV][ERR_LIN_SV_INSERT] = true;
-  TagCommentOK[REF_TAGS_LIN_SV][ERR_LIN_SV_DELETE] = true;
-  TagCommentOK[REF_TAGS_LIN_SV][ERR_LIN_SV_SYNTAX] = true;
-
-  TagCommentOK[REF_TAGS_LIN_MB][ERR_LIN_MB_TRAILING] = true;
-  TagCommentOK[REF_TAGS_LIN_MB][ERR_LIN_MB_REPLACE] = true;
-  TagCommentOK[REF_TAGS_LIN_MB][ERR_LIN_MB_INSERT] = true;
-  TagCommentOK[REF_TAGS_LIN_MB][ERR_LIN_MB_DELETE] = true;
-  TagCommentOK[REF_TAGS_LIN_MB][ERR_LIN_MB_SYNTAX] = true;
-
-  TagCommentOK[REF_TAGS_LIN_AN][ERR_LIN_AN_REPLACE] = true;
-  TagCommentOK[REF_TAGS_LIN_AN][ERR_LIN_AN_DELETE] = true;
-
-  TagCommentOK[REF_TAGS_LIN_PC][ERR_LIN_PC_REPLACE] = true;
-  TagCommentOK[REF_TAGS_LIN_PC][ERR_LIN_PC_INSERT] = true;
-  TagCommentOK[REF_TAGS_LIN_PC][ERR_LIN_PC_DELETE] = true;
-  TagCommentOK[REF_TAGS_LIN_PC][ERR_LIN_PC_SYNTAX] = true;
-  TagCommentOK[REF_TAGS_LIN_PC][ERR_LIN_TRICK_DELETE] = true;
-
-  TagCommentOK[REF_TAGS_LIN_MC][ERR_LIN_MC_REPLACE] = true;
-  TagCommentOK[REF_TAGS_LIN_MC][ERR_LIN_MC_INSERT] = true;
-  TagCommentOK[REF_TAGS_LIN_MC][ERR_LIN_MC_DELETE] = true;
-  TagCommentOK[REF_TAGS_LIN_MC][ERR_LIN_MC_SYNTAX] = true;
-
-  TagCommentOK[REF_TAGS_LIN_PG][ERR_LIN_SYNTAX] = true;
-
-  TagCommentOK[REF_TAGS_LIN_NT][ERR_LIN_NT_SYNTAX] = true;
-  TagCommentOK[REF_TAGS_LIN_NT][ERR_LIN_SYNTAX] = true;
-
-  TagCommentOK[REF_TAGS_PBN_SITE][ERR_PBN_SITE_REPLACE] = true;
-  TagCommentOK[REF_TAGS_PBN_ROOM][ERR_PBN_ROOM_REPLACE] = true;
-  TagCommentOK[REF_TAGS_PBN_PLAY][ERR_PBN_PLAYER_REPLACE] = true;
-  TagCommentOK[REF_TAGS_PBN_BOARD][ERR_PBN_BOARD_REPLACE] = true;
-  TagCommentOK[REF_TAGS_PBN_ROOM][ERR_PBN_ROOM_INSERT] = true;
-  TagCommentOK[REF_TAGS_PBN_DECLARER][ERR_PBN_DECLARER_REPLACE] = true;
-  TagCommentOK[REF_TAGS_PBN_RESULT][ERR_PBN_RESULT_REPLACE] = true;
-  TagCommentOK[REF_TAGS_PBN_SCORE][ERR_PBN_SCORE_REPLACE] = true;
-  TagCommentOK[REF_TAGS_PBN_SCORE_IMP][ERR_PBN_SCORE_IMP_REPLACE] = true;
-  TagCommentOK[REF_TAGS_PBN_AUCTION][ERR_PBN_CALL_REPLACE] = true;
-  TagCommentOK[REF_TAGS_PBN_AUCTION][ERR_PBN_ALERT_REPLACE] = true;
-  TagCommentOK[REF_TAGS_PBN_AUCTION][ERR_PBN_ALERT_INSERT] = true;
-  TagCommentOK[REF_TAGS_PBN_AUCTION][ERR_PBN_ALERT_DELETE] = true;
-  TagCommentOK[REF_TAGS_PBN_AUCTION][ERR_PBN_HAND_AUCTION_LIVE] = true;
-  TagCommentOK[REF_TAGS_PBN_NOTE][ERR_PBN_NOTE_REPLACE] = true;
-  TagCommentOK[REF_TAGS_PBN_NOTE][ERR_PBN_NOTE_INSERT] = true;
-  TagCommentOK[REF_TAGS_PBN_NOTE][ERR_PBN_NOTE_DELETE] = true;
-  TagCommentOK[REF_TAGS_PBN_PLAY][ERR_PBN_PLAY_REPLACE] = true;
-
-  TagCommentOK[REF_TAGS_RBN_L][ERR_RBN_L_DELETE] = true;
-  TagCommentOK[REF_TAGS_RBN_N][ERR_RBN_N_REPLACE] = true;
-  TagCommentOK[REF_TAGS_RBN_N][ERR_RBN_N_INSERT] = true;
-  TagCommentOK[REF_TAGS_RBN_P][ERR_RBN_P_REPLACE] = true;
-  TagCommentOK[REF_TAGS_RBN_R][ERR_RBN_R_REPLACE] = true;
-  TagCommentOK[REF_TAGS_RBN_A][ERR_RBN_HAND_AUCTION_LIVE] = true;
-
-  TagCommentOK[REF_TAGS_RBN_L][ERR_RBX_L_DELETE] = true;
-  TagCommentOK[REF_TAGS_RBN_N][ERR_RBX_N_REPLACE] = true;
-  TagCommentOK[REF_TAGS_RBN_N][ERR_RBX_N_INSERT] = true;
-  TagCommentOK[REF_TAGS_RBN_P][ERR_RBX_P_REPLACE] = true;
-  TagCommentOK[REF_TAGS_RBN_R][ERR_RBX_R_REPLACE] = true;
-  TagCommentOK[REF_TAGS_RBN_A][ERR_RBX_HAND_AUCTION_LIVE] = true;
-}
-
-
 void RefLine::setTables()
 {
   RefLine::setFixTables();
-  RefLine::setRefTags();
   RefLine::setDispatch();
-  RefLine::setCommentMap();
-  RefLine::setCommentAction();
-  RefLine::setCommentTag();
 }
 
 
@@ -599,46 +250,6 @@ FixType RefLine::parseAction(
 }
 
 
-void RefLine::parseComment(
-  const string& refName,
-  const string& line,
-  const unsigned start,
-  unsigned& end)
-{
-  // Set commentFlag, category and count1..3.
-  // Modifies end.
-
-  unsigned openb = line.find_last_of("{");
-  if (openb == string::npos)
-    return;
-  if (openb < start)
-    THROW("Ref file " + refName + ": Odd opening brace in '" + line + "'");
-
-  end = openb-1;
-
-  const regex rep("\\{(.*)\\((\\d+),(\\d+),(\\d+)\\)\\}\\s*$");
-  smatch match;
-  const string str = line.substr(openb);
-  if (! regex_search(str, match, rep) || match.size() < 4)
-    THROW("Ref file " + refName + ": Bad comment in '" + line + "'");
-
-  auto it = CommentMap.find(match.str(1));
-  if (it == CommentMap.end())
-    THROW("Ref file " + refName + ": Bad comment name in '" + line + "'");
-
-  comment.setFlag = true;
-
-  comment.category = it->second;
-
-  if (! str2unsigned(match.str(2), comment.count1))
-    THROW("Ref file " + refName + ": Bad comment no1 in '" + line + "'");
-  if (! str2unsigned(match.str(3), comment.count2))
-    THROW("Ref file " + refName + ": Bad comment no2 in '" + line + "'");
-  if (! str2unsigned(match.str(4), comment.count3))
-    THROW("Ref file " + refName + ": Bad comment no3 in '" + line + "'");
-}
-
-
 bool RefLine::parse(
   const string& refName,
   const string& line)
@@ -671,7 +282,7 @@ bool RefLine::parse(
   fix = RefLine::parseAction(refName, line, a);
 
   // Check whether there is a comment.
-  RefLine::parseComment(refName, line, start, end);
+  comment.parse(refName, line, start, end);
 
   if (start >= end)
   {
@@ -735,39 +346,6 @@ string RefLine::unquote(const string& entry) const
 }
 
 
-void RefLine::commonCheck(
-  const string& refName,
-  const string& quote,
-  const string& tag) const
-{
-  if (comment.setFlag && ! ActionCommentOK[fix][comment.category])
-    THROW("Ref file " + refName + ": " + FixTable[fix] + 
-        " comment '" + quote + "'\n" +
-        RefErrors[comment.category].name + "\n");
-
-  if (tag == "")
-    return;
-
-  auto it = refTags.find(tag);
-  if (it == refTags.end())
-  {
-    // Try lower-case as well.
-    string taglc = tag;
-    toLower(taglc);
-    it = refTags.find(taglc);
-    if (it == refTags.end())
-      THROW("Ref file " + refName + ": " + FixTable[fix] + 
-          " quote '" + quote + "'" + " tag name " + tag);
-  }
-
-  if (! TagCommentOK[it->second][comment.category])
-    THROW("Ref file " + refName + ": " + FixTable[fix] + 
-        " combo '" + quote + "'" + "\n" +
-        RefErrors[comment.category].name + "\n" +
-        "tag " + tag + ", " + STR(it->second));
-}
-
-
 ////////////////////////////////////////////////////////////////////////
 //                                                                    //
 // parseGen functions                                                 //
@@ -782,9 +360,7 @@ void RefLine::parseReplaceGen(
   if (range.lcount != 1)
     THROW("Ref file " + refName + ": replace line count '" + quote + "'");
 
-  if (comment.setFlag && 
-      ! ActionCommentOK[BRIDGE_REF_REPLACE_GEN][comment.category])
-    THROW("Ref file " + refName + ": replace comment name '" + quote + "'");
+  comment.checkAction(fix);
 
   edit.is = quote;
 }
@@ -797,9 +373,7 @@ void RefLine::parseInsertGen(
   if (range.lcount != 1)
     THROW("Ref file " + refName + ": insert line count '" + quote + "'");
 
-  if (comment.setFlag && 
-      ! ActionCommentOK[BRIDGE_REF_INSERT_GEN][comment.category])
-    THROW("Ref file " + refName + ": insert comment name '" + quote + "'");
+  comment.checkAction(fix);
 
   edit.is = quote;
 }
@@ -812,9 +386,7 @@ void RefLine::parseDeleteGen(
   if (range.lcount != 1)
     THROW("Ref file " + refName + ": delete line count '" + quote + "'");
 
-  if (comment.setFlag && 
-      ! ActionCommentOK[BRIDGE_REF_DELETE_GEN][comment.category])
-    THROW("Ref file " + refName + ": delete comment name '" + quote + "'");
+  comment.checkAction(fix);
 
   edit.is = quote;
 }
@@ -848,7 +420,8 @@ void RefLine::parseReplaceLIN(
   if (vlen != n+3)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
 
-  RefLine::commonCheck(refName, quote, v[n]);
+  comment.checkAction(fix);
+  comment.checkTag(v[n]);
   edit.type = EDIT_TAG_ONLY;
   edit.tag = v[n];
   edit.was = RefLine::unquote(v[n+1]);
@@ -884,7 +457,8 @@ void RefLine::parseInsertLIN(
   else if (vlen == n+2)
   {
     // Long version, "2,mb,p".
-    RefLine::commonCheck(refName, quote, v[n]);
+    comment.checkAction(fix);
+    comment.checkTag(v[n]);
     edit.type = EDIT_TAG_ONLY;
     edit.tag = v[n];
     edit.is = RefLine::unquote(v[n+1]);
@@ -919,7 +493,7 @@ void RefLine::parseDeleteLIN(
   if (vlen == n+1)
   {
     // Special case "deleteLIN "1,general text", for serious cases.
-    RefLine::commonCheck(refName, quote, "");
+    comment.checkAction(fix);
     edit.was = RefLine::unquote(v[n]);
     return;
   }
@@ -927,7 +501,8 @@ void RefLine::parseDeleteLIN(
   if (vlen != n+2 && vlen != n+3)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
 
-  RefLine::commonCheck(refName, quote, v[n]);
+  comment.checkAction(fix);
+  comment.checkTag(v[n]);
   edit.tag = v[n];
   edit.was = RefLine::unquote(v[n+1]);
 
@@ -964,7 +539,8 @@ void RefLine::parseReplacePBN(
   if (vlen != 3)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
 
-  RefLine::commonCheck(refName, quote, v[0]);
+  comment.checkAction(fix);
+  comment.checkTag(v[0]);
   edit.type = EDIT_TAG_ONLY;
   edit.tag = v[0];
   edit.was = v[1];
@@ -982,7 +558,8 @@ void RefLine::parseInsertPBN(
 
   const string t = quote.substr(0, pos);
   const string v = quote.substr(pos+1);
-  RefLine::commonCheck(refName, quote, t);
+  comment.checkAction(fix);
+  comment.checkTag(t);
   edit.type = EDIT_TAG_ONLY;
   edit.tag = t;
   edit.is = v;
@@ -999,7 +576,8 @@ void RefLine::parseDeletePBN(
 
   const string t = quote.substr(0, pos);
   const string v = quote.substr(pos+1);
-  RefLine::commonCheck(refName, quote, t);
+  comment.checkAction(fix);
+  comment.checkTag(t);
   edit.type = EDIT_TAG_ONLY;
   edit.tag = t;
   edit.was = v;
@@ -1024,7 +602,8 @@ void RefLine::parseReplaceRBN(
   if (vlen != 3 && vlen != 4)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
 
-  RefLine::commonCheck(refName, quote, v[0]);
+  comment.checkAction(fix);
+  comment.checkTag(v[0]);
   edit.tag = v[0];
   if (vlen == 3)
   {
@@ -1056,7 +635,8 @@ void RefLine::parseInsertRBN(
   if (vlen != 3 && vlen != 4)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
 
-  RefLine::commonCheck(refName, quote, v[0]);
+  comment.checkAction(fix);
+  comment.checkTag(v[0]);
   edit.tag = v[0];
 
   if (vlen == 3)
@@ -1093,7 +673,8 @@ void RefLine::parseDeleteRBN(
   if (vlen < 1 && vlen > 3)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
 
-  RefLine::commonCheck(refName, quote, v[0]);
+  comment.checkAction(fix);
+  comment.checkTag(v[0]);
   edit.type = EDIT_TAG_FIELD;
   edit.tag = v[0];
   if (vlen == 2)
@@ -1208,7 +789,7 @@ void RefLine::parseReplaceWORD(
   if (vlen != 3)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
 
-  RefLine::commonCheck(refName, quote, "");
+  comment.checkAction(fix);
   edit.type = EDIT_WORD;
   if (! str2upos(v[0], edit.tagno))
     THROW("Ref file " + refName + ": Not a word number '" + quote + "'");
@@ -1230,7 +811,8 @@ void RefLine::parseInsertWORD(
   if (vlen != 2)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
 
-  RefLine::commonCheck(refName, quote, v[0]);
+  comment.checkAction(fix);
+  comment.checkTag(v[0]);
   edit.type = EDIT_WORD;
   if (! str2upos(v[0], edit.tagno))
     THROW("Ref file " + refName + ": Not a word number '" + quote + "'");
@@ -1250,7 +832,8 @@ void RefLine::parseDeleteWORD(
   if (vlen != 2)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
 
-  RefLine::commonCheck(refName, quote, v[0]);
+  comment.checkAction(fix);
+  comment.checkTag(v[0]);
   edit.type = EDIT_WORD;
   if (! str2upos(v[0], edit.tagno))
     THROW("Ref file " + refName + ": Not a word number '" + quote + "'");
@@ -1278,7 +861,7 @@ string RefLine::line() const
 
 bool RefLine::isCommented() const
 {
-  return comment.setFlag;
+  return comment.isCommented();
 }
 
 
@@ -1302,13 +885,23 @@ string RefLine::was() const
 
 bool RefLine::isUncommented() const
 {
-  return ! comment.setFlag;
+  return comment.isUncommented();
 }
 
 
-FixType RefLine::type() const
+RefCommentCategory RefLine::type() const
 {
-  return fix;
+  if (fix == BRIDGE_REF_DELETE_GEN ||
+      fix == BRIDGE_REF_DELETE_PBN ||
+      fix == BRIDGE_REF_DELETE_RBN)
+    return REF_COMMENT_DELETE_LINE;
+  else if (fix == BRIDGE_REF_INSERT_GEN ||
+      fix == BRIDGE_REF_INSERT_PBN)
+    return REF_COMMENT_INSERT_LINE;
+  else if (fix == BRIDGE_REF_FIX_SIZE)
+    return REF_COMMENT_ERROR;
+  else
+    return REF_COMMENT_GENERAL;
 }
 
 
@@ -1356,7 +949,6 @@ void RefLine::modifyInsertGen(string& line) const
 void RefLine::modifyDeleteGen(string& line) const
 {
   UNUSED(line);
-  THROW("modifyDeleteGen not implemented");
 }
 
 
@@ -1983,13 +1575,8 @@ string RefLine::str() const
   ss << setw(14) << "String was" << "'" << edit.was << "'" << "\n";
   ss << setw(14) << "String is" << "'" << edit.is << "'" << "\n";
 
-  if (comment.setFlag)
-  {
-    ss << setw(14) << "Comment" << RefErrors[comment.category].name << "\n";
-    ss << setw(14) << "Count tags" << comment.count1 << "\n";
-    ss << setw(14) << "Count hands" << comment.count2 << "\n";
-    ss << setw(14) << "Count boards" << comment.count2 << "\n";
-  }
+  if (comment.isCommented())
+    ss << comment.str();
 
   return ss.str();
 }

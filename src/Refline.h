@@ -11,43 +11,17 @@
 #define BRIDGE_REFLINE_H
 
 #include <string>
-
-#include "refcodes.h"
+#include "RefComment.h"
 
 using namespace std;
 
 
-enum FixType
+enum RefCommentCategory
 {
-  BRIDGE_REF_REPLACE_GEN = 0,
-  BRIDGE_REF_INSERT_GEN = 1,
-  BRIDGE_REF_DELETE_GEN = 2,
-
-  BRIDGE_REF_REPLACE_LIN = 3,
-  BRIDGE_REF_INSERT_LIN = 4,
-  BRIDGE_REF_DELETE_LIN = 5,
-
-  BRIDGE_REF_REPLACE_PBN = 6,
-  BRIDGE_REF_INSERT_PBN = 7,
-  BRIDGE_REF_DELETE_PBN = 8,
-
-  BRIDGE_REF_REPLACE_RBN = 9,
-  BRIDGE_REF_INSERT_RBN = 10,
-  BRIDGE_REF_DELETE_RBN = 11,
-
-  BRIDGE_REF_REPLACE_RBX = 12,
-  BRIDGE_REF_INSERT_RBX = 13,
-  BRIDGE_REF_DELETE_RBX = 14,
-
-  BRIDGE_REF_REPLACE_TXT = 15,
-  BRIDGE_REF_INSERT_TXT = 16,
-  BRIDGE_REF_DELETE_TXT = 17,
-
-  BRIDGE_REF_REPLACE_WORD = 18,
-  BRIDGE_REF_INSERT_WORD = 19,
-  BRIDGE_REF_DELETE_WORD = 20,
-
-  BRIDGE_REF_FIX_SIZE = 21
+  REF_COMMENT_DELETE_LINE = 0,
+  REF_COMMENT_INSERT_LINE = 1,
+  REF_COMMENT_GENERAL = 2,
+  REF_COMMENT_ERROR = 3
 };
 
 
@@ -84,25 +58,17 @@ class RefLine
       string is;
     };
 
-    struct Comment
-    {
-      bool setFlag;
-      RefErrorsType category; // "ERR_LIN_VG_FIRST", for example
-      unsigned count1, count2, count3;
-    };
-
     bool setFlag;
     string inputLine;
     Range range;
     FixType fix;
     Edit edit;
-    Comment comment;
+    RefComment comment;
 
 
     void setFixTables();
     void setRefTags();
     void setDispatch();
-    void setCommentMap();
     void setCommentAction();
     void setCommentTag();
     void setTables();
@@ -121,22 +87,11 @@ class RefLine
       const string& line,
       const string& action);
 
-    void parseComment(
-      const string& refFile,
-      const string& line,
-      const unsigned start,
-      unsigned& end);
-
     void parseFlexibleNumber(
       const string& refName,
       const string& field);
 
     string unquote(const string& entry) const;
-
-    void commonCheck(
-      const string& refName,
-      const string& quote,
-      const string& tag) const;
 
     void parseReplaceGen(const string& refName, const string& line);
 
@@ -237,7 +192,7 @@ class RefLine
     string was() const;
     bool isCommented() const;
     bool isUncommented() const;
-    FixType type() const;
+    RefCommentCategory type() const;
     unsigned deletion() const;
 
     void modify(string& line) const;

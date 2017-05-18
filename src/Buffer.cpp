@@ -380,9 +380,8 @@ bool Buffer::fix(
       THROW("Cannot find ref line number " + STR(rl.lineno()));
     LineData& ld = lines[i];
 
-    const int refType = rl.type();
-    if (refType == BRIDGE_REF_INSERT_GEN ||
-        refType == BRIDGE_REF_INSERT_PBN)
+    const RefCommentCategory refType = rl.type();
+    if (refType == REF_COMMENT_INSERT_LINE)
     {
       LineData lnew;
       rl.modify(lnew.line);
@@ -393,38 +392,28 @@ bool Buffer::fix(
       usedFlag = true;
       len++;
     }
-    else if (refType == BRIDGE_REF_REPLACE_GEN)
-    {
-      rl.modify(ld.line);
-      ld.len = static_cast<unsigned>(ld.line.length());
-      Buffer::classify(ld);
-      usedFlag = true;
-    }
-    else if (refType == BRIDGE_REF_DELETE_GEN ||
-        refType == BRIDGE_REF_DELETE_PBN ||
-        refType == BRIDGE_REF_DELETE_RBN)
+    else if (refType == REF_COMMENT_DELETE_LINE)
     {
       const unsigned deletion = rl.deletion();
       if (i + deletion > len)
         THROW("Too large deletion");
 
-      if (refType == BRIDGE_REF_DELETE_PBN)
-        rl.modify(ld.line); // For completeness, even though deleted
+      rl.modify(ld.line); // For completeness, even though deleted
 
       lines.erase(lines.begin() + static_cast<int>(i), 
           lines.begin() + static_cast<int>(deletion + i));
       len -= deletion;
       usedFlag = true;
     }
-    else if (refType == BRIDGE_REF_FIX_SIZE)
-      THROW("Bad reference line type");
-    else 
+    else if (refType == REF_COMMENT_GENERAL)
     {
       rl.modify(ld.line);
       ld.len = static_cast<unsigned>(ld.line.length());
       Buffer::classify(ld);
       usedFlag = true;
     }
+    else 
+      THROW("Bad reference line type");
   }
   return usedFlag;
 }

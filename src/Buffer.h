@@ -49,7 +49,7 @@ class Buffer
     bool isRBX(LineData& ld);
 
     bool fix(
-      const Reflines& reflines,
+      const RefLines& refLines,
       const RefUse use);
 
     void classify(LineData& ld);
@@ -77,7 +77,7 @@ class Buffer
     bool read(
       const string& fname,
       const Format format,
-      Reflines& reflines,
+      RefLines& refLines,
       const RefUse use = BRIDGE_REF_ALL);
 
     bool split(
@@ -86,7 +86,7 @@ class Buffer
 
     bool fix(
       const string& fname,
-      Reflines& reflines,
+      RefLines& refLines,
       const RefUse use = BRIDGE_REF_ALL);
 
     bool advance();
