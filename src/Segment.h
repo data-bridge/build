@@ -234,7 +234,8 @@ class Segment
     string strTeams(
       const int score1,
       const int score2,
-      const Format format) const;
+      const Format format,
+      const bool swapFlag = false) const;
 
     string strFirstTeam(
       const Format format,

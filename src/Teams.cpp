@@ -281,19 +281,25 @@ string Teams::strRBX(const bool swapFlag) const
 }
 
 
-string Teams::strTXT() const
+string Teams::strTXT(const bool swapFlag) const
 {
   if (team1.name == "" && team2.name == "")
     return "";
-  return 
-    team1.str(BRIDGE_FORMAT_TXT) + " vs. " + 
-    team2.str(BRIDGE_FORMAT_TXT);
+  if (swapFlag)
+    return 
+      team2.str(BRIDGE_FORMAT_TXT) + " vs. " + 
+      team1.str(BRIDGE_FORMAT_TXT);
+  else
+    return 
+      team1.str(BRIDGE_FORMAT_TXT) + " vs. " + 
+      team2.str(BRIDGE_FORMAT_TXT);
 }
 
 
 string Teams::strTXT(
   const int score1,
-  const int score2) const
+  const int score2,
+  const bool swapFlag) const
 {
   if (team1.name == "" && team2.name == "")
     return "\n";
@@ -306,10 +312,14 @@ string Teams::strTXT(
     case BRIDGE_CARRY_NONE:
       if (score1 < score2)
         order12Flag = false;
+      else if (swapFlag && score1 == score2)
+        order12Flag = false;
       break;
 
     case BRIDGE_CARRY_INT:
       if (score1 + team1.carryi < score2 + team2.carryi)
+        order12Flag = false;
+      else if (swapFlag && (score1 + team1.carryi == score2 + team2.carryi))
         order12Flag = false;
       break;
 
@@ -350,7 +360,7 @@ string Teams::str(
       return Teams::strRBX(swapFlag);
     
     case BRIDGE_FORMAT_TXT:
-      return Teams::strTXT();
+      return Teams::strTXT(swapFlag);
     
     default:
       THROW("Invalid format: " + STR(format));
@@ -361,12 +371,13 @@ string Teams::str(
 string Teams::str(
   const int score1,
   const int score2,
-  const Format format) const
+  const Format format,
+  const bool swapFlag) const
 {
   switch(format)
   {
     case BRIDGE_FORMAT_TXT:
-      return Teams::strTXT(score1, score2);
+      return Teams::strTXT(score1, score2, swapFlag);
     
     default:
       THROW("Invalid format: " + STR(format));

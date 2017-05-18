@@ -822,14 +822,16 @@ string Board::strScoreIMP(
 }
 
 
-int Board::IMPScore() const
+int Board::IMPScore(const bool swapFlag) const
 {
-  if (numActive != 1 || 
+  const unsigned baseInst = (swapFlag ? 1u : 0u);
+
+  if (numActive == baseInst || 
       ! contract[0].hasResult() ||
       ! contract[1].hasResult())
     return 0;
   else
-    return contract[numActive].IMPScore(contract[0].getScore());
+    return contract[numActive].IMPScore(contract[baseInst].getScore());
 }
 
 

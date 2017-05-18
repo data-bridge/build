@@ -268,7 +268,7 @@ class Board
       const bool showFlag,
       const bool swapFlag = false) const;
 
-    int IMPScore() const;
+    int IMPScore(const bool swapFlag = false) const;
 
     string strLead(const Format format) const;
     string strPlay(const Format format) const;

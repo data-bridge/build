@@ -348,10 +348,11 @@ void Segment::setTeams(
   const Format format)
 {
   teams.set(text, format); 
-  if (format == BRIDGE_FORMAT_RBN &&
-      format == BRIDGE_FORMAT_RBX)
+  if (format == BRIDGE_FORMAT_RBN ||
+      format == BRIDGE_FORMAT_RBX ||
+      format == BRIDGE_FORMAT_TXT)
   {
-    // TODO: Probably more format.s
+    // TODO: Probably more formats.
     if (flagCOCO)
       teams.swap();
   }
@@ -1093,9 +1094,10 @@ string Segment::strTeams(const Format format) const
 string Segment::strTeams(
   const int score1,
   const int score2,
-  const Format format) const
+  const Format format,
+  const bool swapFlag) const
 {
-  return teams.str(score1, score2, format);
+  return teams.str(score1, score2, format, swapFlag);
 }
 
 

@@ -511,6 +511,59 @@ void writeTXTSegmentLevel(
 }
 
 
+static string writeTXTDiagram(
+  Segment& segment,
+  Board& board,
+  WriteInfo& writeInfo,
+  const Format format)
+{
+  const string dstr = board.strDeal(BRIDGE_WEST, format);
+  const string bstr = segment.strNumber(writeInfo.bno, format);
+  const string vstr = board.strVul(format);
+  const string lstr = (board.auctionIsEmpty() ?  board.strDealer(format) : "");
+
+  // Convert deal, auction and play from \n to vectors.
+  vector<string> deal;
+  str2lines(dstr, deal);
+
+  Canvas canvas;
+  canvas.resize(15, 80);
+  canvas.setRectangle(deal, 0, 0);
+  canvas.setLine(bstr, 0, 0);
+  canvas.setLine(lstr, 13, 0);
+  canvas.setLine(vstr, 14, 0);
+  return canvas.str() + "\n";
+}
+
+
+static void writeTXTUpdateScore(
+  Segment& segment,
+  Board& board,
+  WriteInfo& writeInfo,
+  string& tWin,
+  const Format format,
+  const bool swapFlag)
+{
+  int s = board.IMPScore(swapFlag);
+  if (s > 0)
+  {
+    if (swapFlag)
+      writeInfo.score1 += s;
+    else
+      writeInfo.score2 += s;
+    tWin = segment.strSecondTeam(format);
+  }
+  else
+  {
+    if (swapFlag)
+      writeInfo.score2 += -s;
+    else
+      writeInfo.score1 += -s;
+    tWin = segment.strFirstTeam(format);
+  }
+}
+
+
 void writeTXTBoardLevel(
   string& st,
   Segment& segment,
@@ -525,21 +578,7 @@ void writeTXTBoardLevel(
 
   if (writeInfo.ino == 0)
   {
-    const string dstr = board.strDeal(BRIDGE_WEST, format);
-    const string bstr = segment.strNumber(writeInfo.bno, format);
-    const string vstr = board.strVul(format);
-    const string lstr = (board.auctionIsEmpty() ?  board.strDealer(format) : "");
-
-    // Convert deal, auction and play from \n to vectors.
-    vector<string> deal;
-    str2lines(dstr, deal);
-
-    canvas.resize(15, 80);
-    canvas.setRectangle(deal, 0, 0);
-    canvas.setLine(bstr, 0, 0);
-    canvas.setLine(lstr, 13, 0);
-    canvas.setLine(vstr, 14, 0);
-    st += canvas.str() + "\n";
+    st += writeTXTDiagram(segment, board, writeInfo, format);
 
     st += board.strPlayers(format);
     st += board.strAuction(format) + "\n";
@@ -547,9 +586,25 @@ void writeTXTBoardLevel(
     st += board.strPlay(format);
 
     st += board.strResult(format, false) + "\n";
+
+    if (writeInfo.numInst > 1 && board.skipped(1))
+    {
+      const bool swapFlag = ! segment.getCOCO(); // Cheat
+      string tWin;
+      writeTXTUpdateScore(segment, board, writeInfo, tWin, 
+        format, swapFlag);
+
+      st += segment.strTeams(writeInfo.score1, writeInfo.score2, 
+        format, swapFlag) + "\n";
+      if (writeInfo.bno != writeInfo.numBoards-1)
+        st += TXTdashes + "\n\n";
+    }
   }
   else
   {
+    if (board.skipped(0))
+      st += writeTXTDiagram(segment, board, writeInfo, format);
+
     const string p = board.strPlayers(format);
     // Pavlicek bug?
     if (p == "")
@@ -561,22 +616,13 @@ void writeTXTBoardLevel(
     st += board.strContract(format);
     st += board.strPlay(format);
 
-    int s = board.IMPScore();
+    const bool swapFlag = segment.getCOCO();
     string tWin;
-    if (s > 0)
-    {
-      writeInfo.score2 += (s > 0 ? s : -s);
-      tWin = segment.strSecondTeam(format);
-    }
-    else
-    {
-      writeInfo.score1 += (s > 0 ? s : -s);
-      tWin = segment.strFirstTeam(format);
-    }
+    writeTXTUpdateScore(segment, board, writeInfo, tWin, format, swapFlag);
 
     st += board.strResult(format, tWin) + "\n";
-    st += 
-      segment.strTeams(writeInfo.score1, writeInfo.score2, format) + "\n";
+    st += segment.strTeams(writeInfo.score1, writeInfo.score2, 
+        format, swapFlag) + "\n";
     if (writeInfo.bno != writeInfo.numBoards-1)
       st += TXTdashes + "\n\n";
   }

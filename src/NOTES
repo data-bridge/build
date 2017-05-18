@@ -1,8 +1,9 @@
 11.05.2017
 ----------
+* validate should not segfault on S01FA2.LIN->TXT
+
 * Refline:
   Done BBOVG (LIN), BBOSH (LIN), BBOJEC (PBN)
-  Done RPmajors LIN, PBN, RBN, RBX, EML
   Move the permitted pairs into a text file that we read?
   Rename RefLine
   Split into RefComment and maybe also RefEdit
@@ -25,7 +26,7 @@
   - Get whole RPmajors matrix to work
 
 i\o     LIN     PBN     RBN     RBX     TXT     EML     REC     RPmajors
-LIN     OK      OK      OK      OK              OK
+LIN     OK      OK      OK      OK      OK      OK      OK
 PBN
 RBN
 RBX

@@ -286,6 +286,7 @@ void Refline::setCommentAction()
   ACO[ERR_LIN_RESULTS_REPLACE] = true;
   ACO[ERR_PBN_SCORE_REPLACE] = true; // TODO: Get rid of, JEC
   ACO[ERR_PBN_ALERT_REPLACE] = true; // TODO: Get rid of, JEC
+  ACO[ERR_TXT_PLAY_REPLACE] = true;
 
   ACO = ActionCommentOK[BRIDGE_REF_INSERT_GEN];
   ACO[ERR_LIN_VHEADER_INSERT] = true;
@@ -399,6 +400,7 @@ void Refline::setCommentAction()
   ACO[ERR_TXT_RESULT_REPLACE] = true;
   ACO[ERR_TXT_SCORE_REPLACE] = true;
   ACO[ERR_TXT_SCORE_IMP_REPLACE] = true;
+  ACO[ERR_TXT_RUNNING_REPLACE] = true;
   ACO[ERR_EML_RESULT_REPLACE] = true;
   ACO[ERR_EML_SCORE_REPLACE] = true;
   ACO[ERR_EML_SCORE_IMP_REPLACE] = true;
@@ -1827,7 +1829,7 @@ void Refline::modifyReplaceTXT(string& line) const
 {
   const unsigned p = modifyCommonTXT(line);
   if (p == 0)
-    THROW("No character position and string not found");
+    THROW("No character position and string not found: " + line);
 
   unsigned lw = edit.was.length();
   unsigned li = edit.is.length();

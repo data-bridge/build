@@ -187,6 +187,8 @@ static bool isTXTHeader(
   }
 
   // Read the rest of the header, stopping at empty line before board.
+  if (headerStartOut > valState.dataOut.no)
+    return false;
   const unsigned offsetOut = valState.dataOut.no - headerStartOut;
   for (unsigned i = valState.dataOut.no; i <= headerStartOut+6; i++)
   {

@@ -36,10 +36,11 @@ class Teams
     string strRBNCore(const bool swapFlag = false) const;
     string strRBN(const bool swapFlag) const;
     string strRBX(const bool swapFlag) const;
-    string strTXT() const;
+    string strTXT(const bool swapFlag) const;
     string strTXT(
       const int score1,
-      const int score2) const;
+      const int score2,
+      const bool swapFlag) const;
 
 
   public:
@@ -77,7 +78,8 @@ class Teams
     string str(
       const int score1,
       const int score2,
-      const Format format) const;
+      const Format format,
+      const bool swapFlag = false) const;
 
     string strFirst(
       const Format format,
