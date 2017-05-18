@@ -28,7 +28,7 @@ using namespace std;
 
 
 typedef void (RefEdit::*ModifyPtr)(string& line) const;
-static ModifyPtr ModifyList[BRIDGE_REF_FIX_SIZE];
+static ModifyPtr ModifyList[REF_ACTION_SIZE];
 
 static mutex mtx;
 static bool setEditTables = false;
@@ -68,33 +68,33 @@ void RefEdit::reset()
 
 void RefEdit::setTables()
 {
-  ModifyList[BRIDGE_REF_REPLACE_GEN] = &RefEdit::modifyReplaceGen;
-  ModifyList[BRIDGE_REF_INSERT_GEN] = &RefEdit::modifyInsertGen;
-  ModifyList[BRIDGE_REF_DELETE_GEN] = &RefEdit::modifyDeleteGen;
+  ModifyList[REF_ACTION_REPLACE_GEN] = &RefEdit::modifyReplaceGen;
+  ModifyList[REF_ACTION_INSERT_GEN] = &RefEdit::modifyInsertGen;
+  ModifyList[REF_ACTION_DELETE_GEN] = &RefEdit::modifyDeleteGen;
 
-  ModifyList[BRIDGE_REF_REPLACE_LIN] = &RefEdit::modifyReplaceLIN;
-  ModifyList[BRIDGE_REF_INSERT_LIN] = &RefEdit::modifyInsertLIN;
-  ModifyList[BRIDGE_REF_DELETE_LIN] = &RefEdit::modifyDeleteLIN;
+  ModifyList[REF_ACTION_REPLACE_LIN] = &RefEdit::modifyReplaceLIN;
+  ModifyList[REF_ACTION_INSERT_LIN] = &RefEdit::modifyInsertLIN;
+  ModifyList[REF_ACTION_DELETE_LIN] = &RefEdit::modifyDeleteLIN;
 
-  ModifyList[BRIDGE_REF_REPLACE_PBN] = &RefEdit::modifyReplacePBN;
-  ModifyList[BRIDGE_REF_INSERT_PBN] = &RefEdit::modifyInsertPBN;
-  ModifyList[BRIDGE_REF_DELETE_PBN] = &RefEdit::modifyDeletePBN;
+  ModifyList[REF_ACTION_REPLACE_PBN] = &RefEdit::modifyReplacePBN;
+  ModifyList[REF_ACTION_INSERT_PBN] = &RefEdit::modifyInsertPBN;
+  ModifyList[REF_ACTION_DELETE_PBN] = &RefEdit::modifyDeletePBN;
 
-  ModifyList[BRIDGE_REF_REPLACE_RBN] = &RefEdit::modifyReplaceRBN;
-  ModifyList[BRIDGE_REF_INSERT_RBN] = &RefEdit::modifyInsertRBN;
-  ModifyList[BRIDGE_REF_DELETE_RBN] = &RefEdit::modifyDeleteRBN;
+  ModifyList[REF_ACTION_REPLACE_RBN] = &RefEdit::modifyReplaceRBN;
+  ModifyList[REF_ACTION_INSERT_RBN] = &RefEdit::modifyInsertRBN;
+  ModifyList[REF_ACTION_DELETE_RBN] = &RefEdit::modifyDeleteRBN;
 
-  ModifyList[BRIDGE_REF_REPLACE_RBX] = &RefEdit::modifyReplaceRBX;
-  ModifyList[BRIDGE_REF_INSERT_RBX] = &RefEdit::modifyInsertRBX;
-  ModifyList[BRIDGE_REF_DELETE_RBX] = &RefEdit::modifyDeleteRBX;
+  ModifyList[REF_ACTION_REPLACE_RBX] = &RefEdit::modifyReplaceRBX;
+  ModifyList[REF_ACTION_INSERT_RBX] = &RefEdit::modifyInsertRBX;
+  ModifyList[REF_ACTION_DELETE_RBX] = &RefEdit::modifyDeleteRBX;
 
-  ModifyList[BRIDGE_REF_REPLACE_TXT] = &RefEdit::modifyReplaceTXT;
-  ModifyList[BRIDGE_REF_INSERT_TXT] = &RefEdit::modifyInsertTXT;
-  ModifyList[BRIDGE_REF_DELETE_TXT] = &RefEdit::modifyDeleteTXT;
+  ModifyList[REF_ACTION_REPLACE_TXT] = &RefEdit::modifyReplaceTXT;
+  ModifyList[REF_ACTION_INSERT_TXT] = &RefEdit::modifyInsertTXT;
+  ModifyList[REF_ACTION_DELETE_TXT] = &RefEdit::modifyDeleteTXT;
 
-  ModifyList[BRIDGE_REF_REPLACE_WORD] = &RefEdit::modifyReplaceWORD;
-  ModifyList[BRIDGE_REF_INSERT_WORD] = &RefEdit::modifyInsertWORD;
-  ModifyList[BRIDGE_REF_DELETE_WORD] = &RefEdit::modifyDeleteWORD;
+  ModifyList[REF_ACTION_REPLACE_WORD] = &RefEdit::modifyReplaceWORD;
+  ModifyList[REF_ACTION_INSERT_WORD] = &RefEdit::modifyInsertWORD;
+  ModifyList[REF_ACTION_DELETE_WORD] = &RefEdit::modifyDeleteWORD;
 }
 
 

@@ -40,6 +40,11 @@ class RefLine
 
     bool isSpecial(const string& word) const;
 
+    unsigned parseUpos(
+      const string& refFile,
+      const string& line,
+      const string& str) const;
+
     void parseRange(
       const string& refFile,
       const string& line,

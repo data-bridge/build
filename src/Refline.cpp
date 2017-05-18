@@ -30,9 +30,11 @@ using namespace std;
 typedef void (RefLine::*ParsePtr)(
   const string& refName, 
   const string& quote);
-static ParsePtr ParseList[BRIDGE_REF_FIX_SIZE];
+
+static ParsePtr ParseList[REF_ACTION_SIZE];
 
 static mutex mtx;
+
 static bool setRefLineTables = false;
 
 
@@ -68,33 +70,33 @@ void RefLine::reset()
 
 void RefLine::setTables()
 {
-  ParseList[BRIDGE_REF_REPLACE_GEN] = &RefLine::parseReplaceGen;
-  ParseList[BRIDGE_REF_INSERT_GEN] = &RefLine::parseInsertGen;
-  ParseList[BRIDGE_REF_DELETE_GEN] = &RefLine::parseDeleteGen;
+  ParseList[REF_ACTION_REPLACE_GEN] = &RefLine::parseReplaceGen;
+  ParseList[REF_ACTION_INSERT_GEN] = &RefLine::parseInsertGen;
+  ParseList[REF_ACTION_DELETE_GEN] = &RefLine::parseDeleteGen;
 
-  ParseList[BRIDGE_REF_REPLACE_LIN] = &RefLine::parseReplaceLIN;
-  ParseList[BRIDGE_REF_INSERT_LIN] = &RefLine::parseInsertLIN;
-  ParseList[BRIDGE_REF_DELETE_LIN] = &RefLine::parseDeleteLIN;
+  ParseList[REF_ACTION_REPLACE_LIN] = &RefLine::parseReplaceLIN;
+  ParseList[REF_ACTION_INSERT_LIN] = &RefLine::parseInsertLIN;
+  ParseList[REF_ACTION_DELETE_LIN] = &RefLine::parseDeleteLIN;
 
-  ParseList[BRIDGE_REF_REPLACE_PBN] = &RefLine::parseReplacePBN;
-  ParseList[BRIDGE_REF_INSERT_PBN] = &RefLine::parseInsertPBN;
-  ParseList[BRIDGE_REF_DELETE_PBN] = &RefLine::parseDeletePBN;
+  ParseList[REF_ACTION_REPLACE_PBN] = &RefLine::parseReplacePBN;
+  ParseList[REF_ACTION_INSERT_PBN] = &RefLine::parseInsertPBN;
+  ParseList[REF_ACTION_DELETE_PBN] = &RefLine::parseDeletePBN;
 
-  ParseList[BRIDGE_REF_REPLACE_RBN] = &RefLine::parseReplaceRBN;
-  ParseList[BRIDGE_REF_INSERT_RBN] = &RefLine::parseInsertRBN;
-  ParseList[BRIDGE_REF_DELETE_RBN] = &RefLine::parseDeleteRBN;
+  ParseList[REF_ACTION_REPLACE_RBN] = &RefLine::parseReplaceRBN;
+  ParseList[REF_ACTION_INSERT_RBN] = &RefLine::parseInsertRBN;
+  ParseList[REF_ACTION_DELETE_RBN] = &RefLine::parseDeleteRBN;
 
-  ParseList[BRIDGE_REF_REPLACE_RBX] = &RefLine::parseReplaceRBN;
-  ParseList[BRIDGE_REF_INSERT_RBX] = &RefLine::parseInsertRBN;
-  ParseList[BRIDGE_REF_DELETE_RBX] = &RefLine::parseDeleteRBN;
+  ParseList[REF_ACTION_REPLACE_RBX] = &RefLine::parseReplaceRBN;
+  ParseList[REF_ACTION_INSERT_RBX] = &RefLine::parseInsertRBN;
+  ParseList[REF_ACTION_DELETE_RBX] = &RefLine::parseDeleteRBN;
 
-  ParseList[BRIDGE_REF_REPLACE_TXT] = &RefLine::parseReplaceTXT;
-  ParseList[BRIDGE_REF_INSERT_TXT] = &RefLine::parseInsertTXT;
-  ParseList[BRIDGE_REF_DELETE_TXT] = &RefLine::parseDeleteTXT;
+  ParseList[REF_ACTION_REPLACE_TXT] = &RefLine::parseReplaceTXT;
+  ParseList[REF_ACTION_INSERT_TXT] = &RefLine::parseInsertTXT;
+  ParseList[REF_ACTION_DELETE_TXT] = &RefLine::parseDeleteTXT;
 
-  ParseList[BRIDGE_REF_REPLACE_WORD] = &RefLine::parseReplaceWORD;
-  ParseList[BRIDGE_REF_INSERT_WORD] = &RefLine::parseInsertWORD;
-  ParseList[BRIDGE_REF_DELETE_WORD] = &RefLine::parseDeleteWORD;
+  ParseList[REF_ACTION_REPLACE_WORD] = &RefLine::parseReplaceWORD;
+  ParseList[REF_ACTION_INSERT_WORD] = &RefLine::parseInsertWORD;
+  ParseList[REF_ACTION_DELETE_WORD] = &RefLine::parseDeleteWORD;
 }
 
 
@@ -108,6 +110,19 @@ bool RefLine::isSpecial(const string& word) const
     return true;
   else
     return false;
+}
+
+
+unsigned RefLine::parseUpos(
+  const string& refName,
+  const string& quote,
+  const string& str) const
+{
+  unsigned no;
+  if (! str2upos(str, no))
+    THROW("Ref file " + refName + ": Not unsigned '" + quote + "'");
+
+  return no;
 }
 
 
@@ -209,18 +224,14 @@ void RefLine::parseFlexibleNumber(
   const string& refName,
   const string& field)
 {
-  unsigned tno;
   if (field.at(0) == '-')
   {
     // Permit tag counts from the back of the line as well.
     edit.setReverse();
-    if (! str2upos(field.substr(1), tno))
-      THROW("Ref file " + refName + ": Bad negative tag '" + field + "'");
+    edit.setTagNumber(RefLine::parseUpos(refName, field, field.substr(1)));
   }
-  else if (! str2upos(field, tno))
-    THROW("Ref file " + refName + ": Bad tag number '" + field + "'");
-
-  edit.setTagNumber(tno);
+  else
+    edit.setTagNumber(RefLine::parseUpos(refName, field, field));
 }
 
 
@@ -420,11 +431,7 @@ void RefLine::parseDeleteLIN(
   if (vlen == n+2)
     return;
 
-  unsigned tc;
-  if (str2upos(v[n+2], tc))
-    edit.setTagCount(tc);
-  else
-    THROW("Ref file " + refName + ": Bad tag/field count '" + quote + "'");
+  edit.setTagCount(RefLine::parseUpos(refName, quote, v[n+2]));
 }
 
 
@@ -517,11 +524,7 @@ void RefLine::parseReplaceRBN(
   }
   else
   {
-    unsigned fno;
-    if (! str2upos(v[1], fno))
-      THROW("Ref file " + refName + ": Bad field '" + quote + "'");
-    edit.setFieldNumber(fno);
-
+    edit.setFieldNumber(RefLine::parseUpos(refName, quote, v[1]));
     edit.setWas(v[2]);
     edit.setIs(v[3]);
   }
@@ -546,25 +549,14 @@ void RefLine::parseInsertRBN(
 
   if (vlen == 3)
   {
-    unsigned fno;
-    if (! str2upos(v[1], fno))
-      THROW("Ref file " + refName + ": Bad field '" + quote + "'");
-    edit.setFieldNumber(fno);
-
+    edit.setFieldNumber(RefLine::parseUpos(refName, quote, v[1]));
     edit.setIs(v[2]);
   }
   else
   {
     // N,7,3,C.  Should only be used for RBX.
-    unsigned u;
-    if (! str2upos(v[1], u))
-      THROW("Ref file " + refName + ": Bad field '" + quote + "'");
-    edit.setTagNumber(u);
-
-    if (! str2upos(v[2], u))
-      THROW("Ref file " + refName + ": Bad field '" + quote + "'");
-    edit.setFieldNumber(u);
-
+    edit.setTagNumber(RefLine::parseUpos(refName, quote, v[1]));
+    edit.setFieldNumber(RefLine::parseUpos(refName, quote, v[2]));
     edit.setIs(v[3]);
   }
 }
@@ -589,10 +581,7 @@ void RefLine::parseDeleteRBN(
     edit.setWas(v[1]);
   else if (vlen == 3)
   {
-    unsigned fno;
-    if (! str2upos(v[1], fno))
-      THROW("Ref file " + refName + ": Bad field '" + quote + "'");
-    edit.setFieldNumber(fno);
+    edit.setFieldNumber(RefLine::parseUpos(refName, quote, v[1]));
     edit.setWas(v[2]);
   }
 }
@@ -619,11 +608,7 @@ void RefLine::parseReplaceTXT(
 
   if (vlen == 3)
   {
-    unsigned cno;
-    if (! str2upos(v[0], cno))
-      THROW("Ref file " + refName + ": Bad charno '" + quote + "'");
-
-    edit.setCharNumber(cno);
+    edit.setCharNumber(RefLine::parseUpos(refName, quote, v[0]));
     edit.setWas(v[1]);
     edit.setIs(v[2]);
   }
@@ -647,11 +632,7 @@ void RefLine::parseInsertTXT(
   if (vlen != 2)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
 
-  unsigned cno;
-  if (! str2upos(v[0], cno))
-    THROW("Ref file " + refName + ": Bad charno '" + quote + "'");
-  edit.setCharNumber(cno);
-
+  edit.setCharNumber(RefLine::parseUpos(refName, quote, v[0]));
   edit.setIs(v[1]);
 }
 
@@ -672,11 +653,7 @@ void RefLine::parseDeleteTXT(
     edit.setIs(v[0]);
   else
   {
-    unsigned cno;
-    if (! str2upos(v[0], cno))
-      THROW("Ref file " + refName + ": Bad charno '" + quote + "'");
-
-    edit.setCharNumber(cno);
+    edit.setCharNumber(RefLine::parseUpos(refName, quote, v[0]));
     edit.setIs(v[1]);
   }
 }
@@ -702,11 +679,7 @@ void RefLine::parseReplaceWORD(
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
 
   comment.checkAction(action.number());
-  unsigned tno;
-  if (! str2upos(v[0], tno))
-    THROW("Ref file " + refName + ": Not a word number '" + quote + "'");
-    
-  edit.setTagNumber(tno);
+  edit.setTagNumber(RefLine::parseUpos(refName, quote, v[0]));
   edit.setWas(v[1]);
   edit.setIs(v[2]);
 }
@@ -726,12 +699,7 @@ void RefLine::parseInsertWORD(
 
   comment.checkAction(action.number());
   comment.checkTag(v[0]);
-
-  unsigned tno;
-  if (! str2upos(v[0], tno))
-    THROW("Ref file " + refName + ": Not a word number '" + quote + "'");
-
-  edit.setTagNumber(tno);
+  edit.setTagNumber(RefLine::parseUpos(refName, quote, v[0]));
   edit.setIs(v[1]);
 }
 
@@ -750,12 +718,7 @@ void RefLine::parseDeleteWORD(
 
   comment.checkAction(action.number());
   comment.checkTag(v[0]);
-
-  unsigned tno;
-  if (! str2upos(v[0], tno))
-    THROW("Ref file " + refName + ": Not a word number '" + quote + "'");
-
-  edit.setTagNumber(tno);
+  edit.setTagNumber(RefLine::parseUpos(refName, quote, v[0]));
   edit.setWas(v[1]);
 }
 

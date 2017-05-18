@@ -1,6 +1,5 @@
 11.05.2017
 ----------
-* Refline: Clean up code?
 * Add count checks to Refline::modify
 * Eliminate refstats.pl
 

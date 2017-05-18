@@ -27,9 +27,9 @@ using namespace std;
 
 static map<string, ActionType> ActionMap;
 
-static string ActionTable[BRIDGE_REF_FIX_SIZE];
+static string ActionTable[REF_ACTION_SIZE];
 
-static ActionCategory ActionCatTable[BRIDGE_REF_FIX_SIZE];
+static ActionCategory ActionCatTable[REF_ACTION_SIZE];
 
 
 static mutex mtx;
@@ -57,54 +57,54 @@ RefAction::~RefAction()
 
 void RefAction::reset()
 {
-  action = BRIDGE_REF_FIX_SIZE;
+  action = REF_ACTION_SIZE;
   name = "";
 }
 
 
 void RefAction::setTables()
 {
-  ActionMap["replace"] = BRIDGE_REF_REPLACE_GEN;
-  ActionMap["insert"] = BRIDGE_REF_INSERT_GEN;
-  ActionMap["delete"] = BRIDGE_REF_DELETE_GEN;
+  ActionMap["replace"] = REF_ACTION_REPLACE_GEN;
+  ActionMap["insert"] = REF_ACTION_INSERT_GEN;
+  ActionMap["delete"] = REF_ACTION_DELETE_GEN;
 
-  ActionMap["replaceLIN"] = BRIDGE_REF_REPLACE_LIN;
-  ActionMap["insertLIN"] = BRIDGE_REF_INSERT_LIN;
-  ActionMap["deleteLIN"] = BRIDGE_REF_DELETE_LIN;
+  ActionMap["replaceLIN"] = REF_ACTION_REPLACE_LIN;
+  ActionMap["insertLIN"] = REF_ACTION_INSERT_LIN;
+  ActionMap["deleteLIN"] = REF_ACTION_DELETE_LIN;
 
-  ActionMap["replacePBN"] = BRIDGE_REF_REPLACE_PBN;
-  ActionMap["insertPBN"] = BRIDGE_REF_INSERT_PBN;
-  ActionMap["deletePBN"] = BRIDGE_REF_DELETE_PBN;
+  ActionMap["replacePBN"] = REF_ACTION_REPLACE_PBN;
+  ActionMap["insertPBN"] = REF_ACTION_INSERT_PBN;
+  ActionMap["deletePBN"] = REF_ACTION_DELETE_PBN;
 
-  ActionMap["replaceRBN"] = BRIDGE_REF_REPLACE_RBN;
-  ActionMap["insertRBN"] = BRIDGE_REF_INSERT_RBN;
-  ActionMap["deleteRBN"] = BRIDGE_REF_DELETE_RBN;
+  ActionMap["replaceRBN"] = REF_ACTION_REPLACE_RBN;
+  ActionMap["insertRBN"] = REF_ACTION_INSERT_RBN;
+  ActionMap["deleteRBN"] = REF_ACTION_DELETE_RBN;
 
-  ActionMap["replaceRBX"] = BRIDGE_REF_REPLACE_RBX;
-  ActionMap["insertRBX"] = BRIDGE_REF_INSERT_RBX;
-  ActionMap["deleteRBX"] = BRIDGE_REF_DELETE_RBX;
+  ActionMap["replaceRBX"] = REF_ACTION_REPLACE_RBX;
+  ActionMap["insertRBX"] = REF_ACTION_INSERT_RBX;
+  ActionMap["deleteRBX"] = REF_ACTION_DELETE_RBX;
 
-  ActionMap["replaceTXT"] = BRIDGE_REF_REPLACE_TXT;
-  ActionMap["insertTXT"] = BRIDGE_REF_INSERT_TXT;
-  ActionMap["deleteTXT"] = BRIDGE_REF_DELETE_TXT;
+  ActionMap["replaceTXT"] = REF_ACTION_REPLACE_TXT;
+  ActionMap["insertTXT"] = REF_ACTION_INSERT_TXT;
+  ActionMap["deleteTXT"] = REF_ACTION_DELETE_TXT;
 
-  ActionMap["replaceWORD"] = BRIDGE_REF_REPLACE_WORD;
-  ActionMap["insertWORD"] = BRIDGE_REF_INSERT_WORD;
-  ActionMap["deleteWORD"] = BRIDGE_REF_DELETE_WORD;
+  ActionMap["replaceWORD"] = REF_ACTION_REPLACE_WORD;
+  ActionMap["insertWORD"] = REF_ACTION_INSERT_WORD;
+  ActionMap["deleteWORD"] = REF_ACTION_DELETE_WORD;
 
   for (auto &s: ActionMap)
     ActionTable[s.second] = s.first;
 
-  for (unsigned i = 0; i < BRIDGE_REF_FIX_SIZE; i++)
+  for (unsigned i = 0; i < REF_ACTION_SIZE; i++)
     ActionCatTable[i] = ACTION_GENERAL;
 
-  ActionCatTable[BRIDGE_REF_INSERT_GEN] = ACTION_INSERT_LINE;
-  ActionCatTable[BRIDGE_REF_DELETE_GEN] = ACTION_DELETE_LINE;
+  ActionCatTable[REF_ACTION_INSERT_GEN] = ACTION_INSERT_LINE;
+  ActionCatTable[REF_ACTION_DELETE_GEN] = ACTION_DELETE_LINE;
 
-  ActionCatTable[BRIDGE_REF_INSERT_PBN] = ACTION_INSERT_LINE;
-  ActionCatTable[BRIDGE_REF_DELETE_PBN] = ACTION_DELETE_LINE;
+  ActionCatTable[REF_ACTION_INSERT_PBN] = ACTION_INSERT_LINE;
+  ActionCatTable[REF_ACTION_DELETE_PBN] = ACTION_DELETE_LINE;
 
-  ActionCatTable[BRIDGE_REF_DELETE_RBN] = ACTION_DELETE_LINE;
+  ActionCatTable[REF_ACTION_DELETE_RBN] = ACTION_DELETE_LINE;
 }
 
 
@@ -112,7 +112,7 @@ void RefAction::set(
   const string& refName,
   const ActionType actionIn)
 {
-  if (actionIn == BRIDGE_REF_FIX_SIZE)
+  if (actionIn == REF_ACTION_SIZE)
     THROW("File " + refName + ": Bad input action");
 
   filename = refName;
@@ -143,7 +143,7 @@ ActionType RefAction::number() const
 
 ActionCategory RefAction::category() const
 {
-  if (action == BRIDGE_REF_FIX_SIZE)
+  if (action == REF_ACTION_SIZE)
     return ACTION_ERROR;
   else
     return ActionCatTable[action];

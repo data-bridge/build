@@ -35,33 +35,33 @@ struct ActionBundle
 
 const vector<ActionBundle> ActionList =
 {
-  {BRIDGE_REF_REPLACE_GEN, "replace"},
-  {BRIDGE_REF_INSERT_GEN, "insert"},
-  {BRIDGE_REF_DELETE_GEN, "delete"},
+  {REF_ACTION_REPLACE_GEN, "replace"},
+  {REF_ACTION_INSERT_GEN, "insert"},
+  {REF_ACTION_DELETE_GEN, "delete"},
 
-  {BRIDGE_REF_REPLACE_LIN, "replaceLIN"},
-  {BRIDGE_REF_INSERT_LIN, "insertLIN"},
-  {BRIDGE_REF_DELETE_LIN, "deleteLIN"},
+  {REF_ACTION_REPLACE_LIN, "replaceLIN"},
+  {REF_ACTION_INSERT_LIN, "insertLIN"},
+  {REF_ACTION_DELETE_LIN, "deleteLIN"},
 
-  {BRIDGE_REF_REPLACE_PBN, "replacePBN"},
-  {BRIDGE_REF_INSERT_PBN, "insertPBN"},
-  {BRIDGE_REF_DELETE_PBN, "deletePBN"},
+  {REF_ACTION_REPLACE_PBN, "replacePBN"},
+  {REF_ACTION_INSERT_PBN, "insertPBN"},
+  {REF_ACTION_DELETE_PBN, "deletePBN"},
 
-  {BRIDGE_REF_REPLACE_RBN, "replaceRBN"},
-  {BRIDGE_REF_INSERT_RBN, "insertRBN"},
-  {BRIDGE_REF_DELETE_RBN, "deleteRBN"},
+  {REF_ACTION_REPLACE_RBN, "replaceRBN"},
+  {REF_ACTION_INSERT_RBN, "insertRBN"},
+  {REF_ACTION_DELETE_RBN, "deleteRBN"},
 
-  {BRIDGE_REF_REPLACE_RBX, "replaceRBX"},
-  {BRIDGE_REF_INSERT_RBX, "insertRBX"},
-  {BRIDGE_REF_DELETE_RBX, "deleteRBX"},
+  {REF_ACTION_REPLACE_RBX, "replaceRBX"},
+  {REF_ACTION_INSERT_RBX, "insertRBX"},
+  {REF_ACTION_DELETE_RBX, "deleteRBX"},
 
-  {BRIDGE_REF_REPLACE_TXT, "replaceTXT"},
-  {BRIDGE_REF_INSERT_TXT, "insertTXT"},
-  {BRIDGE_REF_DELETE_TXT, "deleteTXT"},
+  {REF_ACTION_REPLACE_TXT, "replaceTXT"},
+  {REF_ACTION_INSERT_TXT, "insertTXT"},
+  {REF_ACTION_DELETE_TXT, "deleteTXT"},
 
-  {BRIDGE_REF_REPLACE_WORD, "replaceWORD"},
-  {BRIDGE_REF_INSERT_WORD, "insertWORD"},
-  {BRIDGE_REF_DELETE_WORD, "deleteWORD"}
+  {REF_ACTION_REPLACE_WORD, "replaceWORD"},
+  {REF_ACTION_INSERT_WORD, "insertWORD"},
+  {REF_ACTION_DELETE_WORD, "deleteWORD"}
 };
 
 struct TagBundle
@@ -262,7 +262,7 @@ const vector<CommentBundle> CommentList =
 
 static map<string, CommentType> CommentMap;
 static map<string, RefTag> TagMap;
-static bool ActionCommentOK[BRIDGE_REF_FIX_SIZE][ERR_SIZE];
+static bool ActionCommentOK[REF_ACTION_SIZE][ERR_SIZE];
 static bool TagCommentOK[REF_TAGS_SIZE][ERR_SIZE];
 
 static mutex mtx;
@@ -326,11 +326,11 @@ void RefComment::setRefTag()
 
 void RefComment::setActionTable()
 {
-  for (unsigned i = 0; i < BRIDGE_REF_FIX_SIZE; i++)
+  for (unsigned i = 0; i < REF_ACTION_SIZE; i++)
     for (unsigned j = 0; j < ERR_SIZE; j++)
       ActionCommentOK[i][j] = false;
   
-  bool * ACO = ActionCommentOK[BRIDGE_REF_REPLACE_GEN];
+  bool * ACO = ActionCommentOK[REF_ACTION_REPLACE_GEN];
   ACO[ERR_LIN_VHEADER_SYNTAX] = true;
   ACO[ERR_LIN_PLAYERS_REPLACE] = true;
   ACO[ERR_LIN_RESULTS_REPLACE] = true;
@@ -338,13 +338,13 @@ void RefComment::setActionTable()
   ACO[ERR_PBN_ALERT_REPLACE] = true; // TODO: Get rid of, JEC
   ACO[ERR_TXT_PLAY_REPLACE] = true;
 
-  ACO = ActionCommentOK[BRIDGE_REF_INSERT_GEN];
+  ACO = ActionCommentOK[REF_ACTION_INSERT_GEN];
   ACO[ERR_LIN_VHEADER_INSERT] = true;
   ACO[ERR_LIN_RESULTS_INSERT] = true;
   ACO[ERR_LIN_TRICK_INSERT] = true;
   ACO[ERR_PBN_NOTE_INSERT] = true; // TODO: Get rid of, JEC
 
-  ACO = ActionCommentOK[BRIDGE_REF_DELETE_GEN];
+  ACO = ActionCommentOK[REF_ACTION_DELETE_GEN];
   ACO[ERR_LIN_TRICK_DELETE] = true;
   ACO[ERR_LIN_HAND_AUCTION_LIVE] = true;
   ACO[ERR_LIN_HAND_CARDS_MISSING] = true;
@@ -356,7 +356,7 @@ void RefComment::setActionTable()
   ACO[ERR_EML_HAND_AUCTION_LIVE] = true;
   ACO[ERR_REC_HAND_AUCTION_LIVE] = true;
 
-  ACO = ActionCommentOK[BRIDGE_REF_REPLACE_LIN];
+  ACO = ActionCommentOK[REF_ACTION_REPLACE_LIN];
   ACO[ERR_LIN_VG_FIRST] = true;
   ACO[ERR_LIN_VG_LAST] = true;
   ACO[ERR_LIN_VG_REPLACE] = true;
@@ -383,7 +383,7 @@ void RefComment::setActionTable()
   ACO[ERR_LIN_MC_REPLACE] = true;
   ACO[ERR_LIN_MC_SYNTAX] = true;
 
-  ACO = ActionCommentOK[BRIDGE_REF_INSERT_LIN];
+  ACO = ActionCommentOK[REF_ACTION_INSERT_LIN];
   ACO[ERR_LIN_RS_INSERT] = true;
   ACO[ERR_LIN_PN_INSERT] = true;
   ACO[ERR_LIN_SV_INSERT] = true;
@@ -393,7 +393,7 @@ void RefComment::setActionTable()
   ACO[ERR_LIN_MC_INSERT] = true;
   ACO[ERR_LIN_SYNTAX] = true;
 
-  ACO = ActionCommentOK[BRIDGE_REF_DELETE_LIN];
+  ACO = ActionCommentOK[REF_ACTION_DELETE_LIN];
   ACO[ERR_LIN_VG_SYNTAX] = true;
   ACO[ERR_LIN_RS_DELETE] = true;
   ACO[ERR_LIN_PN_DELETE] = true;
@@ -411,7 +411,7 @@ void RefComment::setActionTable()
   ACO[ERR_LIN_TRICK_DELETE] = true;
   ACO[ERR_LIN_SYNTAX] = true;
 
-  ACO = ActionCommentOK[BRIDGE_REF_REPLACE_PBN];
+  ACO = ActionCommentOK[REF_ACTION_REPLACE_PBN];
   ACO[ERR_PBN_SITE_REPLACE] = true;
   ACO[ERR_PBN_BOARD_REPLACE] = true;
   ACO[ERR_PBN_DECLARER_REPLACE] = true;
@@ -419,34 +419,34 @@ void RefComment::setActionTable()
   ACO[ERR_PBN_SCORE_REPLACE] = true;
   ACO[ERR_PBN_SCORE_IMP_REPLACE] = true;
 
-  ACO = ActionCommentOK[BRIDGE_REF_INSERT_PBN];
+  ACO = ActionCommentOK[REF_ACTION_INSERT_PBN];
   ACO[ERR_PBN_ROOM_INSERT] = true;
   ACO[ERR_PBN_NOTE_INSERT] = true;
 
-  ACO = ActionCommentOK[BRIDGE_REF_DELETE_PBN];
+  ACO = ActionCommentOK[REF_ACTION_DELETE_PBN];
   ACO[ERR_PBN_NOTE_DELETE] = true;
 
-  ACO = ActionCommentOK[BRIDGE_REF_REPLACE_RBN];
+  ACO = ActionCommentOK[REF_ACTION_REPLACE_RBN];
   ACO[ERR_RBN_P_REPLACE] = true;
   ACO[ERR_RBN_R_REPLACE] = true;
 
-  ACO = ActionCommentOK[BRIDGE_REF_INSERT_RBN];
+  ACO = ActionCommentOK[REF_ACTION_INSERT_RBN];
   ACO[ERR_RBN_N_INSERT] = true;
 
-  ACO = ActionCommentOK[BRIDGE_REF_DELETE_RBN];
+  ACO = ActionCommentOK[REF_ACTION_DELETE_RBN];
   ACO[ERR_RBN_L_DELETE] = true;
 
-  ACO = ActionCommentOK[BRIDGE_REF_REPLACE_RBX];
+  ACO = ActionCommentOK[REF_ACTION_REPLACE_RBX];
   ACO[ERR_RBX_P_REPLACE] = true;
   ACO[ERR_RBX_R_REPLACE] = true;
 
-  ACO = ActionCommentOK[BRIDGE_REF_INSERT_RBX];
+  ACO = ActionCommentOK[REF_ACTION_INSERT_RBX];
   ACO[ERR_RBX_N_INSERT] = true;
 
-  ACO = ActionCommentOK[BRIDGE_REF_DELETE_RBX];
+  ACO = ActionCommentOK[REF_ACTION_DELETE_RBX];
   ACO[ERR_RBX_L_DELETE] = true;
 
-  ACO = ActionCommentOK[BRIDGE_REF_REPLACE_TXT];
+  ACO = ActionCommentOK[REF_ACTION_REPLACE_TXT];
   ACO[ERR_TXT_RESULT_REPLACE] = true;
   ACO[ERR_TXT_SCORE_REPLACE] = true;
   ACO[ERR_TXT_SCORE_IMP_REPLACE] = true;
@@ -458,26 +458,26 @@ void RefComment::setActionTable()
   ACO[ERR_REC_SCORE_REPLACE] = true;
   ACO[ERR_REC_SCORE_IMP_REPLACE] = true;
 
-  ACO = ActionCommentOK[BRIDGE_REF_INSERT_TXT];
+  ACO = ActionCommentOK[REF_ACTION_INSERT_TXT];
 
-  ACO = ActionCommentOK[BRIDGE_REF_DELETE_TXT];
+  ACO = ActionCommentOK[REF_ACTION_DELETE_TXT];
 
-  ACO = ActionCommentOK[BRIDGE_REF_REPLACE_WORD];
+  ACO = ActionCommentOK[REF_ACTION_REPLACE_WORD];
   ACO[ERR_PBN_PLAY_REPLACE] = true;
   ACO[ERR_PBN_ALERT_REPLACE] = true;
   ACO[ERR_TXT_PLAY_REPLACE] = true;
   ACO[ERR_EML_PLAY_REPLACE] = true;
   ACO[ERR_REC_PLAY_REPLACE] = true;
 
-  ACO = ActionCommentOK[BRIDGE_REF_INSERT_WORD];
+  ACO = ActionCommentOK[REF_ACTION_INSERT_WORD];
 
-  ACO = ActionCommentOK[BRIDGE_REF_DELETE_WORD];
+  ACO = ActionCommentOK[REF_ACTION_DELETE_WORD];
 }
 
 
 void RefComment::setTagTable()
 {
-  for (unsigned i = 0; i < BRIDGE_REF_FIX_SIZE; i++)
+  for (unsigned i = 0; i < REF_ACTION_SIZE; i++)
     for (unsigned j = 0; j < REF_TAGS_SIZE; j++)
       TagCommentOK[i][j] = false;
 
