@@ -48,7 +48,7 @@ class RefComment
       const unsigned start,
       unsigned& end);
 
-    void checkAction(const FixType action) const;
+    void checkAction(const ActionType action) const;
 
     void checkTag(const string& tag) const;
 

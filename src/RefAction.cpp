@@ -20,15 +20,16 @@
 #endif
 
 #include "RefAction.h"
-#include "parse.h"
 #include "Bexcept.h"
 
 using namespace std;
 
 
-static map<string, FixType> ActionMap;
+static map<string, ActionType> ActionMap;
 
 static string ActionTable[BRIDGE_REF_FIX_SIZE];
+
+static ActionCategory ActionCatTable[BRIDGE_REF_FIX_SIZE];
 
 
 static mutex mtx;
@@ -93,12 +94,23 @@ void RefAction::setTables()
 
   for (auto &s: ActionMap)
     ActionTable[s.second] = s.first;
+
+  for (unsigned i = 0; i < BRIDGE_REF_FIX_SIZE; i++)
+    ActionCatTable[i] = ACTION_GENERAL;
+
+  ActionCatTable[BRIDGE_REF_INSERT_GEN] = ACTION_INSERT_LINE;
+  ActionCatTable[BRIDGE_REF_DELETE_GEN] = ACTION_DELETE_LINE;
+
+  ActionCatTable[BRIDGE_REF_INSERT_PBN] = ACTION_INSERT_LINE;
+  ActionCatTable[BRIDGE_REF_DELETE_PBN] = ACTION_DELETE_LINE;
+
+  ActionCatTable[BRIDGE_REF_DELETE_RBN] = ACTION_DELETE_LINE;
 }
 
 
 void RefAction::set(
   const string& refName,
-  const FixType actionIn)
+  const ActionType actionIn)
 {
   if (actionIn == BRIDGE_REF_FIX_SIZE)
     THROW("File " + refName + ": Bad input action");
@@ -123,9 +135,18 @@ void RefAction::set(
 }
 
 
-FixType RefAction::number() const
+ActionType RefAction::number() const
 {
   return action;
+}
+
+
+ActionCategory RefAction::category() const
+{
+  if (action == BRIDGE_REF_FIX_SIZE)
+    return ACTION_ERROR;
+  else
+    return ActionCatTable[action];
 }
 
 

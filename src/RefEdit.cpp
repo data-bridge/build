@@ -174,9 +174,9 @@ void RefEdit::modifyFail(
 
 void RefEdit::modify(
   string& line,
-  const FixType fix) const
+  const ActionType act) const
 {
-  (this->* ModifyList[fix])(line);
+  (this->* ModifyList[act])(line);
 }
 
 

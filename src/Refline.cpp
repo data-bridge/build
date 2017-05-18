@@ -27,9 +27,6 @@
 using namespace std;
 
 
-static map<string, FixType> FixMap;
-static string FixTable[BRIDGE_REF_FIX_SIZE];
-
 typedef void (RefLine::*ParsePtr)(
   const string& refName, 
   const string& quote);
@@ -61,53 +58,15 @@ RefLine::~RefLine()
 void RefLine::reset()
 {
   setFlag = false;
-
   range.lno = 0;
   range.lcount = 0;
-
-  fix = BRIDGE_REF_FIX_SIZE;
-
+  action.reset();
   edit.reset();
   comment.reset();
 }
 
 
-void RefLine::setFixTables()
-{
-  FixMap["replace"] = BRIDGE_REF_REPLACE_GEN;
-  FixMap["insert"] = BRIDGE_REF_INSERT_GEN;
-  FixMap["delete"] = BRIDGE_REF_DELETE_GEN;
-
-  FixMap["replaceLIN"] = BRIDGE_REF_REPLACE_LIN;
-  FixMap["insertLIN"] = BRIDGE_REF_INSERT_LIN;
-  FixMap["deleteLIN"] = BRIDGE_REF_DELETE_LIN;
-
-  FixMap["replacePBN"] = BRIDGE_REF_REPLACE_PBN;
-  FixMap["insertPBN"] = BRIDGE_REF_INSERT_PBN;
-  FixMap["deletePBN"] = BRIDGE_REF_DELETE_PBN;
-
-  FixMap["replaceRBN"] = BRIDGE_REF_REPLACE_RBN;
-  FixMap["insertRBN"] = BRIDGE_REF_INSERT_RBN;
-  FixMap["deleteRBN"] = BRIDGE_REF_DELETE_RBN;
-
-  FixMap["replaceRBX"] = BRIDGE_REF_REPLACE_RBX;
-  FixMap["insertRBX"] = BRIDGE_REF_INSERT_RBX;
-  FixMap["deleteRBX"] = BRIDGE_REF_DELETE_RBX;
-
-  FixMap["replaceTXT"] = BRIDGE_REF_REPLACE_TXT;
-  FixMap["insertTXT"] = BRIDGE_REF_INSERT_TXT;
-  FixMap["deleteTXT"] = BRIDGE_REF_DELETE_TXT;
-
-  FixMap["replaceWORD"] = BRIDGE_REF_REPLACE_WORD;
-  FixMap["insertWORD"] = BRIDGE_REF_INSERT_WORD;
-  FixMap["deleteWORD"] = BRIDGE_REF_DELETE_WORD;
-
-  for (auto &s: FixMap)
-    FixTable[s.second] = s.first;
-}
-
-
-void RefLine::setDispatch()
+void RefLine::setTables()
 {
   ParseList[BRIDGE_REF_REPLACE_GEN] = &RefLine::parseReplaceGen;
   ParseList[BRIDGE_REF_INSERT_GEN] = &RefLine::parseInsertGen;
@@ -136,13 +95,6 @@ void RefLine::setDispatch()
   ParseList[BRIDGE_REF_REPLACE_WORD] = &RefLine::parseReplaceWORD;
   ParseList[BRIDGE_REF_INSERT_WORD] = &RefLine::parseInsertWORD;
   ParseList[BRIDGE_REF_DELETE_WORD] = &RefLine::parseDeleteWORD;
-}
-
-
-void RefLine::setTables()
-{
-  RefLine::setFixTables();
-  RefLine::setDispatch();
 }
 
 
@@ -195,21 +147,6 @@ void RefLine::parseRange(
 }
 
 
-FixType RefLine::parseAction(
-  const string& refName,
-  const string& line,
-  const string& action)
-{
-  // Set fix.
-
-  auto it = FixMap.find(action);
-  if (it == FixMap.end())
-    THROW("Ref file " + refName + ": Bad action in '" + line + "'");
-
-  return it->second;
-}
-
-
 bool RefLine::parse(
   const string& refName,
   const string& line)
@@ -239,7 +176,7 @@ bool RefLine::parse(
     THROW("Ref file " + refName + ": No action in '" + line + "'");
 
   start += a.length()+1;
-  fix = RefLine::parseAction(refName, line, a);
+  action.set(refName, a);
 
   // Check whether there is a comment.
   comment.parse(refName, line, start, end);
@@ -261,7 +198,7 @@ bool RefLine::parse(
 
   // The details of the quoted string depend heavily on the action.
   q = line.substr(start+1, end-start-1);
-  (this->*ParseList[fix])(refName, q);
+  (this->*ParseList[action.number()])(refName, q);
 
   setFlag = true;
   return true;
@@ -323,7 +260,7 @@ void RefLine::parseReplaceGen(
   if (range.lcount != 1)
     THROW("Ref file " + refName + ": replace line count '" + quote + "'");
 
-  comment.checkAction(fix);
+  comment.checkAction(action.number());
   edit.setIs(quote);
 }
 
@@ -335,7 +272,7 @@ void RefLine::parseInsertGen(
   if (range.lcount != 1)
     THROW("Ref file " + refName + ": insert line count '" + quote + "'");
 
-  comment.checkAction(fix);
+  comment.checkAction(action.number());
   edit.setIs(quote);
 }
 
@@ -347,7 +284,7 @@ void RefLine::parseDeleteGen(
   if (range.lcount != 1)
     THROW("Ref file " + refName + ": delete line count '" + quote + "'");
 
-  comment.checkAction(fix);
+  comment.checkAction(action.number());
   edit.setIs(quote);
 }
 
@@ -384,7 +321,7 @@ void RefLine::parseReplaceLIN(
   if (vlen != n+3)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
 
-  comment.checkAction(fix);
+  comment.checkAction(action.number());
   comment.checkTag(v[n]);
   edit.setTag(v[n]);
   edit.setWas(RefLine::unquote(v[n+1]));
@@ -423,7 +360,7 @@ void RefLine::parseInsertLIN(
   else if (vlen == n+2)
   {
     // Long version, "2,mb,p".
-    comment.checkAction(fix);
+    comment.checkAction(action.number());
     comment.checkTag(v[n]);
     edit.setTag(v[n]);
     edit.setIs(RefLine::unquote(v[n+1]));
@@ -462,7 +399,7 @@ void RefLine::parseDeleteLIN(
   if (vlen == n+1)
   {
     // Special case "deleteLIN "1,general text", for serious cases.
-    comment.checkAction(fix);
+    comment.checkAction(action.number());
     edit.setWas(RefLine::unquote(v[n]));
     return;
   }
@@ -470,7 +407,7 @@ void RefLine::parseDeleteLIN(
   if (vlen != n+2 && vlen != n+3)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
 
-  comment.checkAction(fix);
+  comment.checkAction(action.number());
   comment.checkTag(v[n]);
   edit.setTag(v[n]);
   edit.setWas(RefLine::unquote(v[n+1]));
@@ -510,7 +447,7 @@ void RefLine::parseReplacePBN(
   if (vlen != 3)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
 
-  comment.checkAction(fix);
+  comment.checkAction(action.number());
   comment.checkTag(v[0]);
   edit.setTag(v[0]);
   edit.setWas(v[1]);
@@ -528,7 +465,7 @@ void RefLine::parseInsertPBN(
 
   const string t = quote.substr(0, pos);
   const string v = quote.substr(pos+1);
-  comment.checkAction(fix);
+  comment.checkAction(action.number());
   comment.checkTag(t);
   edit.setTag(t);
   edit.setIs(v);
@@ -545,7 +482,7 @@ void RefLine::parseDeletePBN(
 
   const string t = quote.substr(0, pos);
   const string v = quote.substr(pos+1);
-  comment.checkAction(fix);
+  comment.checkAction(action.number());
   comment.checkTag(t);
   edit.setTag(t);
   edit.setWas(v);
@@ -570,7 +507,7 @@ void RefLine::parseReplaceRBN(
   if (vlen != 3 && vlen != 4)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
 
-  comment.checkAction(fix);
+  comment.checkAction(action.number());
   comment.checkTag(v[0]);
   edit.setTag(v[0]);
   if (vlen == 3)
@@ -603,7 +540,7 @@ void RefLine::parseInsertRBN(
   if (vlen != 3 && vlen != 4)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
 
-  comment.checkAction(fix);
+  comment.checkAction(action.number());
   comment.checkTag(v[0]);
   edit.setTag(v[0]);
 
@@ -645,7 +582,7 @@ void RefLine::parseDeleteRBN(
   if (vlen < 1 && vlen > 3)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
 
-  comment.checkAction(fix);
+  comment.checkAction(action.number());
   comment.checkTag(v[0]);
   edit.setTag(v[0]);
   if (vlen == 2)
@@ -764,7 +701,7 @@ void RefLine::parseReplaceWORD(
   if (vlen != 3)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
 
-  comment.checkAction(fix);
+  comment.checkAction(action.number());
   unsigned tno;
   if (! str2upos(v[0], tno))
     THROW("Ref file " + refName + ": Not a word number '" + quote + "'");
@@ -787,7 +724,7 @@ void RefLine::parseInsertWORD(
   if (vlen != 2)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
 
-  comment.checkAction(fix);
+  comment.checkAction(action.number());
   comment.checkTag(v[0]);
 
   unsigned tno;
@@ -811,7 +748,7 @@ void RefLine::parseDeleteWORD(
   if (vlen != 2)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
 
-  comment.checkAction(fix);
+  comment.checkAction(action.number());
   comment.checkTag(v[0]);
 
   unsigned tno;
@@ -871,19 +808,9 @@ bool RefLine::isUncommented() const
 }
 
 
-RefCommentCategory RefLine::type() const
+ActionCategory RefLine::type() const
 {
-  if (fix == BRIDGE_REF_DELETE_GEN ||
-      fix == BRIDGE_REF_DELETE_PBN ||
-      fix == BRIDGE_REF_DELETE_RBN)
-    return REF_COMMENT_DELETE_LINE;
-  else if (fix == BRIDGE_REF_INSERT_GEN ||
-      fix == BRIDGE_REF_INSERT_PBN)
-    return REF_COMMENT_INSERT_LINE;
-  else if (fix == BRIDGE_REF_FIX_SIZE)
-    return REF_COMMENT_ERROR;
-  else
-    return REF_COMMENT_GENERAL;
+  return action.category();
 }
 
 
@@ -898,7 +825,7 @@ void RefLine::modify(string& line) const
   if (! setFlag)
     THROW("RefLine not set: " + line);
 
-  edit.modify(line, fix);
+  edit.modify(line, action.number());
 }
 
 
@@ -910,7 +837,7 @@ string RefLine::str() const
     return "Line number not set\n";
     
   stringstream ss;
-  ss << setw(14) << left << "Action" << FixTable[fix] << "\n";
+  ss << setw(14) << left << "Action" << action.str() << "\n";
 
   if (range.lcount <= 1)
     ss << setw(14) << "Line number" << range.lno << "\n";

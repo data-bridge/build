@@ -11,7 +11,7 @@
 #define BRIDGE_REFCONST_H
 
 
-enum FixType
+enum ActionType
 {
   BRIDGE_REF_REPLACE_GEN = 0,
   BRIDGE_REF_INSERT_GEN = 1,

@@ -13,17 +13,9 @@
 #include <string>
 #include "RefEdit.h"
 #include "RefComment.h"
+#include "RefAction.h"
 
 using namespace std;
-
-
-enum RefCommentCategory
-{
-  REF_COMMENT_DELETE_LINE = 0,
-  REF_COMMENT_INSERT_LINE = 1,
-  REF_COMMENT_GENERAL = 2,
-  REF_COMMENT_ERROR = 3
-};
 
 
 class RefLine
@@ -39,16 +31,11 @@ class RefLine
     bool setFlag;
     string inputLine;
     Range range;
-    FixType fix;
+    RefAction action;
     RefEdit edit;
     RefComment comment;
 
 
-    void setFixTables();
-    void setRefTags();
-    void setDispatch();
-    void setCommentAction();
-    void setCommentTag();
     void setTables();
 
     bool isSpecial(const string& word) const;
@@ -59,11 +46,6 @@ class RefLine
       const string& range,
       const unsigned start,
       const unsigned end);
-
-    FixType parseAction(
-      const string& refFile,
-      const string& line,
-      const string& action);
 
     void parseFlexibleNumber(
       const string& refName,
@@ -118,7 +100,7 @@ class RefLine
     string was() const;
     bool isCommented() const;
     bool isUncommented() const;
-    RefCommentCategory type() const;
+    ActionCategory type() const;
     unsigned deletion() const;
 
     void modify(string& line) const;

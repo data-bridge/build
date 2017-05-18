@@ -29,7 +29,7 @@ using namespace std;
 
 struct ActionBundle
 {
-  FixType val;
+  ActionType val;
   string name;
 };
 
@@ -617,7 +617,7 @@ void RefComment::parse(
 }
 
 
-void RefComment::checkAction(const FixType action) const
+void RefComment::checkAction(const ActionType action) const
 {
   if (! setFlag)
     return;

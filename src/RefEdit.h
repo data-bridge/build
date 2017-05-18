@@ -108,7 +108,7 @@ class RefEdit
 
     void modify(
       string& line,
-      const FixType fix) const;
+      const ActionType act) const;
 
     string str() const;
 };

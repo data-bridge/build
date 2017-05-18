@@ -380,8 +380,8 @@ bool Buffer::fix(
       THROW("Cannot find ref line number " + STR(rl.lineno()));
     LineData& ld = lines[i];
 
-    const RefCommentCategory refType = rl.type();
-    if (refType == REF_COMMENT_INSERT_LINE)
+    const ActionCategory refType = rl.type();
+    if (refType == ACTION_INSERT_LINE)
     {
       LineData lnew;
       rl.modify(lnew.line);
@@ -392,7 +392,7 @@ bool Buffer::fix(
       usedFlag = true;
       len++;
     }
-    else if (refType == REF_COMMENT_DELETE_LINE)
+    else if (refType == ACTION_DELETE_LINE)
     {
       const unsigned deletion = rl.deletion();
       if (i + deletion > len)
@@ -405,7 +405,7 @@ bool Buffer::fix(
       len -= deletion;
       usedFlag = true;
     }
-    else if (refType == REF_COMMENT_GENERAL)
+    else if (refType == ACTION_GENERAL)
     {
       rl.modify(ld.line);
       ld.len = static_cast<unsigned>(ld.line.length());

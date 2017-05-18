@@ -16,12 +16,21 @@
 using namespace std;
 
 
+enum ActionCategory
+{
+  ACTION_DELETE_LINE = 0,
+  ACTION_INSERT_LINE = 1,
+  ACTION_GENERAL = 2,
+  ACTION_ERROR = 3
+};
+
+
 class RefAction
 {
   private:
 
     string filename;
-    FixType action;
+    ActionType action;
     string name;
 
     void setTables();
@@ -37,13 +46,15 @@ class RefAction
 
     void set(
       const string& refName,
-      const FixType actionIn);
+      const ActionType actionIn);
 
     void set(
       const string& refName,
       const string& str);
 
-    FixType number() const;
+    ActionType number() const;
+
+    ActionCategory category() const;
 
     string str() const;
 };
