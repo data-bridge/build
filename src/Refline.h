@@ -51,7 +51,7 @@ enum FixType
 };
 
 
-class Refline
+class RefLine
 {
   private:
 
@@ -218,9 +218,9 @@ class Refline
 
   public:
 
-    Refline();
+    RefLine();
 
-    ~Refline();
+    ~RefLine();
 
     void reset();
 

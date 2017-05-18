@@ -356,11 +356,11 @@ unsigned Sheet::refLineNoToHandNo(const unsigned lineNo) const
 
 void Sheet::parseRefs()
 {
-  // reflines contains a list of line entries from ref file.
+  // refLines contains a list of line entries from ref file.
   // For each hand, refSource contains a list of ref line numbers
   // affecting that hand.
   
-  for (auto &rl: reflines)
+  for (auto &rl: refLines)
   {
     if (rl.isCommented())
       continue;
@@ -385,11 +385,11 @@ bool Sheet::read(
 
   try
   {
-    if (! buffer.read(fname, BRIDGE_FORMAT_LIN, reflines,
+    if (! buffer.read(fname, BRIDGE_FORMAT_LIN, refLines,
         BRIDGE_REF_ONLY_PARTIAL))
       return false;
 
-    if (reflines.skip())
+    if (refLines.skip())
       return true;
   }
   catch (Bexcept& bex)
@@ -404,7 +404,7 @@ bool Sheet::read(
     Sheet::parse(buffer, headerOrig, handsOrig);
     Sheet::parseRefs();
 
-    if (! buffer.fix(fname, reflines, BRIDGE_REF_ONLY_NONPARTIAL))
+    if (! buffer.fix(fname, refLines, BRIDGE_REF_ONLY_NONPARTIAL))
       return true; // No ref file
 
     buffer.rewind();

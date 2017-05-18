@@ -20,7 +20,7 @@
   #include <mutex>
 #endif
 
-#include "Refline.h"
+#include "RefLine.h"
 #include "parse.h"
 #include "Bexcept.h"
 
@@ -71,12 +71,12 @@ static string FixTable[BRIDGE_REF_FIX_SIZE];
 
 static map<string, RefErrorsType> CommentMap;
 
-typedef void (Refline::*ParsePtr)(
+typedef void (RefLine::*ParsePtr)(
   const string& refName, 
   const string& quote);
 static ParsePtr ParseList[BRIDGE_REF_FIX_SIZE];
 
-typedef void (Refline::*ModifyPtr)(string& line) const;
+typedef void (RefLine::*ModifyPtr)(string& line) const;
 static ModifyPtr ModifyList[BRIDGE_REF_FIX_SIZE];
 
 static bool ActionCommentOK[BRIDGE_REF_FIX_SIZE][ERR_SIZE];
@@ -86,29 +86,29 @@ static map<string, RefTags> refTags;
 static bool TagCommentOK[REF_TAGS_SIZE][ERR_SIZE];
 
 static mutex mtx;
-static bool setReflineTables = false;
+static bool setRefLineTables = false;
 
 
-Refline::Refline()
+RefLine::RefLine()
 {
-  Refline::reset();
-  if (! setReflineTables)
+  RefLine::reset();
+  if (! setRefLineTables)
   {
     mtx.lock();
-    if (! setReflineTables)
-      Refline::setTables();
-    setReflineTables = true;
+    if (! setRefLineTables)
+      RefLine::setTables();
+    setRefLineTables = true;
     mtx.unlock();
   }
 }
 
 
-Refline::~Refline()
+RefLine::~RefLine()
 {
 }
 
 
-void Refline::reset()
+void RefLine::reset()
 {
   setFlag = false;
 
@@ -134,7 +134,7 @@ void Refline::reset()
 }
 
 
-void Refline::setFixTables()
+void RefLine::setFixTables()
 {
   FixMap["replace"] = BRIDGE_REF_REPLACE_GEN;
   FixMap["insert"] = BRIDGE_REF_INSERT_GEN;
@@ -169,7 +169,7 @@ void Refline::setFixTables()
 }
 
 
-void Refline::setRefTags()
+void RefLine::setRefTags()
 {
   refTags["vg"] = REF_TAGS_LIN_VG;
   refTags["rs"] = REF_TAGS_LIN_RS;
@@ -206,75 +206,75 @@ void Refline::setRefTags()
 }
 
 
-void Refline::setDispatch()
+void RefLine::setDispatch()
 {
-  ParseList[BRIDGE_REF_REPLACE_GEN] = &Refline::parseReplaceGen;
-  ParseList[BRIDGE_REF_INSERT_GEN] = &Refline::parseInsertGen;
-  ParseList[BRIDGE_REF_DELETE_GEN] = &Refline::parseDeleteGen;
+  ParseList[BRIDGE_REF_REPLACE_GEN] = &RefLine::parseReplaceGen;
+  ParseList[BRIDGE_REF_INSERT_GEN] = &RefLine::parseInsertGen;
+  ParseList[BRIDGE_REF_DELETE_GEN] = &RefLine::parseDeleteGen;
 
-  ParseList[BRIDGE_REF_REPLACE_LIN] = &Refline::parseReplaceLIN;
-  ParseList[BRIDGE_REF_INSERT_LIN] = &Refline::parseInsertLIN;
-  ParseList[BRIDGE_REF_DELETE_LIN] = &Refline::parseDeleteLIN;
+  ParseList[BRIDGE_REF_REPLACE_LIN] = &RefLine::parseReplaceLIN;
+  ParseList[BRIDGE_REF_INSERT_LIN] = &RefLine::parseInsertLIN;
+  ParseList[BRIDGE_REF_DELETE_LIN] = &RefLine::parseDeleteLIN;
 
-  ParseList[BRIDGE_REF_REPLACE_PBN] = &Refline::parseReplacePBN;
-  ParseList[BRIDGE_REF_INSERT_PBN] = &Refline::parseInsertPBN;
-  ParseList[BRIDGE_REF_DELETE_PBN] = &Refline::parseDeletePBN;
+  ParseList[BRIDGE_REF_REPLACE_PBN] = &RefLine::parseReplacePBN;
+  ParseList[BRIDGE_REF_INSERT_PBN] = &RefLine::parseInsertPBN;
+  ParseList[BRIDGE_REF_DELETE_PBN] = &RefLine::parseDeletePBN;
 
-  ParseList[BRIDGE_REF_REPLACE_RBN] = &Refline::parseReplaceRBN;
-  ParseList[BRIDGE_REF_INSERT_RBN] = &Refline::parseInsertRBN;
-  ParseList[BRIDGE_REF_DELETE_RBN] = &Refline::parseDeleteRBN;
+  ParseList[BRIDGE_REF_REPLACE_RBN] = &RefLine::parseReplaceRBN;
+  ParseList[BRIDGE_REF_INSERT_RBN] = &RefLine::parseInsertRBN;
+  ParseList[BRIDGE_REF_DELETE_RBN] = &RefLine::parseDeleteRBN;
 
-  ParseList[BRIDGE_REF_REPLACE_RBX] = &Refline::parseReplaceRBN;
-  ParseList[BRIDGE_REF_INSERT_RBX] = &Refline::parseInsertRBN;
-  ParseList[BRIDGE_REF_DELETE_RBX] = &Refline::parseDeleteRBN;
+  ParseList[BRIDGE_REF_REPLACE_RBX] = &RefLine::parseReplaceRBN;
+  ParseList[BRIDGE_REF_INSERT_RBX] = &RefLine::parseInsertRBN;
+  ParseList[BRIDGE_REF_DELETE_RBX] = &RefLine::parseDeleteRBN;
 
-  ParseList[BRIDGE_REF_REPLACE_TXT] = &Refline::parseReplaceTXT;
-  ParseList[BRIDGE_REF_INSERT_TXT] = &Refline::parseInsertTXT;
-  ParseList[BRIDGE_REF_DELETE_TXT] = &Refline::parseDeleteTXT;
+  ParseList[BRIDGE_REF_REPLACE_TXT] = &RefLine::parseReplaceTXT;
+  ParseList[BRIDGE_REF_INSERT_TXT] = &RefLine::parseInsertTXT;
+  ParseList[BRIDGE_REF_DELETE_TXT] = &RefLine::parseDeleteTXT;
 
-  ParseList[BRIDGE_REF_REPLACE_WORD] = &Refline::parseReplaceWORD;
-  ParseList[BRIDGE_REF_INSERT_WORD] = &Refline::parseInsertWORD;
-  ParseList[BRIDGE_REF_DELETE_WORD] = &Refline::parseDeleteWORD;
+  ParseList[BRIDGE_REF_REPLACE_WORD] = &RefLine::parseReplaceWORD;
+  ParseList[BRIDGE_REF_INSERT_WORD] = &RefLine::parseInsertWORD;
+  ParseList[BRIDGE_REF_DELETE_WORD] = &RefLine::parseDeleteWORD;
 
 
-  ModifyList[BRIDGE_REF_REPLACE_GEN] = &Refline::modifyReplaceGen;
-  ModifyList[BRIDGE_REF_INSERT_GEN] = &Refline::modifyInsertGen;
-  ModifyList[BRIDGE_REF_DELETE_GEN] = &Refline::modifyDeleteGen;
+  ModifyList[BRIDGE_REF_REPLACE_GEN] = &RefLine::modifyReplaceGen;
+  ModifyList[BRIDGE_REF_INSERT_GEN] = &RefLine::modifyInsertGen;
+  ModifyList[BRIDGE_REF_DELETE_GEN] = &RefLine::modifyDeleteGen;
 
-  ModifyList[BRIDGE_REF_REPLACE_LIN] = &Refline::modifyReplaceLIN;
-  ModifyList[BRIDGE_REF_INSERT_LIN] = &Refline::modifyInsertLIN;
-  ModifyList[BRIDGE_REF_DELETE_LIN] = &Refline::modifyDeleteLIN;
+  ModifyList[BRIDGE_REF_REPLACE_LIN] = &RefLine::modifyReplaceLIN;
+  ModifyList[BRIDGE_REF_INSERT_LIN] = &RefLine::modifyInsertLIN;
+  ModifyList[BRIDGE_REF_DELETE_LIN] = &RefLine::modifyDeleteLIN;
 
-  ModifyList[BRIDGE_REF_REPLACE_PBN] = &Refline::modifyReplacePBN;
-  ModifyList[BRIDGE_REF_INSERT_PBN] = &Refline::modifyInsertPBN;
-  ModifyList[BRIDGE_REF_DELETE_PBN] = &Refline::modifyDeletePBN;
+  ModifyList[BRIDGE_REF_REPLACE_PBN] = &RefLine::modifyReplacePBN;
+  ModifyList[BRIDGE_REF_INSERT_PBN] = &RefLine::modifyInsertPBN;
+  ModifyList[BRIDGE_REF_DELETE_PBN] = &RefLine::modifyDeletePBN;
 
-  ModifyList[BRIDGE_REF_REPLACE_RBN] = &Refline::modifyReplaceRBN;
-  ModifyList[BRIDGE_REF_INSERT_RBN] = &Refline::modifyInsertRBN;
-  ModifyList[BRIDGE_REF_DELETE_RBN] = &Refline::modifyDeleteRBN;
+  ModifyList[BRIDGE_REF_REPLACE_RBN] = &RefLine::modifyReplaceRBN;
+  ModifyList[BRIDGE_REF_INSERT_RBN] = &RefLine::modifyInsertRBN;
+  ModifyList[BRIDGE_REF_DELETE_RBN] = &RefLine::modifyDeleteRBN;
 
-  ModifyList[BRIDGE_REF_REPLACE_RBX] = &Refline::modifyReplaceRBX;
-  ModifyList[BRIDGE_REF_INSERT_RBX] = &Refline::modifyInsertRBX;
-  ModifyList[BRIDGE_REF_DELETE_RBX] = &Refline::modifyDeleteRBX;
+  ModifyList[BRIDGE_REF_REPLACE_RBX] = &RefLine::modifyReplaceRBX;
+  ModifyList[BRIDGE_REF_INSERT_RBX] = &RefLine::modifyInsertRBX;
+  ModifyList[BRIDGE_REF_DELETE_RBX] = &RefLine::modifyDeleteRBX;
 
-  ModifyList[BRIDGE_REF_REPLACE_TXT] = &Refline::modifyReplaceTXT;
-  ModifyList[BRIDGE_REF_INSERT_TXT] = &Refline::modifyInsertTXT;
-  ModifyList[BRIDGE_REF_DELETE_TXT] = &Refline::modifyDeleteTXT;
+  ModifyList[BRIDGE_REF_REPLACE_TXT] = &RefLine::modifyReplaceTXT;
+  ModifyList[BRIDGE_REF_INSERT_TXT] = &RefLine::modifyInsertTXT;
+  ModifyList[BRIDGE_REF_DELETE_TXT] = &RefLine::modifyDeleteTXT;
 
-  ModifyList[BRIDGE_REF_REPLACE_WORD] = &Refline::modifyReplaceWORD;
-  ModifyList[BRIDGE_REF_INSERT_WORD] = &Refline::modifyInsertWORD;
-  ModifyList[BRIDGE_REF_DELETE_WORD] = &Refline::modifyDeleteWORD;
+  ModifyList[BRIDGE_REF_REPLACE_WORD] = &RefLine::modifyReplaceWORD;
+  ModifyList[BRIDGE_REF_INSERT_WORD] = &RefLine::modifyInsertWORD;
+  ModifyList[BRIDGE_REF_DELETE_WORD] = &RefLine::modifyDeleteWORD;
 }
 
 
-void Refline::setCommentMap()
+void RefLine::setCommentMap()
 {
   for (auto &e: RefErrors)
     CommentMap[e.name] = e.val;
 }
 
 
-void Refline::setCommentAction()
+void RefLine::setCommentAction()
 {
   for (unsigned i = 0; i < BRIDGE_REF_FIX_SIZE; i++)
     for (unsigned j = 0; j < ERR_SIZE; j++)
@@ -425,7 +425,7 @@ void Refline::setCommentAction()
 }
 
 
-void Refline::setCommentTag()
+void RefLine::setCommentTag()
 {
   for (unsigned i = 0; i < BRIDGE_REF_FIX_SIZE; i++)
     for (unsigned j = 0; j < REF_TAGS_SIZE; j++)
@@ -524,18 +524,18 @@ void Refline::setCommentTag()
 }
 
 
-void Refline::setTables()
+void RefLine::setTables()
 {
-  Refline::setFixTables();
-  Refline::setRefTags();
-  Refline::setDispatch();
-  Refline::setCommentMap();
-  Refline::setCommentAction();
-  Refline::setCommentTag();
+  RefLine::setFixTables();
+  RefLine::setRefTags();
+  RefLine::setDispatch();
+  RefLine::setCommentMap();
+  RefLine::setCommentAction();
+  RefLine::setCommentTag();
 }
 
 
-bool Refline::isSpecial(const string& word) const
+bool RefLine::isSpecial(const string& word) const
 {
   if (word == "orderCOCO" ||
       word == "orderOOCC" ||
@@ -548,7 +548,7 @@ bool Refline::isSpecial(const string& word) const
 }
 
 
-void Refline::parseRange(
+void RefLine::parseRange(
   const string& refName,
   const string& line,
   const string& rtext,
@@ -584,7 +584,7 @@ void Refline::parseRange(
 }
 
 
-FixType Refline::parseAction(
+FixType RefLine::parseAction(
   const string& refName,
   const string& line,
   const string& action)
@@ -599,7 +599,7 @@ FixType Refline::parseAction(
 }
 
 
-void Refline::parseComment(
+void RefLine::parseComment(
   const string& refName,
   const string& line,
   const unsigned start,
@@ -639,12 +639,12 @@ void Refline::parseComment(
 }
 
 
-bool Refline::parse(
+bool RefLine::parse(
   const string& refName,
   const string& line)
 {
   if (setFlag)
-    THROW("Refline already set: " + line);
+    THROW("RefLine already set: " + line);
 
   inputLine = line;
 
@@ -656,22 +656,22 @@ bool Refline::parse(
     THROW("Ref file " + refName + ": Line start '" + line + "'");
 
   // If the first word is special, we kick it back upstairs.
-  if (Refline::isSpecial(r))
+  if (RefLine::isSpecial(r))
     return false;
 
   // Otherwise it should be a number or a range.
   start = r.length()+1;
-  Refline::parseRange(refName, line, r, start, end);
+  RefLine::parseRange(refName, line, r, start, end);
 
   // Then the action word, e.g. replaceLIN.
   if (! readNextWord(line, start, a))
     THROW("Ref file " + refName + ": No action in '" + line + "'");
 
   start += a.length()+1;
-  fix = Refline::parseAction(refName, line, a);
+  fix = RefLine::parseAction(refName, line, a);
 
   // Check whether there is a comment.
-  Refline::parseComment(refName, line, start, end);
+  RefLine::parseComment(refName, line, start, end);
 
   if (start >= end)
   {
@@ -697,7 +697,7 @@ bool Refline::parse(
 }
 
 
-void Refline::parseFlexibleNumber(
+void RefLine::parseFlexibleNumber(
   const string& refName,
   const string& field)
 {
@@ -713,7 +713,7 @@ void Refline::parseFlexibleNumber(
 }
 
 
-string Refline::unquote(const string& entry) const
+string RefLine::unquote(const string& entry) const
 {
   const unsigned l = entry.length();
   if (l == 0)
@@ -735,7 +735,7 @@ string Refline::unquote(const string& entry) const
 }
 
 
-void Refline::commonCheck(
+void RefLine::commonCheck(
   const string& refName,
   const string& quote,
   const string& tag) const
@@ -775,7 +775,7 @@ void Refline::commonCheck(
 ////////////////////////////////////////////////////////////////////////
 
 
-void Refline::parseReplaceGen(
+void RefLine::parseReplaceGen(
   const string& refName,
   const string& quote)
 {
@@ -790,7 +790,7 @@ void Refline::parseReplaceGen(
 }
 
 
-void Refline::parseInsertGen(
+void RefLine::parseInsertGen(
   const string& refName,
   const string& quote)
 {
@@ -805,7 +805,7 @@ void Refline::parseInsertGen(
 }
 
 
-void Refline::parseDeleteGen(
+void RefLine::parseDeleteGen(
   const string& refName,
   const string& quote)
 {
@@ -827,7 +827,7 @@ void Refline::parseDeleteGen(
 //                                                                    //
 ////////////////////////////////////////////////////////////////////////
 
-void Refline::parseReplaceLIN(
+void RefLine::parseReplaceLIN(
   const string& refName,
   const string& quote)
 {
@@ -839,7 +839,7 @@ void Refline::parseReplaceLIN(
   if (vlen <= 1)
     THROW("Ref file " + refName + ": Short quotes '" + quote + "'");
 
-  Refline::parseFlexibleNumber(refName, v[0]);
+  RefLine::parseFlexibleNumber(refName, v[0]);
 
   unsigned n = 1;
   if (str2upos(v[1], edit.fieldno))
@@ -848,15 +848,15 @@ void Refline::parseReplaceLIN(
   if (vlen != n+3)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
 
-  Refline::commonCheck(refName, quote, v[n]);
+  RefLine::commonCheck(refName, quote, v[n]);
   edit.type = EDIT_TAG_ONLY;
   edit.tag = v[n];
-  edit.was = Refline::unquote(v[n+1]);
-  edit.is = Refline::unquote(v[n+2]);
+  edit.was = RefLine::unquote(v[n+1]);
+  edit.is = RefLine::unquote(v[n+2]);
 }
 
 
-void Refline::parseInsertLIN(
+void RefLine::parseInsertLIN(
   const string& refName,
   const string& quote)
 {
@@ -868,7 +868,7 @@ void Refline::parseInsertLIN(
   if (vlen <= 1)
     THROW("Ref file " + refName + ": Short quotes '" + quote + "'");
 
-  Refline::parseFlexibleNumber(refName, v[0]);
+  RefLine::parseFlexibleNumber(refName, v[0]);
 
   unsigned n = 1;
   if (str2upos(v[1], edit.fieldno))
@@ -878,23 +878,23 @@ void Refline::parseInsertLIN(
   {
     // Short version.  The inserted value may or may not be a tag.
     edit.type = EDIT_TAG_ONLY;
-    edit.is = Refline::unquote(v[n]);
+    edit.is = RefLine::unquote(v[n]);
     return;
   }
   else if (vlen == n+2)
   {
     // Long version, "2,mb,p".
-    Refline::commonCheck(refName, quote, v[n]);
+    RefLine::commonCheck(refName, quote, v[n]);
     edit.type = EDIT_TAG_ONLY;
     edit.tag = v[n];
-    edit.is = Refline::unquote(v[n+1]);
+    edit.is = RefLine::unquote(v[n+1]);
   }
   else
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
 }
 
 
-void Refline::parseDeleteLIN(
+void RefLine::parseDeleteLIN(
   const string& refName,
   const string& quote)
 {
@@ -906,7 +906,7 @@ void Refline::parseDeleteLIN(
   if (vlen == 0)
     THROW("Ref file " + refName + ": Short quotes '" + quote + "'");
 
-  Refline::parseFlexibleNumber(refName, v[0]);
+  RefLine::parseFlexibleNumber(refName, v[0]);
 
   // delete "3" is allowed for desperate cases.
   if (vlen == 1)
@@ -919,17 +919,17 @@ void Refline::parseDeleteLIN(
   if (vlen == n+1)
   {
     // Special case "deleteLIN "1,general text", for serious cases.
-    Refline::commonCheck(refName, quote, "");
-    edit.was = Refline::unquote(v[n]);
+    RefLine::commonCheck(refName, quote, "");
+    edit.was = RefLine::unquote(v[n]);
     return;
   }
 
   if (vlen != n+2 && vlen != n+3)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
 
-  Refline::commonCheck(refName, quote, v[n]);
+  RefLine::commonCheck(refName, quote, v[n]);
   edit.tag = v[n];
-  edit.was = Refline::unquote(v[n+1]);
+  edit.was = RefLine::unquote(v[n+1]);
 
   // Kludge to recognize the case where an empty field is deleted.
   edit.is = (edit.was == "" ? "non-empty" : "");
@@ -952,7 +952,7 @@ void Refline::parseDeleteLIN(
 //                                                                    //
 ////////////////////////////////////////////////////////////////////////
 
-void Refline::parseReplacePBN(
+void RefLine::parseReplacePBN(
   const string& refName,
   const string& quote)
 {
@@ -964,7 +964,7 @@ void Refline::parseReplacePBN(
   if (vlen != 3)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
 
-  Refline::commonCheck(refName, quote, v[0]);
+  RefLine::commonCheck(refName, quote, v[0]);
   edit.type = EDIT_TAG_ONLY;
   edit.tag = v[0];
   edit.was = v[1];
@@ -972,7 +972,7 @@ void Refline::parseReplacePBN(
 }
 
 
-void Refline::parseInsertPBN(
+void RefLine::parseInsertPBN(
   const string& refName,
   const string& quote)
 {
@@ -982,14 +982,14 @@ void Refline::parseInsertPBN(
 
   const string t = quote.substr(0, pos);
   const string v = quote.substr(pos+1);
-  Refline::commonCheck(refName, quote, t);
+  RefLine::commonCheck(refName, quote, t);
   edit.type = EDIT_TAG_ONLY;
   edit.tag = t;
   edit.is = v;
 }
 
 
-void Refline::parseDeletePBN(
+void RefLine::parseDeletePBN(
   const string& refName,
   const string& quote)
 {
@@ -999,7 +999,7 @@ void Refline::parseDeletePBN(
 
   const string t = quote.substr(0, pos);
   const string v = quote.substr(pos+1);
-  Refline::commonCheck(refName, quote, t);
+  RefLine::commonCheck(refName, quote, t);
   edit.type = EDIT_TAG_ONLY;
   edit.tag = t;
   edit.was = v;
@@ -1012,7 +1012,7 @@ void Refline::parseDeletePBN(
 //                                                                    //
 ////////////////////////////////////////////////////////////////////////
 
-void Refline::parseReplaceRBN(
+void RefLine::parseReplaceRBN(
   const string& refName,
   const string& quote)
 {
@@ -1024,7 +1024,7 @@ void Refline::parseReplaceRBN(
   if (vlen != 3 && vlen != 4)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
 
-  Refline::commonCheck(refName, quote, v[0]);
+  RefLine::commonCheck(refName, quote, v[0]);
   edit.tag = v[0];
   if (vlen == 3)
   {
@@ -1044,7 +1044,7 @@ void Refline::parseReplaceRBN(
 }
 
 
-void Refline::parseInsertRBN(
+void RefLine::parseInsertRBN(
   const string& refName,
   const string& quote)
 {
@@ -1056,7 +1056,7 @@ void Refline::parseInsertRBN(
   if (vlen != 3 && vlen != 4)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
 
-  Refline::commonCheck(refName, quote, v[0]);
+  RefLine::commonCheck(refName, quote, v[0]);
   edit.tag = v[0];
 
   if (vlen == 3)
@@ -1081,7 +1081,7 @@ void Refline::parseInsertRBN(
 }
 
 
-void Refline::parseDeleteRBN(
+void RefLine::parseDeleteRBN(
   const string& refName,
   const string& quote)
 {
@@ -1093,7 +1093,7 @@ void Refline::parseDeleteRBN(
   if (vlen < 1 && vlen > 3)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
 
-  Refline::commonCheck(refName, quote, v[0]);
+  RefLine::commonCheck(refName, quote, v[0]);
   edit.type = EDIT_TAG_FIELD;
   edit.tag = v[0];
   if (vlen == 2)
@@ -1115,7 +1115,7 @@ void Refline::parseDeleteRBN(
 ////////////////////////////////////////////////////////////////////////
 
 
-void Refline::parseReplaceTXT(
+void RefLine::parseReplaceTXT(
   const string& refName,
   const string& quote)
 {
@@ -1144,7 +1144,7 @@ void Refline::parseReplaceTXT(
 }
 
 
-void Refline::parseInsertTXT(
+void RefLine::parseInsertTXT(
   const string& refName,
   const string& quote)
 {
@@ -1164,7 +1164,7 @@ void Refline::parseInsertTXT(
 }
 
 
-void Refline::parseDeleteTXT(
+void RefLine::parseDeleteTXT(
   const string& refName,
   const string& quote)
 {
@@ -1196,7 +1196,7 @@ void Refline::parseDeleteTXT(
 ////////////////////////////////////////////////////////////////////////
 
 
-void Refline::parseReplaceWORD(
+void RefLine::parseReplaceWORD(
   const string& refName,
   const string& quote)
 {
@@ -1208,7 +1208,7 @@ void Refline::parseReplaceWORD(
   if (vlen != 3)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
 
-  Refline::commonCheck(refName, quote, "");
+  RefLine::commonCheck(refName, quote, "");
   edit.type = EDIT_WORD;
   if (! str2upos(v[0], edit.tagno))
     THROW("Ref file " + refName + ": Not a word number '" + quote + "'");
@@ -1218,7 +1218,7 @@ void Refline::parseReplaceWORD(
 }
 
 
-void Refline::parseInsertWORD(
+void RefLine::parseInsertWORD(
   const string& refName,
   const string& quote)
 {
@@ -1230,7 +1230,7 @@ void Refline::parseInsertWORD(
   if (vlen != 2)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
 
-  Refline::commonCheck(refName, quote, v[0]);
+  RefLine::commonCheck(refName, quote, v[0]);
   edit.type = EDIT_WORD;
   if (! str2upos(v[0], edit.tagno))
     THROW("Ref file " + refName + ": Not a word number '" + quote + "'");
@@ -1238,7 +1238,7 @@ void Refline::parseInsertWORD(
 }
 
 
-void Refline::parseDeleteWORD(
+void RefLine::parseDeleteWORD(
   const string& refName,
   const string& quote)
 {
@@ -1250,7 +1250,7 @@ void Refline::parseDeleteWORD(
   if (vlen != 2)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
 
-  Refline::commonCheck(refName, quote, v[0]);
+  RefLine::commonCheck(refName, quote, v[0]);
   edit.type = EDIT_WORD;
   if (! str2upos(v[0], edit.tagno))
     THROW("Ref file " + refName + ": Not a word number '" + quote + "'");
@@ -1258,78 +1258,78 @@ void Refline::parseDeleteWORD(
 }
 
 
-unsigned Refline::lineno() const
+unsigned RefLine::lineno() const
 {
   return range.lno;
 }
 
 
-bool Refline::isSet() const
+bool RefLine::isSet() const
 {
   return setFlag;
 }
 
 
-string Refline::line() const
+string RefLine::line() const
 {
   return inputLine;
 }
 
 
-bool Refline::isCommented() const
+bool RefLine::isCommented() const
 {
   return comment.setFlag;
 }
 
 
-string Refline::tag() const
+string RefLine::tag() const
 {
   return edit.tag;
 }
 
 
-string Refline::is() const
+string RefLine::is() const
 {
   return edit.is;
 }
 
 
-string Refline::was() const
+string RefLine::was() const
 {
   return edit.was;
 }
 
 
-bool Refline::isUncommented() const
+bool RefLine::isUncommented() const
 {
   return ! comment.setFlag;
 }
 
 
-FixType Refline::type() const
+FixType RefLine::type() const
 {
   return fix;
 }
 
 
-unsigned Refline::deletion() const
+unsigned RefLine::deletion() const
 {
   return range.lcount;
 }
 
 
-void Refline::modifyFail(
+void RefLine::modifyFail(
   const string& line,
   const string& reason) const
 {
-   THROW("Modify fail: " + line + "\n" + reason + "\n\n" + Refline::str());
+   THROW("Modify fail: " + line + "\n" + reason + "\n\n" + RefLine::str());
 }
 
 
-void Refline::modify(string& line) const
+void RefLine::modify(string& line) const
 {
   if (! setFlag)
-    THROW("Refline not set: " + line);
+    THROW("RefLine not set: " + line);
 
   (this->* ModifyList[fix])(line);
 }
@@ -1341,19 +1341,19 @@ void Refline::modify(string& line) const
 //                                                                    //
 ////////////////////////////////////////////////////////////////////////
 
-void Refline::modifyReplaceGen(string& line) const
+void RefLine::modifyReplaceGen(string& line) const
 {
   line = edit.is;
 }
 
 
-void Refline::modifyInsertGen(string& line) const
+void RefLine::modifyInsertGen(string& line) const
 {
   line = edit.is;
 }
 
 
-void Refline::modifyDeleteGen(string& line) const
+void RefLine::modifyDeleteGen(string& line) const
 {
   UNUSED(line);
   THROW("modifyDeleteGen not implemented");
@@ -1366,7 +1366,7 @@ void Refline::modifyDeleteGen(string& line) const
 //                                                                    //
 ////////////////////////////////////////////////////////////////////////
 
-void Refline::modifyLINCommon(
+void RefLine::modifyLINCommon(
   const string& line,
   unsigned& start,
   vector<string>& v,
@@ -1389,7 +1389,7 @@ void Refline::modifyLINCommon(
       // Last tag, no argument.
     }
     else
-      Refline::modifyFail(line, "Tag number too large");
+      RefLine::modifyFail(line, "Tag number too large");
   }
 
   endsOnPipe = (line.length() > 0 && line.at(line.length()-1) == '|');
@@ -1415,12 +1415,12 @@ void Refline::modifyLINCommon(
 }
 
 
-void Refline::modifyReplaceLIN(string& line) const
+void RefLine::modifyReplaceLIN(string& line) const
 {
   unsigned start;
   vector<string> v, f;
   bool endsOnPipe;
-  Refline::modifyLINCommon(line, start, v, f, endsOnPipe);
+  RefLine::modifyLINCommon(line, start, v, f, endsOnPipe);
 
   if (v[start] != edit.tag)
     modifyFail(line, "Different LIN tags");
@@ -1453,12 +1453,12 @@ void Refline::modifyReplaceLIN(string& line) const
 }
 
 
-void Refline::modifyInsertLIN(string& line) const
+void RefLine::modifyInsertLIN(string& line) const
 {
   unsigned start;
   vector<string> v, f;
   bool endsOnPipe;
-  Refline::modifyLINCommon(line, start, v, f, endsOnPipe);
+  RefLine::modifyLINCommon(line, start, v, f, endsOnPipe);
 
   if (edit.fieldno > 0)
   {
@@ -1485,12 +1485,12 @@ void Refline::modifyInsertLIN(string& line) const
 }
 
 
-void Refline::modifyDeleteLIN(string& line) const
+void RefLine::modifyDeleteLIN(string& line) const
 {
   unsigned start;
   vector<string> v, f;
   bool endsOnPipe;
-  Refline::modifyLINCommon(line, start, v, f, endsOnPipe);
+  RefLine::modifyLINCommon(line, start, v, f, endsOnPipe);
 
   if (edit.fieldno > 0)
   {
@@ -1549,7 +1549,7 @@ void Refline::modifyDeleteLIN(string& line) const
 //                                                                    //
 ////////////////////////////////////////////////////////////////////////
 
-void Refline::modifyReplacePBN(string& line) const
+void RefLine::modifyReplacePBN(string& line) const
 {
   const regex rep("^\\[(\\w+)\\s+\"(.*)\"\\]\\s*$");
   smatch match;
@@ -1566,13 +1566,13 @@ void Refline::modifyReplacePBN(string& line) const
 }
 
 
-void Refline::modifyInsertPBN(string& line) const
+void RefLine::modifyInsertPBN(string& line) const
 {
   line = "[" + edit.tag + " \"" + edit.is + "\"" + "]";
 }
 
 
-void Refline::modifyDeletePBN(string& line) const
+void RefLine::modifyDeletePBN(string& line) const
 {
   const regex rep("^\\[(\\w+)\\s+\"(.*)\"\\]\\s*$");
   smatch match;
@@ -1595,7 +1595,7 @@ void Refline::modifyDeletePBN(string& line) const
 //                                                                    //
 ////////////////////////////////////////////////////////////////////////
 
-void Refline::modifyRBNCommon(
+void RefLine::modifyRBNCommon(
   const string& line,
   string& s) const
 {
@@ -1616,10 +1616,10 @@ void Refline::modifyRBNCommon(
 }
 
 
-void Refline::modifyReplaceRBN(string& line) const
+void RefLine::modifyReplaceRBN(string& line) const
 {
   string s;
-  Refline::modifyRBNCommon(line, s);
+  RefLine::modifyRBNCommon(line, s);
 
   if (edit.fieldno == 0)
   {
@@ -1644,10 +1644,10 @@ void Refline::modifyReplaceRBN(string& line) const
   }
 }
 
-void Refline::modifyInsertRBN(string& line) const
+void RefLine::modifyInsertRBN(string& line) const
 {
   string s;
-  Refline::modifyRBNCommon(line, s);
+  RefLine::modifyRBNCommon(line, s);
 
   if (edit.fieldno == 0)
     THROW("Not a field insertion: " + line);
@@ -1666,11 +1666,11 @@ void Refline::modifyInsertRBN(string& line) const
 }
 
 
-void Refline::modifyDeleteRBN(string& line) const
+void RefLine::modifyDeleteRBN(string& line) const
 {
   string s;
   if (line != "" || edit.was != "")
-    Refline::modifyRBNCommon(line, s);
+    RefLine::modifyRBNCommon(line, s);
 
   if (edit.fieldno == 0)
   {
@@ -1703,7 +1703,7 @@ void Refline::modifyDeleteRBN(string& line) const
 ////////////////////////////////////////////////////////////////////////
 
 
-bool Refline::modifyCommonRBX(
+bool RefLine::modifyCommonRBX(
   const string& line,
   vector<string>& v,
   string& s,
@@ -1734,16 +1734,16 @@ bool Refline::modifyCommonRBX(
 }
 
 
-void Refline::modifyReplaceRBX(string& line) const
+void RefLine::modifyReplaceRBX(string& line) const
 {
   vector<string> v;
   string s;
   unsigned pos;
 
-  if (! Refline::modifyCommonRBX(line, v, s, pos))
+  if (! RefLine::modifyCommonRBX(line, v, s, pos))
     THROW("RBN tag not found: " + line);
 
-  Refline::modifyReplaceRBN(s);
+  RefLine::modifyReplaceRBN(s);
   if (s.length() <= 2)
     v[pos] = edit.tag + "{";
   else
@@ -1753,18 +1753,18 @@ void Refline::modifyReplaceRBX(string& line) const
 }
 
 
-void Refline::modifyInsertRBX(string& line) const
+void RefLine::modifyInsertRBX(string& line) const
 {
   vector<string> v;
   string s;
   unsigned pos;
 
-  if (Refline::modifyCommonRBX(line, v, s, pos))
+  if (RefLine::modifyCommonRBX(line, v, s, pos))
   {
     // Insertion of a field in an existing tag.
     if (edit.fieldno == 0)
       THROW("RBX tag already present: " + line);
-    Refline::modifyInsertRBN(s);
+    RefLine::modifyInsertRBN(s);
     if (s.length() <= 2)
       v[pos] = edit.tag + "{";
     else
@@ -1788,16 +1788,16 @@ void Refline::modifyInsertRBX(string& line) const
 }
 
 
-void Refline::modifyDeleteRBX(string& line) const
+void RefLine::modifyDeleteRBX(string& line) const
 {
   vector<string> v;
   string s;
   unsigned pos;
 
-  if (! Refline::modifyCommonRBX(line, v, s, pos))
+  if (! RefLine::modifyCommonRBX(line, v, s, pos))
     THROW("RBN tag not found: " + line);
 
-  Refline::modifyDeleteRBN(s);
+  RefLine::modifyDeleteRBN(s);
   v.erase(v.begin() + static_cast<int>(pos));
 
   line = concat(v, "}") + "}";
@@ -1810,7 +1810,7 @@ void Refline::modifyDeleteRBX(string& line) const
 //                                                                    //
 ////////////////////////////////////////////////////////////////////////
 
-unsigned Refline::modifyCommonTXT(const string& line) const
+unsigned RefLine::modifyCommonTXT(const string& line) const
 {
   if (edit.charno == 0)
   {
@@ -1825,7 +1825,7 @@ unsigned Refline::modifyCommonTXT(const string& line) const
 }
 
 
-void Refline::modifyReplaceTXT(string& line) const
+void RefLine::modifyReplaceTXT(string& line) const
 {
   const unsigned p = modifyCommonTXT(line);
   if (p == 0)
@@ -1846,7 +1846,7 @@ void Refline::modifyReplaceTXT(string& line) const
 }
 
 
-void Refline::modifyInsertTXT(string& line) const
+void RefLine::modifyInsertTXT(string& line) const
 {
   if (edit.charno == 0)
     THROW("No character position");
@@ -1860,7 +1860,7 @@ void Refline::modifyInsertTXT(string& line) const
 }
 
 
-void Refline::modifyDeleteTXT(string& line) const
+void RefLine::modifyDeleteTXT(string& line) const
 {
   const unsigned p = modifyCommonTXT(line);
   if (p == 0)
@@ -1879,7 +1879,7 @@ void Refline::modifyDeleteTXT(string& line) const
 //                                                                    //
 ////////////////////////////////////////////////////////////////////////
 
-unsigned Refline::modifyCommonWORD(const string& line) const
+unsigned RefLine::modifyCommonWORD(const string& line) const
 {
   unsigned pos = 0;
   const unsigned l = line.length();
@@ -1902,9 +1902,9 @@ unsigned Refline::modifyCommonWORD(const string& line) const
 }
 
 
-void Refline::modifyReplaceWORD(string& line) const
+void RefLine::modifyReplaceWORD(string& line) const
 {
-  const unsigned pos = Refline::modifyCommonWORD(line);
+  const unsigned pos = RefLine::modifyCommonWORD(line);
   if (pos == 0)
     modifyFail(line, "replaceWORD: Too few words");
 
@@ -1923,18 +1923,18 @@ void Refline::modifyReplaceWORD(string& line) const
 }
 
 
-void Refline::modifyInsertWORD(string& line) const
+void RefLine::modifyInsertWORD(string& line) const
 {
-  const unsigned pos = Refline::modifyCommonWORD(line);
+  const unsigned pos = RefLine::modifyCommonWORD(line);
   if (pos == 0)
     modifyFail(line, "insertWORD: Too few words");
 
   line.insert(pos-1, edit.is);
 }
 
-void Refline::modifyDeleteWORD(string& line) const
+void RefLine::modifyDeleteWORD(string& line) const
 {
-  const unsigned pos = Refline::modifyCommonWORD(line);
+  const unsigned pos = RefLine::modifyCommonWORD(line);
   if (pos == 0)
     modifyFail(line, "replaceWORD: Too few words");
 
@@ -1946,10 +1946,10 @@ void Refline::modifyDeleteWORD(string& line) const
 }
 
 
-string Refline::str() const
+string RefLine::str() const
 {
   if (! setFlag)
-    return "Refline not set\n";
+    return "RefLine not set\n";
   if (range.lno == 0)
     return "Line number not set\n";
     

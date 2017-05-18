@@ -11,30 +11,30 @@
 #include <fstream>
 #include <regex>
 
-#include "Reflines.h"
+#include "RefLines.h"
 #include "parse.h"
 #include "Bexcept.h"
 
 
-Reflines::Reflines()
+RefLines::RefLines()
 {
-  Reflines::reset();
+  RefLines::reset();
 }
 
 
-Reflines::~Reflines()
+RefLines::~RefLines()
 {
 }
 
 
-void Reflines::reset()
+void RefLines::reset()
 {
   lines.clear();
   control = ERR_REF_STANDARD;
 }
 
 
-void Reflines::read(const string& fname)
+void RefLines::read(const string& fname)
 {
   regex re("\\.\\w+$");
   string refName = regex_replace(fname, re, string(".ref"));
@@ -52,10 +52,10 @@ void Reflines::read(const string& fname)
     if (line.empty() || line.at(0) == '%')
       continue;
 
-    Refline refline;
-    if (refline.parse(fname, line))
+    RefLine refLine;
+    if (refLine.parse(fname, line))
     {
-      lines.push_back(refline);
+      lines.push_back(refLine);
       continue;
     }
 
@@ -80,22 +80,22 @@ void Reflines::read(const string& fname)
 }
 
 
-bool Reflines::skip() const
+bool RefLines::skip() const
 {
   return (control == ERR_REF_SKIP);
 }
 
-bool Reflines::validate() const
+bool RefLines::validate() const
 {
   return (control != ERR_REF_NOVAL);
 }
 
-bool Reflines::orderCOCO() const
+bool RefLines::orderCOCO() const
 {
   return (control == ERR_REF_OUT_COCO);
 }
 
-bool Reflines::orderOOCC() const
+bool RefLines::orderOOCC() const
 {
   return (control == ERR_REF_OUT_OOCC);
 }

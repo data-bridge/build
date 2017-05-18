@@ -72,7 +72,7 @@ static bool readFormattedFile(
   const Format format,
   Group& group,
   const Options& options,
-  Reflines& reflines,
+  RefLines& refLines,
   ostream& flog);
 
 static bool readFormattedFile(
@@ -96,7 +96,7 @@ static void readFix(
 static void writeFormattedFile(
   Group& group,
   const string& fname,
-  const Reflines& reflines,
+  const RefLines& refLines,
   string& text,
   const Format format);
 
@@ -224,14 +224,14 @@ static bool dispatchRead(
   const FileTask& task,
   Group& group,
   const Options& options,
-  Reflines& reflines,
+  RefLines& refLines,
   ostream& flog)
 {
   try
   {
     bool b = readFormattedFile(task.fileInput,
-      task.formatInput, group, options, reflines, flog);
-    if (reflines.skip())
+      task.formatInput, group, options, refLines, flog);
+    if (refLines.skip())
       return true;
 
     if (options.playersFlag && b)
@@ -266,7 +266,7 @@ static void dispatchStats(
 
 static void dispatchWrite(
   const FileOutputTask& otask,
-  const Reflines& reflines,
+  const RefLines& refLines,
   Group& group,
   string& text,
   ostream& flog)
@@ -274,7 +274,7 @@ static void dispatchWrite(
   try
   {
     text = "";
-    writeFormattedFile(group, otask.fileOutput, reflines, 
+    writeFormattedFile(group, otask.fileOutput, refLines, 
       text, otask.formatOutput);
   }
   catch (Bexcept& bex)
@@ -401,7 +401,7 @@ void dispatch(
   string text;
   text.reserve(100000);
 
-  Reflines reflines;
+  RefLines refLines;
 
   while (files.next(task))
   {
@@ -414,16 +414,16 @@ void dispatch(
     if (options.fileDigest.setFlag || options.dirDigest.setFlag)
       goto DIGEST;
 
-    reflines.reset();
+    refLines.reset();
     timers.start(BRIDGE_TIMER_READ, task.formatInput);
-    bool b = dispatchRead(task, group, options, reflines, flog);
+    bool b = dispatchRead(task, group, options, refLines, flog);
     timers.stop(BRIDGE_TIMER_READ, task.formatInput);
     if (! b)
     {
       flog << "Failed to read " << task.fileInput << endl;
       continue;
     }
-    if (reflines.skip())
+    if (refLines.skip())
       continue;
 
     if (options.statsFlag)
@@ -442,10 +442,10 @@ void dispatch(
         flog << "Output " << t.fileOutput << endl;
 
       timers.start(BRIDGE_TIMER_WRITE, t.formatOutput);
-      dispatchWrite(t, reflines, group, text, flog);
+      dispatchWrite(t, refLines, group, text, flog);
       timers.stop(BRIDGE_TIMER_WRITE, t.formatOutput);
 
-      if (t.refFlag && reflines.validate())
+      if (t.refFlag && refLines.validate())
       {
         if (options.verboseIO)
           flog << "Validating " << t.fileOutput <<
@@ -961,12 +961,12 @@ static bool readFormattedFile(
   const Format format,
   Group& group,
   const Options& options,
-  Reflines& reflines,
+  RefLines& refLines,
   ostream& flog)
 {
   Buffer buffer;
-  buffer.read(fname, format, reflines);
-  if (reflines.skip())
+  buffer.read(fname, format, refLines);
+  if (refLines.skip())
     return true;
 
   vector<Fix> fix;
@@ -978,7 +978,7 @@ static bool readFormattedFile(
   if ((format == BRIDGE_FORMAT_LIN_RP ||
        format == BRIDGE_FORMAT_PBN ||
        format == BRIDGE_FORMAT_RBN) && 
-       reflines.orderCOCO())
+       refLines.orderCOCO())
     group.setCOCO();
 
   return readFormattedFile(buffer, fix, format, group, options, flog);
@@ -1222,7 +1222,7 @@ static void writeHeader(
 static void writeFormattedFile(
   Group& group,
   const string& fname,
-  const Reflines& reflines,
+  const RefLines& refLines,
   string &text,
   const Format format)
 {
@@ -1243,7 +1243,7 @@ static void writeFormattedFile(
     writeInfo.score2 = 0;
     writeInfo.numBoards = segment.size();
 
-    if (reflines.orderCOCO())
+    if (refLines.orderCOCO())
     {
       // c1, o1, c2, o2, ...
       for (auto &bpair: segment)
@@ -1268,7 +1268,7 @@ static void writeFormattedFile(
         }
       }
     }
-    else if (reflines.orderOOCC())
+    else if (refLines.orderOOCC())
     {
       // o1, o2, ..., c1, c2, ...
       for (unsigned i = 0; i < 2; i++)

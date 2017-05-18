@@ -53,7 +53,7 @@ class Sheet
     vector<SheetHandData> handsFixed;
     bool hasFixed;
 
-    Reflines reflines;
+    RefLines refLines;
 
 
     void resetHeader(SheetHeader& hdr);

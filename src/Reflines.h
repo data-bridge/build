@@ -12,12 +12,12 @@
 
 #include <string>
 
-#include "Refline.h"
+#include "RefLine.h"
 
 using namespace std;
 
 
-class Reflines
+class RefLines
 {
   private:
 
@@ -30,18 +30,18 @@ class Reflines
       ERR_REF_OUT_OOCC = 4
     };
 
-    vector<Refline> lines;
+    vector<RefLine> lines;
     RefControl control;
 
 
   public:
 
-    Reflines();
+    RefLines();
 
-    ~Reflines();
+    ~RefLines();
 
-    vector<Refline>::const_iterator begin() const { return lines.begin(); }
-    vector<Refline>::const_iterator end() const { return lines.end(); }
+    vector<RefLine>::const_iterator begin() const { return lines.begin(); }
+    vector<RefLine>::const_iterator end() const { return lines.end(); }
 
     void reset();
 

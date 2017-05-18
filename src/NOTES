@@ -1,11 +1,8 @@
 11.05.2017
 ----------
-* validate should not segfault on S01FA2.LIN->TXT
-
 * Refline:
   Done BBOVG (LIN), BBOSH (LIN), BBOJEC (PBN)
   Move the permitted pairs into a text file that we read?
-  Rename RefLine
   Split into RefComment and maybe also RefEdit
 
 * Add count checks to Refline::modify

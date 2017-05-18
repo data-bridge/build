@@ -296,14 +296,14 @@ void Buffer::classify(LineData& ld)
 bool Buffer::read(
   const string& fname,
   const Format formatIn,
-  Reflines& reflines,
+  RefLines& refLines,
   const RefUse use)
 {
   fileName = fname;
   format = formatIn;
 
-  reflines.read(fname);
-  if (reflines.skip())
+  refLines.read(fname);
+  if (refLines.skip())
     return false;
 
   Buffer::readBinaryFile(fname);
@@ -313,7 +313,7 @@ bool Buffer::read(
   for (auto &ld: lines)
     Buffer::classify(ld);
 
-  return Buffer::fix(reflines, use);
+  return Buffer::fix(refLines, use);
 }
 
 
@@ -351,24 +351,24 @@ bool Buffer::split(
 
 bool Buffer::fix(
   const string& fname,
-  Reflines& reflines,
+  RefLines& refLines,
   const RefUse use)
 {
-  reflines.read(fname);
-  if (reflines.skip())
+  refLines.read(fname);
+  if (refLines.skip())
     return false;
 
-  return Buffer::fix(reflines, use);
+  return Buffer::fix(refLines, use);
 }
 
 
 bool Buffer::fix(
-  const Reflines& reflines,
+  const RefLines& refLines,
   const RefUse use)
 {
   bool usedFlag = false;
 
-  for (auto &rl: reflines)
+  for (auto &rl: refLines)
   {
     if (use == BRIDGE_REF_ONLY_PARTIAL && rl.isUncommented())
       continue;
