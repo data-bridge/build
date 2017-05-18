@@ -146,6 +146,24 @@ void RefEdit::setIs(const string& isIn)
 }
 
 
+string RefEdit::tag() const
+{
+  return tagVal;
+}
+
+
+string RefEdit::was() const
+{
+  return wasVal;
+}
+
+
+string RefEdit::is() const
+{
+  return isVal;
+}
+
+
 void RefEdit::modifyFail(
   const string& line,
   const string& reason) const

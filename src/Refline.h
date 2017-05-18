@@ -11,6 +11,7 @@
 #define BRIDGE_REFLINE_H
 
 #include <string>
+#include "RefEdit.h"
 #include "RefComment.h"
 
 using namespace std;
@@ -29,40 +30,17 @@ class RefLine
 {
   private:
 
-    enum EditType
-    {
-      EDIT_TAG_ONLY = 0,
-      EDIT_TAG_FIELD = 1,
-      EDIT_CHAR = 2,
-      EDIT_MATCH = 3,
-      EDIT_WORD = 4,
-      EDIT_TYPE_SIZE = 5
-    };
-
     struct Range
     {
       unsigned lno; // First line is 1
       unsigned lcount; // 1 unless multi-line delete
     };
 
-    struct Edit
-    {
-      EditType type;
-      unsigned tagno;
-      bool reverseFlag; // tag is counted from the back, starting from -1
-      string tag; // "rs", for example
-      unsigned fieldno;
-      unsigned tagcount;
-      unsigned charno;
-      string was;
-      string is;
-    };
-
     bool setFlag;
     string inputLine;
     Range range;
     FixType fix;
-    Edit edit;
+    RefEdit edit;
     RefComment comment;
 
 
@@ -117,58 +95,6 @@ class RefLine
     void parseReplaceWORD(const string& refName, const string& line);
     void parseInsertWORD(const string& refName, const string& line);
     void parseDeleteWORD(const string& refName, const string& line);
-
-    void modifyFail(
-      const string& line,
-      const string& reason) const;
-
-    void modifyReplaceGen(string& line) const;
-    void modifyInsertGen(string& line) const;
-    void modifyDeleteGen(string& line) const;
-
-    void modifyLINCommon(
-      const string& line,
-      unsigned& start,
-      vector<string>& v,
-      vector<string>& f,
-      bool& endsOnPipe) const;
-
-    void modifyRBNCommon(
-      const string& line,
-      string& s) const;
-
-    bool modifyCommonRBX(
-      const string& line,
-      vector<string>& v,
-      string& s,
-      unsigned& pos) const;
-
-    unsigned modifyCommonTXT(const string& line) const;
-    unsigned modifyCommonWORD(const string& line) const;
-
-    void modifyReplaceLIN(string& line) const;
-    void modifyInsertLIN(string& line) const;
-    void modifyDeleteLIN(string& line) const;
-
-    void modifyReplacePBN(string& line) const;
-    void modifyInsertPBN(string& line) const;
-    void modifyDeletePBN(string& line) const;
-
-    void modifyReplaceRBN(string& line) const;
-    void modifyInsertRBN(string& line) const;
-    void modifyDeleteRBN(string& line) const;
-
-    void modifyReplaceRBX(string& line) const;
-    void modifyInsertRBX(string& line) const;
-    void modifyDeleteRBX(string& line) const;
-
-    void modifyReplaceTXT(string& line) const;
-    void modifyInsertTXT(string& line) const;
-    void modifyDeleteTXT(string& line) const;
-
-    void modifyReplaceWORD(string& line) const;
-    void modifyInsertWORD(string& line) const;
-    void modifyDeleteWORD(string& line) const;
 
 
   public:
