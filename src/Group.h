@@ -53,6 +53,7 @@ class Group
     void setCOCO();
 
     unsigned count();
+    unsigned countBoards();
 
     bool operator == (const Group& group2) const;
 

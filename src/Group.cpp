@@ -82,6 +82,16 @@ unsigned Group::count()
 }
 
 
+unsigned Group::countBoards() 
+{
+  unsigned cnt = 0;
+  for (auto &segment: segments)
+    cnt += segment.countBoards();
+
+  return cnt;
+}
+
+
 bool Group::operator == (const Group& group2) const
 {
   if (segments.size() != group2.segments.size())

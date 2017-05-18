@@ -981,7 +981,12 @@ static bool readFormattedFile(
        refLines.orderCOCO())
     group.setCOCO();
 
-  return readFormattedFile(buffer, fix, format, group, options, flog);
+  bool b = readFormattedFile(buffer, fix, format, group, options, flog);
+
+  refLines.setFileData(buffer.lengthOrig(), 
+    group.count(), group.countBoards());
+
+  return b;
 }
 
 

@@ -115,6 +115,7 @@ class Segment
     unsigned size() const;
 
     unsigned count() const;
+    unsigned countBoards() const;
 
     void setCOCO();
     bool getCOCO() const;

@@ -35,6 +35,7 @@ class Buffer
     string fileName;
     vector<LineData> lines;
     unsigned len;
+    unsigned lenOrig;
     unsigned current;
     Format format;
     unsigned posLIN;
@@ -79,6 +80,8 @@ class Buffer
       const Format format,
       RefLines& refLines,
       const RefUse use = BRIDGE_REF_ALL);
+
+    unsigned lengthOrig() const;
 
     bool split(
       const string& st,

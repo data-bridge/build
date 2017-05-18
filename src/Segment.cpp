@@ -274,6 +274,19 @@ unsigned Segment::count() const
 }
 
 
+unsigned Segment::countBoards() const
+{
+  unsigned cnt = 0;
+  for (auto &p: boards)
+  {
+    if (! p.board.skippedAll())
+    cnt++;
+  }
+
+  return cnt;
+}
+
+
 void Segment::setTitle(
   const string& text,
   const Format format)

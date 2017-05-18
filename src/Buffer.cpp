@@ -42,6 +42,7 @@ void Buffer::reset()
 {
   fileName = "";
   len = 0;
+  lenOrig = 0;
   current = 0;
   format = BRIDGE_FORMAT_SIZE;
   posLIN = 0;
@@ -121,6 +122,7 @@ void Buffer::readBinaryFile(const string& fname)
   }
 
   len = static_cast<unsigned>(lines.size());
+  lenOrig = len;
   close(fd);
 }
 
@@ -317,6 +319,12 @@ bool Buffer::read(
 }
 
 
+unsigned Buffer::lengthOrig() const
+{
+  return lenOrig;
+}
+
+
 bool Buffer::split(
   const string& st,
   const Format formatIn)
@@ -398,7 +406,9 @@ bool Buffer::fix(
       if (i + deletion > len)
         THROW("Too large deletion");
 
-      rl.modify(ld.line); // For completeness, even though deleted
+      // For completeness, even though deleted
+      for (unsigned j = i; j < i+deletion; j++)
+        rl.modify(lines[i].line); 
 
       lines.erase(lines.begin() + static_cast<int>(i), 
           lines.begin() + static_cast<int>(deletion + i));

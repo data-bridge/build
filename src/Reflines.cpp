@@ -30,7 +30,21 @@ RefLines::~RefLines()
 void RefLines::reset()
 {
   lines.clear();
+  bufferLines = 0;
+  numHands = 0;
+  numBoards = 0;
   control = ERR_REF_STANDARD;
+}
+
+
+void RefLines::setFileData(
+  const unsigned bufIn,
+  const unsigned numHandsIn,
+  const unsigned numBoardsIn)
+{
+  bufferLines = bufIn;
+  numHands = numHandsIn;
+  numBoards = numBoardsIn;
 }
 
 
