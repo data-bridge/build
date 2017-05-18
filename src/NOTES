@@ -1,13 +1,9 @@
 11.05.2017
 ----------
 * Refline:
-  Done BBOVG (LIN), BBOSH (LIN), BBOJEC (PBN)
-  Move the permitted pairs into a text file that we read?
-  Split into RefComment and maybe also RefEdit
+  Split into RefEdit
 
 * Add count checks to Refline::modify
-* Add the TXT functions to Refline
-* Change the corresponding ref files to the new syntax
 * simplify Files.cpp (no noval and skip)
 * Simplify Buffer fix (always fix, not PARTIAL etc.)
 

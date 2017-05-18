@@ -43,6 +43,7 @@ SOURCE_FILES 	=		\
 	heurfix.cpp		\
 	parse.cpp		\
 	RefComment.cpp		\
+	RefEdit.cpp		\
 	RefLine.cpp		\
 	RefLines.cpp		\
 	validate.cpp		\
@@ -202,6 +203,7 @@ heurfix.obj: Reflines.h RefLine.h RefComment.h refconst.h Chunk.h parse.h
 heurfix.obj: Bexcept.h
 parse.obj: parse.h bconst.h
 RefComment.obj: RefComment.h refconst.h parse.h bconst.h Bexcept.h
+RefEdit.obj: refconst.h parse.h bconst.h Bexcept.h
 RefLine.obj: RefLine.h RefComment.h refconst.h parse.h bconst.h Bexcept.h
 RefLines.obj: RefLines.h RefLine.h RefComment.h refconst.h parse.h bconst.h
 RefLines.obj: Bexcept.h
