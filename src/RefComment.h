@@ -23,7 +23,7 @@ class RefComment
 
   bool setFlag;
   string fileName;
-  RefErrorsType category; // "ERR_LIN_VG_FIRST", for example
+  CommentType category; // "ERR_LIN_VG_FIRST", for example
   unsigned count1, count2, count3;
   string quote;
 

@@ -84,7 +84,7 @@ enum RefTag
 };
 
 
-enum RefErrorsType
+enum CommentType
 {
   ERR_LIN_VG_FIRST,
   ERR_LIN_VG_LAST,

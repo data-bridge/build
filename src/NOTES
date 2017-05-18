@@ -1,19 +1,8 @@
 11.05.2017
 ----------
-* Refline:
-  Split into RefEdit
-
+* Refline: Clean up code?
 * Add count checks to Refline::modify
-* simplify Files.cpp (no noval and skip)
-* Simplify Buffer fix (always fix, not PARTIAL etc.)
-
-* In dispatch, make boardIDLIN into an object?
-* Detect COCO at least in LIN, PBN, RBN, RBX
-  Then remove from those .ref files, also in BBOVG
-
-* Do the rest of -D (377 files)
-  Actually, improve Sheet.cpp first to make suggestions.
-  This can then also eliminate heurfix.
+* Eliminate refstats.pl
 
 * Get reader to work on RPmajors
   - Get whole RPmajors matrix to work
@@ -35,6 +24,17 @@ RBX
 TXT
 EML
 REC
+
+* simplify Files.cpp (no noval and skip)
+* Simplify Buffer fix (always fix, not PARTIAL etc.)
+
+* In dispatch, make boardIDLIN into an object?
+* Detect COCO at least in LIN, PBN, RBN, RBX
+  Then remove from those .ref files, also in BBOVG
+
+* Do the rest of -D (377 files)
+  Actually, improve Sheet.cpp first to make suggestions.
+  This can then also eliminate heurfix.
 
 * ./reader -i 7090.pbn -O tmp -c -s -v 31 dies after 
   "Output tmp/PBN/7090.LIN", probably trying to compare/validate?
