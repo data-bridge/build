@@ -33,6 +33,8 @@ class RefComment
   void setActionTable();
   void setTagTable();
 
+  RefTag str2ref(const string& refstr) const;
+
 
   public:
 
@@ -49,6 +51,8 @@ class RefComment
       unsigned& end);
 
     void checkAction(const ActionType action) const;
+
+    string comment2str(const CommentType c) const;
 
     void checkTag(const string& tag) const;
 

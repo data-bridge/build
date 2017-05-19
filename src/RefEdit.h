@@ -20,13 +20,6 @@ class RefEdit
 {
   private:
 
-    struct RefCount
-    {
-      unsigned units;
-      unsigned hands;
-      unsigned boards;
-    };
-
     unsigned tagno;
     bool reverseFlag; // tag is counted from the back, starting from -1
     string tagVal; // "rs", for example

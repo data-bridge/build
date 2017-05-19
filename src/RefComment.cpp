@@ -628,29 +628,48 @@ void RefComment::checkAction(const ActionType action) const
 }
 
 
-void RefComment::checkTag(const string& tag) const
+RefTag RefComment::str2ref(const string& refstr) const
 {
-  if (tag == "")
-    return;
+  if (refstr == "")
+    return REF_TAGS_SIZE;
 
-  auto it = TagMap.find(tag);
+  auto it = TagMap.find(refstr);
   if (it == TagMap.end())
   {
     // Try lower-case as well.
-    string taglc = tag;
-    toLower(taglc);
-    it = TagMap.find(taglc);
+    string reflc = refstr;
+    toLower(reflc);
+    it = TagMap.find(reflc);
     if (it == TagMap.end())
       THROW("Ref file " + fileName + ":\n" + 
         " quote '" + quote + "'" + 
-        " tag name not found: " + tag);
+        " ref name not found: " + refstr);
   }
 
-  if (! TagCommentOK[it->second][category])
+  return it->second;
+}
+
+
+string RefComment::comment2str(const CommentType c) const
+{
+  if (c == ERR_SIZE)
+    THROW("Bad comment type");
+
+  return CommentList[c].name;
+}
+
+
+void RefComment::checkTag(const string& tagstr) const
+{
+  const RefTag tag = RefComment::str2ref(tagstr);
+  if (tag == REF_TAGS_SIZE)
+    return;
+
+  if (! TagCommentOK[tag][category])
     THROW("Ref file " + fileName + ":\n" +
       "comment '" + quote + "'" + "\n" +
       CommentList[category].name + "\n" +
-      "tag " + tag + "\n" + 
+      "tag " + tagstr + "\n" + 
       "Tag and comment don't match");
 }
 

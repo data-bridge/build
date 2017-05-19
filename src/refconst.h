@@ -11,6 +11,15 @@
 #define REF_ACTIONCONST_H
 
 
+struct RefCount
+{
+  unsigned lines;
+  unsigned units;
+  unsigned hands; // qx
+  unsigned boards; // bd
+};
+
+
 enum ActionType
 {
   REF_ACTION_REPLACE_GEN = 0,

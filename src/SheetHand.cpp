@@ -338,7 +338,7 @@ void SheetHand::finishHand(
 
 bool SheetHand::operator ==(const SheetHand& href) const
 {
-  return (! (* this == href));
+  return (! (* this != href));
 }
 
 

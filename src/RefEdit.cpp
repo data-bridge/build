@@ -71,6 +71,7 @@ void RefEdit::reset()
 
 void RefEdit::setCount(const unsigned v)
 {
+  count.lines = v;
   count.units = v;
   count.hands = v;
   count.boards = v;
