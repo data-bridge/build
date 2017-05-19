@@ -40,8 +40,6 @@ class TextStats
 
     void setTables();
 
-    string posOrDash(const unsigned u) const;
-
     void printDetails(
       const unsigned label,
       ostream& fstr) const;

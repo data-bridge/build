@@ -136,6 +136,16 @@ bool getWords(
   return true;
 }
 
+
+string posOrDash(const unsigned u)
+{
+  if (u == 0)
+    return "-";
+  else
+    return STR(u);
+}
+
+
 string concat(
   const vector<string>& list,
   const string& delim)

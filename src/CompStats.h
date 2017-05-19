@@ -30,8 +30,6 @@ class CompStats
 
     CompStat stats[BRIDGE_FORMAT_SIZE];
 
-    string posOrDash(const unsigned u) const;
-
   public:
 
     CompStats();

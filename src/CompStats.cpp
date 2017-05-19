@@ -12,6 +12,7 @@
 #include <assert.h>
 
 #include "CompStats.h"
+#include "parse.h"
 
 
 CompStats::CompStats()
@@ -56,15 +57,6 @@ void CompStats::operator += (const CompStats& statsIn)
 }
 
 
-string CompStats::posOrDash(const unsigned u) const
-{
-  if (u == 0)
-    return "-";
-  else
-    return STR(u);
-}
-
-
 void CompStats::print(ostream& fstr) const
 {
   fstr << setw(8) << left << "format" << 
@@ -77,7 +69,7 @@ void CompStats::print(ostream& fstr) const
     {
       fstr << setw(8) << left << FORMAT_NAMES[f] <<
         setw(8) << right << stats[f].count <<
-        setw(8) << CompStats::posOrDash(stats[f].errors) << endl;
+        setw(8) << posOrDash(stats[f].errors) << endl;
     }
   }
   fstr << "\n\n";

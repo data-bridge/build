@@ -157,15 +157,6 @@ void TextStats::operator += (const TextStats& statsIn)
 }
 
 
-string TextStats::posOrDash(const unsigned u) const
-{
-  if (u == 0)
-    return "-";
-  else
-    return STR(u);
-}
-
-
 void TextStats::printDetails(
   const unsigned label,
   ostream& fstr) const

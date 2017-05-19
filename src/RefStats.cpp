@@ -81,22 +81,20 @@ void RefStats::reset()
 void RefStats::incr(
   const RefTables table,
   const RefTag tag,
-  unsigned files,
-  unsigned noRefLines,
-  const RefCount& count)
+  const RefEntry& re)
 {
-  data[table][tag].files += files;
-  data[table][tag].noRefLines += noRefLines;
-  data[table][tag].count.lines += count.lines;
-  data[table][tag].count.units += count.units;
-  data[table][tag].count.hands += count.hands;
-  data[table][tag].count.boards += count.boards;
+  data[table][tag].files += re.files;
+  data[table][tag].noRefLines += re.noRefLines;
+  data[table][tag].count.lines += re.count.lines;
+  data[table][tag].count.units += re.count.units;
+  data[table][tag].count.hands += re.count.hands;
+  data[table][tag].count.boards += re.count.boards;
 }
 
 
-void RefStats::logFile(const RefCount& count)
+void RefStats::logFile(const RefEntry& re)
 {
-  RefStats::incr(REFSTATS_SOURCE, static_cast<RefTag>(0), 1, 0, count);
+  RefStats::incr(REFSTATS_SOURCE, static_cast<RefTag>(0), re);
 }
 
 
@@ -110,45 +108,38 @@ void RefStats::logRefFile()
 
 void RefStats::logSkip(
   const RefTag tag,
-  const RefCount& count)
+  const RefEntry& re)
 {
-  RefStats::incr(REFSTATS_SKIP, tag, 1, 1, count);
+  RefStats::incr(REFSTATS_SKIP, tag, re);
 }
 
 
 void RefStats::logNoval(
   const RefTag tag,
-  const RefCount& count)
+  const RefEntry& re)
 {
-  RefStats::incr(REFSTATS_NOVAL, tag, 1, 1, count);
+  RefStats::incr(REFSTATS_NOVAL, tag, re);
 }
 
 
 void RefStats::logRef(
   const RefTag tag,
-  const RefCount& count)
+  RefEntry& re)
 {
-  unsigned f = (tagSeen[tag] ? 0u : 1u);
+  re.files = (tagSeen[tag] ? 0u : 1u);
   tagSeen[tag] = true;
 
-  RefStats::incr(REFSTATS_REF, tag, f, 1, count);
+  RefStats::incr(REFSTATS_REF, tag, re);
 }
 
 
 void RefStats::operator +=(const RefStats& rf2)
 {
   for (unsigned table = 0; table < REFSTATS_SIZE; table++)
-  {
     for (unsigned tag = 0; tag < ERR_SIZE; tag++)
-    {
-      data[table][tag].files += rf2.data[table][tag].files;
-      data[table][tag].noRefLines += rf2.data[table][tag].noRefLines;
-      data[table][tag].count.lines += rf2.data[table][tag].count.lines;
-      data[table][tag].count.units += rf2.data[table][tag].count.units;
-      data[table][tag].count.hands += rf2.data[table][tag].count.hands;
-      data[table][tag].count.boards += rf2.data[table][tag].count.boards;
-    }
-  }
+      RefStats::incr(static_cast<RefTables>(table), 
+        static_cast<RefTag>(tag), rf2.data[table][tag]);
+
   numRefFiles += rf2.numRefFiles;
 }
 
@@ -160,7 +151,7 @@ string RefStats::str() const
 
   stringstream ss;
   RefComment comment; // Kludge to get at tag names
-    RefEntry refSum;
+  RefEntry refSum;
 
   string dashes;
   dashes.resize(0);

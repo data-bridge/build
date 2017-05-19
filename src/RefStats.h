@@ -53,9 +53,7 @@ class RefStats
     void incr(
       const RefTables table,
       const RefTag tag,
-      const unsigned files,
-      const unsigned noRefLines,
-      const RefCount& count);
+      const RefEntry& count);
 
 
   public:
@@ -66,25 +64,25 @@ class RefStats
 
     void reset();
 
-    void logFile(const RefCount& count);
+    void logFile(const RefEntry& re);
 
     void logRefFile();
 
     void logSkip(
       const RefTag tag,
-      const RefCount& count);
+      const RefEntry& re);
 
     void logOrder(
       const RefTag tag,
-      const RefCount& count);
+      const RefEntry& re);
 
     void logNoval(
       const RefTag tag,
-      const RefCount& count);
+      const RefEntry& re);
 
     void logRef(
       const RefTag tag,
-      const RefCount& count);
+      RefEntry& re);
 
     void operator += (const RefStats& rf2);
 

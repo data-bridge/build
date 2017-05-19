@@ -45,6 +45,8 @@ string concat(
   const vector<string>& list,
   const string& delim);
 
+string posOrDash(const unsigned u);
+
 bool str2unsigned(
   const string& text,
   unsigned& res);

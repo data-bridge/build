@@ -126,7 +126,7 @@ Buffer.obj: Buffer.h valint.h Reflines.h RefLine.h RefEdit.h refconst.h
 Buffer.obj: RefComment.h RefAction.h bconst.h parse.h Bexcept.h
 Canvas.obj: Canvas.h
 Chunk.obj: Chunk.h bconst.h parse.h Bexcept.h Bdiff.h
-CompStats.obj: CompStats.h bconst.h
+CompStats.obj: CompStats.h bconst.h parse.h
 Contract.obj: Contract.h bconst.h parse.h Bexcept.h Bdiff.h
 Date.obj: Date.h bconst.h parse.h Bexcept.h Bdiff.h
 Deal.obj: Deal.h bconst.h parse.h Bexcept.h Bdiff.h
@@ -215,7 +215,7 @@ RefLine.obj: RefLine.h RefEdit.h refconst.h RefComment.h RefAction.h parse.h
 RefLine.obj: bconst.h Bexcept.h
 RefLines.obj: RefLines.h RefLine.h RefEdit.h refconst.h RefComment.h
 RefLines.obj: RefAction.h parse.h bconst.h Bexcept.h
-RefStats.obj: RefStats.h refconst.h Bexcept.h
+RefStats.obj: RefStats.h refconst.h RefComment.h Bexcept.h
 validate.obj: ValStats.h ValProfile.h validate.h Buffer.h valint.h Reflines.h
 validate.obj: RefLine.h RefEdit.h refconst.h RefComment.h RefAction.h
 validate.obj: bconst.h filePBN.h Segment.h Date.h Location.h Session.h
