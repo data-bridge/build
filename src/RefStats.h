@@ -10,7 +10,9 @@
 #ifndef BRIDGE_REFSTATS_H
 #define BRIDGE_REFSTATS_H
 
+#include <iostream>
 #include <string>
+
 #include "refconst.h"
 
 using namespace std;
@@ -86,7 +88,7 @@ class RefStats
 
     void operator += (const RefStats& rf2);
 
-    string str() const;
+    void print(ostream& fstr) const;
 };
 
 #endif

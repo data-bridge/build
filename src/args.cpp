@@ -29,7 +29,7 @@ struct OptEntry
   unsigned numArgs;
 };
 
-#define BRIDGE_NUM_OPTIONS 16
+#define BRIDGE_NUM_OPTIONS 17
 
 static const OptEntry OPT_LIST[BRIDGE_NUM_OPTIONS] =
 {
@@ -47,6 +47,7 @@ static const OptEntry OPT_LIST[BRIDGE_NUM_OPTIONS] =
   {"f", "format", 1},
   {"w", "write", 1},
   {"s", "stats", 0},
+  {"q", "quotes", 0},
   {"n", "threads", 1},
   {"v", "verbose", 1}
 };
@@ -108,6 +109,9 @@ void usage(
     "                   Values 0 (none), 1 (clear ones), 2 (all).\n" <<
     "\n" <<
     "-s, --stats        Output length stats of free-form fields.\n" <<
+    "                   (Default: not set)\n" <<
+    "\n" <<
+    "-q, --quotes       Output stats of ref-file quotes.\n" <<
     "                   (Default: not set)\n" <<
     "\n" <<
     "-n, --threads n    Number of threads (default: 1).\n" <<
@@ -191,6 +195,7 @@ static void setDefaults(Options& options)
   options.format = BRIDGE_FORMAT_SIZE;
 
   options.statsFlag = false;
+  options.quoteFlag = false;
 
   options.refLevel = REF_LEVEL_NONE;
 
@@ -421,6 +426,10 @@ void readArgs(
 
       case 's':
         options.statsFlag = true;
+        break;
+
+      case 'q':
+        options.quoteFlag = true;
         break;
 
       case 'w':

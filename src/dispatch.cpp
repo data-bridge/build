@@ -247,6 +247,20 @@ static bool dispatchRead(
 }
 
 
+static void dispatchRefStats(
+  const FileTask& task,
+  RefLines& refLines,
+  RefStats& refstats,
+  ostream& flog)
+{
+  // TODO
+  UNUSED(task);
+  UNUSED(refLines);
+  UNUSED(refstats);
+  UNUSED(flog);
+}
+
+
 static void dispatchStats(
   const FileTask& task,
   Group& group,
@@ -390,7 +404,8 @@ void dispatch(
   ValStats& vstats,
   TextStats& tstats,
   CompStats& cstats,
-  Timers& timers)
+  Timers& timers,
+  RefStats& refstats)
 {
   ofstream freal;
   if (options.fileLog.setFlag)
@@ -423,6 +438,17 @@ void dispatch(
       flog << "Failed to read " << task.fileInput << endl;
       continue;
     }
+
+    if (options.quoteFlag)
+    {
+      if (options.verboseIO)
+        flog << "Ref file for " << task.fileInput << endl;
+    
+      timers.start(BRIDGE_TIMER_REF_STATS, task.formatInput);
+      dispatchRefStats(task, refLines, refstats, flog);
+      timers.stop(BRIDGE_TIMER_REF_STATS, task.formatInput);
+    }
+
     if (refLines.skip())
       continue;
 
@@ -1335,6 +1361,7 @@ void mergeResults(
   vector<TextStats>& tstats,
   vector<CompStats>& cstats,
   vector<Timers>& timers,
+  vector<RefStats>& refstats,
   const Options& options)
 {
   if (options.numThreads == 1)
@@ -1346,6 +1373,7 @@ void mergeResults(
     tstats[0] += tstats[i];
     cstats[0] += cstats[i];
     timers[0] += timers[i];
+    refstats[0] += refstats[i];
   }
 
   if (! options.fileLog.setFlag)

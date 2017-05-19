@@ -144,12 +144,11 @@ void RefStats::operator +=(const RefStats& rf2)
 }
 
 
-string RefStats::str() const
+void RefStats::print(ostream& fstr) const
 {
   if (numSourceFiles == 0)
-    return "";
+    return;
 
-  stringstream ss;
   RefComment comment; // Kludge to get at tag names
   RefEntry refSum;
 
@@ -159,9 +158,9 @@ string RefStats::str() const
 
   for (unsigned table = 0; table < REFSTATS_SIZE; table++)
   {
-    ss << RefTableNames[table] << "\n\n";
+    fstr << RefTableNames[table] << "\n\n";
 
-    ss << setw(28) << left << "Reference" <<
+    fstr << setw(28) << left << "Reference" <<
       setw(7) << right << "Files" <<
       setw(7) << right << "Lines" <<
       setw(7) << right << "Refs" <<
@@ -181,7 +180,7 @@ string RefStats::str() const
       if (table == 0)
         continue; // Only show sum
 
-      ss << setw(28) << left << 
+      fstr << setw(28) << left << 
         comment.comment2str(static_cast<CommentType>(comm)) <<
         setw(7) << right << data[table][comm].files <<
         setw(7) << right << data[table][comm].noRefLines <<
@@ -191,9 +190,9 @@ string RefStats::str() const
         setw(7) << right << data[table][comm].count.hands << "\n";
     }
 
-    ss << dashes << "\n";
+    fstr << dashes << "\n";
 
-    ss << setw(28) << left << "Sum" <<
+    fstr << setw(28) << left << "Sum" <<
       setw(7) << right << refSum.files <<
       setw(7) << right << refSum.noRefLines <<
       setw(7) << right << refSum.count.lines <<
@@ -202,11 +201,9 @@ string RefStats::str() const
       setw(7) << right << refSum.count.hands << "\n\n";
   }
 
-  ss << setw(28) << left << "Number of source files" <<
+  fstr << setw(28) << left << "Number of source files" <<
     setw(7) << right << numSourceFiles << "\n";
-  ss << setw(28) << left << "Number of ref files" <<
+  fstr << setw(28) << left << "Number of ref files" <<
     setw(7) << right << numRefFiles << "\n\n";
-
-  return ss.str();
 }
 

@@ -253,6 +253,7 @@ struct Options
   Format format;
 
   bool statsFlag; // -s, --stats
+  bool quoteFlag; // -q, --quote
 
   RefLevel refLevel;
 
