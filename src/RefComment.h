@@ -69,6 +69,8 @@ class RefComment
       RefEntry &re) const;
 
     string str() const;
+
+    string strComment() const;
 };
 
 #endif

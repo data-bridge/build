@@ -252,7 +252,7 @@ enum RefCountType
   REF_COUNT_HEADER = 1, // Single-tag header, (1,n,m)
   REF_COUNT_HANDS = 2, // multi-line delete, (0,c,d) 
   REF_COUNT_SINGLE = 3, // (1,1,1)
-  REF_COUNT_MULTI = 4, // count multiple lines, (c,1,1)
+  REF_COUNT_MULTI = 4, // count multiple homogeneous lines, (c,1,1)
   REF_COUNT_LIN_IS = 5, // count isVal, (c,1,1)
   REF_COUNT_LIN_REPEAT = 6, // tag count, (c,1,1), excluding pg etc.
   REF_COUNT_SIZE = 7

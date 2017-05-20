@@ -783,12 +783,76 @@ unsigned RefLine::deletion() const
 }
 
 
+void RefLine::checkEntries(
+  const RefEntry& re,
+  const RefEntry& ractual) const
+{
+  if (re.count.units == ractual.count.units &&
+      re.count.hands == ractual.count.hands &&
+      re.count.boards == ractual.count.boards)
+    return;
+
+  THROW(comment.strComment() + ": (" + 
+    STR(ractual.count.units) + "," +
+    STR(ractual.count.hands) + "," + 
+    STR(ractual.count.boards) + ")");
+}
+
+
+void RefLine::checkCounts() const
+{
+  CommentType cat;
+  RefEntry re, ractual;
+  comment.getEntry(cat, re);
+  const RefCountType rc = comment.countType(action.number());
+
+  if (rc == REF_COUNT_INACTIVE)
+  {
+    // TODO: Can be delete {HAND_DIRECTOR}.
+  }
+  else if (rc == REF_COUNT_HEADER)
+  {
+    // TODO
+  }
+  else if (rc == REF_COUNT_HANDS)
+  {
+    // TODO
+  }
+  else if (rc == REF_COUNT_SINGLE)
+  {
+    ractual.count.units = 1;
+    ractual.count.hands = 1;
+    ractual.count.boards = 1;
+    RefLine::checkEntries(re, ractual);
+  }
+  else if (rc == REF_COUNT_MULTI)
+  {
+    // TODO: Count multiple tags on a single line, e.g. TRICK_DELETE.
+  }
+  else if (rc == REF_COUNT_LIN_IS)
+  {
+    // TODO
+  }
+  else if (rc == REF_COUNT_LIN_REPEAT)
+  {
+    // TODO
+  }
+  else
+    THROW("Bad count type");
+}
+
+
 void RefLine::modify(string& line) const
 {
   if (! setFlag)
     THROW("RefLine not set: " + line);
 
   edit.modify(line, action.number());
+
+  if (comment.isUncommented())
+    return;
+
+  RefLine::checkCounts();
 }
 
 
@@ -798,6 +862,8 @@ void RefLine::modify(vector<string>& lines) const
     THROW("RefLine not set (multi-line)");
 
   edit.modify(lines, action.number());
+
+  // TODO: Multi-line check
 }
 
 
