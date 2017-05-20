@@ -51,8 +51,6 @@ class RefEdit
       vector<string>& f,
       bool& endsOnPipe) const;
 
-    unsigned countUnitsLIN() const;
-
     void modifyRBNCommon(
       const string& line,
       string& s) const;
@@ -111,6 +109,9 @@ class RefEdit
     string tag() const;
     string is() const;
     string was() const;
+
+    unsigned repeatCount() const;
+    unsigned countUnitsLIN() const;
 
     void modify(
       string& line,

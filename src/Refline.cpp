@@ -394,6 +394,7 @@ void RefLine::parseDeleteLIN(
     THROW("Ref file " + refName + ": Short quotes '" + quote + "'");
 
   RefLine::parseFlexibleNumber(refName, v[0]);
+  edit.setTagCount(1); // Default to be overwritten
 
   // delete "3" is allowed for desperate cases.
   if (vlen == 1)
@@ -831,11 +832,19 @@ void RefLine::checkCounts() const
   }
   else if (rc == REF_COUNT_LIN_IS)
   {
-    // TODO
+    ractual.count.units = edit.countUnitsLIN();
+    if (action.number() == ACTION_INSERT_LINE)
+      ractual.count.units--;
+    ractual.count.hands = 1;
+    ractual.count.boards = 1;
+    RefLine::checkEntries(re, ractual);
   }
   else if (rc == REF_COUNT_LIN_REPEAT)
   {
-    // TODO
+    ractual.count.units = edit.repeatCount();
+    ractual.count.hands = 1;
+    ractual.count.boards = 1;
+    RefLine::checkEntries(re, ractual);
   }
   else
     THROW("Bad count type");

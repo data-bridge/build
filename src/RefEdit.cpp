@@ -176,6 +176,12 @@ string RefEdit::is() const
 }
 
 
+unsigned RefEdit::repeatCount() const
+{
+  return tagcount;
+}
+
+
 void RefEdit::modifyFail(
   const string& line,
   const string& reason) const
