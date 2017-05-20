@@ -319,6 +319,22 @@ bool Buffer::read(
 }
 
 
+void Buffer::readForce(
+  const string& fname,
+  const Format formatIn)
+{
+  fileName = fname;
+  format = formatIn;
+
+  Buffer::readBinaryFile(fname);
+  if (len == 0)
+    return;
+
+  for (auto &ld: lines)
+    Buffer::classify(ld);
+}
+
+
 unsigned Buffer::lengthOrig() const
 {
   return lenOrig;
@@ -411,8 +427,11 @@ bool Buffer::fix(
         rl.modify(lines[i].line); 
       else
       {
+        vector<string> tmplines;
         for (unsigned j = i; j < i+deletion; j++)
-          rl.modify(lines[i].line); 
+          tmplines.push_back(lines[j].line);
+
+        rl.modify(tmplines);
       }
 
       lines.erase(lines.begin() + static_cast<int>(i), 

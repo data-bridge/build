@@ -31,11 +31,18 @@ class RefLines
     };
 
     vector<RefLine> lines;
+
     RefControl control;
+    RefComment headerComment;
 
     unsigned bufferLines;
     unsigned numHands;
     unsigned numBoards;
+
+
+    bool parseComment(
+      const string& fname,
+      string& line);
 
 
   public:
@@ -56,10 +63,19 @@ class RefLines
 
     void read(const string& fname);
 
+    bool hasComments() const;
     bool skip() const;
     bool validate() const;
     bool orderCOCO() const;
     bool orderOOCC() const;
+
+    bool getHeaderEntry(
+      CommentType& cat,
+      RefEntry& re) const;
+
+    bool getControlEntry(
+      CommentType& cat,
+      RefEntry& re) const;
 };
 
 #endif

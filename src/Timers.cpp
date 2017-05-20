@@ -19,6 +19,7 @@ const string TimerName[]
   "Valid",
   "Comp",
   "Stats",
+  "Refs",
   "Sheet"
 };
 
@@ -66,13 +67,33 @@ void Timers::operator += (const Timers& timer2)
 }
 
 
+void Timers::findActive(vector<unsigned>& active) const
+{
+  for (unsigned fnc = 0; fnc < BRIDGE_TIMER_SIZE; fnc++)
+  {
+    bool flag = false;
+    for (unsigned format = 0; format < BRIDGE_FORMAT_SIZE; format++)
+    {
+      if (timer[fnc][format].no != 0)
+      {
+        flag = true;
+        break;
+      }
+    }
+    if (flag)
+      active.push_back(fnc);
+  }
+}
+
+
 void Timers::printTable(
   const string& header,
   const double table[][BRIDGE_FORMAT_SIZE],
+  const vector<unsigned> active,
   const int prec) const
 {
   cout << setw(8) << left << header;
-  for (unsigned fnc = 0; fnc < BRIDGE_TIMER_SIZE; fnc++)
+  for (auto &fnc: active)
     cout << setw(12) << right << TimerName[fnc];
   cout << "\n";
 
@@ -80,7 +101,7 @@ void Timers::printTable(
   {
     cout << setw(8) << left << FORMAT_NAMES[format];
 
-    for (unsigned fnc = 0; fnc < BRIDGE_TIMER_SIZE; fnc++)
+    for (auto &fnc: active)
     {
       if (table[fnc][format] == 0.)
         cout << setw(12) << right << "-";
@@ -111,11 +132,14 @@ void Timers::print(const unsigned numThreads) const
     cout << " (" << numThreads << " threads)";
   cout << "\n\n";
 
+  vector<unsigned> active;
+  Timers::findActive(active);
+
   for (unsigned fnc = 0; fnc < BRIDGE_TIMER_SIZE; fnc++)
     for (unsigned format = 0; format < BRIDGE_FORMAT_SIZE; format++)
       table[fnc][format] = 100. * timer[fnc][format].sum / sum;
 
-  Timers::printTable("Sum %", table);
+  Timers::printTable("Sum %", table, active);
 
   for (unsigned fnc = 0; fnc < BRIDGE_TIMER_SIZE; fnc++)
   {
@@ -131,6 +155,6 @@ void Timers::print(const unsigned numThreads) const
     }
   }
 
-  Timers::printTable("Avg ms", table);
+  Timers::printTable("Avg ms", table, active);
 }
 

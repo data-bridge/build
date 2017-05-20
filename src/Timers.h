@@ -40,9 +40,12 @@ class Timers
     Timer timer[BRIDGE_TIMER_SIZE][BRIDGE_FORMAT_SIZE];
 
 
+    void findActive(vector<unsigned>& active) const;
+
     void printTable(
       const string& header,
       const double table[][BRIDGE_FORMAT_SIZE],
+      const vector<unsigned> active,
       const int prec = 1) const;
 
 

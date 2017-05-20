@@ -683,6 +683,12 @@ RefCountType RefComment::countType(const ActionType action) const
 }
 
 
+CommentType RefComment::commentType() const
+{
+  return category;
+}
+
+
 bool RefComment::isCommented() const
 {
   return setFlag;
@@ -692,6 +698,24 @@ bool RefComment::isCommented() const
 bool RefComment::isUncommented() const
 {
   return ! setFlag;
+}
+
+
+void RefComment::getEntry(
+  CommentType& cat,
+  RefEntry& re) const
+{
+  if (! setFlag)
+    THROW("RefComment not set");
+
+  cat = category;
+
+  re.files = 1;
+  re.noRefLines = 1;
+  re.count.lines = 0;
+  re.count.units = count1;
+  re.count.hands = count2;
+  re.count.boards = count3;
 }
 
 

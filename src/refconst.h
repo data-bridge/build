@@ -19,6 +19,13 @@ struct RefCount
   unsigned boards; // bd
 };
 
+struct RefEntry
+{
+  unsigned files;
+  unsigned noRefLines;
+  RefCount count;
+};
+
 
 enum ActionType
 {

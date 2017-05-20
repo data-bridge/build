@@ -109,6 +109,11 @@ class RefLine
     unsigned deletion() const;
 
     void modify(string& line) const;
+    void modify(vector<string>& line) const;
+
+    void getEntry(
+      CommentType& cat,
+      RefEntry& ref) const;
 
     string str() const;
 };

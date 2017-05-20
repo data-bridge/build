@@ -18,14 +18,6 @@
 using namespace std;
 
 
-struct RefEntry
-{
-  unsigned files;
-  unsigned noRefLines;
-  RefCount count;
-};
-
-
 class RefStats
 {
   private:
@@ -36,13 +28,13 @@ class RefStats
       REFSTATS_REF = 1,
       REFSTATS_SKIP = 2,
       REFSTATS_NOVAL = 3,
-      REFSTATS_SIZE = 4
+      REFSTATS_ORDER = 4,
+      REFSTATS_SIZE = 5
     };
 
-    RefEntry data[REFSTATS_SIZE][ERR_SIZE];
-    bool tagSeen[ERR_SIZE];
-    unsigned numSourceFiles;
-    unsigned numRefFiles;
+    vector<vector<RefEntry>> data;
+    vector<bool> catSeen;
+    vector<unsigned> numFiles;
 
     void resetRefEntry(RefEntry& re) const;
 
@@ -54,7 +46,7 @@ class RefStats
 
     void incr(
       const RefTables table,
-      const RefTag tag,
+      const CommentType cat,
       const RefEntry& count);
 
 
@@ -71,19 +63,19 @@ class RefStats
     void logRefFile();
 
     void logSkip(
-      const RefTag tag,
+      const CommentType cat,
       const RefEntry& re);
 
     void logOrder(
-      const RefTag tag,
+      const CommentType cat,
       const RefEntry& re);
 
     void logNoval(
-      const RefTag tag,
+      const CommentType cat,
       const RefEntry& re);
 
     void logRef(
-      const RefTag tag,
+      const CommentType cat,
       RefEntry& re);
 
     void operator += (const RefStats& rf2);

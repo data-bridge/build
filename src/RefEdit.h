@@ -116,6 +116,10 @@ class RefEdit
       string& line,
       const ActionType act) const;
 
+    void modify(
+      vector<string>& lines,
+      const ActionType act) const;
+
     string str() const;
 };
 

@@ -58,9 +58,15 @@ class RefComment
 
     RefCountType countType(const ActionType action) const;
 
+    CommentType commentType() const;
+
     bool isCommented() const;
 
     bool isUncommented() const;
+
+    void getEntry(
+      CommentType& cat,
+      RefEntry &re) const;
 
     string str() const;
 };

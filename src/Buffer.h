@@ -81,6 +81,10 @@ class Buffer
       RefLines& refLines,
       const RefUse use = BRIDGE_REF_ALL);
 
+    void readForce(
+      const string& fname,
+      const Format format);
+
     unsigned lengthOrig() const;
 
     bool split(

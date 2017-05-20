@@ -792,6 +792,27 @@ void RefLine::modify(string& line) const
 }
 
 
+void RefLine::modify(vector<string>& lines) const
+{
+  if (! setFlag)
+    THROW("RefLine not set (multi-line)");
+
+  edit.modify(lines, action.number());
+}
+
+
+void RefLine::getEntry(
+  CommentType& cat,
+  RefEntry& re) const
+{
+  if (! setFlag)
+    THROW("RefLine not set");
+    
+  comment.getEntry(cat, re);
+  re.count.lines = range.lcount;
+}
+
+
 string RefLine::str() const
 {
   if (! setFlag)

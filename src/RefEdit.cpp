@@ -192,6 +192,18 @@ void RefEdit::modify(
 }
 
 
+void RefEdit::modify(
+  vector<string>& lines,
+  const ActionType act) const
+{
+  if (act != REF_ACTION_DELETE_GEN)
+    THROW("Multi-line must be delete");
+    
+  for (auto &line: lines)
+    (this->* ModifyList[act])(line);
+}
+
+
 ////////////////////////////////////////////////////////////////////////
 //                                                                    //
 // modifyGen functions                                                //

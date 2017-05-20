@@ -42,7 +42,7 @@ else
 
 my (@codes, %code_hash);
 my $CODE_DIR = glob("~/GitHub/Build/src");
-my $CODE_FILE = "refcodes.h";
+my $CODE_FILE = "refconst.h";
 read_error_codes("$CODE_DIR/$CODE_FILE", \@codes, \%code_hash);
 
 my @INPUTS = qw(lin pbn rbn rbx eml txt rec);
@@ -126,7 +126,7 @@ sub read_error_codes
       $line =~ s/\s//g;
       push @$codes_ref, $line;
     }
-    elsif ($line =~ /^enum RefErrorsType/)
+    elsif ($line =~ /^enum CommentType/)
     {
       $line = <$ff>; # Skip leading curly bracket
       $seen = 1;

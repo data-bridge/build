@@ -248,16 +248,48 @@ static bool dispatchRead(
 
 
 static void dispatchRefStats(
-  const FileTask& task,
-  RefLines& refLines,
+  const RefLines& refLines,
   RefStats& refstats,
   ostream& flog)
 {
-  // TODO
-  UNUSED(task);
-  UNUSED(refLines);
-  UNUSED(refstats);
-  UNUSED(flog);
+  try
+  {
+    CommentType cat;
+    RefEntry re;
+
+    if (refLines.getHeaderEntry(cat, re))
+      refstats.logFile(re);
+    else
+      THROW("No header in refLines");
+
+    if (! refLines.hasComments())
+      return;
+
+    refstats.logRefFile();
+
+    if (refLines.skip())
+    {
+      refstats.logSkip(cat, re);
+      return;
+    }
+    else if (refLines.orderCOCO())
+      refstats.logOrder(ERR_LIN_QX_ORDER_COCO, re);
+    else if (refLines.orderOOCC())
+      refstats.logOrder(ERR_LIN_QX_ORDER_OOCC, re);
+    else if (! refLines.validate())
+      refstats.logNoval(cat, re);
+
+    for (auto &rl: refLines)
+    {
+      rl.getEntry(cat, re);
+      refstats.logRef(cat, re);
+    }
+    
+  }
+  catch (Bexcept& bex)
+  {
+    bex.print(flog);
+  }
 }
 
 
@@ -445,7 +477,7 @@ void dispatch(
         flog << "Ref file for " << task.fileInput << endl;
     
       timers.start(BRIDGE_TIMER_REF_STATS, task.formatInput);
-      dispatchRefStats(task, refLines, refstats, flog);
+      dispatchRefStats(refLines, refstats, flog);
       timers.stop(BRIDGE_TIMER_REF_STATS, task.formatInput);
     }
 
@@ -992,8 +1024,16 @@ static bool readFormattedFile(
 {
   Buffer buffer;
   buffer.read(fname, format, refLines);
-  if (refLines.skip())
+  if (refLines.skip() && options.quoteFlag)
+  {
+    // TODO: Perhaps add a poor man's count of qx and bd.
+    // May need it for RefLine counting anyway.
+    buffer.reset();
+    buffer.readForce(fname,format);
+    refLines.setFileData(buffer.lengthOrig(), 0, 0);
+
     return true;
+  }
 
   vector<Fix> fix;
   fix.clear();
