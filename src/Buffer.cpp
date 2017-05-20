@@ -423,16 +423,11 @@ bool Buffer::fix(
         THROW("Too large deletion");
 
       // For completeness, even though deleted
-      // if (deletion == 1)
-        // rl.modify(lines[i].line); 
-      // else
-      // {
-        vector<string> tmplines;
-        for (unsigned j = i; j < i+deletion; j++)
-          tmplines.push_back(lines[j].line);
+      vector<string> tmplines;
+      for (unsigned j = i; j < i+deletion; j++)
+        tmplines.push_back(lines[j].line);
 
-        rl.modify(tmplines);
-      // }
+      rl.modify(tmplines);
 
       lines.erase(lines.begin() + static_cast<int>(i), 
           lines.begin() + static_cast<int>(deletion + i));

@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <regex>
 
 #include "RefLines.h"
@@ -175,5 +176,26 @@ bool RefLines::getControlEntry(
   headerComment.getEntry(cat, re);
   re.count.lines = 1;
   return true;
+}
+
+
+void RefLines::checkHeader() const
+{
+  if (headerComment.isUncommented())
+    return;
+
+  CommentType cat;
+  RefEntry re;
+  headerComment.getEntry(cat, re);
+
+  if (re.count.units != bufferLines ||
+      re.count.hands != numHands ||
+      re.count.boards != numBoards)
+  {
+    THROW(headerComment.strComment() + ": (" +
+      STR(bufferLines) + "," +
+      STR(numHands) + "," +
+      STR(numBoards) + ")");
+  }
 }
 

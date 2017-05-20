@@ -76,6 +76,8 @@ class RefLines
     bool getControlEntry(
       CommentType& cat,
       RefEntry& re) const;
+    
+    void checkHeader() const;
 };
 
 #endif
