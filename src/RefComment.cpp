@@ -659,6 +659,26 @@ string RefComment::comment2str(const CommentType c) const
 }
 
 
+bool RefComment::isTag(const string& refstr) const
+{
+  if (refstr == "")
+    return false;
+
+  auto it = TagMap.find(refstr);
+  if (it == TagMap.end())
+  {
+    // Try lower-case as well.
+    string reflc = refstr;
+    toLower(reflc);
+    it = TagMap.find(reflc);
+    if (it == TagMap.end())
+      return false;
+  }
+
+  return true;
+}
+
+
 void RefComment::checkTag(const string& tagstr) const
 {
   const RefTag tag = RefComment::str2ref(tagstr);

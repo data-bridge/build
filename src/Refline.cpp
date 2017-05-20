@@ -807,17 +807,38 @@ void RefLine::checkCounts() const
   comment.getEntry(cat, re);
   const RefCountType rc = comment.countType(action.number());
 
+  const ActionType act = action.number();
   if (rc == REF_COUNT_INACTIVE)
   {
-    // TODO: Can be delete {HAND_DIRECTOR}.
+    if (act == REF_ACTION_INSERT_LIN && comment.isTag(edit.is()))
+    {
+      // This is often of the form insertLIN "2,mb" where edit.is
+      // in fact a tag.
+      comment.checkTag(edit.is());
+
+      ractual.count.units = 1;
+      ractual.count.hands = 1;
+      ractual.count.boards = 1;
+      RefLine::checkEntries(re, ractual);
+      return;
+    }
+    else if ((act == REF_ACTION_DELETE_LIN && edit.is() == "") ||
+        act == REF_ACTION_REPLACE_TXT)
+    {
+      // It may also be deleteLIN "2"
+      ractual.count.units = 1;
+      ractual.count.hands = 1;
+      ractual.count.boards = 1;
+      RefLine::checkEntries(re, ractual);
+      return;
+    }
+    else
+      THROW("checkCounts INACTIVE: " + inputLine);
   }
   else if (rc == REF_COUNT_HEADER)
   {
     // TODO
-  }
-  else if (rc == REF_COUNT_HANDS)
-  {
-    // TODO
+    // cout << inputLine << endl;
   }
   else if (rc == REF_COUNT_SINGLE)
   {
@@ -825,10 +846,6 @@ void RefLine::checkCounts() const
     ractual.count.hands = 1;
     ractual.count.boards = 1;
     RefLine::checkEntries(re, ractual);
-  }
-  else if (rc == REF_COUNT_MULTI)
-  {
-    // TODO: Count multiple tags on a single line, e.g. TRICK_DELETE.
   }
   else if (rc == REF_COUNT_LIN_IS)
   {
@@ -847,7 +864,7 @@ void RefLine::checkCounts() const
     RefLine::checkEntries(re, ractual);
   }
   else
-    THROW("Bad count type");
+    THROW("Bad count type: " + STR(rc) + ", " + inputLine);
 }
 
 

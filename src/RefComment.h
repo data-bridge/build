@@ -54,6 +54,8 @@ class RefComment
 
     string comment2str(const CommentType c) const;
 
+    bool isTag(const string& tag) const;
+
     void checkTag(const string& tag) const;
 
     RefCountType countType(const ActionType action) const;
