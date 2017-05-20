@@ -298,8 +298,7 @@ void Buffer::classify(LineData& ld)
 bool Buffer::read(
   const string& fname,
   const Format formatIn,
-  RefLines& refLines,
-  const RefUse use)
+  RefLines& refLines)
 {
   fileName = fname;
   format = formatIn;
@@ -315,7 +314,7 @@ bool Buffer::read(
   for (auto &ld: lines)
     Buffer::classify(ld);
 
-  return Buffer::fix(refLines, use);
+  return Buffer::fix(refLines);
 }
 
 
@@ -375,30 +374,22 @@ bool Buffer::split(
 
 bool Buffer::fix(
   const string& fname,
-  RefLines& refLines,
-  const RefUse use)
+  RefLines& refLines)
 {
   refLines.read(fname);
   if (refLines.skip())
     return false;
 
-  return Buffer::fix(refLines, use);
+  return Buffer::fix(refLines);
 }
 
 
-bool Buffer::fix(
-  const RefLines& refLines,
-  const RefUse use)
+bool Buffer::fix(const RefLines& refLines)
 {
   bool usedFlag = false;
 
   for (auto &rl: refLines)
   {
-    if (use == BRIDGE_REF_ONLY_PARTIAL && rl.isUncommented())
-      continue;
-    else if (use == BRIDGE_REF_ONLY_NONPARTIAL && rl.isCommented())
-      continue;
-
     const unsigned i = Buffer::getInternalNumber(rl.lineno());
     if (i == BIGNUM)
       THROW("Cannot find ref line number " + STR(rl.lineno()));

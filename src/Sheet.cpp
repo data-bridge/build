@@ -50,16 +50,10 @@ void Sheet::resetHand(SheetHandData& hd)
 
 void Sheet::reset()
 {
-  hasFixed = false;
+  Sheet::resetHeader(header);
 
-  Sheet::resetHeader(headerOrig);
-  Sheet::resetHeader(headerFixed);
-
-  handsOrig.clear();
-  handsFixed.clear();
-
-  handsOrig.reserve(SHEET_INIT);
-  handsFixed.reserve(SHEET_INIT);
+  hands.clear();
+  hands.reserve(SHEET_INIT);
 }
 
 
@@ -216,10 +210,7 @@ void Sheet::fail(const string& text) const
 }
 
 
-void Sheet::parse(
-  Buffer& buffer,
-  SheetHeader& header,
-  vector<SheetHandData>& hands)
+void Sheet::parse(Buffer& buffer)
 {
   Segment segment;
   LineData lineData;
@@ -337,17 +328,17 @@ void Sheet::parse(
 
 unsigned Sheet::refLineNoToHandNo(const unsigned lineNo) const
 {
-  const unsigned l = handsOrig.size();
-  if (lineNo < handsOrig[0].lineLIN)
+  const unsigned l = hands.size();
+  if (lineNo < hands[0].lineLIN)
     return BIGNUM; // Header
 
   for (unsigned i = 0; i < l-1; i++)
   {
-    if (lineNo < handsOrig[i+1].lineLIN)
+    if (lineNo < hands[i+1].lineLIN)
       return i;
   }
 
-  if (lineNo >= handsOrig[l-1].lineLIN)
+  if (lineNo >= hands[l-1].lineLIN)
     return l-1;
   else
     return BIGNUM;
@@ -373,7 +364,7 @@ void Sheet::parseRefs()
       continue;
 
     for (unsigned hno = handNoFirst; hno <= handNoLast; hno++)
-      handsOrig[hno].refSource.push_back(rl.line());
+      hands[hno].refSource.push_back(rl.line());
   }
 }
 
@@ -385,8 +376,7 @@ bool Sheet::read(
 
   try
   {
-    if (! buffer.read(fname, BRIDGE_FORMAT_LIN, refLines,
-        BRIDGE_REF_ONLY_PARTIAL))
+    if (! buffer.read(fname, BRIDGE_FORMAT_LIN, refLines))
       return false;
 
     if (refLines.skip())
@@ -401,15 +391,8 @@ bool Sheet::read(
 
   try
   {
-    Sheet::parse(buffer, headerOrig, handsOrig);
+    Sheet::parse(buffer);
     Sheet::parseRefs();
-
-    if (! buffer.fix(fname, refLines, BRIDGE_REF_ONLY_NONPARTIAL))
-      return true; // No ref file
-
-    buffer.rewind();
-    Sheet::parse(buffer, headerFixed, handsFixed);
-    hasFixed = true;
   }
   catch (Bexcept& bex)
   {
@@ -418,27 +401,16 @@ bool Sheet::read(
     return false;
   }
 
-  sort(headerOrig.links.begin(), headerOrig.links.end());
+  sort(header.links.begin(), header.links.end());
   return true;
 }
 
 
-unsigned Sheet::findFixed(const string& label) const
+unsigned Sheet::findHandNo(const string& label) const
 {
-  for (unsigned i = 0; i < handsFixed.size(); i++)
+  for (unsigned i = 0; i < hands.size(); i++)
   {
-    if (handsFixed[i].label == label)
-      return i;
-  }
-  return BIGNUM;
-}
-
-
-unsigned Sheet::findOrig(const string& label) const
-{
-  for (unsigned i = 0; i < handsOrig.size(); i++)
-  {
-    if (handsOrig[i].label == label)
+    if (hands[i].label == label)
       return i;
   }
   return BIGNUM;
@@ -449,10 +421,10 @@ string Sheet::strLinks() const
 {
   stringstream ss;
   ss << "Links:\n";
-  for (unsigned i = 0; i < headerOrig.links.size(); i++)
+  for (unsigned i = 0; i < header.links.size(); i++)
   {
-    if (i == 0 || headerOrig.links[i] != headerOrig.links[i-1])
-      ss << headerOrig.links[i] << "\n";
+    if (i == 0 || header.links[i] != header.links[i-1])
+      ss << header.links[i] << "\n";
   }
   ss << "\n";
 
@@ -463,9 +435,9 @@ string Sheet::strLinks() const
 string Sheet::strHeader() const
 {
   stringstream ss;
-  ss << headerOrig.headline << "\n\n";
+  ss << header.headline << "\n\n";
 
-  if (headerOrig.links.size() > 0)
+  if (header.links.size() > 0)
     ss << strLinks();
   
   return ss.str();
@@ -491,7 +463,7 @@ string Sheet::strPlays() const
   cp.distance = 0;
   vector<unsigned> cumVal(SHEET_PLAY_SIZE);
 
-  for (auto &ho: handsOrig)
+  for (auto &ho: hands)
   {
     const SheetPlayDistance& sp = ho.hand.getPlayDistance();
     const SheetPlayType pv = ho.hand.playValidity();
@@ -540,31 +512,26 @@ string Sheet::strPlays() const
 }
 
 
-string Sheet::strHand(
-  const SheetHandData& ho,
-  const unsigned indexFixed) const
+string Sheet::strHand(const SheetHandData& ho) const
 {
   stringstream ss;
 
   ss << "Board " << ho.label << "\n";
-  if (indexFixed == BIGNUM)
-    ss << ho.hand.strNotes();
-  else
-    ss << ho.hand.strNotes(handsFixed[indexFixed].hand);
+  ss << ho.hand.strNotes();
   ss << ho.hand.strChat();
 
-  const unsigned indexOrig = Sheet::findOrig(ho.label);
-  if (indexOrig != BIGNUM)
+  const unsigned index = Sheet::findHandNo(ho.label);
+  if (index != BIGNUM)
   {
-    const unsigned l = handsOrig.size();
-    if (indexOrig < l-1)
+    const unsigned l = hands.size();
+    if (index < l-1)
     {
       ss << "--\n";
-      ss << handsOrig[indexOrig+1].hand.strChat();
-      if (indexOrig < l-2)
+      ss << hands[index+1].hand.strChat();
+      if (index < l-2)
       {
         ss << "--\n";
-        ss << handsOrig[indexOrig+2].hand.strChat();
+        ss << hands[index+2].hand.strChat();
       }
     }
   }
@@ -586,7 +553,7 @@ string Sheet::str() const
 
   bool hasPlayFlaw = false;
   bool contractsDiffer = false;
-  for (auto &ho: handsOrig)
+  for (auto &ho: hands)
   {
     if (ho.hand.playIsFlawed())
       hasPlayFlaw = true;
@@ -596,7 +563,7 @@ string Sheet::str() const
   if (hasPlayFlaw)
     ss << Sheet::strPlays();
 
-  if (! hasFixed && ! contractsDiffer)
+  if (! contractsDiffer)
     return ss.str();
 
   if (! hasPlayFlaw)
@@ -616,41 +583,16 @@ string Sheet::str() const
 
   bool hasDiffs = false;
   stringstream notes;
-  for (auto &ho: handsOrig)
+  for (auto &ho: hands)
   {
     ss << setw(5) << ho.label << " " << ho.hand.str();
 
-    const unsigned index = Sheet::findFixed(ho.label);
-    bool hasDiff = false;
-
-    if (! hasFixed || index == BIGNUM)
-    {
-      ss << ho.hand.strDummy();
-    }
-    else
-    {
-      const SheetHandData& hf = handsFixed[index];
-      ss << hf.hand.str(ho.hand) << "\n";
-
-      try
-      {
-        if (ho.hand != hf.hand)
-          hasDiff = true;
-      }
-      catch (Bdiff& bdiff)
-      {
-        hasDiff = true;
-	bdiff.print(cout);
-      }
-    }
-
-    if (hasDiff || 
-        ho.hand.auctionIsFlawed() || 
+    if (ho.hand.auctionIsFlawed() || 
         ho.hand.playIsFlawed() ||
         ho.hand.contractsDiffer())
     {
       hasDiffs = true;
-      notes << Sheet::strHand(ho, index);
+      notes << Sheet::strHand(ho);
     }
   }
 

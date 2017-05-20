@@ -1,12 +1,17 @@
-11.05.2017
+20.05.2017
 ----------
-* Add final count checks to Refline::modify
-  - skip in dispatch: Count whole file for qx and bd
-  - also use for RefLine::modify(vector)
-  - the header stuff from modify(string) needs to wait until
-    RefLine::checkHeader, map<string, vector<RefEntry>>
+Add final count checks to Refline::modify
+* skip in dispatch: Count whole file for qx and bd
+* also use for RefLine::modify(vector)
+* the header stuff from modify(string) needs to wait until
+* RefLine::checkHeader, map<string, vector<RefEntry>>
 
+Sheet
+* Good outputs (try deleting a ref file), CHOOSE (line1) (line2)
+* Can we then delete heurfix?
+* Another str() function that outputs an IMP sheet, will also need vul
 * Eliminate refstats.pl
+* Do the rest of -D (377 files)
 
 * Get reader to work on RPmajors
   - Get whole RPmajors matrix to work
@@ -29,15 +34,9 @@ TXT
 EML
 REC
 
-* Simplify Buffer fix (always fix, not PARTIAL etc.)
-
 * In dispatch, make boardIDLIN into an object?
 * Detect COCO at least in LIN, PBN, RBN, RBX
   Then remove from those .ref files, also in BBOVG
-
-* Do the rest of -D (377 files)
-  Actually, improve Sheet.cpp first to make suggestions.
-  This can then also eliminate heurfix.
 
 * ./reader -i 7090.pbn -O tmp -c -s -v 31 dies after 
   "Output tmp/PBN/7090.LIN", probably trying to compare/validate?
@@ -46,11 +45,7 @@ REC
   Does this remove the "Room" tags in 3408 .fix lines?
 
 
-Sheet
-* Another str() function that outputs an IMP sheet, will also need vul
-* Get rid of heurfix in favor of Sheet?
-  Good outputs (try deleting a ref file), CHOOSE (line1) (line2)
-* Can we then delete heurfix?
+
 
 * Allow concatenated files: LIN, PBN (those two may work), RBN/RBX
 

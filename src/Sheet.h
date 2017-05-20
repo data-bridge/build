@@ -46,12 +46,8 @@ class Sheet
       vector<string> refSource;
     };
 
-    SheetHeader headerOrig;
-    vector<SheetHandData> handsOrig;
-
-    SheetHeader headerFixed;
-    vector<SheetHandData> handsFixed;
-    bool hasFixed;
+    SheetHeader header;
+    vector<SheetHandData> hands;
 
     RefLines refLines;
 
@@ -87,10 +83,7 @@ class Sheet
       const unsigned noHdrFirst,
       const unsigned noHdrLast);
 
-    void parse(
-      Buffer& buffer,
-      SheetHeader& hdr,
-      vector<SheetHandData>& hd);
+    void parse(Buffer& buffer);
 
     unsigned refLineNoToHandNo(const unsigned lineno) const;
 
@@ -100,15 +93,12 @@ class Sheet
 
     void parseRefs();
 
-    unsigned findFixed(const string& label) const;
-    unsigned findOrig(const string& label) const;
+    unsigned findHandNo(const string& label) const;
 
     string Sheet::strHeader() const;
     string Sheet::strLinks() const;
     string Sheet::strPlays() const;
-    string Sheet::strHand(
-      const SheetHandData& ho,
-      const unsigned indexFixed) const;
+    string Sheet::strHand(const SheetHandData& ho) const;
 
 
   public:

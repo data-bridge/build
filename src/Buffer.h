@@ -20,14 +20,6 @@
 using namespace std;
 
 
-enum RefUse
-{
-  BRIDGE_REF_ALL,
-  BRIDGE_REF_ONLY_PARTIAL,
-  BRIDGE_REF_ONLY_NONPARTIAL
-};
-
-
 class Buffer
 {
   private:
@@ -49,9 +41,7 @@ class Buffer
     bool isRBN(LineData& ld);
     bool isRBX(LineData& ld);
 
-    bool fix(
-      const RefLines& refLines,
-      const RefUse use);
+    bool fix(const RefLines& refLines);
 
     void classify(LineData& ld);
 
@@ -78,8 +68,7 @@ class Buffer
     bool read(
       const string& fname,
       const Format format,
-      RefLines& refLines,
-      const RefUse use = BRIDGE_REF_ALL);
+      RefLines& refLines);
 
     void readForce(
       const string& fname,
@@ -93,8 +82,7 @@ class Buffer
 
     bool fix(
       const string& fname,
-      RefLines& refLines,
-      const RefUse use = BRIDGE_REF_ALL);
+      RefLines& refLines);
 
     bool advance();
 
