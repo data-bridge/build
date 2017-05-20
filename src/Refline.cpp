@@ -890,6 +890,7 @@ void RefLine::modify(vector<string>& lines) const
   edit.modify(lines, action.number());
 
   // TODO: Multi-line check
+  // cout << inputLine << endl;
 }
 
 

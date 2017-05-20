@@ -1,7 +1,10 @@
 11.05.2017
 ----------
-* Add count checks to Refline::modify
-  Multi-lines should only generate one refLine in refLines
+* Add final count checks to Refline::modify
+  - skip in dispatch: Count whole file for qx and bd
+  - also use for RefLine::modify(vector)
+  - the header stuff from modify(string) needs to wait until
+    RefLine::checkHeader, map<string, vector<RefEntry>>
 
 * Eliminate refstats.pl
 
@@ -26,7 +29,6 @@ TXT
 EML
 REC
 
-* simplify Files.cpp (no noval and skip)
 * Simplify Buffer fix (always fix, not PARTIAL etc.)
 
 * In dispatch, make boardIDLIN into an object?
@@ -40,22 +42,8 @@ REC
 * ./reader -i 7090.pbn -O tmp -c -s -v 31 dies after 
   "Output tmp/PBN/7090.LIN", probably trying to compare/validate?
 
-* Does it seem right that reader got so much faster with the .ref code change?
-
-For RPmajors:
-
-7. Same script for LIN
-   LIN-LIN -R should then work (better)
-   Some of the sick ordering in dispatch (and Segment?) may then resolve
-
-8. Can probably take the same output lines for RBN, RBX, PBN
-   Does this remove the "Room" tags in 3408 .fix lines?
-
-11. How much of .fix can we move into .ref?
-   Introduce replaceTXT? replacePBN? replaceRBN/RBX picking out
-   the colon-separated target
-
-
+* How much of .fix can we move into .ref?
+  Does this remove the "Room" tags in 3408 .fix lines?
 
 
 Sheet
