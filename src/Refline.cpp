@@ -805,9 +805,9 @@ void RefLine::checkCounts() const
   CommentType cat;
   RefEntry re, ractual;
   comment.getEntry(cat, re);
-  const RefCountType rc = comment.countType(action.number());
-
+  const RefCountType rc = comment.countType();
   const ActionType act = action.number();
+
   if (rc == REF_COUNT_INACTIVE)
   {
     if (act == REF_ACTION_INSERT_LIN && comment.isTag(edit.is()))
@@ -863,6 +863,22 @@ void RefLine::checkCounts() const
     ractual.count.boards = 1;
     RefLine::checkEntries(re, ractual);
   }
+  else if (rc == REF_COUNT_LIN_FIELDS)
+  {
+    const unsigned u = edit.repeatCount();
+    ractual.count.units = 1;
+    if (u == 1)
+    {
+      ractual.count.hands = 1;
+      ractual.count.boards = 1;
+    }
+    else
+    {
+      ractual.count.hands = u;
+      ractual.count.boards = u/2;
+    }
+    RefLine::checkEntries(re, ractual);
+  }
   else
     THROW("Bad count type: " + STR(rc) + ", " + inputLine);
 }
@@ -882,6 +898,35 @@ void RefLine::modify(string& line) const
 }
 
 
+void RefLine::checkMultiLineCounts() const
+{
+  CommentType cat;
+  RefEntry re, ractual;
+  comment.getEntry(cat, re);
+  const RefCountType rc = comment.countType();
+  const ActionType act = action.number();
+
+  if (rc == REF_COUNT_SINGLE)
+  {
+    // Convenience for RBN L, shouldn't really happen.
+    ractual.count.units = 1;
+    ractual.count.hands = 1;
+    ractual.count.boards = 1;
+    RefLine::checkEntries(re, ractual);
+  }
+  else if (rc == REF_COUNT_HEADER)
+  {
+    cout << inputLine << endl;
+  }
+  else if (rc == REF_COUNT_HANDS)
+  {
+    // TODO: Multi-line check
+  }
+  else
+    THROW("Bad count type: " + STR(rc) + ", " + inputLine);
+}
+
+
 void RefLine::modify(vector<string>& lines) const
 {
   if (! setFlag)
@@ -889,8 +934,10 @@ void RefLine::modify(vector<string>& lines) const
 
   edit.modify(lines, action.number());
 
-  // TODO: Multi-line check
-  // cout << inputLine << endl;
+  if (comment.isUncommented())
+    return;
+
+  RefLine::checkMultiLineCounts();
 }
 
 

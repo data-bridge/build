@@ -181,6 +181,11 @@ unsigned RefEdit::repeatCount() const
   return tagcount;
 }
 
+unsigned RefEdit::fieldCount() const
+{
+  return fieldno;
+}
+
 
 void RefEdit::modifyFail(
   const string& line,

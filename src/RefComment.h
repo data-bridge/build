@@ -30,6 +30,7 @@ class RefComment
   void setTables();
   void setCommentMap();
   void setRefTag();
+  void setCommentTable();
   void setActionTable();
   void setTagTable();
 
@@ -58,7 +59,7 @@ class RefComment
 
     void checkTag(const string& tag) const;
 
-    RefCountType countType(const ActionType action) const;
+    RefCountType countType() const;
 
     CommentType commentType() const;
 

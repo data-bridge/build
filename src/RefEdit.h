@@ -111,6 +111,7 @@ class RefEdit
     string was() const;
 
     unsigned repeatCount() const;
+    unsigned fieldCount() const;
     unsigned countUnitsLIN() const;
 
     void modify(

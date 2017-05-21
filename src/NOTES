@@ -2,12 +2,28 @@
 ----------
 Add final count checks to Refline::modify
 * skip in dispatch: Count whole file for qx and bd
+  - if it doesn't start with a new-board indicator (qx, whatever),
+    then there should be none at all.  Count as 1,1
+  - otherwise make a table, count afterwards
+
 * also use for RefLine::modify(vector)
 * the header stuff from modify(string) needs to wait until
 * RefLine::checkHeader, map<string, vector<RefEntry>>
 
 Sheet
 * Good outputs (try deleting a ref file), CHOOSE (line1) (line2)
+  - auctionIsFlawed: Offer to skip, or fix manually
+  - playIsFlawed: Offer to skip, or fix manually
+  - contractHeader vs. contractAuction
+    fix header (with right RS tag!)
+    skip
+    fix bidding manually
+  - tricksHeader, tricksPlay, tricksClaim, tricksDD: Look in heurfix
+    fix mc
+    fix header
+    fix manually
+  - Need line range of hand; bmin/bmax; rs line #; mc lines #
+
 * Can we then delete heurfix?
 * Another str() function that outputs an IMP sheet, will also need vul
 * Eliminate refstats.pl
@@ -38,13 +54,8 @@ REC
 * Detect COCO at least in LIN, PBN, RBN, RBX
   Then remove from those .ref files, also in BBOVG
 
-* ./reader -i 7090.pbn -O tmp -c -s -v 31 dies after 
-  "Output tmp/PBN/7090.LIN", probably trying to compare/validate?
-
 * How much of .fix can we move into .ref?
   Does this remove the "Room" tags in 3408 .fix lines?
-
-
 
 
 * Allow concatenated files: LIN, PBN (those two may work), RBN/RBX

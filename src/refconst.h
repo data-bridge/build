@@ -142,7 +142,6 @@ enum CommentType
   ERR_LIN_QX_UNORDERED,
 
   ERR_LIN_MD_REPLACE,
-  ERR_LIN_MD_MISSING,
   ERR_LIN_MD_SYNTAX,
 
   ERR_LIN_NT_SYNTAX,
@@ -173,6 +172,7 @@ enum CommentType
 
   ERR_LIN_TRICK_INSERT,
   ERR_LIN_TRICK_DELETE,
+  ERR_LIN_TRICK_LINE_DELETE,
 
   ERR_LIN_HAND_OUT_OF_RANGE,
   ERR_LIN_HAND_DUPLICATED,
@@ -186,6 +186,7 @@ enum CommentType
   ERR_LIN_HAND_PLAY_WRONG,
   ERR_LIN_HAND_DIRECTOR,
 
+  ERR_LIN_TAG_SYNTAX,
   ERR_LIN_SYNTAX,
   ERR_LIN_OMIT,
 
@@ -252,10 +253,10 @@ enum RefCountType
   REF_COUNT_HEADER = 1, // Single-tag header, (1,n,m)
   REF_COUNT_HANDS = 2, // multi-line delete, (0,c,d) 
   REF_COUNT_SINGLE = 3, // (1,1,1)
-  REF_COUNT_MULTI = 4, // count multiple homogeneous lines, (c,1,1)
-  REF_COUNT_LIN_IS = 5, // count isVal, (c,1,1)
-  REF_COUNT_LIN_REPEAT = 6, // tag count, (c,1,1), excluding pg etc.
-  REF_COUNT_SIZE = 7
+  REF_COUNT_LIN_IS = 4, // count isVal, (c,1,1)
+  REF_COUNT_LIN_REPEAT = 5, // tag count, (c,1,1)
+  REF_COUNT_LIN_FIELDS = 6, // field count, (1,n,n/2) or (1,1,1)
+  REF_COUNT_SIZE = 6
 };
 
 #endif

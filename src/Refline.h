@@ -88,6 +88,7 @@ class RefLine
       const RefEntry& ractual) const;
 
     void checkCounts() const;
+    void checkMultiLineCounts() const;
 
 
   public:
