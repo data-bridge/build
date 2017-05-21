@@ -92,10 +92,17 @@ class RefLine
     void countHandsLIN(
       const string& line,
       vector<unsigned>& seen) const;
+
+    void countHandsPBN(
+      const string& line,
+      unsigned &h,
+      unsigned &b) const;
+
     void countVector(
       const vector<unsigned>& seen,
       unsigned &h,
       unsigned &b) const;
+
     void checkMultiLineCounts(const vector<string>& lines) const;
 
 

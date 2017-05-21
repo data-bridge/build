@@ -921,6 +921,20 @@ void RefLine::countHandsLIN(
 }
 
 
+void RefLine::countHandsPBN(
+  const string& line,
+  unsigned &h,
+  unsigned &b) const
+{
+  if (line.substr(0, 7) != "[Board ")
+    return;
+
+  h++;
+  if (line != "[Board \"#\"]")
+    b++;
+}
+
+
 void RefLine::countVector(
   const vector<unsigned>& seen,
   unsigned& h,
@@ -986,10 +1000,53 @@ void RefLine::checkMultiLineCounts(const vector<string>& lines) const
       }
       RefLine::checkEntries(re, ractual);
     }
+    else if (format == BRIDGE_FORMAT_PBN)
+    {
+      for (auto &line: lines)
+        RefLine::countHandsPBN(line, h, b);
+
+      ractual.count.units = 0;
+      if (h <= 1)
+      {
+        ractual.count.hands = 1;
+        ractual.count.boards = 1;
+      }
+      else
+      {
+        // This is not super-accurate.
+        ractual.count.hands = h;
+        ractual.count.boards = b;
+      }
+      RefLine::checkEntries(re, ractual);
+    }
+    else if (format == BRIDGE_FORMAT_RBN)
+    {
+      // TODO
+    }
+    else if (format == BRIDGE_FORMAT_RBX)
+    {
+      // Shortcut.
+      ractual.count.units = 0;
+      ractual.count.hands = range.lcount;
+      ractual.count.boards = range.lcount/2;
+    }
+    else if (format == BRIDGE_FORMAT_TXT)
+    {
+      // TODO: Multi-line check
+    }
+    else if (format == BRIDGE_FORMAT_EML)
+    {
+      // TODO: Multi-line check
+    }
+    else if (format == BRIDGE_FORMAT_REC)
+    {
+      // TODO: Multi-line check
+      // cout << inputLine << endl;
+    }
     else
+      THROW("Bad format");
     {
     }
-    // TODO: Multi-line check
   }
   else
     THROW("Bad count type: " + STR(rc) + ", " + inputLine);
