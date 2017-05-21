@@ -910,7 +910,7 @@ void RefLine::countHandsLIN(
       break;
 
     if (! str2upos(line.substr(p+4), b))
-      THROW("No proper qx in " + line);
+      break; // Not a good sign, but let's not throw
 
     if (b >= seen.size())
       seen.resize(2*seen.size());
@@ -1011,6 +1011,62 @@ void RefLine::countVector(
 }
 
 
+void RefLine::countHands(
+  const vector<string>& lines,
+  const Format format,
+  unsigned& h,
+  unsigned& b) const
+{
+  h = 0;
+  b = 0;
+  vector<unsigned> seen;
+  seen.resize(64);
+
+  if (format == BRIDGE_FORMAT_LIN)
+  {
+    for (auto &line: lines)
+      RefLine::countHandsLIN(line, seen);
+    RefLine::countVector(seen, h, b);
+  }
+  else if (format == BRIDGE_FORMAT_PBN)
+  {
+    for (auto &line: lines)
+      RefLine::countHandsPBN(line, h, b);
+  }
+  else if (format == BRIDGE_FORMAT_RBN)
+  {
+    for (auto &line: lines)
+      RefLine::countHandsRBN(line, h, b);
+  }
+  else if (format == BRIDGE_FORMAT_RBX)
+  {
+    // Short-cut.
+    h = range.lcount;
+    b = range.lcount/2;
+  }
+  else if (format == BRIDGE_FORMAT_TXT)
+  {
+    for (auto &line: lines)
+      RefLine::countHandsTXT(line, h);
+    b = h/2;
+  }
+  else if (format == BRIDGE_FORMAT_EML)
+  {
+    for (auto &line: lines)
+      RefLine::countHandsEML(line, h);
+    b = h/2;
+  }
+  else if (format == BRIDGE_FORMAT_REC)
+  {
+    for (auto &line: lines)
+      RefLine::countHandsREC(line, h);
+    b = h/2;
+  }
+  else
+    THROW("Bad format");
+}
+
+
 void RefLine::checkMultiLineCounts(const vector<string>& lines) const
 {
   CommentType cat;
@@ -1036,52 +1092,8 @@ void RefLine::checkMultiLineCounts(const vector<string>& lines) const
   {
     // The following is not super-accurate.
     const Format format = comment.format();
-    unsigned h = 0, b = 0;
-    vector<unsigned> seen;
-    seen.resize(64);
-
-    if (format == BRIDGE_FORMAT_LIN)
-    {
-      for (auto &line: lines)
-        RefLine::countHandsLIN(line, seen);
-      RefLine::countVector(seen, h, b);
-    }
-    else if (format == BRIDGE_FORMAT_PBN)
-    {
-      for (auto &line: lines)
-        RefLine::countHandsPBN(line, h, b);
-    }
-    else if (format == BRIDGE_FORMAT_RBN)
-    {
-      for (auto &line: lines)
-        RefLine::countHandsRBN(line, h, b);
-    }
-    else if (format == BRIDGE_FORMAT_RBX)
-    {
-      // Short-cut.
-      h = range.lcount;
-      b = range.lcount/2;
-    }
-    else if (format == BRIDGE_FORMAT_TXT)
-    {
-      for (auto &line: lines)
-        RefLine::countHandsTXT(line, h);
-      b = h/2;
-    }
-    else if (format == BRIDGE_FORMAT_EML)
-    {
-      for (auto &line: lines)
-        RefLine::countHandsEML(line, h);
-      b = h/2;
-    }
-    else if (format == BRIDGE_FORMAT_REC)
-    {
-      for (auto &line: lines)
-        RefLine::countHandsREC(line, h);
-      b = h/2;
-    }
-    else
-      THROW("Bad format");
+    unsigned h, b;
+    RefLine::countHands(lines, format, h, b);
 
     ractual.count.units = 0;
     if (h <= 1)

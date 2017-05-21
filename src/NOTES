@@ -1,15 +1,5 @@
-20.05.2017
+21.05.2017
 ----------
-Add final count checks to Refline::modify
-* skip in dispatch: Count whole file for qx and bd
-  - if it doesn't start with a new-board indicator (qx, whatever),
-    then there should be none at all.  Count as 1,1
-  - otherwise make a table, count afterwards
-
-* also use for RefLine::modify(vector)
-* the header stuff from modify(string) needs to wait until
-* RefLine::checkHeader, map<string, vector<RefEntry>>
-
 Sheet
 * Good outputs (try deleting a ref file), CHOOSE (line1) (line2)
   - auctionIsFlawed: Offer to skip, or fix manually
@@ -23,6 +13,8 @@ Sheet
     fix header
     fix manually
   - Need line range of hand; bmin/bmax; rs line #; mc lines #
+
+reader input could select by year as well
 
 * Can we then delete heurfix?
 * Another str() function that outputs an IMP sheet, will also need vul

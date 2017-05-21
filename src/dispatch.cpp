@@ -1026,12 +1026,20 @@ static bool readFormattedFile(
   buffer.read(fname, format, refLines);
   if (refLines.skip() && options.quoteFlag)
   {
-    // TODO: Perhaps add a poor man's count of qx and bd.
-    // May need it for RefLine counting anyway.
+    // Ugh.  Poor man's counter of hands and boards.
     buffer.reset();
     buffer.readForce(fname,format);
-    refLines.setFileData(buffer.lengthOrig(), 0, 0);
 
+    unsigned numLines, numHands, numBoards;
+    numLines = buffer.lengthOrig();
+    vector<string> lines;
+    for (unsigned i = 1; i <= numLines; i++)
+      lines.push_back(buffer.getLine(i));
+
+    RefLine rl;
+    rl.countHands(lines, FORMAT_INPUT_MAP[format], numHands, numBoards);
+    refLines.setFileData(numLines, numHands, numBoards);
+    refLines.checkHeader();
     return true;
   }
 

@@ -195,7 +195,6 @@ void RefLines::checkEntries(
     STR(ractual.count.units) + "," +
     STR(ractual.count.hands) + "," +
     STR(ractual.count.boards) + ")");
-
 }
 
 

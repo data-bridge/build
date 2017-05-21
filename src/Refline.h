@@ -11,6 +11,8 @@
 #define BRIDGE_REFLINE_H
 
 #include <string>
+#include <map>
+
 #include "RefEdit.h"
 #include "RefComment.h"
 #include "RefAction.h"
@@ -149,6 +151,16 @@ class RefLine
 
     void modify(string& line) const;
     void modify(vector<string>& line) const;
+
+    void countHands(
+      const vector<string>& lines,
+      const Format format,
+      unsigned &h,
+      unsigned &b) const;
+
+    void checkHeader(
+      const RefEntry& re,
+      map<string, vector<RefEntry>>& cumulCount) const;
 
     void getEntry(
       CommentType& cat,
