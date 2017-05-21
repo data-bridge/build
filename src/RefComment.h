@@ -12,6 +12,7 @@
 
 #include <string>
 #include "refconst.h"
+#include "bconst.h"
 
 
 using namespace std;
@@ -30,7 +31,6 @@ class RefComment
   void setTables();
   void setCommentMap();
   void setRefTag();
-  void setCommentTable();
   void setActionTable();
   void setTagTable();
 
@@ -62,6 +62,8 @@ class RefComment
     RefCountType countType() const;
 
     CommentType commentType() const;
+
+    Format format() const;
 
     bool isCommented() const;
 

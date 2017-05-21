@@ -837,7 +837,7 @@ void RefLine::checkCounts() const
   }
   else if (rc == REF_COUNT_HEADER)
   {
-    // TODO
+    // TODO: Within a tag (rs), must add up to whole file.
     // cout << inputLine << endl;
   }
   else if (rc == REF_COUNT_SINGLE)
@@ -916,7 +916,8 @@ void RefLine::checkMultiLineCounts() const
   }
   else if (rc == REF_COUNT_HEADER)
   {
-    cout << inputLine << endl;
+    // TODO: Deletion of PLAYERS or RESULTS (entire file counts).
+    // cout << inputLine << endl;
   }
   else if (rc == REF_COUNT_HANDS)
   {
