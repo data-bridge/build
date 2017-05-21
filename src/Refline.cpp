@@ -1035,6 +1035,7 @@ void RefLine::checkMultiLineCounts(const vector<string>& lines) const
   }
   else if (rc == REF_COUNT_HANDS)
   {
+    // The following is not super-accurate.
     const Format format = comment.format();
     unsigned h = 0, b = 0;
     vector<unsigned> seen;
@@ -1044,126 +1045,57 @@ void RefLine::checkMultiLineCounts(const vector<string>& lines) const
     {
       for (auto &line: lines)
         RefLine::countHandsLIN(line, seen);
-
       RefLine::countVector(seen, h, b);
-      ractual.count.units = 0;
-      if (h == 0)
-      {
-        ractual.count.hands = 1;
-        ractual.count.boards = 1;
-      }
-      else
-      {
-        // This is not super-accurate.
-        ractual.count.hands = h;
-        ractual.count.boards = b;
-      }
-      RefLine::checkEntries(re, ractual);
     }
     else if (format == BRIDGE_FORMAT_PBN)
     {
       for (auto &line: lines)
         RefLine::countHandsPBN(line, h, b);
-
-      ractual.count.units = 0;
-      if (h <= 1)
-      {
-        ractual.count.hands = 1;
-        ractual.count.boards = 1;
-      }
-      else
-      {
-        // This is not super-accurate.
-        ractual.count.hands = h;
-        ractual.count.boards = b;
-      }
-      RefLine::checkEntries(re, ractual);
     }
     else if (format == BRIDGE_FORMAT_RBN)
     {
       for (auto &line: lines)
         RefLine::countHandsRBN(line, h, b);
-
-      ractual.count.units = 0;
-      if (h <= 1)
-      {
-        ractual.count.hands = 1;
-        ractual.count.boards = 1;
-      }
-      else
-      {
-        // This is not super-accurate.
-        ractual.count.hands = h;
-        ractual.count.boards = b;
-      }
-      RefLine::checkEntries(re, ractual);
     }
     else if (format == BRIDGE_FORMAT_RBX)
     {
-      // Shortcut.
-      ractual.count.units = 0;
-      ractual.count.hands = range.lcount;
-      ractual.count.boards = range.lcount/2;
+      // Short-cut.
+      h = range.lcount;
+      b = range.lcount/2;
     }
     else if (format == BRIDGE_FORMAT_TXT)
     {
       for (auto &line: lines)
         RefLine::countHandsTXT(line, h);
-
-      ractual.count.units = 0;
-      if (h <= 1)
-      {
-        ractual.count.hands = 1;
-        ractual.count.boards = 1;
-      }
-      else
-      {
-        // This is not super-accurate.
-        ractual.count.hands = h;
-        ractual.count.boards = h/2;
-      }
-      RefLine::checkEntries(re, ractual);
+      b = h/2;
     }
     else if (format == BRIDGE_FORMAT_EML)
     {
       for (auto &line: lines)
         RefLine::countHandsEML(line, h);
-
-      ractual.count.units = 0;
-      if (h <= 1)
-      {
-        ractual.count.hands = 1;
-        ractual.count.boards = 1;
-      }
-      else
-      {
-        // This is not super-accurate.
-        ractual.count.hands = h;
-        ractual.count.boards = h/2;
-      }
-      RefLine::checkEntries(re, ractual);
+      b = h/2;
     }
     else if (format == BRIDGE_FORMAT_REC)
     {
       for (auto &line: lines)
         RefLine::countHandsREC(line, h);
-
-      ractual.count.units = 0;
-      if (h <= 1)
-      {
-        ractual.count.hands = 1;
-        ractual.count.boards = 1;
-      }
-      else
-      {
-        // This is not super-accurate.
-        ractual.count.hands = h;
-        ractual.count.boards = h/2;
-      }
-      RefLine::checkEntries(re, ractual);
+      b = h/2;
     }
     else
       THROW("Bad format");
+
+    ractual.count.units = 0;
+    if (h <= 1)
+    {
+      ractual.count.hands = 1;
+      ractual.count.boards = 1;
+    }
+    else
+    {
+      ractual.count.hands = h;
+      ractual.count.boards = b;
+    }
+    RefLine::checkEntries(re, ractual);
   }
   else
     THROW("Bad count type: " + STR(rc) + ", " + inputLine);
