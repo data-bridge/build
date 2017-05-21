@@ -898,7 +898,46 @@ void RefLine::modify(string& line) const
 }
 
 
-void RefLine::checkMultiLineCounts() const
+void RefLine::countHandsLIN(
+  const string& line,
+  vector<unsigned>& seen) const
+{
+  unsigned pos = 0, p, b;
+  while (1)
+  {
+    p = line.find("qx|", pos);
+    if (p == string::npos || p+5 >= line.size())
+      break;
+
+    if (! str2upos(line.substr(p+4), b))
+      THROW("No proper qx in " + line);
+
+    if (b >= seen.size())
+      seen.resize(2*seen.size());
+    seen[b]++;
+
+    pos = p+3;
+  }
+}
+
+
+void RefLine::countVector(
+  const vector<unsigned>& seen,
+  unsigned& h,
+  unsigned& b) const
+{
+  for (unsigned u = 0; u < seen.size(); u++)
+  {
+    if (seen[u] > 0)
+    {
+      h += seen[u];
+      b++;
+    }
+  }
+}
+
+
+void RefLine::checkMultiLineCounts(const vector<string>& lines) const
 {
   CommentType cat;
   RefEntry re, ractual;
@@ -917,10 +956,39 @@ void RefLine::checkMultiLineCounts() const
   else if (rc == REF_COUNT_HEADER)
   {
     // TODO: Deletion of PLAYERS or RESULTS (entire file counts).
+    // Also check line count somehow.
     // cout << inputLine << endl;
   }
   else if (rc == REF_COUNT_HANDS)
   {
+    const Format format = comment.format();
+    unsigned h = 0, b = 0;
+    vector<unsigned> seen;
+    seen.resize(64);
+
+    if (format == BRIDGE_FORMAT_LIN)
+    {
+      for (auto &line: lines)
+        RefLine::countHandsLIN(line, seen);
+
+      RefLine::countVector(seen, h, b);
+      ractual.count.units = 0;
+      if (h == 0)
+      {
+        ractual.count.hands = 1;
+        ractual.count.boards = 1;
+      }
+      else
+      {
+        // This is not super-accurate.
+        ractual.count.hands = h;
+        ractual.count.boards = b;
+      }
+      RefLine::checkEntries(re, ractual);
+    }
+    else
+    {
+    }
     // TODO: Multi-line check
   }
   else
@@ -933,12 +1001,10 @@ void RefLine::modify(vector<string>& lines) const
   if (! setFlag)
     THROW("RefLine not set (multi-line)");
 
+  if (comment.isCommented())
+    RefLine::checkMultiLineCounts(lines);
+
   edit.modify(lines, action.number());
-
-  if (comment.isUncommented())
-    return;
-
-  RefLine::checkMultiLineCounts();
 }
 
 

@@ -88,7 +88,15 @@ class RefLine
       const RefEntry& ractual) const;
 
     void checkCounts() const;
-    void checkMultiLineCounts() const;
+
+    void countHandsLIN(
+      const string& line,
+      vector<unsigned>& seen) const;
+    void countVector(
+      const vector<unsigned>& seen,
+      unsigned &h,
+      unsigned &b) const;
+    void checkMultiLineCounts(const vector<string>& lines) const;
 
 
   public:
