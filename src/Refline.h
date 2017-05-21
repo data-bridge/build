@@ -98,6 +98,11 @@ class RefLine
       unsigned &h,
       unsigned &b) const;
 
+    void countHandsRBN(
+      const string& line,
+      unsigned &h,
+      unsigned &b) const;
+
     void countVector(
       const vector<unsigned>& seen,
       unsigned &h,

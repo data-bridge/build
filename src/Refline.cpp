@@ -935,6 +935,19 @@ void RefLine::countHandsPBN(
 }
 
 
+void RefLine::countHandsRBN(
+  const string& line,
+  unsigned &h,
+  unsigned &b) const
+{
+  // Not super-accurate.
+  if (line.substr(0, 2) == "B ")
+    b++;
+  else if (line == "")
+    h++;
+}
+
+
 void RefLine::countVector(
   const vector<unsigned>& seen,
   unsigned& h,
@@ -1021,7 +1034,23 @@ void RefLine::checkMultiLineCounts(const vector<string>& lines) const
     }
     else if (format == BRIDGE_FORMAT_RBN)
     {
-      // TODO
+      for (auto &line: lines)
+        RefLine::countHandsRBN(line, h, b);
+
+      ractual.count.units = 0;
+      if (h <= 1)
+      {
+        ractual.count.hands = 1;
+        ractual.count.boards = 1;
+      }
+      else
+      {
+        // This is not super-accurate.
+        ractual.count.hands = h;
+        ractual.count.boards = b;
+      }
+      RefLine::checkEntries(re, ractual);
+
     }
     else if (format == BRIDGE_FORMAT_RBX)
     {
