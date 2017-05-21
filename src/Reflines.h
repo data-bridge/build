@@ -44,6 +44,10 @@ class RefLines
       const string& fname,
       string& line);
 
+    void checkEntries(
+      const RefEntry& re,
+      const RefEntry& ra) const;
+
 
   public:
 

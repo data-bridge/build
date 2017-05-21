@@ -117,6 +117,7 @@ enum CommentType
   ERR_LIN_RS_REPLACE, 
   ERR_LIN_RS_INSERT, 
   ERR_LIN_RS_DELETE, 
+  ERR_LIN_RS_DELETE_RANGE, 
   ERR_LIN_RS_DECL_PARD,
   ERR_LIN_RS_DECL_OPP,
   ERR_LIN_RS_DENOM,
@@ -255,8 +256,8 @@ enum RefCountType
   REF_COUNT_SINGLE = 3, // (1,1,1)
   REF_COUNT_LIN_IS = 4, // count isVal, (c,1,1)
   REF_COUNT_LIN_REPEAT = 5, // tag count, (c,1,1)
-  REF_COUNT_LIN_FIELDS = 6, // field count, (1,n,n/2) or (1,1,1)
-  REF_COUNT_SIZE = 6
+  REF_COUNT_LIN_FIELDS = 6, // tag count, (c,1,1)
+  REF_COUNT_SIZE = 7
 };
 
 #endif

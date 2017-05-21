@@ -179,23 +179,62 @@ bool RefLines::getControlEntry(
 }
 
 
-void RefLines::checkHeader() const
+void RefLines::checkEntries(
+  const RefEntry& re,
+  const RefEntry& ractual) const
 {
-  if (headerComment.isUncommented())
+  if (re.count.units == ractual.count.units &&
+      re.count.hands == ractual.count.hands &&
+      re.count.boards == ractual.count.boards)
     return;
 
-  CommentType cat;
-  RefEntry re;
-  headerComment.getEntry(cat, re);
+  THROW("(" +
+    STR(re.count.units) + "," +
+    STR(re.count.hands) + "," +
+    STR(re.count.boards) + ") vs (" +
+    STR(ractual.count.units) + "," +
+    STR(ractual.count.hands) + "," +
+    STR(ractual.count.boards) + ")");
 
-  if (re.count.units != bufferLines ||
-      re.count.hands != numHands ||
-      re.count.boards != numBoards)
+}
+
+
+void RefLines::checkHeader() const
+{
+  RefEntry ra, re;
+  ra.count.units = bufferLines;
+  ra.count.hands = numHands;
+  ra.count.boards = numBoards;
+
+  if (headerComment.isCommented())
   {
-    THROW(headerComment.strComment() + ": (" +
-      STR(bufferLines) + "," +
-      STR(numHands) + "," +
-      STR(numBoards) + ")");
+    // noval and order.
+    CommentType cat;
+    headerComment.getEntry(cat, re);
+    RefLines::checkEntries(re, ra);
+  }
+
+  // In some cases (e.g. rs), the changes to a given tag have to
+  // add up the global number.
+  map<string, vector<RefEntry>> cumulCount;
+
+  for (auto &rl: lines)
+    rl.checkHeader(ra, cumulCount);
+
+  RefEntry rsum;
+  for (auto &p: cumulCount)
+  {
+    rsum.count.units = 0;
+    rsum.count.hands = 0;
+    rsum.count.boards = 0;
+
+    for (auto &q: p.second)
+    {
+      rsum.count.hands += q.count.hands;
+      rsum.count.boards += q.count.boards;
+    }
+    rsum.count.units = bufferLines;
+    RefLines::checkEntries(rsum, ra);
   }
 }
 

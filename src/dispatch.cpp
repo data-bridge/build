@@ -1051,7 +1051,8 @@ static bool readFormattedFile(
 
   refLines.setFileData(buffer.lengthOrig(), 
     group.count(), group.countBoards());
-  refLines.checkHeader();
+  if (options.quoteFlag)
+    refLines.checkHeader();
 
   return b;
 }

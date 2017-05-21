@@ -837,8 +837,8 @@ void RefLine::checkCounts() const
   }
   else if (rc == REF_COUNT_HEADER)
   {
-    // TODO: Within a tag (rs), must add up to whole file.
-    // cout << inputLine << endl;
+    // These are done separately from Reflines::checkHeader,
+    // as we don't know the global numbers here yet.
   }
   else if (rc == REF_COUNT_SINGLE)
   {
@@ -1029,9 +1029,8 @@ void RefLine::checkMultiLineCounts(const vector<string>& lines) const
   }
   else if (rc == REF_COUNT_HEADER)
   {
-    // TODO: Deletion of PLAYERS or RESULTS (entire file counts).
-    // Also check line count somehow.
-    // cout << inputLine << endl;
+    // These are done separately from Reflines::checkHeader,
+    // as we don't know the global numbers here yet.
   }
   else if (rc == REF_COUNT_HANDS)
   {
@@ -1111,6 +1110,54 @@ void RefLine::modify(vector<string>& lines) const
     RefLine::checkMultiLineCounts(lines);
 
   edit.modify(lines, action.number());
+}
+
+
+void RefLine::checkHeader(
+  const RefEntry& ractual,
+  map<string, vector<RefEntry>>& cumulCount) const
+{
+  if (comment.isUncommented() || 
+      comment.countType() != REF_COUNT_HEADER)
+    return;
+
+  CommentType cat;
+  RefEntry re;
+  comment.getEntry(cat, re);
+  const ActionCategory act = action.category();
+
+  if (act == ACTION_DELETE_LINE)
+  {
+    // Must be the full count.
+    if (re.count.units > 1)
+      THROW("Line delete should have <= 1 units");
+
+    re.count.units = ractual.count.units; // Not whole file
+    RefLine::checkEntries(re, ractual);
+    return;
+  }
+
+  // If it fits, we just assume the tag only shows up once.
+  if (re.count.units == 1 &&
+      re.count.hands == ractual.count.hands &&
+      re.count.boards == ractual.count.boards)
+    return;
+
+  if (comment.format() != BRIDGE_FORMAT_LIN)
+    THROW("Can only count LIN headers here");
+
+  string tag;
+  if (action.number() == REF_ACTION_REPLACE_GEN ||
+      action.number() == REF_ACTION_INSERT_GEN)
+  {
+    tag = edit.is().substr(0, 2);
+    if (! comment.isTag(tag))
+      THROW("Expected a tag leading " + inputLine);
+  }
+  else
+    tag = edit.tag();
+
+  cumulCount[tag].push_back(re);
 }
 
 
