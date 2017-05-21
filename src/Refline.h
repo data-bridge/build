@@ -103,6 +103,18 @@ class RefLine
       unsigned &h,
       unsigned &b) const;
 
+    void countHandsTXT(
+      const string& line,
+      unsigned &h) const;
+
+    void countHandsEML(
+      const string& line,
+      unsigned &h) const;
+
+    void countHandsREC(
+      const string& line,
+      unsigned &h) const;
+
     void countVector(
       const vector<unsigned>& seen,
       unsigned &h,
