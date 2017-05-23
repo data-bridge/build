@@ -36,6 +36,7 @@ void Sheet::resetHeader()
   header.links.clear();
   header.linenoRS = BIGNUM;
   header.lineRS = "";
+  header.multipleRS = false;
   header.lineCount = BIGNUM;
 
   bmin = 0;
@@ -260,6 +261,8 @@ void Sheet::parse(Buffer& buffer)
     }
     else if (lineData.label == "rs")
     {
+      if (header.linenoRS != BIGNUM)
+        header.multipleRS = true;
       header.linenoRS = lineData.no;
       header.lineRS = buffer.getLine(lineData.no);
       Sheet::parseRS(lineData.value, clist);
@@ -589,7 +592,7 @@ string Sheet::suggestTricks(
   ss << ho.hand.strContractTag() << "(1,1,1)}\n";
 
   const string tricksDiff = ho.hand.tricksAlt();
-  if (tricksDiff != "Y" && ho.linenoMC != 0)
+  if (tricksDiff != "Y" && ho.linenoMC != BIGNUM)
   {
     // Play was completed, so offer mc.
     const unsigned mcno = Sheet::tagNo(ho.lineMC, "mc");
@@ -676,6 +679,18 @@ string Sheet::str()
 
   bool hasDiffs = false;
   stringstream notes;
+  if (header.multipleRS)
+  {
+    notes << "Multiple rs lines -- fix manually\n";
+    notes << "\n----------\n\n";
+    
+    for (auto &ho: hands)
+    {
+      ss << setw(5) << ho.label << " " << ho.hand.str() << "\n";
+    }
+    return ss.str() + "\n" + notes.str();
+  }
+
   for (auto &ho: hands)
   {
     ss << setw(5) << ho.label << " " << ho.hand.str() << "\n";

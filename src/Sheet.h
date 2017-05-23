@@ -33,6 +33,7 @@ class Sheet
       vector<string> links;
       unsigned linenoRS;
       string lineRS;
+      bool multipleRS;
       unsigned lineCount;
     };
 
