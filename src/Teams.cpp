@@ -203,6 +203,15 @@ bool Teams::hasCarry() const
 }
 
 
+void Teams::getCarry(
+  unsigned& score1,
+  unsigned& score2) const
+{
+  score1 = team1.getCarry();
+  score2 = team2.getCarry();
+}
+
+
 bool Teams::operator == (const Teams& teams2) const
 {
   if (team1 != teams2.team1)

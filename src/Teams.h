@@ -66,6 +66,10 @@ class Teams
     void swap();
 
     bool hasCarry() const;
+
+    void getCarry(
+      unsigned& score1,
+      unsigned& score2) const;
       
     bool operator == (const Teams& t2) const;
 

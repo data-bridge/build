@@ -1003,3 +1003,63 @@ string Board::strRoom(
   return players[numActive].strRoom(no, format);
 }
 
+
+string Board::strResultEntry(const unsigned instNo) const
+{
+  if (instNo >= len)
+    return string(22, ' ');
+
+  stringstream ss;
+  ss << setw(8) << left << contract[instNo].str(BRIDGE_FORMAT_LIN);
+
+  const int score = contract[instNo].getScore();
+  if (score == 0)
+    ss << "     --     --";
+  else if (score > 0)
+    ss << setw(7) << right << score << setw(7) << "";
+  else
+    ss << setw(14) << right << -score;
+  return ss.str();
+}
+
+
+string Board::strIMPEntry(const int imps) const
+{
+  stringstream ss;
+  if (imps == 0)
+    ss << "    --    --";
+  else if (imps > 0)
+    ss << setw(6) << right << imps;
+  else
+    ss << setw(12) << right << -imps;
+  return ss.str() + "\n";
+}
+
+
+string Board::strIMPSheetLine(
+  const string& bno,
+  unsigned& imps1,
+  unsigned& imps2) const
+{
+  const string divider = "  |  ";
+  stringstream ss;
+  ss << setw(4) << right << bno << "  ";
+  ss << Board::strResultEntry(0u) << divider << 
+    Board::strResultEntry(1u) << divider;
+
+  int imps;
+  if (len < 2 || ! contract[0].hasResult() || ! contract[1].hasResult())
+    imps = 0;
+  else
+    imps = contract[0].IMPScore(contract[1].getScore());
+
+  ss << Board::strIMPEntry(imps);
+
+  if (imps >= 0)
+    imps1 += static_cast<unsigned>(imps);
+  else
+    imps2 += static_cast<unsigned>(-imps);
+
+  return ss.str();
+}
+

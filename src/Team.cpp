@@ -159,6 +159,15 @@ bool Team::hasCarry() const
 }
 
 
+unsigned Team::getCarry() const
+{
+  if (carry == BRIDGE_CARRY_INT && carryi >= 0)
+    return static_cast<unsigned>(carryi);
+  else
+    return 0u;
+}
+
+
 string Team::strCarry(const bool forceFlag) const
 {
   stringstream ss;

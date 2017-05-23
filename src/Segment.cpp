@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <iomanip>
 #include <string>
 #include <regex>
 
@@ -901,6 +902,14 @@ bool Segment::hasCarry() const
 }
 
 
+void Segment::getCarry(
+  unsigned& score1,
+  unsigned& score2) const
+{
+  teams.getCarry(score1, score2);
+}
+
+
 bool Segment::operator == (const Segment& segment2) const
 {
   if (title != segment2.title)
@@ -1360,5 +1369,39 @@ string Segment::strBoards(const Format format) const
     default:
       THROW("Invalid format: " + STR(format));
   }
+}
+
+
+string Segment::strIMPSheetHeader() const
+{
+  stringstream ss;
+  const string divider = "  |  ";
+  const string dashes(72, '-');
+  ss << setw(4) << right << "Bd." << "  " <<
+    setw(8) << left << "Contr." <<
+    setw(7) << right << "NS" <<
+    setw(7) << "EW" <<
+    divider <<
+    setw(8) << left << "Contr." <<
+    setw(7) << right << "NS" <<
+    setw(7) << "EW" <<
+    divider <<
+    setw(6) << "Home" <<
+    setw(6) << "Visit" << "\n";
+  ss << dashes << "\n";
+  return ss.str();
+}
+
+
+string Segment::strIMPSheetFooter(
+  const unsigned score1,
+  const unsigned score2) const
+{
+  stringstream ss;
+  const string dashes(72, '-');
+  ss << dashes << "\n";
+  ss << setw(66) << right << score1 <<
+    setw(6) << score2 << "\n\n";
+  return ss.str();  
 }
 

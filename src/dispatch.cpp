@@ -428,6 +428,33 @@ static void dispatchDigest(
 }
 
 
+static void dispatchIMPSheet(
+  Group& group,
+  ostream& flog)
+{
+  for (auto &segment: group)
+  {
+    if (segment.size() == 0)
+      continue;
+
+    flog << segment.strTitle(BRIDGE_FORMAT_TXT) << "\n";
+    flog << segment.strIMPSheetHeader();
+
+    unsigned score1, score2;
+    segment.getCarry(score1, score2);
+
+    for (auto &bpair: segment)
+    {
+      Board& board = bpair.board;
+      flog << board.strIMPSheetLine(
+        segment.strNumber(bpair.no, BRIDGE_FORMAT_TXT), score1, score2);
+    }
+
+    flog << segment.strIMPSheetFooter(score1, score2);
+  }
+}
+
+
 void dispatch(
   const int thrNo,
   Files& files,
@@ -539,6 +566,9 @@ void dispatch(
       dispatchDigest(options, task, flog);
       timers.stop(BRIDGE_TIMER_DIGEST, task.formatInput);
     }
+
+    // TODO: Use an option to control
+    // dispatchIMPSheet(group, flog);
   }
 }
 
@@ -729,7 +759,6 @@ static bool storeChunk(
   Group& group,
   Segment * segment,
   Board * board,
-  const Buffer& buffer,
   Chunk& chunk,
   const Counts& counts,
   const Format format,
@@ -836,7 +865,6 @@ static bool fillBoards(
   Group& group, 
   Segment * segment, 
   Board *& board, 
-  const Buffer& buffer,
   Chunk& chunk, 
   Counts& counts,
   boardIDLIN& lastBoard,
@@ -868,7 +896,7 @@ static bool fillBoards(
 
     board->unmarkInstanceSkip();
 
-    return storeChunk(group, segment, board, buffer, chunk,
+    return storeChunk(group, segment, board, chunk,
         counts, format, options, flog, false);
   }
 
@@ -902,7 +930,7 @@ static bool fillBoards(
     lastBoard = expectBoard;
     board->newInstance();
     board->markInstanceSkip();
-    if (! storeChunk(group, segment, board, buffer, chunkSynth,
+    if (! storeChunk(group, segment, board, chunkSynth,
         counts, format, options, flog))
       return false;
     advance(expectBoard, counts);
@@ -1149,7 +1177,7 @@ static bool readFormattedFile(
         format == BRIDGE_FORMAT_LIN_RP ||
         format == BRIDGE_FORMAT_LIN_TRN)
     {
-      if (! fillBoards(group, segment, board, buffer, chunk, counts,
+      if (! fillBoards(group, segment, board, chunk, counts,
           lastBoard, format, options, flog))
         return false;
       if (counts.curr < lastBoard)
@@ -1182,7 +1210,7 @@ static bool readFormattedFile(
     lastBoard = counts.curr;
 
     board->newInstance();
-    if (! storeChunk(group, segment, board, buffer, chunk,
+    if (! storeChunk(group, segment, board, chunk,
         counts, format, options, flog))
       return false;
   }
@@ -1195,7 +1223,7 @@ static bool readFormattedFile(
     counts.curr.no = counts.bExtmax+1;
     counts.curr.roomFlag = true;
 
-    if (! fillBoards(group, segment, board, buffer, chunk, counts,
+    if (! fillBoards(group, segment, board, chunk, counts,
         lastBoard, format, options, flog))
       return false;
   }

@@ -57,6 +57,10 @@ class Board
       Board * refBoard,
       const unsigned instNo,
       const Format format) const;
+
+    string strResultEntry(const unsigned instNo) const;
+
+    string strIMPEntry(const int imps) const;
     
 
   public:
@@ -301,6 +305,11 @@ class Board
     string strRoom(
       const unsigned no,
       const Format format) const;
+    
+    string strIMPSheetLine(
+      const string& bno,
+      unsigned& score1,
+      unsigned& score2) const;
 };
 
 #endif

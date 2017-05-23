@@ -70,6 +70,8 @@ class Team
       const string& value);
       
     bool hasCarry() const;
+
+    unsigned getCarry() const;
       
     bool operator == (const Team& t2) const;
 

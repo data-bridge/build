@@ -220,6 +220,10 @@ class Segment
 
     bool hasCarry() const;
 
+    void getCarry(
+      unsigned& score1,
+      unsigned& score2) const;
+
     bool operator == (const Segment& s2) const;
 
     bool operator != (const Segment& s2) const;
@@ -253,6 +257,11 @@ class Segment
     string strPlayers(const Format format);
     string strScores(const Format format) const;
     string strBoards(const Format format) const;
+
+    string strIMPSheetHeader() const;
+    string strIMPSheetFooter(
+      const unsigned score1,
+      const unsigned score2) const;
 };
 
 #endif
