@@ -22,7 +22,6 @@
 #include "dispatch.h"
 #include "ddsIF.h"
 #include "validate.h"
-#include "heurfix.h"
 
 #include "fileLIN.h"
 #include "filePBN.h"
@@ -801,24 +800,8 @@ static bool storeChunk(
 
     bex.print(flog);
 
-    if (bex.isTricks() && FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
-    {
-      heurFixTricks(group, segment, board, buffer, chunk, counts, options);
-    }
-    else if (bex.isPlay())
-    {
-      cout << board->strDeal(BRIDGE_FORMAT_TXT) << endl;
-      cout << board->strContract(BRIDGE_FORMAT_TXT) << endl;
-    }
-    else if (bex.isClaim())
-    {
-      heurFixTricks(group, segment, board, buffer, chunk, counts, options);
-    }
-    else if (bex.isPlayDD() && 
-        FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
-    {
-      heurFixPlayDD(group, segment, board, buffer, chunk, options);
-    }
+    cout << board->strDeal(BRIDGE_FORMAT_TXT) << endl;
+    cout << board->strContract(BRIDGE_FORMAT_TXT) << endl;
 
     if (options.verboseBatch)
       cout << chunk.str();

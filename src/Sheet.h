@@ -31,9 +31,9 @@ class Sheet
     {
       string headline;
       vector<string> links;
-      unsigned linenoRS;
-      string lineRS;
-      bool multipleRS;
+      vector<unsigned> linenoRS;
+      vector<string> lineRS; // May be several
+      vector<unsigned> indexmin; // Ditto
       unsigned lineCount;
     };
 

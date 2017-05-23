@@ -34,9 +34,11 @@ void Sheet::resetHeader()
 {
   header.headline = "";
   header.links.clear();
-  header.linenoRS = BIGNUM;
-  header.lineRS = "";
-  header.multipleRS = false;
+
+  header.linenoRS.clear();
+  header.lineRS.clear();
+  header.indexmin.clear();
+
   header.lineCount = BIGNUM;
 
   bmin = 0;
@@ -261,10 +263,18 @@ void Sheet::parse(Buffer& buffer)
     }
     else if (lineData.label == "rs")
     {
-      if (header.linenoRS != BIGNUM)
-        header.multipleRS = true;
-      header.linenoRS = lineData.no;
-      header.lineRS = buffer.getLine(lineData.no);
+      if (header.linenoRS.size() == 0)
+      {
+        header.linenoRS.push_back(lineData.no);
+        header.lineRS.push_back(buffer.getLine(lineData.no));
+        header.indexmin.push_back(0);
+      }
+      else
+      {
+        header.linenoRS.push_back(lineData.no);
+        header.lineRS.push_back(buffer.getLine(lineData.no));
+        header.indexmin.push_back(hands.size()+1); // Next index
+      }
       Sheet::parseRS(lineData.value, clist);
     }
     else if (lineData.label == "bn")
@@ -581,11 +591,18 @@ string Sheet::suggestTricks(
   stringstream ss;
   ss << "CHOOSE tricks/contract\n";
 
-  const unsigned rsno = Sheet::tagNo(header.lineRS, "rs");
+  unsigned i = 0;
+  if (header.lineRS.size() > 1)
+  {
+    while (i+1 < header.lineRS.size() && header.indexmin[i+1] < index)
+      i++;
+  }
+
+  const unsigned rsno = Sheet::tagNo(header.lineRS[i], "rs");
   const unsigned fno = 2*(ho.numberQX-bmin) + 
     (ho.roomQX == "o" ? 0u : 1u);
 
-  ss << header.linenoRS << " replaceLIN \"" <<
+  ss << header.linenoRS[i] << " replaceLIN \"" <<
     rsno << "," << fno << ",rs," <<
     ho.hand.strContractHeader() << "," <<
     ho.hand.strContractAuction() << "\" {";
@@ -679,17 +696,6 @@ string Sheet::str()
 
   bool hasDiffs = false;
   stringstream notes;
-  if (header.multipleRS)
-  {
-    notes << "Multiple rs lines -- fix manually\n";
-    notes << "\n----------\n\n";
-    
-    for (auto &ho: hands)
-    {
-      ss << setw(5) << ho.label << " " << ho.hand.str() << "\n";
-    }
-    return ss.str() + "\n" + notes.str();
-  }
 
   for (auto &ho: hands)
   {

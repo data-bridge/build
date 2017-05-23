@@ -1,10 +1,8 @@
 21.05.2017
 ----------
-reader input could select by year as well
-
-* Can we then delete heurfix?
 * Another str() function that outputs an IMP sheet, will also need vul
-* Do the rest of -D (377 files)
+
+* Do the rest of -D (288 files)
 
 * Get reader to work on RPmajors
   - Get whole RPmajors matrix to work
@@ -34,6 +32,7 @@ REC
 * How much of .fix can we move into .ref?
   Does this remove the "Room" tags in 3408 .fix lines?
 
+* reader input could select by year as well
 
 * Allow concatenated files: LIN, PBN (those two may work), RBN/RBX
 

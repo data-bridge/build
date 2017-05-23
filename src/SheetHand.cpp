@@ -349,6 +349,31 @@ bool SheetHand::contractsOrTricksDiffer() const
   if (SheetHand::tricksDiffer(tricksHeader, tricksClaim))
     return true;
 
+  unsigned tmin = BRIDGE_TRICKS+1;
+  unsigned tmax = 0;
+  if (tricksHeader.has)
+  {
+    if (tricksHeader.value > tmax) tmax = tricksHeader.value;
+    if (tricksHeader.value < tmin) tmin = tricksHeader.value;
+  }
+  if (tricksPlay.has)
+  {
+    if (tricksPlay.value > tmax) tmax = tricksPlay.value;
+    if (tricksPlay.value < tmin) tmin = tricksPlay.value;
+  }
+  if (tricksClaim.has)
+  {
+    if (tricksClaim.value > tmax) tmax = tricksClaim.value;
+    if (tricksClaim.value < tmin) tmin = tricksClaim.value;
+  }
+    
+  RunningDD runningDD;
+  play.getStateDDS(runningDD);
+  if (tmin < runningDD.tricksDecl)
+    return true;
+  if (tmax + runningDD.tricksDef > BRIDGE_TRICKS)
+    return true;
+
   return false;
 }
 

@@ -401,7 +401,7 @@ bool Buffer::fix(const RefLines& refLines)
       LineData lnew;
       rl.modify(lnew.line);
       lnew.len = static_cast<unsigned>(lnew.line.length());
-      lnew.no = 0;
+      lnew.no = rl.lineno();
       Buffer::classify(lnew);
       lines.insert(lines.begin() + static_cast<int>(i), lnew);
       usedFlag = true;
