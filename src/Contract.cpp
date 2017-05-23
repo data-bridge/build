@@ -1333,6 +1333,50 @@ string Contract::strResult(
 }
 
 
+string Contract::strDiffTag(const Contract& c2) const
+{
+  if (contract.level == 0 && c2.contract.level == 0)
+    return "SAME!";
+  if (contract.level == 0 || c2.contract.level == 0)
+    return "ERR_LIN_RS_REPLACE";
+
+  unsigned diffs = 0;
+  if (contract.level != c2.contract.level) diffs++;
+  if (contract.denom != c2.contract.denom) diffs++;
+  if (contract.declarer != c2.contract.declarer) diffs++;
+  if (contract.mult != c2.contract.mult) diffs++;
+
+  if (diffs >= 2)
+    return "ERR_LIN_RS_REPLACE";
+  if (diffs == 0)
+    return "SAME!";
+
+  if (contract.level != c2.contract.level)
+  {
+    if (contract.level + tricksRelative == 
+        c2.contract.level + c2.tricksRelative)
+      return "ERR_LIN_RS_LEVEL";
+    else
+      return "ERR_LIN_RS_REPLACE";
+  }
+  else if (tricksRelative != c2.tricksRelative)
+    return "ERR_LIN_RS_REPLACE";
+  else if (contract.denom != c2.contract.denom)
+    return "ERR_LIN_RS_DENOM";
+  else if (contract.declarer != c2.contract.declarer)
+  {
+    if ((contract.declarer + c2.contract.declarer) % 2)
+      return "ERR_LIN_RS_DECL_OPP";
+    else
+      return "ERR_LIN_RS_DECL_PARD";
+  }
+  else if (contract.mult != c2.contract.mult)
+    return "ERR_LIN_RS_MULT";
+  else
+    return "SAME!";
+}
+
+
 int Contract::IMPScore(const int refScore) const
 {
   return Contract::diffToIMPs(score - refScore);

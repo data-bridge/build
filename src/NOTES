@@ -1,24 +1,9 @@
 21.05.2017
 ----------
-Sheet
-* Good outputs (try deleting a ref file), CHOOSE (line1) (line2)
-  - auctionIsFlawed: Offer to skip, or fix manually
-  - playIsFlawed: Offer to skip, or fix manually
-  - contractHeader vs. contractAuction
-    fix header (with right RS tag!)
-    skip
-    fix bidding manually
-  - tricksHeader, tricksPlay, tricksClaim, tricksDD: Look in heurfix
-    fix mc
-    fix header
-    fix manually
-  - Need line range of hand; bmin/bmax; rs line #; mc lines #
-
 reader input could select by year as well
 
 * Can we then delete heurfix?
 * Another str() function that outputs an IMP sheet, will also need vul
-* Eliminate refstats.pl
 * Do the rest of -D (377 files)
 
 * Get reader to work on RPmajors
@@ -67,6 +52,12 @@ NERs
 
 Higher semantics
 * No duplicates in BBOSH (file names)
+  Use hash8 from DDS
+  For >= 32 hands use 4, >= 24 3, otherwise use 2 (or 1 if only 1 hand)
+  Deal to return array suitable for hash8
+  Other Deal returns hash directly
+  Flag to output to a file, sorted and merged (-n 6)
+  Then Perl script to find likely duplicates
 * Find unrealistic sequences (opening final contract) [valuation]
 * Very expensive bids (offering huge upside score).
 * Check links (http, www).  Also from deleted nt comments.
@@ -80,11 +71,10 @@ update Pavlicek missive and Excel
 
 Regression
 ----------
-* ./reader -I -R -c -s -v 30 (maybe -p as well)
-* ./reader -I -D -v 30
-* perl refstats.pl BBOVG, BBOSH, BBOJEC, RPmajors
 * perl skipnames.pl all (make it generate skip files)
 * perl skiphands.pl all (make it generate skip files)
+* ./reader -I -R -c -s -q -v 30 (maybe -p as well)
+* ./reader -I -D -v 30
 * perl director.pl dir (a lot, unfortunately)
 * perl checkskip.pl all, perl checkref.pl all
 

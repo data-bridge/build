@@ -31,15 +31,20 @@ class Sheet
     {
       string headline;
       vector<string> links;
-      unsigned lineRS;
+      unsigned linenoRS;
+      string lineRS;
+      unsigned lineCount;
     };
 
     struct SheetHandData
     {
       string label;
-      string room;
+      string roomQX;
       unsigned numberQX;
-      unsigned lineLIN;
+      unsigned linenoQX;
+      unsigned linenoMC;
+      string lineMC;
+      string claim;
 
       SheetHand hand;
 
@@ -48,19 +53,16 @@ class Sheet
 
     SheetHeader header;
     vector<SheetHandData> hands;
-
+    unsigned bmin, bmax;
     RefLines refLines;
 
 
-    void resetHeader(SheetHeader& hdr);
+    void resetHeader();
     void resetHand(SheetHandData& hd);
 
     void fail(const string& text) const;
 
-    void parseVG(
-      const string& value,
-      unsigned& noHdrFirst,
-      unsigned& noHdrLast) const;
+    void parseVG(const string& value);
 
     void parseRS(
       const string& value,
@@ -78,10 +80,7 @@ class Sheet
 
     string qxToHeaderContract(
       SheetHandData& hd,
-      const vector<string>& clist,
-      const vector<unsigned>& blist,
-      const unsigned noHdrFirst,
-      const unsigned noHdrLast);
+      const vector<string>& clist);
 
     void parse(Buffer& buffer);
 
@@ -95,10 +94,24 @@ class Sheet
 
     unsigned findHandNo(const string& label) const;
 
-    string Sheet::strHeader() const;
-    string Sheet::strLinks() const;
-    string Sheet::strPlays() const;
-    string Sheet::strHand(const SheetHandData& ho) const;
+    string strHeader() const;
+    string strLinks() const;
+    string strPlays() const;
+    string strHand(
+      SheetHandData& ho,
+      const unsigned index);
+
+    string handRange(const unsigned index) const;
+
+    unsigned tagNo(
+      const string& line,
+      const string& tag) const;
+
+    string suggestAuction(const unsigned index) const;
+    string suggestPlay(const unsigned index) const;
+    string suggestTricks(
+      SheetHandData& hd,
+      const unsigned index);
 
 
   public:
@@ -111,7 +124,7 @@ class Sheet
 
     bool read(const string& fname);
 
-    string str() const;
+    string str();
 };
 
 #endif

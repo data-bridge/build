@@ -87,12 +87,15 @@ class SheetHand
     bool playFlawed;
     SheetPlayDistance playDistance;
 
+    Contract cHeader;
     SheetContract contractHeader;
-    SheetTricks tricksHeader;
-
+    Contract cAuction;
     SheetContract contractAuction;
+
+    SheetTricks tricksHeader;
     SheetTricks tricksPlay;
     SheetTricks tricksClaim;
+    SheetTricks tricksDDS;
 
     vector<string> chats;
 
@@ -119,15 +122,18 @@ class SheetHand
       const SheetTricks& tr,
       const SheetTricks& tbase) const;
 
-    bool contractsDiffer(
-      const SheetContract& ct,
-      const SheetContract& cf) const;
+    bool contractsDiffer() const;
 
     bool tricksDiffer(
       const SheetTricks& tr,
       const SheetTricks& tf) const;
 
-    string strNotesDetail() const;
+    string suggestTrick(
+      const SheetTricks& tricks1,
+      const SheetTricks& tricks2,
+      const SheetTricks& tbase) const;
+
+    string strNotesDetail();
 
 
   public:
@@ -157,17 +163,19 @@ class SheetHand
 
     bool playIsFlawed() const;
 
-    bool contractsDiffer() const;
-
     SheetPlayType playValidity() const;
 
     const SheetPlayDistance& getPlayDistance() const;
 
-    bool operator ==(const SheetHand& href) const;
-    bool operator !=(const SheetHand& href) const;
+    bool contractsOrTricksDiffer() const;
 
-    string strNotes() const;
-    string strNotes(const SheetHand& href) const;
+    string tricksAlt() const;
+    string strContractHeader();
+    string strContractAuction();
+    string strContractTag() const;
+
+    string strNotes();
+    string strNotes(const SheetHand& href);
 
     string strChat() const;
 

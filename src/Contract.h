@@ -170,6 +170,8 @@ class Contract
       const int refScore,
       const string& team) const;
 
+    string strDiffTag(const Contract& c2) const;
+
     int IMPScore(const int refSCore) const;
 };
 

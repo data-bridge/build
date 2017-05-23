@@ -46,6 +46,9 @@ void SheetHand::reset()
   playDistance.goodTricks = 0;
   playDistance.distance = 0;
 
+  cHeader.reset();
+  cAuction.reset();
+
   contractHeader.has = false;
   tricksHeader.has = false;
   contractAuction.has = false;
@@ -130,6 +133,7 @@ bool SheetHand::setDeal(const string& text)
     {
       string dealer = PLAYER_NAMES_SHORT[PLAYER_LIN_DEALER_TO_DDS[u]];
       auction.setDealer(dealer, BRIDGE_FORMAT_RBN);
+      auction.setVul("o", BRIDGE_FORMAT_RBN);
     }
   }
   catch (Bexcept& bex)
@@ -259,7 +263,6 @@ void SheetHand::finishHand(
   if (auction.isOver())
     hasAuction = true;
 
-  Contract contractHdr;
   if (ct == "")
   {
     SheetHand::fail("Bad board");
@@ -270,31 +273,30 @@ void SheetHand::finishHand(
   }
   else
   {
-    contractHdr.setContract(ct, BRIDGE_FORMAT_LIN);
-    SheetHand::strToContract(contractHdr, SHEET_CONTRACT_HEADER);
-    SheetHand::strToTricks(contractHdr, SHEET_TRICKS_HEADER);
+    cHeader.setContract(BRIDGE_VUL_NONE, ct);
+    SheetHand::strToContract(cHeader, SHEET_CONTRACT_HEADER);
+    SheetHand::strToTricks(cHeader, SHEET_TRICKS_HEADER);
   }
 
-  Contract contract;
-  if (auction.getContract(contract))
-    SheetHand::strToContract(contract, SHEET_CONTRACT_AUCTION);
+  if (auction.getContract(cAuction))
+    SheetHand::strToContract(cAuction, SHEET_CONTRACT_AUCTION);
 
   if (numPlays > 0 && 
-      (contractHdr.isSet() || contract.isSet()) &&
+      (cHeader.isSet() || cAuction.isSet()) &&
       deal.isSet())
   {
     try
     {
-      if (contractHdr.isSet())
+      if (cHeader.isSet())
       {
         // Header may incorrectly list "PASS".
-        if ((ct == "PASS" || ct == "P") && contract.isSet())
-          play.setContract(contract);
+        if ((ct == "PASS" || ct == "P") && cAuction.isSet())
+          play.setContract(cAuction);
         else
-          play.setContract(contractHdr);
+          play.setContract(cHeader);
       }
       else
-        play.setContract(contract);
+        play.setContract(cAuction);
     }
     catch (Bexcept& bex)
     {
@@ -336,27 +338,15 @@ void SheetHand::finishHand(
 }
 
 
-bool SheetHand::operator ==(const SheetHand& href) const
+bool SheetHand::contractsOrTricksDiffer() const
 {
-  return (! (* this != href));
-}
-
-
-bool SheetHand::operator !=(const SheetHand& href) const
-{
-  if (SheetHand::contractsDiffer(contractHeader, href.contractHeader))
+  if (SheetHand::contractsDiffer())
     return true;
 
-  if (SheetHand::tricksDiffer(tricksHeader, href.tricksHeader))
+  if (SheetHand::tricksDiffer(tricksHeader, tricksPlay))
     return true;
 
-  if (SheetHand::contractsDiffer(contractAuction, href.contractAuction))
-    return true;
-
-  if (SheetHand::tricksDiffer(tricksPlay, href.tricksPlay))
-    return true;
-
-  if (SheetHand::tricksDiffer(tricksClaim, href.tricksClaim))
+  if (SheetHand::tricksDiffer(tricksHeader, tricksClaim))
     return true;
 
   return false;
@@ -372,20 +362,6 @@ bool SheetHand::hasData() const
 bool SheetHand::auctionIsFlawed() const
 {
   return auctionFlawed;
-}
-
-bool SheetHand::contractsDiffer() const
-{
-  if (contractHeader.has)
-  {
-    if (contractAuction.has)
-      return (contractHeader.value != contractAuction.value);
-    else
-      // May just be missing, so we accept
-      return false;
-  }
-  else
-    return contractAuction.has;
 }
 
 
@@ -469,16 +445,18 @@ string SheetHand::tstr(
 }
 
 
-bool SheetHand::contractsDiffer(
-  const SheetContract& ct,
-  const SheetContract& cf) const
+bool SheetHand::contractsDiffer() const
 {
-  if (ct.has != cf.has)
-    return true;
-  else if (ct.has && ct.value != cf.value)
-    return true;
+  if (contractHeader.has)
+  {
+    if (contractAuction.has)
+      return (contractHeader.value != contractAuction.value);
+    else
+      // May just be missing, so we accept
+      return false;
+  }
   else
-    return false;
+    return contractAuction.has;
 }
 
 
@@ -486,16 +464,99 @@ bool SheetHand::tricksDiffer(
   const SheetTricks& tr,
   const SheetTricks& tf) const
 {
-  if (tr.has != tf.has)
-    return true;
-  else if (tr.has && tr.value != tf.value)
-    return true;
-  else
+  if (! tr.has)
+    return tf.has;
+  else if (! tf.has)
     return false;
+  else
+    return (tr.value != tf.value);
 }
 
 
-string SheetHand::strNotesDetail() const
+string SheetHand::suggestTrick(
+  const SheetTricks& tricks1,
+  const SheetTricks& tricks2,
+  const SheetTricks& tbase) const
+{
+  if (tricks1.has)
+  {
+    if (! tricks2.has)
+    {
+      if (tricks1.value != tbase.value)
+        return STR(tricks1.value);
+      else
+        return "Y"; // No ideas
+    }
+    else if (tricks1.value == tricks2.value)
+    {
+      if (tricks1.value != tbase.value)
+        return STR(tricks1.value);
+      else
+        return "Y";
+    }
+    else if (tricks1.value == tbase.value)
+      return STR(tricks2.value);
+    else if (tricks2.value == tbase.value)
+      return STR(tricks1.value);
+    else
+      return "X"; // Too many different values
+  }
+  else if (tricks2.has)
+  {
+    if (tricks2.value != tbase.value)
+      return STR(tricks2.value);
+    else
+      return "Y";
+  }
+  else
+    return "Y";
+}
+
+
+string SheetHand::tricksAlt() const
+{
+  const SheetTricks& tbase = (tricksClaim.has ? tricksClaim : tricksPlay);
+
+  return SheetHand::suggestTrick(tricksHeader, tricksDDS, tbase);
+}
+
+
+string SheetHand::strContractHeader()
+{
+  if (tricksHeader.has)
+  {
+    cHeader.setTricks(tricksHeader.value);
+    return cHeader.str(BRIDGE_FORMAT_LIN);
+  }
+  else
+    return contractHeader.value;
+}
+
+
+string SheetHand::strContractAuction()
+{
+  if (tricksClaim.has)
+  {
+    cAuction.setTricks(tricksClaim.value);
+    return cAuction.str(BRIDGE_FORMAT_LIN);
+  }
+  else if (tricksPlay.has)
+  {
+    cAuction.setTricks(tricksPlay.value);
+    return cAuction.str(BRIDGE_FORMAT_LIN);
+  }
+  else
+    return contractAuction.value;
+}
+
+
+string SheetHand::strContractTag() const
+{
+  return cHeader.strDiffTag(cAuction);
+}
+
+
+string SheetHand::strNotesDetail()
 {
   stringstream ss;
   RunningDD runningDD;
@@ -524,79 +585,32 @@ string SheetHand::strNotesDetail() const
 
   if (! play.isOver())
   {
-    unsigned ddTricks;
     try
     {
-      ddTricks = tricksDD(runningDD);
+      tricksDDS.has = true;
+      tricksDDS.value = tricksDD(runningDD);
     }
     catch (Bexcept& bex)
     {
       bex.print(cout);
     }
-    ss << "DD      : " << ddTricks << "\n\n";
+    ss << "DD      : " << tricksDDS.value << "\n\n";
   }
 
   return ss.str();
 }
 
 
-string SheetHand::strNotes() const
+string SheetHand::strNotes()
 {
   stringstream ss;
   if (hasDeal)
-  {
     ss << deal.str(BRIDGE_NORTH, BRIDGE_FORMAT_TXT) << "\n";
-    ss << "Fixed deal is missing\n";
-  }
 
   if (hasPlay)
   {
     ss << play.str(BRIDGE_FORMAT_TXT) << "\n";
     ss << SheetHand::strNotesDetail();
-    ss << "Fixed play is missing\n";
-  }
-
-  return ss.str();
-}
-
-
-string SheetHand::strNotes(const SheetHand& href) const
-{
-  stringstream ss;
-  if (hasDeal)
-  {
-    ss << deal.str(BRIDGE_NORTH, BRIDGE_FORMAT_TXT) << "\n";
-    if (href.hasDeal && deal != href.deal)
-      ss << "Original and fixed deals differ\n";
-  }
-  else if (href.hasDeal)
-  {
-    ss << "No original deal -- fixed deal:\n";
-    ss << href.deal.str(BRIDGE_NORTH, BRIDGE_FORMAT_TXT) << "\n";
-  }
-
-  if (hasPlay)
-  {
-    ss << play.str(BRIDGE_FORMAT_TXT) << "\n";
-    ss << SheetHand::strNotesDetail();
-
-    try
-    {
-      if (href.hasPlay && play != href.play)
-        ss << "Original and fixed plays differ\n";
-    }
-    catch (Bdiff& bdiff)
-    {
-      UNUSED(bdiff);
-      ss << "Original and fixed plays differ\n";
-    }
-
-  }
-  else if (href.hasPlay)
-  {
-    ss << "No original play -- fixed play:\n";
-    ss << href.play.str(BRIDGE_FORMAT_TXT) << "\n";
-    ss << href.strNotesDetail();
   }
 
   return ss.str();
@@ -608,7 +622,7 @@ string SheetHand::strChat() const
   string st;
   for (auto &line: chats)
     st += line + "\n";
-  return st;
+  return st + "\n";
 }
   
 

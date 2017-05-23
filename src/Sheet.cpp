@@ -30,19 +30,28 @@ Sheet::Sheet()
 }
 
 
-void Sheet::resetHeader(SheetHeader& hdr)
+void Sheet::resetHeader()
 {
-  hdr.headline = "";
-  hdr.links.clear();
+  header.headline = "";
+  header.links.clear();
+  header.linenoRS = BIGNUM;
+  header.lineRS = "";
+  header.lineCount = BIGNUM;
+
+  bmin = 0;
+  bmax = BIGNUM;
 }
 
 
 void Sheet::resetHand(SheetHandData& hd)
 {
   hd.label = "";
-  hd.room = "";
+  hd.roomQX = "";
   hd.numberQX = BIGNUM;
-  hd.lineLIN = BIGNUM;
+  hd.linenoQX = BIGNUM;
+  hd.linenoMC = BIGNUM;
+  hd.lineMC = "";
+  hd.claim = "";
   hd.hand.reset();
   hd.refSource.clear();
 }
@@ -50,7 +59,7 @@ void Sheet::resetHand(SheetHandData& hd)
 
 void Sheet::reset()
 {
-  Sheet::resetHeader(header);
+  Sheet::resetHeader();
 
   hands.clear();
   hands.reserve(SHEET_INIT);
@@ -62,10 +71,7 @@ Sheet::~Sheet()
 }
 
 
-void Sheet::parseVG(
-  const string& value,
-  unsigned& noHdrFirst,
-  unsigned& noHdrLast) const
+void Sheet::parseVG(const string& value) 
 {
   size_t c = countDelimiters(value, ",");
   if (c != 8)
@@ -79,19 +85,19 @@ void Sheet::parseVG(
   if (tokens[3] != "" && str2unsigned(tokens[3], u))
   {
     // In case of multiple segments, only take the first one.
-    if (noHdrFirst == 0)
-      noHdrFirst = u;
+    if (bmin == 0)
+      bmin = u;
   }
   else
-    noHdrFirst = BIGNUM;
+    bmin = BIGNUM;
 
   if (tokens[4] != "" && str2unsigned(tokens[4], u))
   {
     // In case of multiple segments, take the last one.
-    noHdrLast = u;
+    bmax = u;
   }
   else
-    noHdrLast = BIGNUM;
+    bmax = BIGNUM;
 }
 
 
@@ -161,31 +167,26 @@ bool Sheet::isLink(
 
 string Sheet::qxToHeaderContract(
   SheetHandData& hd,
-  const vector<string>& clist,
-  const vector<unsigned>& blist,
-  const unsigned noHdrFirst,
-  const unsigned noHdrLast)
+  const vector<string>& clist)
 {
-  UNUSED(blist);
-
   if (hd.label.length() < 2)
     return "";
 
-  hd.room = hd.label.substr(0, 1);
-  if (hd.room != "o" && hd.room != "c")
+  hd.roomQX = hd.label.substr(0, 1);
+  if (hd.roomQX != "o" && hd.roomQX != "c")
     return "";
 
-  unsigned adder = (hd.room == "o" ? 0u : 1u);
+  unsigned adder = (hd.roomQX == "o" ? 0u : 1u);
   
   if (! str2unsigned(hd.label.substr(1), hd.numberQX))
     return "";
 
   if (hd.numberQX == 0 || 
-      hd.numberQX < noHdrFirst || 
-      hd.numberQX > noHdrLast)
+      hd.numberQX < bmin || 
+      hd.numberQX > bmax)
     return "";
 
-  const unsigned index = 2*(hd.numberQX-noHdrFirst) + adder;
+  const unsigned index = 2*(hd.numberQX-bmin) + adder;
   if (index >= clist.size())
     return "-";
   else if (clist[index] == "")
@@ -217,7 +218,7 @@ void Sheet::parse(Buffer& buffer)
   SheetHandData handTmp;
   Sheet::resetHand(handTmp);
 
-  unsigned noHdrFirst = 0, noHdrLast = 0;
+  header.lineCount = buffer.lengthOrig();
 
   vector<string> clist;
   vector<unsigned> blist;
@@ -255,11 +256,12 @@ void Sheet::parse(Buffer& buffer)
 
       header.headline += "\n";
 
-      Sheet::parseVG(lineData.value, noHdrFirst, noHdrLast);
+      Sheet::parseVG(lineData.value);
     }
     else if (lineData.label == "rs")
     {
-      header.lineRS = lineData.no;
+      header.linenoRS = lineData.no;
+      header.lineRS = buffer.getLine(lineData.no);
       Sheet::parseRS(lineData.value, clist);
     }
     else if (lineData.label == "bn")
@@ -270,10 +272,10 @@ void Sheet::parse(Buffer& buffer)
     {
       if (handTmp.label != "")
       {
-        string c = Sheet::qxToHeaderContract(handTmp,
-          clist, blist, noHdrFirst, noHdrLast);
+        string c = Sheet::qxToHeaderContract(handTmp, clist);
         handTmp.hand.finishHand(c, plays, numPlays);
         hands.push_back(handTmp);
+        Sheet::resetHand(handTmp);
       }
 
       Sheet::resetHand(handTmp);
@@ -281,7 +283,7 @@ void Sheet::parse(Buffer& buffer)
       plays = "";
       numPlays = 0;
       handTmp.label = Sheet::parseQX(lineData.value);
-      handTmp.lineLIN = lineData.no;
+      handTmp.linenoQX = lineData.no;
     }
     else if (lineData.label == "md")
     {
@@ -306,6 +308,9 @@ void Sheet::parse(Buffer& buffer)
     {
       if (! handTmp.hand.claim(lineData.value))
         Sheet::fail("Bad claim");
+      handTmp.linenoMC = lineData.no;
+      handTmp.lineMC = buffer.getLine(lineData.no);
+      handTmp.claim = lineData.value;
     }
     else if (lineData.label == "nt")
     {
@@ -318,8 +323,7 @@ void Sheet::parse(Buffer& buffer)
 
   if (handTmp.label != "")
   {
-    string c = Sheet::qxToHeaderContract(handTmp,
-      clist, blist, noHdrFirst, noHdrLast);
+    string c = Sheet::qxToHeaderContract(handTmp, clist);
     handTmp.hand.finishHand(c, plays, numPlays);
     hands.push_back(handTmp);
   }
@@ -329,16 +333,16 @@ void Sheet::parse(Buffer& buffer)
 unsigned Sheet::refLineNoToHandNo(const unsigned lineNo) const
 {
   const unsigned l = hands.size();
-  if (lineNo < hands[0].lineLIN)
+  if (lineNo < hands[0].linenoQX)
     return BIGNUM; // Header
 
   for (unsigned i = 0; i < l-1; i++)
   {
-    if (lineNo < hands[i+1].lineLIN)
+    if (lineNo < hands[i+1].linenoQX)
       return i;
   }
 
-  if (lineNo >= hands[l-1].lineLIN)
+  if (lineNo >= hands[l-1].linenoQX)
     return l-1;
   else
     return BIGNUM;
@@ -512,7 +516,100 @@ string Sheet::strPlays() const
 }
 
 
-string Sheet::strHand(const SheetHandData& ho) const
+string Sheet::handRange(const unsigned index) const
+{
+  const unsigned e = (index == hands.size()-1 ? 
+    header.lineCount : 
+    hands[index+1].linenoQX-1);
+
+  if (hands[index].linenoQX == e)
+    return STR(hands[index].linenoQX);
+  else
+    return STR(hands[index].linenoQX) + "-" + STR(e);
+}
+
+
+unsigned Sheet::tagNo(
+  const string& line,
+  const string& tag) const
+{
+  const unsigned p = line.find(tag);
+  if (p == string::npos)
+    return 0;
+  if (p == 0)
+    return 1;
+
+  const unsigned c = static_cast<unsigned>
+    (count(line.begin(), line.begin()+static_cast<int>(p), '|'));
+  if (c % 2)
+    return 0;
+
+  return c/2;
+}
+
+
+string Sheet::suggestAuction(const unsigned index) const
+{
+  stringstream ss;
+  ss << "CHOOSE auction\n";
+  ss << Sheet::handRange(index);
+  ss << " delete {ERR_LIN_HAND_AUCTION_WRONG(0,1,1)}\n";
+  ss << "AUCTION options: NONE, WRONG, LIVE, ABBR (or manually)\n\n";
+
+  return ss.str();
+}
+
+
+string Sheet::suggestPlay(const unsigned index) const
+{
+  stringstream ss;
+  ss << "CHOOSE play\n";
+  ss << Sheet::handRange(index);
+  ss << " delete {ERR_LIN_HAND_PLAY_WRONG(0,1,1)}\n";
+  ss << "PLAY options: WRONG, MISSING (or manually) \n\n";
+  return ss.str();
+}
+
+
+string Sheet::suggestTricks(
+  SheetHandData& ho,
+  const unsigned index)
+{
+  stringstream ss;
+  ss << "CHOOSE tricks/contract\n";
+
+  const unsigned rsno = Sheet::tagNo(header.lineRS, "rs");
+  const unsigned fno = 2*(ho.numberQX-bmin) + 
+    (ho.roomQX == "o" ? 0u : 1u);
+
+  ss << header.linenoRS << " replaceLIN \"" <<
+    rsno << "," << fno << ",rs," <<
+    ho.hand.strContractHeader() << "," <<
+    ho.hand.strContractAuction() << "\" {";
+  ss << ho.hand.strContractTag() << "(1,1,1)}\n";
+
+  const string tricksDiff = ho.hand.tricksAlt();
+  if (tricksDiff != "Y" && ho.linenoMC != 0)
+  {
+    // Play was completed, so offer mc.
+    const unsigned mcno = Sheet::tagNo(ho.lineMC, "mc");
+    if (mcno == 0)
+      THROW("No mc in mc line: " + ho.lineMC);
+    ss << ho.linenoMC << " replaceLIN \"" <<
+      mcno << ",mc," << ho.claim << 
+      "," << ho.hand.tricksAlt() << "\" {ERR_LIN_MC_REPLACE(1,1,1)}\n";
+  }
+
+  ss << Sheet::handRange(index);
+  ss << " delete {ERR_LIN_HAND_AUCTION_WRONG(0,1,1)}\n";
+
+  return ss.str();
+}
+
+
+string Sheet::strHand(
+  SheetHandData& ho,
+  const unsigned index)
 {
   stringstream ss;
 
@@ -520,7 +617,6 @@ string Sheet::strHand(const SheetHandData& ho) const
   ss << ho.hand.strNotes();
   ss << ho.hand.strChat();
 
-  const unsigned index = Sheet::findHandNo(ho.label);
   if (index != BIGNUM)
   {
     const unsigned l = hands.size();
@@ -538,16 +634,18 @@ string Sheet::strHand(const SheetHandData& ho) const
 
   // For mb errors, could check that auctionIsFlawed().
 
-  ss << "\nActive ref lines: " << ho.label << "\n";
-  for (auto &line: ho.refSource)
-    ss << line << "\n";
+  if (ho.refSource.size() > 0)
+  {
+    ss << "\nActive ref lines: " << ho.label << "\n";
+    for (auto &line: ho.refSource)
+      ss << line << "\n";
+  }
 
-  ss << "\n----------\n\n";
   return ss.str();
 }
 
 
-string Sheet::str() const
+string Sheet::str()
 {
   stringstream ss;
 
@@ -557,7 +655,7 @@ string Sheet::str() const
   {
     if (ho.hand.playIsFlawed())
       hasPlayFlaw = true;
-    if (ho.hand.contractsDiffer())
+    if (ho.hand.contractsOrTricksDiffer())
       contractsDiffer = true;
   }
   if (hasPlayFlaw)
@@ -574,25 +672,32 @@ string Sheet::str() const
     setw(6) << "Thdr" <<
     setw(6) << "Cauct" <<
     setw(6) << "Tplay" <<
-    setw(6) << "Tclm" <<
-    setw(6) << "Chdr" <<
-    setw(6) << "Thdr" <<
-    setw(6) << "Cauct" <<
-    setw(6) << "Tplay" <<
     setw(6) << "Tclm" << "\n";
 
   bool hasDiffs = false;
   stringstream notes;
   for (auto &ho: hands)
   {
-    ss << setw(5) << ho.label << " " << ho.hand.str();
+    ss << setw(5) << ho.label << " " << ho.hand.str() << "\n";
 
     if (ho.hand.auctionIsFlawed() || 
         ho.hand.playIsFlawed() ||
-        ho.hand.contractsDiffer())
+        ho.hand.contractsOrTricksDiffer())
     {
       hasDiffs = true;
-      notes << Sheet::strHand(ho);
+      const unsigned index = Sheet::findHandNo(ho.label);
+      notes << Sheet::strHand(ho, index);
+
+      if (ho.hand.auctionIsFlawed())
+        notes << Sheet::suggestAuction(index);
+      
+      if (ho.hand.playIsFlawed())
+        notes << Sheet::suggestPlay(index);
+
+      if (ho.hand.contractsOrTricksDiffer())
+        notes << suggestTricks(ho, index);
+
+      notes << "\n----------\n\n";
     }
   }
 
