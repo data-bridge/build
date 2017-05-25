@@ -386,8 +386,6 @@ bool Buffer::fix(
 
 bool Buffer::fix(const RefLines& refLines)
 {
-  bool usedFlag = false;
-
   for (auto &rl: refLines)
   {
     const unsigned i = Buffer::getInternalNumber(rl.lineno());
@@ -404,7 +402,6 @@ bool Buffer::fix(const RefLines& refLines)
       lnew.no = rl.lineno();
       Buffer::classify(lnew);
       lines.insert(lines.begin() + static_cast<int>(i), lnew);
-      usedFlag = true;
       len++;
     }
     else if (refType == ACTION_DELETE_LINE)
@@ -423,19 +420,17 @@ bool Buffer::fix(const RefLines& refLines)
       lines.erase(lines.begin() + static_cast<int>(i), 
           lines.begin() + static_cast<int>(deletion + i));
       len -= deletion;
-      usedFlag = true;
     }
     else if (refType == ACTION_GENERAL)
     {
       rl.modify(ld.line);
       ld.len = static_cast<unsigned>(ld.line.length());
       Buffer::classify(ld);
-      usedFlag = true;
     }
     else 
       THROW("Bad reference line type");
   }
-  return usedFlag;
+  return true;
 }
 
 
