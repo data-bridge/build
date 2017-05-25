@@ -822,16 +822,24 @@ void RefEdit::modifyInsertWORD(string& line) const
 {
   const unsigned pos = RefEdit::modifyCommonWORD(line);
   if (pos == 0)
-    modifyFail(line, "insertWORD: Too few words");
-
-  line.insert(pos-1, isVal);
+  {
+    // Not checking whether the word number is way too large.
+    if (line.length() > 0 && line.at(line.length()-1) == ' ')
+      line += isVal;
+    else
+      line += " " + isVal;
+  }
+  else if (line.at(pos-1) == ' ')
+    line.insert(pos-1, isVal);
+  else
+    line.insert(pos-1, isVal + " ");
 }
 
 void RefEdit::modifyDeleteWORD(string& line) const
 {
   const unsigned pos = RefEdit::modifyCommonWORD(line);
   if (pos == 0)
-    modifyFail(line, "replaceWORD: Too few words");
+    modifyFail(line, "deleteWORD: Too few words");
 
   const unsigned lw = wasVal.length();
   if (line.substr(pos-1, lw) != wasVal)

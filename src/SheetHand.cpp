@@ -156,7 +156,7 @@ bool SheetHand::addCall(const string& text)
   {
     string tmp = text;
     toUpper(tmp);
-    if (tmp.length() > 4)
+    if (tmp.length() > 3)
     {
       trimLeading(tmp, '-');
       tmp = trimTrailing(tmp, '-');

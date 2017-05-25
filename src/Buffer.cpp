@@ -430,6 +430,7 @@ bool Buffer::fix(const RefLines& refLines)
     else 
       THROW("Bad reference line type");
   }
+  // TODO: Could just be of type void
   return true;
 }
 

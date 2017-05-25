@@ -158,6 +158,7 @@ bool RefLines::getHeaderEntry(
     re.files = 1;
     re.noRefLines = lines.size();
     re.count.lines = bufferLines;
+    re.count.units = 0;
     re.count.hands = numHands;
     re.count.boards = numBoards;
   }

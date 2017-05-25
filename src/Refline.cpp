@@ -699,7 +699,6 @@ void RefLine::parseInsertWORD(
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
 
   comment.checkAction(action.number());
-  comment.checkTag(v[0]);
   edit.setTagNumber(RefLine::parseUpos(refName, quote, v[0]));
   edit.setIs(v[1]);
 }
@@ -718,7 +717,6 @@ void RefLine::parseDeleteWORD(
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
 
   comment.checkAction(action.number());
-  comment.checkTag(v[0]);
   edit.setTagNumber(RefLine::parseUpos(refName, quote, v[0]));
   edit.setWas(v[1]);
 }

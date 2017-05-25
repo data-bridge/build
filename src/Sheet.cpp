@@ -312,10 +312,20 @@ void Sheet::parse(Buffer& buffer)
     }
     else if (lineData.label == "pc")
     {
-      if (numPlays > 0 && numPlays % 4 == 0)
-        plays += ":";
-      plays += lineData.value;
-      numPlays++;
+      if (lineData.value.length() == 8 && numPlays % 4 == 0)
+      {
+        if (numPlays > 0)
+          plays += ":";
+        plays += lineData.value;
+        numPlays += 4;
+      }
+      else
+      {
+        if (numPlays > 0 && numPlays % 4 == 0)
+          plays += ":";
+        plays += lineData.value;
+        numPlays++;
+      }
     }
     else if (lineData.label == "mc")
     {
