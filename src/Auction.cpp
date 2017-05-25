@@ -304,7 +304,7 @@ void Auction::addCall(
     numPasses++;
   else if (n == 1)
   {
-    if (multiplier != BRIDGE_MULT_UNDOUBLED)
+    if (multiplier != BRIDGE_MULT_UNDOUBLED || numPasses == 1)
       THROW("Illegal double");
 
     multiplier = BRIDGE_MULT_DOUBLED;
@@ -312,7 +312,7 @@ void Auction::addCall(
   }
   else if (n == 2)
   {
-    if (multiplier != BRIDGE_MULT_DOUBLED)
+    if (multiplier != BRIDGE_MULT_DOUBLED || numPasses == 1)
       THROW("Illegal redouble");
 
     multiplier = BRIDGE_MULT_REDOUBLED;

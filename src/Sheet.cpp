@@ -600,7 +600,7 @@ string Sheet::suggestTricks(
 
   const unsigned rsno = Sheet::tagNo(header.lineRS[i], "rs");
   const unsigned fno = 2*(ho.numberQX-bmin) + 
-    (ho.roomQX == "o" ? 0u : 1u);
+    (ho.roomQX == "o" ? 0u : 1u) + 1;
 
   ss << header.linenoRS[i] << " replaceLIN \"" <<
     rsno << "," << fno << ",rs," <<
@@ -669,19 +669,22 @@ string Sheet::str()
 {
   stringstream ss;
 
-  bool hasPlayFlaw = false;
   bool contractsDiffer = false;
+  bool hasPlayFlaw = false;
+  bool hasAuctionFlaw = false;
   for (auto &ho: hands)
   {
-    if (ho.hand.playIsFlawed())
-      hasPlayFlaw = true;
     if (ho.hand.contractsOrTricksDiffer())
       contractsDiffer = true;
+    if (ho.hand.auctionIsFlawed())
+      hasAuctionFlaw = true;
+    if (ho.hand.playIsFlawed())
+      hasPlayFlaw = true;
   }
   if (hasPlayFlaw)
     ss << Sheet::strPlays();
 
-  if (! contractsDiffer)
+  if (! contractsDiffer && ! hasAuctionFlaw && ! hasPlayFlaw)
     return ss.str();
 
   if (! hasPlayFlaw)
@@ -694,7 +697,6 @@ string Sheet::str()
     setw(6) << "Tplay" <<
     setw(6) << "Tclm" << "\n";
 
-  bool hasDiffs = false;
   stringstream notes;
 
   for (auto &ho: hands)
@@ -705,7 +707,7 @@ string Sheet::str()
         ho.hand.playIsFlawed() ||
         ho.hand.contractsOrTricksDiffer())
     {
-      hasDiffs = true;
+      // hasDiffs = true;
       const unsigned index = Sheet::findHandNo(ho.label);
       notes << Sheet::strHand(ho, index);
 
@@ -722,9 +724,6 @@ string Sheet::str()
     }
   }
 
-  if (hasDiffs)
-    return ss.str() + "\n" + notes.str();
-  else
-    return "";
+  return ss.str() + "\n" + notes.str();
 }
 

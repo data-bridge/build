@@ -428,6 +428,7 @@ static void dispatchDigest(
 }
 
 
+/*
 static void dispatchIMPSheet(
   Group& group,
   ostream& flog)
@@ -453,6 +454,7 @@ static void dispatchIMPSheet(
     flog << segment.strIMPSheetFooter(score1, score2);
   }
 }
+*/
 
 
 void dispatch(

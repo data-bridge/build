@@ -38,6 +38,8 @@ class Bexcept: public exception
 
     void print(ostream& flog) const;
 
+    string getMessage() const;
+
     bool isNoCards() const;
 
     bool isTricks() const;

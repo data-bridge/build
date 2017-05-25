@@ -81,6 +81,7 @@ class SheetHand
     Auction auction;
     bool hasAuction;
     bool auctionFlawed;
+    string auctionFlaw;
 
     Play play;
     bool hasPlay;

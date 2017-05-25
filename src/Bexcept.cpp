@@ -34,6 +34,12 @@ void Bexcept::print(ostream& flog) const
 }
 
 
+string Bexcept::getMessage() const
+{
+  return message;
+}
+
+
 bool Bexcept::isTricks() const
 {
   return (file == "Contract.cpp" &&

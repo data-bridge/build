@@ -36,6 +36,7 @@ void SheetHand::reset()
   auction.reset();
   hasAuction = false;
   auctionFlawed = false;
+  auctionFlaw = "";
 
   play.reset();
   hasPlay = false;
@@ -101,7 +102,11 @@ void SheetHand::strToTricks(
     {
       case SHEET_TRICKS_HEADER:
         tricksHeader.value = contract.getTricks();
-        tricksHeader.has = true;
+        if (tricksHeader.value > 13)
+          // Happens when header is of the form "6DS" without tricks.
+          tricksHeader.has = false;
+        else
+          tricksHeader.has = true;
         break;
 
       case SHEET_TRICKS_PLAY:
@@ -151,13 +156,19 @@ bool SheetHand::addCall(const string& text)
   {
     string tmp = text;
     toUpper(tmp);
-    auction.addCall(tmp);
+    if (tmp.length() > 4)
+    {
+      trimLeading(tmp, '-');
+      tmp = trimTrailing(tmp, '-');
+      auction.addAuction(tmp, BRIDGE_FORMAT_LIN);
+    }
+    else
+      auction.addCall(tmp);
   }
   catch (Bexcept& bex)
   {
-    // bex.print(cout);
-    UNUSED(bex);
     auctionFlawed = true;
+    auctionFlaw = bex.getMessage();
     return false;
   }
   return true;
@@ -343,6 +354,9 @@ bool SheetHand::contractsOrTricksDiffer() const
   if (SheetHand::contractsDiffer())
     return true;
 
+  if (cHeader.isPassedOut() && cAuction.isPassedOut())
+    return false;
+
   if (SheetHand::tricksDiffer(tricksHeader, tricksPlay))
     return true;
 
@@ -386,7 +400,7 @@ bool SheetHand::hasData() const
 
 bool SheetHand::auctionIsFlawed() const
 {
-  return auctionFlawed;
+  return (auctionFlawed || (! auction.isEmpty() && ! auction.isOver()));
 }
 
 
@@ -590,10 +604,18 @@ string SheetHand::strNotesDetail()
   Deal dl;
   dl.set(runningDD.dl.remainCards);
 
-  if (hasAuction)
+  if (! auction.isEmpty())
   {
     const int lengths[4] = {12, 12, 12, 12};
     ss << auction.str(BRIDGE_FORMAT_TXT, lengths) << "\n";
+
+    if (auctionIsFlawed())
+    {
+      if (! auction.isOver() && auctionFlaw == "")
+        ss << "Auction error message: Auction not over\n\n";
+      else
+        ss << "Auction error message: " << auctionFlaw << "\n\n";
+    }
   }
 
   ss << dl.str(auction.getDealer(), BRIDGE_FORMAT_TXT) << "\n";
@@ -632,7 +654,7 @@ string SheetHand::strNotes()
   if (hasDeal)
     ss << deal.str(BRIDGE_NORTH, BRIDGE_FORMAT_TXT) << "\n";
 
-  if (hasPlay)
+  if (hasPlay || play.getTricks() > 0)
   {
     ss << play.str(BRIDGE_FORMAT_TXT) << "\n";
     ss << SheetHand::strNotesDetail();
