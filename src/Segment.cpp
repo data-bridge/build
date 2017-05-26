@@ -1225,8 +1225,7 @@ string Segment::strContractsCore(const Format format)
     st.pop_back(); // Remove trailing comma
     return st;
   }
-
-  if (LINcount == 0)
+  else if (LINcount == 0)
   {
     // This is not quite the same as below.
     // Say we have PBN 980, 982, 983, ...
@@ -1248,7 +1247,7 @@ string Segment::strContractsCore(const Format format)
       else
       {
         st += bptr->strContract(0, format) + "," +
-            bptr->strContract(1, format) + ",";
+              bptr->strContract(1, format) + ",";
       }
     }
   }
@@ -1282,46 +1281,34 @@ string Segment::strPlayersLIN()
 {
   Board * refBoard = nullptr;
   string st = "pw|";
-  for (auto &p: boards)
+  if (LINcount == 0)
   {
-    st += p.board.strPlayers(BRIDGE_FORMAT_LIN, refBoard);
-    if (refBoard == nullptr)
-      st += ",";
-    refBoard = &p.board;
+    for (auto &p: boards)
+    {
+      // This is not quite the same as below.
+      // Say we have PBN 980, 982, 983, ...
+      // The skipped board should not (currently) lead to a LIN gap.
+      st += p.board.strPlayers(BRIDGE_FORMAT_LIN, refBoard);
+      refBoard = &p.board;
+    }
   }
+  else
+  {
+    for (unsigned b = bmin; b <= bmax; b++)
+    {
+      const unsigned bint = Segment::getLINIntNo(b);
+      Board * bptr = Segment::getBoard(bint);
+      if (bptr == nullptr)
+        st += ",,,,,,,,";
+      else
+      {
+        st += bptr->strPlayers(BRIDGE_FORMAT_LIN, refBoard);
+        refBoard = bptr;
+      }
+    }
+  }
+
   st.pop_back();
-
-
-  /*
-  string st2 = "pw|";
-  refBoard = nullptr;
-  for (unsigned b = bmin; b <= bmax; b++)
-  {
-    const unsigned bint = Segment::getLINIntNo(b);
-    Board * bptr = Segment::getBoard(bint);
-    if (bptr == nullptr)
-    {
-      st2 += ",,,,,,,,";
-      continue;
-    }
-    else
-    {
-      st2 += bptr->strPlayers(BRIDGE_FORMAT_LIN, refBoard);
-      if (refBoard == nullptr)
-        st2 += ",";
-      refBoard = bptr;
-    }
-  }
-  st2.pop_back();
-
-  if (st != st2)
-  {
-    cout << st << endl;
-    cout << st2 << endl;
-    cout << "DIFFERPL\n";
-  }
-  */
-
   return st + "|\n";
 }
 

@@ -885,7 +885,8 @@ string Board::strPlayers(
       for (unsigned i = 0; i < len; i++)
       {
         st1 += Board::strPlayersDelta(refBoard, i, format);
-        if (i != len-1 && refBoard == nullptr)
+        if (// i != len-1 && 
+          refBoard == nullptr)
           st1 += ",";
       }
       return st1;
