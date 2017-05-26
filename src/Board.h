@@ -54,6 +54,8 @@ class Board
     bool LINset;
     bool LINScoreSet;
 
+    string strPlayersFromLINHeader(const unsigned instNo) const;
+
     string strPlayersDelta(
       Board * refBoard,
       const unsigned instNo,
@@ -286,6 +288,7 @@ class Board
     string strPlayers(
       const unsigned instNo,
       const Format format) const;
+
     string strPlayers(
       const Format format,
       const bool isIMPs = true,

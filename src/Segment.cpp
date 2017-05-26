@@ -589,10 +589,9 @@ void Segment::setPlayersList(
             Segment::getEffectivePlayer(b, d, tokens);
           LINdata[b >> 3].players[1][(d+2) % 4] = 
             Segment::getEffectivePlayer(b, d+4, tokens);
-
-          LINPlayersListFlag = true;
         }
       }
+      LINPlayersListFlag = true;
     }
   }
   else

@@ -876,6 +876,16 @@ string Board::strPlayers(
 }
 
 
+string Board::strPlayersFromLINHeader(const unsigned instNo) const
+{
+  string st;
+  for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
+    st += LINdata.players[instNo][PLAYER_DDS_TO_LIN[i]] + ",";
+  st.pop_back(); // Trailing comma
+  return st;
+}
+
+
 string Board::strPlayers(
   const Format format,
   const bool isIMPs,
@@ -887,28 +897,32 @@ string Board::strPlayers(
     case BRIDGE_FORMAT_LIN:
       if (isIMPs)
       {
-        for (unsigned i = 0; i < len; i++)
+        if (len == 1 && LINset)
         {
-          st1 += Board::strPlayersDelta(refBoard, i, format);
-          if (refBoard == nullptr)
-            st1 += ",";
+          st1 += Board::strPlayersDelta(refBoard, 0, format);
+          st1 += ",,,,";
+        }
+        else
+        {
+          for (unsigned i = 0; i < len; i++)
+            st1 += Board::strPlayersDelta(refBoard, i, format);
         }
         return st1;
       }
       else
       {
         st1 += Board::strPlayersDelta(refBoard, 0, format);
-        if (refBoard == nullptr)
-          st1 += ",";
         return st1;
       }
 
     case BRIDGE_FORMAT_LIN_VG:
       st1 = Board::strPlayers(0, format);
-      if (len == 1)
-        st2 = "South,West,North,East";
-      else
+      if (len == 2)
         st2 = Board::strPlayers(1, format);
+      else if (LINset)
+        st2 = Board::strPlayersFromLINHeader(1);
+      else
+        st2 = "South,West,North,East";
       return "pn|" + st1 + "," + st2 + "|pg||\n";
 
     case BRIDGE_FORMAT_LIN_RP:
@@ -949,7 +963,7 @@ string Board::strPlayersDelta(
   const Format format) const
 {
   if (refBoard == nullptr)
-    return players[instNo].str(BRIDGE_FORMAT_LIN_RP);
+    return players[instNo].str(BRIDGE_FORMAT_LIN_RP) + ",";
   else
     return players[instNo].strDelta(refBoard->players[instNo], format);
 }
