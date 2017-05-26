@@ -60,6 +60,10 @@ class Segment
     bool LINPlayersListFlag;
 
 
+    unsigned getIntBoardNo(const unsigned extNo) const;
+
+    bool isShortPass(const string& st) const;
+
     void setTitleLIN(
       const string& text,
       const Format format);
@@ -75,6 +79,8 @@ class Segment
       const vector<string>& token) const;
 
     unsigned getLINActiveNo() const;
+
+    unsigned getLINIntNo(const unsigned extNo) const;
 
     string strTitleLINCore(const bool swapFlag = false) const;
     string strTitleLIN() const;

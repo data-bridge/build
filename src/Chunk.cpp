@@ -182,14 +182,6 @@ void Chunk::getRange(Counts& counts) const
   if (res == "")
     return;
 
-  const unsigned l = static_cast<unsigned>(res.length());
-  unsigned p = 0;
-  while (p+1 < l && res.substr(p, 2) == ",,")
-  {
-    p += 2;
-    counts.bExtmin++;
-  }
-
   if (counts.bExtmax < counts.bExtmin)
     THROW("Bad board range");
 }

@@ -716,7 +716,12 @@ string Board::strContract(
   const unsigned instNo,
   const Format format) const
 {
-  return contract[instNo].str(format);
+  if (instNo < len)
+    return contract[instNo].str(format);
+  else if (LINset && instNo < 2)
+    return LINdata.contract[instNo];
+  else
+    return "";
 }
 
 
@@ -899,6 +904,7 @@ string Board::strPlayers(
 
       if (Board::roomFirst() == BRIDGE_ROOM_CLOSED)
       {
+        // TODO: Should soon not happen?
         st1 = Board::strPlayers(1, format);
         st2 = Board::strPlayers(0, format);
       }
@@ -950,6 +956,7 @@ string Board::strContracts(
     case BRIDGE_FORMAT_LIN_TRN:
       if (len == 2 && Board::roomFirst() == BRIDGE_ROOM_CLOSED)
       {
+        // TODO: Soon shouldn't happen anymore?
         st += Board::strContract(1, format) + ",";
         st += Board::strContract(0, format) + ",";
       }

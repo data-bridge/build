@@ -116,6 +116,17 @@ unsigned Segment::getExtBoardNo(const unsigned intNo) const
 }
 
 
+unsigned Segment::getIntBoardNo(const unsigned extNo) const
+{
+  for (auto &p: boards)
+  {
+    if (p.extNo == extNo)
+      return p.no;
+  }
+  return BIGNUM;
+}
+
+
 unsigned Segment::getActiveExtBoardNo() const
 {
   return Segment::getExtBoardNo(activeNo);
@@ -236,25 +247,12 @@ void Segment::setTitleLIN(
 
   // Teams (5-8): Synthesize an RBN-like team line (a bit wasteful).
   stringstream s;
-  // if (flagCOCO)
-  // {
-    // Pavlicek bug.
-    // s << v[7] << ":" << v[5];
-    // if (v[8] != "" || v[6] != "")
-    // {
-      // s << ":" << (v[8] == "" ? "0" : v[8]);
-      // s << ":" << (v[6] == "" ? "0" : v[6]);
-    // }
-  // }
-  // else
-  // {
-    s << v[5] << ":" << v[7];
-    if (v[6] != "" || v[8] != "")
-    {
-      s << ":" << (v[6] == "" ? "0" : v[6]);
-      s << ":" << (v[8] == "" ? "0" : v[8]);
-    }
-  // }
+  s << v[5] << ":" << v[7];
+  if (v[6] != "" || v[8] != "")
+  {
+    s << ":" << (v[6] == "" ? "0" : v[6]);
+    s << ":" << (v[8] == "" ? "0" : v[8]);
+  }
   Segment::setTeams(s.str(), BRIDGE_FORMAT_LIN);
 }
 
@@ -432,6 +430,11 @@ void Segment::setSouth(
   activeBoard->setPlayer(text, BRIDGE_SOUTH);
 }
 
+bool Segment::isShortPass(const string& st) const
+{
+  return (st.length() == 1 && (st == "P" || st == "p"));
+}
+
 
 void Segment::setResultsList(
   const string& text,
@@ -471,8 +474,15 @@ void Segment::setResultsList(
 
   for (size_t b = 0, d = 0; b < c+1; b += 2, d++)
   {
-    LINdata[d].contract[0] = tokens[b];
-    LINdata[d].contract[1] = tokens[b+1];
+    if (Segment::isShortPass(tokens[b]))
+      LINdata[d].contract[0] = "PASS";
+    else
+      LINdata[d].contract[0] = tokens[b];
+
+    if (Segment::isShortPass(tokens[b+1]))
+      LINdata[d].contract[1] = "PASS";
+    else
+      LINdata[d].contract[1] = tokens[b+1];
   }
 }
 
@@ -626,6 +636,14 @@ unsigned Segment::getLINActiveNo() const
   if (eno < bInmin || eno > bInmax)
     THROW("Board number out of range of LIN header");
   return(eno - bInmin);
+}
+
+
+unsigned Segment::getLINIntNo(const unsigned extNo) const
+{
+  if (extNo < bmin || extNo > bmax)
+    THROW("Board number out of range of LIN header");
+  return(extNo - bmin);
 }
 
 
@@ -1208,17 +1226,34 @@ string Segment::strContractsCore(const Format format)
     return st;
   }
 
-  for (auto &p: boards)
+  if (LINcount == 0)
   {
-    const string contractFromHeader = 
-      (LINcount == 0 ? "" : LINdata[p.no].contract[1]);
-    st += p.board.strContracts(contractFromHeader, format);
+    // This is not quite the same as below.
+    // Say we have PBN 980, 982, 983, ...
+    // The skipped board should not (currently) lead to a LIN gap.
+    for (auto &p: boards)
+      st += p.board.strContracts("", format);
+  }
+  else
+  {
+    for (unsigned b = bmin; b <= bmax; b++)
+    {
+      const unsigned bint = Segment::getLINIntNo(b);
+      const Board * bptr = Segment::getBoard(bint);
+      if (bptr == nullptr)
+      {
+        st += LINdata[bint].contract[0] + "," + 
+              LINdata[bint].contract[1] + ",";
+      }
+      else
+      {
+        st += bptr->strContract(0, format) + "," +
+            bptr->strContract(1, format) + ",";
+      }
+    }
   }
 
-  if (format == BRIDGE_FORMAT_LIN ||
-      format == BRIDGE_FORMAT_LIN_RP || 
-      format == BRIDGE_FORMAT_LIN_VG)
-    st.pop_back(); // Remove trailing comma
+  st.pop_back(); // Remove trailing comma
   return st;
 
 }
@@ -1226,8 +1261,6 @@ string Segment::strContractsCore(const Format format)
 
 string Segment::strContracts(const Format format) 
 {
-  string st = "rs|";
-
   switch(format)
   {
     case BRIDGE_FORMAT_LIN:
@@ -1257,6 +1290,38 @@ string Segment::strPlayersLIN()
     refBoard = &p.board;
   }
   st.pop_back();
+
+
+  /*
+  string st2 = "pw|";
+  refBoard = nullptr;
+  for (unsigned b = bmin; b <= bmax; b++)
+  {
+    const unsigned bint = Segment::getLINIntNo(b);
+    Board * bptr = Segment::getBoard(bint);
+    if (bptr == nullptr)
+    {
+      st2 += ",,,,,,,,";
+      continue;
+    }
+    else
+    {
+      st2 += bptr->strPlayers(BRIDGE_FORMAT_LIN, refBoard);
+      if (refBoard == nullptr)
+        st2 += ",";
+      refBoard = bptr;
+    }
+  }
+  st2.pop_back();
+
+  if (st != st2)
+  {
+    cout << st << endl;
+    cout << st2 << endl;
+    cout << "DIFFERPL\n";
+  }
+  */
+
   return st + "|\n";
 }
 
