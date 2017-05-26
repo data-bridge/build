@@ -641,9 +641,9 @@ unsigned Segment::getLINActiveNo() const
 
 unsigned Segment::getLINIntNo(const unsigned extNo) const
 {
-  if (extNo < bmin || extNo > bmax)
+  if (extNo < bInmin || extNo > bInmax)
     THROW("Board number out of range of LIN header");
-  return(extNo - bmin);
+  return(extNo - bInmin);
 }
 
 
@@ -1235,7 +1235,7 @@ string Segment::strContractsCore(const Format format)
   }
   else
   {
-    for (unsigned b = bmin; b <= bmax; b++)
+    for (unsigned b = bInmin; b <= bInmax; b++)
     {
       const unsigned bint = Segment::getLINIntNo(b);
       const Board * bptr = Segment::getBoard(bint);
@@ -1281,6 +1281,7 @@ string Segment::strPlayersLIN()
 {
   Board * refBoard = nullptr;
   string st = "pw|";
+  const bool isIMPs = scoring.isIMPs();
   if (LINcount == 0)
   {
     for (auto &p: boards)
@@ -1288,23 +1289,25 @@ string Segment::strPlayersLIN()
       // This is not quite the same as below.
       // Say we have PBN 980, 982, 983, ...
       // The skipped board should not (currently) lead to a LIN gap.
-      st += p.board.strPlayers(BRIDGE_FORMAT_LIN, refBoard);
+      st += p.board.strPlayers(BRIDGE_FORMAT_LIN, isIMPs, refBoard);
       refBoard = &p.board;
     }
   }
   else
   {
-    for (unsigned b = bmin; b <= bmax; b++)
+    for (unsigned b = bInmin; b <= bInmax; b++)
     {
       const unsigned bint = Segment::getLINIntNo(b);
       Board * bptr = Segment::getBoard(bint);
-      if (bptr == nullptr)
-        st += ",,,,,,,,";
-      else
+      if (bptr)
       {
-        st += bptr->strPlayers(BRIDGE_FORMAT_LIN, refBoard);
+        st += bptr->strPlayers(BRIDGE_FORMAT_LIN, isIMPs, refBoard);
         refBoard = bptr;
       }
+      else if (isIMPs)
+        st += ",,,,,,,,";
+      else
+        st += ",,,,";
     }
   }
 
@@ -1320,7 +1323,7 @@ bool Segment::playersAreUnique()
   for (auto &p: boards)
   {
     pprev = pnew;
-    pnew = p.board.strPlayers(BRIDGE_FORMAT_LIN_VG, refBoard);
+    pnew = p.board.strPlayers(BRIDGE_FORMAT_LIN_VG, true, refBoard);
     if (refBoard != nullptr && pprev != pnew)
       return false;
   }

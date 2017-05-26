@@ -52,6 +52,7 @@ class Board
     unsigned numActive;
     LINData LINdata;
     bool LINset;
+    bool LINScoreSet;
 
     string strPlayersDelta(
       Board * refBoard,
@@ -287,6 +288,7 @@ class Board
       const Format format) const;
     string strPlayers(
       const Format format,
+      const bool isIMPs = true,
       Board * refBoard = nullptr) const;
     
     string strContracts(

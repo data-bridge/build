@@ -1217,6 +1217,7 @@ static bool readFormattedFile(
       return false;
   }
 
+  /* */
   if ((format == BRIDGE_FORMAT_LIN_VG ||
        format == BRIDGE_FORMAT_LIN_RP) && 
        board != nullptr)
@@ -1229,6 +1230,7 @@ static bool readFormattedFile(
         lastBoard, format, options, flog))
       return false;
   }
+  /* */
 
   return true;
 }

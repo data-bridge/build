@@ -52,6 +52,7 @@ void Board::reset()
   givenScore = 0.0f;
   givenSet = false;
   LINset = false;
+  LINScoreSet = false;
 }
 
 
@@ -164,13 +165,14 @@ void Board::setLINheader(const LINData& lin)
   if (! LINset)
     LINdata = lin;
   LINset = true;
+  LINScoreSet = true;
 
   if (LINdata.mp[0] != "")
     Board::setScoreIMP(LINdata.mp[0], BRIDGE_FORMAT_LIN);
   else if (LINdata.mp[1] != "")
     Board::setScoreIMP("-" + LINdata.mp[1], BRIDGE_FORMAT_LIN);
   else
-    LINset = false;
+    LINScoreSet = false;
 }
 
 
@@ -781,7 +783,7 @@ string Board::strGivenScore(const Format format) const
     {
       if ((format == BRIDGE_FORMAT_LIN ||
           format == BRIDGE_FORMAT_LIN_TRN) && 
-          ! LINset)
+          ! LINScoreSet)
         s << ",,";
       else
         s << "--,--,";
@@ -876,20 +878,30 @@ string Board::strPlayers(
 
 string Board::strPlayers(
   const Format format,
+  const bool isIMPs,
   Board * refBoard) const
 {
   string st1, st2;
   switch(format)
   {
     case BRIDGE_FORMAT_LIN:
-      for (unsigned i = 0; i < len; i++)
+      if (isIMPs)
       {
-        st1 += Board::strPlayersDelta(refBoard, i, format);
-        if (// i != len-1 && 
-          refBoard == nullptr)
-          st1 += ",";
+        for (unsigned i = 0; i < len; i++)
+        {
+          st1 += Board::strPlayersDelta(refBoard, i, format);
+          if (refBoard == nullptr)
+            st1 += ",";
+        }
+        return st1;
       }
-      return st1;
+      else
+      {
+        st1 += Board::strPlayersDelta(refBoard, 0, format);
+        if (refBoard == nullptr)
+          st1 += ",";
+        return st1;
+      }
 
     case BRIDGE_FORMAT_LIN_VG:
       st1 = Board::strPlayers(0, format);
