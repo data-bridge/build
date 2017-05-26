@@ -32,6 +32,8 @@ REC
 
 * Allow concatenated files: LIN, PBN (those two may work), RBN/RBX
 
+* Write Files output into a file?  (For speed-up)
+
 Perl scripts in BBOVG
 - Make director.pl run without warnings 
   (so have log files of acceptable deviations)

@@ -655,10 +655,8 @@ string SheetHand::strNotes()
     ss << deal.str(BRIDGE_NORTH, BRIDGE_FORMAT_TXT) << "\n";
 
   if (hasPlay || play.getTricks() > 0)
-  {
     ss << play.str(BRIDGE_FORMAT_TXT) << "\n";
-    ss << SheetHand::strNotesDetail();
-  }
+  ss << SheetHand::strNotesDetail();
 
   return ss.str();
 }
