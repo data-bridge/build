@@ -107,9 +107,14 @@ void readLINChunk(
     {
       if (label == "pn")
       {
-        // Artificial label to disambiguate.
         if (! qxSeen)
-          label = "px";
+        {
+          // Artificial label to disambiguate.
+          if (chunk.isSet(BRIDGE_FORMAT_PLAYERS_LIST))
+            continue;
+          else
+            label = "px";
+        }
         else if (chunk.isSet(BRIDGE_FORMAT_AUCTION) ||
             chunk.isSet(BRIDGE_FORMAT_RESULT))
         {

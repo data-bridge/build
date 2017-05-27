@@ -672,14 +672,21 @@ static void printCounts(
 
 
 static void str2board(
-  const string bno,
+  const Chunk& chunk,
   const Format format,
   Counts& counts)
 {
-  if (bno == "")
-    counts.curr.no = 0;
-  else if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
+  // TODO: Could go into chunk
+  const string bno = chunk.get(BRIDGE_FORMAT_BOARD_NO);
+
+  if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
   {
+    if (bno == "")
+    {
+      counts.curr.no = 0;
+      return;
+    }
+
     const string st = bno.substr(1);
     if (! str2upos(st, counts.curr.no))
       THROW("Not a board number");
@@ -690,6 +697,23 @@ static void str2board(
     else
       THROW("Not a room");
   }
+  else if (format == BRIDGE_FORMAT_PBN)
+  {
+    if (bno != "")
+    {
+      // Otherwise reuse the value in counts.curr.no
+      if (! str2upos(bno, counts.curr.no))
+        THROW("Not a board number");
+    }
+
+    const string r = chunk.get(BRIDGE_FORMAT_ROOM);
+    if (r == "" || r == "Open")
+      counts.curr.roomFlag = true;
+    else if (r == "Closed")
+      counts.curr.roomFlag = false;
+    else
+      THROW("Unknown room: " + r);
+  }
   else
   {
     if (! str2upos(bno, counts.curr.no))
@@ -698,6 +722,7 @@ static void str2board(
 }
 
 
+/*
 static void advance(
   boardIDLIN& expectBoard,
   const Counts& counts)
@@ -741,20 +766,34 @@ static bool operator > (
   return (lhs.no > rhs.no ||
       (lhs.no == rhs.no && rhs.roomFlag && ! lhs.roomFlag));
 }
+*/
 
 
+/*
 static void tryFormatMethod(
   const Format format,
-  const string& text,
+  const Chunk& chunk,
   Segment * segment,
   Board * board,
   const unsigned label)
 {
+  if (label == BRIDGE_FORMAT_CONTRACT &&
+      FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
+  {
+    segment->loadSpecificsFromHeader(
+      chunk.get(BRIDGE_FORMAT_BOARD_NO), format);
+  }
+
+  const string text = chunk.get(label);
+  if (text == "")
+    return;
+
   if (label <= BRIDGE_FORMAT_ROOM)
     (segment->*segPtr[label])(text, format);
   else 
     (board->*boardPtr[label])(text, format);
 }
+*/
 
 
 static bool storeChunk(
@@ -765,11 +804,8 @@ static bool storeChunk(
   const Counts& counts,
   const Format format,
   const Options& options,
-  ostream& flog,
-  const bool useDefaultsFlag = true)
+  ostream& flog)
 {
-  if (useDefaultsFlag)
-  {
     segment->copyPlayers();
 
     if (chunk.isEmpty(BRIDGE_FORMAT_AUCTION) ||
@@ -782,7 +818,7 @@ static bool storeChunk(
       // Guess dealer and vul from the board number.
       if (chunk.isEmpty(BRIDGE_FORMAT_BOARD_NO))
       {
-        chunk.guessDealerAndVul(segment->getActiveExtBoardNo(), format);
+        chunk.guessDealerAndVul(counts.curr.no, format);
       }
       else if (format == BRIDGE_FORMAT_LIN_VG && 
           board->hasDealerVul())
@@ -798,15 +834,36 @@ static bool storeChunk(
         chunk.guessDealerAndVul(format);
       }
     }
-  }
 
   unsigned i;
   try
   {
-    for (i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
+    for (i = 0; i <= BRIDGE_FORMAT_ROOM; i++)
     {
-      if (chunk.isEmpty(static_cast<Label>(i)))
-      {
+      const string text = chunk.get(i);
+      if (text != "")
+        (segment->*segPtr[i])(text, format);
+    }
+
+    if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
+    {
+      segment->loadSpecificsFromHeader(
+        chunk.get(BRIDGE_FORMAT_BOARD_NO), format);
+    }
+
+    for (i = BRIDGE_FORMAT_DEAL; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
+    {
+      const string text = chunk.get(i);
+      if (text != "")
+        (board->*boardPtr[i])(text, format);
+    }
+
+
+    // for (i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
+    // {
+      // if (chunk.isEmpty(static_cast<Label>(i)))
+      // {
+        /*
         if (useDefaultsFlag &&
             i == BRIDGE_FORMAT_CONTRACT && 
             FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
@@ -814,19 +871,38 @@ static bool storeChunk(
           segment->loadSpecificsFromHeader(
             chunk.get(BRIDGE_FORMAT_BOARD_NO), format);
         }
+        */
 
-        continue;
+        // continue;
+      // }
+
+      // tryFormatMethod(format, chunk, segment, board, i);
+
+      /*
+      if (i == BRIDGE_FORMAT_CONTRACT &&
+          FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
+      {
+        segment->loadSpecificsFromHeader(
+          chunk.get(BRIDGE_FORMAT_BOARD_NO), format);
       }
 
-      tryFormatMethod(format, chunk.get(i), segment, board, i);
+      const string text = chunk.get(i);
+      if (text == "")
+        continue;
+
+      if (i <= BRIDGE_FORMAT_ROOM)
+        (segment->*segPtr[i])(text, format);
+      else 
+        (board->*boardPtr[i])(text, format);
     }
+    */
   }
   catch (Bexcept& bex)
   {
     if (options.verboseThrow)
     {
       printCounts(group.name(), counts);
-      chunk.str(static_cast<Label>(i));
+      cout << chunk.str(static_cast<Label>(i));
     }
 
     bex.print(flog);
@@ -859,11 +935,13 @@ static bool storeChunk(
     }
   }
 
+  board->spreadBasics();
   return true;
 }
 
 
-static bool fillBoards(
+/*
+bool fillBoards(
   Group& group, 
   Segment * segment, 
   Board *& board, 
@@ -945,6 +1023,7 @@ static bool fillBoards(
   while (counts.curr > expectBoard);
   return true;
 }
+*/
 
 
 
@@ -1055,6 +1134,9 @@ static bool readFormattedFile(
     refLines.checkHeader();
     return true;
   }
+
+  if (refLines.skip())
+    return true;
 
   vector<Fix> fix;
   fix.clear();
@@ -1172,8 +1254,9 @@ static bool readFormattedFile(
       }
     }
 
-    str2board(chunk.get(BRIDGE_FORMAT_BOARD_NO), format, counts);
+    str2board(chunk, format, counts);
 
+    /*
     if (format == BRIDGE_FORMAT_LIN_VG ||
         format == BRIDGE_FORMAT_LIN_RP ||
         format == BRIDGE_FORMAT_LIN_TRN)
@@ -1187,15 +1270,18 @@ static bool readFormattedFile(
         continue;
       }
     }
+    */
 
     if (counts.curr.no != 0)
     {
       if (counts.curr.no != lastBoard.no)
       {
         // New board.
-        board = segment->acquireBoard(counts.bno);
+        // board = segment->acquireBoard(counts.bno);
+        board = segment->acquireBoard(counts.curr.no);
         counts.bno++;
       }
+      /*
       else if ((format == BRIDGE_FORMAT_LIN_VG ||
           format == BRIDGE_FORMAT_LIN_RP ||
           format == BRIDGE_FORMAT_LIN_TRN) &&
@@ -1206,11 +1292,12 @@ static bool readFormattedFile(
         const unsigned intNo = counts.curr.no - counts.bExtmin;
         board = segment->getBoard(intNo);
       }
+      */
     }
 
     lastBoard = counts.curr;
 
-    board->newInstance();
+    board->acquireInstance(counts.curr.roomFlag ? 0u : 1u);
     if (! storeChunk(group, segment, board, chunk,
         counts, format, options, flog))
       return false;
@@ -1322,6 +1409,9 @@ static void writeFormattedFile(
     writeInfo.score1 = 0;
     writeInfo.score2 = 0;
     writeInfo.numBoards = segment.size();
+    writeInfo.first = true;
+    writeInfo.last = false;
+    const unsigned lastRealNo = segment.lastRealBoardNumber();
 
     if (refLines.orderCOCO())
     {
@@ -1329,22 +1419,25 @@ static void writeFormattedFile(
       for (auto &bpair: segment)
       {
         Board& board = bpair.board;
-        segment.setBoard(bpair.no);
+        segment.setBoard(bpair.extNo);
+        if (bpair.extNo == lastRealNo)
+          writeInfo.last = true;
 
-        writeInfo.bno = bpair.no;
+        writeInfo.bno = bpair.extNo;
         writeInfo.numInst = board.countAll();
         writeInfo.numInstActive = board.count();
 
         for (unsigned i = 0, j = writeInfo.numInst-1; 
             i < writeInfo.numInst; i++, j--)
         {
-          board.setInstance(j);
-          if (board.skipped())
+          if (board.skipped(j))
             continue;
+          board.setInstance(j);
 
           writeInfo.ino = i;
           (* formatFncs[format].writeBoard)
             (text, segment, board, writeInfo, format);
+          writeInfo.first = false;
         }
       }
     }
@@ -1356,21 +1449,24 @@ static void writeFormattedFile(
         for (auto &bpair: segment)
         {
           Board& board = bpair.board;
-          segment.setBoard(bpair.no);
+          segment.setBoard(bpair.extNo);
+          if (bpair.extNo == lastRealNo)
+            writeInfo.last = true;
 
-          writeInfo.bno = bpair.no;
+          writeInfo.bno = bpair.extNo;
           writeInfo.numInst = board.countAll();
           writeInfo.numInstActive = board.count();
           if (writeInfo.numInst > 2)
             THROW("Too many instances for OOCC output order");
 
-          board.setInstance(i);
-          if (board.skipped())
+          if (board.skipped(i))
             continue;
+          board.setInstance(i);
 
           writeInfo.ino = i;
           (* formatFncs[format].writeBoard)
             (text, segment, board, writeInfo, format);
+          writeInfo.first = false;
         }
       }
     }
@@ -1380,21 +1476,24 @@ static void writeFormattedFile(
       for (auto &bpair: segment)
       {
         Board& board = bpair.board;
-        segment.setBoard(bpair.no);
+        segment.setBoard(bpair.extNo);
+        if (bpair.extNo == lastRealNo)
+          writeInfo.last = true;
 
-        writeInfo.bno = bpair.no;
+        writeInfo.bno = bpair.extNo;
         writeInfo.numInst = board.countAll();
         writeInfo.numInstActive = board.count();
 
         for (unsigned i = 0; i < writeInfo.numInst; i++)
         {
-          board.setInstance(i);
-          if (board.skipped())
+          if (board.skipped(i))
             continue;
+          board.setInstance(i);
 
           writeInfo.ino = i;
           (* formatFncs[format].writeBoard)
             (text, segment, board, writeInfo, format);
+          writeInfo.first = false;
         }
       }
     }

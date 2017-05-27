@@ -26,7 +26,7 @@ using namespace std;
 
 struct BoardPair
 {
-  unsigned no; // Internal Segment number
+  unsigned intNo; // Internal Segment number
   unsigned extNo; // Externally seen number
   Board board;
 };
@@ -71,6 +71,7 @@ class Segment
     string getEffectivePlayer(
       const unsigned start,
       const unsigned offset,
+      const unsigned step,
       const vector<string>& token) const;
 
     void checkPlayersTrailing(
@@ -80,7 +81,9 @@ class Segment
 
     unsigned getLINActiveNo() const;
 
-    unsigned getLINIntNo(const unsigned extNo) const;
+    string strPlayersFromLINHeader(
+      const unsigned bhdr,
+      const unsigned instNo) const;
 
     string strTitleLINCore(const bool swapFlag = false) const;
     string strTitleLIN() const;
@@ -104,19 +107,11 @@ class Segment
 
     void reset();
 
-    Board * getBoard(const unsigned intNo);
+    Board * getBoard(const unsigned extNo);
 
-    Board * acquireBoard(const unsigned intNo);
+    Board * acquireBoard(const unsigned extNo);
 
-    void setBoard(const unsigned intNo);
-
-    unsigned getExtBoardNo(const unsigned intNo) const;
-
-    unsigned getActiveExtBoardNo() const;
-
-    void loadFromHeader(
-      const unsigned intNo,
-      const unsigned instNo);
+    void setBoard(const unsigned extNo);
 
     unsigned size() const;
 
@@ -216,12 +211,9 @@ class Segment
       const string& text,
       const Format format);
 
-    string contractFromHeader() const;
+    unsigned firstBoardNumber() const;
+    unsigned lastRealBoardNumber() const;
 
-    bool setContractInHeader(const string& text);
-
-    unsigned getContractSeqNo() const;
-      
     bool scoringIsIMPs() const;
 
     bool hasCarry() const;
@@ -256,7 +248,7 @@ class Segment
       const bool swapFlag = false) const;
 
     string strNumber(
-      const unsigned intNo,
+      const unsigned extNo,
       const Format format) const;
 
     string strContracts(const Format format);

@@ -50,9 +50,15 @@ class Board
 
     unsigned len;
     unsigned numActive;
+    bool basicsFlag;
     LINData LINdata;
     bool LINset;
     bool LINScoreSet;
+
+    void copyBasics(
+      const unsigned noFrom,
+      const unsigned noToMin,
+      const unsigned noToMax);
 
     string strPlayersFromLINHeader(const unsigned instNo) const;
 
@@ -74,7 +80,9 @@ class Board
 
     void reset();
 
-    void newInstance();
+    void acquireInstance(const unsigned instNo = 0);
+
+    void spreadBasics();
 
     void setInstance(const unsigned no);
 

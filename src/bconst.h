@@ -205,6 +205,8 @@ struct WriteInfo
   unsigned numBoards;
   unsigned numInst;
   unsigned numInstActive;
+  bool first;
+  bool last;
 
   string namesOld[2];
 

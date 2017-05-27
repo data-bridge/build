@@ -146,10 +146,10 @@ void ValProfile::print(
       continue;
     
     fstr << ValErrors[v].nameLong << ":\n";
-    fstr << "Out (" << setw(4) << example[v].out.lno << "): " <<
-      example[v].out.line << "\n";
-    fstr << "Ref (" << setw(4) << example[v].ref.lno << "): " <<
-      example[v].ref.line << "\n";
+    fstr << "Out (" << setw(4) << example[v].out.lno << "): '" <<
+      example[v].out.line << "'\n";
+    fstr << "Ref (" << setw(4) << example[v].ref.lno << "): '" <<
+      example[v].ref.line << "'\n";
     fstr << "\n";
   }
   fstr << "\n";

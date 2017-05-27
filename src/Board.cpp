@@ -49,6 +49,7 @@ void Board::reset()
   play.clear();
   skip.clear();
 
+  basicsFlag = false;
   givenScore = 0.0f;
   givenSet = false;
   LINset = false;
@@ -56,36 +57,75 @@ void Board::reset()
 }
 
 
-void Board::newInstance()
+void Board::copyBasics(
+  const unsigned noFrom,
+  const unsigned noToMin,
+  const unsigned noToMax)
 {
-  numActive = len++;
-  players.resize(len);
-  auction.resize(len);
-  contract.resize(len);
-  play.resize(len);
-  skip.resize(len);
-
-  skip[numActive] = false;
-
-  // Default, may change.
-  if (numActive == 0)
-    Board::setRoom("Open", BRIDGE_FORMAT_PBN);
-  else if (numActive == 1)
-    Board::setRoom("Closed", BRIDGE_FORMAT_PBN);
-
-  if (numActive == 0)
-    return;
-
-  // Reuse data from first instance.
-  auction[numActive].copyDealerVul(auction[0]);
-  contract[numActive].setVul(auction[0].getVul());
+  for (unsigned i = noToMin; i <= noToMax; i++)
+  {
+    auction[i].copyDealerVul(auction[noFrom]);
+    contract[i].setVul(auction[noFrom].getVul());
+  }
 
   if (deal.isSet())
   {
     unsigned cards[BRIDGE_PLAYERS][BRIDGE_SUITS];
     deal.getDDS(cards);
-    play[numActive].setHoldingDDS(cards);
+    for (unsigned i = noToMin; i <= noToMax; i++)
+      play[i].setHoldingDDS(cards);
   }
+}
+
+
+void Board::spreadBasics()
+{
+  if (basicsFlag)
+    return;
+
+  if (numActive == 0)
+  {
+    basicsFlag = true;
+    return;
+  }
+
+  if (len != numActive+1)
+    THROW("Unexpected instance order");
+
+  Board::copyBasics(numActive, 0, numActive-1);
+  basicsFlag = true;
+}
+
+
+void Board::acquireInstance(const unsigned instNo)
+{
+  if (instNo >= len)
+  {
+    const unsigned lenOld = len;
+    len = instNo+1;
+
+    players.resize(len);
+    auction.resize(len);
+    contract.resize(len);
+    play.resize(len);
+    skip.resize(len);
+
+    for (unsigned i = lenOld; i < instNo; i++)
+      skip[i] = true;
+
+    if (basicsFlag)
+      Board::copyBasics(0, lenOld, instNo);
+
+    if (lenOld == 0)
+    {
+      players[0].setRoom("Open", BRIDGE_FORMAT_PBN);
+      if (instNo == 1)
+        players[1].setRoom("Closed", BRIDGE_FORMAT_PBN);
+    }
+  }
+
+  numActive = instNo;
+  skip[numActive] = false;
 }
 
 
@@ -127,7 +167,7 @@ bool Board::skipped() const
 
 bool Board::skipped(const unsigned no) const
 {
-  return skip[no];
+  return (no >= len || skip[no]);
 }
 
 
@@ -162,7 +202,10 @@ unsigned Board::countAll() const
 
 void Board::setLINheader(const LINData& lin)
 {
-  if (! LINset)
+  if (LINset)
+    return;
+
+  // if (! LINset)
     LINdata = lin;
   LINset = true;
   LINScoreSet = true;
@@ -180,7 +223,7 @@ void Board::setDealer(
   const string& text,
   const Format format)
 {
-  auction[0].setDealer(text, format);
+  auction[numActive].setDealer(text, format);
 }
 
 
@@ -188,9 +231,9 @@ void Board::setVul(
   const string& text,
   const Format format)
 {
-  auction[0].setVul(text, format);
+  auction[numActive].setVul(text, format);
 
-  contract[numActive].setVul(auction[0].getVul());
+  contract[numActive].setVul(auction[numActive].getVul());
 }
 
 
@@ -718,7 +761,9 @@ string Board::strContract(
   const unsigned instNo,
   const Format format) const
 {
-  if (instNo < len)
+  if (skip[instNo] && LINset)
+    return LINdata.contract[instNo];
+  else if (instNo < len)
     return contract[instNo].str(format);
   else if (LINset && instNo < 2)
     return LINdata.contract[instNo];
@@ -916,7 +961,13 @@ string Board::strPlayers(
       }
 
     case BRIDGE_FORMAT_LIN_VG:
-      st1 = Board::strPlayers(0, format);
+      if (! skip[0])
+        st1 = Board::strPlayers(0, format);
+      else if (LINset)
+        st1 = Board::strPlayersFromLINHeader(0);
+      else
+        st1 = "South,West,North,East";
+
       if (len == 2)
         st2 = Board::strPlayers(1, format);
       else if (LINset)

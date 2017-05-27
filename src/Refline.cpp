@@ -651,11 +651,11 @@ void RefLine::parseDeleteTXT(
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
 
   if (vlen == 1)
-    edit.setIs(v[0]);
+    edit.setWas(v[0]);
   else
   {
     edit.setCharNumber(RefLine::parseUpos(refName, quote, v[0]));
-    edit.setIs(v[1]);
+    edit.setWas(v[1]);
   }
 }
 

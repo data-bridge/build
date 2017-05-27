@@ -505,7 +505,7 @@ void writeEMLBoardLevel(
 
   if (writeInfo.ino < writeInfo.numInst-1 && writeInfo.numInstActive > 1)
     st += EMLdashes + "\n\n";
-  else if (writeInfo.bno < writeInfo.numBoards-1)
+  else if (! writeInfo.last)
     st += EMLequals + "\n\n";
 }
 

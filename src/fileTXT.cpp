@@ -496,7 +496,7 @@ void writeTXTSegmentLevel(
   Segment& segment,
   const Format format)
 {
-  if (segment.getExtBoardNo(0) != 1 || segment.hasCarry())
+  if (segment.firstBoardNumber() != 1 || segment.hasCarry())
   {
     // Pavlicek bug.
     st += TXTdashes + "\n";
@@ -596,7 +596,7 @@ void writeTXTBoardLevel(
 
       st += segment.strTeams(writeInfo.score1, writeInfo.score2, 
         format, swapFlag) + "\n";
-      if (writeInfo.bno != writeInfo.numBoards-1)
+      if (! writeInfo.last)
         st += TXTdashes + "\n\n";
     }
   }
@@ -623,7 +623,7 @@ void writeTXTBoardLevel(
     st += board.strResult(format, tWin) + "\n";
     st += segment.strTeams(writeInfo.score1, writeInfo.score2, 
         format, swapFlag) + "\n";
-    if (writeInfo.bno != writeInfo.numBoards-1)
+    if (! writeInfo.last)
       st += TXTdashes + "\n\n";
   }
 }

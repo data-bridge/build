@@ -260,7 +260,7 @@ void writePBNBoardLevel(
 {
   board.calculateScore();
 
-  if (writeInfo.bno == 0 && writeInfo.ino == 0)
+  if (writeInfo.first)
   {
     st += segment.strEvent(format);
     st += segment.strLocation(format);
@@ -290,7 +290,7 @@ void writePBNBoardLevel(
   st += board.strVul(format);
   st += board.strDeal(BRIDGE_WEST, format);
 
-  if (writeInfo.bno == 0 && writeInfo.ino == 0)
+  if (writeInfo.first)
     st += segment.strScoring(format);
   else
     st += "[Scoring \"#\"]\n";
@@ -302,7 +302,7 @@ void writePBNBoardLevel(
   st += board.strPlay(format);
 
   const bool swapFlag = segment.getCOCO();
-  if (writeInfo.bno == 0 && writeInfo.ino == 0)
+  if (writeInfo.first)
   {
     st += segment.strTitle(format);
     st += segment.strSession(format);

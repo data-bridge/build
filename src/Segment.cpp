@@ -53,66 +53,58 @@ void Segment::reset()
 }
 
 
-Board * Segment::getBoard(const unsigned intNo) 
+Board * Segment::getBoard(const unsigned extNo) 
 {
   for (auto &p: boards)
   {
-    if (p.no == intNo)
+    if (p.extNo == extNo)
     {
       activeBoard = &p.board;
-      activeNo = intNo;
-      return &p.board;
+      activeNo = p.intNo;
+      return activeBoard;
     }
   }
   return nullptr;
 }
 
 
-Board * Segment::acquireBoard(const unsigned intNo)
+Board * Segment::acquireBoard(const unsigned extNo)
 {
   for (auto &p: boards)
   {
-    if (p.no == intNo)
-      return &p.board;
+    if (p.extNo == extNo)
+    {
+      activeBoard = &p.board;
+      activeNo = p.intNo;
+      return activeBoard;
+    }
   }
 
   // Make a new board
-  boards.resize(len+1);
-  boards[len].no = intNo;
-  boards[len].extNo = 0;
-  len++;
-  activeBoard = &boards[len-1].board;
-  activeNo = intNo;
+  boards.push_back(BoardPair());
 
-  if (activeBoard == nullptr)
-    THROW("Could not make board: " + STR(intNo));
+  boards[len].intNo = len;
+  boards[len].extNo = extNo;
+  activeBoard = &boards[len].board;
+  activeNo = len;
+  len++;
 
   return activeBoard;
 }
 
 
-void Segment::setBoard(const unsigned intNo)
+void Segment::setBoard(const unsigned extNo)
 {
   for (auto &p: boards)
   {
-    if (p.no == intNo)
+    if (p.extNo == extNo)
     {
       activeBoard = &p.board;
+      activeNo = p.intNo;
       return;
     }
   }
-  THROW("Bad internal board number: " + STR(intNo));
-}
-
-
-unsigned Segment::getExtBoardNo(const unsigned intNo) const
-{
-  for (auto &p: boards)
-  {
-    if (p.no == intNo)
-      return p.extNo;
-  }
-  THROW("Bad internal board number: " + STR(intNo));
+  THROW("Bad external board number: " + STR(extNo));
 }
 
 
@@ -121,40 +113,10 @@ unsigned Segment::getIntBoardNo(const unsigned extNo) const
   for (auto &p: boards)
   {
     if (p.extNo == extNo)
-      return p.no;
-  }
-  return BIGNUM;
-}
-
-
-unsigned Segment::getActiveExtBoardNo() const
-{
-  return Segment::getExtBoardNo(activeNo);
-}
-
-
-void Segment::loadFromHeader(
-  const unsigned intNo,
-  const unsigned instNo)
-{
-  if (LINcount == 0)
-    return;
-
-  Board * board = Segment::acquireBoard(intNo);
-  if (board == nullptr)
-    THROW("Acquired null board");
-
-  board->setInstance(instNo);
-
-  for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
-  {
-    if (LINdata[intNo].players[instNo][p] != "")
-      board->setPlayer(LINdata[intNo].players[instNo][p],
-        static_cast<Player>(p));
+      return p.intNo;
   }
 
-  if (instNo == 0)
-    board->setLINheader(LINdata[intNo]);
+  THROW("Bad external board number: " + STR(extNo));
 }
 
 
@@ -571,7 +533,9 @@ void Segment::setPlayersList(
 
         for (size_t b = 0; b < c; b += 4)
           for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
-            LINdata[b >> 2].players[0][(d+2) % 4] = tokens[b+d];
+            LINdata[b >> 2].players[0][(d+2) % 4] = 
+              Segment::getEffectivePlayer(b, d, 4, tokens);
+
         LINPlayersListFlag = true;
       }
     }
@@ -586,9 +550,9 @@ void Segment::setPlayersList(
         for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
         {
           LINdata[b >> 3].players[0][(d+2) % 4] = 
-            Segment::getEffectivePlayer(b, d, tokens);
+            Segment::getEffectivePlayer(b, d, 8, tokens);
           LINdata[b >> 3].players[1][(d+2) % 4] = 
-            Segment::getEffectivePlayer(b, d+4, tokens);
+            Segment::getEffectivePlayer(b, d+4, 8, tokens);
         }
       }
       LINPlayersListFlag = true;
@@ -615,12 +579,13 @@ void Segment::setPlayersList(
 string Segment::getEffectivePlayer(
   const unsigned start,
   const unsigned offset,
+  const unsigned step,
   const vector<string>& tokens) const
 {
-  // start must be a multiple of 8.
+  // start must be a multiple of step.
   // Search backwards for the first non-empty entry.
 
-  for (unsigned e = 0; e <= start; e += 8)
+  for (unsigned e = 0; e <= start; e += step)
   {
     if (tokens[(start-e)+offset] != "")
       return tokens[(start-e)+offset];
@@ -635,14 +600,6 @@ unsigned Segment::getLINActiveNo() const
   if (eno < bInmin || eno > bInmax)
     THROW("Board number out of range of LIN header");
   return(eno - bInmin);
-}
-
-
-unsigned Segment::getLINIntNo(const unsigned extNo) const
-{
-  if (extNo < bInmin || extNo > bInmax)
-    THROW("Board number out of range of LIN header");
-  return(extNo - bInmin);
 }
 
 
@@ -669,25 +626,28 @@ void Segment::loadSpecificsFromHeader(
   }
 
   unsigned linTableNo;
-  if (format == BRIDGE_FORMAT_LIN_RP)
-  {
+  UNUSED(format);
+  // if (format == BRIDGE_FORMAT_LIN_RP)
+  // {
     // Consecutively without gaps.
-    linTableNo = activeNo;
-  }
-  else
-  {
+    // linTableNo = activeNo;
+  // }
+  // else
+  // {
     // At the right place, perhaps with gaps.
     linTableNo = Segment::getLINActiveNo();
-  }
+  // }
 
   if (LINdata[linTableNo].contract[r] != "")
     activeBoard->setContract(
       LINdata[linTableNo].contract[r], BRIDGE_FORMAT_LIN);
 
   string st = "";
+  const unsigned lno = (LINPlayersListFlag ? 
+    boards[activeNo].extNo - bInmin : 0);
   for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
   {
-    st += LINdata[activeNo].players[r][(i+2) % 4];
+    st += LINdata[lno].players[r][(i+2) % 4];
     if (i < 3)
       st += ",";
   }
@@ -695,7 +655,9 @@ void Segment::loadSpecificsFromHeader(
   if (st != ",,,")
     activeBoard->setPlayers(st, BRIDGE_FORMAT_LIN, false);
 
-  if (instNo == 0)
+  // TODO: Delete if?
+  // TODO: Shouldn't the two above things also happen in setLINheader?
+  // if (instNo == 0)
     activeBoard->setLINheader(LINdata[linTableNo]);
 }
 
@@ -727,11 +689,22 @@ void Segment::setPlayersHeader(
 
   if (c == 7)
   {
-    for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
+    // for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
+    // {
+      // LINdata[0].players[0][(i+2) % 4] = tokens[i];
+      // LINdata[0].players[1][(i+2) % 4] = tokens[i+4];
+    // }
+
+    for (size_t b = 0; b < LINcount; b++)
     {
-      LINdata[0].players[0][(i+2) % 4] = tokens[i];
-      LINdata[0].players[1][(i+2) % 4] = tokens[i+4];
+      for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
+      {
+        LINdata[b].players[0][(d+2) % 4] = tokens[d];
+        LINdata[b].players[1][(d+2) % 4] = tokens[d+4];
+      }
     }
+
+
     return;
   }
 
@@ -741,8 +714,14 @@ void Segment::setPlayersHeader(
     if (c > 3)
       Segment::checkPlayersTrailing(4, c, tokens);
 
-    for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
-      LINdata[0].players[0][(i+2) % 4] = tokens[i];
+    // for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
+      // LINdata[0].players[0][(i+2) % 4] = tokens[i];
+
+    for (size_t b = 0; b < LINcount; b++)
+    {
+      for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
+        LINdata[b].players[0][(d+2) % 4] = tokens[d];
+    }
   }
   else if (c < 7)
     THROW("Bad number of fields");
@@ -833,11 +812,15 @@ void Segment::setBoardsList(
 
 void Segment::copyPlayers()
 {
-  if (len <= 1)
-    return;
-
-  // Also copies room.
-  activeBoard->copyPlayers(boards[len-2].board);
+  const unsigned instNo = activeBoard->getInstance();
+  for (unsigned i = 1; i <= activeNo; i++)
+  {
+    if (boards[activeNo-i].board.countAll() > instNo)
+    {
+      activeBoard->copyPlayers(boards[activeNo-i].board);
+      return;
+    }
+  }
 }
 
 
@@ -868,42 +851,29 @@ void Segment::setNumber(
   if (! str2upos(t, extNo))
     THROW("Board number is not numerical");
 
-  if (extNo < bmin)
-    bmin = extNo;
-  if (extNo > bmax)
-    bmax = extNo;
+  if (boards[activeNo].extNo != extNo)
+    THROW("New extNo: " + STR(boards[activeNo].extNo + " vs. " +
+      STR(extNo)));
 
-  boards[activeNo].extNo = extNo;
+  // if (extNo < bmin)
+    // bmin = extNo;
+  // if (extNo > bmax)
+    // bmax = extNo;
 }
 
 
-string Segment::contractFromHeader() const
+unsigned Segment::firstBoardNumber() const
 {
-  if (LINcount == 0)
-    return "";
-
-  const unsigned linTableNo = Segment::getLINActiveNo();
-  const unsigned instNo = boards[activeNo].board.getInstance();
-  return LINdata[linTableNo].contract[instNo];
+  return bInmin;
 }
 
 
-bool Segment::setContractInHeader(const string& text)
+unsigned Segment::lastRealBoardNumber() const
 {
-  if (LINcount == 0)
-    return false;
-
-  const unsigned linTableNo = Segment::getLINActiveNo();
-  const unsigned instNo = boards[activeNo].board.getInstance();
-  LINdata[linTableNo].contract[instNo] = text;
-  return true;
-}
-
-
-unsigned Segment::getContractSeqNo() const
-{
-  return 2*(boards[activeNo].extNo - bInmin) + 
-    boards[activeNo].board.getInstance() + 1;
+  if (len == 0)
+    return BIGNUM;
+  else
+    return boards[len-1].extNo;
 }
 
 
@@ -950,7 +920,7 @@ bool Segment::operator == (const Segment& segment2) const
   {
     const BoardPair& bp1 = boards[b];
     const BoardPair& bp2 = segment2.boards[b];
-    if (bp1.no != bp2.no)
+    if (bp1.intNo != bp2.intNo)
       DIFF("Different internal number of board");
     else if (bp1.extNo != bp2.extNo)
       DIFF("Different external number of board");
@@ -971,15 +941,15 @@ bool Segment::operator != (const Segment& segment2) const
 string Segment::strTitleLINCore(const bool swapFlag) const
 {
   stringstream ss;
-  if (bmin == 0)
+  if (bInmin == 0)
     ss << ",";
   else
-    ss << bmin << ",";
+    ss << bInmin << ",";
 
-  if (bmax == 0)
+  if (bInmax == 0)
     ss << ",";
   else
-    ss << bmax << ",";
+    ss << bInmax << ",";
 
   ss << teams.str(BRIDGE_FORMAT_LIN, swapFlag) << "|";
   return ss.str();
@@ -1157,10 +1127,10 @@ string Segment::strSecondTeam(
 
 
 string Segment::strNumber(
-  const unsigned intNo,
+  const unsigned extNo,
   const Format format) const
 {
-  unsigned extNo = Segment::getExtBoardNo(intNo);
+  unsigned intNo;
 
   stringstream ss;
   switch(format)
@@ -1170,7 +1140,10 @@ string Segment::strNumber(
       if (format == BRIDGE_FORMAT_LIN_TRN || LINcount == 0)
         ss << "ah|Board " << extNo << "|";
       else
+      {
+        intNo = Segment::getIntBoardNo(extNo);
         ss << "ah|Board " << LINdata[intNo].no << "|";
+      }
       return ss.str();
 
     case BRIDGE_FORMAT_LIN_RP:
@@ -1236,12 +1209,13 @@ string Segment::strContractsCore(const Format format)
   {
     for (unsigned b = bInmin; b <= bInmax; b++)
     {
-      const unsigned bint = Segment::getLINIntNo(b);
-      const Board * bptr = Segment::getBoard(bint);
+      const Board * bptr = Segment::getBoard(b);
       if (bptr == nullptr)
       {
-        st += LINdata[bint].contract[0] + "," + 
-              LINdata[bint].contract[1] + ",";
+        const unsigned bhdr = b - bInmin;
+        st += LINdata[bhdr].contract[0] + "," + 
+              LINdata[bhdr].contract[1] + ",";
+        continue;
       }
       else
       {
@@ -1276,6 +1250,17 @@ string Segment::strContracts(const Format format)
 }
 
 
+string Segment::strPlayersFromLINHeader(
+  const unsigned bhdr,
+  const unsigned instNo) const
+{
+  string st;
+  for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
+    st += LINdata[bhdr].players[instNo][PLAYER_DDS_TO_LIN[i]] + ",";
+  return st;
+}
+
+
 string Segment::strPlayersLIN()
 {
   Board * refBoard = nullptr;
@@ -1296,17 +1281,23 @@ string Segment::strPlayersLIN()
   {
     for (unsigned b = bInmin; b <= bInmax; b++)
     {
-      const unsigned bint = Segment::getLINIntNo(b);
-      Board * bptr = Segment::getBoard(bint);
-      if (bptr)
+      Board * bptr = Segment::getBoard(b);
+      if (bptr == nullptr)
+      {
+        const unsigned bhdr = b - bInmin;
+        if (isIMPs)
+        {
+          st += Segment::strPlayersFromLINHeader(bhdr, 0) +
+                Segment::strPlayersFromLINHeader(bhdr, 1);
+        }
+        else
+          st += Segment::strPlayersFromLINHeader(bhdr, 0);
+      }
+      else
       {
         st += bptr->strPlayers(BRIDGE_FORMAT_LIN, isIMPs, refBoard);
         refBoard = bptr;
       }
-      else if (isIMPs)
-        st += ",,,,,,,,";
-      else
-        st += ",,,,";
     }
   }
 
@@ -1349,16 +1340,19 @@ string Segment::strPlayers(const Format format)
       }
       else
       {
-        board = Segment::getBoard(0);
+        // board = Segment::getBoard(0);
+        board = &boards[0].board;
         return board->strPlayers(format);
       }
 
     case BRIDGE_FORMAT_LIN_RP:
-      board = Segment::getBoard(0);
+      // board = Segment::getBoard(0);
+      board = &boards[0].board;
       return board->strPlayers(format);
 
     case BRIDGE_FORMAT_LIN_TRN:
-      board = Segment::getBoard(0);
+      // board = Segment::getBoard(0);
+      board = &boards[0].board;
       return board->strPlayers(BRIDGE_FORMAT_LIN_VG);
 
     default:
@@ -1408,7 +1402,7 @@ string Segment::strBoards(const Format format) const
       else
       {
         for (auto &p: boards)
-          ss << LINdata[p.no].no << ",";
+          ss << LINdata[p.extNo - bInmin].no << ",";
       }
 
       st = ss.str();

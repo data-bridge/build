@@ -1,5 +1,20 @@
-25.05.2017
+27.05.2017
 ----------
+* What works
+  VG - VG
+  JEC - JEC
+  RPmajors/LIN - LIN, RBN, RBX, PBN, EML, REC
+
+    TXT: S01QA3, RA2, SA2,3, XA4, YA4: Need running score and dashes
+         in fileTXT
+
+  BBOSH: Lots of player differences
+
+* Split dispatch into functions and control
+* Second control option: Language parser
+* Split Segment into HeaderLIN
+* In Board, don't copy LINdata, store a pointer only
+
 * Get reader to work on RPmajors
   - Get whole RPmajors matrix to work
 
