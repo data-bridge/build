@@ -1,47 +1,37 @@
-27.05.2017
+28.05.2017
 ----------
-* What works
-  VG - VG
-  JEC - JEC
-  RPmajors/LIN - LIN, RBN, RBX, PBN, EML, REC
-
-    TXT: S01QA3, RA2, SA2,3, XA4, YA4: Need running score and dashes
-         in fileTXT
-
-  BBOSH: Lots of player differences
-
-* Split dispatch into functions and control
-* Second control option: Language parser
-* Split Segment into HeaderLIN
-* In Board, don't copy LINdata, store a pointer only
-
 * Get reader to work on RPmajors
-  - Get whole RPmajors matrix to work
 
 i\o     LIN     PBN     RBN     RBX     TXT     EML     REC     RPmajors
 LIN     OK      OK      OK      OK      OK      OK      OK
-PBN
+PBN     
 RBN
 RBX
 TXT
 EML
 REC
 
-refstats
-LIN     OK
-PBN     simple syntax
-RBN     simple syntax
-RBX
-TXT
-EML
-REC
+dispatch
+* Move counts.lno into Chunk
+* Split into functions and control
+  Second control option: Language parser
 
-* In dispatch, make boardIDLIN into an object?
 * Detect COCO at least in LIN, PBN, RBN, RBX
   Then remove from those .ref files, also in BBOVG
 
+                OCOC    COCO    OOCC    general
+  non-decr.     yes     yes     except OC
+  O/C           +=      +       may -
+  C/O           +       +=      no
+  O/O           +       +       +
+  C/C           +       +       +
+
 * How much of .fix can we move into .ref?
   Does this remove the "Room" tags in 3408 .fix lines?
+
+Segment
+* Split Segment into HeaderLIN
+* In Board, don't copy LINdata, store a pointer only
 
 * reader input could select by year as well
 

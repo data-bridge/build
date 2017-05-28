@@ -722,80 +722,6 @@ static void str2board(
 }
 
 
-/*
-static void advance(
-  boardIDLIN& expectBoard,
-  const Counts& counts)
-{
-  if (expectBoard.no == 0)
-  {
-    expectBoard.no = counts.bExtmin;
-    expectBoard.roomFlag = true;
-  }
-  else if (expectBoard.roomFlag)
-    expectBoard.roomFlag = false;
-  else
-  {
-    expectBoard.no++;
-    expectBoard.roomFlag = true;
-  }
-}
-
-
-static bool operator < (
-  const boardIDLIN& lhs,
-  const boardIDLIN& rhs)
-{
-  return (lhs.no < rhs.no ||
-      (lhs.no == rhs.no && ! rhs.roomFlag && lhs.roomFlag));
-}
-
-
-static bool operator == (
-  const boardIDLIN& lhs,
-  const boardIDLIN& rhs)
-{
-  return (lhs.no == rhs.no && rhs.roomFlag == lhs.roomFlag);
-}
-
-
-static bool operator > (
-  const boardIDLIN& lhs,
-  const boardIDLIN& rhs)
-{
-  return (lhs.no > rhs.no ||
-      (lhs.no == rhs.no && rhs.roomFlag && ! lhs.roomFlag));
-}
-*/
-
-
-/*
-static void tryFormatMethod(
-  const Format format,
-  const Chunk& chunk,
-  Segment * segment,
-  Board * board,
-  const unsigned label)
-{
-  if (label == BRIDGE_FORMAT_CONTRACT &&
-      FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
-  {
-    segment->loadSpecificsFromHeader(
-      chunk.get(BRIDGE_FORMAT_BOARD_NO), format);
-  }
-
-  const string text = chunk.get(label);
-  if (text == "")
-    return;
-
-  if (label <= BRIDGE_FORMAT_ROOM)
-    (segment->*segPtr[label])(text, format);
-  else 
-    (board->*boardPtr[label])(text, format);
-}
-*/
-
-
 static bool storeChunk(
   Group& group,
   Segment * segment,
@@ -857,45 +783,6 @@ static bool storeChunk(
       if (text != "")
         (board->*boardPtr[i])(text, format);
     }
-
-
-    // for (i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
-    // {
-      // if (chunk.isEmpty(static_cast<Label>(i)))
-      // {
-        /*
-        if (useDefaultsFlag &&
-            i == BRIDGE_FORMAT_CONTRACT && 
-            FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
-        {
-          segment->loadSpecificsFromHeader(
-            chunk.get(BRIDGE_FORMAT_BOARD_NO), format);
-        }
-        */
-
-        // continue;
-      // }
-
-      // tryFormatMethod(format, chunk, segment, board, i);
-
-      /*
-      if (i == BRIDGE_FORMAT_CONTRACT &&
-          FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
-      {
-        segment->loadSpecificsFromHeader(
-          chunk.get(BRIDGE_FORMAT_BOARD_NO), format);
-      }
-
-      const string text = chunk.get(i);
-      if (text == "")
-        continue;
-
-      if (i <= BRIDGE_FORMAT_ROOM)
-        (segment->*segPtr[i])(text, format);
-      else 
-        (board->*boardPtr[i])(text, format);
-    }
-    */
   }
   catch (Bexcept& bex)
   {
@@ -938,93 +825,6 @@ static bool storeChunk(
   board->spreadBasics();
   return true;
 }
-
-
-/*
-bool fillBoards(
-  Group& group, 
-  Segment * segment, 
-  Board *& board, 
-  Chunk& chunk, 
-  Counts& counts,
-  boardIDLIN& lastBoard,
-  const Format format,
-  const Options& options,
-  ostream& flog)
-{
-  boardIDLIN expectBoard = lastBoard;
-  advance(expectBoard, counts);
-
-  if (counts.curr == expectBoard)
-    return true;
-
-  if (counts.curr < expectBoard)
-  {
-    // Boards are not in order.
-    if (counts.curr.no < counts.bExtmin)
-      THROW("Not a valid board: " + STR(counts.curr.no));
-    const unsigned intNo = counts.curr.no - counts.bExtmin;
-
-    board = segment->getBoard(intNo);
-    if (board == nullptr)
-      THROW("Not a board: " + STR(counts.curr.no));
-
-    if (counts.curr.roomFlag)
-      board->setInstance(0);
-    else
-      board->setInstance(1);
-
-    board->unmarkInstanceSkip();
-
-    return storeChunk(group, segment, board, chunk,
-        counts, format, options, flog, false);
-  }
-
-  Chunk chunkSynth;
-
-  // Need the header for the very first synthetic board.
-  if (chunk.isSet(BRIDGE_FORMAT_TITLE))
-  {
-    chunkSynth.copyFrom(chunk, CHUNK_BOARD);
-    chunk.reset(CHUNK_BOARD);
-  }
-
-  do
-  {
-    chunkSynth.set(BRIDGE_FORMAT_BOARD_NO, 
-      (expectBoard.roomFlag ? 'o' : 'c') + STR(expectBoard.no));
-
-    if (expectBoard.no != lastBoard.no)
-    {
-      board = segment->acquireBoard(counts.bno);
-      counts.bno++;
-    }
-
-    if ((format == BRIDGE_FORMAT_LIN_VG ||
-         format == BRIDGE_FORMAT_LIN_RP) &&
-        expectBoard.no == counts.curr.no)
-    {
-      chunkSynth.copyFrom(chunk, CHUNK_DVD);
-    }
-
-    lastBoard = expectBoard;
-    board->newInstance();
-    board->markInstanceSkip();
-    if (! storeChunk(group, segment, board, chunkSynth,
-        counts, format, options, flog))
-      return false;
-    advance(expectBoard, counts);
-
-    if (chunkSynth.isSet(BRIDGE_FORMAT_TITLE))
-    {
-      chunkSynth.reset(CHUNK_BOARD);
-    }
-  }
-  while (counts.curr > expectBoard);
-  return true;
-}
-*/
-
 
 
 static void checkPlayerCompletion(
@@ -1256,43 +1056,14 @@ static bool readFormattedFile(
 
     str2board(chunk, format, counts);
 
-    /*
-    if (format == BRIDGE_FORMAT_LIN_VG ||
-        format == BRIDGE_FORMAT_LIN_RP ||
-        format == BRIDGE_FORMAT_LIN_TRN)
-    {
-      if (! fillBoards(group, segment, board, chunk, counts,
-          lastBoard, format, options, flog))
-        return false;
-      if (counts.curr < lastBoard)
-      {
-        // This was a backfill operation.
-        continue;
-      }
-    }
-    */
-
     if (counts.curr.no != 0)
     {
       if (counts.curr.no != lastBoard.no)
       {
         // New board.
-        // board = segment->acquireBoard(counts.bno);
         board = segment->acquireBoard(counts.curr.no);
         counts.bno++;
       }
-      /*
-      else if ((format == BRIDGE_FORMAT_LIN_VG ||
-          format == BRIDGE_FORMAT_LIN_RP ||
-          format == BRIDGE_FORMAT_LIN_TRN) &&
-          counts.bExtmin + counts.bno != counts.curr.no)
-      {
-        // Usually not needed, but sometimes we moved the board
-        // pointer while backfilling.
-        const unsigned intNo = counts.curr.no - counts.bExtmin;
-        board = segment->getBoard(intNo);
-      }
-      */
     }
 
     lastBoard = counts.curr;

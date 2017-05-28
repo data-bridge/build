@@ -205,8 +205,7 @@ void Board::setLINheader(const LINData& lin)
   if (LINset)
     return;
 
-  // if (! LINset)
-    LINdata = lin;
+  LINdata = lin;
   LINset = true;
   LINScoreSet = true;
 
@@ -738,7 +737,6 @@ string Board::strAuction(const Format format) const
     int lengths[BRIDGE_PLAYERS];
     for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
     {
-      // Player pp = static_cast<Player>((p+3) % 4);
       Player pp = PLAYER_DDS_TO_TXT[p];
       lengths[p] = static_cast<int>
         (players[numActive].strPlayer(pp, format).length());

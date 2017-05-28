@@ -573,6 +573,7 @@ void writeTXTBoardLevel(
 {
   Canvas canvas;
   string tmp;
+  bool swapFlag;
 
   board.calculateScore();
 
@@ -587,17 +588,12 @@ void writeTXTBoardLevel(
 
     st += board.strResult(format, false) + "\n";
 
+    swapFlag = ! segment.getCOCO(); // Cheat
     if (writeInfo.numInst > 1 && board.skipped(1))
     {
-      const bool swapFlag = ! segment.getCOCO(); // Cheat
       string tWin;
       writeTXTUpdateScore(segment, board, writeInfo, tWin, 
         format, swapFlag);
-
-      st += segment.strTeams(writeInfo.score1, writeInfo.score2, 
-        format, swapFlag) + "\n";
-      if (! writeInfo.last)
-        st += TXTdashes + "\n\n";
     }
   }
   else
@@ -616,11 +612,15 @@ void writeTXTBoardLevel(
     st += board.strContract(format);
     st += board.strPlay(format);
 
-    const bool swapFlag = segment.getCOCO();
+    swapFlag = segment.getCOCO();
     string tWin;
     writeTXTUpdateScore(segment, board, writeInfo, tWin, format, swapFlag);
 
     st += board.strResult(format, tWin) + "\n";
+  }
+
+  if (writeInfo.ino > 0 || writeInfo.numInst == 1 && board.skipped(1))
+  {
     st += segment.strTeams(writeInfo.score1, writeInfo.score2, 
         format, swapFlag) + "\n";
     if (! writeInfo.last)

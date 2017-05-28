@@ -626,22 +626,14 @@ void Segment::loadSpecificsFromHeader(
   }
 
   unsigned linTableNo;
-  UNUSED(format);
-  // if (format == BRIDGE_FORMAT_LIN_RP)
-  // {
-    // Consecutively without gaps.
-    // linTableNo = activeNo;
-  // }
-  // else
-  // {
-    // At the right place, perhaps with gaps.
-    linTableNo = Segment::getLINActiveNo();
-  // }
+  linTableNo = Segment::getLINActiveNo();
 
   if (LINdata[linTableNo].contract[r] != "")
     activeBoard->setContract(
       LINdata[linTableNo].contract[r], BRIDGE_FORMAT_LIN);
 
+  if (format != BRIDGE_FORMAT_LIN_TRN)
+  {
   string st = "";
   const unsigned lno = (LINPlayersListFlag ? 
     boards[activeNo].extNo - bInmin : 0);
@@ -654,6 +646,7 @@ void Segment::loadSpecificsFromHeader(
 
   if (st != ",,,")
     activeBoard->setPlayers(st, BRIDGE_FORMAT_LIN, false);
+  }
 
   // TODO: Delete if?
   // TODO: Shouldn't the two above things also happen in setLINheader?
@@ -689,12 +682,6 @@ void Segment::setPlayersHeader(
 
   if (c == 7)
   {
-    // for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
-    // {
-      // LINdata[0].players[0][(i+2) % 4] = tokens[i];
-      // LINdata[0].players[1][(i+2) % 4] = tokens[i+4];
-    // }
-
     for (size_t b = 0; b < LINcount; b++)
     {
       for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
@@ -713,9 +700,6 @@ void Segment::setPlayersHeader(
   {
     if (c > 3)
       Segment::checkPlayersTrailing(4, c, tokens);
-
-    // for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
-      // LINdata[0].players[0][(i+2) % 4] = tokens[i];
 
     for (size_t b = 0; b < LINcount; b++)
     {
@@ -854,11 +838,6 @@ void Segment::setNumber(
   if (boards[activeNo].extNo != extNo)
     THROW("New extNo: " + STR(boards[activeNo].extNo + " vs. " +
       STR(extNo)));
-
-  // if (extNo < bmin)
-    // bmin = extNo;
-  // if (extNo > bmax)
-    // bmax = extNo;
 }
 
 
@@ -967,16 +946,10 @@ string Segment::strTitleLIN() const
 
 string Segment::strTitleLIN_RP() const
 {
-  // bool swapFlag = false;
-  // activeBoard->setInstance(0);
-  // if (activeBoard->room() == BRIDGE_ROOM_CLOSED)
-    // swapFlag = true;
-
   return "vg|" + title +
       session.str(BRIDGE_FORMAT_LIN_RP) + "," +
       scoring.str(BRIDGE_FORMAT_LIN) + "," +
       Segment::strTitleLINCore() + "pf|y|\n";
-      // Segment::strTitleLINCore(swapFlag) + "pf|y|\n";
 }
 
 
@@ -1340,18 +1313,15 @@ string Segment::strPlayers(const Format format)
       }
       else
       {
-        // board = Segment::getBoard(0);
         board = &boards[0].board;
         return board->strPlayers(format);
       }
 
     case BRIDGE_FORMAT_LIN_RP:
-      // board = Segment::getBoard(0);
       board = &boards[0].board;
       return board->strPlayers(format);
 
     case BRIDGE_FORMAT_LIN_TRN:
-      // board = Segment::getBoard(0);
       board = &boards[0].board;
       return board->strPlayers(BRIDGE_FORMAT_LIN_VG);
 
