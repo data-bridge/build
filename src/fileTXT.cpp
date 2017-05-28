@@ -619,7 +619,7 @@ void writeTXTBoardLevel(
     st += board.strResult(format, tWin) + "\n";
   }
 
-  if (writeInfo.ino > 0 || writeInfo.numInst == 1 && board.skipped(1))
+  if (writeInfo.ino > 0 || writeInfo.numInst == 1 || board.skipped(1))
   {
     st += segment.strTeams(writeInfo.score1, writeInfo.score2, 
         format, swapFlag) + "\n";

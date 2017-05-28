@@ -363,6 +363,9 @@ static void dispatchCompare(
   try
   {
     Group groupNew;
+    if (group.isCOCO())
+      groupNew.setCOCO();
+
     Buffer buffer;
     vector<Fix> fix;
 

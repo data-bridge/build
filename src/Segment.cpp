@@ -41,6 +41,8 @@ void Segment::reset()
 
   bmin = BIGNUM;
   bmax = 0;
+  bInmin = BIGNUM;
+  bInmax = 0;
 
   title = ""; 
   date.reset();
@@ -337,7 +339,10 @@ void Segment::setFirstTeam(
   const string& text,
   const Format format)
 {
-  teams.setFirst(text, format); 
+  if (flagCOCO)
+    teams.setSecond(text, format); 
+  else
+    teams.setFirst(text, format); 
 }
 
 
@@ -345,7 +350,10 @@ void Segment::setSecondTeam(
   const string& text,
   const Format format)
 {
-  teams.setSecond(text, format); 
+  if (flagCOCO)
+    teams.setFirst(text, format); 
+  else
+    teams.setSecond(text, format); 
 }
 
 
@@ -843,7 +851,12 @@ void Segment::setNumber(
 
 unsigned Segment::firstBoardNumber() const
 {
-  return bInmin;
+  if (len == 0)
+    return BIGNUM;
+  else if (bInmin == BIGNUM)
+    return boards[0].extNo;
+  else
+    return bInmin;
 }
 
 
@@ -1065,7 +1078,8 @@ string Segment::strScoring(const Format format) const
 string Segment::strTeams(const Format format) const
 {
   if (format == BRIDGE_FORMAT_RBN ||
-      format == BRIDGE_FORMAT_RBX)
+      format == BRIDGE_FORMAT_RBX ||
+      format == BRIDGE_FORMAT_TXT)
     // Maybe more formats.
     return teams.str(format, flagCOCO);
   else

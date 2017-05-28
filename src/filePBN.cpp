@@ -319,7 +319,7 @@ void writePBNBoardLevel(
 
   st += board.strRoom(0, format);
   st += board.strScore(format, segment.scoringIsIMPs(), swapFlag);
-  if (writeInfo.ino == 0)
+  if (writeInfo.ino == 0 && writeInfo.numInst == 1)
     st += board.strGivenScore(format);
   st += board.strTableau(format);
 

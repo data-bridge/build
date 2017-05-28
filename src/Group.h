@@ -52,6 +52,8 @@ class Group
 
     void setCOCO();
 
+    bool isCOCO();
+
     unsigned count();
     unsigned countBoards();
 

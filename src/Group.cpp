@@ -63,6 +63,12 @@ void Group::setCOCO()
 }
 
 
+bool Group::isCOCO()
+{
+  return flagCOCO;
+}
+
+
 Segment * Group::make()
 {
   segments.resize(segments.size()+1);
