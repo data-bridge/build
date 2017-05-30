@@ -417,9 +417,19 @@ bool Buffer::fix(const RefLines& refLines)
 
       rl.modify(tmplines);
 
-      lines.erase(lines.begin() + static_cast<int>(i), 
-          lines.begin() + static_cast<int>(deletion + i));
-      len -= deletion;
+      if (deletion == 1 && tmplines[0] != "")
+      {
+        // Deleted a field, not an entire line.
+        ld.line = tmplines[0];
+        ld.len = static_cast<unsigned>(ld.line.length());
+        Buffer::classify(ld);
+      }
+      else
+      {
+        lines.erase(lines.begin() + static_cast<int>(i), 
+            lines.begin() + static_cast<int>(deletion + i));
+        len -= deletion;
+      }
     }
     else if (refType == ACTION_GENERAL)
     {

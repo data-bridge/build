@@ -295,7 +295,7 @@ struct FileTask
 struct boardIDLIN
 {
   unsigned no;
-  unsigned roomFlag;
+  bool roomFlag;
 };
 
 struct Counts

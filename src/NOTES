@@ -4,12 +4,21 @@
 
 i\o     LIN     PBN     RBN     RBX     TXT     EML     REC     RPmajors
 LIN     OK      OK      OK      OK      OK      OK      OK
-PBN             OK      OK      OK      OK      OK      OK
+PBN     OK      OK      OK      OK      OK      OK      OK
 RBN
 RBX
 TXT
 EML
 REC
+
+* Skipped hands in RBN:  Leave B and A fields.
+  Then should recognize as skipped hand.
+  Printing skipped hands:  RBN and RBX still get B and A fields.
+  Other formats are skipped.  Or can we leave something in the files
+  also for the TXT, EML and REC formats?
+
+* .ref files in RPmajors: As few delete's as possible (expand
+  deleteRBN etc)
 
 dispatch
 * Move counts.lno into Chunk
@@ -26,7 +35,7 @@ dispatch
   O/O           +       +       +
   C/C           +       +       +
 
-* How much of .fix can we move into .ref?
+* How much of .fix can we move into .ref? (TXT, EML, REC)
   Does this remove the "Room" tags in 3408 .fix lines?
 
 Segment
@@ -38,6 +47,8 @@ Segment
 * Allow concatenated files: LIN, PBN (those two may work), RBN/RBX
 
 * Write Files output into a file?  (For speed-up)
+
+* Bundle the statistics into a meta-module
 
 Perl scripts in BBOVG
 - Make director.pl run without warnings 

@@ -91,6 +91,11 @@ Board * Segment::acquireBoard(const unsigned extNo)
   activeNo = len;
   len++;
 
+  if (extNo < bInmin)
+    bInmin = extNo;
+  if (extNo > bInmax)
+    bInmax = extNo;
+
   return activeBoard;
 }
 
@@ -1184,6 +1189,7 @@ string Segment::strContractsCore(const Format format)
     st.pop_back(); // Remove trailing comma
     return st;
   }
+  /*
   else if (LINcount == 0)
   {
     // This is not quite the same as below.
@@ -1192,6 +1198,27 @@ string Segment::strContractsCore(const Format format)
     for (auto &p: boards)
       st += p.board.strContracts("", format);
   }
+  */
+  /* */
+  else if (LINcount == 0)
+  {
+    // TODO: If we push this code down to Board, loop becomes cleaner?
+    for (unsigned b = bInmin; b <= bInmax; b++)
+    {
+      const Board * bptr = Segment::getBoard(b);
+      if (bptr == nullptr)
+      {
+        st += ",,";
+        continue;
+      }
+      else
+      {
+        st += bptr->strContract(0, format) + "," +
+              bptr->strContract(1, format) + ",";
+      }
+    }
+  }
+  /* */
   else
   {
     for (unsigned b = bInmin; b <= bInmax; b++)

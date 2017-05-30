@@ -572,18 +572,23 @@ void RefLine::parseDeleteRBN(
   tokenize(quote, v, ",");
   const unsigned vlen = v.size();
 
-  if (vlen < 1 && vlen > 3)
+  if (vlen < 1 && vlen > 4)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
 
   comment.checkAction(action.number());
   comment.checkTag(v[0]);
   edit.setTag(v[0]);
-  if (vlen == 2)
+  if (vlen == 1)
+    return;
+  else if (vlen == 2)
     edit.setWas(v[1]);
-  else if (vlen == 3)
+  else
   {
     edit.setFieldNumber(RefLine::parseUpos(refName, quote, v[1]));
     edit.setWas(v[2]);
+
+    if (vlen == 4)
+      edit.setTagCount(RefLine::parseUpos(refName, quote, v[3]));
   }
 }
 

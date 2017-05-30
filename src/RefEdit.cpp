@@ -238,7 +238,7 @@ void RefEdit::modifyInsertGen(string& line) const
 
 void RefEdit::modifyDeleteGen(string& line) const
 {
-  UNUSED(line);
+  line = "";
 }
 
 
@@ -584,7 +584,16 @@ void RefEdit::modifyDeleteRBN(string& line) const
       THROW("RBN field number too large: " + line);
     if (f[fieldno-1] != wasVal)
       THROW("RBN old field value: " + line);
-    f.erase(f.begin() + static_cast<int>(fieldno-1));
+
+    if (tagcount > 0 && fieldno+tagcount > f.size()+1)
+      THROW("RBN field deletion too large: " + line);
+
+    auto st = f.begin() + static_cast<int>(fieldno-1);
+    if (tagcount == 0)
+      f.erase(st);
+    else
+      f.erase(st, st + static_cast<int>(tagcount));
+
     line = tagVal + " " + concat(f, ":");
   }
 }
@@ -693,7 +702,10 @@ void RefEdit::modifyDeleteRBX(string& line) const
     THROW("RBN tag not found: " + line);
 
   RefEdit::modifyDeleteRBN(s);
-  v.erase(v.begin() + static_cast<int>(pos));
+  if (s == "")
+    v.erase(v.begin() + static_cast<int>(pos));
+  else
+    v[pos] = tagVal + "{" + s.substr(2);
 
   line = concat(v, "}") + "}";
 }

@@ -717,6 +717,30 @@ static void str2board(
     else
       THROW("Unknown room: " + r);
   }
+  else if (format == BRIDGE_FORMAT_RBN ||
+      format == BRIDGE_FORMAT_RBX)
+  {
+    if (bno != "")
+    {
+      // Otherwise reuse the value in counts.curr.no
+      if (! str2upos(bno, counts.curr.no))
+        THROW("Not a board number");
+    }
+      
+    const string sn = chunk.get(BRIDGE_FORMAT_PLAYERS_BOARD);
+    const unsigned sl = sn.length();
+    if (sn != "" && sl >= 2)
+    {
+      if (sn.substr(sl-2) == ":O")
+        counts.curr.roomFlag = true;
+      else if (sn.substr(sl-2) == ":C")
+        counts.curr.roomFlag = false;
+      else
+        counts.curr.roomFlag = ! counts.curr.roomFlag;
+    }
+    else
+      counts.curr.roomFlag = ! counts.curr.roomFlag;
+  }
   else
   {
     if (! str2upos(bno, counts.curr.no))
