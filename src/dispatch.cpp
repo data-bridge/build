@@ -741,10 +741,21 @@ static void str2board(
     else
       counts.curr.roomFlag = ! counts.curr.roomFlag;
   }
+  else if (format == BRIDGE_FORMAT_TXT)
+  {
+    if (bno != "")
+    {
+      // Otherwise reuse the value in counts.curr.no
+      if (! str2upos(bno, counts.curr.no))
+        THROW("Not a board number");
+    }
+
+    counts.curr.roomFlag = ! counts.curr.roomFlag;
+  }
   else
   {
     if (! str2upos(bno, counts.curr.no))
-      THROW("Not a board number");
+      THROW("Not a board number: " + bno);
   }
 }
 
@@ -971,10 +982,11 @@ static bool readFormattedFile(
 
   group.setName(fname);
   // TODO: Probably other formats as well.
-  if ((format == BRIDGE_FORMAT_LIN_RP ||
-       format == BRIDGE_FORMAT_PBN ||
-       format == BRIDGE_FORMAT_RBN) && 
-       refLines.orderCOCO())
+  // if ((format == BRIDGE_FORMAT_LIN_RP ||
+       // format == BRIDGE_FORMAT_PBN ||
+       // format == BRIDGE_FORMAT_RBN ||
+       // format == BRIDGE_FORMAT_RBX) && 
+  if (refLines.orderCOCO())
     group.setCOCO();
 
   bool b = readFormattedFile(buffer, fix, format, group, options, flog);
@@ -1045,6 +1057,38 @@ static bool readFormattedFile(
       return false;
     }
 
+    if (format == BRIDGE_FORMAT_RBN || 
+        format == BRIDGE_FORMAT_RBX ||
+        format == BRIDGE_FORMAT_TXT)
+    {
+      // TODO: This is not necessary to get the deal as such,
+      // but otherwise Board::setDeal() does not get called,
+      // and the deal info does not get into play and auction.
+      // Should probably be detected in Board?
+      if (chunk.isEmpty(BRIDGE_FORMAT_DEAL))
+        chunk.copyFrom(prevChunk, CHUNK_DEAL);
+      else
+        prevChunk.copyFrom(chunk, CHUNK_DEAL);
+
+      if (format == BRIDGE_FORMAT_TXT)
+      {
+        // TODO: Ditto.
+        if (chunk.isEmpty(BRIDGE_FORMAT_VULNERABLE))
+          chunk.set(BRIDGE_FORMAT_VULNERABLE, 
+            prevChunk.get(BRIDGE_FORMAT_VULNERABLE));
+        else
+          prevChunk.set(BRIDGE_FORMAT_VULNERABLE, 
+            chunk.get(BRIDGE_FORMAT_VULNERABLE));
+
+        if (chunk.isEmpty(BRIDGE_FORMAT_DEALER))
+          chunk.set(BRIDGE_FORMAT_DEALER, 
+            prevChunk.get(BRIDGE_FORMAT_DEALER));
+        else
+          prevChunk.set(BRIDGE_FORMAT_DEALER, 
+            chunk.get(BRIDGE_FORMAT_DEALER));
+      }
+    }
+
     while (fix.size() > 0 && fix[0].no == counts.chunkno)
       fixChunk(chunk, newSegFlag, fix);
 
@@ -1090,6 +1134,12 @@ static bool readFormattedFile(
             cout << chunk.str();
           return false;
         }
+      }
+      else if (format == BRIDGE_FORMAT_TXT)
+      {
+        // If COCO, then we start with open room here, so that the
+        // first inversion is closed, and vice versa.
+        counts.curr.roomFlag = segment->getCOCO();
       }
     }
 

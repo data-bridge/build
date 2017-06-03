@@ -19,10 +19,11 @@ enum ChunkRange
 {
   CHUNK_HEADER = 0,
   CHUNK_BOARD = 1,
-  CHUNK_ALL = 2,
-  CHUNK_DVD = 3,
-  CHUNK_PBN = 4,
-  CHUNK_PBN_SOFTLY = 5
+  CHUNK_DEAL = 2,
+  CHUNK_ALL = 3,
+  CHUNK_DVD = 4,
+  CHUNK_PBN = 5,
+  CHUNK_PBN_SOFTLY = 6
 };
 
 

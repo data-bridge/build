@@ -313,7 +313,8 @@ class Board
 
     string strResult(
       const Format format,
-      const string& team) const;
+      const string& team,
+      const bool swapFlag= false) const;
 
     string strRoom(
       const unsigned no,

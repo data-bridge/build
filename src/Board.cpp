@@ -252,7 +252,8 @@ void Board::setVul(
 
   const Vul v = auction[numActive].getVul();
 
-  if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
+  if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN ||
+      format == BRIDGE_FORMAT_TXT)
   {
     // Fill up, just in case of a skip.
     for (unsigned i = 0; i < len; i++)
@@ -1097,13 +1098,17 @@ string Board::strResult(
 
 string Board::strResult(
   const Format format,
-  const string& team) const
+  const string& team,
+  const bool swapFlag) const
 {
-  if (numActive != 1 || ! contract[0].hasResult())
+  const unsigned baseInst = (swapFlag ? 1u : 0u);
+  if (numActive == baseInst || 
+      ! contract[baseInst].hasResult())
     return contract[numActive].strResult(format);
   else
     return 
-      contract[numActive].strResult(format, contract[0].getScore(), team);
+      contract[numActive].strResult(format, 
+        contract[baseInst].getScore(), team);
 }
 
 

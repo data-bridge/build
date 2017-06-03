@@ -255,6 +255,11 @@ void Chunk::copyFrom(
     chunk[BRIDGE_FORMAT_DEAL] = chunk2.chunk[BRIDGE_FORMAT_DEAL];
     return;
   }
+  else if (range == CHUNK_DEAL)
+  {
+    chunk[BRIDGE_FORMAT_DEAL] = chunk2.chunk[BRIDGE_FORMAT_DEAL];
+    return;
+  }
   else if (range == CHUNK_PBN)
   {
     for (auto &i: PBNFields)

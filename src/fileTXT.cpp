@@ -171,8 +171,8 @@ static void getTXTCanvasOffset(
   else
     n += 12;
 
-  (void) readAllWordsOverlong(canvas[aline], n, n+11, st);
-  chunk.set(BRIDGE_FORMAT_SOUTH, st);
+  if (readAllWordsOverlong(canvas[aline], n, n+11, st))
+    chunk.set(BRIDGE_FORMAT_SOUTH, st);
 }
 
 
@@ -548,18 +548,28 @@ static void writeTXTUpdateScore(
   if (s > 0)
   {
     if (swapFlag)
+    {
       writeInfo.score1 += s;
+      tWin = segment.strFirstTeam(format);
+    }
     else
+    {
       writeInfo.score2 += s;
-    tWin = segment.strSecondTeam(format);
+      tWin = segment.strSecondTeam(format);
+    }
   }
   else
   {
     if (swapFlag)
+    {
       writeInfo.score2 += -s;
+      tWin = segment.strSecondTeam(format);
+    }
     else
+    {
       writeInfo.score1 += -s;
-    tWin = segment.strFirstTeam(format);
+      tWin = segment.strFirstTeam(format);
+    }
   }
 }
 
@@ -606,7 +616,7 @@ void writeTXTBoardLevel(
     string tWin;
     writeTXTUpdateScore(segment, board, writeInfo, tWin, format, swapFlag);
 
-    st += board.strResult(format, tWin) + "\n";
+    st += board.strResult(format, tWin, swapFlag) + "\n";
   }
 
   if (writeInfo.ino > 0 || writeInfo.numInst == 1) // || board.skipped(1))
