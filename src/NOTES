@@ -1,10 +1,14 @@
 28.05.2017
 ----------
-* Get reader to work on RPmajors
+* Get reader to work (again) on 
+  - RPmajors
+  - BBOVG
+  - BBOSH
+  - BBOJEC
 
 i\o     LIN     PBN     RBN     RBX     TXT     EML     REC     RPmajors
-LIN     OK      OK      OK      OK      OK      OK      OK
-PBN     OK      OK      OK      OK      OK      OK      OK
+LIN     OK      OK      OK      OK      OK              OK
+PBN     OK      OK      OK      OK      OK              OK
 RBN
 RBX
 TXT

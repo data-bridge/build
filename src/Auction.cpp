@@ -1096,7 +1096,11 @@ string Auction::str(
 
   string header;
   if (format == BRIDGE_FORMAT_TXT)
+  {
     header = Auction::strTXTHeader(lengths);
+    if (len == 0)
+      return header;
+  }
   else if (format == BRIDGE_FORMAT_EML)
     header = Auction::strEMLHeader();
   else

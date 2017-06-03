@@ -110,7 +110,7 @@ void Board::acquireInstance(const unsigned instNo)
     play.resize(len);
     skip.resize(len);
 
-    for (unsigned i = lenOld; i < instNo; i++)
+    for (unsigned i = lenOld; i < len; i++)
       skip[i] = true;
 
     if (basicsFlag)
@@ -125,7 +125,7 @@ void Board::acquireInstance(const unsigned instNo)
   }
 
   numActive = instNo;
-  skip[numActive] = false;
+  // skip[numActive] = false;
 }
 
 
@@ -215,6 +215,24 @@ void Board::setLINheader(const LINData& lin)
     Board::setScoreIMP("-" + LINdata.mp[1], BRIDGE_FORMAT_LIN);
   else
     LINScoreSet = false;
+  
+  for (unsigned i = 0; i < len; i++)
+  {
+    numActive = i;
+    if (LINdata.contract[i] != "")
+      Board::setContract(LINdata.contract[i], BRIDGE_FORMAT_LIN);
+
+    string st = "";
+    for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
+    {
+      st += LINdata.players[i][(p+2) % 4];
+      if (i < 3)
+        st += ",";
+    }
+
+    if (st != ",,,")
+      Board::setPlayers(st, BRIDGE_FORMAT_LIN, false);
+  }
 }
 
 
@@ -232,7 +250,16 @@ void Board::setVul(
 {
   auction[numActive].setVul(text, format);
 
-  contract[numActive].setVul(auction[numActive].getVul());
+  const Vul v = auction[numActive].getVul();
+
+  if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
+  {
+    // Fill up, just in case of a skip.
+    for (unsigned i = 0; i < len; i++)
+      contract[i].setVul(v);
+  }
+  else
+    contract[numActive].setVul(v);
 }
 
 
@@ -253,11 +280,13 @@ void Board::setDeal(
     play[numActive].setHoldingDDS(cards);
   }
 
-  if (format == BRIDGE_FORMAT_LIN ||
-      format == BRIDGE_FORMAT_LIN_RP ||
-      format == BRIDGE_FORMAT_LIN_VG ||
-      format == BRIDGE_FORMAT_LIN_TRN)
-    auction[numActive].setDealer(text.substr(0, 1), format);
+  if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
+  {
+    // Fill up, just in case of a skip.
+    const string d = text.substr(0, 1);
+    for (unsigned i = 0; i < len; i++)
+      auction[i].setDealer(d, format);
+  }
 }
 
 
@@ -588,10 +617,8 @@ void Board::setPlayer(
 
 void Board::copyPlayers(const Board& board2)
 {
-  if (numActive >= board2.len)
-    THROW("Player access error: " + STR(numActive));
-
-  players[numActive] = board2.players[numActive];
+  for (unsigned i = 0; i < board2.len; i++)
+    players[i] = board2.players[i];
 }
 
 
@@ -694,7 +721,8 @@ string Board::strDealer(const Format format) const
 
 string Board::strVul(const Format format) const
 {
-  return auction[numActive].strVul(format);
+  // return auction[numActive].strVul(format);
+  return contract[numActive].strVul(format);
 }
 
 

@@ -689,6 +689,15 @@ Player Contract::getDeclarer() const
 }
 
 
+Vul Contract::getVul() const
+{
+  if (! setVulFlag)
+    THROW("Vulnerability not set");
+
+  return vul;
+}
+
+
 Denom Contract::getDenom() const
 {
   if (! setContractFlag || contract.level == 0)
@@ -965,6 +974,7 @@ string Contract::strVul(const Format format) const
   if (! setVulFlag)
     THROW("Vulnerability not set");
 
+  /*
   switch(format)
   {
     case BRIDGE_FORMAT_RBN:
@@ -974,6 +984,42 @@ string Contract::strVul(const Format format) const
     default:
       THROW("Invalid format: " + STR(format));
   }
+  */
+
+  // TODO: Delete above
+  
+  switch(format)
+  {
+    case BRIDGE_FORMAT_LIN:
+    case BRIDGE_FORMAT_LIN_TRN:
+      return "sv|" + VUL_NAMES_LIN[vul] + "|";
+
+    case BRIDGE_FORMAT_LIN_VG:
+      return "sv|" + VUL_NAMES_LIN[vul] + "|\n";
+
+    case BRIDGE_FORMAT_LIN_RP:
+      return "sv|" + VUL_NAMES_LIN_RP[vul] + "|\npf|y|";
+
+    case BRIDGE_FORMAT_PBN:
+      return "[Vulnerable \"" + VUL_NAMES_PBN[vul] + "\"]\n";
+
+    case BRIDGE_FORMAT_RBN:
+      return VUL_NAMES_RBN[vul];
+
+    case BRIDGE_FORMAT_TXT:
+      return VUL_NAMES_TXT[vul] + " Vul";
+
+    case BRIDGE_FORMAT_EML:
+    case BRIDGE_FORMAT_REC:
+      return "Vul: " + VUL_NAMES_TXT[vul];
+
+    case BRIDGE_FORMAT_PAR:
+      return VUL_NAMES_LIN[vul];
+
+    default:
+      THROW("Invalid format: " + STR(format));
+  }
+
 }
 
 

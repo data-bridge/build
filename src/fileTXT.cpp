@@ -580,27 +580,17 @@ void writeTXTBoardLevel(
   if (writeInfo.ino == 0)
   {
     st += writeTXTDiagram(segment, board, writeInfo, format);
-
     st += board.strPlayers(format);
     st += board.strAuction(format) + "\n";
     st += board.strContract(format);
-    st += board.strPlay(format);
+
+    if (! board.skipped())
+      st += board.strPlay(format);
 
     st += board.strResult(format, false) + "\n";
-
-    swapFlag = ! segment.getCOCO(); // Cheat
-    if (writeInfo.numInst > 1 && board.skipped(1))
-    {
-      string tWin;
-      writeTXTUpdateScore(segment, board, writeInfo, tWin, 
-        format, swapFlag);
-    }
   }
   else
   {
-    if (board.skipped(0))
-      st += writeTXTDiagram(segment, board, writeInfo, format);
-
     const string p = board.strPlayers(format);
     // Pavlicek bug?
     if (p == "")
@@ -619,7 +609,7 @@ void writeTXTBoardLevel(
     st += board.strResult(format, tWin) + "\n";
   }
 
-  if (writeInfo.ino > 0 || writeInfo.numInst == 1 || board.skipped(1))
+  if (writeInfo.ino > 0 || writeInfo.numInst == 1) // || board.skipped(1))
   {
     st += segment.strTeams(writeInfo.score1, writeInfo.score2, 
         format, swapFlag) + "\n";

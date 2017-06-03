@@ -415,14 +415,21 @@ void writeRECBoardLevel(
   st += canvas.str(true) + "\n";
 
   st += board.strPlayers(format) + "\n";
-  st += board.strAuction(format);
 
-  st += board.strLead(format) + "    ";
+  if (! board.skipped())
+  {
+    st += board.strAuction(format);
+    st += board.strLead(format) + "    ";
+  }
+  else
+    st += "Opening lead:       ";
+
   st += board.strResult(format, false) + "\n";
   st += board.strScore(format, false);
   st += board.strScoreIMP(format, writeInfo.ino == 1,
     segment.getCOCO()) + "\n\n";
 
-  st += board.strPlay(format);
+  if (! board.skipped())
+    st += board.strPlay(format);
 }
 

@@ -276,7 +276,8 @@ void writePBNBoardLevel(
     st += "[Date \"#\"]\n";
   }
 
-  if (writeInfo.ino == 0 || (writeInfo.ino == 1 && board.skipped(0)))
+  // if (writeInfo.ino == 0 || (writeInfo.ino == 1 && board.skipped(0)))
+  if (writeInfo.ino == 0)
     st += segment.strNumber(writeInfo.bno, format);
   else
     st += "[Board \"#\"]\n";
@@ -298,8 +299,12 @@ void writePBNBoardLevel(
   st += board.strDeclarer(format);
   st += board.strContract(format);
   st += board.strResult(format, false);
-  st += board.strAuction(format);
-  st += board.strPlay(format);
+
+  if (! board.skipped())
+  {
+    st += board.strAuction(format);
+    st += board.strPlay(format);
+  }
 
   const bool swapFlag = segment.getCOCO();
   if (writeInfo.first)

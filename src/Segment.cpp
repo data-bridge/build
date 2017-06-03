@@ -96,6 +96,45 @@ Board * Segment::acquireBoard(const unsigned extNo)
   if (extNo > bInmax)
     bInmax = extNo;
 
+  if (LINcount > 0)
+  {
+    // Make enough room.
+    activeBoard->acquireInstance(1);
+
+    const unsigned linTableNo = Segment::getLINActiveNo();
+    activeBoard->setLINheader(LINdata[linTableNo]);
+  }
+  else if (activeNo > 0)
+  {
+    // Copy players in order to have something.
+    const unsigned instCount = boards[activeNo-1].board.countAll();
+    if (instCount == 0)
+      THROW("Empty predecessor board");
+
+    // Make enough room.
+    activeBoard->acquireInstance(instCount-1);
+    activeBoard->copyPlayers(boards[activeNo-1].board);
+
+  }
+
+
+    /*
+    string st = "";
+    const unsigned lno = (LINPlayersListFlag ? 
+      boards[activeNo].extNo - bInmin : 0);
+    for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
+    {
+      st += LINdata[lno].players[r][(i+2) % 4];
+      if (i < 3)
+        st += ",";
+    }
+
+    if (st != ",,,")
+      activeBoard->setPlayers(st, BRIDGE_FORMAT_LIN, false);
+    */
+
+
+
   return activeBoard;
 }
 
@@ -616,59 +655,6 @@ unsigned Segment::getLINActiveNo() const
 }
 
 
-void Segment::loadSpecificsFromHeader(
-  const string& room,
-  const Format format)
-{
-  if (LINcount == 0)
-    return;
-
-  if (activeBoard == nullptr)
-    THROW("activeBoard == nullptr");
-
-  int r = (room != "" && room.substr(0, 1) == "c" ? 1 : 0);
-
-  const unsigned instNo = activeBoard->getInstance();
-
-  if (activeNo == 0 && instNo == 0 && r == 1)
-  {
-    // Teams from LIN header were in "wrong" order for our internal
-    // format, which is consistent with RBN:  The first team is NS
-    // in the first room.  In LIN, the first team is NS in Open.
-    teams.swap();
-  }
-
-  unsigned linTableNo;
-  linTableNo = Segment::getLINActiveNo();
-
-  if (LINdata[linTableNo].contract[r] != "")
-    activeBoard->setContract(
-      LINdata[linTableNo].contract[r], BRIDGE_FORMAT_LIN);
-
-  if (format != BRIDGE_FORMAT_LIN_TRN)
-  {
-  string st = "";
-  const unsigned lno = (LINPlayersListFlag ? 
-    boards[activeNo].extNo - bInmin : 0);
-  for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
-  {
-    st += LINdata[lno].players[r][(i+2) % 4];
-    if (i < 3)
-      st += ",";
-  }
-
-  if (st != ",,,")
-    activeBoard->setPlayers(st, BRIDGE_FORMAT_LIN, false);
-  }
-
-  // TODO: Delete if?
-  // TODO: Shouldn't the two above things also happen in setLINheader?
-  // if (instNo == 0)
-    activeBoard->setLINheader(LINdata[linTableNo]);
-}
-
-
-
 void Segment::setPlayersHeader(
   const string& text,
   const Format format)
@@ -807,6 +793,7 @@ void Segment::setBoardsList(
 }
 
 
+/*
 void Segment::copyPlayers()
 {
   const unsigned instNo = activeBoard->getInstance();
@@ -819,6 +806,7 @@ void Segment::copyPlayers()
     }
   }
 }
+*/
 
 
 void Segment::setRoom(

@@ -26,11 +26,11 @@ for my $i (1 .. $ITER)
   $hist[$overlaps]++;
 }
 
-my $cum = 0.;
+# my $cum = 0.;
 for (0 .. $MAX-1)
 {
-  $cum += $hist[$_];
-  printf "%3d %7.3f%%\n", $_, 100. * $cum/$ITER if $hist[$_];
+  # $cum += $hist[$_];
+  printf "%3d %7.3f%%\n", $_, 100. * $hist[$_]/$ITER if $hist[$_];
 }
 print "\n";
 
@@ -61,7 +61,7 @@ sub get_overlap
   my ($aref, $bref) = @_;
 
   my $overlap = 0;
-  for my $o (0 .. $NUMBERS-1)
+  for my $o (0 .. $MAX-1)
   {
     my $m = ($aref->[$o] < $bref->[$o] ? $aref->[$o] : $bref->[$o]);
     $overlap += $m;

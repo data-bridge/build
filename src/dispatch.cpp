@@ -759,8 +759,6 @@ static bool storeChunk(
   const Options& options,
   ostream& flog)
 {
-    segment->copyPlayers();
-
     if (chunk.isEmpty(BRIDGE_FORMAT_AUCTION) ||
         ((format == BRIDGE_FORMAT_LIN ||
           format == BRIDGE_FORMAT_LIN_VG ||
@@ -798,11 +796,13 @@ static bool storeChunk(
         (segment->*segPtr[i])(text, format);
     }
 
+    /*
     if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
     {
       segment->loadSpecificsFromHeader(
         chunk.get(BRIDGE_FORMAT_BOARD_NO), format);
     }
+    */
 
     for (i = BRIDGE_FORMAT_DEAL; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
     {
@@ -1065,6 +1065,18 @@ static bool readFormattedFile(
       {
         try
         {
+          // Easier to get the key header information in first.
+          for (unsigned i = BRIDGE_FORMAT_RESULTS_LIST; 
+              i <= BRIDGE_FORMAT_BOARDS_LIST; i++)
+          {
+            const string text = chunk.get(i);
+            if (text != "")
+            {
+              (segment->*segPtr[i])(text, format);
+              chunk.set(static_cast<Label>(i), "");
+            }
+          }
+
           chunk.getRange(counts);
         }
         catch(Bexcept& bex)
@@ -1096,6 +1108,11 @@ static bool readFormattedFile(
     lastBoard = counts.curr;
 
     board->acquireInstance(counts.curr.roomFlag ? 0u : 1u);
+
+    // if (chunk.isSet(BRIDGE_FORMAT_AUCTION) ||
+        // chunk.isSet(BRIDGE_FORMAT_PLAY))
+      board->unmarkInstanceSkip();
+
     if (! storeChunk(group, segment, board, chunk,
         counts, format, options, flog))
       return false;
@@ -1228,8 +1245,6 @@ static void writeFormattedFile(
         for (unsigned i = 0, j = writeInfo.numInst-1; 
             i < writeInfo.numInst; i++, j--)
         {
-          if (board.skipped(j))
-            continue;
           board.setInstance(j);
 
           writeInfo.ino = i;
@@ -1257,8 +1272,6 @@ static void writeFormattedFile(
           if (writeInfo.numInst > 2)
             THROW("Too many instances for OOCC output order");
 
-          if (board.skipped(i))
-            continue;
           board.setInstance(i);
 
           writeInfo.ino = i;
@@ -1284,8 +1297,6 @@ static void writeFormattedFile(
 
         for (unsigned i = 0; i < writeInfo.numInst; i++)
         {
-          if (board.skipped(i))
-            continue;
           board.setInstance(i);
 
           writeInfo.ino = i;

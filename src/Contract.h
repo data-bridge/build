@@ -135,6 +135,8 @@ class Contract
 
     Player getDeclarer() const;
 
+    Vul getVul() const;
+
     Denom getDenom() const;
 
     bool operator == (const Contract& c2) const;

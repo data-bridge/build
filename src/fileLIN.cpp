@@ -224,6 +224,9 @@ void writeLINBoardLevel(
   WriteInfo& writeInfo,
   const Format format)
 {
+  if (format != BRIDGE_FORMAT_LIN_RP && board.skipped())
+    return;
+
   st += segment.strNumber(writeInfo.bno, BRIDGE_FORMAT_LIN_RP);
 
   if (format == BRIDGE_FORMAT_LIN)
@@ -240,8 +243,12 @@ void writeLINBoardLevel(
 
   board.calculateScore();
 
-  st += board.strAuction(format);
-  st += board.strPlay(format);
+  if (! board.skipped())
+  {
+    st += board.strAuction(format);
+    st += board.strPlay(format);
+  }
+
   st += board.strClaim(format);
 }
 

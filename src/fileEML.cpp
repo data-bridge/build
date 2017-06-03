@@ -449,6 +449,9 @@ void writeEMLBoardLevel(
   WriteInfo& writeInfo,
   const Format format)
 {
+  if (board.skipped())
+    return;
+
   Canvas canvas;
 
   board.calculateScore();
