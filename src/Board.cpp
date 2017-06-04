@@ -116,12 +116,9 @@ void Board::acquireInstance(const unsigned instNo)
     if (basicsFlag)
       Board::copyBasics(0, lenOld, instNo);
 
-    if (lenOld == 0)
-    {
-      players[0].setRoom("Open", BRIDGE_FORMAT_PBN);
-      if (instNo == 1)
-        players[1].setRoom("Closed", BRIDGE_FORMAT_PBN);
-    }
+    players[0].setRoom("Open", BRIDGE_FORMAT_PBN);
+    if (instNo == 1)
+      players[1].setRoom("Closed", BRIDGE_FORMAT_PBN);
   }
 
   numActive = instNo;

@@ -11,9 +11,9 @@ LIN     OK      OK      OK      OK      OK              OK
 PBN     OK      OK      OK      OK      OK              OK
 RBN     OK      OK      OK      OK      OK              OK
 RBX     OK      OK      OK      OK      OK              OK
-TXT                                     OK
+TXT     OK      OK      OK      OK      OK              OK
 EML
-REC
+REC     OK      OK      OK      OK      OK              OK
 
 * .ref files in RPmajors: As few delete's as possible (expand
   deleteRBN etc)
@@ -21,7 +21,7 @@ REC
 * Some comments, e.g. W03Z6B in TXT, are uncommented!
 
 dispatch
-* Move counts.lno into Chunk
+* Move counts.lno into Chunk. Don't need bno?
 * Split into functions and control
   Second control option: Language parser
 
@@ -35,7 +35,7 @@ dispatch
   O/O           +       +       +
   C/C           +       +       +
 
-* How much of .fix can we move into .ref? (TXT, EML, REC)
+* How much of .fix can we move into .ref? (TXT done; EML, REC)
   Does this remove the "Room" tags in 3408 .fix lines?
 
 Segment

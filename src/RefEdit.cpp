@@ -759,8 +759,14 @@ void RefEdit::modifyInsertTXT(string& line) const
     THROW("No character position");
 
   if (charno > line.length())
-    THROW("Character position too large");
-  else if (charno == line.length())
+  {
+    if (charno > 128)
+      THROW("Character position too large");
+
+    line += string(charno - line.length(), " ");
+  }
+
+  if (charno == line.length())
     line += isVal;
   else
     line.insert(charno, isVal);

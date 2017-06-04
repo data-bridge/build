@@ -741,7 +741,9 @@ static void str2board(
     else
       counts.curr.roomFlag = ! counts.curr.roomFlag;
   }
-  else if (format == BRIDGE_FORMAT_TXT)
+  else if (format == BRIDGE_FORMAT_TXT ||
+      format == BRIDGE_FORMAT_EML ||
+      format == BRIDGE_FORMAT_REC)
   {
     if (bno != "")
     {
@@ -771,10 +773,7 @@ static bool storeChunk(
   ostream& flog)
 {
     if (chunk.isEmpty(BRIDGE_FORMAT_AUCTION) ||
-        ((format == BRIDGE_FORMAT_LIN ||
-          format == BRIDGE_FORMAT_LIN_VG ||
-          format == BRIDGE_FORMAT_LIN_RP ||
-          format == BRIDGE_FORMAT_LIN_TRN) &&
+        (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN &&
          chunk.isEmpty(BRIDGE_FORMAT_VULNERABLE)))
     {
       // Guess dealer and vul from the board number.
@@ -787,10 +786,7 @@ static bool storeChunk(
       {
         chunk.set(BRIDGE_FORMAT_VULNERABLE, board->strVul(BRIDGE_FORMAT_PAR));
       }
-      else if ((format != BRIDGE_FORMAT_LIN &&
-          format != BRIDGE_FORMAT_LIN_VG &&
-          format != BRIDGE_FORMAT_LIN_RP &&
-          format != BRIDGE_FORMAT_LIN_TRN) ||
+      else if (FORMAT_INPUT_MAP[format] != BRIDGE_FORMAT_LIN ||
           chunk.isEmpty(BRIDGE_FORMAT_VULNERABLE))
       {
         chunk.guessDealerAndVul(format);
@@ -806,14 +802,6 @@ static bool storeChunk(
       if (text != "")
         (segment->*segPtr[i])(text, format);
     }
-
-    /*
-    if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
-    {
-      segment->loadSpecificsFromHeader(
-        chunk.get(BRIDGE_FORMAT_BOARD_NO), format);
-    }
-    */
 
     for (i = BRIDGE_FORMAT_DEAL; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
     {
@@ -981,11 +969,6 @@ static bool readFormattedFile(
   readFix(fname, fix);
 
   group.setName(fname);
-  // TODO: Probably other formats as well.
-  // if ((format == BRIDGE_FORMAT_LIN_RP ||
-       // format == BRIDGE_FORMAT_PBN ||
-       // format == BRIDGE_FORMAT_RBN ||
-       // format == BRIDGE_FORMAT_RBX) && 
   if (refLines.orderCOCO())
     group.setCOCO();
 
@@ -1135,7 +1118,9 @@ static bool readFormattedFile(
           return false;
         }
       }
-      else if (format == BRIDGE_FORMAT_TXT)
+      else if (format == BRIDGE_FORMAT_TXT ||
+          format == BRIDGE_FORMAT_EML ||
+          format == BRIDGE_FORMAT_REC)
       {
         // If COCO, then we start with open room here, so that the
         // first inversion is closed, and vice versa.
@@ -1158,10 +1143,7 @@ static bool readFormattedFile(
     lastBoard = counts.curr;
 
     board->acquireInstance(counts.curr.roomFlag ? 0u : 1u);
-
-    // if (chunk.isSet(BRIDGE_FORMAT_AUCTION) ||
-        // chunk.isSet(BRIDGE_FORMAT_PLAY))
-      board->unmarkInstanceSkip();
+    board->unmarkInstanceSkip();
 
     if (! storeChunk(group, segment, board, chunk,
         counts, format, options, flog))
