@@ -167,6 +167,7 @@ static void getRECFields(
   getRECDeal(canvas, chunk);
   getRECAuction(canvas, chunk);
 
+  unsigned i;
   if (playExists)
   {
     getRECPlay(canvas, playLine, chunk);
@@ -174,15 +175,26 @@ static void getRECFields(
     if (canvas[playLine-2].size() < 30)
       THROW("The score line is too short");
 
-    chunk.set(BRIDGE_FORMAT_RESULT, canvas[playLine-2].substr(28));
+    i = playLine-2;
   }
   else
-  {
-    chunk.set(BRIDGE_FORMAT_RESULT, canvas[canvas.size()-2].substr(28));
+    i = canvas.size()-2;
 
-    // Pavlicek bug.
-    if (chunk.get(BRIDGE_FORMAT_RESULT) == "Won 32")
-      chunk.set(BRIDGE_FORMAT_RESULT, "");
+  if (canvas[i-1].length() > 28 && canvas[i-1].substr(0, 7) == "Opening")
+     i--;
+
+  chunk.set(BRIDGE_FORMAT_RESULT, canvas[i].substr(28));
+
+  // Pavlicek bug.  Only applies when play does not exist.
+  if (chunk.get(BRIDGE_FORMAT_RESULT) == "Won 32")
+    chunk.set(BRIDGE_FORMAT_RESULT, "");
+
+  if (i+2 < canvas.size() &&
+      canvas[i+2].substr(0, 8) == "Contract" &&
+      canvas[i+2].length() > 10)
+  {
+    // This is not official REC.
+    chunk.set(BRIDGE_FORMAT_CONTRACT, canvas[i+2].substr(10));
   }
 }
 
@@ -427,7 +439,12 @@ void writeRECBoardLevel(
   st += board.strResult(format, false) + "\n";
   st += board.strScore(format, false);
   st += board.strScoreIMP(format, writeInfo.ino == 1,
-    segment.getCOCO()) + "\n\n";
+    segment.getCOCO()) + "\n";
+
+  if (board.auctionIsEmpty())
+    st += "Contract: " + board.strContract(BRIDGE_FORMAT_EML) + "\n";
+
+  st += "\n";
 
   if (! board.skipped())
     st += board.strPlay(format);
