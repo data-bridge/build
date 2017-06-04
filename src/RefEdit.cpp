@@ -210,11 +210,17 @@ void RefEdit::modify(
   if (act != REF_ACTION_DELETE_GEN &&
       act != REF_ACTION_DELETE_PBN &&
       act != REF_ACTION_DELETE_RBN &&
-      act != REF_ACTION_DELETE_RBX)
+      act != REF_ACTION_DELETE_RBX &&
+      act != REF_ACTION_DELETE_EML)
     THROW("Multi-line must be delete: " + STR(act) + ", " + lines[0]);
     
-  for (auto &line: lines)
-    (this->* ModifyList[act])(line);
+  if (act == REF_ACTION_DELETE_EML)
+    modifyDeleteEML(lines);
+  else
+  {
+    for (auto &line: lines)
+      (this->* ModifyList[act])(line);
+  }
 }
 
 
@@ -763,7 +769,7 @@ void RefEdit::modifyInsertTXT(string& line) const
     if (charno > 128)
       THROW("Character position too large");
 
-    line += string(charno - line.length(), " ");
+    line += string(charno-line.length(), ' ');
   }
 
   if (charno == line.length())
@@ -864,6 +870,62 @@ void RefEdit::modifyDeleteWORD(string& line) const
     modifyFail(line, "Old value wrong");
 
   line.erase(pos-1, lw);
+}
+
+
+////////////////////////////////////////////////////////////////////////
+//                                                                    //
+// modifyEML functions                                                //
+//                                                                    //
+////////////////////////////////////////////////////////////////////////
+
+void RefEdit::modifyDeleteEML(vector<string>& lines) const
+{
+  unsigned lc = lines.size();
+  unsigned resLine = 0;
+  while (resLine < lc &&
+      (lines[resLine].length() < 49 || 
+       lines[resLine].substr(42, 6) != "Result"))
+  {
+    resLine++;
+  }
+
+  if (resLine == lc)
+    THROW("No Result line");
+
+  if (resLine < 2)
+    THROW("Result line too high");
+  
+  unsigned nextLine = resLine+1;
+  while (nextLine < lc && lines[nextLine].length() > 48)
+    nextLine++;
+
+  if (nextLine == lc)
+    THROW("No empty line before end");
+
+  if (nextLine-resLine > 3)
+    THROW("Too many intermediate lines");
+  
+  unsigned start = 2;
+  for (unsigned i = 0; i < lc; i++)
+  {
+    if (i >= resLine && i <= nextLine)
+    {
+      if (lines[start].length() < 42)
+        lines[start] += string(42-lines[start].length(), ' ');
+      
+      if (i == nextLine)
+        lines[start] += "Contract: " + isVal;
+      else
+        lines[start] += lines[i].substr(42);
+      start++;
+    }
+
+    if (lines[i].length() > 42)
+      lines[i].erase(42);
+
+    lines[i] = trimTrailing(lines[i]);
+  }
 }
 
 

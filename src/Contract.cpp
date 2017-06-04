@@ -879,6 +879,12 @@ string Contract::strTXT() const
 }
 
 
+string Contract::strEML() const
+{
+  return Contract::strRBNCore();
+}
+
+
 string Contract::strPar() const
 {
   if (! setContractFlag || ! setResultFlag)
@@ -921,6 +927,9 @@ string Contract::str(const Format format) const
 
     case BRIDGE_FORMAT_TXT:
       return Contract::strTXT();
+
+    case BRIDGE_FORMAT_EML:
+      return Contract::strEML();
 
     case BRIDGE_FORMAT_PAR:
       return Contract::strPar();

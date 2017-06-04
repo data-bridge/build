@@ -85,6 +85,8 @@ class RefLine
     void parseInsertWORD(const string& refName, const string& line);
     void parseDeleteWORD(const string& refName, const string& line);
 
+    void parseDeleteEML(const string& refName, const string& line);
+
     void checkEntries(
       const RefEntry& re,
       const RefEntry& ractual) const;

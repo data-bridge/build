@@ -417,12 +417,27 @@ bool Buffer::fix(const RefLines& refLines)
 
       rl.modify(tmplines);
 
-      if (deletion == 1 && tmplines[0] != "")
+      // TODO 
+      if (tmplines[0] != "")
       {
         // Deleted a field, not an entire line.
-        ld.line = tmplines[0];
-        ld.len = static_cast<unsigned>(ld.line.length());
-        Buffer::classify(ld);
+
+        if (deletion == 1)
+        {
+          // TODO: Is probably the same as the following.
+          ld.line = tmplines[0];
+          ld.len = static_cast<unsigned>(ld.line.length());
+          Buffer::classify(ld);
+        }
+        else
+        {
+          for (unsigned j = i, k = 0; j < i+deletion; j++, k++)
+          {
+            lines[j].line = tmplines[k];
+            lines[j].len = static_cast<unsigned>(tmplines[k].length());
+            Buffer::classify(lines[j]);
+          }
+        }
       }
       else
       {

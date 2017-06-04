@@ -92,6 +92,8 @@ void RefAction::setTables()
   ActionMap["insertWORD"] = REF_ACTION_INSERT_WORD;
   ActionMap["deleteWORD"] = REF_ACTION_DELETE_WORD;
 
+  ActionMap["deleteEML"] = REF_ACTION_DELETE_EML;
+
   for (auto &s: ActionMap)
     ActionTable[s.second] = s.first;
 
@@ -105,6 +107,8 @@ void RefAction::setTables()
   ActionCatTable[REF_ACTION_DELETE_PBN] = ACTION_DELETE_LINE;
 
   ActionCatTable[REF_ACTION_DELETE_RBN] = ACTION_DELETE_LINE;
+
+  ActionCatTable[REF_ACTION_DELETE_EML] = ACTION_DELETE_LINE;
 }
 
 

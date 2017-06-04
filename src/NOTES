@@ -1,24 +1,14 @@
 28.05.2017
 ----------
 * Get reader to work (again) on 
-  - RPmajors
+  - RPmajors: Works (REC still has .fix)
   - BBOVG
   - BBOSH
   - BBOJEC
 
-i\o     LIN     PBN     RBN     RBX     TXT     EML     REC     RPmajors
-LIN     OK      OK      OK      OK      OK              OK
-PBN     OK      OK      OK      OK      OK              OK
-RBN     OK      OK      OK      OK      OK              OK
-RBX     OK      OK      OK      OK      OK              OK
-TXT     OK      OK      OK      OK      OK              OK
-EML
-REC     OK      OK      OK      OK      OK              OK
-
 * .ref files in RPmajors: As few delete's as possible (expand
   deleteRBN etc)
-
-* Some comments, e.g. W03Z6B in TXT, are uncommented!
+* Look at -q output for RPmajors, SH and JEC
 
 dispatch
 * Move counts.lno into Chunk. Don't need bno?

@@ -97,6 +97,8 @@ void RefLine::setTables()
   ParseList[REF_ACTION_REPLACE_WORD] = &RefLine::parseReplaceWORD;
   ParseList[REF_ACTION_INSERT_WORD] = &RefLine::parseInsertWORD;
   ParseList[REF_ACTION_DELETE_WORD] = &RefLine::parseDeleteWORD;
+
+  ParseList[REF_ACTION_DELETE_EML] = &RefLine::parseDeleteEML;
 }
 
 
@@ -298,7 +300,6 @@ void RefLine::parseDeleteGen(
   comment.checkAction(action.number());
   edit.setIs(quote);
 }
-
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -725,6 +726,27 @@ void RefLine::parseDeleteWORD(
   edit.setTagNumber(RefLine::parseUpos(refName, quote, v[0]));
   edit.setWas(v[1]);
 }
+
+
+////////////////////////////////////////////////////////////////////////
+//                                                                    //
+// parseEML functions                                                 //
+//                                                                    //
+////////////////////////////////////////////////////////////////////////
+
+
+void RefLine::parseDeleteEML(
+  const string& refName,
+  const string& quote)
+{
+  // Only works for a whole canvas.
+  if (range.lcount == 1)
+    THROW("Ref file " + refName + ": delete line count '" + quote + "'");
+
+  comment.checkAction(action.number());
+  edit.setIs(quote);
+}
+
 
 
 unsigned RefLine::lineno() const

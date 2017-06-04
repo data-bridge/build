@@ -208,6 +208,17 @@ static void getEMLSimpleFields(
       THROW("Cannot find IMP result");
     chunk.set(BRIDGE_FORMAT_SCORE_IMP, st);
   }
+
+  if (resultLine+2 < canvas.size() &&
+      canvas[resultLine+2].length() >= 52 &&
+      canvas[resultLine+2].substr(42, 8) == "Contract")
+  {
+    // This is not standard EML, but we need the contract in
+    // case there's no auction.
+    if (! readLastWord(canvas[resultLine+2], st))
+      THROW("Cannot find contract");
+    chunk.set(BRIDGE_FORMAT_CONTRACT, st);
+  }
 }
 
 
@@ -503,6 +514,15 @@ void writeEMLBoardLevel(
   canvas.setLine(board.strResult(format, false), p, 42);
   canvas.setLine(board.strScore(format, segment.scoringIsIMPs(),
     segment.getCOCO()), p+1, 42);
+
+  // TODO: When we are rid of .fix files for EML, then we should
+  // remove the test for playFlag here as well.
+  if (// ! playFlag &&
+      auction.size() == 3 && auction[2] == "")
+  {
+    // Not standard EML: Give the contract.
+    canvas.setLine("Contract: " + board.strContract(format), p+2, 42);
+  }
 
   st += canvas.str() + "\n";
 

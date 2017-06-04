@@ -88,6 +88,8 @@ class RefEdit
     void modifyInsertWORD(string& line) const;
     void modifyDeleteWORD(string& line) const;
 
+    void modifyDeleteEML(vector<string>& lines) const;
+
 
   public:
 

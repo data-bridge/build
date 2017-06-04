@@ -58,6 +58,7 @@ class Contract
     string strRBN() const;
     string strRBX() const;
     string strTXT() const;
+    string strEML() const;
     string strPar() const;
 
     string strScorePBN() const;
