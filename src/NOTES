@@ -1,14 +1,10 @@
 28.05.2017
 ----------
 * Get reader to work (again) on 
-  - RPmajors: Works (REC still has .fix)
-  - BBOVG
+  - RPmajors
   - BBOSH
   - BBOJEC
-
-* .ref files in RPmajors: As few delete's as possible (expand
-  deleteRBN etc)
-* Look at -q output for RPmajors, SH and JEC
+  - BBOVG: 49,078 lines...
 
 dispatch
 * Move counts.lno into Chunk. Don't need bno?
@@ -25,20 +21,19 @@ dispatch
   O/O           +       +       +
   C/C           +       +       +
 
-* How much of .fix can we move into .ref? (TXT done; EML, REC)
-  Does this remove the "Room" tags in 3408 .fix lines?
+* .ref files in RPmajors: As few delete's as possible (expand
+  deleteRBN etc)
+* Look at -q output for RPmajors, SH and JEC
 
 Segment
 * Split Segment into HeaderLIN
 * In Board, don't copy LINdata, store a pointer only
 
+* Bundle the statistics into a meta-module
+
 * reader input could select by year as well
 
-* Allow concatenated files: LIN, PBN (those two may work), RBN/RBX
-
 * Write Files output into a file?  (For speed-up)
-
-* Bundle the statistics into a meta-module
 
 Perl scripts in BBOVG
 - Make director.pl run without warnings 

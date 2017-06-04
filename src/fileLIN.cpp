@@ -230,7 +230,7 @@ void writeLINBoardLevel(
   st += segment.strNumber(writeInfo.bno, BRIDGE_FORMAT_LIN_RP);
 
   if (format == BRIDGE_FORMAT_LIN)
-    st += "pn|" + board.strPlayers(format) + "|";
+    st += "pn|" + board.strPlayers(format, segment.scoringIsIMPs()) + "|";
   else if (format == BRIDGE_FORMAT_LIN_TRN)
     st += board.strPlayers(format);
 
