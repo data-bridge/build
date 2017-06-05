@@ -275,6 +275,7 @@ bool dispatchReadBuffer(
       segment = group.make();
       newSegFlag = false;
       counts.segno++;
+      countsPrev.bno = 0;
 
       if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
       {
@@ -345,11 +346,8 @@ bool dispatchReadFile(
       const BoardOrder orderStated = refLines.order();
       if (orderSeen != orderStated)
       {
-        //THROW("Order seen: " + orderNames[orderSeen] + 
-          // ", order stated: " + orderNames[orderStated] + "\n");
-        // TODO
-        cout << fname << ", order seen: " << orderNames[orderSeen] <<
-          ", order stated: " << orderNames[orderStated] << "\n";
+        THROW("Order seen: " + orderNames[orderSeen] + 
+          ", order stated: " + orderNames[orderStated] + "\n");
       }
     }
 
