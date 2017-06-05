@@ -122,7 +122,6 @@ void Board::acquireInstance(const unsigned instNo)
   }
 
   numActive = instNo;
-  // skip[numActive] = false;
 }
 
 

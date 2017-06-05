@@ -219,7 +219,6 @@ static bool storeChunk(
     return false;
   }
 
-  board->spreadBasics(); // TODO: Automatic in Board?
   return true;
 }
 
@@ -232,17 +231,11 @@ bool dispatchReadBuffer(
   ostream& flog)
 {
   group.setFormat(format);
-
   Chunk chunk, prevChunk;
   Segment * segment = nullptr;
-  bool newSegFlag = false;
-
   Board * board = nullptr;
-
-  Counts counts;
-  counts.segno = 0;
-  counts.bno = 0;
-  counts.prevno = 0;
+  bool newSegFlag = false;
+  Counts counts = {0, 0, 0, true};
 
   while (true)
   {
@@ -251,15 +244,8 @@ bool dispatchReadBuffer(
       if (format == BRIDGE_FORMAT_PBN)
         prevChunk.copyFrom(chunk, CHUNK_HEADER);
 
-      newSegFlag = false;
       chunk.reset();
-
       (* readChunk[format])(buffer, chunk, newSegFlag);
-
-      if (chunk.isEmpty(BRIDGE_FORMAT_BOARD_NO) &&
-          chunk.isEmpty(BRIDGE_FORMAT_RESULT) &&
-          chunk.isEmpty(BRIDGE_FORMAT_AUCTION))
-        break;
     }
     catch (Bexcept& bex)
     {
@@ -272,6 +258,9 @@ bool dispatchReadBuffer(
         cout << chunk.str();
       return false;
     }
+
+    if (chunk.seemsEmpty())
+      break;
 
     if (format == BRIDGE_FORMAT_RBN || 
         format == BRIDGE_FORMAT_RBX ||
@@ -305,15 +294,14 @@ bool dispatchReadBuffer(
       }
     }
 
+    // In PBN, the header may just be repeated.
     if (newSegFlag && format == BRIDGE_FORMAT_PBN)
-    {
-      // May not really be a new segment.
       newSegFlag = chunk.differsFrom(prevChunk, CHUNK_HEADER);
-    }
 
-    if (newSegFlag || segment == nullptr)
+    if (segment == nullptr || newSegFlag)
     {
       segment = group.make();
+      newSegFlag = false;
       counts.segno++;
 
       if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
@@ -335,7 +323,6 @@ bool dispatchReadBuffer(
     }
 
     chunk.getCounts(format, counts);
-
     if (board == nullptr || counts.bno != counts.prevno)
     {
       board = segment->acquireBoard(counts.bno);
@@ -348,6 +335,8 @@ bool dispatchReadBuffer(
     if (! storeChunk(group.name(), format, options, counts,
         segment, board, chunk, flog))
       return false;
+
+    board->spreadBasics(); // Used when we go directly for an instance > 0
   }
 
   return true;
