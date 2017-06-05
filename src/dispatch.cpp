@@ -30,6 +30,8 @@
 #include "fileEML.h"
 #include "fileREC.h"
 
+#include "AllStats.h"
+
 #include "parse.h"
 #include "Sheet.h"
 #include "Bexcept.h"
@@ -448,11 +450,7 @@ void dispatch(
   const int thrNo,
   Files& files,
   const Options& options,
-  ValStats& vstats,
-  TextStats& tstats,
-  CompStats& cstats,
-  Timers& timers,
-  RefStats& refstats)
+  AllStats& allStats)
 {
   ofstream freal;
   if (options.fileLog.setFlag)
@@ -477,9 +475,9 @@ void dispatch(
       goto DIGEST;
 
     refLines.reset();
-    timers.start(BRIDGE_TIMER_READ, task.formatInput);
+    allStats.timers.start(BRIDGE_TIMER_READ, task.formatInput);
     bool b = dispatchRead(task, group, options, refLines, flog);
-    timers.stop(BRIDGE_TIMER_READ, task.formatInput);
+    allStats.timers.stop(BRIDGE_TIMER_READ, task.formatInput);
     if (! b)
     {
       flog << "Failed to read " << task.fileInput << endl;
@@ -491,9 +489,9 @@ void dispatch(
       if (options.verboseIO)
         flog << "Ref file for " << task.fileInput << endl;
     
-      timers.start(BRIDGE_TIMER_REF_STATS, task.formatInput);
-      dispatchRefStats(refLines, refstats, flog);
-      timers.stop(BRIDGE_TIMER_REF_STATS, task.formatInput);
+      allStats.timers.start(BRIDGE_TIMER_REF_STATS, task.formatInput);
+      dispatchRefStats(refLines, allStats.refstats, flog);
+      allStats.timers.stop(BRIDGE_TIMER_REF_STATS, task.formatInput);
     }
 
     if (refLines.skip())
@@ -504,9 +502,9 @@ void dispatch(
       if (options.verboseIO)
         flog << "Input " << task.fileInput << endl;
     
-      timers.start(BRIDGE_TIMER_STATS, task.formatInput);
-      dispatchStats(task, group, tstats, flog);
-      timers.stop(BRIDGE_TIMER_STATS, task.formatInput);
+      allStats.timers.start(BRIDGE_TIMER_STATS, task.formatInput);
+      dispatchStats(task, group, allStats.tstats, flog);
+      allStats.timers.stop(BRIDGE_TIMER_STATS, task.formatInput);
     }
 
     for (auto &t: task.taskList)
@@ -514,9 +512,9 @@ void dispatch(
       if (options.verboseIO && t.fileOutput != "")
         flog << "Output " << t.fileOutput << endl;
 
-      timers.start(BRIDGE_TIMER_WRITE, t.formatOutput);
+      allStats.timers.start(BRIDGE_TIMER_WRITE, t.formatOutput);
       dispatchWrite(t, refLines, group, text, flog);
-      timers.stop(BRIDGE_TIMER_WRITE, t.formatOutput);
+      allStats.timers.stop(BRIDGE_TIMER_WRITE, t.formatOutput);
 
       if (t.refFlag && refLines.validate())
       {
@@ -524,9 +522,9 @@ void dispatch(
           flog << "Validating " << t.fileOutput <<
               " against " << t.fileRef << endl;
 
-        timers.start(BRIDGE_TIMER_VALIDATE, t.formatOutput);
-        dispatchValidate(task, t, options, text, vstats, flog);
-        timers.stop(BRIDGE_TIMER_VALIDATE, t.formatOutput);
+        allStats.timers.start(BRIDGE_TIMER_VALIDATE, t.formatOutput);
+        dispatchValidate(task, t, options, text, allStats.vstats, flog);
+        allStats.timers.stop(BRIDGE_TIMER_VALIDATE, t.formatOutput);
       }
 
       if (options.compareFlag && task.formatInput == t.formatOutput)
@@ -535,10 +533,10 @@ void dispatch(
           flog << "Comparing " << t.fileOutput <<
               " against " << task.fileInput << endl;
 
-        timers.start(BRIDGE_TIMER_COMPARE, t.formatOutput);
+        allStats.timers.start(BRIDGE_TIMER_COMPARE, t.formatOutput);
         dispatchCompare(options, task.fileInput, task.formatInput, 
-          group, text, cstats, flog);
-        timers.stop(BRIDGE_TIMER_COMPARE, t.formatOutput);
+          group, text, allStats.cstats, flog);
+        allStats.timers.stop(BRIDGE_TIMER_COMPARE, t.formatOutput);
       }
 
       if (task.removeOutputFlag)
@@ -551,9 +549,9 @@ void dispatch(
       if (options.verboseIO)
         flog << "Digest input " << task.fileInput << endl;
     
-      timers.start(BRIDGE_TIMER_DIGEST, task.formatInput);
+      allStats.timers.start(BRIDGE_TIMER_DIGEST, task.formatInput);
       dispatchDigest(options, task, flog);
-      timers.stop(BRIDGE_TIMER_DIGEST, task.formatInput);
+      allStats.timers.stop(BRIDGE_TIMER_DIGEST, task.formatInput);
     }
 
     // TODO: Use an option to control
@@ -684,7 +682,8 @@ static bool storeChunk(
       else if (format == BRIDGE_FORMAT_LIN_VG && 
           board->hasDealerVul())
       {
-        chunk.set(BRIDGE_FORMAT_VULNERABLE, board->strVul(BRIDGE_FORMAT_PAR));
+        chunk.set(BRIDGE_FORMAT_VULNERABLE, 
+          board->strVul(BRIDGE_FORMAT_PAR));
       }
       else if (FORMAT_INPUT_MAP[format] != BRIDGE_FORMAT_LIN ||
           chunk.isEmpty(BRIDGE_FORMAT_VULNERABLE))
@@ -1226,54 +1225,6 @@ static void writeFormattedFile(
 
   if (fname != "")
     writeFast(fname, text);
-}
-
-
-void mergeResults(
-  vector<ValStats>& vstats,
-  vector<TextStats>& tstats,
-  vector<CompStats>& cstats,
-  vector<Timers>& timers,
-  vector<RefStats>& refstats,
-  const Options& options)
-{
-  if (options.numThreads == 1)
-    return;
-
-  for (unsigned i = 1; i < options.numThreads; i++)
-  {
-    vstats[0] += vstats[i];
-    tstats[0] += tstats[i];
-    cstats[0] += cstats[i];
-    timers[0] += timers[i];
-    refstats[0] += refstats[i];
-  }
-
-  if (! options.fileLog.setFlag)
-    return;
-
-  ofstream fbase(options.fileLog.name, std::ofstream::app);
-  if (! fbase.is_open())
-    return;
-
-  string line;
-  for (unsigned i = 1; i < options.numThreads; i++)
-  {
-    const string fname = options.fileLog.name + STR(i);
-    ifstream flog(fname);
-    if (! flog.is_open())
-      continue;
-
-    fbase << "From thread " << i << ":\n";
-    fbase << "-------------\n\n";
-
-    while (getline(flog, line))
-      fbase << line;
-
-    flog.close();
-    remove(fname.c_str());
-  }
-  fbase.close();
 }
 
 

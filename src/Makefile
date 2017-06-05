@@ -1,6 +1,7 @@
 EXPORTER	= Exports.def
 
 SOURCE_FILES 	=		\
+	AllStats.cpp		\
 	Auction.cpp		\
         Bdiff.cpp               \
         Bexcept.cpp             \
@@ -116,6 +117,9 @@ clean:
 
 # DO NOT DELETE
 
+AllStats.obj: AllStats.h ValStats.h ValProfile.h validate.h Buffer.h valint.h
+AllStats.obj: Reflines.h RefLine.h RefEdit.h refconst.h RefComment.h bconst.h
+AllStats.obj: RefAction.h TextStats.h CompStats.h RefStats.h Timers.h Timer.h
 Auction.obj: Auction.h bconst.h Contract.h parse.h Bexcept.h Bdiff.h
 Bdiff.obj: Bdiff.h
 Bexcept.obj: Bexcept.h
@@ -170,7 +174,7 @@ dispatch.obj: Files.h Timers.h Timer.h ValStats.h ValProfile.h validate.h
 dispatch.obj: Buffer.h valint.h Reflines.h RefLine.h RefEdit.h refconst.h
 dispatch.obj: RefComment.h RefAction.h TextStats.h CompStats.h RefStats.h
 dispatch.obj: fileLIN.h filePBN.h fileRBN.h fileTXT.h fileEML.h fileREC.h
-dispatch.obj: parse.h Sheet.h SheetHand.h Bexcept.h Bdiff.h
+dispatch.obj: AllStats.h parse.h Sheet.h SheetHand.h Bexcept.h Bdiff.h
 fileEML.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 fileEML.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
 fileEML.obj: Contract.h Play.h ddsIF.h dll.h Canvas.h fileEML.h Buffer.h
@@ -235,11 +239,11 @@ validateEML.obj: bconst.h RefAction.h
 validateREC.obj: validateREC.h ValProfile.h validate.h Buffer.h valint.h
 validateREC.obj: Reflines.h RefLine.h RefEdit.h refconst.h RefComment.h
 validateREC.obj: bconst.h RefAction.h parse.h
-reader.obj: args.h bconst.h dispatch.h Files.h Timers.h Timer.h ValStats.h
-reader.obj: ValProfile.h validate.h Buffer.h valint.h Reflines.h RefLine.h
-reader.obj: RefEdit.h refconst.h RefComment.h RefAction.h TextStats.h
-reader.obj: CompStats.h RefStats.h
-reader.obj: args.h bconst.h dispatch.h Files.h Timers.h Timer.h ValStats.h
-reader.obj: ValProfile.h validate.h Buffer.h valint.h Reflines.h RefLine.h
-reader.obj: RefEdit.h refconst.h RefComment.h RefAction.h TextStats.h
-reader.obj: CompStats.h RefStats.h
+reader.obj: args.h bconst.h AllStats.h ValStats.h ValProfile.h validate.h
+reader.obj: Buffer.h valint.h Reflines.h RefLine.h RefEdit.h refconst.h
+reader.obj: RefComment.h RefAction.h TextStats.h CompStats.h RefStats.h
+reader.obj: Timers.h Timer.h dispatch.h Files.h
+reader.obj: args.h bconst.h AllStats.h ValStats.h ValProfile.h validate.h
+reader.obj: Buffer.h valint.h Reflines.h RefLine.h RefEdit.h refconst.h
+reader.obj: RefComment.h RefAction.h TextStats.h CompStats.h RefStats.h
+reader.obj: Timers.h Timer.h dispatch.h Files.h

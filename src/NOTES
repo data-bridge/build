@@ -1,7 +1,7 @@
 05.06.2017
 ----------
 dispatch
-* Move counts.lno into Chunk. Don't need bno?
+* Don't need bno?
 * Split into functions and control
   Second control option: Language parser
 * Prune TODOs, clean up code again
@@ -23,8 +23,6 @@ dispatch
 Segment
 * Split Segment into HeaderLIN
 * In Board, don't copy LINdata, store a pointer only
-
-* Bundle the statistics into a meta-module
 
 * reader input could select by year as well
 

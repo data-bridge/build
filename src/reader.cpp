@@ -16,6 +16,7 @@
 #endif
 
 #include "args.h"
+#include "AllStats.h"
 #include "dispatch.h"
 
 using namespace std;
@@ -32,41 +33,22 @@ int main(int argc, char * argv[])
   files.set(options);
 
   vector<thread> thr(options.numThreads);
-  vector<ValStats> vstats(options.numThreads);
-  vector<TextStats> tstats(options.numThreads);
-  vector<CompStats> cstats(options.numThreads);
-  vector<Timers> timers(options.numThreads);
-  vector<RefStats> refstats(options.numThreads);
+  vector<AllStats> allStatsList(options.numThreads);
 
   Timer timer;
   timer.start();
 
   for (unsigned i = 0; i < options.numThreads; i++)
-    thr[i] = thread(dispatch, i, 
-      ref(files), 
-      options, 
-      ref(vstats[i]), 
-      ref(tstats[i]), 
-      ref(cstats[i]), 
-      ref(timers[i]),
-      ref(refstats[i]));
+    thr[i] = thread(dispatch, i, ref(files), options, ref(allStatsList[i]));
 
   for (unsigned i = 0; i < options.numThreads; i++)
     thr[i].join();
 
   timer.stop();
 
-  mergeResults(vstats, tstats, cstats, timers, refstats, options);
-
-  vstats[0].print(cout, options.verboseValStats);
-  if (options.statsFlag)
-    tstats[0].print(cout, true); // Add switch to control
-  if (options.compareFlag)
-    cstats[0].print(cout);
-  if (options.quoteFlag)
-    refstats[0].print(cout);
+  mergeResults(allStatsList, options);
+  printResults(allStatsList[0], options);
 
   cout << "Time spent overall (elapsed): " << timer.str(2) << "\n";
-  timers[0].print(options.numThreads);
 }
 

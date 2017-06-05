@@ -13,12 +13,7 @@
 #include <vector>
 
 #include "Files.h"
-#include "Timers.h"
-#include "ValStats.h"
-#include "TextStats.h"
-#include "CompStats.h"
-#include "RefStats.h"
-#include "bconst.h"
+#include "AllStats.h"
 
 using namespace std;
 
@@ -28,18 +23,6 @@ void dispatch(
   const int thrNo, 
   Files& files,
   const Options& options,
-  ValStats& vstats,
-  TextStats& tstats,
-  CompStats& cstats,
-  Timers& timers,
-  RefStats& refstats);
-
-void mergeResults(
-  vector<ValStats>& vstats,
-  vector<TextStats>& tstats,
-  vector<CompStats>& cstats,
-  vector<Timers>& timer,
-  vector<RefStats>& refstats,
-  const Options& options);
+  AllStats& allStats);
 
 #endif

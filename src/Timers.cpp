@@ -126,12 +126,6 @@ void Timers::print(const unsigned numThreads) const
   if (sum == 0.)
     return;
 
-  cout << "Time spent in main functions: " <<
-    fixed << setprecision(2) << sum / 1000000. << " seconds";
-  if (numThreads > 1)
-    cout << " (" << numThreads << " threads)";
-  cout << "\n\n";
-
   vector<unsigned> active;
   Timers::findActive(active);
 
@@ -156,5 +150,12 @@ void Timers::print(const unsigned numThreads) const
   }
 
   Timers::printTable("Avg ms", table, active);
+
+  cout << "Time spent in main functions: " <<
+    fixed << setprecision(2) << sum / 1000000. << " seconds";
+  if (numThreads > 1)
+    cout << " (" << numThreads << " threads)";
+  cout << "\n";
+
 }
 
