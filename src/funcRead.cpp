@@ -41,6 +41,14 @@ static ReadPtr readChunk[BRIDGE_FORMAT_LABELS_SIZE];
 static SegPtr segPtr[BRIDGE_FORMAT_LABELS_SIZE];
 static BoardPtr boardPtr[BRIDGE_FORMAT_LABELS_SIZE];
 
+struct Counts
+{
+  unsigned segno;
+  unsigned bno;
+  unsigned prevno;
+  bool openFlag;
+};
+
 
 void setReadTables()
 {
@@ -107,6 +115,7 @@ static void printCounts(
   cout << "Input file:   " << fname << endl;
   cout << "Segment:      " << counts.segno << endl;
   cout << "Board:        " << counts.bno << endl;
+  cout << "Room:         " << (counts.openFlag ? "Open" : "Closed") << endl;
   cout << chunk.strRange();
 }
 
@@ -121,19 +130,17 @@ static void str2board(
 
   if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
   {
+    // Reuse the value in counts.bno
     if (bno == "")
-    {
-      counts.curr.no = 0;
       return;
-    }
 
     const string st = bno.substr(1);
-    if (! str2upos(st, counts.curr.no))
+    if (! str2upos(st, counts.bno))
       THROW("Not a board number");
     if (bno.at(0) == 'o')
-      counts.curr.roomFlag = true;
+      counts.openFlag = true;
     else if (bno.at(0) == 'c')
-      counts.curr.roomFlag = false;
+      counts.openFlag = false;
     else
       THROW("Not a room");
   }
@@ -141,16 +148,16 @@ static void str2board(
   {
     if (bno != "")
     {
-      // Otherwise reuse the value in counts.curr.no
-      if (! str2upos(bno, counts.curr.no))
+      // Otherwise reuse the value in counts.bno
+      if (! str2upos(bno, counts.bno))
         THROW("Not a board number");
     }
 
     const string r = chunk.get(BRIDGE_FORMAT_ROOM);
     if (r == "" || r == "Open")
-      counts.curr.roomFlag = true;
+      counts.openFlag = true;
     else if (r == "Closed")
-      counts.curr.roomFlag = false;
+      counts.openFlag = false;
     else
       THROW("Unknown room: " + r);
   }
@@ -160,7 +167,7 @@ static void str2board(
     if (bno != "")
     {
       // Otherwise reuse the value in counts.curr.no
-      if (! str2upos(bno, counts.curr.no))
+      if (! str2upos(bno, counts.bno))
         THROW("Not a board number");
     }
       
@@ -169,14 +176,14 @@ static void str2board(
     if (sn != "" && sl >= 2)
     {
       if (sn.substr(sl-2) == ":O")
-        counts.curr.roomFlag = true;
+        counts.openFlag = true;
       else if (sn.substr(sl-2) == ":C")
-        counts.curr.roomFlag = false;
+        counts.openFlag = false;
       else
-        counts.curr.roomFlag = ! counts.curr.roomFlag;
+        counts.openFlag = ! counts.openFlag;
     }
     else
-      counts.curr.roomFlag = ! counts.curr.roomFlag;
+      counts.openFlag = ! counts.openFlag;
   }
   else if (format == BRIDGE_FORMAT_TXT ||
       format == BRIDGE_FORMAT_EML ||
@@ -185,17 +192,56 @@ static void str2board(
     if (bno != "")
     {
       // Otherwise reuse the value in counts.curr.no
-      if (! str2upos(bno, counts.curr.no))
+      if (! str2upos(bno, counts.bno))
         THROW("Not a board number");
     }
 
-    counts.curr.roomFlag = ! counts.curr.roomFlag;
+    counts.openFlag = ! counts.openFlag;
   }
   else
   {
-    if (! str2upos(bno, counts.curr.no))
+    if (! str2upos(bno, counts.bno))
       THROW("Not a board number: " + bno);
   }
+}
+
+
+static bool storeLINHeader(
+  const string& fname,
+  const Format format,
+  const Options& options,
+  const Counts& counts,
+  Segment * segment,
+  Chunk& chunk,
+  ostream& flog)
+{
+  try
+  {
+    // Easier to get the key header information in first.
+    for (unsigned i = BRIDGE_FORMAT_TITLE; 
+        i <= BRIDGE_FORMAT_BOARDS_LIST; i++)
+    {
+      const string text = chunk.get(i);
+      if (text != "")
+      {
+        (segment->*segPtr[i])(text, format);
+        chunk.set(static_cast<Label>(i), "");
+      }
+    }
+  }
+  catch (Bexcept& bex)
+  {
+    if (options.verboseThrow)
+      printCounts(fname, chunk, counts);
+
+    bex.print(flog);
+
+    if (options.verboseBatch)
+      cout << chunk.str();
+    return false;
+  }
+
+  return true;
 }
 
 
@@ -215,7 +261,7 @@ static bool storeChunk(
       chunk.isEmpty(BRIDGE_FORMAT_VULNERABLE)))
   {
     // Guess dealer and vul from the board number.
-    chunk.guessDealerAndVul(counts.curr.no, format);
+    chunk.guessDealerAndVul(counts.bno, format);
   }
 
   unsigned i;
@@ -266,7 +312,7 @@ static bool storeChunk(
     return false;
   }
 
-  board->spreadBasics();
+  board->spreadBasics(); // TODO: Automatic in Board?
   return true;
 }
 
@@ -285,12 +331,11 @@ bool dispatchReadBuffer(
   bool newSegFlag = false;
 
   Board * board = nullptr;
-  boardIDLIN lastBoard = {0, false};
 
   Counts counts;
   counts.segno = 0;
-  counts.chunkno = 0;
   counts.bno = 0;
+  counts.prevno = 0;
 
   while (true)
   {
@@ -353,8 +398,6 @@ bool dispatchReadBuffer(
       }
     }
 
-    counts.chunkno++;
-
     if (newSegFlag && format == BRIDGE_FORMAT_PBN)
     {
       // May not really be a new segment.
@@ -365,34 +408,12 @@ bool dispatchReadBuffer(
     {
       segment = group.make();
       counts.segno++;
-      counts.bno = 0;
+
       if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
       {
-        try
-        {
-          // Easier to get the key header information in first.
-          for (unsigned i = BRIDGE_FORMAT_TITLE; 
-              i <= BRIDGE_FORMAT_BOARDS_LIST; i++)
-          {
-            const string text = chunk.get(i);
-            if (text != "")
-            {
-              (segment->*segPtr[i])(text, format);
-              chunk.set(static_cast<Label>(i), "");
-            }
-          }
-        }
-        catch(Bexcept& bex)
-        {
-          if (options.verboseThrow)
-            printCounts(group.name(), chunk, counts);
-
-          bex.print(flog);
-
-          if (options.verboseBatch)
-            cout << chunk.str();
+        if (! storeLINHeader(group.name(), format, options, counts,
+            segment, chunk, flog))
           return false;
-        }
       }
       else if (format == BRIDGE_FORMAT_TXT ||
           format == BRIDGE_FORMAT_EML ||
@@ -400,25 +421,19 @@ bool dispatchReadBuffer(
       {
         // If COCO, then we start with open room here, so that the
         // first inversion is closed, and vice versa.
-        counts.curr.roomFlag = segment->getCOCO();
+        counts.openFlag = segment->getCOCO();
       }
     }
 
     str2board(chunk, format, counts);
 
-    if (counts.curr.no != 0)
+    if (board == nullptr || counts.bno != counts.prevno)
     {
-      if (counts.curr.no != lastBoard.no)
-      {
-        // New board.
-        board = segment->acquireBoard(counts.curr.no);
-        counts.bno++;
-      }
+      board = segment->acquireBoard(counts.bno);
+      counts.prevno = counts.bno;
     }
 
-    lastBoard = counts.curr;
-
-    board->acquireInstance(counts.curr.roomFlag ? 0u : 1u);
+    board->acquireInstance(counts.openFlag ? 0u : 1u);
     board->unmarkInstanceSkip();
 
     if (! storeChunk(group.name(), format, options, counts,

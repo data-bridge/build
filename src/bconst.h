@@ -293,20 +293,6 @@ struct FileTask
 
 // This is used in dispatch.
 
-struct boardIDLIN
-{
-  unsigned no;
-  bool roomFlag;
-};
-
-struct Counts
-{
-  unsigned segno;
-  unsigned chunkno;
-  unsigned bno;
-  boardIDLIN curr;
-};
-
 enum BoardOrder
 {
   ORDER_OCOC = 0,
