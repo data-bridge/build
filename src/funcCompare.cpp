@@ -29,7 +29,10 @@ void dispatchCompare(
   try
   {
     Group groupNew;
-    if (group.isCOCO())
+    if (group.isCOCO() &&
+       (format == BRIDGE_FORMAT_TXT ||
+        format == BRIDGE_FORMAT_EML ||
+        format == BRIDGE_FORMAT_REC))
       groupNew.setCOCO();
 
     Buffer buffer;
@@ -37,6 +40,16 @@ void dispatchCompare(
 
     BoardOrder orderSeen;
     dispatchReadBuffer(format, options, buffer, groupNew, orderSeen, flog);
+
+    if (orderSeen == ORDER_COCO &&
+        format != BRIDGE_FORMAT_TXT &&
+        format != BRIDGE_FORMAT_EML &&
+        format != BRIDGE_FORMAT_REC)
+    {
+      groupNew.setCOCO();
+      for (auto &segmentNew: groupNew)
+        segmentNew.swapTeams(format);
+    }
 
     group == groupNew;
     cstats.add(true, format);

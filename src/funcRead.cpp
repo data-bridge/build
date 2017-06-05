@@ -334,20 +334,31 @@ bool dispatchReadFile(
       return true;
 
     group.setName(fname);
-    if (refLines.orderCOCO())
+
+    // There is no information in the TXT, EML and REC files
+    // to deduce the order.
+    if (refLines.orderCOCO() &&
+       (format == BRIDGE_FORMAT_TXT ||
+        format == BRIDGE_FORMAT_EML ||
+        format == BRIDGE_FORMAT_REC))
       group.setCOCO();
 
     BoardOrder orderSeen;
     bool b = dispatchReadBuffer(format, options, buffer, 
       group, orderSeen, flog);
 
-    if (refLines.validate())
+    if (format != BRIDGE_FORMAT_TXT &&
+        format != BRIDGE_FORMAT_EML &&
+        format != BRIDGE_FORMAT_REC)
     {
-      const BoardOrder orderStated = refLines.order();
-      if (orderSeen != orderStated)
+      // For (some of) the other formats, we have to swap teams.
+      if (refLines.validate())
+        refLines.setOrder(orderSeen);
+      if (orderSeen == ORDER_COCO)
       {
-        THROW("Order seen: " + orderNames[orderSeen] + 
-          ", order stated: " + orderNames[orderStated] + "\n");
+        group.setCOCO();
+        for (auto &segment: group)
+          segment.swapTeams(format);
       }
     }
 

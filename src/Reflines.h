@@ -70,6 +70,8 @@ class RefLines
     bool hasComments() const;
     bool skip() const;
     bool validate() const;
+
+    void setOrder(const BoardOrder order);
     bool orderCOCO() const;
     bool orderOOCC() const;
     BoardOrder order() const;

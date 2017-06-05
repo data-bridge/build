@@ -60,6 +60,8 @@ Format Group::format() const
 void Group::setCOCO()
 {
   flagCOCO = true;
+  for (auto &segment: segments)
+    segment.setCOCO();
 }
 
 

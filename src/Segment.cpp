@@ -366,14 +366,9 @@ void Segment::setTeams(
   const Format format)
 {
   teams.set(text, format); 
-  if (format == BRIDGE_FORMAT_RBN ||
-      format == BRIDGE_FORMAT_RBX ||
-      format == BRIDGE_FORMAT_TXT)
-  {
-    // TODO: Probably more formats.
-    if (flagCOCO)
-      teams.swap();
-  }
+
+  if (format == BRIDGE_FORMAT_TXT && flagCOCO)
+    teams.swap();
 }
 
 
@@ -381,10 +376,7 @@ void Segment::setFirstTeam(
   const string& text,
   const Format format)
 {
-  if (flagCOCO)
-    teams.setSecond(text, format); 
-  else
-    teams.setFirst(text, format); 
+  teams.setFirst(text, format); 
 }
 
 
@@ -392,10 +384,17 @@ void Segment::setSecondTeam(
   const string& text,
   const Format format)
 {
-  if (flagCOCO)
-    teams.setFirst(text, format); 
-  else
-    teams.setSecond(text, format); 
+  teams.setSecond(text, format); 
+}
+
+
+void Segment::swapTeams(const Format format)
+{
+  if (flagCOCO &&
+      (format == BRIDGE_FORMAT_PBN ||
+       format == BRIDGE_FORMAT_RBN ||
+       format == BRIDGE_FORMAT_RBX))
+    teams.swap();
 }
 
 

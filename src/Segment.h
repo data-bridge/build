@@ -155,6 +155,8 @@ class Segment
       const string& text,
       const Format format);
 
+    void swapTeams(const Format format);
+
     void setPlayers(
       const string& text,
       const Format format);

@@ -120,6 +120,19 @@ bool RefLines::validate() const
 }
 
 
+void RefLines::setOrder(const BoardOrder order)
+{
+  if (order == ORDER_OCOC)
+    control = ERR_REF_STANDARD;
+  else if (order == ORDER_COCO)
+    control = ERR_REF_OUT_COCO;
+  else if (order == ORDER_OOCC)
+    control = ERR_REF_OUT_OOCC;
+  else
+    THROW("Unexpected input order: " + STR(order));
+}
+
+
 bool RefLines::orderCOCO() const
 {
   return (control == ERR_REF_OUT_COCO);
