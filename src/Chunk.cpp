@@ -167,20 +167,15 @@ void Chunk::guessDealerAndVul(
   const unsigned bno,
   const Format format)
 {
-  // This is not quite fool-proof, as there are LIN files where
-  // the board numbers don't match...
-
   if (format == BRIDGE_FORMAT_RBN ||
       format == BRIDGE_FORMAT_RBX)
   {
-    chunk[BRIDGE_FORMAT_DEALER] = PLAYER_NAMES_SHORT[BOARD_TO_DEALER[bno % 4]];
+    chunk[BRIDGE_FORMAT_DEALER] = 
+      PLAYER_NAMES_SHORT[BOARD_TO_DEALER[bno % 4]];
     chunk[BRIDGE_FORMAT_VULNERABLE] = VUL_NAMES_PBN[BOARD_TO_VUL[bno % 16]];
+    return;
   }
-}
 
-
-void Chunk::guessDealerAndVul(const Format format)
-{
   const string st = chunk[BRIDGE_FORMAT_BOARD_NO];
   unsigned u;
   if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
@@ -195,9 +190,7 @@ void Chunk::guessDealerAndVul(const Format format)
   }
   else
   {
-    if (! str2upos(st, u))
-      return;
-    Chunk::guessDealerAndVul(u, format);
+    THROW("Should not be happening");
   }
 }
 

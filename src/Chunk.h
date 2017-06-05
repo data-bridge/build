@@ -65,8 +65,6 @@ class Chunk
       const unsigned bno,
       const Format format);
 
-    void guessDealerAndVul(const Format format);
-
     void copyFrom(
       const Chunk& chunk2,
       const Label label);

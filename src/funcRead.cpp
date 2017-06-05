@@ -200,36 +200,23 @@ static void str2board(
 
 
 static bool storeChunk(
-  Group& group,
+  const string& fname,
+  const Format format,
+  const Options& options,
+  const Counts& counts,
   Segment * segment,
   Board * board,
   Chunk& chunk,
-  const Counts& counts,
-  const Format format,
-  const Options& options,
   ostream& flog)
 {
-    if (chunk.isEmpty(BRIDGE_FORMAT_AUCTION) ||
-        (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN &&
-         chunk.isEmpty(BRIDGE_FORMAT_VULNERABLE)))
-    {
-      // Guess dealer and vul from the board number.
-      if (chunk.isEmpty(BRIDGE_FORMAT_BOARD_NO))
-      {
-        chunk.guessDealerAndVul(counts.curr.no, format);
-      }
-      else if (format == BRIDGE_FORMAT_LIN_VG && 
-          board->hasDealerVul())
-      {
-        chunk.set(BRIDGE_FORMAT_VULNERABLE, 
-          board->strVul(BRIDGE_FORMAT_PAR));
-      }
-      else if (FORMAT_INPUT_MAP[format] != BRIDGE_FORMAT_LIN ||
-          chunk.isEmpty(BRIDGE_FORMAT_VULNERABLE))
-      {
-        chunk.guessDealerAndVul(format);
-      }
-    }
+  if (((format == BRIDGE_FORMAT_RBN || format == BRIDGE_FORMAT_RBX) &&
+      chunk.isEmpty(BRIDGE_FORMAT_AUCTION)) ||
+      (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN &&
+      chunk.isEmpty(BRIDGE_FORMAT_VULNERABLE)))
+  {
+    // Guess dealer and vul from the board number.
+    chunk.guessDealerAndVul(counts.curr.no, format);
+  }
 
   unsigned i;
   try
@@ -252,7 +239,7 @@ static bool storeChunk(
   {
     if (options.verboseThrow)
     {
-      printCounts(group.name(), chunk, counts);
+      printCounts(fname, chunk, counts);
       cout << chunk.str(static_cast<Label>(i));
     }
 
@@ -266,24 +253,17 @@ static bool storeChunk(
     return false;
   }
 
-  if (! board->skipped() && ! board->auctionIsOver())
+  if (! board->skipped() && 
+      ! board->auctionIsOver() &&
+      board->lengthAuction() > 0)
   {
-    if (board->lengthAuction() > 0)
-    {
-      printCounts(group.name(), chunk, counts);
-      cout << board->strDeal(BRIDGE_FORMAT_TXT) << endl;
-      cout << board->strContract(BRIDGE_FORMAT_TXT) << endl;
-      cout << board->strAuction(BRIDGE_FORMAT_TXT) << endl;
-      cout << board->strPlay(BRIDGE_FORMAT_TXT) << endl;
-
-      cout << "Error: Auction incomplete\n";
-      return false;
-    }
-    else
-    {
-      // If we skip here, we get a validation "error".
-      // board->markInstanceSkip();
-    }
+    printCounts(fname, chunk, counts);
+    cout << board->strDeal(BRIDGE_FORMAT_TXT) << endl;
+    cout << board->strContract(BRIDGE_FORMAT_TXT) << endl;
+    cout << board->strAuction(BRIDGE_FORMAT_TXT) << endl;
+    cout << board->strPlay(BRIDGE_FORMAT_TXT) << endl;
+    cout << "Error: Auction incomplete\n";
+    return false;
   }
 
   board->spreadBasics();
@@ -441,8 +421,8 @@ bool dispatchReadBuffer(
     board->acquireInstance(counts.curr.roomFlag ? 0u : 1u);
     board->unmarkInstanceSkip();
 
-    if (! storeChunk(group, segment, board, chunk,
-        counts, format, options, flog))
+    if (! storeChunk(group.name(), format, options, counts,
+        segment, board, chunk, flog))
       return false;
   }
 
