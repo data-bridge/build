@@ -29,7 +29,7 @@ struct OptEntry
   unsigned numArgs;
 };
 
-#define BRIDGE_NUM_OPTIONS 17
+#define BRIDGE_NUM_OPTIONS 18
 
 static const OptEntry OPT_LIST[BRIDGE_NUM_OPTIONS] =
 {
@@ -41,6 +41,7 @@ static const OptEntry OPT_LIST[BRIDGE_NUM_OPTIONS] =
   {"R", "refdir", 1},
   {"d", "digfile", 1},
   {"D", "digdir", 1},
+  {"T", "tableIMP", 0},
   {"l", "logfile", 1},
   {"c", "compare", 0},
   {"p", "players", 0},
@@ -92,6 +93,8 @@ void usage(
     "-d, --digfile s    Produce a sheet of contracts and tricks.\n" <<
     "\n" <<
     "-D, --digdir s     Produce a sheet of contracts and tricks.\n" <<
+    "\n" <<
+    "-T, --tableIMP     Produce an IMP sheet.\n" <<
     "\n" <<
     "-l, --logfile s    Log file for outputs (default: stdout).\n" <<
     "\n" <<
@@ -188,6 +191,7 @@ static void setDefaults(Options& options)
   options.dirDigest = {false, ""};
   options.fileLog = {false, ""};
 
+  options.tableIMPFlag = false;
   options.compareFlag = false;
   options.playersFlag = false;
 
@@ -393,6 +397,10 @@ void readArgs(
 
       case 'l':
         options.fileLog = {true, optarg};
+        break;
+
+      case 'T':
+        options.tableIMPFlag = true;
         break;
 
       case 'c':

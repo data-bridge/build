@@ -248,6 +248,7 @@ struct Options
 
   FileOption fileLog; // -l, --logfile
 
+  bool tableIMPFlag; // -T, --tableIMP
   bool compareFlag; // -c, --compare
   bool playersFlag; // -p, --players
 

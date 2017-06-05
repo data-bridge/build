@@ -11,6 +11,7 @@
 #define BRIDGE_FUNCREAD_H
 
 #include "Group.h"
+#include "Buffer.h"
 #include "bconst.h"
 
 using namespace std;

@@ -1,22 +1,8 @@
 05.06.2017
 ----------
-dispatch
+funcRead
 * Don't need bno?
-* Split into functions and control
-  Second control option: Language parser
-* Prune TODOs, clean up code again
-
-funcWrite: Could use reverse iterators on board.
-Then maybe all the board str functions should have an
-optional last argument of the instance number (defaulting
-to the active one).
-Maybe there shouldn't even be an active one?
-Then group could be a const argument to writeFormattedFile.
-
-Work on simplifying funcRead in particular
-
-Get tough on #include's again, especially in .h files.
-Also use const args where we can.
+* Simplify!
 
 * Detect COCO at least in LIN, PBN, RBN, RBX
   Then remove from those .ref files, also in BBOVG
@@ -28,17 +14,32 @@ Also use const args where we can.
   O/O           +       +       +
   C/C           +       +       +
 
-* .ref files in RPmajors: As few delete's as possible (expand
-  deleteRBN etc)
-* Look at -q output for RPmajors, SH and JEC
-
 Segment
 * Split Segment into HeaderLIN
-* In Board, don't copy LINdata, store a pointer only
 
-* reader input could select by year as well
+Board
+* Don't copy LINdata, store a pointer only
 
+dispatch
+* More general language parser?
+* Select by year as well?
+
+Code in general
+* Think about having an Instance within Board (vector)
+  - Then a loop over Board would use iterators
+  - Must be able to go forwards and backwards
+  - const iterator!
+  - No active instance anymore, would need i as explicit argument
+* Segment:  Ditto for activeNo
+* Then many more arguments could be const
+* Prune TODOs, clean up code again
+* Get tough on #include's again, especially in .h files.
+* Also use const args where we can.
 * Write Files output into a file?  (For speed-up)
+
+.ref files
+* As few delete's as possible (expand deleteRBN etc)
+* Look at -q output for RPmajors, SH and JEC
 
 Perl scripts in BBOVG
 - Make director.pl run without warnings 

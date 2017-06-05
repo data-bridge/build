@@ -12,8 +12,6 @@
 #include <fstream>
 
 #include "Group.h"
-#include "Segment.h"
-#include "Board.h"
 #include "dispatch.h"
 
 #include "funcCompare.h"
@@ -25,10 +23,6 @@
 #include "funcTextStats.h"
 #include "funcValidate.h"
 #include "funcWrite.h"
-
-#include "parse.h"
-#include "Bexcept.h"
-#include "Bdiff.h"
 
 
 void setTables()
@@ -63,7 +57,6 @@ void dispatch(
 
     Group group;
 
-    // TODO: Better dispatch description language.
     if (options.fileDigest.setFlag || options.dirDigest.setFlag)
       goto DIGEST;
 
@@ -78,48 +71,14 @@ void dispatch(
       continue;
     }
 
-
-
-    if (refLines.skip() && options.quoteFlag)
-    {
-      // Ugh.  Poor man's counter of hands and boards.
-      Buffer buffer;
-      buffer.readForce(task.fileInput, task.formatInput);
-
-      unsigned numLines, numHands, numBoards;
-      numLines = buffer.lengthOrig();
-      vector<string> lines;
-      for (unsigned i = 1; i <= numLines; i++)
-        lines.push_back(buffer.getLine(i));
-
-      RefLine rl;
-      rl.countHands(lines, FORMAT_INPUT_MAP[task.formatInput], numHands, numBoards);
-      refLines.setFileData(numLines, numHands, numBoards);
-      refLines.checkHeader();
-    }
-
-    if (! refLines.skip())
-    {
-      if (options.quoteFlag)
-      {
-        try
-        {
-          refLines.checkHeader();
-        }
-        catch (Bexcept& bex)
-        {
-          bex.print(flog);
-        }
-      }
-    }
-
     if (options.quoteFlag)
     {
       if (options.verboseIO)
         flog << "Ref file for " << task.fileInput << endl;
     
       allStats.timers.start(BRIDGE_TIMER_REF_STATS, task.formatInput);
-      dispatchRefStats(refLines, allStats.refstats, flog);
+      dispatchRefStats(task.fileInput, task.formatInput, 
+        refLines, allStats.refstats, flog);
       allStats.timers.stop(BRIDGE_TIMER_REF_STATS, task.formatInput);
     }
 
@@ -187,8 +146,8 @@ void dispatch(
       allStats.timers.stop(BRIDGE_TIMER_DIGEST, task.formatInput);
     }
 
-    // TODO: Use an option to control
-    // dispatchIMPSheet(group, flog);
+    if (options.tableIMPFlag)
+      dispatchIMPSheet(group, flog);
   }
 }
 

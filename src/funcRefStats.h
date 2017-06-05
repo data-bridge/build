@@ -18,7 +18,9 @@ using namespace std;
 
 
 void dispatchRefStats(
-  const RefLines& refLines,
+  const string& fname,
+  const Format format,
+  RefLines& refLines,
   RefStats& refstats,
   ostream& flog);
 

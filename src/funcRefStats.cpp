@@ -7,17 +7,41 @@
 */
 
 
+#include "Buffer.h"
 #include "funcRefStats.h"
 #include "Bexcept.h"
 
 
 void dispatchRefStats(
-  const RefLines& refLines,
+  const string& fname,
+  const Format format,
+  RefLines& refLines,
   RefStats& refstats,
   ostream& flog)
 {
   try
   {
+    // First check the header.
+    if (refLines.skip())
+    {
+      // Ugh.  Poor man's counter of hands and boards.
+      Buffer buffer;
+      buffer.readForce(fname, format);
+
+      unsigned numLines, numHands, numBoards;
+      numLines = buffer.lengthOrig();
+      vector<string> lines;
+      for (unsigned i = 1; i <= numLines; i++)
+        lines.push_back(buffer.getLine(i));
+
+      RefLine rl;
+      rl.countHands(lines, FORMAT_INPUT_MAP[format], numHands, numBoards);
+      refLines.setFileData(numLines, numHands, numBoards);
+    }
+
+    refLines.checkHeader();
+
+    // Then check the other lines.
     CommentType cat;
     RefEntry re;
 
@@ -48,7 +72,6 @@ void dispatchRefStats(
       rl.getEntry(cat, re);
       refstats.logRef(cat, re);
     }
-    
   }
   catch (Bexcept& bex)
   {
