@@ -51,6 +51,7 @@ SOURCE_FILES 	=		\
 	funcValidate.cpp	\
 	funcWrite.cpp		\
 	parse.cpp		\
+	OrderCounts.cpp		\
 	RefAction.cpp		\
 	RefComment.cpp		\
 	RefEdit.cpp		\
@@ -182,9 +183,9 @@ dispatch.obj: Auction.h Contract.h Play.h ddsIF.h dll.h dispatch.h Files.h
 dispatch.obj: AllStats.h ValStats.h ValProfile.h validate.h Buffer.h valint.h
 dispatch.obj: Reflines.h RefLine.h RefEdit.h refconst.h RefComment.h
 dispatch.obj: RefAction.h TextStats.h CompStats.h RefStats.h Timers.h Timer.h
-dispatch.obj: funcDigest.h funcIMPSheet.h funcRead.h funcPlayerVal.h
-dispatch.obj: funcRefStats.h RefLines.h funcTextStats.h funcValidate.h
-dispatch.obj: funcWrite.h parse.h Bexcept.h Bdiff.h
+dispatch.obj: funcCompare.h funcDigest.h funcIMPSheet.h funcRead.h
+dispatch.obj: funcPlayerVal.h funcRefStats.h RefLines.h funcTextStats.h
+dispatch.obj: funcValidate.h funcWrite.h
 fileEML.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 fileEML.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
 fileEML.obj: Contract.h Play.h ddsIF.h dll.h Canvas.h fileEML.h Buffer.h
@@ -240,8 +241,9 @@ funcRead.obj: Auction.h Contract.h Play.h ddsIF.h dll.h Chunk.h fileLIN.h
 funcRead.obj: Buffer.h valint.h Reflines.h RefLine.h RefEdit.h refconst.h
 funcRead.obj: RefComment.h RefAction.h filePBN.h fileRBN.h fileTXT.h
 funcRead.obj: fileEML.h fileREC.h funcRead.h parse.h Bexcept.h
-funcRefStats.obj: funcRefStats.h RefLines.h RefStats.h refconst.h bconst.h
-funcRefStats.obj: Bexcept.h
+funcRefStats.obj: Buffer.h valint.h Reflines.h RefLine.h RefEdit.h refconst.h
+funcRefStats.obj: RefComment.h bconst.h RefAction.h funcRefStats.h RefLines.h
+funcRefStats.obj: RefStats.h Bexcept.h
 funcTextStats.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h
 funcTextStats.obj: Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h
 funcTextStats.obj: Players.h Auction.h Contract.h Play.h ddsIF.h dll.h
@@ -256,6 +258,7 @@ funcWrite.obj: valint.h Reflines.h RefLine.h RefEdit.h refconst.h
 funcWrite.obj: RefComment.h RefAction.h Chunk.h filePBN.h fileRBN.h fileTXT.h
 funcWrite.obj: fileEML.h fileREC.h parse.h Bexcept.h
 parse.obj: parse.h bconst.h
+OrderCounts.obj: OrderCounts.h bconst.h
 RefAction.obj: RefAction.h refconst.h Bexcept.h
 RefComment.obj: RefComment.h refconst.h bconst.h parse.h Bexcept.h
 RefEdit.obj: RefEdit.h refconst.h parse.h bconst.h Bexcept.h

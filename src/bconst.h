@@ -309,6 +309,14 @@ enum BoardOrder
   ORDER_GENERAL = 3
 };
 
+const string orderNames[] =
+{
+  "OCOC",
+  "COCO",
+  "OOCC",
+  "General"
+};
+
 
 // This is the same encoding as in DDS.
 

@@ -35,7 +35,8 @@ void dispatchCompare(
     Buffer buffer;
     buffer.split(text, format);
 
-    dispatchReadBuffer(format, options, buffer, groupNew, flog);
+    BoardOrder orderSeen;
+    dispatchReadBuffer(format, options, buffer, groupNew, orderSeen, flog);
 
     group == groupNew;
     cstats.add(true, format);

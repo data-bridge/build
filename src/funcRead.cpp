@@ -26,6 +26,7 @@
 #include "fileREC.h"
 
 #include "funcRead.h"
+#include "OrderCounts.h"
 
 #include "parse.h"
 #include "Bexcept.h"
@@ -228,6 +229,7 @@ bool dispatchReadBuffer(
   const Options& options,
   Buffer& buffer,
   Group& group,
+  BoardOrder& order,
   ostream& flog)
 {
   group.setFormat(format);
@@ -236,6 +238,8 @@ bool dispatchReadBuffer(
   Board * board = nullptr;
   bool newSegFlag = false;
   Counts counts = {0, 0, 0, true};
+  Counts countsPrev = {0, 0, 0, true};
+  OrderCounts orderCounts;
 
   while (true)
   {
@@ -291,6 +295,9 @@ bool dispatchReadBuffer(
     }
 
     chunk.getCounts(format, counts);
+    orderCounts.incr(counts, countsPrev);
+    countsPrev = counts;
+
     if (board == nullptr || counts.bno != counts.prevno)
     {
       board = segment->acquireBoard(counts.bno);
@@ -305,6 +312,7 @@ bool dispatchReadBuffer(
       return false;
   }
 
+  order = orderCounts.classify();
   return true;
 }
 
@@ -328,7 +336,23 @@ bool dispatchReadFile(
     if (refLines.orderCOCO())
       group.setCOCO();
 
-    bool b = dispatchReadBuffer(format, options, buffer, group, flog);
+    BoardOrder orderSeen;
+    bool b = dispatchReadBuffer(format, options, buffer, 
+      group, orderSeen, flog);
+
+    if (refLines.validate())
+    {
+      const BoardOrder orderStated = refLines.order();
+      if (orderSeen != orderStated)
+      {
+        //THROW("Order seen: " + orderNames[orderSeen] + 
+          // ", order stated: " + orderNames[orderStated] + "\n");
+        // TODO
+        cout << fname << ", order seen: " << orderNames[orderSeen] <<
+          ", order stated: " << orderNames[orderStated] << "\n";
+      }
+    }
+
     refLines.setFileData(buffer.lengthOrig(), 
       group.count(), group.countBoards());
 

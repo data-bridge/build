@@ -24,6 +24,7 @@ bool dispatchReadBuffer(
   const Options& options,
   Buffer& buffer,
   Group& group,
+  BoardOrder& order,
   ostream& flog);
 
 bool dispatchReadFile(
