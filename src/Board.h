@@ -82,8 +82,6 @@ class Board
 
     void acquireInstance(const unsigned instNo = 0);
 
-    void spreadBasics();
-
     void setInstance(const unsigned no);
 
     unsigned getInstance() const;

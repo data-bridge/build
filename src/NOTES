@@ -1,10 +1,6 @@
 05.06.2017
 ----------
-funcRead
-* Don't need bno?
-* Simplify!
-
-* Detect COCO at least in LIN, PBN, RBN, RBX
+* Detect COCO in LIN, PBN, RBN, RBX in funcRead
   Then remove from those .ref files, also in BBOVG
 
                 OCOC    COCO    OOCC    general

@@ -239,12 +239,12 @@ bool dispatchReadBuffer(
 
   while (true)
   {
+    if (format == BRIDGE_FORMAT_PBN)
+      prevChunk.copyFrom(chunk, CHUNK_HEADER);
+
+    chunk.reset();
     try
     {
-      if (format == BRIDGE_FORMAT_PBN)
-        prevChunk.copyFrom(chunk, CHUNK_HEADER);
-
-      chunk.reset();
       (* readChunk[format])(buffer, chunk, newSegFlag);
     }
     catch (Bexcept& bex)
@@ -261,38 +261,6 @@ bool dispatchReadBuffer(
 
     if (chunk.seemsEmpty())
       break;
-
-    if (format == BRIDGE_FORMAT_RBN || 
-        format == BRIDGE_FORMAT_RBX ||
-        format == BRIDGE_FORMAT_TXT)
-    {
-      // TODO: This is not necessary to get the deal as such,
-      // but otherwise Board::setDeal() does not get called,
-      // and the deal info does not get into play and auction.
-      // Should probably be detected in Board?
-      if (chunk.isEmpty(BRIDGE_FORMAT_DEAL))
-        chunk.copyFrom(prevChunk, CHUNK_DEAL);
-      else
-        prevChunk.copyFrom(chunk, CHUNK_DEAL);
-
-      if (format == BRIDGE_FORMAT_TXT)
-      {
-        // TODO: Ditto.
-        if (chunk.isEmpty(BRIDGE_FORMAT_VULNERABLE))
-          chunk.set(BRIDGE_FORMAT_VULNERABLE, 
-            prevChunk.get(BRIDGE_FORMAT_VULNERABLE));
-        else
-          prevChunk.set(BRIDGE_FORMAT_VULNERABLE, 
-            chunk.get(BRIDGE_FORMAT_VULNERABLE));
-
-        if (chunk.isEmpty(BRIDGE_FORMAT_DEALER))
-          chunk.set(BRIDGE_FORMAT_DEALER, 
-            prevChunk.get(BRIDGE_FORMAT_DEALER));
-        else
-          prevChunk.set(BRIDGE_FORMAT_DEALER, 
-            chunk.get(BRIDGE_FORMAT_DEALER));
-      }
-    }
 
     // In PBN, the header may just be repeated.
     if (newSegFlag && format == BRIDGE_FORMAT_PBN)
@@ -335,8 +303,6 @@ bool dispatchReadBuffer(
     if (! storeChunk(group.name(), format, options, counts,
         segment, board, chunk, flog))
       return false;
-
-    board->spreadBasics(); // Used when we go directly for an instance > 0
   }
 
   return true;

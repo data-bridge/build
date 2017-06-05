@@ -78,25 +78,6 @@ void Board::copyBasics(
 }
 
 
-void Board::spreadBasics()
-{
-  if (basicsFlag)
-    return;
-
-  if (numActive == 0)
-  {
-    basicsFlag = true;
-    return;
-  }
-
-  if (len != numActive+1)
-    THROW("Unexpected instance order");
-
-  Board::copyBasics(numActive, 0, numActive-1);
-  basicsFlag = true;
-}
-
-
 void Board::acquireInstance(const unsigned instNo)
 {
   if (instNo >= len)
@@ -113,8 +94,8 @@ void Board::acquireInstance(const unsigned instNo)
     for (unsigned i = lenOld; i < len; i++)
       skip[i] = true;
 
-    if (basicsFlag)
-      Board::copyBasics(0, lenOld, instNo);
+    // if (basicsFlag)
+      // Board::copyBasics(0, lenOld, instNo);
 
     players[0].setRoom("Open", BRIDGE_FORMAT_PBN);
     if (instNo == 1)
@@ -122,6 +103,24 @@ void Board::acquireInstance(const unsigned instNo)
   }
 
   numActive = instNo;
+
+  // If we ever have len > 2, we would find the lowest non-skipped
+  // instance and copy that to all skipped instances.  Here we take
+  // the shortcut.
+
+  if (len == 2 && deal.isSet())
+  {
+    if (skip[0] && ! skip[1] && ! basicsFlag)
+    {
+      Board::copyBasics(1, 0, 0);
+      basicsFlag = true;
+    }
+    else if (skip[1] && ! skip[0])
+    {
+      Board::copyBasics(0, 1, 1);
+      basicsFlag = true;
+    }
+  }
 }
 
 
