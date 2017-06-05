@@ -41,6 +41,8 @@ SOURCE_FILES 	=		\
 	fileTXT.cpp		\
 	fileLIN.cpp		\
 	fileREC.cpp		\
+	funcDigest.cpp		\
+	funcIMPSheet.cpp	\
 	funcTextStats.cpp	\
 	funcWrite.cpp		\
 	parse.cpp		\
@@ -176,8 +178,8 @@ dispatch.obj: Files.h AllStats.h ValStats.h ValProfile.h validate.h Buffer.h
 dispatch.obj: valint.h Reflines.h RefLine.h RefEdit.h refconst.h RefComment.h
 dispatch.obj: RefAction.h TextStats.h CompStats.h RefStats.h Timers.h Timer.h
 dispatch.obj: fileLIN.h filePBN.h fileRBN.h fileTXT.h fileEML.h fileREC.h
-dispatch.obj: funcTextStats.h funcWrite.h parse.h Sheet.h SheetHand.h
-dispatch.obj: Bexcept.h Bdiff.h
+dispatch.obj: funcDigest.h funcIMPSheet.h funcTextStats.h funcWrite.h parse.h
+dispatch.obj: Sheet.h SheetHand.h Bexcept.h Bdiff.h
 fileEML.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 fileEML.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
 fileEML.obj: Contract.h Play.h ddsIF.h dll.h Canvas.h fileEML.h Buffer.h
@@ -208,6 +210,15 @@ fileREC.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
 fileREC.obj: Contract.h Play.h ddsIF.h dll.h Canvas.h fileREC.h Buffer.h
 fileREC.obj: valint.h Reflines.h RefLine.h RefEdit.h refconst.h RefComment.h
 fileREC.obj: RefAction.h Chunk.h parse.h Bexcept.h
+funcDigest.obj: funcDigest.h bconst.h Sheet.h Contract.h Deal.h Auction.h
+funcDigest.obj: Play.h ddsIF.h dll.h Buffer.h valint.h Reflines.h RefLine.h
+funcDigest.obj: RefEdit.h refconst.h RefComment.h RefAction.h SheetHand.h
+funcDigest.obj: parse.h Bexcept.h
+funcIMPSheet.obj: funcIMPSheet.h Group.h Segment.h Date.h bconst.h Location.h
+funcIMPSheet.obj: Session.h Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h
+funcIMPSheet.obj: Players.h Auction.h Contract.h Play.h ddsIF.h dll.h Sheet.h
+funcIMPSheet.obj: Buffer.h valint.h Reflines.h RefLine.h RefEdit.h refconst.h
+funcIMPSheet.obj: RefComment.h RefAction.h SheetHand.h Bexcept.h
 funcTextStats.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h
 funcTextStats.obj: Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h
 funcTextStats.obj: Players.h Auction.h Contract.h Play.h ddsIF.h dll.h

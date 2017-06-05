@@ -30,6 +30,8 @@
 #include "fileEML.h"
 #include "fileREC.h"
 
+#include "funcDigest.h"
+#include "funcIMPSheet.h"
 #include "funcTextStats.h"
 #include "funcWrite.h"
 
@@ -288,72 +290,6 @@ static void dispatchCompare(
 }
 
 
-static void dispatchDigest(
-  const Options& options,
-  const FileTask& task,
-  ostream& flog)
-{
-  if (FORMAT_INPUT_MAP[task.formatInput] != BRIDGE_FORMAT_LIN)
-    return;
-
-  try
-  {
-    Sheet sheet;
-    sheet.read(task.fileInput);
-    const string st = sheet.str();
-    if (st != "")
-    {
-      ofstream dlog;
-      if (options.fileDigest.setFlag)
-        dlog.open(options.fileDigest.name);
-      else
-      {
-        const string base = basefile(task.fileInput);
-	const string dout = options.dirDigest.name + "/" +
-	  changeExt(base, ".sht");
-        dlog.open(dout);
-      }
-      dlog << st;
-      dlog.close();
-    }
-  }
-  catch (Bexcept& bex)
-  {
-    bex.print(flog);
-    cout << "Came from " << task.fileInput << "\n";
-  }
-}
-
-
-/*
-static void dispatchIMPSheet(
-  Group& group,
-  ostream& flog)
-{
-  for (auto &segment: group)
-  {
-    if (segment.size() == 0)
-      continue;
-
-    flog << segment.strTitle(BRIDGE_FORMAT_TXT) << "\n";
-    flog << segment.strIMPSheetHeader();
-
-    unsigned score1, score2;
-    segment.getCarry(score1, score2);
-
-    for (auto &bpair: segment)
-    {
-      Board& board = bpair.board;
-      flog << board.strIMPSheetLine(
-        segment.strNumber(bpair.no, BRIDGE_FORMAT_TXT), score1, score2);
-    }
-
-    flog << segment.strIMPSheetFooter(score1, score2);
-  }
-}
-*/
-
-
 void dispatch(
   const int thrNo,
   Files& files,
@@ -459,7 +395,7 @@ void dispatch(
         flog << "Digest input " << task.fileInput << endl;
     
       allStats.timers.start(BRIDGE_TIMER_DIGEST, task.formatInput);
-      dispatchDigest(options, task, flog);
+      dispatchDigest(task, options, flog);
       allStats.timers.stop(BRIDGE_TIMER_DIGEST, task.formatInput);
     }
 

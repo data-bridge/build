@@ -16,6 +16,7 @@
 #include "Deal.h"
 #include "Auction.h"
 #include "Play.h"
+#include "Buffer.h"
 #include "SheetHand.h"
 #include "Reflines.h"
 
