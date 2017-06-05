@@ -16,6 +16,7 @@
 #include "Board.h"
 #include "dispatch.h"
 
+#include "funcCompare.h"
 #include "funcDigest.h"
 #include "funcIMPSheet.h"
 #include "funcRead.h"
@@ -35,45 +36,6 @@ void setTables()
   setReadTables();
   setWriteTables();
   setValidateTables();
-}
-
-
-static void dispatchCompare(
-  const Options& options,
-  const string& fname,
-  const Format format,
-  Group& group,
-  const string& text,
-  CompStats& cstats,
-  ostream& flog)
-{
-  try
-  {
-    Group groupNew;
-    if (group.isCOCO())
-      groupNew.setCOCO();
-
-    Buffer buffer;
-    buffer.split(text, format);
-
-    dispatchReadBuffer(format, options, buffer, groupNew, flog);
-
-    group == groupNew;
-    cstats.add(true, format);
-  }
-  catch (Bdiff& bdiff)
-  {
-    cout << "Difference: " << fname << ", format " <<
-      FORMAT_NAMES[format] << "\n";
-
-    bdiff.print(flog);
-    cstats.add(false, format);
-  }
-  catch (Bexcept& bex)
-  {
-    bex.print(flog);
-    cstats.add(false, format);
-  }
 }
 
 
@@ -205,8 +167,8 @@ void dispatch(
               " against " << task.fileInput << endl;
 
         allStats.timers.start(BRIDGE_TIMER_COMPARE, t.formatOutput);
-        dispatchCompare(options, task.fileInput, task.formatInput, 
-          group, text, allStats.cstats, flog);
+        dispatchCompare(task.fileInput, task.formatInput, options,
+          text, group, allStats.cstats, flog);
         allStats.timers.stop(BRIDGE_TIMER_COMPARE, t.formatOutput);
       }
 

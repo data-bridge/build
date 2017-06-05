@@ -41,6 +41,7 @@ SOURCE_FILES 	=		\
 	fileTXT.cpp		\
 	fileLIN.cpp		\
 	fileREC.cpp		\
+	funcCompare.cpp		\
 	funcDigest.cpp		\
 	funcIMPSheet.cpp	\
 	funcPlayerVal.cpp	\
@@ -214,6 +215,12 @@ fileREC.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
 fileREC.obj: Contract.h Play.h ddsIF.h dll.h Canvas.h fileREC.h Buffer.h
 fileREC.obj: valint.h Reflines.h RefLine.h RefEdit.h refconst.h RefComment.h
 fileREC.obj: RefAction.h Chunk.h parse.h Bexcept.h
+funcCompare.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h
+funcCompare.obj: Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h Players.h
+funcCompare.obj: Auction.h Contract.h Play.h ddsIF.h dll.h Buffer.h valint.h
+funcCompare.obj: Reflines.h RefLine.h RefEdit.h refconst.h RefComment.h
+funcCompare.obj: RefAction.h funcCompare.h CompStats.h funcRead.h Bexcept.h
+funcCompare.obj: Bdiff.h
 funcDigest.obj: funcDigest.h bconst.h Sheet.h Contract.h Deal.h Auction.h
 funcDigest.obj: Play.h ddsIF.h dll.h Buffer.h valint.h Reflines.h RefLine.h
 funcDigest.obj: RefEdit.h refconst.h RefComment.h RefAction.h SheetHand.h
@@ -226,7 +233,7 @@ funcIMPSheet.obj: RefComment.h RefAction.h SheetHand.h Bexcept.h
 funcPlayerVal.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h
 funcPlayerVal.obj: Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h
 funcPlayerVal.obj: Players.h Auction.h Contract.h Play.h ddsIF.h dll.h
-funcPlayerVal.obj: funcPlayerVal.h
+funcPlayerVal.obj: funcPlayerVal.h Bexcept.h
 funcRead.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h
 funcRead.obj: Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h Players.h
 funcRead.obj: Auction.h Contract.h Play.h ddsIF.h dll.h Chunk.h fileLIN.h
