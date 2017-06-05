@@ -32,20 +32,32 @@
 #include "Bdiff.h"
 
 
-static bool readFormattedFile(
-  const string& fname,
-  const Format format,
-  Group& group,
-  const Options& options,
-  RefLines& refLines,
-  ostream& flog);
-
-
 void setTables()
 {
   setReadTables();
   setWriteTables();
   setValidateTables();
+}
+
+
+static bool readFormattedFile(
+  const string& fname,
+  const Format format,
+  const Options& options,
+  Buffer& buffer,
+  Group& group,
+  RefLines& refLines,
+  ostream& flog)
+{
+  buffer.read(fname, format, refLines);
+  if (refLines.skip())
+    return true;
+
+  group.setName(fname);
+  if (refLines.orderCOCO())
+    group.setCOCO();
+
+  return dispatchReadBuffer(format, options, buffer, group, flog);
 }
 
 
@@ -56,12 +68,39 @@ static bool dispatchRead(
   RefLines& refLines,
   ostream& flog)
 {
+  Buffer buffer;
+
   try
   {
     bool b = readFormattedFile(task.fileInput,
-      task.formatInput, group, options, refLines, flog);
+      task.formatInput, options, buffer, group, refLines, flog);
+
+    if (refLines.skip() && options.quoteFlag)
+    {
+      // Ugh.  Poor man's counter of hands and boards.
+      buffer.reset();
+      buffer.readForce(task.fileInput, task.formatInput);
+
+      unsigned numLines, numHands, numBoards;
+      numLines = buffer.lengthOrig();
+      vector<string> lines;
+      for (unsigned i = 1; i <= numLines; i++)
+        lines.push_back(buffer.getLine(i));
+
+      RefLine rl;
+      rl.countHands(lines, FORMAT_INPUT_MAP[task.formatInput], numHands, numBoards);
+      refLines.setFileData(numLines, numHands, numBoards);
+      refLines.checkHeader();
+      return true;
+    }
+
     if (refLines.skip())
       return true;
+
+    refLines.setFileData(buffer.lengthOrig(), 
+      group.count(), group.countBoards());
+    if (options.quoteFlag)
+      refLines.checkHeader();
 
     return b;
   }
@@ -227,52 +266,5 @@ void dispatch(
     // TODO: Use an option to control
     // dispatchIMPSheet(group, flog);
   }
-}
-
-
-static bool readFormattedFile(
-  const string& fname,
-  const Format format,
-  Group& group,
-  const Options& options,
-  RefLines& refLines,
-  ostream& flog)
-{
-  Buffer buffer;
-  buffer.read(fname, format, refLines);
-  if (refLines.skip() && options.quoteFlag)
-  {
-    // Ugh.  Poor man's counter of hands and boards.
-    buffer.reset();
-    buffer.readForce(fname,format);
-
-    unsigned numLines, numHands, numBoards;
-    numLines = buffer.lengthOrig();
-    vector<string> lines;
-    for (unsigned i = 1; i <= numLines; i++)
-      lines.push_back(buffer.getLine(i));
-
-    RefLine rl;
-    rl.countHands(lines, FORMAT_INPUT_MAP[format], numHands, numBoards);
-    refLines.setFileData(numLines, numHands, numBoards);
-    refLines.checkHeader();
-    return true;
-  }
-
-  if (refLines.skip())
-    return true;
-
-  group.setName(fname);
-  if (refLines.orderCOCO())
-    group.setCOCO();
-
-  bool b = dispatchReadBuffer(format, options, buffer, group, flog);
-
-  refLines.setFileData(buffer.lengthOrig(), 
-    group.count(), group.countBoards());
-  if (options.quoteFlag)
-    refLines.checkHeader();
-
-  return b;
 }
 
