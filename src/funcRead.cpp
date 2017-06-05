@@ -41,14 +41,6 @@ static ReadPtr readChunk[BRIDGE_FORMAT_LABELS_SIZE];
 static SegPtr segPtr[BRIDGE_FORMAT_LABELS_SIZE];
 static BoardPtr boardPtr[BRIDGE_FORMAT_LABELS_SIZE];
 
-struct Counts
-{
-  unsigned segno;
-  unsigned bno;
-  unsigned prevno;
-  bool openFlag;
-};
-
 
 void setReadTables()
 {
@@ -92,7 +84,8 @@ void setReadTables()
   segPtr[BRIDGE_FORMAT_BOARD_NO] = &Segment::setNumber;
   segPtr[BRIDGE_FORMAT_PLAYERS_BOARD] = &Segment::setPlayers;
   segPtr[BRIDGE_FORMAT_ROOM] = &Segment::setRoom;
-boardPtr[BRIDGE_FORMAT_DEAL] = &Board::setDeal;
+
+  boardPtr[BRIDGE_FORMAT_DEAL] = &Board::setDeal;
   boardPtr[BRIDGE_FORMAT_DEALER] = &Board::setDealer;
   boardPtr[BRIDGE_FORMAT_VULNERABLE] = &Board::setVul;
   boardPtr[BRIDGE_FORMAT_AUCTION] = &Board::setAuction;
@@ -117,92 +110,6 @@ static void printCounts(
   cout << "Board:        " << counts.bno << endl;
   cout << "Room:         " << (counts.openFlag ? "Open" : "Closed") << endl;
   cout << chunk.strRange();
-}
-
-
-static void str2board(
-  const Chunk& chunk,
-  const Format format,
-  Counts& counts)
-{
-  // TODO: Could go into chunk
-  const string bno = chunk.get(BRIDGE_FORMAT_BOARD_NO);
-
-  if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
-  {
-    // Reuse the value in counts.bno
-    if (bno == "")
-      return;
-
-    const string st = bno.substr(1);
-    if (! str2upos(st, counts.bno))
-      THROW("Not a board number");
-    if (bno.at(0) == 'o')
-      counts.openFlag = true;
-    else if (bno.at(0) == 'c')
-      counts.openFlag = false;
-    else
-      THROW("Not a room");
-  }
-  else if (format == BRIDGE_FORMAT_PBN)
-  {
-    if (bno != "")
-    {
-      // Otherwise reuse the value in counts.bno
-      if (! str2upos(bno, counts.bno))
-        THROW("Not a board number");
-    }
-
-    const string r = chunk.get(BRIDGE_FORMAT_ROOM);
-    if (r == "" || r == "Open")
-      counts.openFlag = true;
-    else if (r == "Closed")
-      counts.openFlag = false;
-    else
-      THROW("Unknown room: " + r);
-  }
-  else if (format == BRIDGE_FORMAT_RBN ||
-      format == BRIDGE_FORMAT_RBX)
-  {
-    if (bno != "")
-    {
-      // Otherwise reuse the value in counts.curr.no
-      if (! str2upos(bno, counts.bno))
-        THROW("Not a board number");
-    }
-      
-    const string sn = chunk.get(BRIDGE_FORMAT_PLAYERS_BOARD);
-    const unsigned sl = sn.length();
-    if (sn != "" && sl >= 2)
-    {
-      if (sn.substr(sl-2) == ":O")
-        counts.openFlag = true;
-      else if (sn.substr(sl-2) == ":C")
-        counts.openFlag = false;
-      else
-        counts.openFlag = ! counts.openFlag;
-    }
-    else
-      counts.openFlag = ! counts.openFlag;
-  }
-  else if (format == BRIDGE_FORMAT_TXT ||
-      format == BRIDGE_FORMAT_EML ||
-      format == BRIDGE_FORMAT_REC)
-  {
-    if (bno != "")
-    {
-      // Otherwise reuse the value in counts.curr.no
-      if (! str2upos(bno, counts.bno))
-        THROW("Not a board number");
-    }
-
-    counts.openFlag = ! counts.openFlag;
-  }
-  else
-  {
-    if (! str2upos(bno, counts.bno))
-      THROW("Not a board number: " + bno);
-  }
 }
 
 
@@ -411,6 +318,8 @@ bool dispatchReadBuffer(
 
       if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
       {
+        // Need to store the LIN header first, as it contains default
+        // information for boards.
         if (! storeLINHeader(group.name(), format, options, counts,
             segment, chunk, flog))
           return false;
@@ -425,7 +334,7 @@ bool dispatchReadBuffer(
       }
     }
 
-    str2board(chunk, format, counts);
+    chunk.getCounts(format, counts);
 
     if (board == nullptr || counts.bno != counts.prevno)
     {

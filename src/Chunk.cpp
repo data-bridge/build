@@ -163,6 +163,74 @@ string Chunk::get(const unsigned label) const
 }
 
 
+void Chunk::getCounts(
+  const Format format,
+  Counts& counts) const
+{
+  string bno = chunk[BRIDGE_FORMAT_BOARD_NO];
+
+  if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
+  {
+    // Reuse the value in counts.bno
+    if (bno == "")
+      return;
+
+    const string r = bno.substr(0, 1);
+    bno = bno.substr(1);
+
+    if (r == "o")
+      counts.openFlag = true;
+    else if (r == "c")
+      counts.openFlag = false;
+    else
+      THROW("Not a room");
+  }
+  else if (format == BRIDGE_FORMAT_PBN)
+  {
+    const string r = chunk[BRIDGE_FORMAT_ROOM];
+    if (r == "" || r == "Open")
+      counts.openFlag = true;
+    else if (r == "Closed")
+      counts.openFlag = false;
+    else
+      THROW("Unknown room: " + r);
+  }
+  else if (format == BRIDGE_FORMAT_RBN ||
+      format == BRIDGE_FORMAT_RBX)
+  {
+    const string sn = chunk[BRIDGE_FORMAT_PLAYERS_BOARD];
+    const unsigned sl = sn.length();
+    if (sn != "" && sl >= 2)
+    {
+      const string r = sn.substr(sl-2);
+      if (r == ":O")
+        counts.openFlag = true;
+      else if (r == ":C")
+        counts.openFlag = false;
+      else
+        counts.openFlag = ! counts.openFlag;
+    }
+    else
+      counts.openFlag = ! counts.openFlag;
+  }
+  else if (format == BRIDGE_FORMAT_TXT ||
+      format == BRIDGE_FORMAT_EML ||
+      format == BRIDGE_FORMAT_REC)
+  {
+    counts.openFlag = ! counts.openFlag;
+  }
+  else
+    THROW("Bad format");
+
+  if (bno != "")
+  {
+    // If bno is empty, reuse the value in counts.bno for now (will fail)
+    if (! str2upos(bno, counts.bno))
+      THROW("Not a board number");
+  } 
+}
+
+
 void Chunk::guessDealerAndVul(
   const unsigned bno,
   const Format format)

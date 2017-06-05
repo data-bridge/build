@@ -61,6 +61,10 @@ class Chunk
     string get(const Label label) const;
     string get(const unsigned label) const;
 
+    void getCounts(
+      const Format format,
+      Counts& counts) const;
+
     void guessDealerAndVul(
       const unsigned bno,
       const Format format);

@@ -293,6 +293,14 @@ struct FileTask
 
 // This is used in dispatch.
 
+struct Counts
+{
+  unsigned segno;
+  unsigned bno;
+  unsigned prevno;
+  bool openFlag;
+};
+
 enum BoardOrder
 {
   ORDER_OCOC = 0,
