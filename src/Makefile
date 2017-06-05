@@ -43,6 +43,7 @@ SOURCE_FILES 	=		\
 	fileREC.cpp		\
 	funcDigest.cpp		\
 	funcIMPSheet.cpp	\
+	funcRead.cpp		\
 	funcRefStats.cpp	\
 	funcTextStats.cpp	\
 	funcValidate.cpp	\
@@ -175,13 +176,13 @@ args.obj: args.h bconst.h
 ddsIF.obj: ddsIF.h dll.h Bexcept.h
 dispatch.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h
 dispatch.obj: Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h Players.h
-dispatch.obj: Auction.h Contract.h Play.h ddsIF.h dll.h Chunk.h dispatch.h
-dispatch.obj: Files.h AllStats.h ValStats.h ValProfile.h validate.h Buffer.h
-dispatch.obj: valint.h Reflines.h RefLine.h RefEdit.h refconst.h RefComment.h
+dispatch.obj: Auction.h Contract.h Play.h ddsIF.h dll.h dispatch.h Files.h
+dispatch.obj: AllStats.h ValStats.h ValProfile.h validate.h Buffer.h valint.h
+dispatch.obj: Reflines.h RefLine.h RefEdit.h refconst.h RefComment.h
 dispatch.obj: RefAction.h TextStats.h CompStats.h RefStats.h Timers.h Timer.h
-dispatch.obj: fileLIN.h filePBN.h fileRBN.h fileTXT.h fileEML.h fileREC.h
-dispatch.obj: funcDigest.h funcIMPSheet.h funcTextStats.h funcWrite.h parse.h
-dispatch.obj: Sheet.h SheetHand.h Bexcept.h Bdiff.h
+dispatch.obj: funcDigest.h funcIMPSheet.h funcRead.h funcRefStats.h
+dispatch.obj: RefLines.h funcTextStats.h funcValidate.h funcWrite.h parse.h
+dispatch.obj: Bexcept.h Bdiff.h
 fileEML.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 fileEML.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
 fileEML.obj: Contract.h Play.h ddsIF.h dll.h Canvas.h fileEML.h Buffer.h
@@ -221,8 +222,14 @@ funcIMPSheet.obj: Session.h Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h
 funcIMPSheet.obj: Players.h Auction.h Contract.h Play.h ddsIF.h dll.h Sheet.h
 funcIMPSheet.obj: Buffer.h valint.h Reflines.h RefLine.h RefEdit.h refconst.h
 funcIMPSheet.obj: RefComment.h RefAction.h SheetHand.h Bexcept.h
-funcRefStats.obj: funcRefStats.h RefLines.h RefLine.h RefEdit.h refconst.h
-funcRefStats.obj: RefComment.h bconst.h RefAction.h RefStats.h Bexcept.h
+funcRead.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h
+funcRead.obj: Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h Players.h
+funcRead.obj: Auction.h Contract.h Play.h ddsIF.h dll.h Chunk.h fileLIN.h
+funcRead.obj: Buffer.h valint.h Reflines.h RefLine.h RefEdit.h refconst.h
+funcRead.obj: RefComment.h RefAction.h filePBN.h fileRBN.h fileTXT.h
+funcRead.obj: fileEML.h fileREC.h funcRead.h parse.h Bexcept.h
+funcRefStats.obj: funcRefStats.h RefLines.h RefStats.h refconst.h bconst.h
+funcRefStats.obj: Bexcept.h
 funcTextStats.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h
 funcTextStats.obj: Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h
 funcTextStats.obj: Players.h Auction.h Contract.h Play.h ddsIF.h dll.h
@@ -242,8 +249,7 @@ RefComment.obj: RefComment.h refconst.h bconst.h parse.h Bexcept.h
 RefEdit.obj: RefEdit.h refconst.h parse.h bconst.h Bexcept.h
 RefLine.obj: RefLine.h RefEdit.h refconst.h RefComment.h bconst.h RefAction.h
 RefLine.obj: parse.h Bexcept.h
-RefLines.obj: RefLines.h RefLine.h RefEdit.h refconst.h RefComment.h bconst.h
-RefLines.obj: RefAction.h parse.h Bexcept.h
+RefLines.obj: RefLines.h parse.h bconst.h Bexcept.h
 RefStats.obj: RefStats.h refconst.h RefComment.h bconst.h Bexcept.h
 validate.obj: ValStats.h ValProfile.h validate.h Buffer.h valint.h Reflines.h
 validate.obj: RefLine.h RefEdit.h refconst.h RefComment.h bconst.h
