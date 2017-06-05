@@ -30,6 +30,7 @@
 #include "fileEML.h"
 #include "fileREC.h"
 
+#include "funcTextStats.h"
 #include "funcWrite.h"
 
 #include "AllStats.h"
@@ -74,12 +75,6 @@ static bool readFormattedFile(
   Group& group,
   const Options& options,
   ostream& flog);
-
-static void logLengths(
-  Group& group,
-  TextStats& tstats,
-  const string& fname,
-  const Format format);
 
 
 static void setFormatTables()
@@ -224,23 +219,6 @@ static void dispatchRefStats(
       refstats.logRef(cat, re);
     }
     
-  }
-  catch (Bexcept& bex)
-  {
-    bex.print(flog);
-  }
-}
-
-
-static void dispatchStats(
-  const FileTask& task,
-  Group& group,
-  TextStats& tstats,
-  ostream& flog)
-{
-  try
-  {
-    logLengths(group, tstats, task.fileInput, task.formatInput);
   }
   catch (Bexcept& bex)
   {
@@ -433,7 +411,7 @@ void dispatch(
         flog << "Input " << task.fileInput << endl;
     
       allStats.timers.start(BRIDGE_TIMER_STATS, task.formatInput);
-      dispatchStats(task, group, allStats.tstats, flog);
+      dispatchTextStats(task, group, allStats.tstats, flog);
       allStats.timers.stop(BRIDGE_TIMER_STATS, task.formatInput);
     }
 
@@ -965,54 +943,5 @@ static bool readFormattedFile(
   }
 
   return true;
-}
-
-
-static void logLengths(
-  Group& group,
-  TextStats& tstats,
-  const string& fname,
-  const Format format)
-{
-  for (auto &segment: group)
-  {
-    tstats.add(segment.strTitle(BRIDGE_FORMAT_PAR),
-      fname, BRIDGE_FORMAT_TITLE, format);
-
-    tstats.add(segment.strLocation(BRIDGE_FORMAT_PAR),
-      fname, BRIDGE_FORMAT_LOCATION, format);
-
-    tstats.add(segment.strEvent(BRIDGE_FORMAT_PAR),
-      fname, BRIDGE_FORMAT_EVENT, format);
-
-    tstats.add(segment.strSession(BRIDGE_FORMAT_PAR),
-      fname, BRIDGE_FORMAT_SESSION, format);
-
-    tstats.add(segment.strFirstTeam(BRIDGE_FORMAT_PAR),
-      fname, BRIDGE_FORMAT_TEAMS, format);
-
-    tstats.add(segment.strSecondTeam(BRIDGE_FORMAT_PAR),
-      fname, BRIDGE_FORMAT_TEAMS, format);
-
-    for (auto &bpair: segment)
-    {
-      Board& board = bpair.board;
-
-      for (unsigned i = 0; i < board.countAll(); i++)
-      {
-        board.setInstance(i);
-
-        tstats.add(board.lengthAuction(),
-          fname, BRIDGE_FORMAT_AUCTION, format);
-
-        for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
-        {
-          tstats.add(
-            board.strPlayer(static_cast<Player>(p), BRIDGE_FORMAT_PAR),
-            fname, BRIDGE_FORMAT_PLAYERS_BOARD, format);
-        }
-      }
-    }
-  }
 }
 
