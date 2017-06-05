@@ -49,8 +49,6 @@ class Segment
     vector<BoardPair> boards;
     unsigned bmin;
     unsigned bmax;
-    unsigned bInmin;
-    unsigned bInmax;
 
     Board * activeBoard;
     unsigned activeNo;

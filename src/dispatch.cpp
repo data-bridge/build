@@ -1093,7 +1093,7 @@ static bool readFormattedFile(
         try
         {
           // Easier to get the key header information in first.
-          for (unsigned i = BRIDGE_FORMAT_RESULTS_LIST; 
+          for (unsigned i = BRIDGE_FORMAT_TITLE; 
               i <= BRIDGE_FORMAT_BOARDS_LIST; i++)
           {
             const string text = chunk.get(i);

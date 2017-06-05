@@ -41,8 +41,6 @@ void Segment::reset()
 
   bmin = BIGNUM;
   bmax = 0;
-  bInmin = BIGNUM;
-  bInmax = 0;
 
   title = ""; 
   date.reset();
@@ -91,10 +89,10 @@ Board * Segment::acquireBoard(const unsigned extNo)
   activeNo = len;
   len++;
 
-  if (extNo < bInmin)
-    bInmin = extNo;
-  if (extNo > bInmax)
-    bInmax = extNo;
+  if (extNo < bmin)
+    bmin = extNo;
+  if (extNo > bmax)
+    bmax = extNo;
 
   if (LINcount > 0)
   {
@@ -121,7 +119,7 @@ Board * Segment::acquireBoard(const unsigned extNo)
     /*
     string st = "";
     const unsigned lno = (LINPlayersListFlag ? 
-      boards[activeNo].extNo - bInmin : 0);
+      boards[activeNo].extNo - bmin : 0);
     for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
     {
       st += LINdata[lno].players[r][(i+2) % 4];
@@ -244,13 +242,13 @@ void Segment::setTitleLIN(
     
   // Board numbers (3-4).
   if (v[3] == "")
-    bInmin = 0;
-  else if (! str2upos(v[3], bInmin))
+    bmin = BIGNUM;
+  else if (! str2upos(v[3], bmin))
     THROW("Not a board number");
 
   if (v[4] == "")
-    bInmax = 0;
-  else if (! str2upos(v[4], bInmax))
+    bmax = 0;
+  else if (! str2upos(v[4], bmax))
     THROW("Not a board number");
 
   // Teams (5-8): Synthesize an RBN-like team line (a bit wasteful).
@@ -558,8 +556,10 @@ void Segment::setPlayersList(
         {
           for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
           {
-            LINdata[b >> 3].players[0][(d+2) % 4] = tokens[b+d];
-            LINdata[b >> 3].players[1][(d+2) % 4] = tokens[b+d+4];
+            LINdata[b >> 3].players[0][(d+2) % 4] = 
+              Segment::getEffectivePlayer(b, d, 8, tokens);
+            LINdata[b >> 3].players[1][(d+2) % 4] =
+              Segment::getEffectivePlayer(b, d+4, 8, tokens);
           }
         }
         LINPlayersListFlag = true;
@@ -649,9 +649,9 @@ string Segment::getEffectivePlayer(
 unsigned Segment::getLINActiveNo() const
 {
   const unsigned eno = boards[activeNo].extNo;
-  if (eno < bInmin || eno > bInmax)
+  if (eno < bmin || eno > bmax)
     THROW("Board number out of range of LIN header");
-  return(eno - bInmin);
+  return(eno - bmin);
 }
 
 
@@ -846,10 +846,10 @@ unsigned Segment::firstBoardNumber() const
 {
   if (len == 0)
     return BIGNUM;
-  else if (bInmin == BIGNUM)
+  else if (bmin == BIGNUM)
     return boards[0].extNo;
   else
-    return bInmin;
+    return bmin;
 }
 
 
@@ -926,15 +926,15 @@ bool Segment::operator != (const Segment& segment2) const
 string Segment::strTitleLINCore(const bool swapFlag) const
 {
   stringstream ss;
-  if (bInmin == 0)
+  if (bmin == 0)
     ss << ",";
   else
-    ss << bInmin << ",";
+    ss << bmin << ",";
 
-  if (bInmax == 0)
+  if (bmax == 0)
     ss << ",";
   else
-    ss << bInmax << ",";
+    ss << bmax << ",";
 
   ss << teams.str(BRIDGE_FORMAT_LIN, swapFlag) << "|";
   return ss.str();
@@ -1191,7 +1191,7 @@ string Segment::strContractsCore(const Format format)
   else if (LINcount == 0)
   {
     // TODO: If we push this code down to Board, loop becomes cleaner?
-    for (unsigned b = bInmin; b <= bInmax; b++)
+    for (unsigned b = bmin; b <= bmax; b++)
     {
       const Board * bptr = Segment::getBoard(b);
       if (bptr == nullptr)
@@ -1209,12 +1209,12 @@ string Segment::strContractsCore(const Format format)
   /* */
   else
   {
-    for (unsigned b = bInmin; b <= bInmax; b++)
+    for (unsigned b = bmin; b <= bmax; b++)
     {
       const Board * bptr = Segment::getBoard(b);
       if (bptr == nullptr)
       {
-        const unsigned bhdr = b - bInmin;
+        const unsigned bhdr = b - bmin;
         st += LINdata[bhdr].contract[0] + "," + 
               LINdata[bhdr].contract[1] + ",";
         continue;
@@ -1281,16 +1281,24 @@ string Segment::strPlayersLIN()
   }
   else
   {
-    for (unsigned b = bInmin; b <= bInmax; b++)
+    for (unsigned b = bmin; b <= bmax; b++)
     {
       Board * bptr = Segment::getBoard(b);
       if (bptr == nullptr)
       {
-        const unsigned bhdr = b - bInmin;
+        const unsigned bhdr = b - bmin;
         if (isIMPs)
         {
-          st += Segment::strPlayersFromLINHeader(bhdr, 0) +
-                Segment::strPlayersFromLINHeader(bhdr, 1);
+          string sn = Segment::strPlayersFromLINHeader(bhdr, 0) +
+            Segment::strPlayersFromLINHeader(bhdr, 1);
+          
+          string sr = (refBoard == nullptr ? "" :
+            refBoard->strPlayers(BRIDGE_FORMAT_LIN, isIMPs));
+
+          if (sn == sr)
+            st += ",,,,,,,,";
+          else
+            st += sn;
         }
         else
           st += Segment::strPlayersFromLINHeader(bhdr, 0);
@@ -1401,7 +1409,7 @@ string Segment::strBoards(const Format format) const
       else
       {
         for (auto &p: boards)
-          ss << LINdata[p.extNo - bInmin].no << ",";
+          ss << LINdata[p.extNo - bmin].no << ",";
       }
 
       st = ss.str();

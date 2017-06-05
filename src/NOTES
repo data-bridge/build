@@ -1,15 +1,10 @@
-28.05.2017
+05.06.2017
 ----------
-* Get reader to work (again) on 
-  - RPmajors
-  - BBOSH
-  - BBOJEC
-  - BBOVG: 49,078 lines...
-
 dispatch
 * Move counts.lno into Chunk. Don't need bno?
 * Split into functions and control
   Second control option: Language parser
+* Prune TODOs, clean up code again
 
 * Detect COCO at least in LIN, PBN, RBN, RBX
   Then remove from those .ref files, also in BBOVG

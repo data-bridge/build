@@ -307,7 +307,8 @@ bool Players::operator == (const Players& players2) const
         // Accept.
       }
       else
-        DIFF("Players differ");
+        DIFF("Players differ: '" + 
+             players[p] + "' vs '" + players2.players[p] + "'");
     }
 
   if (roomVal != players2.roomVal)
