@@ -40,7 +40,7 @@ using namespace std;
 
 struct FormatFunctions
 {
-  void (* readChunk)(Buffer&, vector<unsigned>&, Chunk&, bool&);
+  void (* readChunk)(Buffer&, Chunk&, bool&);
   void (* writeSeg)(string&, Segment&, Format);
   void (* writeBoard)(string&, Segment&, Board&, 
     WriteInfo&, const Format);
@@ -53,13 +53,6 @@ typedef void (Board::*BoardPtr)(const string& s, const Format format);
 
 SegPtr segPtr[BRIDGE_FORMAT_LABELS_SIZE];
 BoardPtr boardPtr[BRIDGE_FORMAT_LABELS_SIZE];
-
-struct Fix
-{
-  unsigned no;
-  Label label;
-  string value;
-};
 
 
 static void checkPlayerCompletion(
@@ -76,7 +69,6 @@ static bool readFormattedFile(
 
 static bool readFormattedFile(
   Buffer& buffer,
-  vector<Fix>& fix,
   const Format format,
   Group& group,
   const Options& options,
@@ -87,10 +79,6 @@ static void logLengths(
   TextStats& tstats,
   const string& fname,
   const Format format);
-
-static void readFix(
-  const string& fname,
-  vector<Fix>& fix);
 
 static void writeFormattedFile(
   Group& group,
@@ -367,13 +355,9 @@ static void dispatchCompare(
       groupNew.setCOCO();
 
     Buffer buffer;
-    vector<Fix> fix;
-
     buffer.split(text, format);
-    fix.clear();
-    readFix(fname, fix);
 
-    readFormattedFile(buffer, fix, format, groupNew, options, flog);
+    readFormattedFile(buffer, format, groupNew, options, flog);
 
     group == groupNew;
     cstats.add(true, format);
@@ -578,99 +562,15 @@ void dispatch(
 }
 
 
-static void readFix(
-  const string& fname,
-  vector<Fix>& fix)
-{
-  regex re("\\.\\w+$");
-  string fixName = regex_replace(fname, re, string(".fix"));
-  
-  // There might not be a fix file (not an error).
-  ifstream fixstr(fixName.c_str());
-  if (! fixstr.is_open())
-    return;
-
-  string line;
-  regex rep("^(\\d+)\\s+\"([^\"]*)\"\\s+\"([^\"]*)\"\\s*$");
-  smatch match;
-  Fix newFix;
-  while (getline(fixstr, line))
-  {
-    if (line.empty() || line.at(0) == '%')
-      continue;
-
-    if (! regex_search(line, match, rep) || match.size() < 3)
-      THROW("Fix file " + fixName + ": Syntax error in '" + line + "'");
-
-    if (! str2unsigned(match.str(1), newFix.no))
-      THROW("Fix file " + fixName + ": Bad number in '" + line + "'");
-
-    bool found = false;
-    unsigned i;
-    for (i = 0; i <= BRIDGE_FORMAT_LABELS_SIZE; i++)
-    {
-      if (LABEL_NAMES[i] == match.str(2))
-      {
-        found = true;
-        break;
-      }
-    }
-
-    if (! found)
-      THROW("Fix file " + fixName + ": Unknown label in '" + line + "'");
-
-    newFix.label = static_cast<Label>(i);
-    newFix.value = match.str(3);
-
-    // Replace backslash-n with literal newline.
-    regex renl("\\\\n");
-    newFix.value = regex_replace(newFix.value, renl, string("\n"));
-
-    fix.push_back(newFix);
-  }
-
-  fixstr.close();
-}
-
-
-static void fixChunk(
-  Chunk& chunk,
-  bool& newSegFlag,
-  vector<Fix>& fix)
-{
-  if (fix[0].label == BRIDGE_FORMAT_LABELS_SIZE)
-    newSegFlag = (fix[0].value != "0");
-  else
-    chunk.set(fix[0].label, fix[0].value);
-
-  fix.erase(fix.begin());
-}
-
-
 static void printCounts(
   const string& fname,
+  const Chunk& chunk,
   const Counts& counts)
 {
   cout << "Input file:   " << fname << endl;
   cout << "Segment:      " << counts.segno << endl;
   cout << "Board:        " << counts.bno << endl;
-
-  unsigned lo = BIGNUM;
-  unsigned hi = 0;
-  for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
-  {
-    if (counts.lno[i] == BIGNUM)
-      continue;
-    if (counts.lno[i] > hi)
-      hi = counts.lno[i];
-    if (counts.lno[i] < lo)
-      lo = counts.lno[i];
-  }
-
-  if (lo == hi)
-    cout << "Line number:  " << lo << endl;
-  else
-    cout << "Line numbers: " << lo << " to " << hi << endl << endl;
+  cout << chunk.strRange();
 }
 
 
@@ -814,7 +714,7 @@ static bool storeChunk(
   {
     if (options.verboseThrow)
     {
-      printCounts(group.name(), counts);
+      printCounts(group.name(), chunk, counts);
       cout << chunk.str(static_cast<Label>(i));
     }
 
@@ -832,7 +732,7 @@ static bool storeChunk(
   {
     if (board->lengthAuction() > 0)
     {
-      printCounts(group.name(), counts);
+      printCounts(group.name(), chunk, counts);
       cout << board->strDeal(BRIDGE_FORMAT_TXT) << endl;
       cout << board->strContract(BRIDGE_FORMAT_TXT) << endl;
       cout << board->strAuction(BRIDGE_FORMAT_TXT) << endl;
@@ -964,15 +864,11 @@ static bool readFormattedFile(
   if (refLines.skip())
     return true;
 
-  vector<Fix> fix;
-  fix.clear();
-  readFix(fname, fix);
-
   group.setName(fname);
   if (refLines.orderCOCO())
     group.setCOCO();
 
-  bool b = readFormattedFile(buffer, fix, format, group, options, flog);
+  bool b = readFormattedFile(buffer, format, group, options, flog);
 
   refLines.setFileData(buffer.lengthOrig(), 
     group.count(), group.countBoards());
@@ -985,7 +881,6 @@ static bool readFormattedFile(
 
 static bool readFormattedFile(
   Buffer& buffer,
-  vector<Fix>& fix,
   const Format format,
   Group& group,
   const Options& options,
@@ -1001,8 +896,6 @@ static bool readFormattedFile(
   boardIDLIN lastBoard = {0, false};
 
   Counts counts;
-  counts.lno.resize(BRIDGE_FORMAT_LABELS_SIZE);
-
   counts.segno = 0;
   counts.chunkno = 0;
   counts.bno = 0;
@@ -1016,12 +909,8 @@ static bool readFormattedFile(
 
       newSegFlag = false;
       chunk.reset();
-      for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
-        counts.lno[i] = BIGNUM;
 
-
-      (* formatFncs[format].readChunk)
-        (buffer, counts.lno, chunk, newSegFlag);
+      (* formatFncs[format].readChunk)(buffer, chunk, newSegFlag);
 
       if (chunk.isEmpty(BRIDGE_FORMAT_BOARD_NO) &&
           chunk.isEmpty(BRIDGE_FORMAT_RESULT) &&
@@ -1031,7 +920,7 @@ static bool readFormattedFile(
     catch (Bexcept& bex)
     {
       if (options.verboseThrow)
-        printCounts(group.name(), counts);
+        printCounts(group.name(), chunk, counts);
 
       bex.print(flog);
 
@@ -1072,9 +961,6 @@ static bool readFormattedFile(
       }
     }
 
-    while (fix.size() > 0 && fix[0].no == counts.chunkno)
-      fixChunk(chunk, newSegFlag, fix);
-
     counts.chunkno++;
 
     if (newSegFlag && format == BRIDGE_FORMAT_PBN)
@@ -1103,13 +989,11 @@ static bool readFormattedFile(
               chunk.set(static_cast<Label>(i), "");
             }
           }
-
-          chunk.getRange(counts);
         }
         catch(Bexcept& bex)
         {
           if (options.verboseThrow)
-            printCounts(group.name(), counts);
+            printCounts(group.name(), chunk, counts);
 
           bex.print(flog);
 

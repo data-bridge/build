@@ -58,14 +58,14 @@ void setTXTTables()
 
 static void readTXTCanvas(
   Buffer& buffer,
-  vector<unsigned>& lno,
-  vector<string>& canvas)
+  vector<string>& canvas,
+  Chunk& chunk)
 {
   LineData lineData;
   bool seenDeal = false;
   while (buffer.next(lineData))
   {
-    lno[0] = lineData.no; // Not very good...
+    chunk.set(BRIDGE_FORMAT_TITLE, "", lineData.no); // Not very accurate...
     if (lineData.type == BRIDGE_BUFFER_EMPTY)
     {
       if (! seenDeal)
@@ -471,13 +471,12 @@ static void getTXTPlay(
 
 void readTXTChunk(
   Buffer& buffer,
-  vector<unsigned>& lno,
   Chunk& chunk,
   bool& newSegFlag)
 {
   // First get all the lines of a hand.
   vector<string> canvas;
-  readTXTCanvas(buffer, lno, canvas);
+  readTXTCanvas(buffer, canvas, chunk);
   
   if (canvas.size() == 0)
     return;

@@ -31,8 +31,8 @@ static bool tryRECMethod(
 
 static void readRECCanvas(
   Buffer& buffer,
-  unsigned& lno,
-  vector<string>& canvas);
+  vector<string>& canvas,
+  Chunk& chunk);
 
 static bool getRECCanvasOffset(
   const vector<string>& canvas,
@@ -60,14 +60,14 @@ static void getRECPlay(
 
 static void readRECCanvas(
   Buffer& buffer,
-  vector<unsigned>& lno,
-  vector<string>& canvas)
+  vector<string>& canvas,
+  Chunk& chunk)
 {
   string line;
   LineData lineData;
   while (buffer.next(lineData))
   {
-    lno[0] = lineData.no; // Not very good...
+    chunk.set(BRIDGE_FORMAT_TITLE, "", lineData.no); // Not very accurate...
     if (lineData.type == BRIDGE_BUFFER_EMPTY)
     {
       int i = buffer.peek();
@@ -364,13 +364,12 @@ static void getRECPlay(
 
 void readRECChunk(
   Buffer& buffer,
-  vector<unsigned>& lno,
   Chunk& chunk,
   bool& newSegFlag)
 {
   // First get all the lines of a hand.
   vector<string> canvas;
-  readRECCanvas(buffer, lno, canvas);
+  readRECCanvas(buffer, canvas, chunk);
   
   if (canvas.size() == 0)
     return;

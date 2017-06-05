@@ -86,6 +86,7 @@ void Chunk::reset()
   {
     chunk[i].reserve(128);
     chunk[i] = "";
+    lineno[i] = BIGNUM;
   }
 }
 
@@ -103,7 +104,10 @@ void Chunk::reset(const ChunkRange range)
     THROW("Bad range");
 
   for (unsigned i = 0; i < end; i++)
+  {
     chunk[i] = "";
+    lineno[i] = BIGNUM;
+  }
 }  
 
 
@@ -129,9 +133,11 @@ bool Chunk::seemsEmpty() const
 
 void Chunk::set(
   const Label label,
-  const string& value)
+  const string& value,
+  const unsigned lno)
 {
   chunk[label] = value;
+  lineno[label] = lno;
 }
 
 
@@ -157,36 +163,6 @@ string Chunk::get(const unsigned label) const
 }
 
 
-void Chunk::getRange(Counts& counts) const
-{
-  const string title = chunk[BRIDGE_FORMAT_TITLE];
-  if (title == "")
-    return;
-
-  if (count(title.begin(), title.end(), ',') != 8)
-    THROW("LIN vg need exactly 8 commas");
-
-  vector<string> v(9);
-  v.clear();
-  tokenize(title, v, ",");
-  
-  if (v[3] == "" || v[4] == "")
-    return;
-  
-  if (! str2upos(v[3], counts.bExtmin))
-    THROW("Not a board number");
-  if (! str2upos(v[4], counts.bExtmax))
-    THROW("Not a board number");
-
-  const string res = chunk[BRIDGE_FORMAT_RESULTS_LIST];
-  if (res == "")
-    return;
-
-  if (counts.bExtmax < counts.bExtmin)
-    THROW("Bad board range");
-}
-
-
 void Chunk::guessDealerAndVul(
   const unsigned bno,
   const Format format)
@@ -207,10 +183,7 @@ void Chunk::guessDealerAndVul(const Format format)
 {
   const string st = chunk[BRIDGE_FORMAT_BOARD_NO];
   unsigned u;
-  if (format == BRIDGE_FORMAT_LIN || 
-      format == BRIDGE_FORMAT_LIN_RP ||
-      format == BRIDGE_FORMAT_LIN_VG ||
-      format == BRIDGE_FORMAT_LIN_TRN)
+  if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
   {
     if (st.length() <= 1 || ! str2upos(st.substr(1), u))
       return;
@@ -234,6 +207,7 @@ void Chunk::copyFrom(
   const Label label)
 {
   chunk[label] = chunk2.chunk[label];
+  lineno[label] = chunk2.lineno[label];
 }
 
 
@@ -250,20 +224,20 @@ void Chunk::copyFrom(
     end = BRIDGE_FORMAT_LABELS_SIZE;
   else if (range == CHUNK_DVD)
   {
-    chunk[BRIDGE_FORMAT_VULNERABLE] = chunk2.chunk[BRIDGE_FORMAT_VULNERABLE];
-    chunk[BRIDGE_FORMAT_DEALER] = chunk2.chunk[BRIDGE_FORMAT_DEALER];
-    chunk[BRIDGE_FORMAT_DEAL] = chunk2.chunk[BRIDGE_FORMAT_DEAL];
+    Chunk::copyFrom(chunk2, BRIDGE_FORMAT_VULNERABLE);
+    Chunk::copyFrom(chunk2, BRIDGE_FORMAT_DEALER);
+    Chunk::copyFrom(chunk2, BRIDGE_FORMAT_DEAL);
     return;
   }
   else if (range == CHUNK_DEAL)
   {
-    chunk[BRIDGE_FORMAT_DEAL] = chunk2.chunk[BRIDGE_FORMAT_DEAL];
+    Chunk::copyFrom(chunk2, BRIDGE_FORMAT_DEAL);
     return;
   }
   else if (range == CHUNK_PBN)
   {
     for (auto &i: PBNFields)
-      chunk[i] = chunk2.chunk[i];
+      Chunk::copyFrom(chunk2, i);
     return;
   }
   else if (range == CHUNK_PBN_SOFTLY)
@@ -271,7 +245,7 @@ void Chunk::copyFrom(
     for (auto &i: PBNFields)
     {
       if (chunk[i] == "")
-        chunk[i] = chunk2.chunk[i];
+        Chunk::copyFrom(chunk2, i);
     }
     return;
   }
@@ -279,7 +253,7 @@ void Chunk::copyFrom(
     THROW("Bad range");
 
   for (unsigned i = 0; i < end; i++)
-    chunk[i] = chunk2.chunk[i];
+    Chunk::copyFrom(chunk2, static_cast<Label>(i));
 }
 
 
@@ -337,5 +311,26 @@ string Chunk::str() const
     }
   }
   return ss.str();
+}
+
+
+string Chunk::strRange() const
+{
+  unsigned lo = BIGNUM;
+  unsigned hi = 0;
+  for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
+  {
+    if (lineno[i] == BIGNUM)
+      continue;
+    if (lineno[i] > hi)
+      hi = lineno[i];
+    if (lineno[i] < lo)
+      lo = lineno[i];
+  }
+
+  if (lo == hi)
+    return "Line number:  " + STR(lo) + "\n\n";
+  else
+    return "Line numbers: " + STR(lo) + " to " + STR(hi) + "\n\n";
 }
 

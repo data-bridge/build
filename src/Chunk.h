@@ -32,6 +32,7 @@ class Chunk
   private:
 
     string chunk[BRIDGE_FORMAT_LABELS_SIZE];
+    unsigned lineno[BRIDGE_FORMAT_LABELS_SIZE];
 
 
   public:
@@ -50,7 +51,8 @@ class Chunk
 
     void set(
       const Label label,
-      const string& value);
+      const string& value,
+      const unsigned lno = BIGNUM);
 
     void append(
       const Label label,
@@ -58,8 +60,6 @@ class Chunk
 
     string get(const Label label) const;
     string get(const unsigned label) const;
-
-    void getRange(Counts& counts) const;
 
     void guessDealerAndVul(
       const unsigned bno,
@@ -85,6 +85,8 @@ class Chunk
 
     string str() const;
     string str(const Label label) const;
+
+    string strRange() const;
 };
 
 #endif

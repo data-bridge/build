@@ -24,7 +24,6 @@ void setLINTables();
 
 void readLINChunk(
   Buffer& buffer,
-  vector<unsigned>& lno,
   Chunk& chunk,
   bool& newSegFlag);
 

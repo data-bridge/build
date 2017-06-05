@@ -99,7 +99,6 @@ static string modifyContract(
 
 void readPBNChunk(
   Buffer& buffer,
-  vector<unsigned>& lno,
   Chunk& chunk,
   bool& newSegFlag)
 {
@@ -132,7 +131,6 @@ void readPBNChunk(
       else
       {
         chunk.append(BRIDGE_FORMAT_AUCTION, lineData.line + "\n");
-        lno[BRIDGE_FORMAT_AUCTION] = lineData.no; // Could be range...
         continue;
       }
     }
@@ -150,7 +148,6 @@ void readPBNChunk(
       else
       {
         chunk.append(BRIDGE_FORMAT_PLAY, lineData.line + "\n");
-        lno[BRIDGE_FORMAT_PLAY] = lineData.no; // Could be range...
         continue;
       }
     }
@@ -161,7 +158,6 @@ void readPBNChunk(
       else
       {
         chunk.append(BRIDGE_FORMAT_DOUBLE_DUMMY, lineData.line + "\n");
-        lno[BRIDGE_FORMAT_DOUBLE_DUMMY] = lineData.no; // Could be range...
         continue;
       }
     }
@@ -187,34 +183,33 @@ void readPBNChunk(
       // Kludge to get declarer onto contract.  According to the PBN
       // standard, declarer should always come before contract.
       if (lineData.value.length() <= 2)
-        chunk.set(labelNo, lineData.value + chunk.get(BRIDGE_FORMAT_DECLARER));
+        chunk.set(labelNo, 
+          lineData.value + chunk.get(BRIDGE_FORMAT_DECLARER),
+          lineData.no);
       else
       {
         // Could be of form 4HX or even 4H X.
       }
       chunk.set(BRIDGE_FORMAT_CONTRACT, 
-        modifyContract(lineData.value, chunk.get(BRIDGE_FORMAT_DECLARER)));
-      lno[labelNo] = lineData.no;
+        modifyContract(lineData.value, chunk.get(BRIDGE_FORMAT_DECLARER)),
+        lineData.no);
     }
     else if (labelNo == BRIDGE_FORMAT_AUCTION)
     {
       // Multi-line.
       chunk.append(BRIDGE_FORMAT_AUCTION, lineData.value + "\n");
-      lno[labelNo] = lineData.no; // Could be range...
       inAuction = true;
     }
     else if (labelNo == BRIDGE_FORMAT_PLAY)
     {
       // Multi-line.
       chunk.append(BRIDGE_FORMAT_PLAY, lineData.value + "\n");
-      lno[labelNo] = lineData.no; // Could be range...
       inPlay = true;
     }
     else if (labelNo == BRIDGE_FORMAT_DOUBLE_DUMMY)
     {
       // Multi-line.
       chunk.append(BRIDGE_FORMAT_DOUBLE_DUMMY, lineData.value + "\n");
-      lno[labelNo] = lineData.no; // Could be range...
       inDD = true;
     }
     else if (lineData.value != "#")
@@ -222,11 +217,10 @@ void readPBNChunk(
       if (lineData.value.length() > 2 &&
           lineData.value.at(0) == '#' &&
           lineData.value.at(1) == '#')
-        chunk.set(labelNo, lineData.value.substr(2));
+        chunk.set(labelNo, lineData.value.substr(2), lineData.no);
       else
-        chunk.set(labelNo, lineData.value);
+        chunk.set(labelNo, lineData.value, lineData.no);
 
-      lno[labelNo] = lineData.no; // Could be range...
       if (labelNo <= BRIDGE_FORMAT_VISITTEAM)
       {
         // Kludge to avoid new segment on [Site ""].

@@ -24,7 +24,6 @@ void setRBNTables();
 
 void readRBNChunk(
   Buffer& buffer,
-  vector<unsigned>& lno,
   Chunk& chunk,
   bool& newSegFlag);
 

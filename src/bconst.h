@@ -303,11 +303,7 @@ struct Counts
   unsigned segno;
   unsigned chunkno;
   unsigned bno;
-  unsigned bExtmin;
-  unsigned bExtmax;
   boardIDLIN curr;
-  vector<unsigned> lno;
-  unsigned lnoOld;
 };
 
 

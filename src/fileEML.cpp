@@ -25,8 +25,8 @@ static string EMLdashes, EMLequals;
 
 static void readEMLCanvas(
   Buffer& buffer,
-  unsigned& lno,
-  vector<string>& canvas);
+  vector<string>& canvas,
+  Chunk& chunk);
 
 static bool getEMLCanvasWest(
   const vector<string>& canvas,
@@ -73,13 +73,13 @@ void setEMLTables()
 
 static void readEMLCanvas(
   Buffer& buffer,
-  vector<unsigned>& lno,
-  vector<string>& canvas)
+  vector<string>& canvas,
+  Chunk& chunk)
 {
   LineData lineData;
   while (buffer.next(lineData))
   {
-    lno[0] = lineData.no; // Not very good
+    chunk.set(BRIDGE_FORMAT_TITLE, "", lineData.no); // Not very accurate...
     if (lineData.type == BRIDGE_BUFFER_EMPTY)
     {
       // If some players aren't given, we might have an empty line.
@@ -416,7 +416,6 @@ static void getEMLPlay(
 
 void readEMLChunk(
   Buffer& buffer,
-  vector<unsigned>& lno,
   Chunk& chunk,
   bool& newSegFlag)
 {
@@ -424,7 +423,7 @@ void readEMLChunk(
 
   // First get all the lines of a hand.
   vector<string> canvas;
-  readEMLCanvas(buffer, lno, canvas);
+  readEMLCanvas(buffer, canvas, chunk);
   
   if (canvas.size() == 0)
     return;

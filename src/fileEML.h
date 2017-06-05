@@ -24,7 +24,6 @@ void setEMLTables();
 
 void readEMLChunk(
   Buffer& buffer,
-  vector<unsigned>& lno,
   Chunk& chunk,
   bool& newSegFlag);
 

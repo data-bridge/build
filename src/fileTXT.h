@@ -24,7 +24,6 @@ void setTXTTables();
 
 void readTXTChunk(
   Buffer& buffer,
-  vector<unsigned>& lno,
   Chunk& chunk,
   bool& newSegFlag);
 

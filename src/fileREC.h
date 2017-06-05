@@ -22,7 +22,6 @@ class Group;
 
 void readRECChunk(
   Buffer& buffer,
-  vector<unsigned>& lno,
   Chunk& chunk,
   bool& newSegFlag);
 

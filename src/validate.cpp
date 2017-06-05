@@ -173,8 +173,6 @@ static bool validateCorePBN(
 {
   ValProfile prof;
   Chunk chunkRef, chunkOut, prevRef, prevOut;
-  vector<unsigned> lnoRef(BRIDGE_FORMAT_LABELS_SIZE), 
-    lnoOut(BRIDGE_FORMAT_LABELS_SIZE);
   bool newSegRef = false, newSegOut = false;
   bool doneRef, doneOut;
 
@@ -186,8 +184,8 @@ static bool validateCorePBN(
     chunkRef.reset();
     chunkOut.reset();
 
-    readPBNChunk(valState.bufferRef, lnoRef, chunkRef, newSegRef);
-    readPBNChunk(valState.bufferOut, lnoOut, chunkOut, newSegOut);
+    readPBNChunk(valState.bufferRef, chunkRef, newSegRef);
+    readPBNChunk(valState.bufferOut, chunkOut, newSegOut);
 
     doneRef = chunkRef.seemsEmpty();
     doneOut = chunkOut.seemsEmpty();

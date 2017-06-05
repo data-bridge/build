@@ -74,7 +74,6 @@ static bool nextLINPair(
 
 void readLINChunk(
   Buffer& buffer,
-  vector<unsigned>& lno,
   Chunk& chunk,
   bool& newSegFlag)
 {
@@ -168,7 +167,7 @@ void readLINChunk(
         chunk.append(labelNo, value);
       }
       else if (chunk.isEmpty(labelNo))
-        chunk.set(labelNo, value);
+        chunk.set(labelNo, value, lineData.no);
       else if (labelNo == BRIDGE_FORMAT_PLAYERS_HEADER)
       {
         value = trimTrailing(value, ',');
@@ -182,15 +181,13 @@ void readLINChunk(
           value.substr(0, ch.length()) == ch)
         {
           // Swap if the other way round (very rare).
-          chunk.set(labelNo, value);
+          chunk.set(labelNo, value, lineData.no);
         }
         else
           THROW("Label already set in line '" + lineData.line + "'");
       }
       else
         THROW("Label already set in line '" + lineData.line + "'");
-
-      lno[labelNo] = lineData.no;
     }
   }
 
