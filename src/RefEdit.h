@@ -11,6 +11,7 @@
 #define BRIDGE_REFEDIT_H
 
 #include <string>
+#include <vector>
 #include "refconst.h"
 
 using namespace std;

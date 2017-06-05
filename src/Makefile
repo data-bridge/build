@@ -43,7 +43,9 @@ SOURCE_FILES 	=		\
 	fileREC.cpp		\
 	funcDigest.cpp		\
 	funcIMPSheet.cpp	\
+	funcRefStats.cpp	\
 	funcTextStats.cpp	\
+	funcValidate.cpp	\
 	funcWrite.cpp		\
 	parse.cpp		\
 	RefAction.cpp		\
@@ -219,10 +221,15 @@ funcIMPSheet.obj: Session.h Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h
 funcIMPSheet.obj: Players.h Auction.h Contract.h Play.h ddsIF.h dll.h Sheet.h
 funcIMPSheet.obj: Buffer.h valint.h Reflines.h RefLine.h RefEdit.h refconst.h
 funcIMPSheet.obj: RefComment.h RefAction.h SheetHand.h Bexcept.h
+funcRefStats.obj: funcRefStats.h RefLines.h RefLine.h RefEdit.h refconst.h
+funcRefStats.obj: RefComment.h bconst.h RefAction.h RefStats.h Bexcept.h
 funcTextStats.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h
 funcTextStats.obj: Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h
 funcTextStats.obj: Players.h Auction.h Contract.h Play.h ddsIF.h dll.h
 funcTextStats.obj: funcTextStats.h TextStats.h Bexcept.h
+funcValidate.obj: validate.h Buffer.h valint.h Reflines.h RefLine.h RefEdit.h
+funcValidate.obj: refconst.h RefComment.h bconst.h RefAction.h funcValidate.h
+funcValidate.obj: ValStats.h ValProfile.h Bexcept.h
 funcWrite.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h
 funcWrite.obj: Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h Players.h
 funcWrite.obj: Auction.h Contract.h Play.h ddsIF.h dll.h fileLIN.h Buffer.h

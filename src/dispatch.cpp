@@ -12,8 +12,6 @@
 #include <iomanip>
 #include <sstream>
 #include <fstream>
-#include <regex>
-#include <assert.h>
 
 #include "Group.h"
 #include "Segment.h"
@@ -21,7 +19,6 @@
 #include "Chunk.h"
 #include "dispatch.h"
 #include "ddsIF.h"
-#include "validate.h"
 
 #include "fileLIN.h"
 #include "filePBN.h"
@@ -32,13 +29,12 @@
 
 #include "funcDigest.h"
 #include "funcIMPSheet.h"
+#include "funcRefStats.h"
 #include "funcTextStats.h"
+#include "funcValidate.h"
 #include "funcWrite.h"
 
-#include "AllStats.h"
-
 #include "parse.h"
-#include "Sheet.h"
 #include "Bexcept.h"
 #include "Bdiff.h"
 
@@ -179,74 +175,6 @@ static bool dispatchRead(
   {
     bex.print(flog);
     return false;
-  }
-}
-
-
-static void dispatchRefStats(
-  const RefLines& refLines,
-  RefStats& refstats,
-  ostream& flog)
-{
-  try
-  {
-    CommentType cat;
-    RefEntry re;
-
-    if (refLines.getHeaderEntry(cat, re))
-      refstats.logFile(re);
-    else
-      THROW("No header in refLines");
-
-    if (! refLines.hasComments())
-      return;
-
-    refstats.logRefFile();
-
-    if (refLines.skip())
-    {
-      refstats.logSkip(cat, re);
-      return;
-    }
-    else if (refLines.orderCOCO())
-      refstats.logOrder(ERR_LIN_QX_ORDER_COCO, re);
-    else if (refLines.orderOOCC())
-      refstats.logOrder(ERR_LIN_QX_ORDER_OOCC, re);
-    else if (! refLines.validate())
-      refstats.logNoval(cat, re);
-
-    for (auto &rl: refLines)
-    {
-      rl.getEntry(cat, re);
-      refstats.logRef(cat, re);
-    }
-    
-  }
-  catch (Bexcept& bex)
-  {
-    bex.print(flog);
-  }
-}
-
-
-static void dispatchValidate(
-  const FileTask& task,
-  const FileOutputTask& otask,
-  const Options& options,
-  const string& text,
-  ValStats& vstats,
-  ostream& flog)
-{
-  try
-  {
-    validate(text, otask.fileOutput, otask.fileRef,
-      task.formatInput, otask.formatOutput, options, vstats);
-  }
-  catch (Bexcept& bex)
-  {
-    flog << "Files " << task.fileInput << " -> " <<
-      otask.fileOutput << endl;
-    bex.print(flog);
   }
 }
 
