@@ -306,6 +306,14 @@ struct Counts
   boardIDLIN curr;
 };
 
+enum BoardOrder
+{
+  ORDER_OCOC = 0,
+  ORDER_COCO = 1,
+  ORDER_OOCC = 2,
+  ORDER_GENERAL = 3
+};
+
 
 // This is the same encoding as in DDS.
 

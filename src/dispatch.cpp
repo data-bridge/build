@@ -30,6 +30,8 @@
 #include "fileEML.h"
 #include "fileREC.h"
 
+#include "funcWrite.h"
+
 #include "AllStats.h"
 
 #include "parse.h"
@@ -43,18 +45,15 @@ using namespace std;
 struct FormatFunctions
 {
   void (* readChunk)(Buffer&, Chunk&, bool&);
-  void (* writeSeg)(string&, Segment&, Format);
-  void (* writeBoard)(string&, Segment&, Board&, 
-    WriteInfo&, const Format);
 };
 
-FormatFunctions formatFncs[BRIDGE_FORMAT_SIZE];
+static FormatFunctions formatFncs[BRIDGE_FORMAT_SIZE];
 
 typedef void (Segment::*SegPtr)(const string& s, const Format format);
 typedef void (Board::*BoardPtr)(const string& s, const Format format);
 
-SegPtr segPtr[BRIDGE_FORMAT_LABELS_SIZE];
-BoardPtr boardPtr[BRIDGE_FORMAT_LABELS_SIZE];
+static SegPtr segPtr[BRIDGE_FORMAT_LABELS_SIZE];
+static BoardPtr boardPtr[BRIDGE_FORMAT_LABELS_SIZE];
 
 
 static void checkPlayerCompletion(
@@ -82,28 +81,6 @@ static void logLengths(
   const string& fname,
   const Format format);
 
-static void writeFormattedFile(
-  Group& group,
-  const string& fname,
-  const RefLines& refLines,
-  string& text,
-  const Format format);
-
-static void writeFast(
-  const string& fname,
-  const string& text);
-
-
-static void writeDummySegmentLevel(
-  string& st,
-  Segment& segment,
-  const Format format)
-{
-  UNUSED(st);
-  UNUSED(segment);
-  UNUSED(format);
-}
-
 
 static void setFormatTables()
 {
@@ -117,45 +94,18 @@ static void setFormatTables()
 
 static void setIO()
 {
+  setWriteTables();
+
   formatFncs[BRIDGE_FORMAT_LIN].readChunk = &readLINChunk;
-  formatFncs[BRIDGE_FORMAT_LIN].writeSeg = &writeLINSegmentLevel;
-  formatFncs[BRIDGE_FORMAT_LIN].writeBoard = &writeLINBoardLevel;
-
   formatFncs[BRIDGE_FORMAT_LIN_RP].readChunk = &readLINChunk;
-  formatFncs[BRIDGE_FORMAT_LIN_RP].writeSeg = &writeLINSegmentLevel;
-  formatFncs[BRIDGE_FORMAT_LIN_RP].writeBoard = &writeLINBoardLevel;
-
   formatFncs[BRIDGE_FORMAT_LIN_VG].readChunk = &readLINChunk;
-  formatFncs[BRIDGE_FORMAT_LIN_VG].writeSeg = &writeLINSegmentLevel;
-  formatFncs[BRIDGE_FORMAT_LIN_VG].writeBoard = &writeLINBoardLevel;
-
   formatFncs[BRIDGE_FORMAT_LIN_TRN].readChunk = &readLINChunk;
-  formatFncs[BRIDGE_FORMAT_LIN_TRN].writeSeg = &writeLINSegmentLevel;
-  formatFncs[BRIDGE_FORMAT_LIN_TRN].writeBoard = &writeLINBoardLevel;
-
   formatFncs[BRIDGE_FORMAT_PBN].readChunk = &readPBNChunk;
-  formatFncs[BRIDGE_FORMAT_PBN].writeSeg = &writeDummySegmentLevel;
-  formatFncs[BRIDGE_FORMAT_PBN].writeBoard = &writePBNBoardLevel;
-
   formatFncs[BRIDGE_FORMAT_RBN].readChunk = &readRBNChunk;
-  formatFncs[BRIDGE_FORMAT_RBN].writeSeg = &writeRBNSegmentLevel;
-  formatFncs[BRIDGE_FORMAT_RBN].writeBoard = &writeRBNBoardLevel;
-
   formatFncs[BRIDGE_FORMAT_RBX].readChunk = &readRBNChunk; // !
-  formatFncs[BRIDGE_FORMAT_RBX].writeSeg = &writeRBNSegmentLevel;
-  formatFncs[BRIDGE_FORMAT_RBX].writeBoard = &writeRBNBoardLevel;
-
   formatFncs[BRIDGE_FORMAT_TXT].readChunk = &readTXTChunk;
-  formatFncs[BRIDGE_FORMAT_TXT].writeSeg = &writeTXTSegmentLevel;
-  formatFncs[BRIDGE_FORMAT_TXT].writeBoard = &writeTXTBoardLevel;
-
   formatFncs[BRIDGE_FORMAT_EML].readChunk = &readEMLChunk;
-  formatFncs[BRIDGE_FORMAT_EML].writeSeg = &writeDummySegmentLevel;
-  formatFncs[BRIDGE_FORMAT_EML].writeBoard = &writeEMLBoardLevel;
-
   formatFncs[BRIDGE_FORMAT_REC].readChunk = &readRECChunk;
-  formatFncs[BRIDGE_FORMAT_REC].writeSeg = &writeDummySegmentLevel;
-  formatFncs[BRIDGE_FORMAT_REC].writeBoard = &writeRECBoardLevel;
 }
 
 
@@ -291,26 +241,6 @@ static void dispatchStats(
   try
   {
     logLengths(group, tstats, task.fileInput, task.formatInput);
-  }
-  catch (Bexcept& bex)
-  {
-    bex.print(flog);
-  }
-}
-
-
-static void dispatchWrite(
-  const FileOutputTask& otask,
-  const RefLines& refLines,
-  Group& group,
-  string& text,
-  ostream& flog)
-{
-  try
-  {
-    text = "";
-    writeFormattedFile(group, otask.fileOutput, refLines, 
-      text, otask.formatOutput);
   }
   catch (Bexcept& bex)
   {
@@ -513,7 +443,8 @@ void dispatch(
         flog << "Output " << t.fileOutput << endl;
 
       allStats.timers.start(BRIDGE_TIMER_WRITE, t.formatOutput);
-      dispatchWrite(t, refLines, group, text, flog);
+      dispatchWrite(t.fileOutput, t.formatOutput, refLines.order(), 
+        group, text, flog);
       allStats.timers.stop(BRIDGE_TIMER_WRITE, t.formatOutput);
 
       if (t.refFlag && refLines.validate())
@@ -1083,161 +1014,5 @@ static void logLengths(
       }
     }
   }
-}
-
-
-static void writeHeader(
-  string& st,
-  Group& group,
-  const Format format)
-{
-  st = "";
-  string tmp;
-  const string g = guessOriginalLine(group.name(), group.count());
-  if (g == "")
-    return;
-
-  if (format == BRIDGE_FORMAT_RBX)
-  {
-    st += "%{RBX " + g + "}";
-    st += "%{www.rpbridge.net Richard Pavlicek}";
-  }
-  else if (format == BRIDGE_FORMAT_LIN ||
-      format == BRIDGE_FORMAT_LIN_TRN)
-  {
-    // Nothing.
-    // TODO: Skip except when coming from a Pavlicek file.
-  }
-  else
-  {
-    st += "% " + FORMAT_EXTENSIONS[format] + " " + g + "\n";
-    st += "% www.rpbridge.net Richard Pavlicek\n";
-  }
-}
-
-
-static void writeFormattedFile(
-  Group& group,
-  const string& fname,
-  const RefLines& refLines,
-  string &text,
-  const Format format)
-{
-  WriteInfo writeInfo;
-
-  writeHeader(text, group, format);
-
-  for (auto &segment: group)
-  {
-    if (segment.size() == 0)
-      continue;
-
-    (* formatFncs[format].writeSeg)(text, segment, format);
-
-    writeInfo.namesOld[0] = "";
-    writeInfo.namesOld[1] = "";
-    writeInfo.score1 = 0;
-    writeInfo.score2 = 0;
-    writeInfo.numBoards = segment.size();
-    writeInfo.first = true;
-    writeInfo.last = false;
-    const unsigned lastRealNo = segment.lastRealBoardNumber();
-
-    if (refLines.orderCOCO())
-    {
-      // c1, o1, c2, o2, ...
-      for (auto &bpair: segment)
-      {
-        Board& board = bpair.board;
-        segment.setBoard(bpair.extNo);
-        if (bpair.extNo == lastRealNo)
-          writeInfo.last = true;
-
-        writeInfo.bno = bpair.extNo;
-        writeInfo.numInst = board.countAll();
-        writeInfo.numInstActive = board.count();
-
-        for (unsigned i = 0, j = writeInfo.numInst-1; 
-            i < writeInfo.numInst; i++, j--)
-        {
-          board.setInstance(j);
-
-          writeInfo.ino = i;
-          (* formatFncs[format].writeBoard)
-            (text, segment, board, writeInfo, format);
-          writeInfo.first = false;
-        }
-      }
-    }
-    else if (refLines.orderOOCC())
-    {
-      // o1, o2, ..., c1, c2, ...
-      for (unsigned i = 0; i < 2; i++)
-      {
-        for (auto &bpair: segment)
-        {
-          Board& board = bpair.board;
-          segment.setBoard(bpair.extNo);
-          if (bpair.extNo == lastRealNo)
-            writeInfo.last = true;
-
-          writeInfo.bno = bpair.extNo;
-          writeInfo.numInst = board.countAll();
-          writeInfo.numInstActive = board.count();
-          if (writeInfo.numInst > 2)
-            THROW("Too many instances for OOCC output order");
-
-          board.setInstance(i);
-
-          writeInfo.ino = i;
-          (* formatFncs[format].writeBoard)
-            (text, segment, board, writeInfo, format);
-          writeInfo.first = false;
-        }
-      }
-    }
-    else
-    {
-      // o1, c1, o2, c2, ...
-      for (auto &bpair: segment)
-      {
-        Board& board = bpair.board;
-        segment.setBoard(bpair.extNo);
-        if (bpair.extNo == lastRealNo)
-          writeInfo.last = true;
-
-        writeInfo.bno = bpair.extNo;
-        writeInfo.numInst = board.countAll();
-        writeInfo.numInstActive = board.count();
-
-        for (unsigned i = 0; i < writeInfo.numInst; i++)
-        {
-          board.setInstance(i);
-
-          writeInfo.ino = i;
-          (* formatFncs[format].writeBoard)
-            (text, segment, board, writeInfo, format);
-          writeInfo.first = false;
-        }
-      }
-    }
-  }
-
-  if (fname != "")
-    writeFast(fname, text);
-}
-
-
-// http://stackoverflow.com/questions/11563963/
-//   writing-a-binary-file-in-c-very-fast
-
-static void writeFast(
-  const string& fname,
-  const string& text)
-{
-  FILE* pFile;
-  pFile = fopen(fname.c_str(), "wb");
-  fwrite(text.c_str(), 1, text.length(), pFile);
-  fclose(pFile);
 }
 

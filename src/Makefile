@@ -41,6 +41,7 @@ SOURCE_FILES 	=		\
 	fileTXT.cpp		\
 	fileLIN.cpp		\
 	fileREC.cpp		\
+	funcWrite.cpp		\
 	parse.cpp		\
 	RefAction.cpp		\
 	RefComment.cpp		\
@@ -170,11 +171,11 @@ ddsIF.obj: ddsIF.h dll.h Bexcept.h
 dispatch.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h
 dispatch.obj: Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h Players.h
 dispatch.obj: Auction.h Contract.h Play.h ddsIF.h dll.h Chunk.h dispatch.h
-dispatch.obj: Files.h Timers.h Timer.h ValStats.h ValProfile.h validate.h
-dispatch.obj: Buffer.h valint.h Reflines.h RefLine.h RefEdit.h refconst.h
-dispatch.obj: RefComment.h RefAction.h TextStats.h CompStats.h RefStats.h
+dispatch.obj: Files.h AllStats.h ValStats.h ValProfile.h validate.h Buffer.h
+dispatch.obj: valint.h Reflines.h RefLine.h RefEdit.h refconst.h RefComment.h
+dispatch.obj: RefAction.h TextStats.h CompStats.h RefStats.h Timers.h Timer.h
 dispatch.obj: fileLIN.h filePBN.h fileRBN.h fileTXT.h fileEML.h fileREC.h
-dispatch.obj: AllStats.h parse.h Sheet.h SheetHand.h Bexcept.h Bdiff.h
+dispatch.obj: funcWrite.h parse.h Sheet.h SheetHand.h Bexcept.h Bdiff.h
 fileEML.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 fileEML.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
 fileEML.obj: Contract.h Play.h ddsIF.h dll.h Canvas.h fileEML.h Buffer.h
@@ -205,6 +206,12 @@ fileREC.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
 fileREC.obj: Contract.h Play.h ddsIF.h dll.h Canvas.h fileREC.h Buffer.h
 fileREC.obj: valint.h Reflines.h RefLine.h RefEdit.h refconst.h RefComment.h
 fileREC.obj: RefAction.h Chunk.h parse.h Bexcept.h
+funcWrite.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h
+funcWrite.obj: Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h Players.h
+funcWrite.obj: Auction.h Contract.h Play.h ddsIF.h dll.h fileLIN.h Buffer.h
+funcWrite.obj: valint.h Reflines.h RefLine.h RefEdit.h refconst.h
+funcWrite.obj: RefComment.h RefAction.h Chunk.h filePBN.h fileRBN.h fileTXT.h
+funcWrite.obj: fileEML.h fileREC.h parse.h Bexcept.h
 parse.obj: parse.h bconst.h
 RefAction.obj: RefAction.h refconst.h Bexcept.h
 RefComment.obj: RefComment.h refconst.h bconst.h parse.h Bexcept.h

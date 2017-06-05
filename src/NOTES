@@ -6,6 +6,16 @@ dispatch
   Second control option: Language parser
 * Prune TODOs, clean up code again
 
+funcWrite: Could use reverse iterators on board.
+Then maybe all the board str functions should have an
+optional last argument of the instance number (defaulting
+to the active one).
+Maybe there shouldn't even be an active one?
+Then group could be a const argument to writeFormattedFile.
+
+Get tough on #include's again, especially in .h files.
+Also use const args where we can.
+
 * Detect COCO at least in LIN, PBN, RBN, RBX
   Then remove from those .ref files, also in BBOVG
 

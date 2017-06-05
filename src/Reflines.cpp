@@ -132,6 +132,19 @@ bool RefLines::orderOOCC() const
 }
 
 
+BoardOrder RefLines::order() const
+{
+  if (control == ERR_REF_STANDARD)
+    return ORDER_OCOC;
+  else if (control == ERR_REF_OUT_COCO)
+    return ORDER_COCO;
+  else if (control == ERR_REF_OUT_OOCC)
+    return ORDER_OOCC;
+  else
+    return ORDER_GENERAL;
+}
+
+
 bool RefLines::getHeaderEntry(
   CommentType& cat,
   RefEntry& re) const

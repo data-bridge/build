@@ -72,6 +72,7 @@ class RefLines
     bool validate() const;
     bool orderCOCO() const;
     bool orderOOCC() const;
+    BoardOrder order() const;
 
     bool getHeaderEntry(
       CommentType& cat,
