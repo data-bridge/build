@@ -43,6 +43,7 @@ SOURCE_FILES 	=		\
 	fileREC.cpp		\
 	funcDigest.cpp		\
 	funcIMPSheet.cpp	\
+	funcPlayerVal.cpp	\
 	funcRead.cpp		\
 	funcRefStats.cpp	\
 	funcTextStats.cpp	\
@@ -180,9 +181,9 @@ dispatch.obj: Auction.h Contract.h Play.h ddsIF.h dll.h dispatch.h Files.h
 dispatch.obj: AllStats.h ValStats.h ValProfile.h validate.h Buffer.h valint.h
 dispatch.obj: Reflines.h RefLine.h RefEdit.h refconst.h RefComment.h
 dispatch.obj: RefAction.h TextStats.h CompStats.h RefStats.h Timers.h Timer.h
-dispatch.obj: funcDigest.h funcIMPSheet.h funcRead.h funcRefStats.h
-dispatch.obj: RefLines.h funcTextStats.h funcValidate.h funcWrite.h parse.h
-dispatch.obj: Bexcept.h Bdiff.h
+dispatch.obj: funcDigest.h funcIMPSheet.h funcRead.h funcPlayerVal.h
+dispatch.obj: funcRefStats.h RefLines.h funcTextStats.h funcValidate.h
+dispatch.obj: funcWrite.h parse.h Bexcept.h Bdiff.h
 fileEML.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 fileEML.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
 fileEML.obj: Contract.h Play.h ddsIF.h dll.h Canvas.h fileEML.h Buffer.h
@@ -222,6 +223,10 @@ funcIMPSheet.obj: Session.h Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h
 funcIMPSheet.obj: Players.h Auction.h Contract.h Play.h ddsIF.h dll.h Sheet.h
 funcIMPSheet.obj: Buffer.h valint.h Reflines.h RefLine.h RefEdit.h refconst.h
 funcIMPSheet.obj: RefComment.h RefAction.h SheetHand.h Bexcept.h
+funcPlayerVal.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h
+funcPlayerVal.obj: Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h
+funcPlayerVal.obj: Players.h Auction.h Contract.h Play.h ddsIF.h dll.h
+funcPlayerVal.obj: funcPlayerVal.h
 funcRead.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h
 funcRead.obj: Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h Players.h
 funcRead.obj: Auction.h Contract.h Play.h ddsIF.h dll.h Chunk.h fileLIN.h
