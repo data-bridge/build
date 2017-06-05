@@ -25,4 +25,12 @@ bool dispatchReadBuffer(
   Group& group,
   ostream& flog);
 
+bool dispatchReadFile(
+  const string& fname,
+  const Format format,
+  const Options& options,
+  Group& group,
+  RefLines& refLines,
+  ostream& flog);
+
 #endif

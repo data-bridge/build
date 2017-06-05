@@ -6,8 +6,6 @@
    See LICENSE and README.
 */
 
-// The functions in this file help to parse files.
-
 
 #include <iomanip>
 #include <sstream>
@@ -37,78 +35,6 @@ void setTables()
   setReadTables();
   setWriteTables();
   setValidateTables();
-}
-
-
-static bool readFormattedFile(
-  const string& fname,
-  const Format format,
-  const Options& options,
-  Buffer& buffer,
-  Group& group,
-  RefLines& refLines,
-  ostream& flog)
-{
-  buffer.read(fname, format, refLines);
-  if (refLines.skip())
-    return true;
-
-  group.setName(fname);
-  if (refLines.orderCOCO())
-    group.setCOCO();
-
-  return dispatchReadBuffer(format, options, buffer, group, flog);
-}
-
-
-static bool dispatchRead(
-  const FileTask& task,
-  Group& group,
-  const Options& options,
-  RefLines& refLines,
-  ostream& flog)
-{
-  Buffer buffer;
-
-  try
-  {
-    bool b = readFormattedFile(task.fileInput,
-      task.formatInput, options, buffer, group, refLines, flog);
-
-    if (refLines.skip() && options.quoteFlag)
-    {
-      // Ugh.  Poor man's counter of hands and boards.
-      buffer.reset();
-      buffer.readForce(task.fileInput, task.formatInput);
-
-      unsigned numLines, numHands, numBoards;
-      numLines = buffer.lengthOrig();
-      vector<string> lines;
-      for (unsigned i = 1; i <= numLines; i++)
-        lines.push_back(buffer.getLine(i));
-
-      RefLine rl;
-      rl.countHands(lines, FORMAT_INPUT_MAP[task.formatInput], numHands, numBoards);
-      refLines.setFileData(numLines, numHands, numBoards);
-      refLines.checkHeader();
-      return true;
-    }
-
-    if (refLines.skip())
-      return true;
-
-    refLines.setFileData(buffer.lengthOrig(), 
-      group.count(), group.countBoards());
-    if (options.quoteFlag)
-      refLines.checkHeader();
-
-    return b;
-  }
-  catch (Bexcept& bex)
-  {
-    bex.print(flog);
-    return false;
-  }
 }
 
 
@@ -181,12 +107,48 @@ void dispatch(
 
     refLines.reset();
     allStats.timers.start(BRIDGE_TIMER_READ, task.formatInput);
-    bool b = dispatchRead(task, group, options, refLines, flog);
+    bool b = dispatchReadFile(task.fileInput, task.formatInput, 
+      options, group, refLines, flog);
     allStats.timers.stop(BRIDGE_TIMER_READ, task.formatInput);
     if (! b)
     {
       flog << "Failed to read " << task.fileInput << endl;
       continue;
+    }
+
+
+
+    if (refLines.skip() && options.quoteFlag)
+    {
+      // Ugh.  Poor man's counter of hands and boards.
+      Buffer buffer;
+      buffer.readForce(task.fileInput, task.formatInput);
+
+      unsigned numLines, numHands, numBoards;
+      numLines = buffer.lengthOrig();
+      vector<string> lines;
+      for (unsigned i = 1; i <= numLines; i++)
+        lines.push_back(buffer.getLine(i));
+
+      RefLine rl;
+      rl.countHands(lines, FORMAT_INPUT_MAP[task.formatInput], numHands, numBoards);
+      refLines.setFileData(numLines, numHands, numBoards);
+      refLines.checkHeader();
+    }
+
+    if (! refLines.skip())
+    {
+      if (options.quoteFlag)
+      {
+        try
+        {
+          refLines.checkHeader();
+        }
+        catch (Bexcept& bex)
+        {
+          bex.print(flog);
+        }
+      }
     }
 
     if (options.quoteFlag)

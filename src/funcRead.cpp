@@ -449,3 +449,36 @@ bool dispatchReadBuffer(
   return true;
 }
 
+
+bool dispatchReadFile(
+  const string& fname,
+  const Format format,
+  const Options& options,
+  Group& group,
+  RefLines& refLines,
+  ostream& flog)
+{
+  try
+  {
+    Buffer buffer;
+    buffer.read(fname, format, refLines);
+    if (refLines.skip())
+      return true;
+
+    group.setName(fname);
+    if (refLines.orderCOCO())
+      group.setCOCO();
+
+    bool b = dispatchReadBuffer(format, options, buffer, group, flog);
+    refLines.setFileData(buffer.lengthOrig(), 
+      group.count(), group.countBoards());
+
+    return b;
+  }
+  catch (Bexcept& bex)
+  {
+    bex.print(flog);
+    return false;
+  }
+}
+
