@@ -11,6 +11,7 @@
 #define BRIDGE_DEAL_H
 
 #include <string>
+
 #include "bconst.h"
 
 using namespace std;

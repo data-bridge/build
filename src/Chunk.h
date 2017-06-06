@@ -11,6 +11,7 @@
 #define BRIDGE_CHUNK_H
 
 #include <string>
+
 #include "bconst.h"
 
 using namespace std;
@@ -79,11 +80,11 @@ class Chunk
 
     bool differsFrom(
       const Chunk& chunk2,
-      const Label label);
+      const Label label) const;
 
     bool differsFrom(
       const Chunk& chunk2,
-      const ChunkRange range);
+      const ChunkRange range) const;
 
     string str() const;
     string str(const Label label) const;

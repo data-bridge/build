@@ -320,7 +320,7 @@ void Chunk::copyFrom(
 
 bool Chunk::differsFrom(
   const Chunk& chunk2,
-  const Label label)
+  const Label label) const
 {
   return (chunk[label] != chunk2.chunk[label]);
 }
@@ -328,7 +328,7 @@ bool Chunk::differsFrom(
 
 bool Chunk::differsFrom(
   const Chunk& chunk2,
-  const ChunkRange range)
+  const ChunkRange range) const
 {
   unsigned end;
   if (range == CHUNK_HEADER)

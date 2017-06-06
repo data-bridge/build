@@ -16,6 +16,7 @@
 #endif
 
 #include "args.h"
+#include "Files.h"
 #include "AllStats.h"
 #include "dispatch.h"
 

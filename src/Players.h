@@ -11,6 +11,7 @@
 #define BRIDGE_PLAYERS_H
 
 #include <string>
+
 #include "bconst.h"
 
 using namespace std;
@@ -74,7 +75,6 @@ class Players
     bool overlap(const Players& players2) const;
 
     bool operator == (const Players& players2) const;
-
     bool operator != (const Players& players2) const;
 
     string str(const Format format) const;

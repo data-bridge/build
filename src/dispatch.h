@@ -9,11 +9,8 @@
 #ifndef BRIDGE_DISPATCH_H
 #define BRIDGE_DISPATCH_H
 
-#include <string>
-#include <vector>
-
-#include "Files.h"
-#include "AllStats.h"
+class Files;
+struct AllStats;
 
 using namespace std;
 
