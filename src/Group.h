@@ -11,6 +11,7 @@
 #define BRIDGE_GROUP_H
 
 #include <string>
+#include <list>
 
 #include "Segment.h"
 
@@ -22,25 +23,22 @@ class Group
   private:
 
     string nameVal;
-
     Format formatVal;
-
-    vector<Segment> segments;
-
+    list<Segment> segments;
     bool flagCOCO;
 
 
   public:
 
     Group();
-
     ~Group();
-
-    vector<Segment>::iterator begin() { return segments.begin(); }
-
-    vector<Segment>::iterator end() { return segments.end(); }
-
     void reset();
+
+    // TODO
+    // list<Segment>::const_iterator begin() const { return segments.begin(); }
+    // list<Segment>::const_iterator end() const { return segments.end(); }
+    list<Segment>::iterator begin() { return segments.begin(); }
+    list<Segment>::iterator end() { return segments.end(); }
 
     void setName(const string& fname);
     string name() const;
@@ -50,15 +48,13 @@ class Group
 
     Segment * make();
 
-    void setCOCO();
-
+    void setCOCO(const Format format = BRIDGE_FORMAT_SIZE);
     bool isCOCO();
 
     unsigned count();
     unsigned countBoards();
 
     bool operator == (const Group& group2) const;
-
     bool operator != (const Group& group2) const;
 };
 

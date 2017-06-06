@@ -33,7 +33,7 @@ void dispatchCompare(
        (format == BRIDGE_FORMAT_TXT ||
         format == BRIDGE_FORMAT_EML ||
         format == BRIDGE_FORMAT_REC))
-      groupNew.setCOCO();
+      groupNew.setCOCO(format);
 
     Buffer buffer;
     buffer.split(text, format);
@@ -46,9 +46,8 @@ void dispatchCompare(
         format != BRIDGE_FORMAT_EML &&
         format != BRIDGE_FORMAT_REC)
     {
-      groupNew.setCOCO();
-      for (auto &segmentNew: groupNew)
-        segmentNew.swapTeams(format);
+      // This also swaps teams in some cases.
+      groupNew.setCOCO(format);
     }
 
     group == groupNew;

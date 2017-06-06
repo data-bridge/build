@@ -57,11 +57,11 @@ Format Group::format() const
 }
 
 
-void Group::setCOCO()
+void Group::setCOCO(const Format format)
 {
   flagCOCO = true;
   for (auto &segment: segments)
-    segment.setCOCO();
+    segment.setCOCO(format);
 }
 
 
@@ -73,10 +73,10 @@ bool Group::isCOCO()
 
 Segment * Group::make()
 {
-  segments.resize(segments.size()+1);
+  segments.emplace_back(Segment());
   if (flagCOCO)
-    segments[segments.size()-1].setCOCO();
-  return &segments[segments.size()-1];
+    segments.back().setCOCO();
+  return &segments.back();
 }
 
 
@@ -102,16 +102,17 @@ unsigned Group::countBoards()
 
 bool Group::operator == (const Group& group2) const
 {
-  if (segments.size() != group2.segments.size())
-  {
-    const unsigned s1 = segments.size();
-    const unsigned s2 = group2.segments.size();
+  const unsigned s1 = segments.size();
+  const unsigned s2 = group2.segments.size();
+  if (s1 != s2)
     DIFF("Different lengths: " + STR(s1) + " vs. " + STR(s2));
-  }
 
-  for (unsigned i = 0; i < segments.size(); i++)
+  for (auto it1 = segments.cbegin(),
+       it2 = group2.segments.cbegin();
+       it1 != segments.cend() && it2 != group2.segments.cend();
+       it1++, it2++)
   {
-    if (segments[i] != group2.segments[i])
+    if (*it1 != *it2)
       return false;
   }
 

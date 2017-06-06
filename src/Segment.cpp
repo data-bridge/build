@@ -115,24 +115,6 @@ Board * Segment::acquireBoard(const unsigned extNo)
 
   }
 
-
-    /*
-    string st = "";
-    const unsigned lno = (LINPlayersListFlag ? 
-      boards[activeNo].extNo - bmin : 0);
-    for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
-    {
-      st += LINdata[lno].players[r][(i+2) % 4];
-      if (i < 3)
-        st += ",";
-    }
-
-    if (st != ",,,")
-      activeBoard->setPlayers(st, BRIDGE_FORMAT_LIN, false);
-    */
-
-
-
   return activeBoard;
 }
 
@@ -164,9 +146,13 @@ unsigned Segment::getIntBoardNo(const unsigned extNo) const
 }
 
 
-void Segment::setCOCO()
+void Segment::setCOCO(const Format format)
 {
   flagCOCO = true;
+  if (format == BRIDGE_FORMAT_PBN ||
+      format == BRIDGE_FORMAT_RBN ||
+      format == BRIDGE_FORMAT_RBX)
+    teams.swap();
 }
 
 
@@ -385,16 +371,6 @@ void Segment::setSecondTeam(
   const Format format)
 {
   teams.setSecond(text, format); 
-}
-
-
-void Segment::swapTeams(const Format format)
-{
-  if (flagCOCO &&
-      (format == BRIDGE_FORMAT_PBN ||
-       format == BRIDGE_FORMAT_RBN ||
-       format == BRIDGE_FORMAT_RBX))
-    teams.swap();
 }
 
 
@@ -792,22 +768,6 @@ void Segment::setBoardsList(
 }
 
 
-/*
-void Segment::copyPlayers()
-{
-  const unsigned instNo = activeBoard->getInstance();
-  for (unsigned i = 1; i <= activeNo; i++)
-  {
-    if (boards[activeNo-i].board.countAll() > instNo)
-    {
-      activeBoard->copyPlayers(boards[activeNo-i].board);
-      return;
-    }
-  }
-}
-*/
-
-
 void Segment::setRoom(
   const string& text,
   const Format format)
@@ -1176,17 +1136,6 @@ string Segment::strContractsCore(const Format format)
     st.pop_back(); // Remove trailing comma
     return st;
   }
-  /*
-  else if (LINcount == 0)
-  {
-    // This is not quite the same as below.
-    // Say we have PBN 980, 982, 983, ...
-    // The skipped board should not (currently) lead to a LIN gap.
-    for (auto &p: boards)
-      st += p.board.strContracts("", format);
-  }
-  */
-  /* */
   else if (LINcount == 0)
   {
     // TODO: If we push this code down to Board, loop becomes cleaner?
@@ -1205,7 +1154,6 @@ string Segment::strContractsCore(const Format format)
       }
     }
   }
-  /* */
   else
   {
     for (unsigned b = bmin; b <= bmax; b++)

@@ -12,12 +12,8 @@
 #include <iostream>
 #include <iomanip>
 #include <string>
-#include <stdlib.h>
-#include <string.h>
-#include <limits.h>
 
 #include "args.h"
-#include "bconst.h"
 
 using namespace std;
 

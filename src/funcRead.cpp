@@ -341,7 +341,7 @@ bool dispatchReadFile(
        (format == BRIDGE_FORMAT_TXT ||
         format == BRIDGE_FORMAT_EML ||
         format == BRIDGE_FORMAT_REC))
-      group.setCOCO();
+      group.setCOCO(format);
 
     BoardOrder orderSeen;
     bool b = dispatchReadBuffer(format, options, buffer, 
@@ -356,9 +356,7 @@ bool dispatchReadFile(
         refLines.setOrder(orderSeen);
       if (orderSeen == ORDER_COCO)
       {
-        group.setCOCO();
-        for (auto &segment: group)
-          segment.swapTeams(format);
+        group.setCOCO(format);
       }
     }
 

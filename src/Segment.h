@@ -116,7 +116,7 @@ class Segment
     unsigned count() const;
     unsigned countBoards() const;
 
-    void setCOCO();
+    void setCOCO(const Format format = BRIDGE_FORMAT_SIZE);
     bool getCOCO() const;
 
     void setTitle(
@@ -154,8 +154,6 @@ class Segment
     void setSecondTeam(
       const string& text,
       const Format format);
-
-    void swapTeams(const Format format);
 
     void setPlayers(
       const string& text,

@@ -10,8 +10,9 @@
 #ifndef BRIDGE_LOCATION_H
 #define BRIDGE_LOCATION_H
 
-#include "bconst.h"
 #include <string>
+
+#include "bconst.h"
 
 using namespace std;
 

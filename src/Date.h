@@ -10,8 +10,9 @@
 #ifndef BRIDGE_DATE_H
 #define BRIDGE_DATE_H
 
-#include "bconst.h"
 #include <string>
+
+#include "bconst.h"
 
 using namespace std;
 
