@@ -318,6 +318,22 @@ const string orderNames[] =
 };
 
 
+// This is used for header-level LIN data.
+
+struct LINInstData // TODO: Can later be called LINData
+{
+  string contract;
+  string players[4];
+  string mp;
+};
+
+struct LINData
+{
+  LINInstData data[2];
+  string no;
+};
+
+
 // This is used in Buffer and validate.
 
 enum LineType

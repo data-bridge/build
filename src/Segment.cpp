@@ -462,14 +462,14 @@ void Segment::setResultsList(
   for (size_t b = 0, d = 0; b < c+1; b += 2, d++)
   {
     if (Segment::isShortPass(tokens[b]))
-      LINdata[d].contract[0] = "PASS";
+      LINdata[d].data[0].contract = "PASS";
     else
-      LINdata[d].contract[0] = tokens[b];
+      LINdata[d].data[0].contract = tokens[b];
 
     if (Segment::isShortPass(tokens[b+1]))
-      LINdata[d].contract[1] = "PASS";
+      LINdata[d].data[1].contract = "PASS";
     else
-      LINdata[d].contract[1] = tokens[b+1];
+      LINdata[d].data[1].contract = tokens[b+1];
   }
 }
 
@@ -496,8 +496,8 @@ void Segment::setPlayersList(
     {
       for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
       {
-        LINdata[b].players[0][(d+2) % 4] = tokens[d];
-        LINdata[b].players[1][(d+2) % 4] = tokens[d+4];
+        LINdata[b].data[0].players[(d+2) % 4] = tokens[d];
+        LINdata[b].data[1].players[(d+2) % 4] = tokens[d+4];
       }
     }
   }
@@ -508,7 +508,7 @@ void Segment::setPlayersList(
     for (size_t b = 0; b < LINcount; b++)
     {
       for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
-        LINdata[b].players[0][(d+2) % 4] = tokens[d];
+        LINdata[b].data[0].players[(d+2) % 4] = tokens[d];
     }
   }
   else if (format == BRIDGE_FORMAT_LIN_VG ||
@@ -531,9 +531,9 @@ void Segment::setPlayersList(
         {
           for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
           {
-            LINdata[b >> 3].players[0][(d+2) % 4] = 
+            LINdata[b >> 3].data[0].players[(d+2) % 4] = 
               Segment::getEffectivePlayer(b, d, 8, tokens);
-            LINdata[b >> 3].players[1][(d+2) % 4] =
+            LINdata[b >> 3].data[1].players[(d+2) % 4] =
               Segment::getEffectivePlayer(b, d+4, 8, tokens);
           }
         }
@@ -560,7 +560,7 @@ void Segment::setPlayersList(
 
         for (size_t b = 0; b < c; b += 4)
           for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
-            LINdata[b >> 2].players[0][(d+2) % 4] = 
+            LINdata[b >> 2].data[0].players[(d+2) % 4] = 
               Segment::getEffectivePlayer(b, d, 4, tokens);
 
         LINPlayersListFlag = true;
@@ -576,9 +576,9 @@ void Segment::setPlayersList(
       {
         for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
         {
-          LINdata[b >> 3].players[0][(d+2) % 4] = 
+          LINdata[b >> 3].data[0].players[(d+2) % 4] = 
             Segment::getEffectivePlayer(b, d, 8, tokens);
-          LINdata[b >> 3].players[1][(d+2) % 4] = 
+          LINdata[b >> 3].data[1].players[(d+2) % 4] = 
             Segment::getEffectivePlayer(b, d+4, 8, tokens);
         }
       }
@@ -595,7 +595,7 @@ void Segment::setPlayersList(
     {
       for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
       {
-        LINdata[b >> 2].players[0][(d+2) % 4] = tokens[b+d];
+        LINdata[b >> 2].data[0].players[(d+2) % 4] = tokens[b+d];
       }
     }
     LINPlayersListFlag = true;
@@ -660,8 +660,8 @@ void Segment::setPlayersHeader(
     {
       for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
       {
-        LINdata[b].players[0][(d+2) % 4] = tokens[d];
-        LINdata[b].players[1][(d+2) % 4] = tokens[d+4];
+        LINdata[b].data[0].players[(d+2) % 4] = tokens[d];
+        LINdata[b].data[1].players[(d+2) % 4] = tokens[d+4];
       }
     }
 
@@ -678,7 +678,7 @@ void Segment::setPlayersHeader(
     for (size_t b = 0; b < LINcount; b++)
     {
       for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
-        LINdata[b].players[0][(d+2) % 4] = tokens[d];
+        LINdata[b].data[0].players[(d+2) % 4] = tokens[d];
     }
   }
   else if (c < 7)
@@ -728,12 +728,12 @@ void Segment::setScoresList(
       if (tokens[b] == "")
       {
         if (tokens[b+1] == "")
-          LINdata[d].mp[0] = "";
+          LINdata[d].data[0].mp = "";
         else
-          LINdata[d].mp[0] = "-" + tokens[b+1];
+          LINdata[d].data[0].mp = "-" + tokens[b+1];
       }
       else
-        LINdata[d].mp[0] = tokens[b];
+        LINdata[d].data[0].mp = tokens[b];
     }
   }
 }
@@ -1132,7 +1132,8 @@ string Segment::strContractsCore(const Format format)
       return "";
 
     for (unsigned b = 0; b < LINcount; b++)
-      st += LINdata[b].contract[0] + "," + LINdata[b].contract[1] + ",";
+      st += LINdata[b].data[0].contract + "," + 
+            LINdata[b].data[1].contract + ",";
     st.pop_back(); // Remove trailing comma
     return st;
   }
@@ -1162,8 +1163,8 @@ string Segment::strContractsCore(const Format format)
       if (bptr == nullptr)
       {
         const unsigned bhdr = b - bmin;
-        st += LINdata[bhdr].contract[0] + "," + 
-              LINdata[bhdr].contract[1] + ",";
+        st += LINdata[bhdr].data[0].contract + "," + 
+              LINdata[bhdr].data[1].contract + ",";
         continue;
       }
       else
@@ -1205,7 +1206,7 @@ string Segment::strPlayersFromLINHeader(
 {
   string st;
   for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
-    st += LINdata[bhdr].players[instNo][PLAYER_DDS_TO_LIN[i]] + ",";
+    st += LINdata[bhdr].data[instNo].players[PLAYER_DDS_TO_LIN[i]] + ",";
   return st;
 }
 

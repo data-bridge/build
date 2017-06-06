@@ -204,23 +204,23 @@ void Board::setLINheader(const LINData& lin)
   LINset = true;
   LINScoreSet = true;
 
-  if (LINdata.mp[0] != "")
-    Board::setScoreIMP(LINdata.mp[0], BRIDGE_FORMAT_LIN);
-  else if (LINdata.mp[1] != "")
-    Board::setScoreIMP("-" + LINdata.mp[1], BRIDGE_FORMAT_LIN);
+  if (LINdata.data[0].mp != "")
+    Board::setScoreIMP(LINdata.data[0].mp, BRIDGE_FORMAT_LIN);
+  else if (LINdata.data[1].mp != "")
+    Board::setScoreIMP("-" + LINdata.data[1].mp, BRIDGE_FORMAT_LIN);
   else
     LINScoreSet = false;
   
   for (unsigned i = 0; i < len; i++)
   {
     numActive = i;
-    if (LINdata.contract[i] != "")
-      Board::setContract(LINdata.contract[i], BRIDGE_FORMAT_LIN);
+    if (LINdata.data[i].contract != "")
+      Board::setContract(LINdata.data[i].contract, BRIDGE_FORMAT_LIN);
 
     string st = "";
     for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
     {
-      st += LINdata.players[i][(p+2) % 4];
+      st += LINdata.data[i].players[(p+2) % 4];
       if (i < 3)
         st += ",";
     }
@@ -717,7 +717,6 @@ string Board::strDealer(const Format format) const
 
 string Board::strVul(const Format format) const
 {
-  // return auction[numActive].strVul(format);
   return contract[numActive].strVul(format);
 }
 
@@ -784,11 +783,11 @@ string Board::strContract(
   const Format format) const
 {
   if (skip[instNo] && LINset)
-    return LINdata.contract[instNo];
+    return LINdata.data[instNo].contract;
   else if (instNo < len)
     return contract[instNo].str(format);
   else if (LINset && instNo < 2)
-    return LINdata.contract[instNo];
+    return LINdata.data[instNo].contract;
   else
     return "";
 }
@@ -800,21 +799,9 @@ string Board::strDeclarer(const Format format) const
 }
 
 
-string Board::strDeclarerPlay(const Format format) const
-{
-  return play[numActive].strDeclarer(format);
-}
-
-
 string Board::strDenom(const Format format) const
 {
   return contract[numActive].strDenom(format);
-}
-
-
-string Board::strDenomPlay(const Format format) const
-{
-  return play[numActive].strDenom(format);
 }
 
 
@@ -947,7 +934,7 @@ string Board::strPlayersFromLINHeader(const unsigned instNo) const
 {
   string st;
   for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
-    st += LINdata.players[instNo][PLAYER_DDS_TO_LIN[i]] + ",";
+    st += LINdata.data[instNo].players[PLAYER_DDS_TO_LIN[i]] + ",";
   st.pop_back(); // Trailing comma
   return st;
 }

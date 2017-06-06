@@ -25,15 +25,6 @@ using namespace std;
 class Valuation;
 
 
-struct LINData
-{
-  string contract[2];
-  string players[2][4];
-  string mp[2];
-  string no;
-};
-
-
 class Board
 {
   private:
