@@ -9,6 +9,7 @@
 
 #include "Group.h"
 #include "Buffer.h"
+#include "CompStats.h"
 
 #include "funcCompare.h"
 #include "funcRead.h"
@@ -22,7 +23,7 @@ void dispatchCompare(
   const Format format,
   const Options& options,
   const string& text,
-  Group& group,
+  const Group& group,
   CompStats& cstats,
   ostream& flog)
 {

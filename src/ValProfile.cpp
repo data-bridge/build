@@ -42,17 +42,18 @@ void ValProfile::reset()
 
 void ValProfile::log(
   const ValError label,
-  const ValState& valState)
+  const LineData& dataOut,
+  const LineData& dataRef)
 {
   // Only keep the first example of each kind.
   assert(label < BRIDGE_VAL_SIZE);
   if (example[label].out.line == "" && example[label].ref.line == "")
   {
-    example[label].out.line = valState.dataOut.line;
-    example[label].out.lno = valState.dataOut.no;
+    example[label].out.line = dataOut.line;
+    example[label].out.lno = dataOut.no;
 
-    example[label].ref.line = valState.dataRef.line;
-    example[label].ref.lno = valState.dataRef.no;
+    example[label].ref.line = dataRef.line;
+    example[label].ref.lno = dataRef.no;
   }
 
   count[label]++;

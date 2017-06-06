@@ -10,14 +10,13 @@
 #define BRIDGE_READRBN_H
 
 #include <string>
-#include <vector>
-
-#include "Buffer.h"
-#include "Chunk.h"
-
-using namespace std;
 
 class Group;
+class Buffer;
+class Chunk;
+struct WriteInfo;
+
+using namespace std;
 
 
 void setRBNTables();

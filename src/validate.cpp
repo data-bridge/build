@@ -11,8 +11,11 @@
 
 #include <regex>
 
+#include "Chunk.h"
 #include "ValStats.h"
 #include "ValProfile.h"
+#include "valint.h"
+#include "RefLines.h"
 
 #include "filePBN.h"
 #include "validateLIN.h"
@@ -22,6 +25,8 @@
 #include "validateEML.h"
 #include "validateREC.h"
 #include "parse.h"
+
+#define PLOG(x) prof.log(x, valState.dataOut, valState.dataRef)
 
 
 using namespace std;
@@ -133,17 +138,17 @@ static bool validateCore(
         valState.dataRef.type == BRIDGE_BUFFER_COMMENT &&
         isRecordComment(valState.dataOut.line, valState.dataRef.line))
     {
-      prof.log(BRIDGE_VAL_RECORD_NUMBER, valState);
+      PLOG(BRIDGE_VAL_RECORD_NUMBER);
       continue;
     }
     else if ((* valPtr[formatRef])(valState, prof))
       continue;
 
-    prof.log(BRIDGE_VAL_ERROR, valState);
+    PLOG(BRIDGE_VAL_ERROR);
   }
 
   if (valState.bufferOut.next(valState.dataOut))
-    prof.log(BRIDGE_VAL_REF_SHORT, valState);
+    PLOG(BRIDGE_VAL_REF_SHORT);
 
   if (valState.bufferRef.next(valState.dataRef))
   {
@@ -153,7 +158,7 @@ static bool validateCore(
       // Kludge: Accept.
     }
     else
-    prof.log(BRIDGE_VAL_OUT_SHORT, valState);
+      PLOG(BRIDGE_VAL_OUT_SHORT);
   }
 
   if (options.verboseValDetails)
@@ -198,7 +203,7 @@ static bool validateCorePBN(
       if (validatePBNChunk(chunkRef, chunkOut, valState, prof))
         continue;
 
-      prof.log(BRIDGE_VAL_ERROR, valState);
+      PLOG(BRIDGE_VAL_ERROR);
     }
 
     if (doneRef || doneOut)
@@ -206,10 +211,10 @@ static bool validateCorePBN(
   }
 
   if (! doneOut)
-    prof.log(BRIDGE_VAL_REF_SHORT, valState);
+    PLOG(BRIDGE_VAL_REF_SHORT);
 
   if (! doneRef)
-    prof.log(BRIDGE_VAL_OUT_SHORT, valState);
+    PLOG(BRIDGE_VAL_OUT_SHORT);
 
   if (options.verboseValDetails)
     prof.print(cout);

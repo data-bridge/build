@@ -14,7 +14,7 @@
 #include <iostream>
 #include <vector>
 
-#include "validate.h"
+#include "bconst.h"
 
 using namespace std;
 
@@ -167,7 +167,8 @@ class ValProfile
 
     void log(
       const ValError label,
-      const ValState& valState);
+      const LineData& dataOut,
+      const LineData& dataRef);
 
     bool labelIsSet(const unsigned label) const;
 

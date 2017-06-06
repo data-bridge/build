@@ -65,7 +65,7 @@ void Group::setCOCO(const Format format)
 }
 
 
-bool Group::isCOCO()
+bool Group::isCOCO() const
 {
   return flagCOCO;
 }
@@ -80,7 +80,7 @@ Segment * Group::make()
 }
 
 
-unsigned Group::count() 
+unsigned Group::count() const
 {
   unsigned cnt = 0;
   for (auto &segment: segments)
@@ -90,7 +90,7 @@ unsigned Group::count()
 }
 
 
-unsigned Group::countBoards() 
+unsigned Group::countBoards() const
 {
   unsigned cnt = 0;
   for (auto &segment: segments)

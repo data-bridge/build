@@ -16,11 +16,15 @@
 #include <regex>
 
 #include "Deal.h"
+#include "valint.h"
 #include "ValProfile.h"
+#include "validate.h"
 #include "validateLIN.h"
 #include "parse.h"
 #include "Bexcept.h"
 #include "Bdiff.h"
+
+#define PLOG(x) prof.log(x, valState.dataOut, valState.dataRef)
 
 
 enum FixEntry
@@ -432,20 +436,20 @@ static bool isLINHeaderLine(
     return false;
 
   if (vOut[0] != vRef[0])
-    prof.log(BRIDGE_VAL_TITLE, valState);
+    PLOG(BRIDGE_VAL_TITLE);
 
   if (vOut[1] != vRef[1])
-    prof.log(BRIDGE_VAL_SESSION, valState);
+    PLOG(BRIDGE_VAL_SESSION);
 
   if (vOut[2] != vRef[2])
-    prof.log(BRIDGE_VAL_SCORING, valState);
+    PLOG(BRIDGE_VAL_SCORING);
 
   if (vOut[3] != vRef[3] || vOut[4] != vRef[4])
-    prof.log(BRIDGE_VAL_SCORING, valState);
+    PLOG(BRIDGE_VAL_SCORING);
 
   if (vOut[5] != vRef[5] || vOut[6] != vRef[6] ||
       vOut[7] != vRef[7] || vOut[8] != vRef[8])
-    prof.log(BRIDGE_VAL_TEAMS, valState);
+    PLOG(BRIDGE_VAL_TEAMS);
 
   return true;
 }
@@ -471,7 +475,7 @@ static bool isLINPlayerLine(
       continue;
 
     if (firstContainsSecond(vRef[i], vOut[i]))
-      prof.log(BRIDGE_VAL_NAMES_SHORT, valState);
+      PLOG(BRIDGE_VAL_NAMES_SHORT);
     else
       return false;
   }
@@ -495,7 +499,7 @@ static bool isLINPlayLine(
 
   if (firstContainsSecond(vRef[0], vOut[0]))
   {
-    prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
+    PLOG(BRIDGE_VAL_PLAY_SHORT);
     return true;
   }
   else
@@ -521,7 +525,7 @@ bool validateLIN_RP(
     if (valState.dataOut.line == expectLine)
     {
       // No newline when no play (Pavlicek error).
-      prof.log(BRIDGE_VAL_LIN_PLAY_NL, valState);
+      PLOG(BRIDGE_VAL_LIN_PLAY_NL);
       return true;
     }
     else
@@ -537,7 +541,7 @@ bool validateLIN_RP(
     if (valState.dataRef.line == expectLine)
     {
       // No newline when no play (Pavlicek error).
-      prof.log(BRIDGE_VAL_LIN_PLAY_NL, valState);
+      PLOG(BRIDGE_VAL_LIN_PLAY_NL);
       return true;
     }
     else
@@ -564,7 +568,7 @@ bool validateLIN_RP(
 
   if (valState.dataOut.line == valState.dataRef.line)
   {
-    prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
+    PLOG(BRIDGE_VAL_PLAY_SHORT);
     return true;
   }
   else
@@ -867,7 +871,7 @@ static bool isRotatedPlay(
 
     if (valState.dataRef.label == "qx")
     {
-      prof.log(BRIDGE_VAL_LIN_MC_EXTRA, valState);
+      PLOG(BRIDGE_VAL_LIN_MC_EXTRA);
       return (valState.dataRef.value == valState.dataOut.value);
     }
     else
@@ -974,14 +978,14 @@ bool validateLIN(
     if (fixInfo.advancer == VAL_LIN_REF)
     {
       if (valState.bufferRef.next(valState.dataRef))
-        prof.log(fixInfo.error, valState);
+        PLOG(fixInfo.error);
       else
         return false;
     }
     else
     {
       if (valState.bufferOut.next(valState.dataOut))
-        prof.log(fixInfo.error, valState);
+        PLOG(fixInfo.error);
       else
         return false;
     }
@@ -995,7 +999,7 @@ bool validateLIN(
         valState.dataOut.value.substr(0, valState.dataRef.value.length()) 
           == valState.dataRef.value)
     {
-      prof.log(BRIDGE_VAL_LIN_PN_EXTRA, valState);
+      PLOG(BRIDGE_VAL_LIN_PN_EXTRA);
       return true;
     }
     else
@@ -1009,7 +1013,7 @@ bool validateLIN(
     // Currently md, pn, pw, qx, rs, sv, vg.
     if ((* ventry.fptr)(valState.dataRef.value, valState.dataOut.value))
     {
-      prof.log(ventry.error, valState);
+      PLOG(ventry.error);
       return true;
     }
     else
@@ -1020,7 +1024,7 @@ bool validateLIN(
     // Could be a play rotation from an early LIN_VG file.
     if (isRotatedPlay(valState, prof))
     {
-      prof.log(BRIDGE_VAL_LIN_PC_ROTATED, valState);
+      PLOG(BRIDGE_VAL_LIN_PC_ROTATED);
       return true;
     }
     else
@@ -1032,7 +1036,7 @@ bool validateLIN(
     {
       if (isXDouble(valState.dataRef.value, valState.dataOut.value))
       {
-        prof.log(BRIDGE_VAL_AUCTION, valState);
+        PLOG(BRIDGE_VAL_AUCTION);
         return true;
       }
       else
@@ -1040,13 +1044,13 @@ bool validateLIN(
     }
     else if (isCall(valState.dataRef.value, valState.dataOut.value))
     {
-      prof.log(BRIDGE_VAL_LIN_AN_ERROR, valState);
+      PLOG(BRIDGE_VAL_LIN_AN_ERROR);
       return true;
     }
     else if (isCompactSequence(valState))
     {
       // Might be a single-entry bidding sequence.
-      prof.log(BRIDGE_VAL_LIN_AN_ERROR, valState);
+      PLOG(BRIDGE_VAL_LIN_AN_ERROR);
       return (valState.dataRef.label == valState.dataOut.label &&
               valState.dataRef.value == valState.dataOut.value);
     }

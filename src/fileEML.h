@@ -10,7 +10,6 @@
 #define BRIDGE_READEML_H
 
 #include <string>
-#include <vector>
 
 using namespace std;
 

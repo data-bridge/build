@@ -10,8 +10,9 @@
 #ifndef BRIDGE_FUNCPLAYERVAL_H
 #define BRIDGE_FUNCPLAYERVAL_H
 
-#include "Group.h"
 #include "bconst.h"
+
+class Group;
 
 using namespace std;
 

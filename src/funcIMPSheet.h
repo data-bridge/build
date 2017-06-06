@@ -10,8 +10,9 @@
 #ifndef BRIDGE_FUNCIMPSHEET_H
 #define BRIDGE_FUNCIMPSHEET_H
 
-#include "Group.h"
 #include "bconst.h"
+
+class Group;
 
 using namespace std;
 

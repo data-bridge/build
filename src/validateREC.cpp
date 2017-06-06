@@ -9,9 +9,13 @@
 // The functions in this file help to parse files.
 
 
+#include "validate.h"
+#include "valint.h"
 #include "ValProfile.h"
 #include "validateREC.h"
 #include "parse.h"
+
+#define PLOG(x) prof.log(x, valState.dataOut, valState.dataRef)
 
 
 static bool isRECPlay(const string& line)
@@ -124,7 +128,7 @@ bool validateREC(
     while (isRECPlay(valState.dataOut.line))
     {
       // Extra play line in output (not in ref!) (Pavlicek error).
-      prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
+      PLOG(BRIDGE_VAL_PLAY_SHORT);
 
       if (! valState.bufferOut.next(valState.dataOut))
         return false;
@@ -137,7 +141,7 @@ bool validateREC(
     while (isRECPlay(valState.dataRef.line))
     {
       // The other way round.
-      prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
+      PLOG(BRIDGE_VAL_PLAY_SHORT);
 
       if (! valState.bufferRef.next(valState.dataRef))
         return false;
@@ -152,7 +156,7 @@ bool validateREC(
   {
     if (refContainsOut(valState.dataOut, valState.dataRef))
     {
-      prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
+      PLOG(BRIDGE_VAL_PLAY_SHORT);
       return true;
     }
     else
@@ -162,7 +166,7 @@ bool validateREC(
   if (isRECJustMade(valState.dataOut.line, valState.dataRef.line))
   {
     // "Won 32" (Pavlicek error, should be "Made 0" or so.
-    prof.log(BRIDGE_VAL_REC_MADE_32, valState);
+    PLOG(BRIDGE_VAL_REC_MADE_32);
 
     // The next line (Score, Points) is then also different.
     if (! valState.bufferOut.next(valState.dataOut) ||
@@ -179,19 +183,19 @@ bool validateREC(
 
   if (isRECNorthLine(valState.dataOut.line, valState.dataRef.line))
   {
-    prof.log(BRIDGE_VAL_NAMES_SHORT, valState);
+    PLOG(BRIDGE_VAL_NAMES_SHORT);
     return true;
   }
 
   if (isRECEWLine(valState.dataOut.line, valState.dataRef.line))
   {
-    prof.log(BRIDGE_VAL_NAMES_SHORT, valState);
+    PLOG(BRIDGE_VAL_NAMES_SHORT);
     return true;
   }
 
   if (isRECSouthLine(valState.dataOut.line, valState.dataRef.line))
   {
-    prof.log(BRIDGE_VAL_NAMES_SHORT, valState);
+    PLOG(BRIDGE_VAL_NAMES_SHORT);
     return true;
   }
 

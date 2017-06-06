@@ -10,14 +10,14 @@
 #define BRIDGE_READREC_H
 
 #include <string>
-#include <vector>
 
-#include "Buffer.h"
-#include "Chunk.h"
+class Group;
+class Buffer;
+class Chunk;
+struct WriteInfo;
 
 using namespace std;
 
-class Group;
 
 
 void readRECChunk(

@@ -7,55 +7,23 @@
 */
 
 
+#include <vector>
 #include <sstream>
 #include <regex>
 
 #include "Group.h"
 #include "Segment.h"
 #include "Board.h"
+#include "Buffer.h"
+#include "Chunk.h"
 #include "Canvas.h"
+
 #include "fileREC.h"
 #include "parse.h"
 #include "Bexcept.h"
 
 using namespace std;
 
-
-static bool tryRECMethod(
-  const Chunk& chunk,
-  Segment * segment,
-  Board * board,
-  const unsigned label,
-  ifstream& fstr,
-  const string& info);
-
-static void readRECCanvas(
-  Buffer& buffer,
-  vector<string>& canvas,
-  Chunk& chunk);
-
-static bool getRECCanvasOffset(
-  const vector<string>& canvas,
-  unsigned& playLine);
-
-static void getRECFields(
-  const vector<string>& canvas,
-  const unsigned playLine,
-  const bool playExists,
-  Chunk& chunk);
-
-static void getRECDeal(
-  const vector<string>& canvas,
-  Chunk& chunk);
-
-static void getRECAuction(
-  const vector<string>& canvas,
-  Chunk& chunk);
-
-static void getRECPlay(
-  const vector<string>& canvas,
-  const unsigned& offset,
-  Chunk& chunk);
 
 
 static void readRECCanvas(
@@ -105,97 +73,6 @@ static bool getRECCanvasOffset(
   }
 
   return (playLine != canvas.size());
-}
-
-
-static void getRECFields(
-  const vector<string>& canvas,
-  const unsigned playLine,
-  const bool playExists,
-  Chunk& chunk)
-{
-  if (canvas[0].size() < 30 || 
-      canvas[1].size() < 30 ||
-      canvas[3].size() < 26 ||
-      canvas[6].size() < 18)
-  {
-    THROW("Some deal lines are too short");
-  }
-
-  string st;
-  if (! readNextWord(canvas[0], 0, st)) 
-    THROW("Couldn't read format: '" + st + "'");
-  chunk.set(BRIDGE_FORMAT_SCORING, st);
-
-  if (! readNextWord(canvas[0], 29, st)) 
-    THROW("Couldn't read dealer: '" + st + "'");
-  chunk.set(BRIDGE_FORMAT_DEALER, st);
-
-  if (! readNextWord(canvas[1], 6, st)) 
-    THROW("Couldn't read board: '" + st + "'");
-  chunk.set(BRIDGE_FORMAT_BOARD_NO, st);
-
-  if (! readNextWord(canvas[1], 29, st)) 
-    THROW("Couldn't read vul: '" + st + "'");
-  chunk.set(BRIDGE_FORMAT_VULNERABLE, st);
-
-  if (! readAllWords(canvas[3], 0, 11, st)) 
-    THROW("Couldn't read West: '" + st + "'");
-  // Let's hope West doesn't sit West :-)
-  if (st == "West")
-    st = "";
-  chunk.set(BRIDGE_FORMAT_WEST, st);
-
-  if (! readAllWords(canvas[0], 12, 23, st)) 
-    THROW("Couldn't read North: '" + st + "'");
-  if (st == "North")
-    st = "";
-  chunk.set(BRIDGE_FORMAT_NORTH, st);
-
-  if (! readAllWords(canvas[3], 24, 35, st)) 
-    THROW("Couldn't read East: '" + st + "'");
-  if (st == "East")
-    st = "";
-  chunk.set(BRIDGE_FORMAT_EAST, st);
-
-  if (! readAllWords(canvas[6], 12, 23, st)) 
-    THROW("Couldn't read South: '" + st + "'");
-  if (st == "South")
-    st = "";
-  chunk.set(BRIDGE_FORMAT_SOUTH, st);
-
-  getRECDeal(canvas, chunk);
-  getRECAuction(canvas, chunk);
-
-  unsigned i;
-  if (playExists)
-  {
-    getRECPlay(canvas, playLine, chunk);
-
-    if (canvas[playLine-2].size() < 30)
-      THROW("The score line is too short");
-
-    i = playLine-2;
-  }
-  else
-    i = canvas.size()-2;
-
-  if (canvas[i-1].length() > 28 && canvas[i-1].substr(0, 7) == "Opening")
-     i--;
-
-  chunk.set(BRIDGE_FORMAT_RESULT, canvas[i].substr(28));
-
-  // Pavlicek bug.  Only applies when play does not exist.
-  if (chunk.get(BRIDGE_FORMAT_RESULT) == "Won 32")
-    chunk.set(BRIDGE_FORMAT_RESULT, "");
-
-  if (i+2 < canvas.size() &&
-      canvas[i+2].substr(0, 8) == "Contract" &&
-      canvas[i+2].length() > 10)
-  {
-    // This is not official REC.
-    chunk.set(BRIDGE_FORMAT_CONTRACT, canvas[i+2].substr(10));
-  }
 }
 
 
@@ -359,6 +236,97 @@ static void getRECPlay(
 
   regex re(" ");
   chunk.set(BRIDGE_FORMAT_PLAY, regex_replace(d.str(), re, string("")));
+}
+
+
+static void getRECFields(
+  const vector<string>& canvas,
+  const unsigned playLine,
+  const bool playExists,
+  Chunk& chunk)
+{
+  if (canvas[0].size() < 30 || 
+      canvas[1].size() < 30 ||
+      canvas[3].size() < 26 ||
+      canvas[6].size() < 18)
+  {
+    THROW("Some deal lines are too short");
+  }
+
+  string st;
+  if (! readNextWord(canvas[0], 0, st)) 
+    THROW("Couldn't read format: '" + st + "'");
+  chunk.set(BRIDGE_FORMAT_SCORING, st);
+
+  if (! readNextWord(canvas[0], 29, st)) 
+    THROW("Couldn't read dealer: '" + st + "'");
+  chunk.set(BRIDGE_FORMAT_DEALER, st);
+
+  if (! readNextWord(canvas[1], 6, st)) 
+    THROW("Couldn't read board: '" + st + "'");
+  chunk.set(BRIDGE_FORMAT_BOARD_NO, st);
+
+  if (! readNextWord(canvas[1], 29, st)) 
+    THROW("Couldn't read vul: '" + st + "'");
+  chunk.set(BRIDGE_FORMAT_VULNERABLE, st);
+
+  if (! readAllWords(canvas[3], 0, 11, st)) 
+    THROW("Couldn't read West: '" + st + "'");
+  // Let's hope West doesn't sit West :-)
+  if (st == "West")
+    st = "";
+  chunk.set(BRIDGE_FORMAT_WEST, st);
+
+  if (! readAllWords(canvas[0], 12, 23, st)) 
+    THROW("Couldn't read North: '" + st + "'");
+  if (st == "North")
+    st = "";
+  chunk.set(BRIDGE_FORMAT_NORTH, st);
+
+  if (! readAllWords(canvas[3], 24, 35, st)) 
+    THROW("Couldn't read East: '" + st + "'");
+  if (st == "East")
+    st = "";
+  chunk.set(BRIDGE_FORMAT_EAST, st);
+
+  if (! readAllWords(canvas[6], 12, 23, st)) 
+    THROW("Couldn't read South: '" + st + "'");
+  if (st == "South")
+    st = "";
+  chunk.set(BRIDGE_FORMAT_SOUTH, st);
+
+  getRECDeal(canvas, chunk);
+  getRECAuction(canvas, chunk);
+
+  unsigned i;
+  if (playExists)
+  {
+    getRECPlay(canvas, playLine, chunk);
+
+    if (canvas[playLine-2].size() < 30)
+      THROW("The score line is too short");
+
+    i = playLine-2;
+  }
+  else
+    i = canvas.size()-2;
+
+  if (canvas[i-1].length() > 28 && canvas[i-1].substr(0, 7) == "Opening")
+     i--;
+
+  chunk.set(BRIDGE_FORMAT_RESULT, canvas[i].substr(28));
+
+  // Pavlicek bug.  Only applies when play does not exist.
+  if (chunk.get(BRIDGE_FORMAT_RESULT) == "Won 32")
+    chunk.set(BRIDGE_FORMAT_RESULT, "");
+
+  if (i+2 < canvas.size() &&
+      canvas[i+2].substr(0, 8) == "Contract" &&
+      canvas[i+2].length() > 10)
+  {
+    // This is not official REC.
+    chunk.set(BRIDGE_FORMAT_CONTRACT, canvas[i+2].substr(10));
+  }
 }
 
 

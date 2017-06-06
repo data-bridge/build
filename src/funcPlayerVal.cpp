@@ -11,8 +11,6 @@
 #include <fstream>
 
 #include "Group.h"
-#include "Segment.h"
-#include "Board.h"
 
 #include "funcPlayerVal.h"
 #include "Bexcept.h"

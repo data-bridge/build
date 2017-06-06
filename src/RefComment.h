@@ -11,6 +11,7 @@
 #define BRIDGE_REFCOMMENT_H
 
 #include <string>
+
 #include "refconst.h"
 #include "bconst.h"
 

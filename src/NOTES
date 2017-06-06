@@ -24,6 +24,7 @@ Code in general
   refconst.h into cpp, not h (dynamic allocation in e.g. RefStats.cpp)
 * Also use const args where we can.
 * Write Files output into a file?  (For speed-up)
+* lists with iterators before vectors where possible
 
 Perl scripts in BBOVG
 - Make director.pl run without warnings 

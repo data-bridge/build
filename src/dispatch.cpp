@@ -13,8 +13,10 @@
 
 #include "Group.h"
 #include "dispatch.h"
+#include "validate.h"
 #include "Files.h"
 #include "AllStats.h"
+#include "RefLines.h"
 
 #include "funcCompare.h"
 #include "funcDigest.h"

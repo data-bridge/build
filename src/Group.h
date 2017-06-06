@@ -49,10 +49,10 @@ class Group
     Segment * make();
 
     void setCOCO(const Format format = BRIDGE_FORMAT_SIZE);
-    bool isCOCO();
+    bool isCOCO() const;
 
-    unsigned count();
-    unsigned countBoards();
+    unsigned count() const;
+    unsigned countBoards() const;
 
     bool operator == (const Group& group2) const;
     bool operator != (const Group& group2) const;

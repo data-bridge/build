@@ -11,23 +11,11 @@
 
 #include <string>
 
-#include "Buffer.h"
 #include "bconst.h"
 
 using namespace std;
 
 class ValStats;
-class Buffer;
-
-
-struct ValState
-{
-  Buffer bufferOut;
-  Buffer bufferRef;
-
-  LineData dataOut;
-  LineData dataRef;
-};
 
 
 void setValidateTables();

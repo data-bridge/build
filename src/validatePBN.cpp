@@ -11,9 +11,13 @@
 #include <algorithm>
 
 #include "parse.h"
+#include "validate.h"
+#include "valint.h"
 #include "ValProfile.h"
 #include "validatePBN.h"
 #include "Chunk.h"
+
+#define PLOG(x) prof.log(x, valState.dataOut, valState.dataRef)
 
 
 bool validatePBN(
@@ -28,7 +32,7 @@ bool validatePBN(
     {
     }
 
-    prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
+    PLOG(BRIDGE_VAL_PLAY_SHORT);
     return true;
   }
 
@@ -48,7 +52,7 @@ bool validatePBN(
       if (valState.dataRef.line.substr(0, poso) == 
           valState.dataOut.line.substr(0, poso))
       {
-        prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
+        PLOG(BRIDGE_VAL_PLAY_SHORT);
         return true;
       }
       else
@@ -73,19 +77,19 @@ bool validatePBN(
            valState.dataRef.label == "South") &&
            refContainsOutValue(valState.dataOut, valState.dataRef))
       {
-        prof.log(BRIDGE_VAL_NAMES_SHORT, valState);
+        PLOG(BRIDGE_VAL_NAMES_SHORT);
         return true;
       }
       else if (valState.dataRef.label == "Site" &&
         refContainsOutValue(valState.dataOut, valState.dataRef))
       {
-        prof.log(BRIDGE_VAL_LOCATION, valState);
+        PLOG(BRIDGE_VAL_LOCATION);
         return true;
       }
       else if (valState.dataRef.label == "Stage" &&
         refContainsOutValue(valState.dataOut, valState.dataRef))
       {
-        prof.log(BRIDGE_VAL_SESSION, valState);
+        PLOG(BRIDGE_VAL_SESSION);
         return true;
       }
       else
@@ -112,7 +116,7 @@ bool validatePBN(
         valState.dataRef.type != BRIDGE_BUFFER_STRUCTURED)
       return false;
 
-    prof.log(ve, valState);
+    PLOG(ve);
   }
 
   return false;
@@ -560,84 +564,84 @@ bool validatePBNChunk(
     if ((i == BRIDGE_FORMAT_TITLE || i == BRIDGE_FORMAT_EVENT) && 
         titleInWrongPlace(chunkRef, chunkOut))
     {
-      prof.log(BRIDGE_VAL_TITLE, valState);
+      PLOG(BRIDGE_VAL_TITLE);
     }
     else if (i == BRIDGE_FORMAT_DATE && 
         datePunctuation(chunkRef.get(i), chunkOut.get(i)))
     {
-      prof.log(BRIDGE_VAL_DATE, valState);
+      PLOG(BRIDGE_VAL_DATE);
     }
     else if (i == BRIDGE_FORMAT_LOCATION && 
         locationNone(chunkRef.get(i), chunkOut.get(i)))
     {
-      prof.log(BRIDGE_VAL_LOCATION, valState);
+      PLOG(BRIDGE_VAL_LOCATION);
     }
     else if (i == BRIDGE_FORMAT_SCORING &&
         scoringName(chunkRef.get(i), chunkOut.get(i)))
     {
-      prof.log(BRIDGE_VAL_SCORING, valState);
+      PLOG(BRIDGE_VAL_SCORING);
     }
     else if (i == BRIDGE_FORMAT_ROOM &&
         roomRefMissing(chunkRef.get(i), chunkOut.get(i)))
     {
-      prof.log(BRIDGE_VAL_ROOM, valState);
+      PLOG(BRIDGE_VAL_ROOM);
     }
     else if (i == BRIDGE_FORMAT_DEAL &&
         dealRotated(chunkRef.get(i), chunkOut.get(i)))
     {
-      prof.log(BRIDGE_VAL_DEAL, valState);
+      PLOG(BRIDGE_VAL_DEAL);
     }
     else if (i == BRIDGE_FORMAT_VULNERABLE &&
         vulCapitalization(chunkRef.get(i), chunkOut.get(i)))
     {
-      prof.log(BRIDGE_VAL_VUL, valState);
+      PLOG(BRIDGE_VAL_VUL);
     }
     else if (i == BRIDGE_FORMAT_AUCTION &&
         auctionFormat(chunkRef.get(i), chunkOut.get(i)))
     {
-      prof.log(BRIDGE_VAL_AUCTION, valState);
+      PLOG(BRIDGE_VAL_AUCTION);
     }
     else if (i == BRIDGE_FORMAT_DECLARER &&
         declarerPassout(chunkRef, chunkOut))
     {
-      prof.log(BRIDGE_VAL_AUCTION, valState);
+      PLOG(BRIDGE_VAL_AUCTION);
     }
     else if (i == BRIDGE_FORMAT_CONTRACT &&
         contractPassout(chunkRef.get(i), chunkOut.get(i)))
     {
-      prof.log(BRIDGE_VAL_AUCTION, valState);
+      PLOG(BRIDGE_VAL_AUCTION);
     }
     else if (i == BRIDGE_FORMAT_PLAY &&
         playFormat(chunkRef.get(i), chunkOut.get(i)))
     {
-      prof.log(BRIDGE_VAL_AUCTION, valState);
+      PLOG(BRIDGE_VAL_AUCTION);
     }
     else if (i == BRIDGE_FORMAT_RESULT &&
         resultPassout(chunkRef.get(i), chunkOut.get(i)))
     {
-      prof.log(BRIDGE_VAL_AUCTION, valState);
+      PLOG(BRIDGE_VAL_AUCTION);
     }
     else if (i == BRIDGE_FORMAT_SCORE &&
         scoreFormat(chunkRef.get(i), chunkOut.get(i)))
     {
-      prof.log(BRIDGE_VAL_AUCTION, valState);
+      PLOG(BRIDGE_VAL_AUCTION);
     }
     else if (i == BRIDGE_FORMAT_SCORE_IMP &&
         scoreIMPFormat(chunkRef.get(i), chunkOut.get(i)))
     {
-      prof.log(BRIDGE_VAL_AUCTION, valState);
+      PLOG(BRIDGE_VAL_AUCTION);
     }
     else if (i == BRIDGE_FORMAT_DOUBLE_DUMMY &&
         doubleDummyFormat(chunkRef.get(i), chunkOut.get(i)))
     {
-      prof.log(BRIDGE_VAL_DD, valState);
+      PLOG(BRIDGE_VAL_DD);
     }
     else
     {
       cout << LABEL_NAMES[i] << ":\n";
       cout << "Ref " << chunkRef.get(i) << "\n";
       cout << "Out " << chunkOut.get(i) << "\n" << endl;
-      prof.log(BRIDGE_VAL_ERROR, valState);
+      PLOG(BRIDGE_VAL_ERROR);
       return true;
     }
   }

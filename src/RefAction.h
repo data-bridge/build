@@ -11,6 +11,7 @@
 #define BRIDGE_REFACTION_H
 
 #include <string>
+
 #include "refconst.h"
 
 using namespace std;

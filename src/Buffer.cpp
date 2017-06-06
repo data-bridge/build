@@ -20,7 +20,9 @@
   #include <unistd.h>
 #endif
 
+#include "Reflines.h"
 #include "Buffer.h"
+
 #include "parse.h"
 #include "Bexcept.h"
 

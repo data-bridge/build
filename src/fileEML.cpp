@@ -25,43 +25,6 @@ using namespace std;
 static string EMLdashes, EMLequals;
 
 
-static void readEMLCanvas(
-  Buffer& buffer,
-  vector<string>& canvas,
-  Chunk& chunk);
-
-static bool getEMLCanvasWest(
-  const vector<string>& canvas,
-  const unsigned pos,
-  const unsigned resultLine,
-  unsigned& westLine,
-  unsigned& cardStart);
-
-static void getEMLCanvasOffset(
-  const vector<string>& canvas,
-  unsigned& resultLine,
-  bool& playIsPresent,
-  unsigned& westLine);
-
-static void getEMLSimpleFields(
-  const vector<string>& canvas,
-  const unsigned resultLine,
-  Chunk& chunk);
-
-static void getEMLAuction(
-  const vector<string>& canvas,
-  const unsigned resultLine,
-  Chunk& chunk);
-
-static void getEMLPlay(
-  const vector<string>& canvas,
-  const bool playIsPresent,
-  const unsigned resultLine,
-  const unsigned westLine,
-  const unsigned cardStart,
-  Chunk& chunk);
-
-
 void setEMLTables()
 {
   EMLdashes.resize(0);

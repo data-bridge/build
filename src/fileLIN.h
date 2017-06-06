@@ -10,14 +10,12 @@
 #define BRIDGE_READLIN_H
 
 #include <string>
-#include <vector>
-
-#include "Buffer.h"
-#include "Chunk.h"
 
 using namespace std;
 
 class Group;
+class Buffer;
+class Chunk;
 
 
 void setLINTables();

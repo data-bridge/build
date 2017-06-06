@@ -9,9 +9,12 @@
 
 #include "Group.h"
 #include "Segment.h"
-#include "Bexcept.h"
+#include "Buffer.h"
+#include "Chunk.h"
+
 #include "fileRBN.h"
 #include "parse.h"
+#include "Bexcept.h"
 
 using namespace std;
 

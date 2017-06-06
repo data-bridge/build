@@ -8,6 +8,9 @@
 
 
 #include "Buffer.h"
+#include "RefLines.h"
+#include "RefStats.h"
+
 #include "funcRefStats.h"
 #include "Bexcept.h"
 

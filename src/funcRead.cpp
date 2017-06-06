@@ -14,9 +14,8 @@
 #include <fstream>
 
 #include "Group.h"
-#include "Segment.h"
-#include "Board.h"
 #include "Chunk.h"
+#include "RefLines.h"
 
 #include "fileLIN.h"
 #include "filePBN.h"

@@ -10,9 +10,10 @@
 #ifndef BRIDGE_FUNCREFSTATS_H
 #define BRIDGE_FUNCREFSTATS_H
 
-#include "RefLines.h"
-#include "RefStats.h"
 #include "bconst.h"
+
+class RefLines;
+class RefStats;
 
 using namespace std;
 

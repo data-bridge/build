@@ -9,8 +9,12 @@
 // The functions in this file help to parse files.
 
 
+#include "validate.h"
+#include "valint.h"
 #include "ValProfile.h"
 #include "validateEML.h"
+
+#define PLOG(x) prof.log(x, valState.dataOut, valState.dataRef)
 
 
 bool validateEML(
@@ -24,7 +28,7 @@ bool validateEML(
 
   if (refContainsOut(valState.dataOut, valState.dataRef))
   {
-    prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
+    PLOG(BRIDGE_VAL_PLAY_SHORT);
     return true;
   }
   
@@ -36,7 +40,7 @@ bool validateEML(
     outShort.erase(38, 3);
     if (outShort == valState.dataRef.line.substr(0, valState.dataOut.len-3))
     {
-      prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
+      PLOG(BRIDGE_VAL_PLAY_SHORT);
       return true;
     }
   }

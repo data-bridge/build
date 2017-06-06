@@ -10,8 +10,9 @@
 #ifndef BRIDGE_FUNCWRITE_H
 #define BRIDGE_FUNCWRITE_H
 
-#include "Group.h"
 #include "bconst.h"
+
+class Group;
 
 using namespace std;
 

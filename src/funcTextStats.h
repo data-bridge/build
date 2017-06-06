@@ -10,9 +10,10 @@
 #ifndef BRIDGE_FUNCTEXTSTATS_H
 #define BRIDGE_FUNCTEXTSTATS_H
 
-#include "Group.h"
-#include "TextStats.h"
 #include "bconst.h"
+
+class Group;
+class TextStats;
 
 using namespace std;
 

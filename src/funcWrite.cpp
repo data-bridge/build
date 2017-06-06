@@ -12,8 +12,6 @@
 #include <fstream>
 
 #include "Group.h"
-#include "Segment.h"
-#include "Board.h"
 
 #include "fileLIN.h"
 #include "filePBN.h"
@@ -75,7 +73,7 @@ void setWriteTables()
 
 static void writeHeader(
   const Format format,
-  Group& group,
+  const Group& group,
   string& text)
 {
   text = "";

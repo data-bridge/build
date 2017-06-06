@@ -9,9 +9,13 @@
 // The functions in this file help to parse files.
 
 
+#include "validate.h"
+#include "valint.h"
 #include "ValProfile.h"
 #include "validateTXT.h"
 #include "parse.h"
+
+#define PLOG(x) prof.log(x, valState.dataOut, valState.dataRef)
 
 
 static bool isTXTAllPass(
@@ -229,7 +233,7 @@ static bool isTXTHeader(
   for (unsigned i = offsetOut; i < 7; i++)
   {
     if (listOut[i] != listRef[i])
-      prof.log(headerErrorType[i], valState);
+      PLOG(headerErrorType[i]);
   }
   return true;
 }
@@ -249,7 +253,8 @@ bool validateTXT(
     if (expectPasses == 0 || 
         isTXTPasses(valState.dataRef.line, expectPasses))
     {
-      prof.log(BRIDGE_VAL_TXT_ALL_PASS, valState); return true;
+      PLOG(BRIDGE_VAL_TXT_ALL_PASS);
+      return true;
     }
     else
       return false;
@@ -265,7 +270,7 @@ bool validateTXT(
     if (valState.dataRef.type != BRIDGE_BUFFER_EMPTY)
       return false;
 
-    prof.log(BRIDGE_VAL_TXT_DASHES, valState);
+    PLOG(BRIDGE_VAL_TXT_DASHES);
     return true;
   }
 
@@ -276,7 +281,7 @@ bool validateTXT(
       if (! valState.bufferRef.next(valState.dataRef))
         return false;
 
-      prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
+      PLOG(BRIDGE_VAL_PLAY_SHORT);
     }
   }
 
@@ -288,7 +293,7 @@ bool validateTXT(
       valState.dataOut.line.substr(0, 6) == "Lead: " &&
       valState.dataRef.line == "Trick   Lead    2nd    3rd    4th")
   {
-    prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
+    PLOG(BRIDGE_VAL_PLAY_SHORT);
     return true;
   }
 
@@ -297,7 +302,7 @@ bool validateTXT(
       areTXTSimilarResults(valState.dataOut.line, 
         valState.dataRef.line))
   {
-    prof.log(BRIDGE_VAL_TXT_RESULT, valState);
+    PLOG(BRIDGE_VAL_TXT_RESULT);
     return true;
   }
 
@@ -307,7 +312,7 @@ bool validateTXT(
   {
     if (isTXTRunningScore(valState.dataRef.line))
     {
-      prof.log(BRIDGE_VAL_TEAMS, valState);
+      PLOG(BRIDGE_VAL_TEAMS);
       return true;
     }
     else if (valState.dataOut.no <= headerStartOut+6)
@@ -338,7 +343,7 @@ bool validateTXT(
 
     if (! diffSeen)
     {
-      prof.log(BRIDGE_VAL_NAMES_SHORT, valState);
+      PLOG(BRIDGE_VAL_NAMES_SHORT);
       return true;
     }
 
@@ -359,7 +364,7 @@ bool validateTXT(
       if (! firstContainsSecond(vRef[i], vOut[i]))
         return false;
     }
-    prof.log(BRIDGE_VAL_NAMES_SHORT, valState);
+    PLOG(BRIDGE_VAL_NAMES_SHORT);
     return true;
   }
 

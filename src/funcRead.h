@@ -10,8 +10,10 @@
 #ifndef BRIDGE_FUNCREAD_H
 #define BRIDGE_FUNCREAD_H
 
-#include "Group.h"
-#include "Buffer.h"
+class Group;
+class Buffer;
+class RefLines;
+
 #include "bconst.h"
 
 using namespace std;

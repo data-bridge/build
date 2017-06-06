@@ -9,9 +9,13 @@
 // The functions in this file help to parse files.
 
 
+#include "validate.h"
+#include "valint.h"
 #include "ValProfile.h"
 #include "validateRBN.h"
 #include "parse.h"
+
+#define PLOG(x) prof.log(x, valState.dataOut, valState.dataRef)
 
 using namespace std;
 
@@ -29,7 +33,7 @@ static bool isRBNMissing(
     if (valState.dataRef.label != valState.dataOut.label)
       return false;
 
-    prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
+    PLOG(BRIDGE_VAL_PLAY_SHORT);
     return (valState.dataRef.line == valState.dataOut.line);
   }
   else if (valState.dataRef.label == "K")
@@ -40,7 +44,7 @@ static bool isRBNMissing(
     if (valState.dataRef.label != valState.dataOut.label)
       return false;
 
-    prof.log(BRIDGE_VAL_TEAMS, valState);
+    PLOG(BRIDGE_VAL_TEAMS);
     return (valState.dataRef.line == valState.dataOut.line);
   }
 
@@ -81,43 +85,43 @@ static bool isRBNShort(
     case 'T':
       if (valState.dataOut.len > 2)
         return false;
-      prof.log(BRIDGE_VAL_TITLE, valState);
+      PLOG(BRIDGE_VAL_TITLE);
       return true;
 
     case 'D':
       if (valState.dataOut.len > 2)
         return false;
-      prof.log(BRIDGE_VAL_DATE, valState);
+      PLOG(BRIDGE_VAL_DATE);
       return true;
         
     case 'L':
       if (valState.dataOut.len > 2)
         return false;
-      prof.log(BRIDGE_VAL_LOCATION, valState);
+      PLOG(BRIDGE_VAL_LOCATION);
       return true;
         
     case 'E':
       if (valState.dataOut.len > 2)
         return false;
-      prof.log(BRIDGE_VAL_EVENT, valState);
+      PLOG(BRIDGE_VAL_EVENT);
       return true;
         
     case 'S':
       if (! refContainsOut(valState.dataOut, valState.dataRef))
         return false;
-      prof.log(BRIDGE_VAL_SESSION, valState);
+      PLOG(BRIDGE_VAL_SESSION);
       return true;
 
     case 'N':
       if (! areRBNNames(valState.dataRef.value, valState.dataOut.value))
         return false;
-      prof.log(BRIDGE_VAL_NAMES_SHORT, valState);
+      PLOG(BRIDGE_VAL_NAMES_SHORT);
       return true;
 
     case 'P':
       if (! refContainsOut(valState.dataOut, valState.dataRef))
         return false;
-      prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
+      PLOG(BRIDGE_VAL_PLAY_SHORT);
       return true;
 
     default:

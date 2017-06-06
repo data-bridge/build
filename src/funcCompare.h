@@ -10,9 +10,10 @@
 #ifndef BRIDGE_FUNCCOMPARE_H
 #define BRIDGE_FUNCCOMPARE_H
 
-#include "Group.h"
-#include "CompStats.h"
 #include "bconst.h"
+
+class Group;
+class CompStats;
 
 using namespace std;
 
@@ -22,7 +23,7 @@ void dispatchCompare(
   const Format format,
   const Options& options,
   const string& text,
-  Group& group,
+  const Group& group,
   CompStats& cstats,
   ostream& flog);
 

@@ -12,6 +12,9 @@
 #include "Group.h"
 #include "Segment.h"
 #include "Board.h"
+#include "Buffer.h"
+#include "Chunk.h"
+
 #include "filePBN.h"
 #include "Bexcept.h"
 

@@ -10,12 +10,11 @@
 #define BRIDGE_READPBN_H
 
 #include <string>
-#include <vector>
 
-#include "Segment.h"
-#include "Board.h"
-#include "Buffer.h"
-#include "Chunk.h"
+class Segment;
+class Board;
+class Buffer;
+class Chunk;
 
 using namespace std;
 
