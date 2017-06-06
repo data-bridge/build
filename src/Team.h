@@ -10,9 +10,10 @@
 #ifndef BRIDGE_TEAM_H
 #define BRIDGE_TEAM_H
 
+#include <string>
+
 #include "bconst.h"
 
-#include <string>
 
 using namespace std;
 

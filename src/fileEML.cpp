@@ -12,9 +12,12 @@
 #include "Group.h"
 #include "Segment.h"
 #include "Board.h"
+#include "Buffer.h"
+#include "Chunk.h"
 #include "Canvas.h"
 #include "fileEML.h"
 #include "parse.h"
+#include "valint.h"
 #include "Bexcept.h"
 
 using namespace std;
@@ -457,7 +460,7 @@ void writeEMLBoardLevel(
   Segment& segment,
   Board& board,
   WriteInfo& writeInfo,
-  const Format format)
+  Format format)
 {
   if (board.skipped())
     return;

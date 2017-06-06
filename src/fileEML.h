@@ -12,12 +12,10 @@
 #include <string>
 #include <vector>
 
-#include "Buffer.h"
-#include "Chunk.h"
-
 using namespace std;
 
-class Group;
+class Buffer;
+class Chunk;
 
 
 void setEMLTables();
@@ -27,15 +25,11 @@ void readEMLChunk(
   Chunk& chunk,
   bool& newSegFlag);
 
-bool writeEML(
-  Group& group,
-  const string& fname);
-
 void writeEMLBoardLevel(
   string& st,
   Segment& segment,
   Board& board,
   WriteInfo& writeInfo,
-  const Format format);
+  Format format);
 
 #endif

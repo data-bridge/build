@@ -11,6 +11,7 @@
 #define BRIDGE_SCORING_H
 
 #include <string>
+
 #include "bconst.h"
 
 using namespace std;

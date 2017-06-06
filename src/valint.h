@@ -13,8 +13,6 @@
 
 using namespace std;
 
-class Buffer;
-
 
 enum LineType
 {
@@ -37,6 +35,4 @@ struct LineData
 };
 
 #endif
-
-
 

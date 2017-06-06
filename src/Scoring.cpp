@@ -8,6 +8,7 @@
 
 
 #include <sstream>
+
 #include "Scoring.h"
 #include "Bexcept.h"
 #include "Bdiff.h"
