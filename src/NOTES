@@ -1,9 +1,5 @@
 05.06.2017
 ----------
-.ref files
-* As few delete's as possible (expand deleteRBN etc)
-* Look at -q output for RPmajors, SH and JEC
-
 Segment
 * Split Segment into HeaderLIN
 
@@ -25,6 +21,7 @@ Code in general
 * Then many more arguments could be const
 * Prune TODOs, clean up code again
 * Get tough on #include's again, especially in .h files.
+  refconst.h into cpp, not h (dynamic allocation in e.g. RefStats.cpp)
 * Also use const args where we can.
 * Write Files output into a file?  (For speed-up)
 
