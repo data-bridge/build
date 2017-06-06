@@ -9,9 +9,7 @@
 #ifndef BRIDGE_VALLIN_H
 #define BRIDGE_VALLIN_H
 
-#include "ValProfile.h"
-
-using namespace std;
+class ValProfile;
 
 
 void setValidateLINTables();

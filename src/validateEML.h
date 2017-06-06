@@ -9,9 +9,7 @@
 #ifndef BRIDGE_VALEML_H
 #define BRIDGE_VALEML_H
 
-#include "ValProfile.h"
-
-using namespace std;
+class ValProfile;
 
 
 bool validateEML(

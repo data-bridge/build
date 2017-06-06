@@ -9,10 +9,8 @@
 #ifndef BRIDGE_VALPBN_H
 #define BRIDGE_VALPBN_H
 
-#include "ValProfile.h"
-#include "Chunk.h"
-
-using namespace std;
+class Chunk;
+class ValProfile;
 
 
 bool validatePBN(

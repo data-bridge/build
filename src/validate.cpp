@@ -280,26 +280,28 @@ void validate(
 }
 
 
-bool refContainsOut(const ValState& valState)
+bool refContainsOut(
+  const LineData& dataOut,
+  const LineData& dataRef)
 {
-  if (valState.dataOut.len >= valState.dataRef.len)
+  if (dataOut.len >= dataRef.len)
     return false;
 
-  if (valState.dataOut.line == 
-      valState.dataRef.line.substr(0, valState.dataOut.len))
+  if (dataOut.line == dataRef.line.substr(0, dataOut.len))
     return true;
   else
     return false;
 }
 
 
-bool refContainsOutValue(const ValState& valState)
+bool refContainsOutValue(
+  const LineData& dataOut,
+  const LineData& dataRef)
 {
-  if (valState.dataOut.len >= valState.dataRef.len)
+  if (dataOut.len >= dataRef.len)
     return false;
 
-  if (valState.dataOut.value == 
-      valState.dataRef.value.substr(0, valState.dataOut.value.length()))
+  if (dataOut.value == dataRef.value.substr(0, dataOut.value.length()))
     return true;
   else
     return false;

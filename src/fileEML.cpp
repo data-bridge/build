@@ -17,7 +17,6 @@
 #include "Canvas.h"
 #include "fileEML.h"
 #include "parse.h"
-#include "valint.h"
 #include "Bexcept.h"
 
 using namespace std;

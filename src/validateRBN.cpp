@@ -9,8 +9,11 @@
 // The functions in this file help to parse files.
 
 
+#include "ValProfile.h"
 #include "validateRBN.h"
 #include "parse.h"
+
+using namespace std;
 
 
 static bool isRBNMissing(
@@ -100,7 +103,7 @@ static bool isRBNShort(
       return true;
         
     case 'S':
-      if (! refContainsOut(valState))
+      if (! refContainsOut(valState.dataOut, valState.dataRef))
         return false;
       prof.log(BRIDGE_VAL_SESSION, valState);
       return true;
@@ -112,7 +115,7 @@ static bool isRBNShort(
       return true;
 
     case 'P':
-      if (! refContainsOut(valState))
+      if (! refContainsOut(valState.dataOut, valState.dataRef))
         return false;
       prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
       return true;

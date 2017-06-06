@@ -9,9 +9,8 @@
 #ifndef BRIDGE_VALTXT_H
 #define BRIDGE_VALTXT_H
 
-#include "ValProfile.h"
-
-using namespace std;
+struct ValState;
+class ValProfile;
 
 
 bool validateTXT(

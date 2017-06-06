@@ -16,6 +16,7 @@
 #include <regex>
 
 #include "Deal.h"
+#include "ValProfile.h"
 #include "validateLIN.h"
 #include "parse.h"
 #include "Bexcept.h"

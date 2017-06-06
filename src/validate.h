@@ -49,9 +49,13 @@ void validate(
   const Options& options,
   ValStats& vstats);
 
-bool refContainsOut(const ValState& valState);
+bool refContainsOut(
+  const LineData& dataOut,
+  const LineData& dataRef);
 
-bool refContainsOutValue(const ValState& valState);
+bool refContainsOutValue(
+  const LineData& dataOut,
+  const LineData& dataRef);
 
 bool firstContainsSecond(
   const LineData& first,

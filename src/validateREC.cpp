@@ -9,6 +9,7 @@
 // The functions in this file help to parse files.
 
 
+#include "ValProfile.h"
 #include "validateREC.h"
 #include "parse.h"
 
@@ -149,7 +150,7 @@ bool validateREC(
   if (isRECPlay(valState.dataOut.line) && 
       isRECPlay(valState.dataRef.line))
   {
-    if (refContainsOut(valState))
+    if (refContainsOut(valState.dataOut, valState.dataRef))
     {
       prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
       return true;

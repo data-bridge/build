@@ -9,6 +9,7 @@
 // The functions in this file help to parse files.
 
 
+#include "ValProfile.h"
 #include "validateEML.h"
 
 
@@ -21,7 +22,7 @@ bool validateEML(
 
   // A bit thin -- could look more carefully.
 
-  if (refContainsOut(valState))
+  if (refContainsOut(valState.dataOut, valState.dataRef))
   {
     prof.log(BRIDGE_VAL_PLAY_SHORT, valState);
     return true;

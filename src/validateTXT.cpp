@@ -9,6 +9,7 @@
 // The functions in this file help to parse files.
 
 
+#include "ValProfile.h"
 #include "validateTXT.h"
 #include "parse.h"
 

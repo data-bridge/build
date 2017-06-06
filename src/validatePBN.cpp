@@ -11,7 +11,9 @@
 #include <algorithm>
 
 #include "parse.h"
+#include "ValProfile.h"
 #include "validatePBN.h"
+#include "Chunk.h"
 
 
 bool validatePBN(
@@ -69,19 +71,19 @@ bool validatePBN(
            valState.dataRef.label == "North" ||
            valState.dataRef.label == "East" || 
            valState.dataRef.label == "South") &&
-           refContainsOutValue(valState))
+           refContainsOutValue(valState.dataOut, valState.dataRef))
       {
         prof.log(BRIDGE_VAL_NAMES_SHORT, valState);
         return true;
       }
       else if (valState.dataRef.label == "Site" &&
-        refContainsOutValue(valState))
+        refContainsOutValue(valState.dataOut, valState.dataRef))
       {
         prof.log(BRIDGE_VAL_LOCATION, valState);
         return true;
       }
       else if (valState.dataRef.label == "Stage" &&
-        refContainsOutValue(valState))
+        refContainsOutValue(valState.dataOut, valState.dataRef))
       {
         prof.log(BRIDGE_VAL_SESSION, valState);
         return true;

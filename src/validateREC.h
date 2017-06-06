@@ -10,9 +10,7 @@
 #define BRIDGE_VALREC_H
 
 
-#include "ValProfile.h"
-
-using namespace std;
+class ValProfile;
 
 
 bool validateREC(

@@ -9,11 +9,7 @@
 #ifndef BRIDGE_VALRBN_H
 #define BRIDGE_VALRBN_H
 
-#include <string>
-
-#include "ValProfile.h"
-
-using namespace std;
+class ValProfile;
 
 
 bool validateRBN(
