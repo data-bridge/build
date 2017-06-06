@@ -141,6 +141,45 @@ void RefStats::logOrder(
 }
 
 
+void RefStats::logOrder(
+  const BoardOrder order,
+  const Format format,
+  const RefEntry& re)
+{
+  CommentType cat;
+  if (order == ORDER_COCO)
+  {
+    if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
+      cat = ERR_LIN_ORDER_COCO_INFER;
+    else if (format == BRIDGE_FORMAT_PBN)
+      cat = ERR_PBN_ORDER_COCO_INFER;
+    else if (format == BRIDGE_FORMAT_RBN)
+      cat = ERR_RBN_ORDER_COCO_INFER;
+    else if (format == BRIDGE_FORMAT_RBX)
+      cat = ERR_RBX_ORDER_COCO_INFER;
+    else  
+      THROW("Bad format");
+  }
+  else if (order == ORDER_OOCC)
+  {
+    if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
+      cat = ERR_LIN_ORDER_OOCC_INFER;
+    else if (format == BRIDGE_FORMAT_PBN)
+      cat = ERR_PBN_ORDER_OOCC_INFER;
+    else if (format == BRIDGE_FORMAT_RBN)
+      cat = ERR_RBN_ORDER_OOCC_INFER;
+    else if (format == BRIDGE_FORMAT_RBX)
+      cat = ERR_RBX_ORDER_OOCC_INFER;
+    else  
+      THROW("Bad format");
+  }
+  else
+    THROW("Bad order");
+  
+  RefStats::logOrder(cat, re);
+}
+
+
 void RefStats::logRef(
   const CommentType cat,
   RefEntry& re)

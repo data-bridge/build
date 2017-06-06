@@ -50,6 +50,23 @@ void dispatchRefStats(
     else
       THROW("No header in refLines");
 
+    if (cat == static_cast<CommentType>(0))
+    {
+      // We might have inferred a non-standard board order,
+      // but it was not stated.
+      re.noRefLines = 1;
+      if (refLines.orderCOCO())
+        refstats.logOrder(ORDER_COCO, format, re);
+      else if (refLines.orderOOCC())
+        refstats.logOrder(ORDER_OOCC, format, re);
+    }
+    else
+    {
+      // A non-standard board order might have been stated.
+      if (refLines.orderCOCO() || refLines.orderOOCC())
+        refstats.logOrder(cat, re);
+    }
+
     if (! refLines.hasComments())
       return;
 
@@ -60,10 +77,6 @@ void dispatchRefStats(
       refstats.logSkip(cat, re);
       return;
     }
-    else if (refLines.orderCOCO())
-      refstats.logOrder(ERR_LIN_QX_ORDER_COCO, re);
-    else if (refLines.orderOOCC())
-      refstats.logOrder(ERR_LIN_QX_ORDER_OOCC, re);
     else if (! refLines.validate())
       refstats.logNoval(cat, re);
 

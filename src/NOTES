@@ -1,20 +1,15 @@
 05.06.2017
 ----------
-* Detect COCO in LIN, PBN, RBN, RBX in funcRead
-  Then remove from those .ref files, also in BBOVG
-
-                OCOC    COCO    OOCC    general
-  non-decr.     yes     yes     except OC
-  O/C           +=      +       may -
-  C/O           +       +=      no
-  O/O           +       +       +
-  C/C           +       +       +
+.ref files
+* As few delete's as possible (expand deleteRBN etc)
+* Look at -q output for RPmajors, SH and JEC
 
 Segment
 * Split Segment into HeaderLIN
 
 Board
-* Don't copy LINdata, store a pointer only
+* Don't copy LINdata, store a pointer only.
+  This requires LINdata to be a List under the hood, I think.
 
 dispatch
 * More general language parser?
@@ -32,10 +27,6 @@ Code in general
 * Get tough on #include's again, especially in .h files.
 * Also use const args where we can.
 * Write Files output into a file?  (For speed-up)
-
-.ref files
-* As few delete's as possible (expand deleteRBN etc)
-* Look at -q output for RPmajors, SH and JEC
 
 Perl scripts in BBOVG
 - Make director.pl run without warnings 

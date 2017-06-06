@@ -14,6 +14,7 @@
 #include <string>
 
 #include "refconst.h"
+#include "bconst.h"
 
 using namespace std;
 
@@ -68,6 +69,11 @@ class RefStats
 
     void logOrder(
       const CommentType cat,
+      const RefEntry& re);
+
+    void logOrder(
+      const BoardOrder order,
+      const Format format,
       const RefEntry& re);
 
     void logNoval(
