@@ -125,18 +125,8 @@ class Board
 
     // Players
 
-    void setPlayers(
-      const string& text,
-      const Format format,
-      const bool hardFlag = true);
-
-    void setPlayer(
-      const string& text,
-      const Player player);
-
     void copyPlayers(const Board& board2);
 
-    unsigned missingPlayers() const;
     bool overlappingPlayers() const;
 
     void setRoom(
@@ -145,7 +135,6 @@ class Board
 
     bool getValuation(Valuation& valuation) const;
 
-    Room room() const;
     Room roomFirst() const;
 
     bool operator == (const Board& b2) const;
@@ -180,16 +169,6 @@ class Board
       Board * refBoard,
       const unsigned instNo,
       const Format format) const;
-
-    string strPlayer(
-      const Player player,
-      const Format format) const;
-    
-    string strPlayers(
-      const unsigned instNo,
-      const Format format) const;
-
-    string strPlayers(const Format format) const;
 
     string strPlayersBoard(
       const Format format,

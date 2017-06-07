@@ -204,7 +204,7 @@ void Board::setLINheader(const LINData& lin)
     }
 
     if (st != ",,,")
-      Board::setPlayers(st, BRIDGE_FORMAT_LIN, false);
+      instances[i].setPlayers(st, BRIDGE_FORMAT_LIN, false);
     
     instances[i].setLINheader(LINdata.data[i]);
   }
@@ -390,33 +390,10 @@ bool Board::getPar(
 
 // Players
 
-void Board::setPlayers(
-  const string& text,
-  const Format format,
-  const bool hardFlag)
-{
-  instances[numActive].setPlayers(text, format, hardFlag);
-}
-
-
-void Board::setPlayer(
-  const string& text,
-  const Player player)
-{
-  instances[numActive].setPlayer(text, player);
-}
-
-
 void Board::copyPlayers(const Board& board2)
 {
   for (unsigned i = 0; i < board2.len; i++)
     instances[i].copyPlayers(board2.instances[i]);
-}
-
-
-unsigned Board::missingPlayers() const
-{
-  return instances[numActive].missingPlayers();
 }
 
 
@@ -443,13 +420,6 @@ bool Board::getValuation(Valuation& valuation) const
   UNUSED(valuation);
   THROW("Valuation not implemented yet");
   return true;
-}
-
-
-Room Board::room() const
-{
-  // TODO: 0 is open, 1 is closed.  Why do we have to ask?
-  return instances[numActive].room();
 }
 
 
@@ -634,44 +604,9 @@ int Board::IMPScore(const bool swapFlag) const
 }
 
 
-string Board::strPlayer(
-  const Player player,
-  const Format format) const
-{
-  return instances[numActive].strPlayer(player, format);
-}
-
-
-string Board::strPlayers(
-  const unsigned instNo,
-  const Format format) const
-{
-  return instances[instNo].strPlayers(format);
-}
-
-
 string Board::strPlayersFromLINHeader(const unsigned instNo) const
 {
   return instances[instNo].strPlayersFromLINHeader();
-}
-
-
-string Board::strPlayers(const Format format) const
-{
-  switch(format)
-  {
-    case BRIDGE_FORMAT_LIN_TRN:
-    case BRIDGE_FORMAT_PBN:
-    case BRIDGE_FORMAT_RBN:
-    case BRIDGE_FORMAT_RBX:
-    case BRIDGE_FORMAT_TXT:
-    case BRIDGE_FORMAT_EML:
-    case BRIDGE_FORMAT_REC:
-      return instances[numActive].strPlayers(format);
-
-    default:
-      THROW("Invalid format: " + STR(format));
-  }
 }
 
 
@@ -706,16 +641,17 @@ string Board::strPlayersBoard(
 
     case BRIDGE_FORMAT_LIN_VG:
       if (! skip[0])
-        st1 = Board::strPlayers(0, format);
+        st1 = instances[0].strPlayers(format);
       else if (LINset)
-        st1 = Board::strPlayersFromLINHeader(0);
+        st1 = instances[0].strPlayersFromLINHeader();
       else
         st1 = "South,West,North,East";
 
       if (len == 2)
-        st2 = Board::strPlayers(1, format);
+      // if (! skip[1])
+        st2 = instances[1].strPlayers(format);
       else if (LINset)
-        st2 = Board::strPlayersFromLINHeader(1);
+        st2 = instances[1].strPlayersFromLINHeader();
       else
         st2 = "South,West,North,East";
       return "pn|" + st1 + "," + st2 + "|pg||\n";
@@ -724,8 +660,8 @@ string Board::strPlayersBoard(
       if (len != 2)
         return "";
 
-      st1 = Board::strPlayers(0, format);
-      st2 = Board::strPlayers(1, format);
+      st1 = instances[0].strPlayers(format);
+      st2 = instances[1].strPlayers(format);
       return "pn|" + st1 + "," + st2 + "|pg||\n\n";
 
     default:
@@ -764,6 +700,7 @@ string Board::strContracts(
         // TODO: Soon shouldn't happen anymore?
         st += instances[1].strContract(format) + ",";
         st += instances[0].strContract(format) + ",";
+        THROW("Impossible?");
       }
       else
       {

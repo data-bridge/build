@@ -112,7 +112,6 @@ Board * Segment::acquireBoard(const unsigned extNo)
     // Make enough room.
     activeBoard->acquireInstance(instCount-1);
     activeBoard->copyPlayers(boards[activeNo-1].board);
-
   }
 
   return activeBoard;
