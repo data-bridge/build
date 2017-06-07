@@ -223,11 +223,11 @@ void writeLINBoardLevel(
   WriteInfo& writeInfo,
   const Format format)
 {
-  const Instance& instance = board.getInstance(writeInfo.instNo);
+  Instance& instance = board.getInstance(writeInfo.instNo);
   UNUSED(instance);
   board.setInstance(writeInfo.instNo);
 
-  if (format != BRIDGE_FORMAT_LIN_RP && board.skipped())
+  if (format != BRIDGE_FORMAT_LIN_RP && board.skipped(writeInfo.instNo))
     return;
 
   st += segment.strNumber(writeInfo.bno, BRIDGE_FORMAT_LIN_RP);
@@ -235,23 +235,23 @@ void writeLINBoardLevel(
   if (format == BRIDGE_FORMAT_LIN)
     st += "pn|" + board.strPlayers(format, segment.scoringIsIMPs()) + "|";
   else if (format == BRIDGE_FORMAT_LIN_TRN)
-    st += board.strPlayers(format);
+    st += instance.strPlayers(format);
 
   st += board.strDeal(format);
 
   if (format == BRIDGE_FORMAT_LIN || format == BRIDGE_FORMAT_LIN_TRN)
     st += segment.strNumber(writeInfo.bno, format);
 
-  st += board.strVul(format);
+  st += instance.strVul(format);
 
-  board.calculateScore();
+  instance.calculateScore();
 
-  if (! board.skipped())
+  if (! board.skipped(writeInfo.instNo))
   {
-    st += board.strAuction(format);
-    st += board.strPlay(format);
+    st += instance.strAuction(format);
+    st += instance.strPlay(format);
   }
 
-  st += board.strClaim(format);
+  st += instance.strClaim(format);
 }
 

@@ -138,7 +138,8 @@ void Board::setInstance(const unsigned no)
 }
 
 
-const Instance& Board::getInstance(const unsigned instNo) const
+// TODO: Should be const, const later
+Instance& Board::getInstance(const unsigned instNo) 
 {
   if (len == 0 || instNo > len-1)
     THROW("Invalid instance selected");
@@ -799,6 +800,9 @@ string Board::strPlayers(
   const bool isIMPs,
   Board * refBoard) const
 {
+  // TODO: Maybe split into an "external" version with nullptr, and
+  // an internal one (for Segment) with refBoard.
+
   string st1, st2;
   switch(format)
   {
