@@ -295,48 +295,6 @@ Player Board::holdsCard(const string& text) const
 
 // Auction
 
-void Board::addCall(
-  const string& call,
-  const string& alert)
-{
-  instances[numActive].addCall(call, alert);
-}
-
-
-void Board::addAlert(
-  const unsigned alertNo,
-  const string& alert)
-{
-  instances[numActive].addAlert(alertNo, alert);
-}
-
-
-void Board::addPasses()
-{
-  instances[numActive].addPasses();
-}
-
-
-void Board::undoLastCall()
-{
-  instances[numActive].undoLastCall();
-}
-
-
-void Board::passOut()
-{
-  instances[numActive].undoLastCall();
-}
-
-
-void Board::setAuction(
-  const string& text,
-  const Format format)
-{
-  instances[numActive].setAuction(text, format);
-}
-
-
 bool Board::hasDealerVul() const
 {
   if (len == 0)
@@ -371,30 +329,6 @@ unsigned Board::lengthAuction() const
 
 
 // Contract
-
-void Board::setContract(
-  const Vul vul,
-  const string& cstring)
-{
-  instances[numActive].setContract(vul, cstring);
-}
-
-
-void Board::setContract(
-  const string& text,
-  const Format format)
-{
-  instances[numActive].setContract(text, format);
-}
-
-
-void Board::setDeclarer(
-  const string& text,
-  const Format format)
-{
-  instances[numActive].setDeclarer(text, format);
-}
-
 
 bool Board::contractIsSet() const
 {
@@ -484,51 +418,9 @@ void Board::calculateScore()
 
 // Play
 
-void Board::setPlays(
-  const string& text,
-  const Format format)
-{
-  instances[numActive].setPlays(text, format);
-}
-
-
-void Board::undoLastPlay()
-{
-  instances[numActive].undoLastPlay();
-}
-
-
-bool Board::playIsOver() const
-{
-  return instances[numActive].playIsOver();
-}
-
-
-bool Board::hasClaim() const
-{
-  return instances[numActive].hasClaim();
-}
-
-
 void Board::getStateDDS(RunningDD& runningDD) const
 {
   instances[numActive].getStateDDS(runningDD);
-}
-
-
-// Result
-
-void Board::setResult(
-  const string& text,
-  const Format format)
-{
-  instances[numActive].setResult(text, format);
-}
-
-
-bool Board::hasResult() const
-{
-  return instances[numActive].hasResult();
 }
 
 

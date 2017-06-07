@@ -96,24 +96,6 @@ class Board
 
     // Auction
 
-    void addCall(
-      const string& call,
-      const string& alert = "");
-
-    void addAlert(
-      const unsigned alertNo,
-      const string& alert);
-
-    void addPasses();
-
-    void undoLastCall();
-
-    void passOut();
-
-    void setAuction(
-      const string& text,
-      const Format format);
-
     bool auctionIsEmpty() const;
 
     bool hasDealerVul() const;
@@ -125,18 +107,6 @@ class Board
     unsigned lengthAuction() const;
 
     // Contract
-
-    void setContract(
-      const Vul vul,
-      const string& cstring);
-
-    void setContract(
-      const string& text,
-      const Format format);
-
-    void setDeclarer(
-      const string& text,
-      const Format format);
 
     bool contractIsSet() const;
 
@@ -156,25 +126,7 @@ class Board
 
     // Play
 
-    void setPlays(
-      const string& text,
-      const Format format);
-
-    void undoLastPlay();
-
-    bool playIsOver() const;
-
-    bool hasClaim() const;
-
     void getStateDDS(RunningDD& runningDD) const;
-
-    // Result
-
-    void setResult(
-      const string& text,
-      const Format format);
-      
-    bool hasResult() const;
 
     // Tableau
     //
