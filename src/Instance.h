@@ -126,9 +126,13 @@ class Instance
 
     void undoLastPlay();
 
+    bool dealIsSet() const;
+
     bool playIsOver() const;
 
     bool hasClaim() const;
+
+    unsigned getTricks() const;
 
     void getStateDDS(RunningDD& runningDD) const;
 

@@ -23,8 +23,7 @@
 Board::Board():
   players(0), 
   auction(0), 
-  contract(0), 
-  play(0)
+  contract(0)
 {
   len = 0;
   numActive = 0;
@@ -47,7 +46,6 @@ void Board::reset()
   players.clear();
   auction.clear();
   contract.clear();
-  play.clear();
   skip.clear();
 
   basicsFlag = false;
@@ -73,8 +71,6 @@ void Board::copyBasics(
   {
     unsigned cards[BRIDGE_PLAYERS][BRIDGE_SUITS];
     deal.getDDS(cards);
-    for (unsigned i = noToMin; i <= noToMax; i++)
-      play[i].setHoldingDDS(cards);
   }
 }
 
@@ -90,7 +86,6 @@ void Board::acquireInstance(const unsigned instNo)
     players.resize(len);
     auction.resize(len);
     contract.resize(len);
-    play.resize(len);
     skip.resize(len);
 
     for (unsigned i = lenOld; i < len; i++)
@@ -306,11 +301,10 @@ void Board::setDeal(
   if (! deal.isSet())
     deal.set(text, format);
 
-  if (! play[numActive].dealIsSet())
+  if (! instances[numActive].dealIsSet())
   {
     unsigned cards[BRIDGE_PLAYERS][BRIDGE_SUITS];
     deal.getDDS(cards);
-    play[numActive].setHoldingDDS(cards);
 
     instances[numActive].setPlayerDeal(cards);
   }
@@ -391,8 +385,7 @@ void Board::setAuction(
     contract[numActive].setVul(auction[numActive].getVul());
 
   // Doesn't bother us unduly if there is no contract here.
-  if (auction[numActive].getContract(contract[numActive]))
-    play[numActive].setContract(contract[numActive]);
+  auction[numActive].getContract(contract[numActive]);
   
   instances[numActive].setAuction(text, format);
 }
@@ -448,8 +441,6 @@ void Board::setContract(
   const Format format)
 {
   contract[numActive].setContract(text, format);
-
-  play[numActive].setContract(contract[numActive]);
 
   instances[numActive].setContract(text, format);
 }
@@ -562,19 +553,14 @@ void Board::setPlays(
   const string& text,
   const Format format)
 {
-  play[numActive].setPlays(text, format);
-
-  if (play[numActive].isOver())
-    contract[numActive].setTricks( play[numActive].getTricks() );
-  
   instances[numActive].setPlays(text, format);
+  if (instances[numActive].playIsOver())
+    contract[numActive].setTricks( instances[numActive].getTricks() );
 }
 
 
 void Board::undoLastPlay()
 {
-  play[numActive].undoPlay();
-
   instances[numActive].undoLastPlay();
 }
 
@@ -593,9 +579,7 @@ bool Board::hasClaim() const
 
 void Board::getStateDDS(RunningDD& runningDD) const
 {
-  play[numActive].getStateDDS(runningDD);
-
-  // TODO: instances[numActive].getStateDDS(runningDD);
+  instances[numActive].getStateDDS(runningDD);
 }
 
 
@@ -607,9 +591,6 @@ void Board::setResult(
 {
   contract[numActive].setResult(text, format);
 
-  if (! contract[numActive].isPassedOut())
-    play[numActive].makeClaim(contract[numActive].getTricks());
-  
   instances[numActive].setResult(text, format);
 }
 
@@ -818,7 +799,7 @@ string Board::strDeal(
 string Board::strDealRemain(const Format format) const
 {
   RunningDD runningDD;
-  play[numActive].getStateDDS(runningDD);
+  instances[numActive].getStateDDS(runningDD);
 
   Deal dltmp;
   dltmp.set(runningDD.dl.remainCards);

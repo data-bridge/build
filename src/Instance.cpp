@@ -242,6 +242,12 @@ void Instance::undoLastPlay()
 }
 
 
+bool Instance::dealIsSet() const
+{
+  return play.dealIsSet();
+}
+
+
 bool Instance::playIsOver() const
 {
   return play.isOver();
@@ -251,6 +257,12 @@ bool Instance::playIsOver() const
 bool Instance::hasClaim() const
 {
   return play.hasClaim();
+}
+
+
+unsigned Instance::getTricks() const
+{
+  return play.getTricks();
 }
 
 

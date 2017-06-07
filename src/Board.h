@@ -19,7 +19,6 @@
 #include "Players.h"
 #include "Auction.h"
 #include "Contract.h"
-#include "Play.h"
 
 using namespace std;
 
@@ -36,7 +35,6 @@ class Board
     vector<Players> players;
     vector<Auction> auction;
     vector<Contract> contract;
-    vector<Play> play;
     vector<bool> skip;
     float givenScore;
     bool givenSet;
