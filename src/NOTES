@@ -6,6 +6,8 @@ Segment
 Board
 * Don't copy LINdata, store a pointer only.
   This requires LINdata to be a List under the hood, I think.
+* Moving to Instance: the order of fields needs to be modified a bit,
+  board before instance (after segment)
 
 dispatch
 * More general language parser?

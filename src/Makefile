@@ -15,6 +15,7 @@ SOURCE_FILES 	=		\
 	Deal.cpp		\
 	Files.cpp		\
 	Group.cpp		\
+	Instance.cpp		\
         Location.cpp            \
 	Play.cpp		\
 	Players.cpp		\
@@ -146,6 +147,7 @@ Files.obj: Files.h bconst.h parse.h
 Group.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 Group.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
 Group.obj: Contract.h Play.h ddsIF.h dll.h Bdiff.h
+Instance.obj: bconst.h parse.h Bexcept.h Bdiff.h
 Location.obj: Location.h bconst.h Bexcept.h Bdiff.h
 Play.obj: Play.h bconst.h ddsIF.h dll.h Contract.h parse.h Bexcept.h Bdiff.h
 Players.obj: Players.h bconst.h parse.h Bexcept.h Bdiff.h
@@ -233,7 +235,7 @@ funcRefStats.obj: Bexcept.h
 funcTextStats.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h
 funcTextStats.obj: Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h
 funcTextStats.obj: Players.h Auction.h Contract.h Play.h ddsIF.h dll.h
-funcTextStats.obj: funcTextStats.h Bexcept.h
+funcTextStats.obj: TextStats.h funcTextStats.h Bexcept.h
 funcValidate.obj: validate.h bconst.h funcValidate.h ValStats.h ValProfile.h
 funcValidate.obj: Bexcept.h
 funcWrite.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h
