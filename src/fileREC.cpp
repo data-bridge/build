@@ -364,7 +364,7 @@ void writeRECBoardLevel(
   UNUSED(instance);
   board.setInstance(writeInfo.instNo);
 
-  board.calculateScore();
+  // board.calculateScore();
 
   const string dstr = board.strDeal(BRIDGE_WEST, format);
   const string sstr = segment.strScoring(format);

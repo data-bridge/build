@@ -122,7 +122,7 @@ void writeRBNBoardLevel(
     st += board.strDeal(BRIDGE_WEST, format);
   }
 
-  board.calculateScore();
+  // board.calculateScore();
 
   if (! board.skipped())
     st += board.strAuction(format);

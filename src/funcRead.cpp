@@ -312,6 +312,9 @@ bool dispatchReadBuffer(
 
     if (board == nullptr || counts.bno != counts.prevno)
     {
+      if (board != nullptr)
+        board->calculateScore();
+
       board = segment->acquireBoard(counts.bno);
       counts.prevno = counts.bno;
     }
@@ -323,6 +326,9 @@ bool dispatchReadBuffer(
         segment, board, instance, chunk, flog))
       return false;
   }
+
+  if (board != nullptr)
+    board->calculateScore();
 
   order = orderCounts.classify();
   return true;

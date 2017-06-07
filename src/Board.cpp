@@ -416,7 +416,8 @@ void Board::setScoreMP(
 
 void Board::calculateScore()
 {
-  instances[numActive].calculateScore();
+  for (unsigned i = 0; i < len; i++)
+    instances[i].calculateScore();
 }
 
 
@@ -879,7 +880,6 @@ string Board::strPlayersDelta(
   const Format format) const
 {
   if (refBoard == nullptr)
-    // return Board::strPlayersBoard(BRIDGE_FORMAT_LIN_RP) + ",";
     return instances[instNo].strPlayers(BRIDGE_FORMAT_LIN_RP) + ",";
   else
     return instances[instNo].strPlayersDelta(

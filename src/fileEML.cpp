@@ -432,7 +432,7 @@ void writeEMLBoardLevel(
 
   Canvas canvas;
 
-  board.calculateScore();
+  // board.calculateScore();
 
   // Convert deal, auction and play from \n to vectors.
   vector<string> deal, auction, play;

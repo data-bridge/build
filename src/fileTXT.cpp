@@ -561,7 +561,7 @@ void writeTXTBoardLevel(
   UNUSED(instance);
   board.setInstance(writeInfo.instNo);
 
-  board.calculateScore();
+  // board.calculateScore();
 
   if (writeInfo.ino == 0)
   {

@@ -258,7 +258,7 @@ void writePBNBoardLevel(
   UNUSED(instance);
   board.setInstance(writeInfo.instNo);
 
-  board.calculateScore();
+  // board.calculateScore();
 
   if (writeInfo.first)
   {
