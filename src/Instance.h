@@ -60,6 +60,8 @@ class Instance
 
     Player getDealer() const;
 
+    Vul getVul() const;
+
     // Deal
 
     void setDeal(
@@ -101,6 +103,8 @@ class Instance
     void setContract(
       const Vul vul,
       const string& cstring);
+
+    void getContract(Contract& ctr); // TODO REmove
 
     void setContract(
       const string& text,

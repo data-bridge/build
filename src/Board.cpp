@@ -22,7 +22,6 @@
 
 Board::Board():
   players(0), 
-  auction(0), 
   contract(0)
 {
   len = 0;
@@ -44,7 +43,6 @@ void Board::reset()
   tableau.reset();
   instances.clear();
   players.clear();
-  auction.clear();
   contract.clear();
   skip.clear();
 
@@ -62,10 +60,7 @@ void Board::copyBasics(
   const unsigned noToMax)
 {
   for (unsigned i = noToMin; i <= noToMax; i++)
-  {
-    auction[i].copyDealerVul(auction[noFrom]);
-    contract[i].setVul(auction[noFrom].getVul());
-  }
+    contract[i].setVul(instances[noFrom].getVul());
 
   if (deal.isSet())
   {
@@ -84,7 +79,6 @@ void Board::acquireInstance(const unsigned instNo)
 
     instances.resize(len);
     players.resize(len);
-    auction.resize(len);
     contract.resize(len);
     skip.resize(len);
 
@@ -255,8 +249,6 @@ void Board::setDealer(
   const string& text,
   const Format format)
 {
-  auction[numActive].setDealer(text, format);
-
   instances[numActive].setDealer(text, format);
 }
 
@@ -265,9 +257,16 @@ void Board::setVul(
   const string& text,
   const Format format)
 {
-  auction[numActive].setVul(text, format);
+  if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN ||
+      format == BRIDGE_FORMAT_TXT)
+  {
+    for (unsigned i = 0; i < len; i++)
+      instances[i].setVul(text, format);
+  }
+  else
+    instances[numActive].setVul(text, format);
 
-  const Vul v = auction[numActive].getVul();
+  const Vul v = instances[numActive].getVul();
 
   if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN ||
       format == BRIDGE_FORMAT_TXT)
@@ -280,14 +279,6 @@ void Board::setVul(
     contract[numActive].setVul(v);
   
 
-  if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN ||
-      format == BRIDGE_FORMAT_TXT)
-  {
-    for (unsigned i = 0; i < len; i++)
-      instances[i].setVul(text, format);
-  }
-  else
-    instances[numActive].setVul(text, format);
 }
 
 
@@ -314,11 +305,7 @@ void Board::setDeal(
     // Fill up, just in case of a skip.
     const string d = text.substr(0, 1);
     for (unsigned i = 0; i < len; i++)
-    {
-      auction[i].setDealer(d, format);
-
       instances[i].setDealer(d, format);
-    }
   }
 }
 
@@ -335,8 +322,6 @@ void Board::addCall(
   const string& call,
   const string& alert)
 {
-  auction[numActive].addCall(call, alert);
-
   instances[numActive].addCall(call, alert);
 }
 
@@ -345,24 +330,18 @@ void Board::addAlert(
   const unsigned alertNo,
   const string& alert)
 {
-  auction[numActive].addAlert(alertNo, alert);
-
   instances[numActive].addAlert(alertNo, alert);
 }
 
 
 void Board::addPasses()
 {
-  auction[numActive].addPasses();
-
   instances[numActive].addPasses();
 }
 
 
 void Board::undoLastCall()
 {
-  auction[numActive].undoLastCall();
-
   instances[numActive].undoLastCall();
 }
 
@@ -379,15 +358,15 @@ void Board::setAuction(
   const string& text,
   const Format format)
 {
-  auction[numActive].addAuction(text, format);
+  instances[numActive].setAuction(text, format);
 
-  if (auction[numActive].hasDealerVul())
-    contract[numActive].setVul(auction[numActive].getVul());
+  if (instances[numActive].hasDealerVul())
+    contract[numActive].setVul(instances[numActive].getVul());
 
   // Doesn't bother us unduly if there is no contract here.
-  auction[numActive].getContract(contract[numActive]);
+  instances[numActive].getContract(contract[numActive]);
+  // This method should go away long-term TODO
   
-  instances[numActive].setAuction(text, format);
 }
 
 

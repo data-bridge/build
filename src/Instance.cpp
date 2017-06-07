@@ -94,6 +94,12 @@ Player Instance::getDealer() const
 }
 
 
+Vul Instance::getVul() const
+{
+  return auction.getVul();
+}
+
+
 // Auction
 
 void Instance::addCall(
@@ -182,6 +188,14 @@ void Instance::setContract(
   const string& cstring)
 {
   contract.setContract(vul, cstring);
+}
+
+
+void Instance::getContract(
+  Contract& ctr)
+{
+  // TODO: Remove method later
+  ctr = contract;
 }
 
 

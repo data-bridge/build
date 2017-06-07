@@ -17,7 +17,6 @@
 #include "Tableau.h"
 #include "Instance.h"
 #include "Players.h"
-#include "Auction.h"
 #include "Contract.h"
 
 using namespace std;
@@ -33,7 +32,6 @@ class Board
     Tableau tableau;
     vector<Instance> instances;
     vector<Players> players;
-    vector<Auction> auction;
     vector<Contract> contract;
     vector<bool> skip;
     float givenScore;
