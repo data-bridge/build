@@ -255,10 +255,7 @@ void writePBNBoardLevel(
   const Format format)
 {
   const Instance& instance = board.getInstance(writeInfo.instNo);
-  UNUSED(instance);
   board.setInstance(writeInfo.instNo);
-
-  // board.calculateScore();
 
   if (writeInfo.first)
   {
@@ -282,10 +279,10 @@ void writePBNBoardLevel(
   else
     st += "[Board \"#\"]\n";
 
-  st += board.strPlayer(BRIDGE_WEST, format);
-  st += board.strPlayer(BRIDGE_NORTH, format);
-  st += board.strPlayer(BRIDGE_EAST, format);
-  st += board.strPlayer(BRIDGE_SOUTH, format);
+  st += instance.strPlayer(BRIDGE_WEST, format);
+  st += instance.strPlayer(BRIDGE_NORTH, format);
+  st += instance.strPlayer(BRIDGE_EAST, format);
+  st += instance.strPlayer(BRIDGE_SOUTH, format);
 
   st += board.strDealer(format);
   st += board.strVul(format);
@@ -296,14 +293,14 @@ void writePBNBoardLevel(
   else
     st += "[Scoring \"#\"]\n";
 
-  st += board.strDeclarer(format);
-  st += board.strContract(format);
-  st += board.strResult(format, false);
+  st += instance.strDeclarer(format);
+  st += instance.strContract(format);
+  st += instance.strResult(format);
 
-  if (! board.skipped())
+  if (! board.skipped(writeInfo.instNo))
   {
-    st += board.strAuction(format);
-    st += board.strPlay(format);
+    st += instance.strAuction(format);
+    st += instance.strPlay(format);
   }
 
   const bool swapFlag = segment.getCOCO();
@@ -322,7 +319,7 @@ void writePBNBoardLevel(
     st += "[VisitTeam \"#\"]\n";
   }
 
-  st += board.strRoom(0, format);
+  st += instance.strRoom(0, format);
   st += board.strScore(format, segment.scoringIsIMPs(), swapFlag);
   if (writeInfo.ino == 0 && writeInfo.numInst == 1)
     st += board.strGivenScore(format);

@@ -243,8 +243,6 @@ void writeLINBoardLevel(
 
   st += instance.strVul(format);
 
-  // instance.calculateScore();
-
   if (! board.skipped(writeInfo.instNo))
   {
     st += instance.strAuction(format);
