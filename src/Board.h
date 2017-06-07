@@ -15,6 +15,7 @@
 
 #include "Deal.h"
 #include "Tableau.h"
+#include "Instance.h"
 #include "Players.h"
 #include "Auction.h"
 #include "Contract.h"
@@ -31,6 +32,7 @@ class Board
 
     Deal deal;
     Tableau tableau;
+    vector<Instance> instances;
     vector<Players> players;
     vector<Auction> auction;
     vector<Contract> contract;

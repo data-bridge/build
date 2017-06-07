@@ -1080,20 +1080,21 @@ string Contract::strScorePBN(const int refScore) const
 }
 
 
-string Contract::strScoreREC() const
+string Contract::strScoreTXT() const
 {
-  stringstream ss;
-  if (Contract::isPassedOut())
-    ss << "Score: " << setw(13) << "";
-  else
-    ss << "Score: " << setw(13) << left << showpos << score;
-  return ss.str();
+  if (! setContractFlag || ! setResultFlag)
+    return "";
+
+  return "Score   : " + STR(score) + "\n";
 }
 
 
 string Contract::strScoreEML() const
 {
-  return "Score: " + STR(score) + ",  IMPs:";
+  if (setResultFlag)
+    return "Score: " + STR(score) + ",  IMPs:";
+  else
+    return "Score: 0,  IMPs:";
 }
 
 
@@ -1108,12 +1109,16 @@ string Contract::strScoreEML(const int refScore) const
 }
 
 
-string Contract::strScoreTXT() const
+string Contract::strScoreREC() const
 {
-  if (! setContractFlag || ! setResultFlag)
-    return "";
-
-  return "Score   : " + STR(score) + "\n";
+  stringstream ss;
+  if (Contract::isPassedOut())
+    ss << "Score: " << setw(13) << "";
+  else if (! setResultFlag)
+    ss << "Score: " << setw(13) << left << showpos << 0;
+  else
+    ss << "Score: " << setw(13) << left << showpos << score;
+  return ss.str();
 }
 
 

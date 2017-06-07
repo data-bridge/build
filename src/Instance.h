@@ -43,6 +43,11 @@ class Instance
 
     void reset();
 
+    void copyDealerVul(const Instance& inst2);
+
+    void setPlayerDeal(
+      const unsigned cards[BRIDGE_PLAYERS][BRIDGE_SUITS]);
+
     void setLINheader(const LINInstData& lin);
 
     void setDealer(
@@ -52,6 +57,8 @@ class Instance
     void setVul(
       const string& text,
       const Format format);
+
+    Player getDealer() const;
 
     // Deal
 
@@ -123,6 +130,8 @@ class Instance
 
     bool hasClaim() const;
 
+    void getStateDDS(RunningDD& runningDD) const;
+
     // Result
 
     void setResult(
@@ -158,9 +167,11 @@ class Instance
     string strVul(const Format format) const;
     string strAuction(const Format format) const;
     string strContract(const Format format) const;
+    string strHeaderContract() const;
     string strDeclarer(const Format format) const;
     string strTricks(const Format format) const;
 
+    string strScore(const Format format) const;
     string strScore(
       const Format format,
       const int refScore) const;
@@ -186,6 +197,8 @@ class Instance
       const Format format) const;
 
     string strPlayersFromLINHeader() const;
+
+    string strResult(const Format format) const;
 
     string strResult(
       const Format format,

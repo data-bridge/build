@@ -40,6 +40,20 @@ void Instance::reset()
 }
 
 
+void Instance::copyDealerVul(const Instance& inst2)
+{
+  auction.copyDealerVul(inst2.auction);
+  contract.setVul(auction.getVul());
+}
+
+
+void Instance::setPlayerDeal(
+  const unsigned cards[BRIDGE_PLAYERS][BRIDGE_SUITS])
+{
+  play.setHoldingDDS(cards);
+}
+
+
 void Instance::setLINheader(const LINInstData& lin)
 {
   if (LINset)
@@ -71,6 +85,12 @@ void Instance::setVul(
 {
   auction.setVul(text, format);
   contract.setVul(auction.getVul());
+}
+
+
+Player Instance::getDealer() const
+{
+  return auction.getDealer();
 }
 
 
@@ -234,6 +254,12 @@ bool Instance::hasClaim() const
 }
 
 
+void Instance::getStateDDS(RunningDD& runningDD) const
+{
+  play.getStateDDS(runningDD);
+}
+
+
 // Result
 
 void Instance::setResult(
@@ -356,6 +382,12 @@ string Instance::strContract(const Format format) const
 }
 
 
+string Instance::strHeaderContract() const
+{
+  return LINdata.contract;
+}
+
+
 string Instance::strDeclarer(const Format format) const
 {
   return contract.strDeclarer(format);
@@ -365,6 +397,12 @@ string Instance::strDeclarer(const Format format) const
 string Instance::strTricks(const Format format) const
 {
   return contract.strTricks(format);
+}
+
+
+string Instance::strScore(const Format format) const
+{
+  return contract.strScore(format);
 }
 
 
@@ -443,6 +481,12 @@ string Instance::strPlayersDelta(
 }
 
 
+string Instance::strResult(const Format format) const
+{
+  return contract.strResult(format);
+}
+
+
 string Instance::strResult(
   const Format format,
   const int refScore) const
@@ -456,7 +500,7 @@ string Instance::strResult(
   const string& team,
   const int refScore) const
 {
-  contract.strResult(format, refScore, team);
+  return contract.strResult(format, refScore, team);
 }
 
 
