@@ -1223,7 +1223,7 @@ string Segment::strPlayersLIN()
       // This is not quite the same as below.
       // Say we have PBN 980, 982, 983, ...
       // The skipped board should not (currently) lead to a LIN gap.
-      st += p.board.strPlayers(BRIDGE_FORMAT_LIN, isIMPs, refBoard);
+      st += p.board.strPlayersBoard(BRIDGE_FORMAT_LIN, isIMPs, refBoard);
       refBoard = &p.board;
     }
   }
@@ -1241,7 +1241,7 @@ string Segment::strPlayersLIN()
             Segment::strPlayersFromLINHeader(bhdr, 1);
           
           string sr = (refBoard == nullptr ? "" :
-            refBoard->strPlayers(BRIDGE_FORMAT_LIN, isIMPs));
+            refBoard->strPlayersBoard(BRIDGE_FORMAT_LIN, isIMPs));
 
           if (sn == sr)
             st += ",,,,,,,,";
@@ -1253,7 +1253,7 @@ string Segment::strPlayersLIN()
       }
       else
       {
-        st += bptr->strPlayers(BRIDGE_FORMAT_LIN, isIMPs, refBoard);
+        st += bptr->strPlayersBoard(BRIDGE_FORMAT_LIN, isIMPs, refBoard);
         refBoard = bptr;
       }
     }
@@ -1271,7 +1271,7 @@ bool Segment::playersAreUnique()
   for (auto &p: boards)
   {
     pprev = pnew;
-    pnew = p.board.strPlayers(BRIDGE_FORMAT_LIN_VG, true, refBoard);
+    pnew = p.board.strPlayersBoard(BRIDGE_FORMAT_LIN_VG, true, refBoard);
     if (refBoard != nullptr && pprev != pnew)
       return false;
   }
@@ -1299,16 +1299,16 @@ string Segment::strPlayers(const Format format)
       else
       {
         board = &boards[0].board;
-        return board->strPlayers(format);
+        return board->strPlayersBoard(format);
       }
 
     case BRIDGE_FORMAT_LIN_RP:
       board = &boards[0].board;
-      return board->strPlayers(format);
+      return board->strPlayersBoard(format);
 
     case BRIDGE_FORMAT_LIN_TRN:
       board = &boards[0].board;
-      return board->strPlayers(BRIDGE_FORMAT_LIN_VG);
+      return board->strPlayersBoard(BRIDGE_FORMAT_LIN_VG);
 
     default:
       THROW("Invalid format: " + STR(format));

@@ -795,14 +795,30 @@ string Board::strPlayersFromLINHeader(const unsigned instNo) const
 }
 
 
-string Board::strPlayers(
+string Board::strPlayers(const Format format) const
+{
+  switch(format)
+  {
+    case BRIDGE_FORMAT_LIN_TRN:
+    case BRIDGE_FORMAT_PBN:
+    case BRIDGE_FORMAT_RBN:
+    case BRIDGE_FORMAT_RBX:
+    case BRIDGE_FORMAT_TXT:
+    case BRIDGE_FORMAT_EML:
+    case BRIDGE_FORMAT_REC:
+      return instances[numActive].strPlayers(format);
+
+    default:
+      THROW("Invalid format: " + STR(format));
+  }
+}
+
+
+string Board::strPlayersBoard(
   const Format format,
   const bool isIMPs,
   Board * refBoard) const
 {
-  // TODO: Maybe split into an "external" version with nullptr, and
-  // an internal one (for Segment) with refBoard.
-
   string st1, st2;
   switch(format)
   {
@@ -847,27 +863,9 @@ string Board::strPlayers(
       if (len != 2)
         return "";
 
-      if (Board::roomFirst() == BRIDGE_ROOM_CLOSED)
-      {
-        // TODO: Should soon not happen?
-        st1 = Board::strPlayers(1, format);
-        st2 = Board::strPlayers(0, format);
-      }
-      else
-      {
-        st1 = Board::strPlayers(0, format);
-        st2 = Board::strPlayers(1, format);
-      }
+      st1 = Board::strPlayers(0, format);
+      st2 = Board::strPlayers(1, format);
       return "pn|" + st1 + "," + st2 + "|pg||\n\n";
-
-    case BRIDGE_FORMAT_LIN_TRN:
-    case BRIDGE_FORMAT_PBN:
-    case BRIDGE_FORMAT_RBN:
-    case BRIDGE_FORMAT_RBX:
-    case BRIDGE_FORMAT_TXT:
-    case BRIDGE_FORMAT_EML:
-    case BRIDGE_FORMAT_REC:
-      return instances[numActive].strPlayers(format);
 
     default:
       THROW("Invalid format: " + STR(format));
@@ -881,6 +879,7 @@ string Board::strPlayersDelta(
   const Format format) const
 {
   if (refBoard == nullptr)
+    // return Board::strPlayersBoard(BRIDGE_FORMAT_LIN_RP) + ",";
     return instances[instNo].strPlayers(BRIDGE_FORMAT_LIN_RP) + ",";
   else
     return instances[instNo].strPlayersDelta(

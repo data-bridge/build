@@ -232,7 +232,9 @@ class Board
       const unsigned instNo,
       const Format format) const;
 
-    string strPlayers(
+    string strPlayers(const Format format) const;
+
+    string strPlayersBoard(
       const Format format,
       const bool isIMPs = true,
       Board * refBoard = nullptr) const;
