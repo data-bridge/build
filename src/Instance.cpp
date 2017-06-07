@@ -350,6 +350,13 @@ void Instance::setRoom(
 }
 
 
+Room Instance::room() const
+{
+  // Do we have to ask?
+  return players.room();
+}
+
+
 bool Instance::operator == (const Instance& inst2) const
 {
   if (players != inst2.players)
@@ -504,13 +511,10 @@ string Instance::strPlayersFromLINHeader() const
 
 
 string Instance::strPlayersDelta(
-  const Instance * refInstance,
+  const Instance& inst2,
   const Format format) const
 {
-  if (refInstance == nullptr)
-    return players.str(BRIDGE_FORMAT_LIN_RP) + ",";
-  else
-    return players.strDelta(refInstance->players, format);
+  return players.strDelta(inst2.players, format);
 }
 
 
@@ -521,17 +525,17 @@ string Instance::strResult(const Format format) const
 
 
 string Instance::strResult(
-  const Format format,
-  const Instance& inst2) const
+  const Instance& inst2,
+  const Format format) const
 {
   return contract.strResult(format, inst2.contract.getScore());
 }
 
 
 string Instance::strResult(
-  const Format format,
+  const Instance& inst2,
   const string& team,
-  const Instance& inst2) const
+  const Format format) const
 {
   return contract.strResult(format, inst2.contract.getScore(), team);
 }
@@ -550,5 +554,14 @@ string Instance::strResultEntry() const
   else
     ss << setw(14) << right << -score;
   return ss.str();
+}
+
+
+string Instance::strRoom(
+  const unsigned no,
+  const Format format) const
+{
+  // TODO: Don't need to ask players?
+  return players.strRoom(no, format);
 }
 

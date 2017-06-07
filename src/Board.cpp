@@ -20,8 +20,7 @@
 #include "Bdiff.h"
 
 
-Board::Board():
-  players(0)
+Board::Board()
 {
   len = 0;
   numActive = 0;
@@ -41,7 +40,6 @@ void Board::reset()
   deal.reset();
   tableau.reset();
   instances.clear();
-  players.clear();
   skip.clear();
 
   basicsFlag = false;
@@ -77,15 +75,10 @@ void Board::acquireInstance(const unsigned instNo)
     len = instNo+1;
 
     instances.resize(len);
-    players.resize(len);
     skip.resize(len);
 
     for (unsigned i = lenOld; i < len; i++)
       skip[i] = true;
-
-    players[0].setRoom("Open", BRIDGE_FORMAT_PBN);
-    if (instNo == 1)
-      players[1].setRoom("Closed", BRIDGE_FORMAT_PBN);
 
     instances[0].setRoom("Open", BRIDGE_FORMAT_PBN);
     if (instNo == 1)
@@ -339,14 +332,6 @@ void Board::setAuction(
   const Format format)
 {
   instances[numActive].setAuction(text, format);
-
-  // if (instances[numActive].hasDealerVul())
-    // contract[numActive].setVul(instances[numActive].getVul());
-
-  // Doesn't bother us unduly if there is no contract here.
-  // instances[numActive].getContract(contract[numActive]);
-  // This method should go away long-term TODO
-  
 }
 
 
@@ -597,8 +582,6 @@ void Board::setPlayers(
   const Format format,
   const bool hardFlag)
 {
-  players[numActive].set(text, format, hardFlag);
-
   instances[numActive].setPlayers(text, format, hardFlag);
 }
 
@@ -607,8 +590,6 @@ void Board::setPlayer(
   const string& text,
   const Player player)
 {
-  players[numActive].setPlayer(text, player);
-
   instances[numActive].setPlayer(text, player);
 }
 
@@ -616,10 +597,7 @@ void Board::setPlayer(
 void Board::copyPlayers(const Board& board2)
 {
   for (unsigned i = 0; i < board2.len; i++)
-  {
-    players[i] = board2.players[i];
     instances[i].copyPlayers(board2.instances[i]);
-  }
 }
 
 
@@ -642,8 +620,6 @@ void Board::setRoom(
   const string& text,
   const Format format)
 {
-  players[numActive].setRoom(text, format);
-
   instances[numActive].setRoom(text, format);
 }
 
@@ -660,16 +636,14 @@ bool Board::getValuation(Valuation& valuation) const
 Room Board::room() const
 {
   // TODO: 0 is open, 1 is closed.  Why do we have to ask?
-
-  return players[numActive].room();
+  return instances[numActive].room();
 }
 
 
 Room Board::roomFirst() const
 {
   // TODO: 0 is open, 1 is closed.  Why do we have to ask?
-
-  return players[0].room();
+  return instances[0].room();
 }
 
 
@@ -867,7 +841,6 @@ string Board::strScoreIMP(
     return "Points:       ";
 
   return instances[numActive].strScoreIMP(format, instances[baseInst]);
-    // contract[baseInst].getScore());
 }
 
 
@@ -920,16 +893,7 @@ string Board::strPlayers(
 
 string Board::strPlayersFromLINHeader(const unsigned instNo) const
 {
-  string st;
-  for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
-    st += LINdata.data[instNo].players[PLAYER_DDS_TO_LIN[i]] + ",";
-  st.pop_back(); // Trailing comma
-
-  if (instances[instNo].strPlayersFromLINHeader() != st)
-  {
-    THROW("Different players from header");
-  }
-  return st;
+  return instances[instNo].strPlayersFromLINHeader();
 }
 
 
@@ -1002,7 +966,7 @@ string Board::strPlayers(
     case BRIDGE_FORMAT_TXT:
     case BRIDGE_FORMAT_EML:
     case BRIDGE_FORMAT_REC:
-      return players[numActive].str(format);
+      return instances[numActive].strPlayers(format);
 
     default:
       THROW("Invalid format: " + STR(format));
@@ -1016,9 +980,10 @@ string Board::strPlayersDelta(
   const Format format) const
 {
   if (refBoard == nullptr)
-    return players[instNo].str(BRIDGE_FORMAT_LIN_RP) + ",";
+    return instances[instNo].strPlayers(BRIDGE_FORMAT_LIN_RP) + ",";
   else
-    return players[instNo].strDelta(refBoard->players[instNo], format);
+    return instances[instNo].strPlayersDelta(
+      refBoard->instances[instNo], format);
 }
 
 
@@ -1069,7 +1034,7 @@ string Board::strResult(
     return instances[numActive].strResult(format);
   }
   else
-    return instances[numActive].strResult(format, instances[baseInst]);
+    return instances[numActive].strResult(instances[baseInst], format);
 }
 
 
@@ -1086,8 +1051,8 @@ string Board::strResult(
   }
   else
   {
-    return instances[numActive].strResult(format, team, 
-      instances[baseInst]);
+    return instances[numActive].strResult(instances[baseInst], team, 
+      format);
   }
 }
 
@@ -1096,8 +1061,7 @@ string Board::strRoom(
   const unsigned no,
   const Format format) const
 {
-  // TODO: Don't need to ask players
-  return players[numActive].strRoom(no, format);
+  return instances[numActive].strRoom(no, format);
 }
 
 

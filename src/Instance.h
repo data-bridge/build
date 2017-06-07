@@ -166,6 +166,8 @@ class Instance
       const string& s,
       const Format format);
 
+    Room room() const;
+
     bool operator == (const Instance& inst2) const;
     bool operator != (const Instance& inst2) const;
 
@@ -200,7 +202,7 @@ class Instance
     string strPlayers(const Format format) const;
 
     string strPlayersDelta(
-      const Instance * refInstance,
+      const Instance& inst2,
       const Format format) const;
 
     string strPlayersFromLINHeader() const;
@@ -210,13 +212,17 @@ class Instance
     string strResult(const Format format) const;
 
     string strResult(
-      const Format format,
-      const Instance& inst2) const;
+      const Instance& inst2,
+      const Format format) const;
 
     string strResult(
-      const Format format,
+      const Instance& inst2,
       const string& team,
-      const Instance& inst2) const;
+      const Format format) const;
+    
+    string strRoom(
+      const unsigned no,
+      const Format format) const;
 };
 
 #endif

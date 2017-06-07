@@ -16,7 +16,6 @@
 #include "Deal.h"
 #include "Tableau.h"
 #include "Instance.h"
-#include "Players.h"
 
 using namespace std;
 
@@ -30,7 +29,6 @@ class Board
     Deal deal;
     Tableau tableau;
     vector<Instance> instances;
-    vector<Players> players;
     vector<bool> skip;
     float givenScore;
     bool givenSet;
@@ -48,11 +46,6 @@ class Board
       const unsigned noToMax);
 
     string strPlayersFromLINHeader(const unsigned instNo) const;
-
-    string strPlayersDelta(
-      Board * refBoard,
-      const unsigned instNo,
-      const Format format) const;
 
     string strResultEntry(const unsigned instNo) const;
 
@@ -273,6 +266,11 @@ class Board
     string strPlay(const Format format) const;
     string strClaim(const Format format) const;
     
+    string strPlayersDelta(
+      Board * refBoard,
+      const unsigned instNo,
+      const Format format) const;
+
     string strPlayer(
       const Player player,
       const Format format) const;
@@ -298,16 +296,16 @@ class Board
     string strResult(
       const Format format,
       const string& team,
-      const bool swapFlag= false) const;
+      const bool swapFlag = false) const;
 
-    string strRoom(
-      const unsigned no,
-      const Format format) const;
-    
     string strIMPSheetLine(
       const string& bno,
       unsigned& score1,
       unsigned& score2) const;
+    
+    string strRoom(
+      const unsigned no,
+      const Format format) const;
 };
 
 #endif
