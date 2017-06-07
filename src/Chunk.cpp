@@ -198,7 +198,7 @@ void Chunk::getCounts(
   else if (format == BRIDGE_FORMAT_RBN ||
       format == BRIDGE_FORMAT_RBX)
   {
-    const string sn = chunk[BRIDGE_FORMAT_PLAYERS_BOARD];
+    const string sn = chunk[BRIDGE_FORMAT_PLAYERS];
     const unsigned sl = sn.length();
     if (sn != "" && sl >= 2)
     {

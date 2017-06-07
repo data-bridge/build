@@ -54,7 +54,7 @@ static void logLengths(
         {
           tstats.add(
             instance.strPlayer(static_cast<Player>(p), BRIDGE_FORMAT_PAR),
-            fname, BRIDGE_FORMAT_PLAYERS_BOARD, format);
+            fname, BRIDGE_FORMAT_PLAYERS, format);
         }
       }
     }

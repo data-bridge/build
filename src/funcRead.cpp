@@ -76,15 +76,10 @@ void setReadTables()
   segPtr[BRIDGE_FORMAT_RESULTS_LIST] = &Segment::setResultsList;
   segPtr[BRIDGE_FORMAT_PLAYERS_LIST] = &Segment::setPlayersList;
   segPtr[BRIDGE_FORMAT_PLAYERS_HEADER] = &Segment::setPlayersHeader;
-  segPtr[BRIDGE_FORMAT_WEST] = &Segment::setWest;
-  segPtr[BRIDGE_FORMAT_NORTH] = &Segment::setNorth;
-  segPtr[BRIDGE_FORMAT_EAST] = &Segment::setEast;
-  segPtr[BRIDGE_FORMAT_SOUTH] = &Segment::setSouth;
   segPtr[BRIDGE_FORMAT_SCORES_LIST] = &Segment::setScoresList;
   segPtr[BRIDGE_FORMAT_BOARDS_LIST] = &Segment::setBoardsList;
 
   segPtr[BRIDGE_FORMAT_BOARD_NO] = &Segment::setNumber;
-  segPtr[BRIDGE_FORMAT_PLAYERS_BOARD] = &Segment::setPlayers;
   segPtr[BRIDGE_FORMAT_ROOM] = &Segment::setRoom;
 
   boardPtr[BRIDGE_FORMAT_DEAL] = &Board::setDeal;
@@ -94,6 +89,11 @@ void setReadTables()
   boardPtr[BRIDGE_FORMAT_SCORE_MP] = &Board::setScoreMP; // TODO
   boardPtr[BRIDGE_FORMAT_DOUBLE_DUMMY] = &Board::setTableau;
 
+  instPtr[BRIDGE_FORMAT_PLAYERS] = &Instance::setPlayers;
+  instPtr[BRIDGE_FORMAT_WEST] = &Instance::setWest;
+  instPtr[BRIDGE_FORMAT_NORTH] = &Instance::setNorth;
+  instPtr[BRIDGE_FORMAT_EAST] = &Instance::setEast;
+  instPtr[BRIDGE_FORMAT_SOUTH] = &Instance::setSouth;
   instPtr[BRIDGE_FORMAT_AUCTION] = &Instance::setAuction;
   instPtr[BRIDGE_FORMAT_DECLARER] = &Instance::setDeclarer;
   instPtr[BRIDGE_FORMAT_CONTRACT] = &Instance::setContract;
@@ -192,7 +192,7 @@ static bool storeChunk(
         (board->*boardPtr[i])(text, format);
     }
 
-    for (i = BRIDGE_FORMAT_AUCTION; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
+    for (i = BRIDGE_FORMAT_PLAYERS; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
     {
       const string text = chunk.get(i);
       if (text != "")

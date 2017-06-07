@@ -102,8 +102,6 @@ class Instance
       const Vul vul,
       const string& cstring);
 
-    void getContract(Contract& ctr); // TODO REmove
-
     void setContract(
       const string& text,
       const Format format);
@@ -150,12 +148,32 @@ class Instance
 
     void setPlayers(
       const string& text,
+      const Format format);
+
+    void setPlayers(
+      const string& text,
       const Format format,
-      const bool hardFlag = true);
+      const bool hardFlag);
 
     void setPlayer(
       const string& text,
       const Player player);
+
+    void setWest(
+      const string& text,
+      const Format format);
+
+    void setNorth(
+      const string& text,
+      const Format format);
+
+    void setEast(
+      const string& text,
+      const Format format);
+
+    void setSouth(
+      const string& text,
+      const Format format);
 
     void copyPlayers(const Instance& inst2);
 

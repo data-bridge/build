@@ -374,49 +374,6 @@ void Segment::setSecondTeam(
 }
 
 
-void Segment::setPlayers(
-  const string& text,
-  const Format format)
-{
-  activeBoard->setPlayers(text, format);
-}
-
-
-void Segment::setWest(
-  const string& text,
-  const Format format)
-{
-  UNUSED(format);
-  activeBoard->setPlayer(text, BRIDGE_WEST);
-}
-
-
-void Segment::setNorth(
-  const string& text,
-  const Format format)
-{
-  UNUSED(format);
-  activeBoard->setPlayer(text, BRIDGE_NORTH);
-}
-
-
-void Segment::setEast(
-  const string& text,
-  const Format format)
-{
-  UNUSED(format);
-  activeBoard->setPlayer(text, BRIDGE_EAST);
-}
-
-
-void Segment::setSouth(
-  const string& text,
-  const Format format)
-{
-  UNUSED(format);
-  activeBoard->setPlayer(text, BRIDGE_SOUTH);
-}
-
 bool Segment::isShortPass(const string& st) const
 {
   return (st.length() == 1 && (st == "P" || st == "p"));

@@ -34,7 +34,7 @@ void setLINTables()
   LINmap["mp"] = BRIDGE_FORMAT_SCORES_LIST;
   LINmap["bn"] = BRIDGE_FORMAT_BOARDS_LIST;
   LINmap["qx"] = BRIDGE_FORMAT_BOARD_NO;
-  LINmap["pn"] = BRIDGE_FORMAT_PLAYERS_BOARD; // May also occur in header
+  LINmap["pn"] = BRIDGE_FORMAT_PLAYERS; // May also occur in header
   LINmap["md"] = BRIDGE_FORMAT_DEAL;
   LINmap["sv"] = BRIDGE_FORMAT_VULNERABLE;
   LINmap["mb"] = BRIDGE_FORMAT_AUCTION;

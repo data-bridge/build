@@ -191,14 +191,6 @@ void Instance::setContract(
 }
 
 
-void Instance::getContract(
-  Contract& ctr)
-{
-  // TODO: Remove method later
-  ctr = contract;
-}
-
-
 void Instance::setContract(
   const string& text,
   const Format format)
@@ -309,6 +301,14 @@ bool Instance::hasResult() const
 
 void Instance::setPlayers(
   const string& text,
+  const Format format)
+{
+  players.set(text, format, false);
+}
+
+
+void Instance::setPlayers(
+  const string& text,
   const Format format,
   const bool hardFlag)
 {
@@ -321,6 +321,42 @@ void Instance::setPlayer(
   const Player player)
 {
   players.setPlayer(text, player);
+}
+
+
+void Instance::setWest(
+  const string& text,
+  const Format format)
+{
+  UNUSED(format);
+  players.setPlayer(text, BRIDGE_WEST);
+}
+
+
+void Instance::setNorth(
+  const string& text,
+  const Format format)
+{
+  UNUSED(format);
+  players.setPlayer(text, BRIDGE_NORTH);
+}
+
+
+void Instance::setEast(
+  const string& text,
+  const Format format)
+{
+  UNUSED(format);
+  players.setPlayer(text, BRIDGE_EAST);
+}
+
+
+void Instance::setSouth(
+  const string& text,
+  const Format format)
+{
+  UNUSED(format);
+  players.setPlayer(text, BRIDGE_SOUTH);
 }
 
 

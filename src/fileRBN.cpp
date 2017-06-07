@@ -36,7 +36,7 @@ void setRBNTables()
   RBNmap['K'] = BRIDGE_FORMAT_TEAMS;
 
   // Board-level but relevant in Segment
-  RBNmap['N'] = BRIDGE_FORMAT_PLAYERS_BOARD;
+  RBNmap['N'] = BRIDGE_FORMAT_PLAYERS;
   RBNmap['B'] = BRIDGE_FORMAT_BOARD_NO;
 
   // Purely Board-level

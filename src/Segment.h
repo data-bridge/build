@@ -155,26 +155,6 @@ class Segment
       const string& text,
       const Format format);
 
-    void setPlayers(
-      const string& text,
-      const Format format);
-
-    void setWest(
-      const string& text,
-      const Format format);
-
-    void setNorth(
-      const string& text,
-      const Format format);
-
-    void setEast(
-      const string& text,
-      const Format format);
-
-    void setSouth(
-      const string& text,
-      const Format format);
-
     void setResultsList(
       const string& text,
       const Format format);
