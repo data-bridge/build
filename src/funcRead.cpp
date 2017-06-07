@@ -88,6 +88,8 @@ void setReadTables()
   boardPtr[BRIDGE_FORMAT_DEAL] = &Board::setDeal;
   boardPtr[BRIDGE_FORMAT_DEALER] = &Board::setDealer;
   boardPtr[BRIDGE_FORMAT_VULNERABLE] = &Board::setVul;
+  boardPtr[BRIDGE_FORMAT_DOUBLE_DUMMY] = &Board::setTableau;
+
   boardPtr[BRIDGE_FORMAT_AUCTION] = &Board::setAuction;
   boardPtr[BRIDGE_FORMAT_DECLARER] = &Board::setDeclarer;
   boardPtr[BRIDGE_FORMAT_CONTRACT] = &Board::setContract;
@@ -96,7 +98,6 @@ void setReadTables()
   boardPtr[BRIDGE_FORMAT_SCORE] = &Board::setScore;
   boardPtr[BRIDGE_FORMAT_SCORE_IMP] = &Board::setScoreIMP;
   boardPtr[BRIDGE_FORMAT_SCORE_MP] = &Board::setScoreMP;
-  boardPtr[BRIDGE_FORMAT_DOUBLE_DUMMY] = &Board::setTableau;
 }
 
 
