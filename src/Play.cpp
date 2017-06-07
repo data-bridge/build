@@ -1039,19 +1039,6 @@ string Play::strDeclarer(const Format format) const
 }
 
 
-string Play::strDenom(const Format format) const
-{
-  switch(format)
-  {
-    case BRIDGE_FORMAT_PAR:
-      return STR(DENOM_NAMES_SHORT[denom]);
-
-    default:
-      THROW("Invalid format: " + STR(format));
-  }
-}
-
-
 string Play::strClaimLIN() const
 {
   if (! claimMadeFlag)

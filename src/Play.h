@@ -151,8 +151,6 @@ class Play
 
     string strDeclarer(const Format format) const;
 
-    string strDenom(const Format format) const;
-
     string strClaim(const Format format) const;
 };
 

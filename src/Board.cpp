@@ -403,63 +403,31 @@ bool Board::hasDealerVul() const
   if (len == 0)
     return false;
   else
-  {
-    if (instances[0].hasDealerVul() != auction[0].hasDealerVul())
-    {
-      // TODO
-      THROW("Different DV set");
-    }
-
-    return auction[0].hasDealerVul();
-  }
+    return instances[0].hasDealerVul();
 }
 
 
 bool Board::auctionIsOver() const
 {
-  if (instances[numActive].auctionIsOver() != auction[numActive].isOver())
-  {
-    // TODO
-    THROW("Different isOver");
-  }
-
-  return auction[numActive].isOver();
+  return instances[numActive].auctionIsOver();
 }
 
 
 bool Board::auctionIsEmpty() const
 {
-  if (instances[numActive].auctionIsEmpty() != auction[numActive].isEmpty())
-  {
-    // TODO
-    THROW("Different isEmpty");
-  }
-
-  return auction[numActive].isEmpty();
+  return instances[numActive].auctionIsEmpty();
 }
 
 
 bool Board::isPassedOut() const
 {
-  if (instances[numActive].isPassedOut() != auction[numActive].isPassedOut())
-  {
-    // TODO
-    THROW("Different isPassedOut");
-  }
-
-  return auction[numActive].isPassedOut();
+  return instances[numActive].isPassedOut();
 }
 
 
 unsigned Board::lengthAuction() const
 {
-  if (instances[numActive].lengthAuction() != auction[numActive].length())
-  {
-    // TODO
-    THROW("Different auction length");
-  }
-
-  return auction[numActive].length();
+  return instances[numActive].lengthAuction();
 }
 
 
@@ -500,13 +468,7 @@ void Board::setDeclarer(
 
 bool Board::contractIsSet() const
 {
-  if (instances[numActive].contractIsSet() != contract[numActive].isSet())
-  {
-    // TODO
-    THROW("Different contract isSet");
-  }
-
-  return contract[numActive].isSet();
+  return instances[numActive].contractIsSet();
 }
 
 
@@ -619,25 +581,13 @@ void Board::undoLastPlay()
 
 bool Board::playIsOver() const
 {
-  if (instances[numActive].playIsOver() != play[numActive].isOver())
-  {
-    // TODO
-    THROW("Different play isOver");
-  }
-
-  return play[numActive].isOver();
+  return instances[numActive].playIsOver();
 }
 
 
 bool Board::hasClaim() const
 {
-  if (instances[numActive].hasClaim() != play[numActive].hasClaim())
-  {
-    // TODO
-    THROW("Different play hasClaim");
-  }
-
-  return play[numActive].hasClaim();
+  return instances[numActive].hasClaim();
 }
 
 
@@ -666,13 +616,7 @@ void Board::setResult(
 
 bool Board::hasResult() const
 {
-  if (instances[numActive].hasResult() != contract[numActive].hasResult())
-  {
-    // TODO
-    THROW("Different contract hasResult");
-  }
-
-  return contract[numActive].hasResult();
+  return instances[numActive].hasResult();
 }
 
 
@@ -756,13 +700,7 @@ void Board::copyPlayers(const Board& board2)
 
 unsigned Board::missingPlayers() const
 {
-  if (instances[numActive].missingPlayers() != players[numActive].missing())
-  {
-    // TODO
-    THROW("Different players missing");
-  }
-
-  return players[numActive].missing();
+  return instances[numActive].missingPlayers();
 }
 
 
@@ -771,16 +709,7 @@ bool Board::overlappingPlayers() const
   if (len < 2)
     return false;
   else
-  {
-    if (instances[0].overlappingPlayers(instances[1]) != 
-      players[0].overlap(players[1]))
-    {
-      // TODO
-      THROW("Different players overlapping");
-    }
-
-    return players[0].overlap(players[1]);
-  }
+    return instances[0].overlappingPlayers(instances[1]);
 }
 
 
@@ -846,15 +775,6 @@ bool Board::operator == (const Board& board2) const
     if (skip[b])
       continue;
 
-    if (players[b] != board2.players[b])
-      return false;
-    if (auction[b] != board2.auction[b])
-      return false;
-    if (contract[b] != board2.contract[b])
-      return false;
-    if (play[b] != board2.play[b])
-      return false;
-    
     if (instances[b] != board2.instances[b])
       return false;
   }
@@ -871,37 +791,19 @@ bool Board::operator != (const Board& board2) const
 
 string Board::strDealer(const Format format) const
 {
-  if (instances[numActive].strDealer(format) != auction[numActive].strDealer(format))
-  {
-    // TODO
-    THROW("Different auction dealer");
-  }
-
-  return auction[numActive].strDealer(format);
+  return instances[numActive].strDealer(format);
 }
 
 
 string Board::strVul(const Format format) const
 {
-  if (instances[numActive].strVul(format) != contract[numActive].strVul(format))
-  {
-    // TODO
-    THROW("Different contract vul");
-  }
-
-  return contract[numActive].strVul(format);
+  return instances[numActive].strVul(format);
 }
 
 
 string Board::strDeal(const Format format) const
 {
-  if (instances[0].getDealer() != auction[0].getDealer())
-  {
-    // TODO
-    THROW("Different auction dealer");
-  }
-
-  return deal.str(auction[0].getDealer(), format);
+  return deal.str(instances[0].getDealer(), format);
 }
 
 
@@ -921,13 +823,7 @@ string Board::strDealRemain(const Format format) const
   Deal dltmp;
   dltmp.set(runningDD.dl.remainCards);
 
-  if (instances[0].getDealer() != auction[0].getDealer())
-  {
-    // TODO
-    THROW("Different auction dealer");
-  }
-
-  return dltmp.str(auction[0].getDealer(), format);
+  return dltmp.str(instances[0].getDealer(), format);
 }
 
 
@@ -939,49 +835,13 @@ string Board::strTableau(const Format format) const
 
 string Board::strAuction(const Format format) const
 {
-  const string istr = instances[numActive].strAuction(format);
-
-  if (format == BRIDGE_FORMAT_TXT)
-  {
-    int lengths[BRIDGE_PLAYERS];
-    for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
-    {
-      Player pp = PLAYER_DDS_TO_TXT[p];
-      lengths[p] = static_cast<int>
-        (players[numActive].strPlayer(pp, format).length());
-      lengths[p] = Max(12, lengths[p]+1);
-    }
-
-    if (istr != auction[numActive].str(format, lengths))
-    {
-      // TODO
-      THROW("Different auction1");
-    }
-
-    return auction[numActive].str(format, lengths);
-  }
-  else
-  {
-    if (istr != auction[numActive].str(format))
-    {
-      // TODO
-      THROW("Different auction2");
-    }
-
-    return auction[numActive].str(format);
-  }
+  return instances[numActive].strAuction(format);
 }
 
 
 string Board::strContract(const Format format) const
 {
-  if (instances[numActive].strContract(format) != contract[numActive].str(format))
-  {
-    // TODO
-    THROW("Different contract str");
-  }
-
-  return contract[numActive].str(format);
+  return instances[numActive].strContract(format);
 }
 
 
@@ -990,68 +850,25 @@ string Board::strContract(
   const Format format) const
 {
   if (skip[instNo] && LINset)
-  {
-    if (instances[instNo].strHeaderContract() != LINdata.data[instNo].contract)
-    {
-      // TODO
-      THROW("Different contract str1");
-    }
-    return LINdata.data[instNo].contract;
-  }
+    return instances[instNo].strHeaderContract();
   else if (instNo < len)
-  {
-    if (instances[instNo].strContract(format) != contract[instNo].str(format))
-    {
-      // TODO
-      THROW("Different contract str1");
-    }
-    return contract[instNo].str(format);
-  }
+    return instances[instNo].strContract(format);
   else if (LINset && instNo < 2)
-  {
-    if (instances[instNo].strHeaderContract() != LINdata.data[instNo].contract)
-    {
-      // TODO
-      THROW("Different contract str1");
-    }
-    return LINdata.data[instNo].contract;
-  }
+    return instances[instNo].strHeaderContract();
   else
-  {
     return "";
-  }
 }
 
 
 string Board::strDeclarer(const Format format) const
 {
-  if (instances[numActive].strDeclarer(format) != 
-    contract[numActive].strDeclarer(format))
-  {
-    // TODO
-    THROW("Different declarer ");
-  }
-
-  return contract[numActive].strDeclarer(format);
-}
-
-
-string Board::strDenom(const Format format) const
-{
-  // TODO: Delete, unused
-  return contract[numActive].strDenom(format);
+  return instances[numActive].strDeclarer(format);
 }
 
 
 string Board::strTricks(const Format format) const
 {
-  if (instances[numActive].strTricks(format) != 
-    contract[numActive].strTricks(format))
-  {
-    // TODO
-    THROW("Different tricks");
-  }
-  return contract[numActive].strTricks(format);
+  return instances[numActive].strTricks(format);
 }
 
 
@@ -1066,28 +883,11 @@ string Board::strScore(
      ! contract[0].hasResult() ||
      ! contract[1].hasResult())
   {
-    if (instances[numActive].strScore(format) != 
-      contract[numActive].strScore(format))
-    {
-      // TODO
-      cout << "format " << FORMAT_NAMES[format] << endl;
-      cout << "LIN no " << LINdata.no << endl;
-      THROW("Different score1: '" +
-        instances[numActive].strScore(format) + "' vs '" +
-        contract[numActive].strScore(format) + "'");
-    }
-    return contract[numActive].strScore(format);
+    return instances[numActive].strScore(format);
   }
   else
-  {
-    if (instances[numActive].strScore(format, contract[baseInst].getScore()) != 
-      contract[numActive].strScore(format, contract[baseInst].getScore()))
-    {
-      // TODO
-      THROW("Different score1");
-    }
-    return contract[numActive].strScore(format, contract[baseInst].getScore());
-  }
+    return instances[numActive].strScore(format, 
+      contract[baseInst].getScore());
 }
 
 
@@ -1142,13 +942,7 @@ string Board::strScoreIMP(
       ! contract[1].hasResult())
     return "Points:       ";
 
-  if (instances[numActive].strScoreIMP(format, contract[baseInst].getScore()) != 
-    contract[numActive].strScoreIMP(format, contract[baseInst].getScore()))
-  {
-    // TODO
-    THROW("Different tricks");
-  }
-  return contract[numActive].strScoreIMP(format, 
+  return instances[numActive].strScoreIMP(format, 
     contract[baseInst].getScore());
 }
 
@@ -1162,51 +956,25 @@ int Board::IMPScore(const bool swapFlag) const
       ! contract[1].hasResult())
     return 0;
   else
-  {
-    if (instances[numActive].IMPScore(contract[baseInst].getScore()) != 
-      contract[numActive].IMPScore(contract[baseInst].getScore()))
-    {
-      // TODO
-      THROW("Different IMPscore");
-    }
-    return contract[numActive].IMPScore(contract[baseInst].getScore());
-  }
+    return instances[numActive].IMPScore(contract[baseInst].getScore());
 }
 
 
 string Board::strLead(const Format format) const
 {
-  if (instances[numActive].strLead(format) != play[numActive].strLead(format))
-  {
-    // TODO
-    THROW("Different contract str1");
-  }
-
-  return play[numActive].strLead(format);
+  return instances[numActive].strLead(format);
 }
 
 
 string Board::strPlay(const Format format) const
 {
-  if (instances[numActive].strPlay(format) != play[numActive].str(format))
-  {
-    // TODO
-    THROW("Different contract str1");
-  }
-
-  return play[numActive].str(format);
+  return instances[numActive].strPlay(format);
 }
 
 
 string Board::strClaim(const Format format) const
 {
-  if (instances[numActive].strClaim(format) != play[numActive].strClaim(format))
-  {
-    // TODO
-    THROW("Different claim");
-  }
-
-  return play[numActive].strClaim(format);
+  return instances[numActive].strClaim(format);
 }
 
 
@@ -1214,14 +982,7 @@ string Board::strPlayer(
   const Player player,
   const Format format) const
 {
-  if (instances[numActive].strPlayer(player, format) != 
-      players[numActive].strPlayer(player, format))
-  {
-    // TODO
-    THROW("Different Player");
-  }
-
-  return players[numActive].strPlayer(player, format);
+  return instances[numActive].strPlayer(player, format);
 }
 
 
@@ -1229,12 +990,7 @@ string Board::strPlayers(
   const unsigned instNo,
   const Format format) const
 {
-  if (instances[instNo].strPlayers(format) != players[instNo].str(format))
-  {
-    // TODO
-    THROW("Different players");
-  }
-  return players[instNo].str(format);
+  return instances[instNo].strPlayers(format);
 }
 
 
@@ -1386,22 +1142,11 @@ string Board::strResult(
      ! scoringIsIMPs ||
      ! contract[baseInst].hasResult())
   {
-    if (instances[numActive].strResult(format) !=
-        contract[numActive].strResult(format))
-    {
-      THROW("strResult1");
-    }
-    return contract[numActive].strResult(format);
+    return instances[numActive].strResult(format);
   }
   else
-  {
-    if (instances[numActive].strResult(format, contract[baseInst].getScore()) !=
-        contract[numActive].strResult(format, contract[baseInst].getScore()))
-    {
-      THROW("strResult2");
-    }
-    return contract[numActive].strResult(format, contract[baseInst].getScore());
-  }
+    return instances[numActive].strResult(format, 
+      contract[baseInst].getScore());
 }
 
 

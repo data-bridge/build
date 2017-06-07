@@ -146,7 +146,6 @@ class Contract
 
     string str(const Format format) const;
     string strDeclarer(const Format format) const;
-    string strDenom(const Format format) const;
     string strVul(const Format format) const;
     string strTricks(const Format format) const;
 

@@ -962,41 +962,11 @@ string Contract::strDeclarer(const Format format) const
 }
 
 
-string Contract::strDenom(const Format format) const
-{
-  switch(format)
-  {
-    case BRIDGE_FORMAT_PAR:
-      if (! setResultFlag)
-        return "";
-      else 
-        return STR(DENOM_NAMES_SHORT[contract.denom]);
-
-    default:
-      THROW("Invalid format: " + STR(format));
-  }
-}
-
-
 string Contract::strVul(const Format format) const
 {
   if (! setVulFlag)
     THROW("Vulnerability not set");
 
-  /*
-  switch(format)
-  {
-    case BRIDGE_FORMAT_RBN:
-    case BRIDGE_FORMAT_RBX:
-      return VUL_RBN_TAG[vul];
-
-    default:
-      THROW("Invalid format: " + STR(format));
-  }
-  */
-
-  // TODO: Delete above
-  
   switch(format)
   {
     case BRIDGE_FORMAT_LIN:
