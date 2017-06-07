@@ -40,8 +40,6 @@ class Board
     bool LINset;
     bool LINScoreSet;
 
-    string strPlayersFromLINHeader(const unsigned instNo) const;
-
     string strIMPEntry(const int imps) const;
     
 
@@ -135,8 +133,6 @@ class Board
 
     bool getValuation(Valuation& valuation) const;
 
-    Room roomFirst() const;
-
     bool operator == (const Board& b2) const;
 
     bool operator != (const Board& b2) const;
@@ -175,10 +171,6 @@ class Board
       const bool isIMPs = true,
       Board * refBoard = nullptr) const;
     
-    string strContracts(
-      const string& contractFromHeader,
-      const Format format) const;
-
     string strResult(
       const Format format,
       const bool scoringIsIMPs,

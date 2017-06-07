@@ -65,7 +65,7 @@ void Instance::setLINheader(const LINInstData& lin)
   if (LINdata.contract != "")
     Instance::setContract(LINdata.contract, BRIDGE_FORMAT_LIN);
 
-  const string st = strPlayersFromLINHeader();
+  const string st = Instance::strPlayersFromLINHeader();
   if (st != ",,,")
     Instance::setPlayers(st, BRIDGE_FORMAT_LIN, false);
 }

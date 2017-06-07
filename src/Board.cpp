@@ -423,13 +423,6 @@ bool Board::getValuation(Valuation& valuation) const
 }
 
 
-Room Board::roomFirst() const
-{
-  // TODO: 0 is open, 1 is closed.  Why do we have to ask?
-  return instances[0].room();
-}
-
-
 bool Board::operator == (const Board& board2) const
 {
   if (len != board2.len)
@@ -604,12 +597,6 @@ int Board::IMPScore(const bool swapFlag) const
 }
 
 
-string Board::strPlayersFromLINHeader(const unsigned instNo) const
-{
-  return instances[instNo].strPlayersFromLINHeader();
-}
-
-
 string Board::strPlayersBoard(
   const Format format,
   const bool isIMPs,
@@ -680,41 +667,6 @@ string Board::strPlayersDelta(
   else
     return instances[instNo].strPlayersDelta(
       refBoard->instances[instNo], format);
-}
-
-
-string Board::strContracts(
-  const string& contractFromHeader,
-  const Format format) const
-{
-  string st = "";
-
-  switch(format)
-  {
-    case BRIDGE_FORMAT_LIN:
-    case BRIDGE_FORMAT_LIN_RP:
-    case BRIDGE_FORMAT_LIN_VG:
-    case BRIDGE_FORMAT_LIN_TRN:
-      if (len == 2 && Board::roomFirst() == BRIDGE_ROOM_CLOSED)
-      {
-        // TODO: Soon shouldn't happen anymore?
-        st += instances[1].strContract(format) + ",";
-        st += instances[0].strContract(format) + ",";
-        THROW("Impossible?");
-      }
-      else
-      {
-        for (unsigned i = 0; i < len; i++)
-          st += instances[i].strContract(format) + ",";
-      }
-
-      if (len == 1)
-        st += contractFromHeader + ",";
-      return st;
-
-    default:
-      THROW("Invalid format: " + STR(format));
-  }
 }
 
 

@@ -1,5 +1,8 @@
 05.06.2017
 ----------
+Players: Need a setPlayersLIN or so (array of 4).
+Then in Instance, FromLINHeader can go.
+
 Segment
 * Split Segment into HeaderLIN
 
