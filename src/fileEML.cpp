@@ -424,21 +424,16 @@ void writeEMLBoardLevel(
   Format format)
 {
   const Instance& instance = board.getInstance(writeInfo.instNo);
-  UNUSED(instance);
   board.setInstance(writeInfo.instNo);
 
-  if (board.skipped())
+  if (board.skipped(writeInfo.instNo))
     return;
-
-  Canvas canvas;
-
-  // board.calculateScore();
 
   // Convert deal, auction and play from \n to vectors.
   vector<string> deal, auction, play;
   str2lines(board.strDeal(BRIDGE_WEST, format), deal);
-  str2lines(board.strAuction(format), auction);
-  str2lines(board.strPlay(format), play);
+  str2lines(instance.strAuction(format), auction);
+  str2lines(instance.strPlay(format), play);
 
   // Height of auction determines dimensions.
   // It seems we leave out the play if that makes the canvas too large.
@@ -449,6 +444,7 @@ void writeEMLBoardLevel(
   const unsigned clen = (playFlag ? alstart + 5 : Max(18, as+6));
   const unsigned acstart = (play[0].length() > 38 ? 39u : 42u);
 
+  Canvas canvas;
   canvas.resize(clen, 80);
 
   canvas.setRectangle(deal, 0, 4);
@@ -457,19 +453,19 @@ void writeEMLBoardLevel(
     canvas.setRectangle(play, alstart, acstart);
 
   canvas.setLine(segment.strScoring(format), 0, 0);
-  canvas.setLine(board.strPlayer(BRIDGE_WEST, format), 7, 4);
-  canvas.setLine(board.strPlayer(BRIDGE_NORTH, format), 1, 16);
-  canvas.setLine(board.strPlayer(BRIDGE_EAST, format), 7, 27);
-  canvas.setLine(board.strPlayer(BRIDGE_SOUTH, format), 13, 16);
-  canvas.setLine(board.strPlayer(BRIDGE_WEST, format), 3, 42);
-  canvas.setLine(board.strPlayer(BRIDGE_NORTH, format), 3, 51);
-  canvas.setLine(board.strPlayer(BRIDGE_EAST, format), 3, 60);
-  canvas.setLine(board.strPlayer(BRIDGE_SOUTH, format), 3, 69);
+  canvas.setLine(instance.strPlayer(BRIDGE_WEST, format), 7, 4);
+  canvas.setLine(instance.strPlayer(BRIDGE_NORTH, format), 1, 16);
+  canvas.setLine(instance.strPlayer(BRIDGE_EAST, format), 7, 27);
+  canvas.setLine(instance.strPlayer(BRIDGE_SOUTH, format), 13, 16);
+  canvas.setLine(instance.strPlayer(BRIDGE_WEST, format), 3, 42);
+  canvas.setLine(instance.strPlayer(BRIDGE_NORTH, format), 3, 51);
+  canvas.setLine(instance.strPlayer(BRIDGE_EAST, format), 3, 60);
+  canvas.setLine(instance.strPlayer(BRIDGE_SOUTH, format), 3, 69);
   canvas.setLine(segment.strNumber(writeInfo.bno, format), 0, 42);
 
-  canvas.setLine(board.strDealer(format), 1, 0);
-  canvas.setLine(board.strVul(format), 2, 0);
-  const string l = board.strLead(format);
+  canvas.setLine(instance.strDealer(format), 1, 0);
+  canvas.setLine(instance.strVul(format), 2, 0);
+  const string l = instance.strLead(format);
   unsigned p;
   if (l == "Opening Lead:")
     p = a+3;
@@ -478,17 +474,14 @@ void writeEMLBoardLevel(
     canvas.setLine(l, a+3, 42);
     p = a+4;
   }
-  canvas.setLine(board.strResult(format, false), p, 42);
+  canvas.setLine(instance.strResult(format), p, 42);
   canvas.setLine(board.strScore(format, segment.scoringIsIMPs(),
     segment.getCOCO()), p+1, 42);
 
-  // TODO: When we are rid of .fix files for EML, then we should
-  // remove the test for playFlag here as well.
-  if (// ! playFlag &&
-      auction.size() == 3 && auction[2] == "")
+  if (auction.size() == 3 && auction[2] == "")
   {
     // Not standard EML: Give the contract.
-    canvas.setLine("Contract: " + board.strContract(format), p+2, 42);
+    canvas.setLine("Contract: " + instance.strContract(format), p+2, 42);
   }
 
   st += canvas.str() + "\n";

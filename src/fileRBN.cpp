@@ -106,10 +106,9 @@ void writeRBNBoardLevel(
   const Format format)
 {
   const Instance& instance = board.getInstance(writeInfo.instNo);
-  UNUSED(instance);
   board.setInstance(writeInfo.instNo);
 
-  string names = board.strPlayers(format);
+  string names = instance.strPlayers(format);
   if (names != writeInfo.namesOld[writeInfo.ino])
   {
     st += names;
@@ -122,15 +121,13 @@ void writeRBNBoardLevel(
     st += board.strDeal(BRIDGE_WEST, format);
   }
 
-  // board.calculateScore();
+  if (! board.skipped(writeInfo.instNo))
+    st += instance.strAuction(format);
 
-  if (! board.skipped())
-    st += board.strAuction(format);
+  st += instance.strContract(format);
 
-  st += board.strContract(format);
-
-  if (! board.skipped())
-    st += board.strPlay(format);
+  if (! board.skipped(writeInfo.instNo))
+    st += instance.strPlay(format);
 
   st += board.strResult(format, segment.scoringIsIMPs(), segment.getCOCO());
   st += "\n";

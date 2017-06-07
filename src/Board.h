@@ -64,8 +64,7 @@ class Board
 
     void setInstance(const unsigned no);
 
-    // TODO: Should be const, const later
-    Instance& getInstance(const unsigned instNo);
+    const Instance& getInstance(const unsigned instNo) const;
 
     void markInstanceSkip();
     void unmarkInstanceSkip();

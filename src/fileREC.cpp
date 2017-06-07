@@ -358,29 +358,25 @@ void writeRECBoardLevel(
   WriteInfo& writeInfo,
   const Format format)
 {
-  Canvas canvas;
-
   const Instance& instance = board.getInstance(writeInfo.instNo);
-  UNUSED(instance);
   board.setInstance(writeInfo.instNo);
-
-  // board.calculateScore();
 
   const string dstr = board.strDeal(BRIDGE_WEST, format);
   const string sstr = segment.strScoring(format);
-  const string estr = board.strDealer(format);
+  const string estr = instance.strDealer(format);
   const string bstr = segment.strNumber(writeInfo.bno, format);
   const string vstr = board.strVul(format);
 
-  const string west = board.strPlayer(BRIDGE_WEST, format);
-  const string north = board.strPlayer(BRIDGE_NORTH, format);
-  const string east = board.strPlayer(BRIDGE_EAST, format);
-  const string south = board.strPlayer(BRIDGE_SOUTH, format);
+  const string west = instance.strPlayer(BRIDGE_WEST, format);
+  const string north = instance.strPlayer(BRIDGE_NORTH, format);
+  const string east = instance.strPlayer(BRIDGE_EAST, format);
+  const string south = instance.strPlayer(BRIDGE_SOUTH, format);
 
   // Convert deal, auction and play from \n to vectors.
   vector<string> deal;
   str2lines(dstr, deal);
 
+  Canvas canvas;
   canvas.resize(11, 80);
   canvas.setRectangle(deal, 0, 0);
 
@@ -396,27 +392,27 @@ void writeRECBoardLevel(
 
   st += canvas.str(true) + "\n";
 
-  st += board.strPlayers(format) + "\n";
+  st += instance.strPlayers(format) + "\n";
 
-  if (! board.skipped())
+  if (! board.skipped(writeInfo.instNo))
   {
-    st += board.strAuction(format);
-    st += board.strLead(format) + "    ";
+    st += instance.strAuction(format);
+    st += instance.strLead(format) + "    ";
   }
   else
     st += "Opening lead:       ";
 
-  st += board.strResult(format, false) + "\n";
+  st += instance.strResult(format) + "\n";
   st += board.strScore(format, false);
   st += board.strScoreIMP(format, writeInfo.ino == 1,
     segment.getCOCO()) + "\n";
 
-  if (board.auctionIsEmpty())
-    st += "Contract: " + board.strContract(BRIDGE_FORMAT_EML) + "\n";
+  if (instance.auctionIsEmpty())
+    st += "Contract: " + instance.strContract(BRIDGE_FORMAT_EML) + "\n";
 
   st += "\n";
 
-  if (! board.skipped())
-    st += board.strPlay(format);
+  if (! board.skipped(writeInfo.instNo))
+    st += instance.strPlay(format);
 }
 

@@ -1085,7 +1085,7 @@ string Segment::strNumber(
       }
       return ss.str();
 
-    case BRIDGE_FORMAT_LIN_RP:
+    // case BRIDGE_FORMAT_LIN_RP:
     case BRIDGE_FORMAT_LIN_VG:
       ss << activeBoard->strRoom(extNo, format);
       return ss.str();

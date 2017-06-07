@@ -553,40 +553,31 @@ void writeTXTBoardLevel(
   WriteInfo& writeInfo,
   const Format format)
 {
-  Canvas canvas;
-  string tmp;
-  bool swapFlag;
-
   const Instance& instance = board.getInstance(writeInfo.instNo);
-  UNUSED(instance);
   board.setInstance(writeInfo.instNo);
-
-  // board.calculateScore();
+  bool swapFlag;
 
   if (writeInfo.ino == 0)
   {
     st += writeTXTDiagram(segment, board, writeInfo, format);
-    st += board.strPlayers(format);
-    st += board.strAuction(format) + "\n";
-    st += board.strContract(format);
+    st += instance.strPlayers(format);
+    st += instance.strAuction(format) + "\n";
+    st += instance.strContract(format);
 
-    if (! board.skipped())
-      st += board.strPlay(format);
+    if (! board.skipped(writeInfo.instNo))
+      st += instance.strPlay(format);
 
-    st += board.strResult(format, false) + "\n";
+    st += instance.strResult(format) + "\n";
   }
   else
   {
-    const string p = board.strPlayers(format);
     // Pavlicek bug?
-    if (p == "")
-      st += "\n";
-    else
-      st += board.strPlayers(format); // p?!
+    const string p = instance.strPlayers(format);
+    st += (p == "" ? "\n" : p);
 
-    st += board.strAuction(format) + "\n";
-    st += board.strContract(format);
-    st += board.strPlay(format);
+    st += instance.strAuction(format) + "\n";
+    st += instance.strContract(format);
+    st += instance.strPlay(format);
 
     swapFlag = segment.getCOCO();
     string tWin;
@@ -595,7 +586,7 @@ void writeTXTBoardLevel(
     st += board.strResult(format, tWin, swapFlag) + "\n";
   }
 
-  if (writeInfo.ino > 0 || writeInfo.numInst == 1) // || board.skipped(1))
+  if (writeInfo.ino > 0 || writeInfo.numInst == 1)
   {
     st += segment.strTeams(writeInfo.score1, writeInfo.score2, 
         format, swapFlag) + "\n";

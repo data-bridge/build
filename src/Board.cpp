@@ -138,8 +138,7 @@ void Board::setInstance(const unsigned no)
 }
 
 
-// TODO: Should be const, const later
-Instance& Board::getInstance(const unsigned instNo) 
+const Instance& Board::getInstance(const unsigned instNo) const
 {
   if (len == 0 || instNo > len-1)
     THROW("Invalid instance selected");
