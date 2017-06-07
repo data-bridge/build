@@ -205,6 +205,7 @@ const string LABEL_NAMES[] =
 struct WriteInfo
 {
   unsigned bno;
+  unsigned instNo;
   unsigned ino;
   unsigned numBoards;
   unsigned numInst;

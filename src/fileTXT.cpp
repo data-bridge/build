@@ -557,6 +557,10 @@ void writeTXTBoardLevel(
   string tmp;
   bool swapFlag;
 
+  const Instance& instance = board.getInstance(writeInfo.instNo);
+  UNUSED(instance);
+  board.setInstance(writeInfo.instNo);
+
   board.calculateScore();
 
   if (writeInfo.ino == 0)

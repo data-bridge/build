@@ -423,6 +423,10 @@ void writeEMLBoardLevel(
   WriteInfo& writeInfo,
   Format format)
 {
+  const Instance& instance = board.getInstance(writeInfo.instNo);
+  UNUSED(instance);
+  board.setInstance(writeInfo.instNo);
+
   if (board.skipped())
     return;
 

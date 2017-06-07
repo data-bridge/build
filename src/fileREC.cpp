@@ -360,6 +360,10 @@ void writeRECBoardLevel(
 {
   Canvas canvas;
 
+  const Instance& instance = board.getInstance(writeInfo.instNo);
+  UNUSED(instance);
+  board.setInstance(writeInfo.instNo);
+
   board.calculateScore();
 
   const string dstr = board.strDeal(BRIDGE_WEST, format);

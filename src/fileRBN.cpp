@@ -105,6 +105,10 @@ void writeRBNBoardLevel(
   WriteInfo& writeInfo,
   const Format format)
 {
+  const Instance& instance = board.getInstance(writeInfo.instNo);
+  UNUSED(instance);
+  board.setInstance(writeInfo.instNo);
+
   string names = board.strPlayers(format);
   if (names != writeInfo.namesOld[writeInfo.ino])
   {

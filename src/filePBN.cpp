@@ -254,6 +254,10 @@ void writePBNBoardLevel(
   WriteInfo& writeInfo,
   const Format format)
 {
+  const Instance& instance = board.getInstance(writeInfo.instNo);
+  UNUSED(instance);
+  board.setInstance(writeInfo.instNo);
+
   board.calculateScore();
 
   if (writeInfo.first)

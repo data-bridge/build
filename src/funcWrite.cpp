@@ -157,8 +157,9 @@ static void writeFormattedFile(
         for (unsigned i = 0, j = writeInfo.numInst-1; 
             i < writeInfo.numInst; i++, j--)
         {
-          board.setInstance(j);
+          // board.setInstance(j);
 
+          writeInfo.instNo = j;
           writeInfo.ino = i;
           (* boardPtr[format])(text, segment, board, writeInfo, format);
           writeInfo.first = false;
@@ -183,8 +184,9 @@ static void writeFormattedFile(
           if (writeInfo.numInst > 2)
             THROW("Too many instances for OOCC output order");
 
-          board.setInstance(i);
+          // board.setInstance(i);
 
+          writeInfo.instNo = i;
           writeInfo.ino = i;
           (* boardPtr[format])(text, segment, board, writeInfo, format);
           writeInfo.first = false;
@@ -207,8 +209,9 @@ static void writeFormattedFile(
 
         for (unsigned i = 0; i < writeInfo.numInst; i++)
         {
-          board.setInstance(i);
+          // board.setInstance(i);
 
+          writeInfo.instNo = i;
           writeInfo.ino = i;
           (* boardPtr[format])(text, segment, board, writeInfo, format);
           writeInfo.first = false;

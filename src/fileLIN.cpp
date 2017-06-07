@@ -223,6 +223,10 @@ void writeLINBoardLevel(
   WriteInfo& writeInfo,
   const Format format)
 {
+  const Instance& instance = board.getInstance(writeInfo.instNo);
+  UNUSED(instance);
+  board.setInstance(writeInfo.instNo);
+
   if (format != BRIDGE_FORMAT_LIN_RP && board.skipped())
     return;
 
