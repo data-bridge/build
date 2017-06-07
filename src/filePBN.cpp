@@ -283,8 +283,8 @@ void writePBNBoardLevel(
   st += instance.strPlayer(BRIDGE_EAST, format);
   st += instance.strPlayer(BRIDGE_SOUTH, format);
 
-  st += board.strDealer(format);
-  st += board.strVul(format);
+  st += instance.strDealer(format);
+  st += instance.strVul(format);
   st += board.strDeal(BRIDGE_WEST, format);
 
   if (writeInfo.first)

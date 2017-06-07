@@ -50,23 +50,6 @@ void Board::reset()
 }
 
 
-void Board::copyBasics(
-  const unsigned noFrom,
-  const unsigned noToMin,
-  const unsigned noToMax)
-{
-  UNUSED(noFrom);
-  UNUSED(noToMin);
-  UNUSED(noToMax);
-
-  if (deal.isSet())
-  {
-    unsigned cards[BRIDGE_PLAYERS][BRIDGE_SUITS];
-    deal.getDDS(cards);
-  }
-}
-
-
 Instance * Board::acquireInstance(const unsigned instNo)
 {
   if (instNo >= len)
@@ -95,7 +78,6 @@ Instance * Board::acquireInstance(const unsigned instNo)
   {
     if (skip[0] && ! skip[1] && ! basicsFlag)
     {
-      Board::copyBasics(1, 0, 0);
       basicsFlag = true;
 
       instances[0].copyDealerVul(instances[1]);
@@ -110,7 +92,6 @@ Instance * Board::acquireInstance(const unsigned instNo)
     }
     else if (skip[1] && ! skip[0])
     {
-      Board::copyBasics(0, 1, 1);
       basicsFlag = true;
 
       instances[1].copyDealerVul(instances[0]);
@@ -147,21 +128,6 @@ const Instance& Board::getInstance(const unsigned instNo) const
 }
 
 
-void Board::markInstanceSkip()
-{
-  skip[numActive] = true;
-}
-
-
-void Board::unmarkInstanceSkip()
-{
-  if (! skip[numActive])
-    THROW("Instance is not skipped");
-
-  skip[numActive] = false;
-}
-
-
 bool Board::skipped() const
 {
   return skip[numActive];
@@ -171,6 +137,12 @@ bool Board::skipped() const
 bool Board::skipped(const unsigned no) const
 {
   return (no >= len || skip[no]);
+}
+
+
+void Board::markUsed(const unsigned instNo)
+{
+  skip[instNo] = false;
 }
 
 
@@ -296,56 +268,7 @@ Player Board::holdsCard(const string& text) const
 }
 
 
-// Auction
-
-bool Board::hasDealerVul() const
-{
-  if (len == 0)
-    return false;
-  else
-    return instances[0].hasDealerVul();
-}
-
-
-bool Board::auctionIsOver() const
-{
-  return instances[numActive].auctionIsOver();
-}
-
-
-bool Board::auctionIsEmpty() const
-{
-  return instances[numActive].auctionIsEmpty();
-}
-
-
-bool Board::isPassedOut() const
-{
-  return instances[numActive].isPassedOut();
-}
-
-
-unsigned Board::lengthAuction() const
-{
-  return instances[numActive].lengthAuction();
-}
-
-
 // Contract
-
-bool Board::contractIsSet() const
-{
-  return instances[numActive].contractIsSet();
-}
-
-
-void Board::setScore(
-  const string& text,
-  const Format format)
-{
-  instances[numActive].setScore(text, format);
-}
-
 
 void Board::setScoreIMP(
   const string& text,
@@ -417,14 +340,6 @@ void Board::calculateScore()
 {
   for (unsigned i = 0; i < len; i++)
     instances[i].calculateScore();
-}
-
-
-// Play
-
-void Board::getStateDDS(RunningDD& runningDD) const
-{
-  instances[numActive].getStateDDS(runningDD);
 }
 
 
@@ -586,18 +501,6 @@ bool Board::operator != (const Board& board2) const
 }
 
 
-string Board::strDealer(const Format format) const
-{
-  return instances[numActive].strDealer(format);
-}
-
-
-string Board::strVul(const Format format) const
-{
-  return instances[numActive].strVul(format);
-}
-
-
 string Board::strDeal(const Format format) const
 {
   return deal.str(instances[0].getDealer(), format);
@@ -630,18 +533,6 @@ string Board::strTableau(const Format format) const
 }
 
 
-string Board::strAuction(const Format format) const
-{
-  return instances[numActive].strAuction(format);
-}
-
-
-string Board::strContract(const Format format) const
-{
-  return instances[numActive].strContract(format);
-}
-
-
 string Board::strContract(
   const unsigned instNo,
   const Format format) const
@@ -654,18 +545,6 @@ string Board::strContract(
     return instances[instNo].strHeaderContract();
   else
     return "";
-}
-
-
-string Board::strDeclarer(const Format format) const
-{
-  return instances[numActive].strDeclarer(format);
-}
-
-
-string Board::strTricks(const Format format) const
-{
-  return instances[numActive].strTricks(format);
 }
 
 
@@ -752,24 +631,6 @@ int Board::IMPScore(const bool swapFlag) const
     return 0;
   else
     return instances[numActive].IMPScore(instances[baseInst]);
-}
-
-
-string Board::strLead(const Format format) const
-{
-  return instances[numActive].strLead(format);
-}
-
-
-string Board::strPlay(const Format format) const
-{
-  return instances[numActive].strPlay(format);
-}
-
-
-string Board::strClaim(const Format format) const
-{
-  return instances[numActive].strClaim(format);
 }
 
 
@@ -901,13 +762,13 @@ string Board::strContracts(
       if (len == 2 && Board::roomFirst() == BRIDGE_ROOM_CLOSED)
       {
         // TODO: Soon shouldn't happen anymore?
-        st += Board::strContract(1, format) + ",";
-        st += Board::strContract(0, format) + ",";
+        st += instances[1].strContract(format) + ",";
+        st += instances[0].strContract(format) + ",";
       }
       else
       {
         for (unsigned i = 0; i < len; i++)
-          st += Board::strContract(i, format) + ",";
+          st += instances[i].strContract(format) + ",";
       }
 
       if (len == 1)

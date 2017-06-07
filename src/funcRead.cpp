@@ -210,22 +210,22 @@ static bool storeChunk(
     bex.print(flog);
 
     cout << board->strDeal(BRIDGE_FORMAT_TXT) << endl;
-    cout << board->strContract(BRIDGE_FORMAT_TXT) << endl;
+    cout << instance->strContract(BRIDGE_FORMAT_TXT) << endl;
 
     if (options.verboseBatch)
       cout << chunk.str();
     return false;
   }
 
-  if (! board->skipped() && 
-      ! board->auctionIsOver() &&
-      board->lengthAuction() > 0)
+  if (// ! board->skipped() && 
+      ! instance->auctionIsOver() &&
+      instance->lengthAuction() > 0)
   {
     printCounts(fname, chunk, counts);
     cout << board->strDeal(BRIDGE_FORMAT_TXT) << endl;
-    cout << board->strContract(BRIDGE_FORMAT_TXT) << endl;
-    cout << board->strAuction(BRIDGE_FORMAT_TXT) << endl;
-    cout << board->strPlay(BRIDGE_FORMAT_TXT) << endl;
+    cout << instance->strContract(BRIDGE_FORMAT_TXT) << endl;
+    cout << instance->strAuction(BRIDGE_FORMAT_TXT) << endl;
+    cout << instance->strPlay(BRIDGE_FORMAT_TXT) << endl;
     cout << "Error: Auction incomplete\n";
     return false;
   }
@@ -319,8 +319,9 @@ bool dispatchReadBuffer(
       counts.prevno = counts.bno;
     }
 
-    instance = board->acquireInstance(counts.openFlag ? 0u : 1u);
-    board->unmarkInstanceSkip();
+    const unsigned instNo = (counts.openFlag ? 0u : 1u);
+    instance = board->acquireInstance(instNo);
+    board->markUsed(instNo);
 
     if (! storeChunk(group.name(), format, options, counts,
         segment, board, instance, chunk, flog))

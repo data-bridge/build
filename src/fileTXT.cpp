@@ -486,13 +486,15 @@ void writeTXTSegmentLevel(
 static string writeTXTDiagram(
   Segment& segment,
   Board& board,
+  const Instance& instance,
   WriteInfo& writeInfo,
   const Format format)
 {
   const string dstr = board.strDeal(BRIDGE_WEST, format);
   const string bstr = segment.strNumber(writeInfo.bno, format);
-  const string vstr = board.strVul(format);
-  const string lstr = (board.auctionIsEmpty() ?  board.strDealer(format) : "");
+  const string vstr = instance.strVul(format);
+  const string lstr = (instance.auctionIsEmpty() ?  
+    instance.strDealer(format) : "");
 
   // Convert deal, auction and play from \n to vectors.
   vector<string> deal;
@@ -559,7 +561,7 @@ void writeTXTBoardLevel(
 
   if (writeInfo.ino == 0)
   {
-    st += writeTXTDiagram(segment, board, writeInfo, format);
+    st += writeTXTDiagram(segment, board, instance, writeInfo, format);
     st += instance.strPlayers(format);
     st += instance.strAuction(format) + "\n";
     st += instance.strContract(format);

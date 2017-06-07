@@ -45,15 +45,15 @@ static void logLengths(
 
       for (unsigned i = 0; i < board.countAll(); i++)
       {
-        board.setInstance(i);
+        const Instance& instance = board.getInstance(i);
 
-        tstats.add(board.lengthAuction(),
+        tstats.add(instance.lengthAuction(),
           fname, BRIDGE_FORMAT_AUCTION, format);
 
         for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
         {
           tstats.add(
-            board.strPlayer(static_cast<Player>(p), BRIDGE_FORMAT_PAR),
+            instance.strPlayer(static_cast<Player>(p), BRIDGE_FORMAT_PAR),
             fname, BRIDGE_FORMAT_PLAYERS_BOARD, format);
         }
       }

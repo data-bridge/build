@@ -40,11 +40,6 @@ class Board
     bool LINset;
     bool LINScoreSet;
 
-    void copyBasics(
-      const unsigned noFrom,
-      const unsigned noToMin,
-      const unsigned noToMax);
-
     string strPlayersFromLINHeader(const unsigned instNo) const;
 
     string strIMPEntry(const int imps) const;
@@ -64,12 +59,11 @@ class Board
 
     const Instance& getInstance(const unsigned instNo) const;
 
-    void markInstanceSkip();
-    void unmarkInstanceSkip();
-
     bool skipped() const;
     bool skipped(const unsigned no) const;
     bool skippedAll() const;
+
+    void markUsed(const unsigned instNo);
 
     unsigned count() const;
     unsigned countAll() const;
@@ -92,25 +86,7 @@ class Board
       
     Player holdsCard(const string& text) const;
 
-    // Auction
-
-    bool auctionIsEmpty() const;
-
-    bool hasDealerVul() const;
-
-    bool auctionIsOver() const;
-
-    bool isPassedOut() const;
-
-    unsigned lengthAuction() const;
-
     // Contract
-
-    bool contractIsSet() const;
-
-    void setScore(
-      const string& text,
-      const Format format);
 
     void setScoreIMP(
       const string& text,
@@ -121,10 +97,6 @@ class Board
       const Format format);
 
     void calculateScore();
-
-    // Play
-
-    void getStateDDS(RunningDD& runningDD) const;
 
     // Tableau
     //
@@ -180,23 +152,15 @@ class Board
 
     bool operator != (const Board& b2) const;
 
-    string strDealer(const Format format) const;
-    string strVul(const Format format) const;
     string strDeal(const Format format) const;
     string strDeal(
       const Player player,
       const Format format) const;
     string strDealRemain(const Format format) const;
     string strTableau(const Format format) const;
-    string strAuction(const Format format) const;
-    string strContract(const Format format) const;
     string strContract(
       const unsigned instNo,
       const Format format) const;
-    string strDeclarer(const Format format) const;
-    string strDeclarerPlay(const Format format) const;
-    string strDenomPlay(const Format format) const;
-    string strTricks(const Format format) const;
 
     string strScore(
       const Format format,
@@ -212,10 +176,6 @@ class Board
 
     int IMPScore(const bool swapFlag = false) const;
 
-    string strLead(const Format format) const;
-    string strPlay(const Format format) const;
-    string strClaim(const Format format) const;
-    
     string strPlayersDelta(
       Board * refBoard,
       const unsigned instNo,

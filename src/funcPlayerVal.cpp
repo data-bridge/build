@@ -36,10 +36,10 @@ static void validatePlayers(
       unsigned c = 0;
       for (unsigned i = 0; i < board.countAll(); i++)
       {
-        board.setInstance(i);
+        const Instance& instance = board.getInstance(i);
         c *= 8;
-        if (! board.skipped())
-          c += board.missingPlayers();
+        if (! board.skipped(i))
+          c += instance.missingPlayers();
       }
       if (c > 65)
         THROW("Bad combo: " + STR(c));
