@@ -9,7 +9,6 @@
 
 #include <unordered_map>
 
-#include "Group.h"
 #include "Segment.h"
 #include "Board.h"
 #include "Buffer.h"

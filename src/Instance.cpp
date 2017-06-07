@@ -434,22 +434,29 @@ string Instance::strScore(const Format format) const
 
 string Instance::strScore(
   const Format format,
-  const int refScore) const
+  const Instance& inst2) const
 {
-  return contract.strScore(format, refScore);
+  return contract.strScore(format, inst2.contract.getScore());
 }
 
 
 string Instance::strScoreIMP(
   const Format format,
-  const int refScore) const
+  const Instance& inst2) const
 {
-  return contract.strScoreIMP(format, refScore);
+  return contract.strScoreIMP(format, inst2.contract.getScore());
+}
+
+
+int Instance::IMPScore(const Instance& inst2) const
+{
+  return contract.IMPScore(inst2.contract.getScore());
 }
 
 
 int Instance::IMPScore(const int refScore) const
 {
+  // TODO: Needed?
   return contract.IMPScore(refScore);
 }
 
@@ -515,18 +522,18 @@ string Instance::strResult(const Format format) const
 
 string Instance::strResult(
   const Format format,
-  const int refScore) const
+  const Instance& inst2) const
 {
-  return contract.strResult(format, refScore);
+  return contract.strResult(format, inst2.contract.getScore());
 }
 
 
 string Instance::strResult(
   const Format format,
   const string& team,
-  const int refScore) const
+  const Instance& inst2) const
 {
-  return contract.strResult(format, refScore, team);
+  return contract.strResult(format, inst2.contract.getScore(), team);
 }
 
 

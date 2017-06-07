@@ -32,8 +32,6 @@ class Instance
     LINInstData LINdata;
     bool LINset;
 
-    string strResultEntry() const;
-
 
   public:
 
@@ -182,12 +180,13 @@ class Instance
     string strScore(const Format format) const;
     string strScore(
       const Format format,
-      const int refScore) const;
+      const Instance& inst2) const;
 
     string strScoreIMP(
       const Format format,
-      const int refScore) const;
+      const Instance& inst2) const;
 
+    int IMPScore(const Instance& inst2) const;
     int IMPScore(const int refScore) const;
 
     string strLead(const Format format) const;
@@ -206,16 +205,18 @@ class Instance
 
     string strPlayersFromLINHeader() const;
 
+    string strResultEntry() const;
+
     string strResult(const Format format) const;
 
     string strResult(
       const Format format,
-      const int refScore) const;
+      const Instance& inst2) const;
 
     string strResult(
       const Format format,
       const string& team,
-      const int refScore) const;
+      const Instance& inst2) const;
 };
 
 #endif

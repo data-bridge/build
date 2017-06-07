@@ -10,7 +10,6 @@
 #include <sstream>
 #include <regex>
 
-#include "Group.h"
 #include "Segment.h"
 #include "Canvas.h"
 #include "fileTXT.h"

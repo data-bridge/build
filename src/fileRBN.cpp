@@ -7,7 +7,6 @@
 */
 
 
-#include "Group.h"
 #include "Segment.h"
 #include "Buffer.h"
 #include "Chunk.h"

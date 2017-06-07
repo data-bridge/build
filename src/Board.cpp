@@ -21,8 +21,7 @@
 
 
 Board::Board():
-  players(0), 
-  contract(0)
+  players(0)
 {
   len = 0;
   numActive = 0;
@@ -43,7 +42,6 @@ void Board::reset()
   tableau.reset();
   instances.clear();
   players.clear();
-  contract.clear();
   skip.clear();
 
   basicsFlag = false;
@@ -59,8 +57,9 @@ void Board::copyBasics(
   const unsigned noToMin,
   const unsigned noToMax)
 {
-  for (unsigned i = noToMin; i <= noToMax; i++)
-    contract[i].setVul(instances[noFrom].getVul());
+  UNUSED(noFrom);
+  UNUSED(noToMin);
+  UNUSED(noToMax);
 
   if (deal.isSet())
   {
@@ -79,7 +78,6 @@ void Board::acquireInstance(const unsigned instNo)
 
     instances.resize(len);
     players.resize(len);
-    contract.resize(len);
     skip.resize(len);
 
     for (unsigned i = lenOld; i < len; i++)
@@ -226,8 +224,6 @@ void Board::setLINheader(const LINData& lin)
   for (unsigned i = 0; i < len; i++)
   {
     numActive = i;
-    if (LINdata.data[i].contract != "")
-      Board::setContract(LINdata.data[i].contract, BRIDGE_FORMAT_LIN);
 
     string st = "";
     for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
@@ -265,20 +261,6 @@ void Board::setVul(
   }
   else
     instances[numActive].setVul(text, format);
-
-  const Vul v = instances[numActive].getVul();
-
-  if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN ||
-      format == BRIDGE_FORMAT_TXT)
-  {
-    // Fill up, just in case of a skip.
-    for (unsigned i = 0; i < len; i++)
-      contract[i].setVul(v);
-  }
-  else
-    contract[numActive].setVul(v);
-  
-
 }
 
 
@@ -348,8 +330,6 @@ void Board::undoLastCall()
 
 void Board::passOut()
 {
-  contract[numActive].passOut();
-
   instances[numActive].undoLastCall();
 }
 
@@ -360,11 +340,11 @@ void Board::setAuction(
 {
   instances[numActive].setAuction(text, format);
 
-  if (instances[numActive].hasDealerVul())
-    contract[numActive].setVul(instances[numActive].getVul());
+  // if (instances[numActive].hasDealerVul())
+    // contract[numActive].setVul(instances[numActive].getVul());
 
   // Doesn't bother us unduly if there is no contract here.
-  instances[numActive].getContract(contract[numActive]);
+  // instances[numActive].getContract(contract[numActive]);
   // This method should go away long-term TODO
   
 }
@@ -409,8 +389,6 @@ void Board::setContract(
   const Vul vul,
   const string& cstring)
 {
-  contract[numActive].setContract(vul, cstring);
-
   instances[numActive].setContract(vul, cstring);
 }
 
@@ -419,8 +397,6 @@ void Board::setContract(
   const string& text,
   const Format format)
 {
-  contract[numActive].setContract(text, format);
-
   instances[numActive].setContract(text, format);
 }
 
@@ -429,9 +405,6 @@ void Board::setDeclarer(
   const string& text,
   const Format format)
 {
-  UNUSED(format);
-  contract[numActive].setDeclarer(text);
-
   instances[numActive].setDeclarer(text, format);
 }
 
@@ -446,8 +419,6 @@ void Board::setScore(
   const string& text,
   const Format format)
 {
-  contract[numActive].setScore(text, format);
-
   instances[numActive].setScore(text, format);
 }
 
@@ -520,8 +491,6 @@ void Board::setScoreMP(
 
 void Board::calculateScore()
 {
-  contract[numActive].calculateScore();
-
   instances[numActive].calculateScore();
 }
 
@@ -533,8 +502,6 @@ void Board::setPlays(
   const Format format)
 {
   instances[numActive].setPlays(text, format);
-  if (instances[numActive].playIsOver())
-    contract[numActive].setTricks( instances[numActive].getTricks() );
 }
 
 
@@ -568,8 +535,6 @@ void Board::setResult(
   const string& text,
   const Format format)
 {
-  contract[numActive].setResult(text, format);
-
   instances[numActive].setResult(text, format);
 }
 
@@ -840,14 +805,13 @@ string Board::strScore(
   const unsigned baseInst = (swapFlag ? 1u : 0u);
   if (numActive == baseInst || 
      ! scoringIsIMPs ||
-     ! contract[0].hasResult() ||
-     ! contract[1].hasResult())
+     ! instances[0].hasResult() ||
+     ! instances[1].hasResult())
   {
     return instances[numActive].strScore(format);
   }
   else
-    return instances[numActive].strScore(format, 
-      contract[baseInst].getScore());
+    return instances[numActive].strScore(format, instances[baseInst]);
 }
 
 
@@ -898,12 +862,12 @@ string Board::strScoreIMP(
 
   const unsigned baseInst = (swapFlag ? 1u : 0u);
   if (! showFlag || 
-      ! contract[0].hasResult() ||
-      ! contract[1].hasResult())
+      ! instances[0].hasResult() ||
+      ! instances[1].hasResult())
     return "Points:       ";
 
-  return instances[numActive].strScoreIMP(format, 
-    contract[baseInst].getScore());
+  return instances[numActive].strScoreIMP(format, instances[baseInst]);
+    // contract[baseInst].getScore());
 }
 
 
@@ -912,11 +876,11 @@ int Board::IMPScore(const bool swapFlag) const
   const unsigned baseInst = (swapFlag ? 1u : 0u);
 
   if (numActive == baseInst || 
-      ! contract[0].hasResult() ||
-      ! contract[1].hasResult())
+      ! instances[0].hasResult() ||
+      ! instances[1].hasResult())
     return 0;
   else
-    return instances[numActive].IMPScore(contract[baseInst].getScore());
+    return instances[numActive].IMPScore(instances[baseInst]);
 }
 
 
@@ -1100,13 +1064,12 @@ string Board::strResult(
   const unsigned baseInst = (swapFlag ? 1u : 0u);
   if (numActive == baseInst || 
      ! scoringIsIMPs ||
-     ! contract[baseInst].hasResult())
+     ! instances[baseInst].hasResult())
   {
     return instances[numActive].strResult(format);
   }
   else
-    return instances[numActive].strResult(format, 
-      contract[baseInst].getScore());
+    return instances[numActive].strResult(format, instances[baseInst]);
 }
 
 
@@ -1117,24 +1080,14 @@ string Board::strResult(
 {
   const unsigned baseInst = (swapFlag ? 1u : 0u);
   if (numActive == baseInst || 
-      ! contract[baseInst].hasResult())
+      ! instances[baseInst].hasResult())
   {
-    if (instances[numActive].strResult(format) !=
-        contract[numActive].strResult(format))
-    {
-      THROW("strResult1");
-    }
-    return contract[numActive].strResult(format);
+    return instances[numActive].strResult(format);
   }
   else
   {
-    if (instances[numActive].strResult(format, team, contract[baseInst].getScore()) !=
-        contract[numActive].strResult(format, contract[baseInst].getScore(), team))
-    {
-      THROW("strResult1");
-    }
-    return contract[numActive].strResult(format, 
-        contract[baseInst].getScore(), team);
+    return instances[numActive].strResult(format, team, 
+      instances[baseInst]);
   }
 }
 
@@ -1150,20 +1103,7 @@ string Board::strRoom(
 
 string Board::strResultEntry(const unsigned instNo) const
 {
-  if (instNo >= len)
-    return string(22, ' ');
-
-  stringstream ss;
-  ss << setw(8) << left << contract[instNo].str(BRIDGE_FORMAT_LIN);
-
-  const int score = contract[instNo].getScore();
-  if (score == 0)
-    ss << "     --     --";
-  else if (score > 0)
-    ss << setw(7) << right << score << setw(7) << "";
-  else
-    ss << setw(14) << right << -score;
-  return ss.str();
+  return instances[instNo].strResultEntry();
 }
 
 
@@ -1192,10 +1132,10 @@ string Board::strIMPSheetLine(
     Board::strResultEntry(1u) << divider;
 
   int imps;
-  if (len < 2 || ! contract[0].hasResult() || ! contract[1].hasResult())
+  if (len < 2 || ! instances[0].hasResult() || ! instances[1].hasResult())
     imps = 0;
   else
-    imps = contract[0].IMPScore(contract[1].getScore());
+    imps = instances[0].IMPScore(instances[1]);
 
   ss << Board::strIMPEntry(imps);
 
