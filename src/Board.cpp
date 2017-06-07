@@ -956,20 +956,6 @@ string Board::strResult(
 }
 
 
-string Board::strRoom(
-  const unsigned no,
-  const Format format) const
-{
-  return instances[numActive].strRoom(no, format);
-}
-
-
-string Board::strResultEntry(const unsigned instNo) const
-{
-  return instances[instNo].strResultEntry();
-}
-
-
 string Board::strIMPEntry(const int imps) const
 {
   stringstream ss;
@@ -991,8 +977,8 @@ string Board::strIMPSheetLine(
   const string divider = "  |  ";
   stringstream ss;
   ss << setw(4) << right << bno << "  ";
-  ss << Board::strResultEntry(0u) << divider << 
-    Board::strResultEntry(1u) << divider;
+  ss << instances[0].strResultEntry() << divider << 
+    instances[1].strResultEntry() << divider;
 
   int imps;
   if (len < 2 || ! instances[0].hasResult() || ! instances[1].hasResult())

@@ -47,8 +47,6 @@ class Board
 
     string strPlayersFromLINHeader(const unsigned instNo) const;
 
-    string strResultEntry(const unsigned instNo) const;
-
     string strIMPEntry(const int imps) const;
     
 
@@ -256,10 +254,6 @@ class Board
       const string& bno,
       unsigned& score1,
       unsigned& score2) const;
-    
-    string strRoom(
-      const unsigned no,
-      const Format format) const;
 };
 
 #endif
