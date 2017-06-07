@@ -36,10 +36,12 @@ using namespace std;
 typedef void (* ReadPtr)(Buffer&, Chunk&, bool&);
 typedef void (Segment::*SegPtr)(const string& s, const Format format);
 typedef void (Board::*BoardPtr)(const string& s, const Format format);
+typedef void (Instance::*InstPtr)(const string& s, const Format format);
 
 static ReadPtr readChunk[BRIDGE_FORMAT_LABELS_SIZE];
 static SegPtr segPtr[BRIDGE_FORMAT_LABELS_SIZE];
 static BoardPtr boardPtr[BRIDGE_FORMAT_LABELS_SIZE];
+static InstPtr instPtr[BRIDGE_FORMAT_LABELS_SIZE];
 
 
 void setReadTables()
@@ -88,16 +90,16 @@ void setReadTables()
   boardPtr[BRIDGE_FORMAT_DEAL] = &Board::setDeal;
   boardPtr[BRIDGE_FORMAT_DEALER] = &Board::setDealer;
   boardPtr[BRIDGE_FORMAT_VULNERABLE] = &Board::setVul;
+  boardPtr[BRIDGE_FORMAT_SCORE_IMP] = &Board::setScoreIMP; // --> inst
+  boardPtr[BRIDGE_FORMAT_SCORE_MP] = &Board::setScoreMP; // TODO
   boardPtr[BRIDGE_FORMAT_DOUBLE_DUMMY] = &Board::setTableau;
 
-  boardPtr[BRIDGE_FORMAT_AUCTION] = &Board::setAuction;
-  boardPtr[BRIDGE_FORMAT_DECLARER] = &Board::setDeclarer;
-  boardPtr[BRIDGE_FORMAT_CONTRACT] = &Board::setContract;
-  boardPtr[BRIDGE_FORMAT_PLAY] = &Board::setPlays;
-  boardPtr[BRIDGE_FORMAT_RESULT] = &Board::setResult;
-  boardPtr[BRIDGE_FORMAT_SCORE] = &Board::setScore;
-  boardPtr[BRIDGE_FORMAT_SCORE_IMP] = &Board::setScoreIMP;
-  boardPtr[BRIDGE_FORMAT_SCORE_MP] = &Board::setScoreMP;
+  instPtr[BRIDGE_FORMAT_AUCTION] = &Instance::setAuction;
+  instPtr[BRIDGE_FORMAT_DECLARER] = &Instance::setDeclarer;
+  instPtr[BRIDGE_FORMAT_CONTRACT] = &Instance::setContract;
+  instPtr[BRIDGE_FORMAT_PLAY] = &Instance::setPlays;
+  instPtr[BRIDGE_FORMAT_RESULT] = &Instance::setResult;
+  instPtr[BRIDGE_FORMAT_SCORE] = &Instance::setScore;
 }
 
 
@@ -160,6 +162,7 @@ static bool storeChunk(
   const Counts& counts,
   Segment * segment,
   Board * board,
+  Instance * instance,
   Chunk& chunk,
   ostream& flog)
 {
@@ -182,11 +185,18 @@ static bool storeChunk(
         (segment->*segPtr[i])(text, format);
     }
 
-    for (i = BRIDGE_FORMAT_DEAL; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
+    for (i = BRIDGE_FORMAT_DEAL; i <= BRIDGE_FORMAT_DOUBLE_DUMMY; i++)
     {
       const string text = chunk.get(i);
       if (text != "")
         (board->*boardPtr[i])(text, format);
+    }
+
+    for (i = BRIDGE_FORMAT_AUCTION; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
+    {
+      const string text = chunk.get(i);
+      if (text != "")
+        (instance->*instPtr[i])(text, format);
     }
   }
   catch (Bexcept& bex)
@@ -236,6 +246,7 @@ bool dispatchReadBuffer(
   Chunk chunk, prevChunk;
   Segment * segment = nullptr;
   Board * board = nullptr;
+  Instance * instance = nullptr;
   bool newSegFlag = false;
   Counts counts = {0, 0, 0, true};
   Counts countsPrev = {0, 0, 0, true};
@@ -305,11 +316,11 @@ bool dispatchReadBuffer(
       counts.prevno = counts.bno;
     }
 
-    board->acquireInstance(counts.openFlag ? 0u : 1u);
+    instance = board->acquireInstance(counts.openFlag ? 0u : 1u);
     board->unmarkInstanceSkip();
 
     if (! storeChunk(group.name(), format, options, counts,
-        segment, board, chunk, flog))
+        segment, board, instance, chunk, flog))
       return false;
   }
 

@@ -60,7 +60,7 @@ class Board
 
     void reset();
 
-    void acquireInstance(const unsigned instNo = 0);
+    Instance * acquireInstance(const unsigned instNo = 0);
 
     void setInstance(const unsigned no);
 

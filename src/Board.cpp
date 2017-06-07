@@ -67,7 +67,7 @@ void Board::copyBasics(
 }
 
 
-void Board::acquireInstance(const unsigned instNo)
+Instance * Board::acquireInstance(const unsigned instNo)
 {
   if (instNo >= len)
   {
@@ -124,6 +124,8 @@ void Board::acquireInstance(const unsigned instNo)
       }
     }
   }
+
+  return &instances[numActive];
 }
 
 
