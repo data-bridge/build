@@ -602,51 +602,40 @@ string Board::strPlayersBoard(
   const bool isIMPs,
   Board * refBoard) const
 {
-  string st1, st2;
-  unsigned no;
+  string st;
+  const unsigned no = (isIMPs ? len : 1);
 
   switch (format)
   {
     case BRIDGE_FORMAT_LIN:
-      no = (isIMPs ? len : 1);
-
       if (refBoard == nullptr)
       {
         for (unsigned i = 0; i < no; i++)
-          st1 += instances[i].strPlayers(BRIDGE_FORMAT_LIN_RP) + ",";
+          st += instances[i].strPlayers(BRIDGE_FORMAT_LIN_RP) + ",";
       }
       else
       {
         for (unsigned i = 0; i < no; i++)
-          st1 += instances[i].strPlayersDelta(refBoard->instances[i], 
+          st += instances[i].strPlayersDelta(refBoard->instances[i], 
             format);
       }
-      return st1;
+      return st;
 
     case BRIDGE_FORMAT_LIN_VG:
-      if (! skip[0])
-        st1 = instances[0].strPlayers(format);
-      else if (LINset)
-        st1 = instances[0].strPlayersFromLINHeader();
-      else
-        st1 = "South,West,North,East";
 
-      if (len == 2)
-      // if (! skip[1])
-        st2 = instances[1].strPlayers(format);
-      else if (LINset)
-        st2 = instances[1].strPlayersFromLINHeader();
-      else
-        st2 = "South,West,North,East";
-      return "pn|" + st1 + "," + st2 + "|pg||\n";
+      for (unsigned i = 0; i < no; i++)
+        st += instances[i].strPlayers(format) + ",";
+      st.pop_back();
+
+      return "pn|" + st + "|pg||\n";
 
     case BRIDGE_FORMAT_LIN_RP:
-      if (len != 2)
-        return "";
 
-      st1 = instances[0].strPlayers(format);
-      st2 = instances[1].strPlayers(format);
-      return "pn|" + st1 + "," + st2 + "|pg||\n\n";
+      for (unsigned i = 0; i < len; i++)
+        st += instances[i].strPlayers(format) + ",";
+      st.pop_back();
+
+      return "pn|" + st + "|pg||\n\n";
 
     default:
       THROW("Invalid format: " + STR(format));

@@ -1219,7 +1219,7 @@ string Segment::strPlayers(const Format format)
 {
   Board * board;
 
-  switch(format)
+  switch (format)
   {
     case BRIDGE_FORMAT_LIN:
       return Segment::strPlayersLIN();
