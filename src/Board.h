@@ -161,11 +161,6 @@ class Board
 
     int IMPScore(const bool swapFlag = false) const;
 
-    string strPlayersDelta(
-      Board * refBoard,
-      const unsigned instNo,
-      const Format format) const;
-
     string strPlayersBoard(
       const Format format,
       const bool isIMPs = true,

@@ -603,28 +603,25 @@ string Board::strPlayersBoard(
   Board * refBoard) const
 {
   string st1, st2;
-  switch(format)
+  unsigned no;
+
+  switch (format)
   {
     case BRIDGE_FORMAT_LIN:
-      if (isIMPs)
+      no = (isIMPs ? len : 1);
+
+      if (refBoard == nullptr)
       {
-        if (len == 1 && LINset)
-        {
-          st1 += Board::strPlayersDelta(refBoard, 0, format);
-          st1 += ",,,,";
-        }
-        else
-        {
-          for (unsigned i = 0; i < len; i++)
-            st1 += Board::strPlayersDelta(refBoard, i, format);
-        }
-        return st1;
+        for (unsigned i = 0; i < no; i++)
+          st1 += instances[i].strPlayers(BRIDGE_FORMAT_LIN_RP) + ",";
       }
       else
       {
-        st1 += Board::strPlayersDelta(refBoard, 0, format);
-        return st1;
+        for (unsigned i = 0; i < no; i++)
+          st1 += instances[i].strPlayersDelta(refBoard->instances[i], 
+            format);
       }
+      return st1;
 
     case BRIDGE_FORMAT_LIN_VG:
       if (! skip[0])
@@ -654,19 +651,6 @@ string Board::strPlayersBoard(
     default:
       THROW("Invalid format: " + STR(format));
   }
-}
-
-
-string Board::strPlayersDelta(
-  Board * refBoard,
-  const unsigned instNo,
-  const Format format) const
-{
-  if (refBoard == nullptr)
-    return instances[instNo].strPlayers(BRIDGE_FORMAT_LIN_RP) + ",";
-  else
-    return instances[instNo].strPlayersDelta(
-      refBoard->instances[instNo], format);
 }
 
 
