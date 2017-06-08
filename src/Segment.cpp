@@ -1187,18 +1187,19 @@ string Segment::strPlayersLIN()
       if (bptr == nullptr)
       {
         const unsigned bhdr = b - bmin;
-        if (isIMPs)
+        const unsigned no = (isIMPs ? 2u : 1u);
+        string sm;
+
+        for (unsigned i = 0; i < no; i++)
+          sm  += Segment::strPlayersFromLINHeader(bhdr, i);
+
+        if (sm == sprev)
         {
-          string sn = Segment::strPlayersFromLINHeader(bhdr, 0) +
-            Segment::strPlayersFromLINHeader(bhdr, 1);
-          
-          if (sn == sprev)
-            st += ",,,,,,,,";
-          else
-            st += sn;
+          for (unsigned i = 0; i < no; i++)
+            sm += ",,,,";
         }
-        else
-          st += Segment::strPlayersFromLINHeader(bhdr, 0);
+
+        st += sm;
       }
       else
       {
