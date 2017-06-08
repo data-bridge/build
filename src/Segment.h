@@ -89,7 +89,6 @@ class Segment
     string strTitleLIN_VG() const;
     string strContractsCore(const Format format);
 
-    bool playersAreUnique();
     string strPlayersLIN();
 
 

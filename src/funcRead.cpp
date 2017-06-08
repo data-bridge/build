@@ -283,6 +283,9 @@ bool dispatchReadBuffer(
 
     if (segment == nullptr || newSegFlag)
     {
+      if (board != nullptr)
+        board->calculateScore();
+
       segment = group.make();
       newSegFlag = false;
       counts.segno++;
