@@ -1180,6 +1180,7 @@ string Segment::strPlayersLIN()
   }
   else
   {
+    string sprev;
     for (unsigned b = bmin; b <= bmax; b++)
     {
       Board * bptr = Segment::getBoard(b);
@@ -1191,10 +1192,7 @@ string Segment::strPlayersLIN()
           string sn = Segment::strPlayersFromLINHeader(bhdr, 0) +
             Segment::strPlayersFromLINHeader(bhdr, 1);
           
-          string sr = (refBoard == nullptr ? "" :
-            refBoard->strPlayersBoard(BRIDGE_FORMAT_LIN, isIMPs));
-
-          if (sn == sr)
+          if (sn == sprev)
             st += ",,,,,,,,";
           else
             st += sn;
@@ -1204,7 +1202,8 @@ string Segment::strPlayersLIN()
       }
       else
       {
-        st += bptr->strPlayersBoard(BRIDGE_FORMAT_LIN, isIMPs, refBoard);
+        sprev = bptr->strPlayersBoard(BRIDGE_FORMAT_LIN, isIMPs, refBoard);
+        st += sprev;
         refBoard = bptr;
       }
     }
