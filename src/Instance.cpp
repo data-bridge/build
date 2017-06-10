@@ -487,7 +487,10 @@ string Instance::strScoreIMP(
   const Format format,
   const Instance& inst2) const
 {
-  return contract.strScoreIMP(format, inst2.contract.getScore());
+  if (! contract.hasResult() || ! inst2.contract.hasResult())
+    return "Points:       ";
+  else
+    return contract.strScoreIMP(format, inst2.contract.getScore());
 }
 
 

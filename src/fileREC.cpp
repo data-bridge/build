@@ -404,12 +404,15 @@ void writeRECBoardLevel(
 
   st += instance.strResult(format) + "\n";
   st += board.strScore(format, false);
-  st += board.strScoreIMP(format, writeInfo.ino == 1,
-    segment.getCOCO()) + "\n";
+
+  if (writeInfo.ino == 1)
+    st += board.strScoreIMP(writeInfo.instNo, format);
+  else
+    st += "Points:       ";
+  st += "\n";
 
   if (instance.auctionIsEmpty())
     st += "Contract: " + instance.strContract(BRIDGE_FORMAT_EML) + "\n";
-
   st += "\n";
 
   if (! board.skipped(writeInfo.instNo))

@@ -566,24 +566,6 @@ string Board::strGivenScore(const Format format) const
 }
 
 
-string Board::strScoreIMP(
-  const Format format,
-  const bool showFlag,
-  const bool swapFlag) const
-{
-  if (format != BRIDGE_FORMAT_REC)
-    return "";
-
-  const unsigned baseInst = (swapFlag ? 1u : 0u);
-  if (! showFlag || 
-      ! instances[0].hasResult() ||
-      ! instances[1].hasResult())
-    return "Points:       ";
-
-  return instances[numActive].strScoreIMP(format, instances[baseInst]);
-}
-
-
 string Board::strPlayersBoard(
   const Format format,
   const bool isIMPs,
@@ -627,6 +609,15 @@ string Board::strPlayersBoard(
     default:
       THROW("Invalid format: " + STR(format));
   }
+}
+
+
+string Board::strScoreIMP(
+  const unsigned instNo,
+  const Format format) const
+{
+  const unsigned instOther = (instNo == 0 ? 1u : 0u);
+  return instances[instNo].strScoreIMP(format, instances[instOther]);
 }
 
 

@@ -154,16 +154,15 @@ class Board
 
     string strGivenScore(const Format format) const;
 
-    string strScoreIMP(
-      const Format format,
-      const bool showFlag,
-      const bool swapFlag = false) const;
-
     string strPlayersBoard(
       const Format format,
       const bool isIMPs = true,
       Board * refBoard = nullptr) const;
     
+    string strScoreIMP(
+      const unsigned instNo,
+      const Format format) const;
+
     string strResult(
       const unsigned instNo,
       const Format format) const;
