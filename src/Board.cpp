@@ -41,7 +41,7 @@ void Board::reset()
   tableau.reset();
   instances.clear();
   skip.clear();
-  givenScoreNew.reset();
+  givenScore.reset();
 
   basicsFlag = false;
   LINset = false;
@@ -271,7 +271,7 @@ void Board::setScoreIMP(
   const string& text,
   const Format format)
 {
-  givenScoreNew.setIMP(text, format);
+  givenScore.setIMP(text, format);
 }
 
 
@@ -279,7 +279,7 @@ void Board::setScoreMP(
   const string& text,
   const Format format)
 {
-  givenScoreNew.setIMP(text, format);
+  givenScore.setIMP(text, format);
 }
 
 
@@ -427,18 +427,6 @@ string Board::strDeal(
 }
 
 
-string Board::strDealRemain(const Format format) const
-{
-  RunningDD runningDD;
-  instances[numActive].getStateDDS(runningDD);
-
-  Deal dltmp;
-  dltmp.set(runningDD.dl.remainCards);
-
-  return dltmp.str(instances[0].getDealer(), format);
-}
-
-
 string Board::strTableau(const Format format) const
 {
   return tableau.str(format);
@@ -449,20 +437,18 @@ string Board::strContract(
   const unsigned instNo,
   const Format format) const
 {
-  if (skip[instNo] && LINset)
-    return instances[instNo].strHeaderContract();
-  else if (instNo < len)
-    return instances[instNo].strContract(format);
-  else if (LINset && instNo < 2)
-    return instances[instNo].strHeaderContract();
-  else
+  if (instNo >= len)
     return "";
+  else if (skip[instNo])
+    return (LINset ? instances[instNo].strHeaderContract() : "");
+  else
+    return instances[instNo].strContract(format);
 }
 
 
 string Board::strGivenScore(const Format format) const
 {
-  return givenScoreNew.str(format);
+  return givenScore.str(format);
 }
 
 

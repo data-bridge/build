@@ -31,9 +31,7 @@ class Board
     Tableau tableau;
     vector<Instance> instances;
     vector<bool> skip;
-    GivenScore givenScoreNew;
-    float givenScore;
-    bool givenSet;
+    GivenScore givenScore;
 
     unsigned len;
     unsigned numActive;
@@ -143,8 +141,8 @@ class Board
     string strDeal(
       const Player player,
       const Format format) const;
-    string strDealRemain(const Format format) const;
     string strTableau(const Format format) const;
+
     string strContract(
       const unsigned instNo,
       const Format format) const;
