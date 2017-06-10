@@ -34,7 +34,6 @@ class Board
     GivenScore givenScore;
 
     unsigned len;
-    unsigned numActive;
     LINData LINdata;
     bool LINset; // TODO: When LINdata is a pointer, just compare null
 
@@ -50,8 +49,6 @@ class Board
     void reset();
 
     Instance * acquireInstance(const unsigned instNo = 0);
-
-    void setInstance(const unsigned no);
 
     const Instance& getInstance(const unsigned instNo) const;
 
@@ -116,10 +113,6 @@ class Board
 
     bool overlappingPlayers() const;
 
-    void setRoom(
-      const string& s,
-      const Format format);
-
     bool getValuation(Valuation& valuation) const;
 
     bool operator == (const Board& b2) const;
@@ -130,6 +123,7 @@ class Board
     string strDeal(
       const Player player,
       const Format format) const;
+
     string strTableau(const Format format) const;
 
     string strContract(

@@ -255,7 +255,6 @@ void writePBNBoardLevel(
   const Format format)
 {
   const Instance& instance = board.getInstance(writeInfo.instNo);
-  board.setInstance(writeInfo.instNo);
 
   if (writeInfo.first)
   {

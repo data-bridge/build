@@ -728,7 +728,9 @@ void Segment::setRoom(
   const string& text,
   const Format format)
 {
-  activeBoard->setRoom(text, format);
+  // We have already selected the room, so don't need this.
+  UNUSED(text);
+  UNUSED(format);
 }
 
 
@@ -744,7 +746,6 @@ void Segment::setNumber(
   {
     // Drop the open/closed indicator.
     t = t.substr(1);
-    Segment::setRoom(text.substr(0, 1), format);
   }
 
   unsigned extNo;

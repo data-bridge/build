@@ -556,7 +556,6 @@ void writeTXTBoardLevel(
   const Format format)
 {
   const Instance& instance = board.getInstance(writeInfo.instNo);
-  board.setInstance(writeInfo.instNo);
   bool swapFlag;
 
   if (writeInfo.ino == 0)

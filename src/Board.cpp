@@ -22,8 +22,7 @@
 
 Board::Board()
 {
-  len = 0;
-  numActive = 0;
+  Board::reset();
 }
 
 
@@ -35,7 +34,6 @@ Board::~Board()
 void Board::reset()
 {
   len = 0;
-  numActive = 0;
 
   deal.reset();
   tableau.reset();
@@ -65,8 +63,6 @@ Instance * Board::acquireInstance(const unsigned instNo)
       instances[1].setRoom("Closed", BRIDGE_FORMAT_PBN);
   }
 
-  numActive = instNo;
-
   // If we ever have len > 2, we would find the lowest non-skipped
   // instance and copy that to all skipped instances.  Here we take
   // the shortcut.
@@ -86,15 +82,6 @@ Instance * Board::acquireInstance(const unsigned instNo)
   }
 
   return &instances[instNo];
-}
-
-
-void Board::setInstance(const unsigned no)
-{
-  if (len == 0 || no > len-1)
-    THROW("Invalid instance selected");
-
-  numActive = no;
 }
 
 
@@ -163,8 +150,6 @@ void Board::setLINheader(const LINData& lin)
   
   for (unsigned i = 0; i < len; i++)
   {
-    numActive = i;
-
     string st = "";
     for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
     {
@@ -323,16 +308,6 @@ bool Board::overlappingPlayers() const
     return instances[0].overlappingPlayers(instances[1]);
 }
 
-
-void Board::setRoom(
-  const string& text,
-  const Format format)
-{
-  instances[numActive].setRoom(text, format);
-}
-
-
-// Valuation
 
 bool Board::getValuation(Valuation& valuation) const
 {

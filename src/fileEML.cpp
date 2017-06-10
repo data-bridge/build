@@ -424,7 +424,6 @@ void writeEMLBoardLevel(
   Format format)
 {
   const Instance& instance = board.getInstance(writeInfo.instNo);
-  board.setInstance(writeInfo.instNo);
 
   if (board.skipped(writeInfo.instNo))
     return;

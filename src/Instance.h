@@ -59,14 +59,10 @@ class Instance
 
     Vul getVul() const;
 
-    // Deal
-
     void setDeal(
       const string& text,
       const Format format);
       
-    // Auction
-
     void addCall(
       const string& call,
       const string& alert = "");
@@ -95,8 +91,6 @@ class Instance
 
     unsigned lengthAuction() const;
 
-    // Contract
-
     void setContract(
       const Vul vul,
       const string& cstring);
@@ -117,8 +111,6 @@ class Instance
 
     void calculateScore();
 
-    // Play
-
     void setPlays(
       const string& text,
       const Format format);
@@ -135,15 +127,11 @@ class Instance
 
     void getStateDDS(RunningDD& runningDD) const;
 
-    // Result
-
     void setResult(
       const string& text,
       const Format format);
       
     bool hasResult() const;
-
-    // Players
 
     void setPlayers(
       const string& text,
