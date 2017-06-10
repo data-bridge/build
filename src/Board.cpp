@@ -670,21 +670,6 @@ string Board::strIMPEntry(const int imps) const
 }
 
 
-int Board::IMPScore(const bool swapFlag) const
-{
-  const unsigned baseInst = (swapFlag ? 1u : 0u);
-
-  if (numActive == baseInst || 
-      ! instances[0].hasResult() ||
-      ! instances[1].hasResult())
-  {
-    return 0;
-  }
-  else
-    return instances[numActive].IMPScore(instances[baseInst]);
-}
-
-
 int Board::IMPScoreNew(const unsigned instNo) const
 {
   const unsigned instOther = (instNo == 0 ? 1u : 0u);
@@ -707,8 +692,7 @@ string Board::strIMPSheetLine(
   if (len < 2 || ! instances[0].hasResult() || ! instances[1].hasResult())
     imps = 0;
   else
-    imps = Board::IMPScoreNew(0);
-    // imps = instances[0].IMPScore(instances[1]);
+    imps = Board::IMPScore(0);
 
   ss << Board::strIMPEntry(imps);
 

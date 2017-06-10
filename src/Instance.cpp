@@ -493,7 +493,10 @@ string Instance::strScoreIMP(
 
 int Instance::IMPScore(const Instance& inst2) const
 {
-  return contract.IMPScore(inst2.contract.getScore());
+  if (! contract.hasResult() || ! inst2.contract.hasResult())
+    return 0;
+  else
+    return contract.IMPScore(inst2.contract.getScore());
 }
 
 

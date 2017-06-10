@@ -518,7 +518,7 @@ static void writeTXTUpdateScore(
   const Format format,
   const bool swapFlag)
 {
-  int s = board.IMPScore(swapFlag);
+  int s = board.IMPScore(writeInfo.instNo);
   if (s > 0)
   {
     if (swapFlag)
@@ -586,7 +586,6 @@ void writeTXTBoardLevel(
     writeTXTUpdateScore(segment, board, writeInfo, tWin, format, swapFlag);
 
     st += board.strResult(writeInfo.instNo, tWin, format) + "\n";
-    // st += board.strResult(format, tWin, swapFlag) + "\n";
   }
 
   if (writeInfo.ino > 0 || writeInfo.numInst == 1)
