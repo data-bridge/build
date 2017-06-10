@@ -170,9 +170,9 @@ class Board
       const bool swapFlag = false) const;
 
     string strResult(
-      const Format format,
+      const unsigned instNo,
       const string& team,
-      const bool swapFlag = false) const;
+      const Format format) const;
 
     int IMPScore(const bool swapFlag = false) const;
     int IMPScoreNew(const unsigned instNo) const;

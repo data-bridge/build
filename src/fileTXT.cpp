@@ -585,7 +585,8 @@ void writeTXTBoardLevel(
     string tWin;
     writeTXTUpdateScore(segment, board, writeInfo, tWin, format, swapFlag);
 
-    st += board.strResult(format, tWin, swapFlag) + "\n";
+    st += board.strResult(writeInfo.instNo, tWin, format) + "\n";
+    // st += board.strResult(format, tWin, swapFlag) + "\n";
   }
 
   if (writeInfo.ino > 0 || writeInfo.numInst == 1)

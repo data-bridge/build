@@ -648,14 +648,12 @@ string Board::strResult(
 
 
 string Board::strResult(
-  const Format format,
+  const unsigned instNo,
   const string& team,
-  const bool swapFlag) const
+  const Format format) const
 {
-  UNUSED(swapFlag);
-  const unsigned baseInst = (numActive == 0 ? 1u : 0u);
-    return instances[numActive].strResult(instances[baseInst], team, 
-      format);
+  const unsigned instOther = (instNo == 0 ? 1u : 0u);
+  return instances[instNo].strResult(instances[instOther], team, format);
 }
 
 
@@ -689,8 +687,8 @@ int Board::IMPScore(const bool swapFlag) const
 
 int Board::IMPScoreNew(const unsigned instNo) const
 {
-  const unsigned otherInst = (instNo == 0 ? 1u : 0u);
-  return instances[instNo].IMPScore(instances[otherInst]);
+  const unsigned instOther = (instNo == 0 ? 1u : 0u);
+  return instances[instNo].IMPScore(instances[instOther]);
 }
 
 
@@ -709,7 +707,8 @@ string Board::strIMPSheetLine(
   if (len < 2 || ! instances[0].hasResult() || ! instances[1].hasResult())
     imps = 0;
   else
-    imps = instances[0].IMPScore(instances[1]);
+    imps = Board::IMPScoreNew(0);
+    // imps = instances[0].IMPScore(instances[1]);
 
   ss << Board::strIMPEntry(imps);
 
