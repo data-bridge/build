@@ -631,19 +631,11 @@ string Board::strPlayersBoard(
 
 
 string Board::strResult(
-  const Format format,
-  const bool scoringIsIMPs,
-  const bool swapFlag) const
+  const unsigned instNo,
+  const Format format) const
 {
-  const unsigned baseInst = (swapFlag ? 1u : 0u);
-  if (numActive == baseInst || 
-     ! scoringIsIMPs ||
-     ! instances[baseInst].hasResult())
-  {
-    return instances[numActive].strResult(format);
-  }
-  else
-    return instances[numActive].strResult(instances[baseInst], format);
+  const unsigned instOther = (instNo == 0 ? 1u : 0u);
+  return instances[instNo].strResult(instances[instOther], format);
 }
 
 
@@ -654,6 +646,13 @@ string Board::strResult(
 {
   const unsigned instOther = (instNo == 0 ? 1u : 0u);
   return instances[instNo].strResult(instances[instOther], team, format);
+}
+
+
+int Board::IMPScore(const unsigned instNo) const
+{
+  const unsigned instOther = (instNo == 0 ? 1u : 0u);
+  return instances[instNo].IMPScore(instances[instOther]);
 }
 
 
@@ -670,30 +669,17 @@ string Board::strIMPEntry(const int imps) const
 }
 
 
-int Board::IMPScoreNew(const unsigned instNo) const
-{
-  const unsigned instOther = (instNo == 0 ? 1u : 0u);
-  return instances[instNo].IMPScore(instances[instOther]);
-}
-
-
 string Board::strIMPSheetLine(
   const string& bno,
   unsigned& imps1,
   unsigned& imps2) const
 {
-  const string divider = "  |  ";
   stringstream ss;
-  ss << setw(4) << right << bno << "  ";
-  ss << instances[0].strResultEntry() << divider << 
-    instances[1].strResultEntry() << divider;
+  ss << setw(4) << right << bno << "  " <<
+    instances[0].strResultEntry() <<
+    instances[1].strResultEntry();
 
-  int imps;
-  if (len < 2 || ! instances[0].hasResult() || ! instances[1].hasResult())
-    imps = 0;
-  else
-    imps = Board::IMPScore(0);
-
+  const int imps = (len < 2 ? 0 : Board::IMPScore(0));
   ss << Board::strIMPEntry(imps);
 
   if (imps >= 0)

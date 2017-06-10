@@ -129,7 +129,10 @@ void writeRBNBoardLevel(
   if (! board.skipped(writeInfo.instNo))
     st += instance.strPlay(format);
 
-  st += board.strResult(format, segment.scoringIsIMPs(), segment.getCOCO());
+  if (writeInfo.ino == 0 || ! segment.scoringIsIMPs())
+    st += instance.strResult(format);
+  else
+    st += board.strResult(writeInfo.instNo, format);
   st += "\n";
 }
 

@@ -165,9 +165,8 @@ class Board
       Board * refBoard = nullptr) const;
     
     string strResult(
-      const Format format,
-      const bool scoringIsIMPs,
-      const bool swapFlag = false) const;
+      const unsigned instNo,
+      const Format format) const;
 
     string strResult(
       const unsigned instNo,

@@ -591,7 +591,7 @@ string Instance::strResultEntry() const
     ss << setw(7) << right << score << setw(7) << "";
   else
     ss << setw(14) << right << -score;
-  return ss.str();
+  return ss.str() + "  |  ";
 }
 
 
