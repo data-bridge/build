@@ -14,6 +14,7 @@ SOURCE_FILES 	=		\
 	Date.cpp		\
 	Deal.cpp		\
 	Files.cpp		\
+	GivenScore.cpp		\
 	Group.cpp		\
 	Instance.cpp		\
         Location.cpp            \
@@ -133,8 +134,9 @@ AllStats.obj: CompStats.h RefStats.h refconst.h Timers.h Timer.h
 Auction.obj: Auction.h bconst.h Contract.h parse.h Bexcept.h Bdiff.h
 Bdiff.obj: Bdiff.h
 Bexcept.obj: Bexcept.h
-Board.obj: bconst.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
-Board.obj: Play.h ddsIF.h dll.h Valuation.h parse.h Bexcept.h Bdiff.h
+Board.obj: bconst.h Board.h Deal.h Tableau.h Instance.h Players.h Auction.h
+Board.obj: Contract.h Play.h ddsIF.h dll.h Valuation.h parse.h Bexcept.h
+Board.obj: Bdiff.h
 Buffer.obj: Reflines.h RefLine.h RefEdit.h refconst.h RefComment.h bconst.h
 Buffer.obj: RefAction.h Buffer.h parse.h Bexcept.h
 Canvas.obj: Canvas.h
@@ -144,23 +146,25 @@ Contract.obj: Contract.h bconst.h parse.h Bexcept.h Bdiff.h
 Date.obj: Date.h bconst.h parse.h Bexcept.h Bdiff.h
 Deal.obj: Deal.h bconst.h parse.h Bexcept.h Bdiff.h
 Files.obj: Files.h bconst.h parse.h
+GivenScore.obj: bconst.h GivenScore.h parse.h Bexcept.h Bdiff.h
 Group.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
-Group.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
-Group.obj: Contract.h Play.h ddsIF.h dll.h Bdiff.h
-Instance.obj: bconst.h parse.h Bexcept.h Bdiff.h
+Group.obj: Teams.h Team.h Board.h Deal.h Tableau.h Instance.h Players.h
+Group.obj: Auction.h Contract.h Play.h ddsIF.h dll.h Bdiff.h
+Instance.obj: Instance.h Players.h bconst.h Auction.h Contract.h Play.h
+Instance.obj: ddsIF.h dll.h parse.h Bexcept.h Bdiff.h
 Location.obj: Location.h bconst.h Bexcept.h Bdiff.h
 Play.obj: Play.h bconst.h ddsIF.h dll.h Contract.h parse.h Bexcept.h Bdiff.h
 Players.obj: Players.h bconst.h parse.h Bexcept.h Bdiff.h
 Scoring.obj: Scoring.h bconst.h Bexcept.h Bdiff.h
 Segment.obj: Segment.h Date.h bconst.h Location.h Session.h Scoring.h Teams.h
-Segment.obj: Team.h Board.h Deal.h Tableau.h Players.h Auction.h Contract.h
-Segment.obj: Play.h ddsIF.h dll.h parse.h Bexcept.h Bdiff.h
+Segment.obj: Team.h Board.h Deal.h Tableau.h Instance.h Players.h Auction.h
+Segment.obj: Contract.h Play.h ddsIF.h dll.h parse.h Bexcept.h Bdiff.h
 Session.obj: Session.h bconst.h parse.h Bdiff.h Bexcept.h
 Sheet.obj: Buffer.h bconst.h Segment.h Date.h Location.h Session.h Scoring.h
-Sheet.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
-Sheet.obj: Contract.h Play.h ddsIF.h dll.h Sheet.h SheetHand.h Reflines.h
-Sheet.obj: RefLine.h RefEdit.h refconst.h RefComment.h RefAction.h parse.h
-Sheet.obj: Bexcept.h Bdiff.h
+Sheet.obj: Teams.h Team.h Board.h Deal.h Tableau.h Instance.h Players.h
+Sheet.obj: Auction.h Contract.h Play.h ddsIF.h dll.h Sheet.h SheetHand.h
+Sheet.obj: Reflines.h RefLine.h RefEdit.h refconst.h RefComment.h RefAction.h
+Sheet.obj: parse.h Bexcept.h Bdiff.h
 SheetHand.obj: SheetHand.h Contract.h bconst.h Deal.h Auction.h Play.h
 SheetHand.obj: ddsIF.h dll.h parse.h Bexcept.h Bdiff.h
 Tableau.obj: Tableau.h bconst.h Contract.h parse.h Bexcept.h Bdiff.h
@@ -175,74 +179,76 @@ Valuation.obj: Valuation.h
 args.obj: args.h bconst.h
 ddsIF.obj: ddsIF.h dll.h Bexcept.h
 dispatch.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h
-dispatch.obj: Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h Players.h
-dispatch.obj: Auction.h Contract.h Play.h ddsIF.h dll.h dispatch.h validate.h
-dispatch.obj: Files.h AllStats.h ValStats.h ValProfile.h TextStats.h
-dispatch.obj: CompStats.h RefStats.h refconst.h Timers.h Timer.h RefLines.h
-dispatch.obj: RefLine.h RefEdit.h RefComment.h RefAction.h funcCompare.h
-dispatch.obj: funcDigest.h funcIMPSheet.h funcRead.h funcPlayerVal.h
-dispatch.obj: funcRefStats.h funcTextStats.h funcValidate.h funcWrite.h
-fileEML.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
-fileEML.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
+dispatch.obj: Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h Instance.h
+dispatch.obj: Players.h Auction.h Contract.h Play.h ddsIF.h dll.h dispatch.h
+dispatch.obj: validate.h Files.h AllStats.h ValStats.h ValProfile.h
+dispatch.obj: TextStats.h CompStats.h RefStats.h refconst.h Timers.h Timer.h
+dispatch.obj: RefLines.h RefLine.h RefEdit.h RefComment.h RefAction.h
+dispatch.obj: funcCompare.h funcDigest.h funcIMPSheet.h funcRead.h
+dispatch.obj: funcPlayerVal.h funcRefStats.h funcTextStats.h funcValidate.h
+dispatch.obj: funcWrite.h
+fileEML.obj: Segment.h Date.h bconst.h Location.h Session.h Scoring.h Teams.h
+fileEML.obj: Team.h Board.h Deal.h Tableau.h Instance.h Players.h Auction.h
 fileEML.obj: Contract.h Play.h ddsIF.h dll.h Buffer.h Chunk.h Canvas.h
 fileEML.obj: fileEML.h parse.h Bexcept.h
-filePBN.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
-filePBN.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
+filePBN.obj: Segment.h Date.h bconst.h Location.h Session.h Scoring.h Teams.h
+filePBN.obj: Team.h Board.h Deal.h Tableau.h Instance.h Players.h Auction.h
 filePBN.obj: Contract.h Play.h ddsIF.h dll.h Buffer.h Chunk.h filePBN.h
 filePBN.obj: Bexcept.h
-fileRBN.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
-fileRBN.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
+fileRBN.obj: Segment.h Date.h bconst.h Location.h Session.h Scoring.h Teams.h
+fileRBN.obj: Team.h Board.h Deal.h Tableau.h Instance.h Players.h Auction.h
 fileRBN.obj: Contract.h Play.h ddsIF.h dll.h Buffer.h Chunk.h fileRBN.h
 fileRBN.obj: parse.h Bexcept.h
-fileTXT.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
-fileTXT.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
+fileTXT.obj: Segment.h Date.h bconst.h Location.h Session.h Scoring.h Teams.h
+fileTXT.obj: Team.h Board.h Deal.h Tableau.h Instance.h Players.h Auction.h
 fileTXT.obj: Contract.h Play.h ddsIF.h dll.h Canvas.h fileTXT.h Buffer.h
 fileTXT.obj: Chunk.h parse.h Bexcept.h
-fileLIN.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
-fileLIN.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
+fileLIN.obj: Segment.h Date.h bconst.h Location.h Session.h Scoring.h Teams.h
+fileLIN.obj: Team.h Board.h Deal.h Tableau.h Instance.h Players.h Auction.h
 fileLIN.obj: Contract.h Play.h ddsIF.h dll.h Buffer.h Chunk.h fileLIN.h
 fileLIN.obj: parse.h Bexcept.h
-fileREC.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
-fileREC.obj: Teams.h Team.h Board.h Deal.h Tableau.h Players.h Auction.h
+fileREC.obj: Segment.h Date.h bconst.h Location.h Session.h Scoring.h Teams.h
+fileREC.obj: Team.h Board.h Deal.h Tableau.h Instance.h Players.h Auction.h
 fileREC.obj: Contract.h Play.h ddsIF.h dll.h Buffer.h Chunk.h Canvas.h
 fileREC.obj: fileREC.h parse.h Bexcept.h
 funcCompare.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h
-funcCompare.obj: Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h Players.h
-funcCompare.obj: Auction.h Contract.h Play.h ddsIF.h dll.h Buffer.h
+funcCompare.obj: Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h Instance.h
+funcCompare.obj: Players.h Auction.h Contract.h Play.h ddsIF.h dll.h Buffer.h
 funcCompare.obj: CompStats.h funcCompare.h funcRead.h Bexcept.h Bdiff.h
 funcDigest.obj: funcDigest.h bconst.h Sheet.h Contract.h Deal.h Auction.h
 funcDigest.obj: Play.h ddsIF.h dll.h Buffer.h SheetHand.h Reflines.h
 funcDigest.obj: RefLine.h RefEdit.h refconst.h RefComment.h RefAction.h
 funcDigest.obj: parse.h Bexcept.h
 funcIMPSheet.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h
-funcIMPSheet.obj: Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h Players.h
-funcIMPSheet.obj: Auction.h Contract.h Play.h ddsIF.h dll.h Sheet.h Buffer.h
-funcIMPSheet.obj: SheetHand.h Reflines.h RefLine.h RefEdit.h refconst.h
-funcIMPSheet.obj: RefComment.h RefAction.h funcIMPSheet.h Bexcept.h
+funcIMPSheet.obj: Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h
+funcIMPSheet.obj: Instance.h Players.h Auction.h Contract.h Play.h ddsIF.h
+funcIMPSheet.obj: dll.h Sheet.h Buffer.h SheetHand.h Reflines.h RefLine.h
+funcIMPSheet.obj: RefEdit.h refconst.h RefComment.h RefAction.h
+funcIMPSheet.obj: funcIMPSheet.h Bexcept.h
 funcPlayerVal.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h
 funcPlayerVal.obj: Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h
-funcPlayerVal.obj: Players.h Auction.h Contract.h Play.h ddsIF.h dll.h
-funcPlayerVal.obj: funcPlayerVal.h Bexcept.h
+funcPlayerVal.obj: Instance.h Players.h Auction.h Contract.h Play.h ddsIF.h
+funcPlayerVal.obj: dll.h funcPlayerVal.h Bexcept.h
 funcRead.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h
-funcRead.obj: Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h Players.h
-funcRead.obj: Auction.h Contract.h Play.h ddsIF.h dll.h Chunk.h RefLines.h
-funcRead.obj: RefLine.h RefEdit.h refconst.h RefComment.h RefAction.h
-funcRead.obj: fileLIN.h filePBN.h fileRBN.h fileTXT.h Buffer.h fileEML.h
-funcRead.obj: fileREC.h funcRead.h OrderCounts.h parse.h Bexcept.h
+funcRead.obj: Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h Instance.h
+funcRead.obj: Players.h Auction.h Contract.h Play.h ddsIF.h dll.h Chunk.h
+funcRead.obj: RefLines.h RefLine.h RefEdit.h refconst.h RefComment.h
+funcRead.obj: RefAction.h fileLIN.h filePBN.h fileRBN.h fileTXT.h Buffer.h
+funcRead.obj: fileEML.h fileREC.h funcRead.h OrderCounts.h parse.h Bexcept.h
 funcRefStats.obj: Buffer.h bconst.h RefLines.h RefLine.h RefEdit.h refconst.h
 funcRefStats.obj: RefComment.h RefAction.h RefStats.h funcRefStats.h
 funcRefStats.obj: Bexcept.h
 funcTextStats.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h
 funcTextStats.obj: Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h
-funcTextStats.obj: Players.h Auction.h Contract.h Play.h ddsIF.h dll.h
-funcTextStats.obj: TextStats.h funcTextStats.h Bexcept.h
+funcTextStats.obj: Instance.h Players.h Auction.h Contract.h Play.h ddsIF.h
+funcTextStats.obj: dll.h TextStats.h funcTextStats.h Bexcept.h
 funcValidate.obj: validate.h bconst.h funcValidate.h ValStats.h ValProfile.h
 funcValidate.obj: Bexcept.h
 funcWrite.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h
-funcWrite.obj: Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h Players.h
-funcWrite.obj: Auction.h Contract.h Play.h ddsIF.h dll.h fileLIN.h filePBN.h
-funcWrite.obj: fileRBN.h fileTXT.h Buffer.h Chunk.h fileEML.h fileREC.h
-funcWrite.obj: parse.h Bexcept.h
+funcWrite.obj: Scoring.h Teams.h Team.h Board.h Deal.h Tableau.h Instance.h
+funcWrite.obj: Players.h Auction.h Contract.h Play.h ddsIF.h dll.h fileLIN.h
+funcWrite.obj: filePBN.h fileRBN.h fileTXT.h Buffer.h Chunk.h fileEML.h
+funcWrite.obj: fileREC.h parse.h Bexcept.h
 parse.obj: parse.h bconst.h
 OrderCounts.obj: OrderCounts.h bconst.h
 RefAction.obj: RefAction.h refconst.h Bexcept.h

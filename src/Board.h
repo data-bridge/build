@@ -15,6 +15,7 @@
 
 #include "Deal.h"
 #include "Tableau.h"
+#include "GivenScore.h"
 #include "Instance.h"
 
 using namespace std;
@@ -30,6 +31,7 @@ class Board
     Tableau tableau;
     vector<Instance> instances;
     vector<bool> skip;
+    GivenScore givenScoreNew;
     float givenScore;
     bool givenSet;
 
@@ -147,10 +149,6 @@ class Board
       const unsigned instNo,
       const Format format) const;
 
-    string strScore(
-      const unsigned instNo,
-      const Format format) const;
-
     string strGivenScore(const Format format) const;
 
     string strPlayersBoard(
@@ -158,6 +156,10 @@ class Board
       const bool isIMPs = true,
       Board * refBoard = nullptr) const;
     
+    string strScore(
+      const unsigned instNo,
+      const Format format) const;
+
     string strScoreIMP(
       const unsigned instNo,
       const Format format) const;

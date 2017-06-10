@@ -41,10 +41,9 @@ void Board::reset()
   tableau.reset();
   instances.clear();
   skip.clear();
+  givenScoreNew.reset();
 
   basicsFlag = false;
-  givenScore = 0.0f;
-  givenSet = false;
   LINset = false;
   LINScoreSet = false;
 }
@@ -268,53 +267,11 @@ Player Board::holdsCard(const string& text) const
 }
 
 
-// Contract
-
 void Board::setScoreIMP(
   const string& text,
   const Format format)
 {
-  // We regenerate this ourselves, so mostly ignore for now.
-  if (format == BRIDGE_FORMAT_LIN)
-  {
-    if (text == "--")
-      givenScore = 0.0f;
-    else if (! str2float(text, givenScore))
-      THROW("Bad IMP score: " + text);
-
-    givenSet = true;
-  }
-  else if (format == BRIDGE_FORMAT_PBN && numActive == 0)
-  {
-    if (text == "0")
-    {
-      givenScore = 0.f;
-      givenSet = true;
-      return;
-    }
-
-    if (text.length() < 4)
-      THROW("Short RBN IMP score: " + text);
-    int side = 0;
-    if (text.substr(0, 3) == "NS ")
-      side = 1;
-    else if (text.substr(0, 3) == "EW ")
-      side = -1;
-    else
-      THROW("RBN IMP score not NS/EW: " + text);
-
-    // Double Dummy Captain has also used commas.
-    string fixed = text.substr(3);
-    size_t p = fixed.find(",");
-    if (p < string::npos)
-      fixed.at(p) = '.';
-
-    if (! str2float(fixed, givenScore))
-      THROW("Bad RBN IMP score: " + fixed);
-
-    givenScore *= side;
-    givenSet = true;
-  }
+  givenScoreNew.setIMP(text, format);
 }
 
 
@@ -322,17 +279,7 @@ void Board::setScoreMP(
   const string& text,
   const Format format)
 {
-  if (format == BRIDGE_FORMAT_PBN)
-  {
-    // We mostly ignore this for now.
-  }
-  else
-  {
-    if (! str2float(text, givenScore))
-      THROW("Bad matchpoint score");
-
-    givenSet = true;
-  }
+  givenScoreNew.setIMP(text, format);
 }
 
 
@@ -513,49 +460,9 @@ string Board::strContract(
 }
 
 
-string Board::strScore(
-  const unsigned instNo,
-  const Format format) const
-{
-  const unsigned instOther = (instNo == 0 ? 1u : 0u);
-  return instances[instNo].strScore(format, instances[instOther]);
-}
-
-
 string Board::strGivenScore(const Format format) const
 {
-  stringstream s;
-  
-  if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
-  {
-    if (givenScore == 0.0f)
-    {
-      if ((format == BRIDGE_FORMAT_LIN ||
-          format == BRIDGE_FORMAT_LIN_TRN) && 
-          ! LINScoreSet)
-        s << ",,";
-      else
-        s << "--,--,";
-    }
-    else if (givenScore > 0.0f)
-      s << setprecision(1) << fixed << givenScore << ",,";
-    else
-      s << "," << setprecision(1) << fixed << -givenScore << ",";
-    return s.str();
-  }
-  else if (format == BRIDGE_FORMAT_PBN && givenSet)
-  {
-    s << "[ScoreIMP \"NS ";
-    if (numActive == 0)
-      s << setprecision(2) << fixed << givenScore;
-    else
-      s << setprecision(2) << fixed << -givenScore;
-    s << "\"]\n";
-
-    return s.str();
-  }
-  else
-    return "";
+  return givenScoreNew.str(format);
 }
 
 
@@ -602,6 +509,15 @@ string Board::strPlayersBoard(
     default:
       THROW("Invalid format: " + STR(format));
   }
+}
+
+
+string Board::strScore(
+  const unsigned instNo,
+  const Format format) const
+{
+  const unsigned instOther = (instNo == 0 ? 1u : 0u);
+  return instances[instNo].strScore(format, instances[instOther]);
 }
 
 
