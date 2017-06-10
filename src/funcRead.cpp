@@ -85,8 +85,8 @@ void setReadTables()
   boardPtr[BRIDGE_FORMAT_DEAL] = &Board::setDeal;
   boardPtr[BRIDGE_FORMAT_DEALER] = &Board::setDealer;
   boardPtr[BRIDGE_FORMAT_VULNERABLE] = &Board::setVul;
-  boardPtr[BRIDGE_FORMAT_SCORE_IMP] = &Board::setScoreIMP; // --> inst
-  boardPtr[BRIDGE_FORMAT_SCORE_MP] = &Board::setScoreMP; // TODO
+  boardPtr[BRIDGE_FORMAT_SCORE_IMP] = &Board::setScoreIMP;
+  boardPtr[BRIDGE_FORMAT_SCORE_MP] = &Board::setScoreMP;
   boardPtr[BRIDGE_FORMAT_DOUBLE_DUMMY] = &Board::setTableau;
 
   instPtr[BRIDGE_FORMAT_PLAYERS] = &Instance::setPlayers;
@@ -217,9 +217,7 @@ static bool storeChunk(
     return false;
   }
 
-  if (// ! board->skipped() && 
-      ! instance->auctionIsOver() &&
-      instance->lengthAuction() > 0)
+  if (! instance->auctionIsOver() && instance->lengthAuction() > 0)
   {
     printCounts(fname, chunk, counts);
     cout << board->strDeal(BRIDGE_FORMAT_TXT) << endl;

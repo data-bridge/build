@@ -47,10 +47,10 @@ void Instance::copyDealerVul(const Instance& inst2)
 }
 
 
-void Instance::setPlayerDeal(
-  const unsigned cards[BRIDGE_PLAYERS][BRIDGE_SUITS])
+void Instance::setDeal(const unsigned cards[BRIDGE_PLAYERS][BRIDGE_SUITS])
 {
-  play.setHoldingDDS(cards);
+  if (! play.dealIsSet())
+    play.setHoldingDDS(cards);
 }
 
 

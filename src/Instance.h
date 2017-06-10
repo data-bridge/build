@@ -43,8 +43,7 @@ class Instance
 
     void copyDealerVul(const Instance& inst2);
 
-    void setPlayerDeal(
-      const unsigned cards[BRIDGE_PLAYERS][BRIDGE_SUITS]);
+    void setDeal(const unsigned cards[BRIDGE_PLAYERS][BRIDGE_SUITS]);
 
     void setLINheader(const LINInstData& lin);
 

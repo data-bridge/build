@@ -35,10 +35,8 @@ class Board
 
     unsigned len;
     unsigned numActive;
-    bool basicsFlag;
     LINData LINdata;
-    bool LINset;
-    bool LINScoreSet;
+    bool LINset; // TODO: When LINdata is a pointer, just compare null
 
     string strIMPEntry(const int imps) const;
     
@@ -57,7 +55,6 @@ class Board
 
     const Instance& getInstance(const unsigned instNo) const;
 
-    bool skipped() const;
     bool skipped(const unsigned no) const;
     bool skippedAll() const;
 
@@ -68,6 +65,10 @@ class Board
 
     void setLINheader(const LINData& lin);
 
+    void setDeal(
+      const string& text,
+      const Format format);
+      
     void setDealer(
       const string& text,
       const Format format);
@@ -76,15 +77,7 @@ class Board
       const string& text,
       const Format format);
 
-    // Deal
-
-    void setDeal(
-      const string& text,
-      const Format format);
-      
     Player holdsCard(const string& text) const;
-
-    // Contract
 
     void setScoreIMP(
       const string& text,
@@ -96,8 +89,6 @@ class Board
 
     void calculateScore();
 
-    // Tableau
-    //
     void setTableau(
       const string& text,
       const Format format);
@@ -120,8 +111,6 @@ class Board
       Player dealer,
       Vul vul,
       list<Contract>& text) const;
-
-    // Players
 
     void copyPlayers(const Board& board2);
 

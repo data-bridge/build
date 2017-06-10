@@ -43,9 +43,7 @@ void Board::reset()
   skip.clear();
   givenScore.reset();
 
-  basicsFlag = false;
   LINset = false;
-  LINScoreSet = false;
 }
 
 
@@ -75,37 +73,19 @@ Instance * Board::acquireInstance(const unsigned instNo)
 
   if (len == 2 && deal.isSet())
   {
-    if (skip[0] && ! skip[1] && ! basicsFlag)
-    {
-      basicsFlag = true;
+    unsigned cards[BRIDGE_PLAYERS][BRIDGE_SUITS];
+    deal.getDDS(cards);
 
+    for (unsigned i = 0; i < len; i++)
+      instances[i].setDeal(cards);
+
+    if (skip[0] && ! skip[1])
       instances[0].copyDealerVul(instances[1]);
-
-      // TODO: Make cleaner
-      if (deal.isSet())
-      {
-        unsigned cards[BRIDGE_PLAYERS][BRIDGE_SUITS];
-        deal.getDDS(cards);
-        instances[0].setPlayerDeal(cards);
-      }
-    }
     else if (skip[1] && ! skip[0])
-    {
-      basicsFlag = true;
-
       instances[1].copyDealerVul(instances[0]);
-
-      // TODO: Make cleaner
-      if (deal.isSet())
-      {
-        unsigned cards[BRIDGE_PLAYERS][BRIDGE_SUITS];
-        deal.getDDS(cards);
-        instances[1].setPlayerDeal(cards);
-      }
-    }
   }
 
-  return &instances[numActive];
+  return &instances[instNo];
 }
 
 
@@ -120,16 +100,10 @@ void Board::setInstance(const unsigned no)
 
 const Instance& Board::getInstance(const unsigned instNo) const
 {
-  if (len == 0 || instNo > len-1)
+  if (len == 0 || instNo >= len)
     THROW("Invalid instance selected");
 
   return instances[instNo];
-}
-
-
-bool Board::skipped() const
-{
-  return skip[numActive];
 }
 
 
@@ -181,14 +155,11 @@ void Board::setLINheader(const LINData& lin)
 
   LINdata = lin;
   LINset = true;
-  LINScoreSet = true;
 
   if (LINdata.data[0].mp != "")
     Board::setScoreIMP(LINdata.data[0].mp, BRIDGE_FORMAT_LIN);
   else if (LINdata.data[1].mp != "")
     Board::setScoreIMP("-" + LINdata.data[1].mp, BRIDGE_FORMAT_LIN);
-  else
-    LINScoreSet = false;
   
   for (unsigned i = 0; i < len; i++)
   {
@@ -210,31 +181,6 @@ void Board::setLINheader(const LINData& lin)
 }
 
 
-void Board::setDealer(
-  const string& text,
-  const Format format)
-{
-  instances[numActive].setDealer(text, format);
-}
-
-
-void Board::setVul(
-  const string& text,
-  const Format format)
-{
-  if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN ||
-      format == BRIDGE_FORMAT_TXT)
-  {
-    for (unsigned i = 0; i < len; i++)
-      instances[i].setVul(text, format);
-  }
-  else
-    instances[numActive].setVul(text, format);
-}
-
-
-// Deal
-
 void Board::setDeal(
   const string& text,
   const Format format)
@@ -243,21 +189,50 @@ void Board::setDeal(
   if (! deal.isSet())
     deal.set(text, format);
 
-  if (! instances[numActive].dealIsSet())
-  {
-    unsigned cards[BRIDGE_PLAYERS][BRIDGE_SUITS];
-    deal.getDDS(cards);
+  unsigned cards[BRIDGE_PLAYERS][BRIDGE_SUITS];
+  string dlr;
+  bool loadedFlag = false;
 
-    instances[numActive].setPlayerDeal(cards);
-  }
-
-  if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
+  for (unsigned i = 0; i < len; i++)
   {
-    // Fill up, just in case of a skip.
-    const string d = text.substr(0, 1);
-    for (unsigned i = 0; i < len; i++)
-      instances[i].setDealer(d, format);
+    if (! instances[i].dealIsSet())
+    {
+      if (! loadedFlag)
+      {
+        deal.getDDS(cards);
+        dlr = text.substr(0, 1);
+        loadedFlag = true;
+      }
+
+      instances[i].setDeal(cards);
+
+      // Won't get the dealer (which is part of the LIN deal) if
+      // we don't copy it here.
+
+      if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
+        instances[i].setDealer(dlr, format);
+    }
   }
+}
+
+
+void Board::setDealer(
+  const string& text,
+  const Format format)
+{
+  // A bit overkill, but cheap.
+  for (unsigned i = 0; i < len; i++)
+    instances[i].setDealer(text, format);
+}
+
+
+void Board::setVul(
+  const string& text,
+  const Format format)
+{
+  // A bit overkill, but cheap.
+  for (unsigned i = 0; i < len; i++)
+    instances[i].setVul(text, format);
 }
 
 
@@ -289,8 +264,6 @@ void Board::calculateScore()
     instances[i].calculateScore();
 }
 
-
-// Tableau
 
 void Board::setTableau(
   const string& text,
@@ -334,8 +307,6 @@ bool Board::getPar(
   return tableau.getPar(dealer, vul, text);
 }
 
-
-// Players
 
 void Board::copyPlayers(const Board& board2)
 {
