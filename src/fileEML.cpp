@@ -475,8 +475,13 @@ void writeEMLBoardLevel(
     p = a+4;
   }
   canvas.setLine(instance.strResult(format), p, 42);
-  canvas.setLine(board.strScore(format, segment.scoringIsIMPs(),
-    segment.getCOCO()), p+1, 42);
+
+  string ss;
+  if (segment.scoringIsIMPs() && writeInfo.ino == 1)
+    ss = board.strScore(writeInfo.instNo, format);
+  else
+    ss = instance.strScore(format);
+  canvas.setLine(ss, p+1, 42);
 
   if (auction.size() == 3 && auction[2] == "")
   {

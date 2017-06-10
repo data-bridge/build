@@ -414,6 +414,8 @@ void Board::setRoom(
 }
 
 
+// Valuation
+
 bool Board::getValuation(Valuation& valuation) const
 {
   // TODO
@@ -512,20 +514,11 @@ string Board::strContract(
 
 
 string Board::strScore(
-  const Format format,
-  const bool scoringIsIMPs,
-  const bool swapFlag) const
+  const unsigned instNo,
+  const Format format) const
 {
-  const unsigned baseInst = (swapFlag ? 1u : 0u);
-  if (numActive == baseInst || 
-     ! scoringIsIMPs ||
-     ! instances[0].hasResult() ||
-     ! instances[1].hasResult())
-  {
-    return instances[numActive].strScore(format);
-  }
-  else
-    return instances[numActive].strScore(format, instances[baseInst]);
+  const unsigned instOther = (instNo == 0 ? 1u : 0u);
+  return instances[instNo].strScore(format, instances[instOther]);
 }
 
 

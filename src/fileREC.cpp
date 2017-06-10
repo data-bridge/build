@@ -403,7 +403,8 @@ void writeRECBoardLevel(
     st += "Opening lead:       ";
 
   st += instance.strResult(format) + "\n";
-  st += board.strScore(format, false);
+  st += instance.strScore(format);
+  // st += board.strScore(format, false);
 
   if (writeInfo.ino == 1)
     st += board.strScoreIMP(writeInfo.instNo, format);

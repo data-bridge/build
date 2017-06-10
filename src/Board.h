@@ -148,9 +148,8 @@ class Board
       const Format format) const;
 
     string strScore(
-      const Format format,
-      const bool scoringIsIMPs,
-      const bool swapFlag = false) const;
+      const unsigned instNo,
+      const Format format) const;
 
     string strGivenScore(const Format format) const;
 

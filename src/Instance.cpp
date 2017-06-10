@@ -479,6 +479,9 @@ string Instance::strScore(
   const Format format,
   const Instance& inst2) const
 {
+  if (! contract.hasResult() || ! inst2.contract.hasResult())
+    return contract.strScore(format);
+  else
   return contract.strScore(format, inst2.contract.getScore());
 }
 
