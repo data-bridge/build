@@ -207,7 +207,6 @@ class Instance
       const Instance& inst2) const;
 
     int IMPScore(const Instance& inst2) const;
-    int IMPScore(const int refScore) const;
 
     string strLead(const Format format) const;
     string strPlay(const Format format) const;

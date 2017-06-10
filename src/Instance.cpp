@@ -497,13 +497,6 @@ int Instance::IMPScore(const Instance& inst2) const
 }
 
 
-int Instance::IMPScore(const int refScore) const
-{
-  // TODO: Needed?
-  return contract.IMPScore(refScore);
-}
-
-
 string Instance::strLead(const Format format) const
 {
   return play.strLead(format);
@@ -564,7 +557,10 @@ string Instance::strResult(
   const Instance& inst2,
   const Format format) const
 {
-  return contract.strResult(format, inst2.contract.getScore());
+  if (inst2.contract.hasResult())
+    return contract.strResult(format, inst2.contract.getScore());
+  else
+    return contract.strResult(format);
 }
 
 
@@ -573,7 +569,10 @@ string Instance::strResult(
   const string& team,
   const Format format) const
 {
-  return contract.strResult(format, inst2.contract.getScore(), team);
+  if (inst2.contract.hasResult())
+    return contract.strResult(format, inst2.contract.getScore(), team);
+  else
+  return contract.strResult(format);
 }
 
 

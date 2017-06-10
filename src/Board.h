@@ -159,8 +159,6 @@ class Board
       const bool showFlag,
       const bool swapFlag = false) const;
 
-    int IMPScore(const bool swapFlag = false) const;
-
     string strPlayersBoard(
       const Format format,
       const bool isIMPs = true,
@@ -175,6 +173,9 @@ class Board
       const Format format,
       const string& team,
       const bool swapFlag = false) const;
+
+    int IMPScore(const bool swapFlag = false) const;
+    int IMPScoreNew(const unsigned instNo) const;
 
     string strIMPSheetLine(
       const string& bno,

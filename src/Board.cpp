@@ -584,19 +584,6 @@ string Board::strScoreIMP(
 }
 
 
-int Board::IMPScore(const bool swapFlag) const
-{
-  const unsigned baseInst = (swapFlag ? 1u : 0u);
-
-  if (numActive == baseInst || 
-      ! instances[0].hasResult() ||
-      ! instances[1].hasResult())
-    return 0;
-  else
-    return instances[numActive].IMPScore(instances[baseInst]);
-}
-
-
 string Board::strPlayersBoard(
   const Format format,
   const bool isIMPs,
@@ -665,17 +652,10 @@ string Board::strResult(
   const string& team,
   const bool swapFlag) const
 {
-  const unsigned baseInst = (swapFlag ? 1u : 0u);
-  if (numActive == baseInst || 
-      ! instances[baseInst].hasResult())
-  {
-    return instances[numActive].strResult(format);
-  }
-  else
-  {
+  UNUSED(swapFlag);
+  const unsigned baseInst = (numActive == 0 ? 1u : 0u);
     return instances[numActive].strResult(instances[baseInst], team, 
       format);
-  }
 }
 
 
@@ -689,6 +669,28 @@ string Board::strIMPEntry(const int imps) const
   else
     ss << setw(12) << right << -imps;
   return ss.str() + "\n";
+}
+
+
+int Board::IMPScore(const bool swapFlag) const
+{
+  const unsigned baseInst = (swapFlag ? 1u : 0u);
+
+  if (numActive == baseInst || 
+      ! instances[0].hasResult() ||
+      ! instances[1].hasResult())
+  {
+    return 0;
+  }
+  else
+    return instances[numActive].IMPScore(instances[baseInst]);
+}
+
+
+int Board::IMPScoreNew(const unsigned instNo) const
+{
+  const unsigned otherInst = (instNo == 0 ? 1u : 0u);
+  return instances[instNo].IMPScore(instances[otherInst]);
 }
 
 
