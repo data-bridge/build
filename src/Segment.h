@@ -11,6 +11,7 @@
 #define BRIDGE_SEGMENT_H
 
 #include <string>
+#include <list>
 #include <iostream>
 
 #include "Date.h"
@@ -49,12 +50,12 @@ class Segment
     bool flagCOCO; // Team order is swapped in the input
 
     unsigned len;
-    vector<BoardPair> boards;
+    list<BoardPair> boards;
     unsigned bmin;
     unsigned bmax;
 
-
     unsigned getIntBoardNo(const unsigned extNo) const;
+    unsigned getExtBoardNo(const unsigned intNo) const;
 
     unsigned getLINActiveNo(const unsigned intNo) const;
 
@@ -78,9 +79,9 @@ class Segment
 
     ~Segment();
 
-    vector<BoardPair>::const_iterator begin() const { return boards.begin(); }
+    list<BoardPair>::const_iterator begin() const { return boards.begin(); }
 
-    vector<BoardPair>::const_iterator end() const { return boards.end(); }
+    list<BoardPair>::const_iterator end() const { return boards.end(); }
 
     void reset();
 
