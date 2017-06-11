@@ -193,6 +193,20 @@ void SheetHand::addChat(const string& text)
 }
 
 
+void SheetHand::setPlayDistance(const string& plays)
+{
+  vector<string> tricks(13);
+  tricks.clear();
+  tokenize(plays, tricks, ":");
+
+  for (unsigned t = 0; t < tricks.size(); t++)
+  {
+    toUpper(tricks[t]);
+    SheetHand::incrPlayDistance(tricks[t]);
+  }
+}
+
+
 void SheetHand::incrPlayDistance(const string& trick)
 {
   const unsigned l = trick.length();
@@ -237,20 +251,6 @@ void SheetHand::incrPlayDistance(const string& trick)
 }
 
 
-void SheetHand::setPlayDistance(const string& plays)
-{
-  vector<string> tricks(13);
-  tricks.clear();
-  tokenize(plays, tricks, ":");
-
-  for (unsigned t = 0; t < tricks.size(); t++)
-  {
-    toUpper(tricks[t]);
-    SheetHand::incrPlayDistance(tricks[t]);
-  }
-}
-
-
 void SheetHand::fail(const string& text) const
 {
   // Ugly way to fail.
@@ -292,9 +292,17 @@ void SheetHand::finishHand(
   if (auction.getContract(cAuction))
     SheetHand::strToContract(cAuction, SHEET_CONTRACT_AUCTION);
 
-  if (numPlays > 0 && 
-      (cHeader.isSet() || cAuction.isSet()) &&
-      deal.isSet())
+
+  if (tricksClaim.has)
+    cAuction.setTricks(tricksClaim.value);
+  else if (tricksPlay.has)
+    cAuction.setTricks(tricksPlay.value);
+
+  if (tricksHeader.has)
+    cHeader.setTricks(tricksHeader.value);
+
+
+  if ((cHeader.isSet() || cAuction.isSet()) && deal.isSet())
   {
     try
     {
@@ -313,6 +321,9 @@ void SheetHand::finishHand(
     {
       bex.print(cout);
     }
+
+    if (numPlays == 0)
+      return;
 
     try
     {
@@ -337,6 +348,14 @@ void SheetHand::finishHand(
         tricksPlay.value = playDistance.numTricks;
         tricksPlay.has = true;
       }
+      else
+      {
+        RunningDD runningDD;
+        play.getStateDDS(runningDD);
+
+        tricksDDS.has = true;
+        tricksDDS.value = tricksDD(runningDD);
+      }
     }
     catch (Bexcept& bex)
     {
@@ -346,6 +365,18 @@ void SheetHand::finishHand(
       // bex.print(cout);
     }
   }
+}
+
+
+bool SheetHand::hasData() const
+{
+  return (hasDeal || hasPlay);
+}
+
+
+bool SheetHand::auctionIsFlawed() const
+{
+  return (auctionFlawed || (! auction.isEmpty() && ! auction.isOver()));
 }
 
 
@@ -389,18 +420,6 @@ bool SheetHand::contractsOrTricksDiffer() const
     return true;
 
   return false;
-}
-
-
-bool SheetHand::hasData() const
-{
-  return (hasDeal || hasPlay);
-}
-
-
-bool SheetHand::auctionIsFlawed() const
-{
-  return (auctionFlawed || (! auction.isEmpty() && ! auction.isOver()));
 }
 
 
@@ -560,30 +579,19 @@ string SheetHand::tricksAlt() const
 }
 
 
-string SheetHand::strContractHeader()
+string SheetHand::strContractHeader() const
 {
   if (tricksHeader.has)
-  {
-    cHeader.setTricks(tricksHeader.value);
     return cHeader.str(BRIDGE_FORMAT_LIN);
-  }
   else
     return contractHeader.value;
 }
 
 
-string SheetHand::strContractAuction()
+string SheetHand::strContractAuction() const
 {
-  if (tricksClaim.has)
-  {
-    cAuction.setTricks(tricksClaim.value);
+  if (tricksClaim.has || tricksPlay.has)
     return cAuction.str(BRIDGE_FORMAT_LIN);
-  }
-  else if (tricksPlay.has)
-  {
-    cAuction.setTricks(tricksPlay.value);
-    return cAuction.str(BRIDGE_FORMAT_LIN);
-  }
   else
     return contractAuction.value;
 }
@@ -595,7 +603,7 @@ string SheetHand::strContractTag() const
 }
 
 
-string SheetHand::strNotesDetail()
+string SheetHand::strNotesDetail() const
 {
   stringstream ss;
   RunningDD runningDD;
@@ -631,24 +639,13 @@ string SheetHand::strNotesDetail()
     ss << "Claim   : " << tricksClaim.value << "\n";
 
   if (! play.isOver())
-  {
-    try
-    {
-      tricksDDS.has = true;
-      tricksDDS.value = tricksDD(runningDD);
-    }
-    catch (Bexcept& bex)
-    {
-      bex.print(cout);
-    }
     ss << "DD      : " << tricksDDS.value << "\n\n";
-  }
 
   return ss.str();
 }
 
 
-string SheetHand::strNotes()
+string SheetHand::strNotes() const
 {
   stringstream ss;
   if (hasDeal)
@@ -685,8 +682,7 @@ string SheetHand::str() const
 }
 
 
-string SheetHand::str(
-  const SheetHand& href) const
+string SheetHand::str(const SheetHand& href) const
 {
   stringstream ss;
   ss <<

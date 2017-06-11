@@ -62,8 +62,6 @@ class Sheet
     void resetHeader();
     void resetHand(SheetHandData& hd);
 
-    void fail(const string& text) const;
-
     void parseVG(const string& value);
 
     void parseRS(
@@ -84,13 +82,11 @@ class Sheet
       SheetHandData& hd,
       const vector<string>& clist);
 
+    void fail(const string& text) const;
+
     void parse(Buffer& buffer);
 
     unsigned refLineNoToHandNo(const unsigned lineno) const;
-
-    bool lineToList(
-      const string& line,
-      vector<string>& list) const;
 
     void parseRefs();
 
@@ -98,10 +94,10 @@ class Sheet
 
     string strHeader() const;
     string strLinks() const;
-    string strPlays() const;
     string strHand(
-      SheetHandData& ho,
-      const unsigned index);
+      const SheetHandData& ho,
+      const unsigned index) const;
+    string strPlays() const;
 
     string handRange(const unsigned index) const;
 
@@ -112,8 +108,8 @@ class Sheet
     string suggestAuction(const unsigned index) const;
     string suggestPlay(const unsigned index) const;
     string suggestTricks(
-      SheetHandData& hd,
-      const unsigned index);
+      const SheetHandData& hd,
+      const unsigned index) const;
 
 
   public:
@@ -126,7 +122,7 @@ class Sheet
 
     bool read(const string& fname);
 
-    string str();
+    string str() const;
 };
 
 #endif

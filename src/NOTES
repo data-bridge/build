@@ -5,9 +5,6 @@ dispatch
   Write dispatch language suitable also for later SQL queries
 * Select by year as well?
 
-Sheet, SheetHand
-* Funny non-const args?
-
 Perl scripts in BBOVG
 - Make director.pl run without warnings 
   (so have log files of acceptable deviations)
@@ -15,6 +12,7 @@ Perl scripts in BBOVG
 Data
 - Include BBOVG and BBOSH up to today
 - Look for more sources?  Later...
+- Check that Sheet and SheetHand still work
 
 NERs
 * Dates: Write extractor for embedded dates in tags

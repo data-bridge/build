@@ -101,11 +101,6 @@ class SheetHand
     vector<string> chats;
 
 
-    void fail(const string& text) const;
-
-    void setPlayDistance(const string& plays);
-    void incrPlayDistance(const string& trick);
-
     void strToContract(
       const Contract& contract,
       const SheetContractType type);
@@ -114,6 +109,11 @@ class SheetHand
       const Contract& contract,
       const SheetTricksType type);
     
+    void setPlayDistance(const string& plays);
+    void incrPlayDistance(const string& trick);
+
+    void fail(const string& text) const;
+
     string cstr(const SheetContract& ct) const;
     string cstr(
       const SheetContract& ct,
@@ -134,7 +134,7 @@ class SheetHand
       const SheetTricks& tricks2,
       const SheetTricks& tbase) const;
 
-    string strNotesDetail();
+    string strNotesDetail() const;
 
 
   public:
@@ -162,27 +162,23 @@ class SheetHand
 
     bool auctionIsFlawed() const;
 
+    bool contractsOrTricksDiffer() const;
+
     bool playIsFlawed() const;
 
     SheetPlayType playValidity() const;
 
     const SheetPlayDistance& getPlayDistance() const;
 
-    bool contractsOrTricksDiffer() const;
-
     string tricksAlt() const;
-    string strContractHeader();
-    string strContractAuction();
+    string strContractHeader() const;
+    string strContractAuction() const;
     string strContractTag() const;
 
-    string strNotes();
-    string strNotes(const SheetHand& href);
-
+    string strNotes() const;
     string strChat() const;
-
     string str() const;
     string str(const SheetHand& href) const;
-
     string strDummy() const;
 };
 

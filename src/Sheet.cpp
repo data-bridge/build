@@ -444,6 +444,18 @@ unsigned Sheet::findHandNo(const string& label) const
 }
 
 
+string Sheet::strHeader() const
+{
+  stringstream ss;
+  ss << header.headline << "\n\n";
+
+  if (header.links.size() > 0)
+    ss << strLinks();
+  
+  return ss.str();
+}
+
+
 string Sheet::strLinks() const
 {
   stringstream ss;
@@ -459,14 +471,40 @@ string Sheet::strLinks() const
 }
 
 
-string Sheet::strHeader() const
+string Sheet::strHand(
+  const SheetHandData& ho,
+  const unsigned index) const
 {
   stringstream ss;
-  ss << header.headline << "\n\n";
 
-  if (header.links.size() > 0)
-    ss << strLinks();
-  
+  ss << "Board " << ho.label << "\n";
+  ss << ho.hand.strNotes();
+  ss << ho.hand.strChat();
+
+  if (index != BIGNUM)
+  {
+    const unsigned l = hands.size();
+    if (index < l-1)
+    {
+      ss << "--\n";
+      ss << hands[index+1].hand.strChat();
+      if (index < l-2)
+      {
+        ss << "--\n";
+        ss << hands[index+2].hand.strChat();
+      }
+    }
+  }
+
+  // For mb errors, could check that auctionIsFlawed().
+
+  if (ho.refSource.size() > 0)
+  {
+    ss << "\nActive ref lines: " << ho.label << "\n";
+    for (auto &line: ho.refSource)
+      ss << line << "\n";
+  }
+
   return ss.str();
 }
 
@@ -595,8 +633,8 @@ string Sheet::suggestPlay(const unsigned index) const
 
 
 string Sheet::suggestTricks(
-  SheetHandData& ho,
-  const unsigned index)
+  const SheetHandData& ho,
+  const unsigned index) const
 {
   stringstream ss;
   ss << "CHOOSE tricks/contract\n";
@@ -637,45 +675,7 @@ string Sheet::suggestTricks(
 }
 
 
-string Sheet::strHand(
-  SheetHandData& ho,
-  const unsigned index)
-{
-  stringstream ss;
-
-  ss << "Board " << ho.label << "\n";
-  ss << ho.hand.strNotes();
-  ss << ho.hand.strChat();
-
-  if (index != BIGNUM)
-  {
-    const unsigned l = hands.size();
-    if (index < l-1)
-    {
-      ss << "--\n";
-      ss << hands[index+1].hand.strChat();
-      if (index < l-2)
-      {
-        ss << "--\n";
-        ss << hands[index+2].hand.strChat();
-      }
-    }
-  }
-
-  // For mb errors, could check that auctionIsFlawed().
-
-  if (ho.refSource.size() > 0)
-  {
-    ss << "\nActive ref lines: " << ho.label << "\n";
-    for (auto &line: ho.refSource)
-      ss << line << "\n";
-  }
-
-  return ss.str();
-}
-
-
-string Sheet::str()
+string Sheet::str() const
 {
   stringstream ss;
 
