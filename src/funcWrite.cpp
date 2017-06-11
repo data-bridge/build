@@ -146,7 +146,6 @@ static void writeFormattedFile(
       for (auto &bpair: segment)
       {
         const Board& board = bpair.board;
-        // segment.setBoard(bpair.extNo);
         if (bpair.extNo == lastRealNo)
           writeInfo.last = true;
 
@@ -157,8 +156,6 @@ static void writeFormattedFile(
         for (unsigned i = 0, j = writeInfo.numInst-1; 
             i < writeInfo.numInst; i++, j--)
         {
-          // board.setInstance(j);
-
           writeInfo.instNo = j;
           writeInfo.ino = i;
           (* boardPtr[format])(text, segment, board, writeInfo, format);
@@ -174,7 +171,6 @@ static void writeFormattedFile(
         for (auto &bpair: segment)
         {
           const Board& board = bpair.board;
-          // segment.setBoard(bpair.extNo);
           if (bpair.extNo == lastRealNo)
             writeInfo.last = true;
 
@@ -183,8 +179,6 @@ static void writeFormattedFile(
           writeInfo.numInstActive = board.count();
           if (writeInfo.numInst > 2)
             THROW("Too many instances for OOCC output order");
-
-          // board.setInstance(i);
 
           writeInfo.instNo = i;
           writeInfo.ino = i;
@@ -199,7 +193,6 @@ static void writeFormattedFile(
       for (auto &bpair: segment)
       {
         const Board& board = bpair.board;
-        // segment.setBoard(bpair.extNo);
         if (bpair.extNo == lastRealNo)
           writeInfo.last = true;
 
@@ -209,8 +202,6 @@ static void writeFormattedFile(
 
         for (unsigned i = 0; i < writeInfo.numInst; i++)
         {
-          // board.setInstance(i);
-
           writeInfo.instNo = i;
           writeInfo.ino = i;
           (* boardPtr[format])(text, segment, board, writeInfo, format);

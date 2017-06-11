@@ -44,6 +44,8 @@ class Segment
     Session session;
     Scoring scoring;
     Teams teams;
+    HeaderLIN headerLIN;
+
     bool flagCOCO; // Team order is swapped in the input
 
     unsigned len;
@@ -53,11 +55,6 @@ class Segment
 
     Board * activeBoard;
     unsigned activeNo;
-
-    vector<LINData> LINdata;
-    unsigned LINcount;
-    bool LINPlayersListFlag;
-    HeaderLIN headerLIN;
 
 
     unsigned getIntBoardNo(const unsigned extNo) const;

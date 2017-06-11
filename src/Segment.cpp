@@ -35,9 +35,6 @@ void Segment::reset()
 {
   len = 0;
   boards.clear();
-  LINcount = 0;
-  LINdata.clear();
-  LINPlayersListFlag = false;
 
   bmin = BIGNUM;
   bmax = 0;
@@ -85,13 +82,11 @@ Board * Segment::acquireBoard(const unsigned extNo)
     bmax = extNo;
 
   if (headerLIN.isSet())
-  // if (LINcount > 0)
   {
     // Make enough room.
     activeBoard->acquireInstance(1);
 
     const unsigned linTableNo = Segment::getLINActiveNo(len-1);
-    // activeBoard->setLINheader(LINdata[linTableNo]);
     activeBoard->setLINheader(headerLIN.getEntry(linTableNo));
   }
   else if (activeNo > 0)
@@ -107,21 +102,6 @@ Board * Segment::acquireBoard(const unsigned extNo)
   }
 
   return activeBoard;
-}
-
-
-void Segment::setBoard(const unsigned extNo)
-{
-  for (auto &p: boards)
-  {
-    if (p.extNo == extNo)
-    {
-      activeBoard = &p.board;
-      activeNo = p.intNo;
-      return;
-    }
-  }
-  THROW("Bad external board number: " + STR(extNo));
 }
 
 
@@ -365,62 +345,11 @@ void Segment::setSecondTeam(
 }
 
 
-bool Segment::isShortPass(const string& st) const
-{
-  return (st.length() == 1 && (st == "P" || st == "p"));
-}
-
-
 void Segment::setResultsList(
   const string& text,
   const Format format)
 {
   headerLIN.setResultsList(text, format);
-
-  if (format != BRIDGE_FORMAT_LIN &&
-      format != BRIDGE_FORMAT_LIN_RP &&
-      format != BRIDGE_FORMAT_LIN_VG &&
-      format != BRIDGE_FORMAT_LIN_TRN)
-    THROW("Invalid format: " + STR(format));
-  
-  size_t c = countDelimiters(text, ",");
-  if (c == 0 || c > 256)
-    THROW("Bad number of fields");
-
-  vector<string> tokens(c+1);
-  tokens.clear();
-  tokenize(text, tokens, ",");
-
-  if (c % 2 == 0)
-  {
-    if (tokens[c] == "")
-      c--;
-    else
-    {
-      // Some old lin files lack a single trailing comma.
-      c++;
-      tokens.push_back("");
-    }
-  }
-
-  if (c+1 > 2*LINcount)
-  {
-    LINcount = static_cast<unsigned>((c+1)/2);
-    LINdata.resize(LINcount);
-  }
-
-  for (size_t b = 0, d = 0; b < c+1; b += 2, d++)
-  {
-    if (Segment::isShortPass(tokens[b]))
-      LINdata[d].data[0].contract = "PASS";
-    else
-      LINdata[d].data[0].contract = tokens[b];
-
-    if (Segment::isShortPass(tokens[b+1]))
-      LINdata[d].data[1].contract = "PASS";
-    else
-      LINdata[d].data[1].contract = tokens[b+1];
-  }
 }
 
 
@@ -429,149 +358,8 @@ void Segment::setPlayersList(
   const Format format)
 {
   headerLIN.setPlayersList(text, scoring.str(BRIDGE_FORMAT_LIN), format);
-
-  if (format != BRIDGE_FORMAT_LIN && 
-      format != BRIDGE_FORMAT_LIN_VG &&
-      format != BRIDGE_FORMAT_LIN_TRN)
-    THROW("Invalid format: " + STR(format));
-
-  size_t c = countDelimiters(text, ",");
-  vector<string> tokens(c+1);
-  tokens.clear();
-  tokenize(text, tokens, ",");
-
-  if (c == 7)
-  {
-    // Assume a single set of 8 players repeating.
-
-    for (size_t b = 0; b < LINcount; b++)
-    {
-      for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
-      {
-        LINdata[b].data[0].players[(d+2) % 4] = tokens[d];
-        LINdata[b].data[1].players[(d+2) % 4] = tokens[d+4];
-      }
-    }
-  }
-  else if (c == 3)
-  {
-    // Assume a single set of 4 players repeating.
-    //
-    for (size_t b = 0; b < LINcount; b++)
-    {
-      for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
-        LINdata[b].data[0].players[(d+2) % 4] = tokens[d];
-    }
-  }
-  else if (format == BRIDGE_FORMAT_LIN_VG ||
-      format == BRIDGE_FORMAT_LIN_RP)
-  {
-    if (format ==  BRIDGE_FORMAT_LIN_VG &&
-        scoring.str(BRIDGE_FORMAT_LIN) == "P")
-    {
-      // Errors in some early LIN_VG files.
-      if (c+2 == 8*LINcount)
-      {
-        tokens.push_back("");
-        c++;
-      }
-
-      // Guess whether players repeat in blocks of 4 or 8.
-      if (c+1 == 8*LINcount)
-      {
-        for (size_t b = 0; b < c; b += 8)
-        {
-          for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
-          {
-            LINdata[b >> 3].data[0].players[(d+2) % 4] = 
-              Segment::getEffectivePlayer(b, d, 8, tokens);
-            LINdata[b >> 3].data[1].players[(d+2) % 4] =
-              Segment::getEffectivePlayer(b, d+4, 8, tokens);
-          }
-        }
-        LINPlayersListFlag = true;
-      }
-      else
-      {
-        if (c+5 == 4*LINcount || c+9 == 4*LINcount)
-        {
-          const unsigned cnt = 4*LINcount-c-1;
-          for (unsigned i = 0; i < cnt; i++)
-            tokens.push_back("");
-          c += cnt;
-        }
-        else if (LINcount > 0 && c+1 > 4*LINcount)
-        {
-          Segment::checkPlayersTrailing(4*LINcount, c, tokens);
-          c = 4*LINcount-1;
-        }
-
-        if (c+1 != 4*LINcount && (c != 4*LINcount || tokens[c] != ""))
-          THROW("Wrong number of fields: " + STR(c) + " vs. " + 
-            " 4*LINcount " + STR(4*LINcount));
-
-        for (size_t b = 0; b < c; b += 4)
-          for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
-            LINdata[b >> 2].data[0].players[(d+2) % 4] = 
-              Segment::getEffectivePlayer(b, d, 4, tokens);
-
-        LINPlayersListFlag = true;
-      }
-    }
-    else
-    {
-      if (c+1 != 8*LINcount)
-        THROW("Wrong number of fields: " + 
-          STR(c+1) + " vs. "  + STR(8*LINcount));
-    
-      for (size_t b = 0; b < c; b += 8)
-      {
-        for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
-        {
-          LINdata[b >> 3].data[0].players[(d+2) % 4] = 
-            Segment::getEffectivePlayer(b, d, 8, tokens);
-          LINdata[b >> 3].data[1].players[(d+2) % 4] = 
-            Segment::getEffectivePlayer(b, d+4, 8, tokens);
-        }
-      }
-      LINPlayersListFlag = true;
-    }
-  }
-  else
-  {
-    if (c+1 != 4*LINcount)
-      THROW("Wrong number of fields: " + STR(c) + " vs. " + 
-        " 4*LINcount " + STR(4*LINcount));
-
-    for (size_t b = 0; b < c; b += 4)
-    {
-      for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
-      {
-        LINdata[b >> 2].data[0].players[(d+2) % 4] = tokens[b+d];
-      }
-    }
-    LINPlayersListFlag = true;
-  }
 }
 
-
-string Segment::getEffectivePlayer(
-  const unsigned start,
-  const unsigned offset,
-  const unsigned step,
-  const vector<string>& tokens) const
-{
-  // start must be a multiple of step.
-  // Search backwards for the first non-empty entry.
-
-  for (unsigned e = 0; e <= start; e += step)
-  {
-    if (tokens[(start-e)+offset] != "")
-      return tokens[(start-e)+offset];
-  }
-  return "";
-}
-  
 
 unsigned Segment::getLINActiveNo(const unsigned intNo) const
 {
@@ -587,66 +375,6 @@ void Segment::setPlayersHeader(
   const Format format)
 {
   headerLIN.setPlayersHeader(text, scoring.str(BRIDGE_FORMAT_LIN), format);
-
-  if (FORMAT_INPUT_MAP[format] != BRIDGE_FORMAT_LIN)
-    THROW("Invalid format: " + STR(format));
-
-  size_t c = countDelimiters(text, ",");
-  vector<string> tokens(c+1);
-  tokens.clear();
-  tokenize(text, tokens, ",");
-
-  if (c < 3)
-      THROW("Bad number of fields");
-
-  if (c > 7)
-  {
-    Segment::checkPlayersTrailing(8, c, tokens);
-    c = 7;
-  }
-
-  if (c == 7)
-  {
-    for (size_t b = 0; b < LINcount; b++)
-    {
-      for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
-      {
-        LINdata[b].data[0].players[(d+2) % 4] = tokens[d];
-        LINdata[b].data[1].players[(d+2) % 4] = tokens[d+4];
-      }
-    }
-
-
-    return;
-  }
-
-  if (format ==  BRIDGE_FORMAT_LIN_VG &&
-      scoring.str(BRIDGE_FORMAT_LIN) == "P")
-  {
-    if (c > 3)
-      Segment::checkPlayersTrailing(4, c, tokens);
-
-    for (size_t b = 0; b < LINcount; b++)
-    {
-      for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
-        LINdata[b].data[0].players[(d+2) % 4] = tokens[d];
-    }
-  }
-  else if (c < 7)
-    THROW("Bad number of fields");
-}
-
-
-void Segment::checkPlayersTrailing(
-  const unsigned first,
-  const unsigned lastIncl,
-  const vector<string>& tokens) const
-{
-  for (unsigned i = first; i <= lastIncl; i++)
-    if (tokens[i] != "" &&
-        tokens[i] != PLAYER_NAMES_LONG[PLAYER_LIN_TO_DDS[i % 4]])
-      THROW("Bad number of fields: " + STR(first) + " vs. " + 
-                " lastIncl " + STR(lastIncl));
 }
 
 
@@ -655,37 +383,6 @@ void Segment::setScoresList(
   const Format format)
 {
   headerLIN.setScoresList(text, scoring.str(BRIDGE_FORMAT_LIN), format);
-
-  if (FORMAT_INPUT_MAP[format] != BRIDGE_FORMAT_LIN)
-    THROW("Invalid format: " + STR(format));
-
-  size_t c = countDelimiters(text, ",");
-  if (format ==  BRIDGE_FORMAT_LIN_VG &&
-      scoring.str(BRIDGE_FORMAT_LIN) == "P")
-  {
-  }
-  else
-  {
-    vector<string> tokens(c+1);
-    tokens.clear();
-    tokenize(text, tokens, ",");
-
-    if (c+1 != 2*LINcount && (c != 2*LINcount || tokens[c] != ""))
-      THROW("Wrong number of fields: " + STR(c+1));
-
-    for (size_t b = 0, d = 0; b < c; b += 2, d++)
-    {
-      if (tokens[b] == "")
-      {
-        if (tokens[b+1] == "")
-          LINdata[d].data[0].mp = "";
-        else
-          LINdata[d].data[0].mp = "-" + tokens[b+1];
-      }
-      else
-        LINdata[d].data[0].mp = tokens[b];
-    }
-  }
 }
 
 
@@ -694,26 +391,6 @@ void Segment::setBoardsList(
   const Format format)
 {
   headerLIN.setBoardsList(text, format);
-
-  if (FORMAT_INPUT_MAP[format] != BRIDGE_FORMAT_LIN)
-    THROW("Invalid format: " + STR(format));
-  
-  size_t c = countDelimiters(text, ",");
-  if (c > 100)
-    THROW("Too many fields");
-
-  vector<string> tokens(c+1);
-  tokens.clear();
-  tokenize(text, tokens, ",");
-
-  if (c == LINcount && tokens[c] == "")
-    c--;
-
-  if (c+1 != LINcount)
-    THROW("Odd number of boards");
-
-  for (unsigned i = 0; i <= c; i++)
-    LINdata[i].no = tokens[i];
 }
 
 
@@ -968,7 +645,6 @@ string Segment::strTeams(const Format format) const
   if (format == BRIDGE_FORMAT_RBN ||
       format == BRIDGE_FORMAT_RBX ||
       format == BRIDGE_FORMAT_TXT)
-    // Maybe more formats.
     return teams.str(format, flagCOCO);
   else
     return teams.str(format);
@@ -1012,7 +688,6 @@ string Segment::strNumber(
   {
     case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_LIN_TRN:
-      // if (format == BRIDGE_FORMAT_LIN_TRN || LINcount == 0)
       if (format == BRIDGE_FORMAT_LIN_TRN || ! headerLIN.isSet())
         ss << "ah|Board " << extNo << "|";
       else
@@ -1060,7 +735,6 @@ string Segment::strContractsCore(const Format format) const
 
   if (format == BRIDGE_FORMAT_PAR)
     return headerLIN.strContractsList();
-  // else if (LINcount == 0)
   else if (! headerLIN.isSet())
   {
     // TODO: If we push this code down to Board, loop becomes cleaner?
@@ -1124,7 +798,6 @@ string Segment::strPlayersLIN() const
   Board const * refBoard = nullptr;
   string st = "pw|";
   const bool isIMPs = scoring.isIMPs();
-  // if (LINcount == 0)
   if (! headerLIN.isSet())
   {
     for (auto &p: boards)
@@ -1178,7 +851,7 @@ string Segment::strPlayers(const Format format) const
       return Segment::strPlayersLIN();
 
     case BRIDGE_FORMAT_LIN_VG:
-      if (LINPlayersListFlag)
+      if (headerLIN.hasPlayerList())
         return Segment::strPlayersLIN();
       else
         return boards[0].board.strPlayersBoard(format);
@@ -1229,7 +902,6 @@ string Segment::strBoards(const Format format) const
     case BRIDGE_FORMAT_LIN:
       ss << "bn|";
       if (! headerLIN.isSet())
-      // if (LINcount == 0)
       {
         for (auto &p: boards)
           ss << p.extNo << ",";
