@@ -205,7 +205,7 @@ void readLINChunk(
 
 void writeLINSegmentLevel(
   string& st,
-  Segment& segment,
+  const Segment& segment,
   const Format format)
 {
   st += segment.strTitle(format);
@@ -218,8 +218,8 @@ void writeLINSegmentLevel(
 
 void writeLINBoardLevel(
   string& st,
-  Segment& segment,
-  Board& board,
+  const Segment& segment,
+  const Board& board,
   WriteInfo& writeInfo,
   const Format format)
 {

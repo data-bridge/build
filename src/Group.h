@@ -34,11 +34,8 @@ class Group
     ~Group();
     void reset();
 
-    // TODO
-    // list<Segment>::const_iterator begin() const { return segments.begin(); }
-    // list<Segment>::const_iterator end() const { return segments.end(); }
-    list<Segment>::iterator begin() { return segments.begin(); }
-    list<Segment>::iterator end() { return segments.end(); }
+    list<Segment>::const_iterator begin() const { return segments.begin(); }
+    list<Segment>::const_iterator end() const { return segments.end(); }
 
     void setName(const string& fname);
     string name() const;

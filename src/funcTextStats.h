@@ -20,7 +20,7 @@ using namespace std;
 
 void dispatchTextStats(
   const FileTask& task,
-  Group& group,
+  const Group& group,
   TextStats& tstats,
   ostream& flog);
 

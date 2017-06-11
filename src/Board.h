@@ -135,7 +135,7 @@ class Board
     string strPlayersBoard(
       const Format format,
       const bool isIMPs = true,
-      Board * refBoard = nullptr) const;
+      Board const * refBoard = nullptr) const;
     
     string strScore(
       const unsigned instNo,

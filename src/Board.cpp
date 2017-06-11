@@ -401,7 +401,7 @@ string Board::strGivenScore(const Format format) const
 string Board::strPlayersBoard(
   const Format format,
   const bool isIMPs,
-  Board * refBoard) const
+  Board const * refBoard) const
 {
   string st;
   const unsigned no = (isIMPs ? len : 1);

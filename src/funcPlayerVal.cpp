@@ -17,7 +17,7 @@
 
 
 static void validatePlayers(
-  Group& group,
+  const Group& group,
   ostream& flog)
 {
   unsigned numSegs = 0;
@@ -32,7 +32,7 @@ static void validatePlayers(
     numSegs++;
     for (auto &bpair: segment)
     {
-      Board& board = bpair.board;
+      const Board& board = bpair.board;
       unsigned c = 0;
       for (unsigned i = 0; i < board.countAll(); i++)
       {
@@ -96,7 +96,7 @@ static void validatePlayers(
 
 
 void dispatchPlayersValidate(
-  Group& group,
+  const Group& group,
   ostream& flog)
 {
   try

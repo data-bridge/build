@@ -26,9 +26,9 @@
 
 using namespace std;
 
-typedef void (*SegPtr)(string&, Segment&, Format);
-typedef void (*BoardPtr)(string&, Segment&, Board&, WriteInfo&, 
-  const Format);
+typedef void (*SegPtr)(string&, const Segment&, const Format);
+typedef void (*BoardPtr)(string&, const Segment&, const Board&, 
+  WriteInfo&, const Format);
 
 static SegPtr segPtr[BRIDGE_FORMAT_LABELS_SIZE];
 static BoardPtr boardPtr[BRIDGE_FORMAT_LABELS_SIZE];
@@ -36,7 +36,7 @@ static BoardPtr boardPtr[BRIDGE_FORMAT_LABELS_SIZE];
 
 static void writeDummySegmentLevel(
   string& st,
-  Segment& segment,
+  const Segment& segment,
   const Format format)
 {
   UNUSED(st);
@@ -117,7 +117,7 @@ static void writeFormattedFile(
   const string& fname,
   const Format format,
   const BoardOrder order,
-  Group& group,
+  const Group& group,
   string& text)
 {
   WriteInfo writeInfo;
@@ -145,8 +145,8 @@ static void writeFormattedFile(
       // c1, o1, c2, o2, ...
       for (auto &bpair: segment)
       {
-        Board& board = bpair.board;
-        segment.setBoard(bpair.extNo);
+        const Board& board = bpair.board;
+        // segment.setBoard(bpair.extNo);
         if (bpair.extNo == lastRealNo)
           writeInfo.last = true;
 
@@ -173,8 +173,8 @@ static void writeFormattedFile(
       {
         for (auto &bpair: segment)
         {
-          Board& board = bpair.board;
-          segment.setBoard(bpair.extNo);
+          const Board& board = bpair.board;
+          // segment.setBoard(bpair.extNo);
           if (bpair.extNo == lastRealNo)
             writeInfo.last = true;
 
@@ -198,8 +198,8 @@ static void writeFormattedFile(
       // o1, c1, o2, c2, ...
       for (auto &bpair: segment)
       {
-        Board& board = bpair.board;
-        segment.setBoard(bpair.extNo);
+        const Board& board = bpair.board;
+        // segment.setBoard(bpair.extNo);
         if (bpair.extNo == lastRealNo)
           writeInfo.last = true;
 
@@ -229,7 +229,7 @@ void dispatchWrite(
   const string& fname,
   const Format format,
   const BoardOrder order,
-  Group& group,
+  const Group& group,
   string& text,
   ostream& flog)
 {

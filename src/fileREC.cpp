@@ -353,8 +353,8 @@ void readRECChunk(
 
 void writeRECBoardLevel(
   string& st,
-  Segment& segment,
-  Board& board,
+  const Segment& segment,
+  const Board& board,
   WriteInfo& writeInfo,
   const Format format)
 {

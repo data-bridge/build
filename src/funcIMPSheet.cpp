@@ -15,10 +15,10 @@
 
 
 void dispatchIMPSheet(
-  Group& group,
+  const Group& group,
   ostream& flog)
 {
-  for (auto &segment: group)
+  for (auto const &segment: group)
   {
     if (segment.size() == 0)
       continue;
@@ -31,8 +31,7 @@ void dispatchIMPSheet(
 
     for (auto &bpair: segment)
     {
-      Board& board = bpair.board;
-      flog << board.strIMPSheetLine(
+      flog << bpair.board.strIMPSheetLine(
         segment.strNumber(bpair.extNo, BRIDGE_FORMAT_TXT), score1, score2);
     }
 

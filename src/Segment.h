@@ -77,7 +77,7 @@ class Segment
       const unsigned lastIncl,
       const vector<string>& token) const;
 
-    unsigned getLINActiveNo() const;
+    unsigned getLINActiveNo(const unsigned intNo) const;
 
     string strPlayersFromLINHeader(
       const unsigned bhdr,
@@ -87,9 +87,9 @@ class Segment
     string strTitleLIN() const;
     string strTitleLIN_RP() const;
     string strTitleLIN_VG() const;
-    string strContractsCore(const Format format);
+    string strContractsCore(const Format format) const;
 
-    string strPlayersLIN();
+    string strPlayersLIN() const;
 
 
   public:
@@ -98,13 +98,13 @@ class Segment
 
     ~Segment();
 
-    vector<BoardPair>::iterator begin() { return boards.begin(); }
+    vector<BoardPair>::const_iterator begin() const { return boards.begin(); }
 
-    vector<BoardPair>::iterator end() { return boards.end(); }
+    vector<BoardPair>::const_iterator end() const { return boards.end(); }
 
     void reset();
 
-    Board * getBoard(const unsigned extNo);
+    Board const * getBoard(const unsigned extNo) const;
 
     Board * acquireBoard(const unsigned extNo);
 
@@ -224,8 +224,8 @@ class Segment
       const unsigned extNo,
       const Format format) const;
 
-    string strContracts(const Format format);
-    string strPlayers(const Format format);
+    string strContracts(const Format format) const;
+    string strPlayers(const Format format) const;
     string strScores(const Format format) const;
     string strBoards(const Format format) const;
 

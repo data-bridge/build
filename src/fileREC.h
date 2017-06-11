@@ -19,20 +19,15 @@ struct WriteInfo;
 using namespace std;
 
 
-
 void readRECChunk(
   Buffer& buffer,
   Chunk& chunk,
   bool& newSegFlag);
 
-bool writeREC(
-  Group& group,
-  const string& fname);
-
 void writeRECBoardLevel(
   string& st,
-  Segment& segment,
-  Board& board,
+  const Segment& segment,
+  const Board& board,
   WriteInfo& writeInfo,
   const Format format);
 

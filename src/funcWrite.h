@@ -23,7 +23,7 @@ void dispatchWrite(
   const string& fname,
   const Format format,
   const BoardOrder order,
-  Group& group,
+  const Group& group,
   string& text,
   ostream& flog);
 

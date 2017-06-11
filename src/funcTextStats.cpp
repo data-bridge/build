@@ -16,7 +16,7 @@
 static void logLengths(
   const string& fname,
   const Format format,
-  Group& group,
+  const Group& group,
   TextStats& tstats)
 {
   for (auto &segment: group)
@@ -41,7 +41,7 @@ static void logLengths(
 
     for (auto &bpair: segment)
     {
-      Board& board = bpair.board;
+      const Board& board = bpair.board;
 
       for (unsigned i = 0; i < board.countAll(); i++)
       {
@@ -64,7 +64,7 @@ static void logLengths(
 
 void dispatchTextStats(
   const FileTask& task,
-  Group& group,
+  const Group& group,
   TextStats& tstats,
   ostream& flog)
 {

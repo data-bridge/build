@@ -236,21 +236,10 @@ void readPBNChunk(
 }
 
 
-void writePBNSegmentLevel(
-  string& st,
-  Segment& segment,
-  const Format format)
-{
-  UNUSED(st);
-  UNUSED(segment);
-  UNUSED(format);
-}
-
-
 void writePBNBoardLevel(
   string& st,
-  Segment& segment,
-  Board& board,
+  const Segment& segment,
+  const Board& board,
   WriteInfo& writeInfo,
   const Format format)
 {

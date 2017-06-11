@@ -53,15 +53,15 @@ void Segment::reset()
 }
 
 
-Board * Segment::getBoard(const unsigned extNo) 
+Board const * Segment::getBoard(const unsigned extNo) const
 {
   for (auto &p: boards)
   {
     if (p.extNo == extNo)
     {
-      activeBoard = &p.board;
-      activeNo = p.intNo;
-      return activeBoard;
+      // activeBoard = &p.board;
+      // activeNo = p.intNo;
+      return &p.board;
     }
   }
   return nullptr;
@@ -99,7 +99,7 @@ Board * Segment::acquireBoard(const unsigned extNo)
     // Make enough room.
     activeBoard->acquireInstance(1);
 
-    const unsigned linTableNo = Segment::getLINActiveNo();
+    const unsigned linTableNo = Segment::getLINActiveNo(len-1);
     activeBoard->setLINheader(LINdata[linTableNo]);
   }
   else if (activeNo > 0)
@@ -577,9 +577,9 @@ string Segment::getEffectivePlayer(
 }
   
 
-unsigned Segment::getLINActiveNo() const
+unsigned Segment::getLINActiveNo(const unsigned intNo) const
 {
-  const unsigned eno = boards[activeNo].extNo;
+  const unsigned eno = boards[intNo].extNo;
   if (eno < bmin || eno > bmax)
     THROW("Board number out of range of LIN header");
   return(eno - bmin);
@@ -590,10 +590,7 @@ void Segment::setPlayersHeader(
   const string& text,
   const Format format)
 {
-  if (format != BRIDGE_FORMAT_LIN &&
-      format != BRIDGE_FORMAT_LIN_RP &&
-      format != BRIDGE_FORMAT_LIN_VG &&
-      format != BRIDGE_FORMAT_LIN_TRN)
+  if (FORMAT_INPUT_MAP[format] != BRIDGE_FORMAT_LIN)
     THROW("Invalid format: " + STR(format));
 
   size_t c = countDelimiters(text, ",");
@@ -659,10 +656,7 @@ void Segment::setScoresList(
   const string& text,
   const Format format)
 {
-  if (format != BRIDGE_FORMAT_LIN &&
-      format != BRIDGE_FORMAT_LIN_RP &&
-      format != BRIDGE_FORMAT_LIN_VG &&
-      format != BRIDGE_FORMAT_LIN_TRN)
+  if (FORMAT_INPUT_MAP[format] != BRIDGE_FORMAT_LIN)
     THROW("Invalid format: " + STR(format));
 
   size_t c = countDelimiters(text, ",");
@@ -699,10 +693,7 @@ void Segment::setBoardsList(
   const string& text,
   const Format format)
 {
-  if (format != BRIDGE_FORMAT_LIN &&
-      format != BRIDGE_FORMAT_LIN_RP &&
-      format != BRIDGE_FORMAT_LIN_VG &&
-      format != BRIDGE_FORMAT_LIN_TRN)
+  if (FORMAT_INPUT_MAP[format] != BRIDGE_FORMAT_LIN)
     THROW("Invalid format: " + STR(format));
   
   size_t c = countDelimiters(text, ",");
@@ -738,23 +729,9 @@ void Segment::setNumber(
   const string& text,
   const Format format)
 {
-  string t = text;
-  if (format == BRIDGE_FORMAT_LIN ||
-      format == BRIDGE_FORMAT_LIN_RP ||
-      format == BRIDGE_FORMAT_LIN_VG ||
-      format == BRIDGE_FORMAT_LIN_TRN)
-  {
-    // Drop the open/closed indicator.
-    t = t.substr(1);
-  }
-
-  unsigned extNo;
-  if (! str2upos(t, extNo))
-    THROW("Board number is not numerical");
-
-  if (boards[activeNo].extNo != extNo)
-    THROW("New extNo: " + STR(boards[activeNo].extNo + " vs. " +
-      STR(extNo)));
+  // We have already selected the room, so don't need this.
+  UNUSED(text);
+  UNUSED(format);
 }
 
 
@@ -1074,7 +1051,7 @@ string Segment::strNumber(
 }
 
 
-string Segment::strContractsCore(const Format format) 
+string Segment::strContractsCore(const Format format) const
 {
   string st = "";
 
@@ -1094,7 +1071,7 @@ string Segment::strContractsCore(const Format format)
     // TODO: If we push this code down to Board, loop becomes cleaner?
     for (unsigned b = bmin; b <= bmax; b++)
     {
-      const Board * bptr = Segment::getBoard(b);
+      Board const * bptr = Segment::getBoard(b);
       if (bptr == nullptr)
       {
         st += ",,";
@@ -1111,7 +1088,7 @@ string Segment::strContractsCore(const Format format)
   {
     for (unsigned b = bmin; b <= bmax; b++)
     {
-      const Board * bptr = Segment::getBoard(b);
+      Board const * bptr = Segment::getBoard(b);
       if (bptr == nullptr)
       {
         const unsigned bhdr = b - bmin;
@@ -1133,7 +1110,7 @@ string Segment::strContractsCore(const Format format)
 }
 
 
-string Segment::strContracts(const Format format) 
+string Segment::strContracts(const Format format) const
 {
   switch(format)
   {
@@ -1163,9 +1140,9 @@ string Segment::strPlayersFromLINHeader(
 }
 
 
-string Segment::strPlayersLIN()
+string Segment::strPlayersLIN() const
 {
-  Board * refBoard = nullptr;
+  Board const * refBoard = nullptr;
   string st = "pw|";
   const bool isIMPs = scoring.isIMPs();
   if (LINcount == 0)
@@ -1184,7 +1161,7 @@ string Segment::strPlayersLIN()
     string sprev;
     for (unsigned b = bmin; b <= bmax; b++)
     {
-      Board * bptr = Segment::getBoard(b);
+      Board const * bptr = Segment::getBoard(b);
       if (bptr == nullptr)
       {
         const unsigned bhdr = b - bmin;
@@ -1216,10 +1193,8 @@ string Segment::strPlayersLIN()
 }
 
 
-string Segment::strPlayers(const Format format) 
+string Segment::strPlayers(const Format format) const
 {
-  Board * board;
-
   switch (format)
   {
     case BRIDGE_FORMAT_LIN:
@@ -1229,18 +1204,13 @@ string Segment::strPlayers(const Format format)
       if (LINPlayersListFlag)
         return Segment::strPlayersLIN();
       else
-      {
-        board = &boards[0].board;
-        return board->strPlayersBoard(format);
-      }
+        return boards[0].board.strPlayersBoard(format);
 
     case BRIDGE_FORMAT_LIN_RP:
-      board = &boards[0].board;
-      return board->strPlayersBoard(format);
+      return boards[0].board.strPlayersBoard(format);
 
     case BRIDGE_FORMAT_LIN_TRN:
-      board = &boards[0].board;
-      return board->strPlayersBoard(BRIDGE_FORMAT_LIN_VG);
+      return boards[0].board.strPlayersBoard(BRIDGE_FORMAT_LIN_VG);
 
     default:
       THROW("Invalid format: " + STR(format));
@@ -1335,8 +1305,7 @@ string Segment::strIMPSheetFooter(
   stringstream ss;
   const string dashes(72, '-');
   ss << dashes << "\n";
-  ss << setw(66) << right << score1 <<
-    setw(6) << score2 << "\n\n";
+  ss << setw(66) << right << score1 << setw(6) << score2 << "\n\n";
   return ss.str();  
 }
 

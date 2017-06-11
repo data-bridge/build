@@ -18,7 +18,7 @@ using namespace std;
 
 
 void dispatchPlayersValidate(
-  Group& group,
+  const Group& group,
   ostream& flog);
 
 #endif

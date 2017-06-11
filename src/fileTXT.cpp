@@ -465,7 +465,7 @@ void readTXTChunk(
 
 void writeTXTSegmentLevel(
   string& st,
-  Segment& segment,
+  const Segment& segment,
   const Format format)
 {
   if (segment.firstBoardNumber() != 1 || segment.hasCarry())
@@ -484,10 +484,10 @@ void writeTXTSegmentLevel(
 
 
 static string writeTXTDiagram(
-  Segment& segment,
-  Board& board,
+  const Segment& segment,
+  const Board& board,
   const Instance& instance,
-  WriteInfo& writeInfo,
+  const WriteInfo& writeInfo,
   const Format format)
 {
   const string dstr = board.strDeal(BRIDGE_WEST, format);
@@ -511,8 +511,8 @@ static string writeTXTDiagram(
 
 
 static void writeTXTUpdateScore(
-  Segment& segment,
-  Board& board,
+  const Segment& segment,
+  const Board& board,
   WriteInfo& writeInfo,
   string& tWin,
   const Format format,
@@ -550,8 +550,8 @@ static void writeTXTUpdateScore(
 
 void writeTXTBoardLevel(
   string& st,
-  Segment& segment,
-  Board& board,
+  const Segment& segment,
+  const Board& board,
   WriteInfo& writeInfo,
   const Format format)
 {

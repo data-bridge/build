@@ -418,10 +418,10 @@ void readEMLChunk(
 
 void writeEMLBoardLevel(
   string& st,
-  Segment& segment,
-  Board& board,
+  const Segment& segment,
+  const Board& board,
   WriteInfo& writeInfo,
-  Format format)
+  const Format format)
 {
   const Instance& instance = board.getInstance(writeInfo.instNo);
 
