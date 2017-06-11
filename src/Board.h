@@ -34,7 +34,6 @@ class Board
     GivenScore givenScore;
 
     unsigned len;
-    bool LINset;
 
     string strIMPEntry(const int imps) const;
     

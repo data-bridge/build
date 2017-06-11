@@ -29,7 +29,7 @@ class Instance
     Contract contract;
     Play play;
 
-    LINInstData LINdata;
+    LINInstData const * LINdata;
     bool LINset;
 
 
@@ -45,7 +45,7 @@ class Instance
 
     void setDeal(const unsigned cards[BRIDGE_PLAYERS][BRIDGE_SUITS]);
 
-    void setLINheader(const LINInstData& lin);
+    void setLINheader(LINInstData const * lin);
 
     void setDealer(
       const string& text,

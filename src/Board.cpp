@@ -40,8 +40,6 @@ void Board::reset()
   instances.clear();
   skip.clear();
   givenScore.reset();
-
-  LINset = false;
 }
 
 
@@ -137,10 +135,6 @@ unsigned Board::countAll() const
 
 void Board::setLINheader(LINData const * lin)
 {
-  if (LINset)
-    return;
-  LINset = true;
-
   if (lin->data[0].mp != "")
     Board::setScoreIMP(lin->data[0].mp, BRIDGE_FORMAT_LIN);
   else if (lin->data[1].mp != "")
@@ -159,7 +153,7 @@ void Board::setLINheader(LINData const * lin)
     if (st != ",,,")
       instances[i].setPlayers(st, BRIDGE_FORMAT_LIN, false);
     
-    instances[i].setLINheader(lin->data[i]);
+    instances[i].setLINheader(&lin->data[i]);
   }
 }
 
@@ -383,8 +377,6 @@ string Board::strContract(
 {
   if (instNo >= len)
     return "";
-  else if (skip[instNo])
-    return (LINset ? instances[instNo].strHeaderContract() : "");
   else
     return instances[instNo].strContract(format);
 }

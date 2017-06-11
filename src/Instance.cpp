@@ -54,7 +54,7 @@ void Instance::setDeal(const unsigned cards[BRIDGE_PLAYERS][BRIDGE_SUITS])
 }
 
 
-void Instance::setLINheader(const LINInstData& lin)
+void Instance::setLINheader(LINInstData const * lin)
 {
   if (LINset)
     return;
@@ -62,8 +62,8 @@ void Instance::setLINheader(const LINInstData& lin)
   LINdata = lin;
   LINset = true;
 
-  if (LINdata.contract != "")
-    Instance::setContract(LINdata.contract, BRIDGE_FORMAT_LIN);
+  if (LINdata->contract != "")
+    Instance::setContract(LINdata->contract, BRIDGE_FORMAT_LIN);
 
   const string st = Instance::strPlayersFromLINHeader();
   if (st != ",,,")
@@ -453,7 +453,10 @@ string Instance::strContract(const Format format) const
 
 string Instance::strHeaderContract() const
 {
-  return LINdata.contract;
+  if (LINset)
+    return LINdata->contract;
+  else
+    return "";
 }
 
 
@@ -542,7 +545,7 @@ string Instance::strPlayersFromLINHeader() const
 {
   string st;
   for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
-    st += LINdata.players[PLAYER_DDS_TO_LIN[i]] + ",";
+    st += LINdata->players[PLAYER_DDS_TO_LIN[i]] + ",";
   st.pop_back(); // Trailing comma
   return st;
 }
