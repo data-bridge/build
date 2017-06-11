@@ -16,10 +16,18 @@ SOURCE_FILES 	=		\
 	Files.cpp		\
 	GivenScore.cpp		\
 	Group.cpp		\
+	HeaderLIN.cpp		\
 	Instance.cpp		\
         Location.cpp            \
+	OrderCounts.cpp		\
 	Play.cpp		\
 	Players.cpp		\
+	RefAction.cpp		\
+	RefComment.cpp		\
+	RefEdit.cpp		\
+	RefLine.cpp		\
+	RefLines.cpp		\
+	RefStats.cpp		\
         Scoring.cpp             \
         Segment.cpp             \
         Session.cpp             \
@@ -53,13 +61,6 @@ SOURCE_FILES 	=		\
 	funcValidate.cpp	\
 	funcWrite.cpp		\
 	parse.cpp		\
-	OrderCounts.cpp		\
-	RefAction.cpp		\
-	RefComment.cpp		\
-	RefEdit.cpp		\
-	RefLine.cpp		\
-	RefLines.cpp		\
-	RefStats.cpp		\
 	validate.cpp		\
 	validateLIN.cpp		\
 	validatePBN.cpp		\
