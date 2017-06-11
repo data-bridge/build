@@ -53,28 +53,8 @@ class Segment
     unsigned bmin;
     unsigned bmax;
 
-    Board * activeBoard;
-    unsigned activeNo;
-
 
     unsigned getIntBoardNo(const unsigned extNo) const;
-
-    bool isShortPass(const string& st) const;
-
-    void setTitleLIN(
-      const string& text,
-      const Format format);
-
-    string getEffectivePlayer(
-      const unsigned start,
-      const unsigned offset,
-      const unsigned step,
-      const vector<string>& token) const;
-
-    void checkPlayersTrailing(
-      const unsigned first,
-      const unsigned lastIncl,
-      const vector<string>& token) const;
 
     unsigned getLINActiveNo(const unsigned intNo) const;
 
@@ -82,6 +62,11 @@ class Segment
     string strTitleLIN() const;
     string strTitleLIN_RP() const;
     string strTitleLIN_VG() const;
+
+    void setTitleLIN(
+      const string& text,
+      const Format format);
+
     string strContractsCore(const Format format) const;
 
     string strPlayersLIN() const;
@@ -105,13 +90,12 @@ class Segment
 
     void setBoard(const unsigned extNo);
 
-    unsigned size() const;
-
-    unsigned count() const;
-    unsigned countBoards() const;
-
     void setCOCO(const Format format = BRIDGE_FORMAT_SIZE);
     bool getCOCO() const;
+
+    unsigned size() const;
+    unsigned count() const;
+    unsigned countBoards() const;
 
     void setTitle(
       const string& text,
@@ -169,8 +153,6 @@ class Segment
       const string& text,
       const Format format);
 
-    void copyPlayers();
-
     void setRoom(
       const string& text,
       const Format format);
@@ -207,7 +189,6 @@ class Segment
       const int score2,
       const Format format,
       const bool swapFlag = false) const;
-
     string strFirstTeam(
       const Format format,
       const bool swapFlag = false) const;

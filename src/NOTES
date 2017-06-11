@@ -1,10 +1,7 @@
-05.06.2017
+11.06.2017
 ----------
 Players: Need a setPlayersLIN or so (array of 4).
 Then in Instance, FromLINHeader can go.
-
-Segment
-* Split Segment into HeaderLIN
 
 Board
 * Don't copy LINdata, store a pointer only.
@@ -17,17 +14,9 @@ dispatch
 * Select by year as well?
 
 Code in general
-* Think about having an Instance within Board (vector)
-  - Then a loop over Board would use iterators
-  - Must be able to go forwards and backwards
-  - const iterator!
-  - No active instance anymore, would need i as explicit argument
-* Segment:  Ditto for activeNo
-* Then many more arguments could be const
 * Prune TODOs, clean up code again
 * Get tough on #include's again, especially in .h files.
   refconst.h into cpp, not h (dynamic allocation in e.g. RefStats.cpp)
-* Also use const args where we can.
 * Write Files output into a file?  (For speed-up)
 * lists with iterators before vectors where possible
 

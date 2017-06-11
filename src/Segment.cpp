@@ -72,8 +72,7 @@ Board * Segment::acquireBoard(const unsigned extNo)
 
   boards[len].intNo = len;
   boards[len].extNo = extNo;
-  activeBoard = &boards[len].board;
-  activeNo = len;
+  Board * activeBoard = &boards[len].board;
   len++;
 
   if (extNo < bmin)
@@ -89,16 +88,16 @@ Board * Segment::acquireBoard(const unsigned extNo)
     const unsigned linTableNo = Segment::getLINActiveNo(len-1);
     activeBoard->setLINheader(headerLIN.getEntry(linTableNo));
   }
-  else if (activeNo > 0)
+  else if (len > 1)
   {
     // Copy players in order to have something.
-    const unsigned instCount = boards[activeNo-1].board.countAll();
+    const unsigned instCount = boards[len-2].board.countAll();
     if (instCount == 0)
       THROW("Empty predecessor board");
 
     // Make enough room.
     activeBoard->acquireInstance(instCount-1);
-    activeBoard->copyPlayers(boards[activeNo-1].board);
+    activeBoard->copyPlayers(boards[len-2].board);
   }
 
   return activeBoard;
@@ -117,6 +116,15 @@ unsigned Segment::getIntBoardNo(const unsigned extNo) const
 }
 
 
+unsigned Segment::getLINActiveNo(const unsigned intNo) const
+{
+  const unsigned eno = boards[intNo].extNo;
+  if (eno < bmin || eno > bmax)
+    THROW("Board number out of range of LIN header");
+  return(eno - bmin);
+}
+
+
 void Segment::setCOCO(const Format format)
 {
   flagCOCO = true;
@@ -130,6 +138,35 @@ void Segment::setCOCO(const Format format)
 bool Segment::getCOCO() const
 {
   return flagCOCO;
+}
+
+
+unsigned Segment::size() const
+{
+  return len;
+}
+
+
+unsigned Segment::count() const
+{
+  unsigned cnt = 0;
+  for (auto &p: boards)
+    cnt += p.board.count();
+
+  return cnt;
+}
+
+
+unsigned Segment::countBoards() const
+{
+  unsigned cnt = 0;
+  for (auto &p: boards)
+  {
+    if (! p.board.skippedAll())
+    cnt++;
+  }
+
+  return cnt;
 }
 
 
@@ -217,35 +254,6 @@ void Segment::setTitleLIN(
     s << ":" << (v[8] == "" ? "0" : v[8]);
   }
   Segment::setTeams(s.str(), BRIDGE_FORMAT_LIN);
-}
-
-
-unsigned Segment::size() const
-{
-  return len;
-}
-
-
-unsigned Segment::count() const
-{
-  unsigned cnt = 0;
-  for (auto &p: boards)
-    cnt += p.board.count();
-
-  return cnt;
-}
-
-
-unsigned Segment::countBoards() const
-{
-  unsigned cnt = 0;
-  for (auto &p: boards)
-  {
-    if (! p.board.skippedAll())
-    cnt++;
-  }
-
-  return cnt;
 }
 
 
@@ -358,15 +366,6 @@ void Segment::setPlayersList(
   const Format format)
 {
   headerLIN.setPlayersList(text, scoring.str(BRIDGE_FORMAT_LIN), format);
-}
-
-
-unsigned Segment::getLINActiveNo(const unsigned intNo) const
-{
-  const unsigned eno = boards[intNo].extNo;
-  if (eno < bmin || eno > bmax)
-    THROW("Board number out of range of LIN header");
-  return(eno - bmin);
 }
 
 
