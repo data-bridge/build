@@ -629,15 +629,12 @@ void Contract::calculateScore()
 {
   if (! setContractFlag)
     return;
-    // THROW("No contract set");
 
   if (! setVulFlag)
     return;
-    // THROW("No vulnerability set");
 
   if (! setResultFlag)
     return;
-    // THROW("No result set");
 
   if (contract.level == 0)
   {

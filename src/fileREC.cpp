@@ -403,7 +403,6 @@ void writeRECBoardLevel(
 
   st += instance.strResult(format) + "\n";
   st += instance.strScore(format);
-  // st += board.strScore(format, false);
 
   if (writeInfo.ino == 1)
     st += board.strScoreIMP(writeInfo.instNo, format);

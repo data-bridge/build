@@ -386,7 +386,6 @@ void Instance::setRoom(
 
 Room Instance::room() const
 {
-  // Do we have to ask?
   return players.room();
 }
 

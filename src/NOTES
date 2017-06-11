@@ -8,10 +8,6 @@ dispatch
 Sheet, SheetHand
 * Funny non-const args?
 
-Code in general
-* Clean up code again
-* Write Files output into a file?  (For speed-up)
-
 Perl scripts in BBOVG
 - Make director.pl run without warnings 
   (so have log files of acceptable deviations)

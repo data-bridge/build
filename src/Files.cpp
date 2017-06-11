@@ -100,7 +100,7 @@ void Files::buildFileList(
   while ((ent = readdir(dir)) != nullptr) 
   {
     string s = dirName + "/" + string(ent->d_name);
-    switch(ent->d_type)
+    switch (ent->d_type)
     {
       case DT_REG:
         if (Files::fillEntry(s, entry))
