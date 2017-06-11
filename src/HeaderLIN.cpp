@@ -405,7 +405,10 @@ string HeaderLIN::strBoard(const unsigned intNo) const
 
 string HeaderLIN::strContracts(const unsigned intNo) const
 {
-  return LINdata[intNo].data[0].contract + "," +
+  if (len == 0)
+    return ",,";
+  else
+    return LINdata[intNo].data[0].contract + "," +
       LINdata[intNo].data[1].contract + ",";
 }
 

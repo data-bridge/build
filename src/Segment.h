@@ -59,7 +59,7 @@ class Segment
 
     unsigned getLINActiveNo(const unsigned intNo) const;
 
-    string strTitleLINCore(const bool swapFlag = false) const;
+    string strTitleLINCore() const;
     string strTitleLIN() const;
     string strTitleLIN_RP() const;
     string strTitleLIN_VG() const;

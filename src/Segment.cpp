@@ -504,7 +504,7 @@ bool Segment::operator != (const Segment& segment2) const
 }
 
 
-string Segment::strTitleLINCore(const bool swapFlag) const
+string Segment::strTitleLINCore() const
 {
   stringstream ss;
   if (bmin == 0)
@@ -517,7 +517,7 @@ string Segment::strTitleLINCore(const bool swapFlag) const
   else
     ss << bmax << ",";
 
-  ss << teams.str(BRIDGE_FORMAT_LIN, swapFlag) << "|";
+  ss << teams.str(BRIDGE_FORMAT_LIN) << "|";
   return ss.str();
 }
 
@@ -744,24 +744,6 @@ string Segment::strContractsCore(const Format format) const
 
   if (format == BRIDGE_FORMAT_PAR)
     return headerLIN.strContractsList();
-  else if (! headerLIN.isSet())
-  {
-    // TODO: If we push this code down to Board, loop becomes cleaner?
-    for (unsigned b = bmin; b <= bmax; b++)
-    {
-      Board const * bptr = Segment::getBoard(b);
-      if (bptr == nullptr)
-      {
-        st += ",,";
-        continue;
-      }
-      else
-      {
-        st += bptr->strContract(0, format) + "," +
-              bptr->strContract(1, format) + ",";
-      }
-    }
-  }
   else
   {
     for (unsigned b = bmin; b <= bmax; b++)
@@ -826,12 +808,12 @@ string Segment::strPlayersLIN() const
       Board const * bptr = Segment::getBoard(b);
       if (bptr == nullptr)
       {
-        const unsigned bhdr = b - bmin;
         const unsigned no = (isIMPs ? 2u : 1u);
-        string sm = headerLIN.strPlayers(bhdr, no);
+        string sm = headerLIN.strPlayers(b-bmin, no);
 
         if (sm == sprev)
         {
+          sm = "";
           for (unsigned i = 0; i < no; i++)
             sm += ",,,,";
         }
