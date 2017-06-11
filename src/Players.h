@@ -56,6 +56,8 @@ class Players
       const Format format,
       const bool hardFlag = true);
 
+    void set(const string list[]);
+
     void setPlayer(
       const string& name,
       const Player player);

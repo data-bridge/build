@@ -209,8 +209,6 @@ class Instance
       const Instance& inst2,
       const Format format) const;
 
-    string strPlayersFromLINHeader() const;
-
     string strResultEntry() const;
 
     string strResult(const Format format) const;

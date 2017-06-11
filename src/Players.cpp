@@ -171,6 +171,28 @@ void Players::set(
 }
 
 
+void Players::set(const string list[])
+{
+  if (list[0] == "North" && list[1] == "East" &&
+      list[2] == "South" && list[3] == "West")
+  {
+    // Skip.
+  }
+  else
+  {
+    if (list[0] != "")
+      players[BRIDGE_NORTH] = list[0];
+    if (list[1] != "")
+      players[BRIDGE_EAST] = list[1];
+    if (list[2] != "")
+      players[BRIDGE_SOUTH] = list[2];
+    if (list[3] != "")
+      players[BRIDGE_WEST] = list[3];
+  }
+}
+
+
+
 void Players::setPlayer(
   const string& name,
   const Player player)

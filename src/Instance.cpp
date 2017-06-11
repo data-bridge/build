@@ -65,9 +65,7 @@ void Instance::setLINheader(LINInstData const * lin)
   if (LINdata->contract != "")
     Instance::setContract(LINdata->contract, BRIDGE_FORMAT_LIN);
 
-  const string st = Instance::strPlayersFromLINHeader();
-  if (st != ",,,")
-    Instance::setPlayers(st, BRIDGE_FORMAT_LIN, false);
+  players.set(LINdata->players);
 }
 
 
@@ -538,16 +536,6 @@ string Instance::strPlayer(
 string Instance::strPlayers(const Format format) const
 {
   return players.str(format);
-}
-
-
-string Instance::strPlayersFromLINHeader() const
-{
-  string st;
-  for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
-    st += LINdata->players[PLAYER_DDS_TO_LIN[i]] + ",";
-  st.pop_back(); // Trailing comma
-  return st;
 }
 
 
