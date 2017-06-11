@@ -367,9 +367,15 @@ void HeaderLIN::setBoardsList(
 }
 
 
-const LINData& HeaderLIN::getEntry(const unsigned intNo) const
+LINData const * HeaderLIN::getEntry(const unsigned intNo) const
 {
-  return LINdata[intNo];
+  return &LINdata[intNo];
+}
+
+
+bool HeaderLIN::isSet() const
+{
+  return (len > 0);
 }
 
 
@@ -394,5 +400,25 @@ string HeaderLIN::strPlayers(
 string HeaderLIN::strBoard(const unsigned intNo) const
 {
   return LINdata[intNo].no;
+}
+
+
+string HeaderLIN::strContracts(const unsigned intNo) const
+{
+  return LINdata[intNo].data[0].contract + "," +
+      LINdata[intNo].data[1].contract + ",";
+}
+
+
+string HeaderLIN::strContractsList() const
+{
+  if (len == 0)
+    return "";
+
+  string st;
+  for (unsigned i = 0; i < len; i++)
+    st += HeaderLIN::strContracts(i);
+  st.pop_back();
+  return st;
 }
 

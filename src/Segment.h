@@ -18,6 +18,7 @@
 #include "Session.h"
 #include "Scoring.h"
 #include "Teams.h"
+#include "HeaderLIN.h"
 #include "Board.h"
 #include "bconst.h"
 
@@ -56,6 +57,7 @@ class Segment
     vector<LINData> LINdata;
     unsigned LINcount;
     bool LINPlayersListFlag;
+    HeaderLIN headerLIN;
 
 
     unsigned getIntBoardNo(const unsigned extNo) const;

@@ -76,7 +76,9 @@ class HeaderLIN
       const string& text,
       const Format format);
 
-    const LINData& getEntry(const unsigned intNo) const;
+    LINData const * getEntry(const unsigned intNo) const;
+
+    bool isSet() const;
 
     bool hasPlayerList() const;
 
@@ -85,6 +87,8 @@ class HeaderLIN
       const unsigned no) const;
 
     string strBoard(const unsigned intNo) const;
+    string strContracts(const unsigned intNo) const;
+    string strContractsList() const;
 };
 
 #endif

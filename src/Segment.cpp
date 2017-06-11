@@ -49,6 +49,7 @@ void Segment::reset()
   session.reset(); 
   scoring.reset();
   teams.reset();
+  headerLIN.reset();
   flagCOCO = false;
 }
 
@@ -56,14 +57,9 @@ void Segment::reset()
 Board const * Segment::getBoard(const unsigned extNo) const
 {
   for (auto &p: boards)
-  {
     if (p.extNo == extNo)
-    {
-      // activeBoard = &p.board;
-      // activeNo = p.intNo;
       return &p.board;
-    }
-  }
+
   return nullptr;
 }
 
@@ -71,14 +67,8 @@ Board const * Segment::getBoard(const unsigned extNo) const
 Board * Segment::acquireBoard(const unsigned extNo)
 {
   for (auto &p: boards)
-  {
     if (p.extNo == extNo)
-    {
-      activeBoard = &p.board;
-      activeNo = p.intNo;
-      return activeBoard;
-    }
-  }
+      return &p.board;
 
   // Make a new board
   boards.push_back(BoardPair());
@@ -383,6 +373,8 @@ void Segment::setResultsList(
   const string& text,
   const Format format)
 {
+  headerLIN.setResultsList(text, format);
+
   if (format != BRIDGE_FORMAT_LIN &&
       format != BRIDGE_FORMAT_LIN_RP &&
       format != BRIDGE_FORMAT_LIN_VG &&
@@ -434,6 +426,8 @@ void Segment::setPlayersList(
   const string& text,
   const Format format)
 {
+  headerLIN.setPlayersList(text, scoring.str(BRIDGE_FORMAT_LIN), format);
+
   if (format != BRIDGE_FORMAT_LIN && 
       format != BRIDGE_FORMAT_LIN_VG &&
       format != BRIDGE_FORMAT_LIN_TRN)
@@ -590,6 +584,8 @@ void Segment::setPlayersHeader(
   const string& text,
   const Format format)
 {
+  headerLIN.setPlayersHeader(text, scoring.str(BRIDGE_FORMAT_LIN), format);
+
   if (FORMAT_INPUT_MAP[format] != BRIDGE_FORMAT_LIN)
     THROW("Invalid format: " + STR(format));
 
@@ -656,6 +652,8 @@ void Segment::setScoresList(
   const string& text,
   const Format format)
 {
+  headerLIN.setScoresList(text, scoring.str(BRIDGE_FORMAT_LIN), format);
+
   if (FORMAT_INPUT_MAP[format] != BRIDGE_FORMAT_LIN)
     THROW("Invalid format: " + STR(format));
 
@@ -693,6 +691,8 @@ void Segment::setBoardsList(
   const string& text,
   const Format format)
 {
+  headerLIN.setBoardsList(text, format);
+
   if (FORMAT_INPUT_MAP[format] != BRIDGE_FORMAT_LIN)
     THROW("Invalid format: " + STR(format));
   
@@ -1015,6 +1015,9 @@ string Segment::strNumber(
       else
       {
         intNo = Segment::getIntBoardNo(extNo);
+if (headerLIN.strBoard(intNo) != LINdata[intNo].no)
+  cout << "Imposs6 " << LINdata[intNo].no << " vs " <<
+    headerLIN.strBoard(intNo) << endl;
         ss << "ah|Board " << LINdata[intNo].no << "|";
       }
       return ss.str();
@@ -1064,6 +1067,7 @@ string Segment::strContractsCore(const Format format) const
       st += LINdata[b].data[0].contract + "," + 
             LINdata[b].data[1].contract + ",";
     st.pop_back(); // Remove trailing comma
+const string st2 = headerLIN.strContractsList();
     return st;
   }
   else if (LINcount == 0)
@@ -1092,8 +1096,16 @@ string Segment::strContractsCore(const Format format) const
       if (bptr == nullptr)
       {
         const unsigned bhdr = b - bmin;
+        {
+const string st0 = LINdata[bhdr].data[0].contract + "," + 
+  LINdata[bhdr].data[1].contract + ",";
+const string st1 = headerLIN.strContracts(bhdr);
+if (st0 != st1)
+  cout << "Imposs3 " << st0 << " vs " << st1 << endl;
+
         st += LINdata[bhdr].data[0].contract + "," + 
               LINdata[bhdr].data[1].contract + ",";
+        }
         continue;
       }
       else
@@ -1170,6 +1182,10 @@ string Segment::strPlayersLIN() const
 
         for (unsigned i = 0; i < no; i++)
           sm  += Segment::strPlayersFromLINHeader(bhdr, i);
+
+string sm2 = headerLIN.strPlayers(bhdr, no);
+if (sm2 != sm)
+  cout << "Imposs2: " << sm << " vs " << sm2 << endl;
 
         if (sm == sprev)
         {
@@ -1259,7 +1275,13 @@ string Segment::strBoards(const Format format) const
       else
       {
         for (auto &p: boards)
+        {
+const string s1 = LINdata[p.extNo - bmin].no;
+const string s2 = headerLIN.strBoard(p.extNo - bmin);
+if (s1 != s2)
+  cout << "Imposs1 " << s1 << " vs " << s2 << "\n";
           ss << LINdata[p.extNo - bmin].no << ",";
+        }
       }
 
       st = ss.str();
