@@ -34,8 +34,7 @@ class Board
     GivenScore givenScore;
 
     unsigned len;
-    LINData LINdata;
-    bool LINset; // TODO: When LINdata is a pointer, just compare null
+    bool LINset;
 
     string strIMPEntry(const int imps) const;
     

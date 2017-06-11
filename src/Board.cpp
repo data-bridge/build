@@ -139,21 +139,19 @@ void Board::setLINheader(LINData const * lin)
 {
   if (LINset)
     return;
-
-  LINdata = * lin;
   LINset = true;
 
-  if (LINdata.data[0].mp != "")
-    Board::setScoreIMP(LINdata.data[0].mp, BRIDGE_FORMAT_LIN);
-  else if (LINdata.data[1].mp != "")
-    Board::setScoreIMP("-" + LINdata.data[1].mp, BRIDGE_FORMAT_LIN);
+  if (lin->data[0].mp != "")
+    Board::setScoreIMP(lin->data[0].mp, BRIDGE_FORMAT_LIN);
+  else if (lin->data[1].mp != "")
+    Board::setScoreIMP("-" + lin->data[1].mp, BRIDGE_FORMAT_LIN);
   
   for (unsigned i = 0; i < len; i++)
   {
     string st = "";
     for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
     {
-      st += LINdata.data[i].players[(p+2) % 4];
+      st += lin->data[i].players[(p+2) % 4];
       if (i < 3)
         st += ",";
     }
@@ -161,7 +159,7 @@ void Board::setLINheader(LINData const * lin)
     if (st != ",,,")
       instances[i].setPlayers(st, BRIDGE_FORMAT_LIN, false);
     
-    instances[i].setLINheader(LINdata.data[i]);
+    instances[i].setLINheader(lin->data[i]);
   }
 }
 
