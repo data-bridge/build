@@ -2,12 +2,15 @@
 ----------
 dispatch
 * More general language parser?
+  Write dispatch language suitable also for later SQL queries
 * Select by year as well?
 
+Sheet, SheetHand
+* Funny non-const args?
+
 Code in general
-* Prune TODOs, clean up code again
+* Clean up code again
 * Write Files output into a file?  (For speed-up)
-* lists with iterators before vectors where possible
 
 Perl scripts in BBOVG
 - Make director.pl run without warnings 
@@ -36,8 +39,6 @@ Higher semantics
 * Look again at players once we check the links in lin files.
 * Store convention cards?
 * Screenscrape major championships, compare.
-
-* Write dispatch language suitable also for later SQL queries
 
 update Pavlicek missive and Excel
 

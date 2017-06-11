@@ -596,7 +596,6 @@ string Instance::strRoom(
   const unsigned no,
   const Format format) const
 {
-  // TODO: Don't need to ask players?
   return players.strRoom(no, format);
 }
 

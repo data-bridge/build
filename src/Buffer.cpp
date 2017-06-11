@@ -419,26 +419,15 @@ bool Buffer::fix(const RefLines& refLines)
 
       rl.modify(tmplines);
 
-      // TODO 
       if (tmplines[0] != "")
       {
         // Deleted a field, not an entire line.
 
-        if (deletion == 1)
+        for (unsigned j = i, k = 0; j < i+deletion; j++, k++)
         {
-          // TODO: Is probably the same as the following.
-          ld.line = tmplines[0];
-          ld.len = static_cast<unsigned>(ld.line.length());
-          Buffer::classify(ld);
-        }
-        else
-        {
-          for (unsigned j = i, k = 0; j < i+deletion; j++, k++)
-          {
-            lines[j].line = tmplines[k];
-            lines[j].len = static_cast<unsigned>(tmplines[k].length());
-            Buffer::classify(lines[j]);
-          }
+          lines[j].line = tmplines[k];
+          lines[j].len = static_cast<unsigned>(tmplines[k].length());
+          Buffer::classify(lines[j]);
         }
       }
       else
@@ -457,7 +446,6 @@ bool Buffer::fix(const RefLines& refLines)
     else 
       THROW("Bad reference line type");
   }
-  // TODO: Could just be of type void
   return true;
 }
 
