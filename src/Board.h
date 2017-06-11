@@ -60,7 +60,7 @@ class Board
     unsigned count() const;
     unsigned countAll() const;
 
-    void setLINheader(const LINData& lin);
+    void setLINheader(LINData const * lin);
 
     void setDeal(
       const string& text,

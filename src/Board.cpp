@@ -135,12 +135,12 @@ unsigned Board::countAll() const
 }
 
 
-void Board::setLINheader(const LINData& lin)
+void Board::setLINheader(LINData const * lin)
 {
   if (LINset)
     return;
 
-  LINdata = lin;
+  LINdata = * lin;
   LINset = true;
 
   if (LINdata.data[0].mp != "")

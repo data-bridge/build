@@ -81,10 +81,6 @@ class Segment
 
     unsigned getLINActiveNo(const unsigned intNo) const;
 
-    string strPlayersFromLINHeader(
-      const unsigned bhdr,
-      const unsigned instNo) const;
-
     string strTitleLINCore(const bool swapFlag = false) const;
     string strTitleLIN() const;
     string strTitleLIN_RP() const;

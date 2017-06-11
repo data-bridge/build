@@ -84,13 +84,15 @@ Board * Segment::acquireBoard(const unsigned extNo)
   if (extNo > bmax)
     bmax = extNo;
 
-  if (LINcount > 0)
+  if (headerLIN.isSet())
+  // if (LINcount > 0)
   {
     // Make enough room.
     activeBoard->acquireInstance(1);
 
     const unsigned linTableNo = Segment::getLINActiveNo(len-1);
-    activeBoard->setLINheader(LINdata[linTableNo]);
+    // activeBoard->setLINheader(LINdata[linTableNo]);
+    activeBoard->setLINheader(headerLIN.getEntry(linTableNo));
   }
   else if (activeNo > 0)
   {
@@ -1010,15 +1012,13 @@ string Segment::strNumber(
   {
     case BRIDGE_FORMAT_LIN:
     case BRIDGE_FORMAT_LIN_TRN:
-      if (format == BRIDGE_FORMAT_LIN_TRN || LINcount == 0)
+      // if (format == BRIDGE_FORMAT_LIN_TRN || LINcount == 0)
+      if (format == BRIDGE_FORMAT_LIN_TRN || ! headerLIN.isSet())
         ss << "ah|Board " << extNo << "|";
       else
       {
         intNo = Segment::getIntBoardNo(extNo);
-if (headerLIN.strBoard(intNo) != LINdata[intNo].no)
-  cout << "Imposs6 " << LINdata[intNo].no << " vs " <<
-    headerLIN.strBoard(intNo) << endl;
-        ss << "ah|Board " << LINdata[intNo].no << "|";
+        ss << "ah|Board " << headerLIN.strBoard(intNo) << "|";
       }
       return ss.str();
 
@@ -1059,18 +1059,9 @@ string Segment::strContractsCore(const Format format) const
   string st = "";
 
   if (format == BRIDGE_FORMAT_PAR)
-  {
-    if (LINcount == 0)
-      return "";
-
-    for (unsigned b = 0; b < LINcount; b++)
-      st += LINdata[b].data[0].contract + "," + 
-            LINdata[b].data[1].contract + ",";
-    st.pop_back(); // Remove trailing comma
-const string st2 = headerLIN.strContractsList();
-    return st;
-  }
-  else if (LINcount == 0)
+    return headerLIN.strContractsList();
+  // else if (LINcount == 0)
+  else if (! headerLIN.isSet())
   {
     // TODO: If we push this code down to Board, loop becomes cleaner?
     for (unsigned b = bmin; b <= bmax; b++)
@@ -1094,20 +1085,7 @@ const string st2 = headerLIN.strContractsList();
     {
       Board const * bptr = Segment::getBoard(b);
       if (bptr == nullptr)
-      {
-        const unsigned bhdr = b - bmin;
-        {
-const string st0 = LINdata[bhdr].data[0].contract + "," + 
-  LINdata[bhdr].data[1].contract + ",";
-const string st1 = headerLIN.strContracts(bhdr);
-if (st0 != st1)
-  cout << "Imposs3 " << st0 << " vs " << st1 << endl;
-
-        st += LINdata[bhdr].data[0].contract + "," + 
-              LINdata[bhdr].data[1].contract + ",";
-        }
-        continue;
-      }
+        st += headerLIN.strContracts(b-bmin);
       else
       {
         st += bptr->strContract(0, format) + "," +
@@ -1141,23 +1119,13 @@ string Segment::strContracts(const Format format) const
 }
 
 
-string Segment::strPlayersFromLINHeader(
-  const unsigned bhdr,
-  const unsigned instNo) const
-{
-  string st;
-  for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
-    st += LINdata[bhdr].data[instNo].players[PLAYER_DDS_TO_LIN[i]] + ",";
-  return st;
-}
-
-
 string Segment::strPlayersLIN() const
 {
   Board const * refBoard = nullptr;
   string st = "pw|";
   const bool isIMPs = scoring.isIMPs();
-  if (LINcount == 0)
+  // if (LINcount == 0)
+  if (! headerLIN.isSet())
   {
     for (auto &p: boards)
     {
@@ -1178,14 +1146,7 @@ string Segment::strPlayersLIN() const
       {
         const unsigned bhdr = b - bmin;
         const unsigned no = (isIMPs ? 2u : 1u);
-        string sm;
-
-        for (unsigned i = 0; i < no; i++)
-          sm  += Segment::strPlayersFromLINHeader(bhdr, i);
-
-string sm2 = headerLIN.strPlayers(bhdr, no);
-if (sm2 != sm)
-  cout << "Imposs2: " << sm << " vs " << sm2 << endl;
+        string sm = headerLIN.strPlayers(bhdr, no);
 
         if (sm == sprev)
         {
@@ -1267,7 +1228,8 @@ string Segment::strBoards(const Format format) const
   {
     case BRIDGE_FORMAT_LIN:
       ss << "bn|";
-      if (LINcount == 0)
+      if (! headerLIN.isSet())
+      // if (LINcount == 0)
       {
         for (auto &p: boards)
           ss << p.extNo << ",";
@@ -1275,13 +1237,7 @@ string Segment::strBoards(const Format format) const
       else
       {
         for (auto &p: boards)
-        {
-const string s1 = LINdata[p.extNo - bmin].no;
-const string s2 = headerLIN.strBoard(p.extNo - bmin);
-if (s1 != s2)
-  cout << "Imposs1 " << s1 << " vs " << s2 << "\n";
-          ss << LINdata[p.extNo - bmin].no << ",";
-        }
+          ss << headerLIN.strBoard(p.extNo - bmin) << ",";
       }
 
       st = ss.str();
