@@ -349,6 +349,7 @@ class Valuation
 
     string str() const;
 
+    int handDist() const;
 };
 
 #endif

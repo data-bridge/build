@@ -20,6 +20,7 @@ const string TimerName[]
   "Comp",
   "Stats",
   "Refs",
+  "Value",
   "Sheet"
 };
 

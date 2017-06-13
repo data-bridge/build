@@ -25,7 +25,7 @@ struct OptEntry
   unsigned numArgs;
 };
 
-#define BRIDGE_NUM_OPTIONS 18
+#define BRIDGE_NUM_OPTIONS 20
 
 static const OptEntry OPT_LIST[BRIDGE_NUM_OPTIONS] =
 {
@@ -41,6 +41,8 @@ static const OptEntry OPT_LIST[BRIDGE_NUM_OPTIONS] =
   {"l", "logfile", 1},
   {"c", "compare", 0},
   {"p", "players", 0},
+  {"e", "equal", 0},
+  {"V", "valuation", 0},
   {"f", "format", 1},
   {"w", "write", 1},
   {"s", "stats", 0},
@@ -98,6 +100,13 @@ void usage(
     "                   (Default: not set)\n" <<
     "\n" <<
     "-p, --players      Flag incomplete tables of players.\n" <<
+    "                   (Default: not set)\n" <<
+    "\n" <<
+    "-e, --equal        Write hash-line list of hands in order to look" <<
+    "                   for equals separately. (Default: not set).\n" <<
+    "                   Implies --valuation flag as well.\n" <<
+    "\n" <<
+    "-V, --valuation    Perform valuation of hands.\n" <<
     "                   (Default: not set)\n" <<
     "\n" <<
     "-f, --format s     Output format for -O (default: ALL).\n" <<
@@ -190,6 +199,8 @@ static void setDefaults(Options& options)
   options.tableIMPFlag = false;
   options.compareFlag = false;
   options.playersFlag = false;
+  options.equalFlag = false;
+  options.valuationFlag = false;
 
   options.formatSetFlag = false;
   options.format = BRIDGE_FORMAT_SIZE;
@@ -405,6 +416,15 @@ void readArgs(
 
       case 'p':
         options.playersFlag = true;
+        break;
+
+      case 'e':
+        options.equalFlag = true;
+        options.valuationFlag = true;
+        break;
+
+      case 'V':
+        options.valuationFlag = true;
         break;
 
       case 'f':

@@ -256,6 +256,8 @@ struct Options
   bool tableIMPFlag; // -T, --tableIMP
   bool compareFlag; // -c, --compare
   bool playersFlag; // -p, --players
+  bool equalFlag; // -e, --equal
+  bool valuationFlag; // -V, --valuation
 
   bool formatSetFlag; // -f, --format
   Format format;

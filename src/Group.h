@@ -37,6 +37,9 @@ class Group
     list<Segment>::const_iterator begin() const { return segments.begin(); }
     list<Segment>::const_iterator end() const { return segments.end(); }
 
+    list<Segment>::iterator mbegin() { return segments.begin(); }
+    list<Segment>::iterator mend() { return segments.end(); }
+
     void setName(const string& fname);
     string name() const;
 

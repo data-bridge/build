@@ -12,15 +12,15 @@
 
 #include <string>
 #include <vector>
+#include <array>
 
 #include "Deal.h"
 #include "Tableau.h"
+#include "Valuation.h"
 #include "GivenScore.h"
 #include "Instance.h"
 
 using namespace std;
-
-class Valuation;
 
 
 class Board
@@ -29,6 +29,7 @@ class Board
 
     Deal deal;
     Tableau tableau;
+    array<Valuation, BRIDGE_PLAYERS> valuation;
     vector<Instance> instances;
     vector<bool> skip;
     GivenScore givenScore;
@@ -111,7 +112,7 @@ class Board
 
     bool overlappingPlayers() const;
 
-    bool getValuation(Valuation& valuation) const;
+    void performValuation(const bool fullFlag = false);
 
     bool operator == (const Board& b2) const;
 
@@ -158,6 +159,10 @@ class Board
       const string& bno,
       unsigned& score1,
       unsigned& score2) const;
+    
+    string strValuation() const;
+
+    int hash8() const;
 };
 
 #endif

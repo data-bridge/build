@@ -80,8 +80,10 @@ class Segment
     ~Segment();
 
     list<BoardPair>::const_iterator begin() const { return boards.begin(); }
-
     list<BoardPair>::const_iterator end() const { return boards.end(); }
+
+    list<BoardPair>::iterator mbegin() { return boards.begin(); }
+    list<BoardPair>::iterator mend() { return boards.end(); }
 
     void reset();
 

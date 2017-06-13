@@ -20,12 +20,14 @@
 
 #include "funcCompare.h"
 #include "funcDigest.h"
+#include "funcEquals.h"
 #include "funcIMPSheet.h"
 #include "funcRead.h"
 #include "funcPlayerVal.h"
 #include "funcRefStats.h"
 #include "funcTextStats.h"
 #include "funcValidate.h"
+#include "funcValuation.h"
 #include "funcWrite.h"
 
 
@@ -100,6 +102,24 @@ void dispatch(
       allStats.timers.start(BRIDGE_TIMER_STATS, task.formatInput);
       dispatchTextStats(task, group, allStats.tstats, flog);
       allStats.timers.stop(BRIDGE_TIMER_STATS, task.formatInput);
+    }
+
+    if (options.valuationFlag)
+    {
+      if (options.verboseIO)
+        flog << "Valuation " << task.fileInput << endl;
+
+      allStats.timers.start(BRIDGE_TIMER_VALUE, task.formatInput);
+      dispatchValuation(group, flog);
+      allStats.timers.stop(BRIDGE_TIMER_STATS, task.formatInput);
+    }
+
+    if (options.equalFlag)
+    {
+      if (options.verboseIO)
+        flog << "Hand hashes " << task.fileInput << endl;
+
+      dispatchEquals(group, flog);
     }
 
     for (auto &t: task.taskList)

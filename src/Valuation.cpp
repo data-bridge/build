@@ -918,3 +918,18 @@ string Valuation::str() const
   return ss.str();
 }
 
+
+int Valuation::handDist() const
+{
+  // This is a 12-bit entry with 3 groups of 4 bits.
+  // Each group is the number of cards held in that suit.
+  // Clubs are neglected, as they follow from the three others.
+
+  if (! setFlag)
+    return 0;
+
+  return ((*suitValues[0])[VS_LENGTH] << 8) |
+      ((*suitValues[1])[VS_LENGTH] << 4) |
+       (*suitValues[2])[VS_LENGTH];
+}
+
