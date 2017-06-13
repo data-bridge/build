@@ -141,7 +141,7 @@ Bexcept.obj: Bexcept.h
 Board.obj: bconst.h Board.h Deal.h Tableau.h Valuation.h Term.h GivenScore.h
 Board.obj: Instance.h Players.h Auction.h Contract.h Play.h ddsIF.h dll.h
 Board.obj: parse.h Bexcept.h Bdiff.h
-Buffer.obj: Reflines.h RefLine.h RefEdit.h refconst.h RefComment.h bconst.h
+Buffer.obj: RefLines.h RefLine.h RefEdit.h refconst.h RefComment.h bconst.h
 Buffer.obj: RefAction.h Buffer.h parse.h Bexcept.h
 Canvas.obj: Canvas.h
 Chunk.obj: Chunk.h bconst.h parse.h Bexcept.h Bdiff.h

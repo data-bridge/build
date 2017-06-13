@@ -20,7 +20,7 @@
   #include <unistd.h>
 #endif
 
-#include "Reflines.h"
+#include "RefLines.h"
 #include "Buffer.h"
 
 #include "parse.h"
