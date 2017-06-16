@@ -1,5 +1,15 @@
 11.06.2017
 ----------
+Valuation
+* Improve setCompBalanced to go by #cards and #points, not prod,
+  to calculate distances
+* Try timing
+* Try timing short version
+* Can we move hash8 from Valuation to Deal? (lengths known?)
+  Then -e should not imply -V anymore
+* Try a Term
+* Implement Term
+
 dispatch
 * More general language parser?
   Write dispatch language suitable also for later SQL queries

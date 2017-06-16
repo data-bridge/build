@@ -14,7 +14,7 @@
 
 #include "bconst.h"
 #include "Board.h"
-#include "Valuation.h"
+// #include "Valuation.h"
 #include "parse.h"
 #include "Bexcept.h"
 #include "Bdiff.h"
@@ -306,8 +306,10 @@ void Board::performValuation(const bool fullFlag)
   unsigned cards[BRIDGE_PLAYERS][BRIDGE_SUITS];
   deal.getDDS(cards);
 
-  for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
-    valuation[p].evaluate(cards[p], fullFlag);
+  // TODO
+  UNUSED(fullFlag);
+  // for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
+    // valuation[p].evaluate(cards[p], fullFlag);
 }
 
 
@@ -517,8 +519,9 @@ string Board::strIMPSheetLine(
 string Board::strValuation() const
 {
   string st;
-  for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
-    st += valuation[p].str();
+  // TODO
+  // for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
+    // st += valuation[p].str();
 
   return st;
 }
@@ -527,11 +530,14 @@ string Board::strValuation() const
 int Board::hash8() const
 {
   // This is the same hash function as in DDS (TransTable).
+  return 0;
+  /*
   const int h = valuation[0].handDist() ^
     ((valuation[1].handDist() * 5)) ^
     ((valuation[2].handDist() * 25)) ^
     ((valuation[3].handDist() * 125));
 
   return (h ^(h >> 5)) & 0xff;
+  */
 }
 

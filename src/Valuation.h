@@ -304,6 +304,8 @@ class Valuation
       SuitListArray& list,
       const CardArray& cards);
 
+    void setSuitFL(SuitListArray& list);
+
     void setSuitPlayTricks(
       SuitListArray& list,
       const CardArray& cards);

@@ -111,7 +111,7 @@ void dispatch(
 
       allStats.timers.start(BRIDGE_TIMER_VALUE, task.formatInput);
       dispatchValuation(group, flog);
-      allStats.timers.stop(BRIDGE_TIMER_STATS, task.formatInput);
+      allStats.timers.stop(BRIDGE_TIMER_VALUE, task.formatInput);
     }
 
     if (options.equalFlag)

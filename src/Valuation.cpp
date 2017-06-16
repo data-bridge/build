@@ -38,8 +38,10 @@ static CardArray BITS =
   12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0
 };
 
+#define VALUATION_NUM_DISTS 560
+
 static array<SuitListArray, MAX_HOLDING+1> SUIT_LIST;
-static array<DistListArray, 10000> DIST_LIST; // TODO: Actual number
+static array<DistListArray, VALUATION_NUM_DISTS> DIST_LIST;
 
 
 struct SuitBundle
@@ -61,7 +63,7 @@ const vector<SuitBundle> SuitInfo =
   {"CONTROLS", "Controls", 1, 60},
   {"PLAY_TRICKS", "Play tricks", 2, 40},
   {"QUICK_TRICKS", "Quick tricks", 2, 40},
-  {"LOSERS", "Losers", 1, 20},
+  {"LOSERS", "Losers", 2, 20},
 
   {"TOPS1", "Aces", 1, 60},
   {"TOPS2", "AK's", 1, 60},
@@ -70,7 +72,7 @@ const vector<SuitBundle> SuitInfo =
   {"TOPS5", "AKQJT's", 1, 40},
 
   {"LENGTH", "Length", 1, 40},
-  {"EFF_LENGTH", "Length", 2, 20},
+  {"EFF_LENGTH", "Eff. length", 2, 20},
 
   {"SPOT_SUM", "Spot sum", 1, 1},
   {"SPOT_SUM3", "Top-3 spot sum", 1, 1}
@@ -131,7 +133,7 @@ const vector<CompBundle> CompInfo =
   {"CONTROLS", "Controls", 1, 60},
   {"PLAY_TRICKS", "Play tricks", 2, 40},
   {"QUICK_TRICKS", "Quick tricks", 2, 40},
-  {"LOSERS", "Losers", 1, 20},
+  {"LOSERS", "Losers", 2, 20},
 
   {"OUTTOPS1", "Outside tops1", 1, 60},
   {"OUTTOPS2", "Outside tops2", 1, 60},
@@ -213,6 +215,7 @@ void Valuation::setSuitTables()
     Valuation::setSuitCCCC(SUIT_LIST[holding], cards);
 
     Valuation::setSuitZar(SUIT_LIST[holding], cards);
+    Valuation::setSuitFL(SUIT_LIST[holding]);
 
     Valuation::setSuitPlayTricks(SUIT_LIST[holding], cards);
     Valuation::setSuitQuickTricks(SUIT_LIST[holding], cards);
@@ -233,7 +236,7 @@ struct SuitPair
 
 static bool ComparePair(const SuitPair& sp1, const SuitPair& sp2)
 {
-  return (sp1.len < sp2.len);
+  return (sp1.len > sp2.len);
 }
 
 
@@ -252,7 +255,7 @@ void Valuation::setDistTables()
         DistListArray& dlist = DIST_LIST[no];
         distCodeMap[distCode] = no++;
 
-        vector<SuitPair> v;
+        array<SuitPair, BRIDGE_SUITS> v;
         v[0] = {BRIDGE_SPADES, s};
         v[1] = {BRIDGE_HEARTS, h};
         v[2] = {BRIDGE_DIAMONDS, d};
@@ -285,7 +288,13 @@ void Valuation::setDistTables()
       }
     }
   }
-  cout << "NUMBER OF DISTRIBUTIONS IS " << no << endl;
+  
+  if (no != VALUATION_NUM_DISTS)
+    THROW("Bad number of distributions");
+  
+  // There is a wonderful formula for calculating directly the
+  // index in dlist without a map (not implemented here):
+  // https://math.stackexchange.com/questions/2320636/turn-a-restricted-composition-or-partition-into-a-unique-index
 }
 
 
@@ -461,20 +470,86 @@ void Valuation::setSuitZar(
 }
 
 
+void Valuation::setSuitFL(SuitListArray& list)
+{
+  list[VS_FL] = list[VS_HCP];
+
+  // Add length points for good, long suits.
+  if (list[VS_HCP] >= 3 && list[VS_LENGTH] >= 5)
+    list[VS_FL] += list[VS_LENGTH]-4;
+}
+
+
 void Valuation::setSuitPlayTricks(
   SuitListArray& list,
   const CardArray& cards)
 {
-  if (list[VS_LENGTH] >= 8)
-    list[VS_PLAY_TRICKS] = list[VS_TOP2] + (list[VS_LENGTH]-2);
-  else if (list[VS_LENGTH] >= 3)
-    list[VS_PLAY_TRICKS] = list[VS_TOP3] + (list[VS_LENGTH]-3);
-  else if (cards[0])
-    list[VS_PLAY_TRICKS] = (cards[1] ? (cards[2] ? 3 : 2) : 1);
-  else if (cards[1])
-    list[VS_PLAY_TRICKS] = (cards[2] ? (cards[3] ? 2 : 1) : 0);
-  else
+  // Several definitions are known.  Here we go with Pavlicek,
+  // http://www.rpbridge.net/8j17.htm#3.  Scaled up by 2x.
+  if (list[VS_LENGTH] == 0)
     list[VS_PLAY_TRICKS] = 0;
+  else if (list[VS_LENGTH] == 1)
+  {
+    if (cards[0])
+      list[VS_PLAY_TRICKS] = 2;
+    else if (cards[1])
+      list[VS_PLAY_TRICKS] = 1;
+    else
+      list[VS_PLAY_TRICKS] = 0;
+  }
+  else if (list[VS_LENGTH] == 2)
+  {
+    if (list[VS_TOP2] == 2)
+      list[VS_PLAY_TRICKS] = 4; // AK
+    else if (cards[0])
+      list[VS_PLAY_TRICKS] = (list[VS_TOP4] == 2 ? 3 : 2); // AQ, AJ, Ax
+    else if (cards[1])
+      list[VS_PLAY_TRICKS] = (list[VS_TOP4] == 2 ? 2 : 1); // KQ, KJ, Kx
+    else
+      list[VS_PLAY_TRICKS] = (cards[2] ? 1 : 0); // Qx, xx
+
+  }
+  else if (list[VS_LENGTH] >= 11)
+    list[VS_PLAY_TRICKS] = 2 * (list[VS_TOP1] + (list[VS_LENGTH]-1));
+  else if (list[VS_LENGTH] >= 9)
+    list[VS_PLAY_TRICKS] = 2 * (list[VS_TOP2] + (list[VS_LENGTH]-2));
+  else if (list[VS_TOP3] == 3)
+    list[VS_PLAY_TRICKS] = 2 * list[VS_LENGTH]; // AKQ
+  else if (list[VS_TOP4] == 3)
+  {
+    if (cards[0])
+      list[VS_PLAY_TRICKS] = 2 * list[VS_LENGTH] - 1; // AKJ, AQJ
+    else
+      list[VS_PLAY_TRICKS] = 2 * list[VS_LENGTH] - 2; // KQJ
+  }
+  else if (list[VS_TOP2] == 2)
+    list[VS_PLAY_TRICKS] = 2 * list[VS_LENGTH] - 2; // AKx
+  else if (list[VS_TOP5] <= 1)
+  {
+    if (list[VS_TOP2] == 1)
+      list[VS_PLAY_TRICKS] = 2 * list[VS_LENGTH] - 4; // Axx, Kxx
+    else if (cards[2])
+      list[VS_PLAY_TRICKS] = 2 * list[VS_LENGTH] - 5; // Qxx
+    else
+      list[VS_PLAY_TRICKS] = 2 * (list[VS_LENGTH] - 3); // Less
+  }
+  else if (list[VS_TOP2] == 0)
+  {
+    if (list[VS_TOP4] == 2)
+      list[VS_PLAY_TRICKS] = 2 * list[VS_LENGTH] - 4; // QJx
+    else
+      list[VS_PLAY_TRICKS] = 2 * list[VS_LENGTH] - 5; // QTx, JTx
+  }
+  else if (cards[0] && cards[2] && cards[4])
+    list[VS_PLAY_TRICKS] = 2 * list[VS_LENGTH] - 2; // AQT
+  else
+    list[VS_PLAY_TRICKS] = 2 * list[VS_LENGTH] - 3; // KJT, KQx, AQx, AJx
+
+  if (list[VS_LENGTH] == 8 && (list[VS_TOP4] != 2 || list[VS_TOP2] != 0))
+  {
+    // Length 8, not QJx.
+    list[VS_PLAY_TRICKS]++;
+  }
 }
 
 
@@ -482,8 +557,13 @@ void Valuation::setSuitQuickTricks(
   SuitListArray& list,
   const CardArray& cards)
 {
-  // Scaled by 2.
-  if (cards[0])
+  // Scaled by 2. Defensive tricks.
+
+  if (list[VS_LENGTH] >= 9)
+    list[VS_QUICK_TRICKS] = 0; // Nothing will cash
+  else if (list[VS_LENGTH] >= 7)
+    list[VS_QUICK_TRICKS] = (cards[0] ? 2 : 0); // Only ace may cash
+  else if (cards[0])
     // AK = 2.0, AQ = 1.5, Ax = 1.0
     list[VS_QUICK_TRICKS] = (cards[1] ? 4 : (cards[2] ? 3 : 2));
   else if (cards[1])
@@ -586,7 +666,7 @@ void Valuation::setSuitEffLength(SuitListArray& list)
 void Valuation::lookup(const unsigned cards[BRIDGE_SUITS])
 {
   for (unsigned s = 0; s < BRIDGE_SUITS; s++)
-    suitValues[s] = &SUIT_LIST[cards[s]];
+    suitValues[s] = &SUIT_LIST[cards[s] >> 2];
 
   const int distKey = 
     ((*suitValues[0])[VS_LENGTH] << 12) |
@@ -603,7 +683,7 @@ void Valuation::lookup(const unsigned cards[BRIDGE_SUITS])
 
 void Valuation::calcDetails()
 {
-  vector<SuitPair> v;
+  array<SuitPair, BRIDGE_SUITS> v;
   for (unsigned s = 0; s < BRIDGE_SUITS; s++)
   {
     v[s].denom = static_cast<Denom>(s);
@@ -871,9 +951,10 @@ string Valuation::strEntry(
 {
   stringstream ss;
   if (scale == 1)
-    ss << right << value;
+    ss << setw(6) << right << value;
   else
-    ss << right << fixed << setprecision(2) << value / scale;
+    ss << setw(6) << right << fixed << setprecision(2) << 
+      value / static_cast<double>(scale);
   return ss.str();
 }
 
@@ -884,34 +965,31 @@ string Valuation::str() const
     return "";
 
   stringstream ss;
-  ss << Valuation::strHeader("Single suit parameters");
+  ss << "\n" << Valuation::strHeader("Single suit parameters");
 
   for (unsigned p = 0; p < VS_SIZE; p++)
   {
     ss << setw(20) << left << SuitInfo[p].text;
     for (unsigned s = 0; s < BRIDGE_SUITS; s++)
-      ss << setw(6) << 
-        Valuation::strEntry((*suitValues[s])[p], SuitInfo[p].scale);
+      ss << Valuation::strEntry((*suitValues[s])[p], SuitInfo[p].scale);
     ss << "\n";
   }
   ss << "\n";
 
-  ss << Valuation::strHeader("Distribution parameters");
+  ss << "Distribution parameters:\n\n";
   for (unsigned p = 0; p < VD_SIZE; p++)
   {
     ss << setw(20) << left << DistInfo[p].text;
-    ss << setw(6) << 
-      Valuation::strEntry((*distValues)[p], 1) << "\n";
+    ss << Valuation::strEntry((*distValues)[p], 1) << "\n";
   }
   ss << "\n";
 
-  ss << Valuation::strHeader("Overall parameters");
+  ss << "Overall parameters\n\n";
   const unsigned upper = (detailFlag ? VC_SIZE : VC_EFF_MDIFF);
   for (unsigned p = 0; p < upper; p++)
   {
     ss << setw(20) << left << CompInfo[p].text;
-    ss << setw(6) << 
-      Valuation::strEntry(compValues[p], CompInfo[p].scale) << "\n";
+    ss << Valuation::strEntry(compValues[p], CompInfo[p].scale) << "\n";
   }
   ss << "\n";
 

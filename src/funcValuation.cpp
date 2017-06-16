@@ -23,6 +23,8 @@ void writeValuation(
   Group& group,
   ostream& flog)
 {
+  UNUSED(flog);
+
   for (auto segment = group.mbegin(); segment != group.mend(); segment++)
   {
     if (segment->size() == 0)
@@ -30,10 +32,11 @@ void writeValuation(
 
     for (auto bp = segment->mbegin(); bp != segment->mend(); bp++)
     {
-      flog << bp->board.strDeal(BRIDGE_FORMAT_TXT);
+      // TODO: Delete commment.
+      // flog << bp->board.strDeal(BRIDGE_FORMAT_TXT);
 
       bp->board.performValuation(true);
-      flog << bp->board.strValuation();
+      // flog << bp->board.strValuation();
     }
   }
 }
