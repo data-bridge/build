@@ -36,11 +36,13 @@ SOURCE_FILES 	=		\
 	Tableau.cpp		\
         Team.cpp                \
         Teams.cpp               \
+	Term.cpp		\
 	TextStats.cpp		\
         Timer.cpp               \
         Timers.cpp              \
 	ValProfile.cpp		\
 	ValStats.cpp		\
+	Valuation.cpp		\
 	args.cpp		\
 	ddsIF.cpp		\
 	dispatch.cpp		\

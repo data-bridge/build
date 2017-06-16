@@ -16,7 +16,7 @@
 
 #include "Deal.h"
 #include "Tableau.h"
-// #include "Valuation.h"
+#include "Valuation.h"
 #include "GivenScore.h"
 #include "Instance.h"
 
@@ -29,7 +29,7 @@ class Board
 
     Deal deal;
     Tableau tableau;
-    // array<Valuation, BRIDGE_PLAYERS> valuation;
+    vector<Valuation> valuation;
     vector<Instance> instances;
     vector<bool> skip;
     GivenScore givenScore;
