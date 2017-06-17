@@ -23,16 +23,18 @@ void writeEquals(
   const Group& group,
   ostream& flog)
 {
-  flog << group.name() << ":";
+  string st;
+  st = group.name() + ":";
   for (auto &segment: group)
   {
     if (segment.size() == 0)
       continue;
 
     for (auto &bp: segment)
-      flog << " " << bp.board.hash8();
+      st += " " + STR(bp.board.hash12());
   }
-  flog << "\n";
+  st += "\n";
+  flog << st;
 }
 
 

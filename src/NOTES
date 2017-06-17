@@ -1,12 +1,33 @@
 11.06.2017
 ----------
+Duplicates
+* -e outputs a file
+  Do whole bridgehands directory into one file
+  Avoid U97123.PBN when LIN exists etc. (define pecking order, LIN first)
+  Multi-threading
+* Write equals.pl in C++:
+  - First level: Histogram overlap
+  - Second level: Use Buffer, read file incl. .ref fixed
+    If the two are both LINs: 
+      Go by sorted md lists
+    Else:
+      Read in properly as Groups
+      Get md lists
+    Also compare titles, players
+  - Propose a skip header for the shorter or simpler file (fewer lines,
+    fewer hands)
+  - Try to get almost only the files that really are duplicates,
+    i.e. combination of team and player names (West, North etc.
+    are not real matching players)
+
 Valuation
 * Improve setCompBalanced to go by #cards and #points, not prod,
   to calculate distances
-* Can we move hash8 from Valuation to Deal? (lengths known?)
-  Then -e should not imply -V anymore
-* Try a Term
-* Implement Term
+
+Term
+* Try one vs. Valuation
+* Implement Term more generally
+* Think about limits that one Term imposes on other terms (big table)
 
 dispatch
 * More general language parser?
@@ -28,13 +49,6 @@ NERs
 * Player names
 
 Higher semantics
-* No duplicates in BBOSH (file names)
-  Use hash8 from DDS
-  For >= 32 hands use 4, >= 24 3, otherwise use 2 (or 1 if only 1 hand)
-  Deal to return array suitable for hash8
-  Other Deal returns hash directly
-  Flag to output to a file, sorted and merged (-n 6)
-  Then Perl script to find likely duplicates
 * Find unrealistic sequences (opening final contract) [valuation]
 * Very expensive bids (offering huge upside score).
 * Check links (http, www).  Also from deleted nt comments.

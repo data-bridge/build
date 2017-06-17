@@ -163,6 +163,7 @@ class Board
     string strValuation() const;
 
     int hash8() const;
+    int hash12() const;
 };
 
 #endif
