@@ -4,8 +4,9 @@ Duplicates
 * -e outputs a file
   Do whole bridgehands directory into one file
   Avoid U97123.PBN when LIN exists etc. (define pecking order, LIN first)
-  Multi-threading
 * Write equals.pl in C++:
+  - Multi-threading
+  - Store histograms in 6-string object, combine afterwards
   - First level: Histogram overlap
   - Second level: Use Buffer, read file incl. .ref fixed
     If the two are both LINs: 
@@ -19,6 +20,7 @@ Duplicates
   - Try to get almost only the files that really are duplicates,
     i.e. combination of team and player names (West, North etc.
     are not real matching players)
+  - have a <= operator for files contained wholly in others
 
 Valuation
 * Improve setCompBalanced to go by #cards and #points, not prod,
