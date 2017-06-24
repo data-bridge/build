@@ -142,8 +142,8 @@ class Play
     void getStateDDS(RunningDD& runningDD) const;
 
     bool operator == (const Play& play2) const;
-
     bool operator != (const Play& play2) const;
+    bool operator <= (const Play& play2) const;
 
     string str(const Format format) const;
 

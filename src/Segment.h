@@ -59,6 +59,8 @@ class Segment
 
     unsigned getLINActiveNo(const unsigned intNo) const;
 
+    void equalHeader(const Segment& segment2) const;
+
     string strTitleLINCore() const;
     string strTitleLIN() const;
     string strTitleLIN_RP() const;
@@ -176,8 +178,8 @@ class Segment
       unsigned& score2) const;
 
     bool operator == (const Segment& s2) const;
-
     bool operator != (const Segment& s2) const;
+    bool operator <= (const Segment& s2) const;
 
     string strTitle(const Format format) const;
     string strDate(const Format format) const;

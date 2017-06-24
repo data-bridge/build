@@ -665,6 +665,35 @@ bool Play::operator != (const Play& play2) const
 }
 
 
+bool Play::operator <= (const Play& play2) const
+{
+  // We don't require the holdings to be identical.
+
+  if (setDDFlag != play2.setDDFlag)
+    DIFF("DD not set in same way");
+  if (setDDFlag && (declarer != play2.declarer || denom != play2.denom))
+    DIFF("DD difference");
+  if (setDealFlag != play2.setDealFlag)
+    DIFF("Deal difference");
+  if (len > play2.len)
+    DIFF("Length difference");
+  if (playOverFlag && ! play2.playOverFlag)
+    DIFF("Play-over difference");
+  if (claimMadeFlag && ! play2.claimMadeFlag)
+    DIFF("Claim status difference");
+  if (tricksDecl != play2.tricksDecl || tricksDef != play2.tricksDef)
+    DIFF("Claim difference");
+
+  for (unsigned n = 0; n < len; n++)
+    if (sequence[n] != play2.sequence[n])
+      DIFF("Sequence difference");
+    
+  // Leads are implicitly identical when the plays are identical.
+  return true;
+}
+
+
+
 string Play::strLIN() const
 {
   stringstream ss;

@@ -356,6 +356,42 @@ bool Board::operator != (const Board& board2) const
 }
 
 
+bool Board::operator <= (const Board& board2) const
+{
+  if (len > board2.len)
+    DIFF("Too many instances");
+
+  bool wholeSkip = Board::skippedAll();
+  bool wholeSkip2 = board2.skippedAll();
+
+  if (wholeSkip != wholeSkip2)
+    THROW("Whole skips differ");
+
+  if (wholeSkip)
+    return true;
+
+  // These object comparisons will actually throw exceptions, not fail.
+  if (deal != board2.deal)
+    return false;
+  if (tableau != board2.tableau)
+    return false;
+
+  for (unsigned b = 0; b < len; b++)
+  {
+    if (skip[b])
+      continue;
+
+    if (board2.skip[b])
+      THROW("Individual skips differ");
+
+    if (! (instances[b] <= board2.instances[b]))
+      return false;
+  }
+
+  return true;
+}
+
+
 string Board::strDeal(const Format format) const
 {
   return deal.str(instances[0].getDealer(), format);

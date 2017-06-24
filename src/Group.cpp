@@ -125,3 +125,24 @@ bool Group::operator != (const Group& group2) const
   return ! (* this == group2);
 }
 
+
+bool Group::operator <= (const Group& group2) const
+{
+  const unsigned s1 = segments.size();
+  const unsigned s2 = group2.segments.size();
+  if (s1 > s2)
+    DIFF("Invalid lengths: " + STR(s1) + " vs. " + STR(s2));
+
+  // Has to be the last segments that are missing (to make it easy).
+  for (auto it1 = segments.cbegin(),
+       it2 = group2.segments.cbegin();
+       it1 != segments.cend() && it2 != group2.segments.cend();
+       it1++, it2++)
+  {
+    if (! (*it1 <= *it2))
+      return false;
+  }
+
+  return true;
+}
+

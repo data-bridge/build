@@ -463,7 +463,7 @@ void Segment::getCarry(
 }
 
 
-bool Segment::operator == (const Segment& segment2) const
+void Segment::equalHeader(const Segment& segment2) const
 {
   if (title != segment2.title)
     DIFF("Different titles");
@@ -481,6 +481,12 @@ bool Segment::operator == (const Segment& segment2) const
     DIFF("Different teams");
   else if (len != segment2.len)
     DIFF("Different board numbers");
+}
+
+
+bool Segment::operator == (const Segment& segment2) const
+{
+  Segment::equalHeader(segment2);
 
   for (auto it1 = boards.cbegin(), it2 = segment2.boards.cbegin();
     it1 != boards.cend() && it2 != segment2.boards.cend();
@@ -501,6 +507,27 @@ bool Segment::operator == (const Segment& segment2) const
 bool Segment::operator != (const Segment& segment2) const
 {
   return ! (* this == segment2);
+}
+
+
+bool Segment::operator <= (const Segment& segment2) const
+{
+  Segment::equalHeader(segment2);
+
+  if (boards.size() > segment2.boards.size())
+    DIFF("Too many boards");
+
+  for (auto it1 = boards.cbegin(); it1 != boards.cend(); it1++)
+  {
+    Board const * board2 = segment2.getBoard(it1->extNo);
+    if (board2 == nullptr)
+      DIFF("Board doesn't exist");
+
+    if (! (it1->board <= * board2))
+      DIFF("Boards differ"); // Will already throw, though
+  }
+
+  return true;
 }
 
 

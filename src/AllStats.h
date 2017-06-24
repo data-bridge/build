@@ -17,6 +17,7 @@
 #include "TextStats.h"
 #include "CompStats.h"
 #include "RefStats.h"
+#include "DuplStats.h"
 #include "Timers.h"
 
 #include "bconst.h"
@@ -30,6 +31,7 @@ struct AllStats
   TextStats tstats;
   CompStats cstats;
   RefStats refstats;
+  DuplStats duplstats;
   Timers timers;
 };
 

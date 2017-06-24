@@ -27,6 +27,7 @@ void mergeResults(
     allStatsList[0].tstats += allStatsList[i].tstats;
     allStatsList[0].cstats += allStatsList[i].cstats;
     allStatsList[0].timers += allStatsList[i].timers;
+    allStatsList[0].duplstats += allStatsList[i].duplstats;
     allStatsList[0].refstats += allStatsList[i].refstats;
   }
 
@@ -67,6 +68,8 @@ void printResults(
     allStats.tstats.print(cout, true); // Can add switch to control
   if (options.compareFlag)
     allStats.cstats.print(cout);
+  if (options.equalFlag)
+    allStats.duplstats.print(cout);
   if (options.quoteFlag)
     allStats.refstats.print(cout);
 

@@ -20,7 +20,7 @@
 
 #include "funcCompare.h"
 #include "funcDigest.h"
-#include "funcEquals.h"
+#include "funcDupl.h"
 #include "funcIMPSheet.h"
 #include "funcRead.h"
 #include "funcPlayerVal.h"
@@ -119,7 +119,7 @@ void dispatch(
       if (options.verboseIO)
         flog << "Hand hashes " << task.fileInput << endl;
 
-      dispatchEquals(group, flog);
+      dispatchDupl(group, refLines, allStats.duplstats, flog);
     }
 
     for (auto &t: task.taskList)

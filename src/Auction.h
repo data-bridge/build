@@ -146,7 +146,6 @@ class Auction
 
 
     bool operator == (const Auction& a2) const;
-
     bool operator != (const Auction& a2) const;
 
 

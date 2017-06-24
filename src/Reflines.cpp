@@ -193,6 +193,17 @@ bool RefLines::getHeaderEntry(
 }
 
 
+string RefLines::strHeader() const
+{
+  if (bufferLines == 0)
+    return "";
+
+  stringstream ss;
+  ss << bufferLines << "," << numHands << "," << numBoards;
+  return ss.str();
+}
+
+
 bool RefLines::getControlEntry(
   CommentType& cat,
   RefEntry& re) const

@@ -7,18 +7,22 @@
 */
 
 
-#ifndef BRIDGE_FUNCEQUALS_H
-#define BRIDGE_FUNCEQUALS_H
+#ifndef BRIDGE_FUNCDUPL_H
+#define BRIDGE_FUNCDUPL_H
 
 #include "bconst.h"
 
 class Group;
+class RefLines;
+class DuplStats;
 
 using namespace std;
 
 
-void dispatchEquals(
+void dispatchDupl(
   const Group& group,
+  const RefLines& reflines,
+  DuplStats& duplstats,
   ostream& flog);
 
 #endif

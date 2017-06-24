@@ -411,6 +411,21 @@ bool Instance::operator != (const Instance& inst2) const
 }
 
 
+bool Instance::operator <= (const Instance& inst2) const
+{
+  if (players != inst2.players)
+    return false;
+  if (auction != inst2.auction)
+    return false;
+  if (contract != inst2.contract)
+    return false;
+  if (! (play <= inst2.play))
+    return false;
+
+  return true;
+}
+
+
 string Instance::strDealer(const Format format) const
 {
   return auction.strDealer(format);

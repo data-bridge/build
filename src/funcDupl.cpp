@@ -12,6 +12,8 @@
 #include <fstream>
 
 #include "Group.h"
+#include "RefLines.h"
+#include "DuplStats.h"
 
 #include "Bexcept.h"
 
@@ -19,32 +21,37 @@
 using namespace std;
 
 
-void writeEquals(
+void writeDupl(
   const Group& group,
-  ostream& flog)
+  const RefLines& reflines,
+  DuplStats& duplstats)
 {
-  string st;
-  st = group.name() + ":";
+  unsigned segNo = 0;
   for (auto &segment: group)
   {
     if (segment.size() == 0)
       continue;
 
+    duplstats.set(&group, &segment, segNo, &reflines);
+    segNo++;
+
     for (auto &bp: segment)
-      st += " " + STR(bp.board.hash12());
+      duplstats.append(bp.board.hash12());
+    
+    duplstats.sortActive();
   }
-  st += "\n";
-  flog << st;
 }
 
 
-void dispatchEquals(
+void dispatchDupl(
   const Group& group,
+  const RefLines& reflines,
+  DuplStats& duplstats,
   ostream& flog)
 {
   try
   {
-    writeEquals(group, flog);
+    writeDupl(group, reflines, duplstats);
   }
   catch (Bexcept& bex)
   {

@@ -56,6 +56,7 @@ class Group
 
     bool operator == (const Group& group2) const;
     bool operator != (const Group& group2) const;
+    bool operator <= (const Group& group2) const;
 };
 
 #endif

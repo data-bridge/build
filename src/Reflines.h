@@ -80,6 +80,8 @@ class RefLines
       CommentType& cat,
       RefEntry& re) const;
 
+    string strHeader() const;
+
     bool getControlEntry(
       CommentType& cat,
       RefEntry& re) const;

@@ -115,8 +115,8 @@ class Board
     void performValuation(const bool fullFlag = false);
 
     bool operator == (const Board& b2) const;
-
     bool operator != (const Board& b2) const;
+    bool operator <= (const Board& b2) const;
 
     string strDeal(const Format format) const;
     string strDeal(

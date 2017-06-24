@@ -175,6 +175,7 @@ class Instance
 
     bool operator == (const Instance& inst2) const;
     bool operator != (const Instance& inst2) const;
+    bool operator <= (const Instance& inst2) const;
 
     string strDealer(const Format format) const;
     string strVul(const Format format) const;
