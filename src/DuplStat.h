@@ -13,6 +13,8 @@
 #include <iostream>
 #include <list>
 
+#include "bconst.h"
+
 
 class Group;
 class Segment;
@@ -26,12 +28,31 @@ class DuplStat
 {
   private:
 
-    const Group * groupPtr;
-    const Segment * segmentPtr;
+    string fname;
+    string basename;
+    Format format;
+
+    string segTitle;
+    string segDate;
+    string segLocation;
+    string segEvent;
+    string segSession;
+
+    string teams;
+    string players;
     unsigned segNoVal;
-    const RefLines * reflinesPtr;
+    unsigned segSize;
+
+    unsigned numLines;
+    unsigned numHands;
+    unsigned numBoards;
     
     list<unsigned> values;
+
+    string strRef() const;
+    string strDiff(
+      const string& snew,
+      const string& sold) const;
 
   public:
 
@@ -59,6 +80,7 @@ class DuplStat
     bool operator <=(const DuplStat& ds2) const;
 
     string str() const;
+    string str(const DuplStat& ds2) const;
     string strSuggest(const string& tag) const;
 };
 

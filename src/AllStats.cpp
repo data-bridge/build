@@ -63,13 +63,13 @@ void printResults(
   const AllStats& allStats,
   const Options& options)
 {
+  if (options.equalFlag)
+    allStats.duplstats.print(cout);
   allStats.vstats.print(cout, options.verboseValStats);
   if (options.statsFlag)
     allStats.tstats.print(cout, true); // Can add switch to control
   if (options.compareFlag)
     allStats.cstats.print(cout);
-  if (options.equalFlag)
-    allStats.duplstats.print(cout);
   if (options.quoteFlag)
     allStats.refstats.print(cout);
 

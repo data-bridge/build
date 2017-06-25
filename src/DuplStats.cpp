@@ -48,7 +48,7 @@ void DuplStats::set(
   statList.emplace_back(DuplElem());
   activeList = &statList.back();
   activeList->activeFlag = true;
-  activeList->stat->set(group, segment, segNo, reflines);
+  activeList->stat.set(group, segment, segNo, reflines);
 }
 
 
@@ -57,7 +57,7 @@ void DuplStats::append(const int hashVal)
   if (activeList == nullptr)
     THROW("No active list");
 
-  activeList->stat->append(hashVal);
+  activeList->stat.append(hashVal);
 }
 
 
@@ -66,14 +66,14 @@ void DuplStats::sortActive()
   if (activeList == nullptr)
     THROW("No active list");
 
-  activeList->stat->sort();
+  activeList->stat.sort();
 
-  unsigned f = activeList->stat->first();
+  unsigned f = activeList->stat.first();
   hashedList[f].push_back(activeList);
 }
 
 
-void DuplStats::operator +=(const DuplStats& dupl2)
+void DuplStats::operator += (const DuplStats& dupl2)
 {
   for (unsigned i = 0; i < HASH_SIZE; i++)
     for (unsigned j = 0; j < dupl2.hashedList.size(); j++)
@@ -88,7 +88,7 @@ void DuplStats::sortOverall()
     sort(hashedList[i].begin(), hashedList[i].end(),
       [](const DuplElem * a, const DuplElem * b)->bool
       {
-        return a->stat->lexLessThan(*(b->stat));
+        return a->stat.lexLessThan(b->stat);
       });
   }
 }
@@ -102,13 +102,12 @@ string DuplStats::strSame() const
     const unsigned lh = hashedList[i].size();
     if (lh == 0)
       continue;
-
     for (unsigned j = 0; j < lh-1; j++)
     {
       if (! hashedList[i][j]->activeFlag)
         continue;
 
-      if (hashedList[i][j]->stat->sameOrigin(*hashedList[i][j+1]->stat))
+      if (hashedList[i][j]->stat.sameOrigin(hashedList[i][j+1]->stat))
       {
         // Pavlicek files with the same origin: Take the first one.
         hashedList[i][j]->activeFlag = false;
@@ -120,13 +119,14 @@ string DuplStats::strSame() const
         if (! hashedList[i][k]->activeFlag)
           continue;
         
-        if (*(hashedList[i][j]->stat) == *(hashedList[i][k]->stat))
+        const DuplStat& stat1 = hashedList[i][j]->stat;
+        const DuplStat& stat2 = hashedList[i][k]->stat;
+        if (stat1 == stat2)
         {
           // Take the later one.
-          st += hashedList[i][j]->stat->str() + "---\n";
-          st += hashedList[i][k]->stat->str() + "---\n";
-          st += hashedList[i][j]->stat->strSuggest("ERR_DUPLICATE") + 
-            "===\n";
+          st += stat1.str() + "---------------\n";
+          st += stat2.str(stat1) + "---------------\n";
+          st += stat1.strSuggest("ERR_DUPLICATE") + "\n\n";
 
           hashedList[i][j]->activeFlag = false;
         }
@@ -149,26 +149,29 @@ string DuplStats::strSubset() const
     if (lh == 0)
       continue;
 
-    for (unsigned j = 0; j < lh-1; j++)
+    for (unsigned j = 0; j < lh; j++)
     {
       if (! hashedList[i][j]->activeFlag)
         continue;
 
-      for (unsigned i2 = 0; i2 < i; i2++)
+      for (unsigned i2 = 0; i2 <= i; i2++)
       {
         // i's can only be subsets of ones with lower first.
         for (unsigned k = 0; k < hashedList[i2].size(); k++)
         {
           if (! hashedList[i2][k]->activeFlag)
             continue;
+          if (i == i2 && j == k)
+            continue;
         
-          if (*(hashedList[i][j]->stat) <= *(hashedList[i2][k]->stat))
+          const DuplStat& stat1 = hashedList[i][j]->stat;
+          const DuplStat& stat2 = hashedList[i2][k]->stat;
+          if (stat1 <= stat2)
           {
             // Take the later one.
-            st += hashedList[i][j]->stat->str() + "---\n";
-            st += hashedList[i][k]->stat->str() + "---\n";
-            st += hashedList[i][j]->stat->strSuggest("ERR_SUBSET") +  
-              "===\n";
+            st += stat1.str() + "---------------\n";
+            st += stat2.str(stat1) + "---------------\n";
+            st += stat1.strSuggest("ERR_SUBSET") +  "\n\n";
 
             hashedList[i][j]->activeFlag = false;
           }

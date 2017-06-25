@@ -80,7 +80,10 @@ class RefLines
       CommentType& cat,
       RefEntry& re) const;
 
-    string strHeader() const;
+    void getHeaderData(
+      unsigned& nl,
+      unsigned& nh,
+      unsigned& nb) const;
 
     bool getControlEntry(
       CommentType& cat,

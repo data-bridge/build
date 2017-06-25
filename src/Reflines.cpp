@@ -193,14 +193,14 @@ bool RefLines::getHeaderEntry(
 }
 
 
-string RefLines::strHeader() const
+void RefLines::getHeaderData(
+  unsigned& nl,
+  unsigned& nh,
+  unsigned& nb) const
 {
-  if (bufferLines == 0)
-    return "";
-
-  stringstream ss;
-  ss << bufferLines << "," << numHands << "," << numBoards;
-  return ss.str();
+  nl = bufferLines;
+  nh = numHands;
+  nb = numBoards;
 }
 
 

@@ -29,8 +29,16 @@ DuplStat::~DuplStat()
 
 void DuplStat::reset()
 {
-  groupPtr = nullptr;
-  segmentPtr = nullptr;
+  fname = "";
+  basename = "";
+
+  segTitle = "";
+  segDate = "";
+  segLocation = "";
+  segEvent = "";
+  segSession = "";
+
+  numLines = 0;
   values.clear();
 }
 
@@ -42,10 +50,46 @@ void DuplStat::set(
   const RefLines * reflines)
 {
   DuplStat::reset();
-  groupPtr = group;
-  segmentPtr = segment;
+
+  fname = group->name();
+  format = group->format();
+
+  basename = fname;
+  size_t l = basename.find_last_of("\\/");
+  if (l != string::npos)
+    basename.erase(0, l+1);
+  l = basename.find_last_of(".");
+  if (l != string::npos)
+    basename = basename.substr(0, l);
+
+  segTitle = segment->strTitle(BRIDGE_FORMAT_TXT);
+
+  string s = segment->strDate(BRIDGE_FORMAT_TXT);
+  if (s != "\n") 
+    segDate = s;
+
+  s = segment->strLocation(BRIDGE_FORMAT_TXT);
+  if (s != "\n") 
+    segLocation = s;
+
+  s = segment->strEvent(BRIDGE_FORMAT_TXT);
+  if (s != "\n") 
+    segEvent = s;
+
+  s = segment->strSession(BRIDGE_FORMAT_TXT);
+  if (s != "\n") 
+    segSession = s;
+
+  teams = segment->strTeams(BRIDGE_FORMAT_TXT) + "\n";
+
+  players = segment->strPlayers(BRIDGE_FORMAT_LIN_VG);
+  if (players.length() >= 10)
+    players = players.substr(3, players.length()-9) + "\n";
+
   segNoVal = segNo;
-  reflinesPtr = reflines;
+  segSize = group->size();
+
+  reflines->getHeaderData(numLines, numHands, numBoards);
 }
 
 
@@ -71,9 +115,9 @@ unsigned DuplStat::first() const
 
 bool DuplStat::sameOrigin(const DuplStat& ds2) const
 {
-  if (groupPtr == nullptr)
+  if (basename == "")
     THROW("No group");
-  return (groupPtr->name() == ds2.groupPtr->name());
+  return (basename == ds2.basename);
 }
 
 
@@ -90,69 +134,132 @@ bool DuplStat::lexLessThan(const DuplStat& ds2) const
       return false;
   }
 
-  const unsigned l1 = values.size();
-  const unsigned l2 = ds2.values.size();
-  if (l1 < l2)
+  if (numHands < ds2.numHands)
     return true;
-  if (l1 > l2)
+  if (numHands > ds2.numHands)
     return false;
 
-  const string n1 = groupPtr->name();
-  const string n2 = ds2.groupPtr->name();
-  if (n1 < n2)
+  if (numBoards < ds2.numBoards)
     return true;
-  if (n1 > n2)
+  if (numBoards > ds2.numBoards)
     return false;
 
-  return (groupPtr->format() < ds2.groupPtr->format());
+  if (basename < ds2.basename)
+    return true;
+  if (basename > ds2.basename)
+    return false;
+
+  return (format < ds2.format);
 }
 
 
-bool DuplStat::operator ==(const DuplStat& ds2) const
+bool DuplStat::operator == (const DuplStat& ds2) const
 {
-  try
-  {
-    * groupPtr == * ds2.groupPtr;
-    return true;
-  }
-  catch (Bexcept& bex)
-  {
-    UNUSED(bex);
+  if (numHands != ds2.numHands || numBoards != ds2.numBoards)
     return false;
+
+  if (teams != ds2.teams)
+    return false;
+
+  for (auto it1 = values.cbegin(), it2 = ds2.values.cbegin();
+      it1 != values.cend() && it2 != ds2.values.cend(); it1++, it2++)
+  {
+    if (*it1 != *it2)
+      return false;
   }
+  return true;
 }
 
 
-bool DuplStat::operator <=(const DuplStat& ds2) const
+bool DuplStat::operator <= (const DuplStat& ds2) const
 {
-  try
-  {
-    * groupPtr <= * ds2.groupPtr;
+  if (numHands > ds2.numHands || numBoards > ds2.numBoards)
     return false;
-  }
-  catch (Bexcept& bex)
-  {
-    UNUSED(bex);
+
+  if (teams != ds2.teams)
     return false;
+
+  auto it1 = values.cbegin();
+  for (auto it2 = ds2.values.cbegin();
+      it1 != values.cend() && it2 != ds2.values.cend(); it2++)
+  {
+    if (*it1 == *it2)
+      it1++;
   }
+  return (it1 == values.cend());
+}
+
+
+string DuplStat::strRef() const
+{
+  if (numLines == 0)
+    return "";
+
+  stringstream ss;
+  ss << "(" << numLines << "," << numHands << "," << numBoards << ")";
+  return ss.str();
+}
+
+
+string DuplStat::strDiff(
+  const string& snew,
+  const string& sold) const
+{
+  if (snew == sold)
+    return "";
+  else
+    return snew;
 }
 
 
 string DuplStat::str() const
 {
-  if (segmentPtr == nullptr)
+  if (segTitle == "")
     THROW("No segment");
-  string st = segmentPtr->strTitle(BRIDGE_FORMAT_TXT);
-  if (segmentPtr->size() != 1)
-    st += "WARNING: Multiple segments";
-  return st;
+
+  stringstream ss;
+  ss << fname << ", ref " << DuplStat::strRef();
+  if (segSize != 1)
+    ss << " - WARNING: segment " << segNoVal << " of " << segSize;
+
+  ss << "\n" << 
+    segTitle << 
+    segDate <<
+    segLocation <<
+    segEvent <<
+    segSession <<
+    teams << 
+    players;
+  return ss.str();
+}
+
+
+string DuplStat::str(const DuplStat& ds2) const
+{
+  if (segTitle == "")
+    THROW("No segment");
+
+  stringstream ss;
+  ss << fname << ", ref " << DuplStat::strRef();
+  if (segSize != 1)
+    ss << " - WARNING: segment " << segNoVal << " of " << segSize;
+
+  ss << "\n" <<
+    DuplStat::strDiff(segTitle, ds2.segTitle) <<
+    DuplStat::strDiff(segDate, ds2.segDate) <<
+    DuplStat::strDiff(segLocation, ds2.segLocation) <<
+    DuplStat::strDiff(segEvent, ds2.segEvent) <<
+    DuplStat::strDiff(segSession, ds2.segSession) <<
+    DuplStat::strDiff(teams, ds2.teams) <<
+    DuplStat::strDiff(players, ds2.players);
+  return ss.str();
 }
 
 
 string DuplStat::strSuggest(const string& tag) const
 {
-  if (reflinesPtr == nullptr)
+  if (numLines == 0)
     THROW("No reflines");
-  return tag + "{" + tag + "(" + reflinesPtr->strHeader() + ")}\n";
+  return "skip {" + tag + DuplStat::strRef() + "}\n";
 }
 

@@ -465,17 +465,8 @@ void Segment::getCarry(
 
 void Segment::equalHeader(const Segment& segment2) const
 {
-  if (title != segment2.title)
-    DIFF("Different titles");
-  else if (date != segment2.date)
-    DIFF("Different dates");
-  else if (location != segment2.location)
-    DIFF("Different locations");
-  else if (event != segment2.event)
-    DIFF("Different events");
-  else if (session != segment2.session)
-    DIFF("Different sessions");
-  else if (scoring != segment2.scoring)
+  // We don't compare: title, date, location, event, session
+  if (scoring != segment2.scoring)
     DIFF("Different scoring");
   else if (teams != segment2.teams)
     DIFF("Different teams");

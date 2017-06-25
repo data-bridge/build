@@ -29,7 +29,7 @@ class DuplStats
 
     struct DuplElem
     {
-      DuplStat * stat;
+      DuplStat stat;
       bool activeFlag;
     };
 

@@ -392,8 +392,7 @@ Room Instance::room() const
 
 bool Instance::operator == (const Instance& inst2) const
 {
-  if (players != inst2.players)
-    return false;
+  // We don't compare players.
   if (auction != inst2.auction)
     return false;
   if (contract != inst2.contract)

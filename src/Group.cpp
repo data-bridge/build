@@ -80,6 +80,12 @@ Segment * Group::make()
 }
 
 
+unsigned Group::size() const
+{
+  return segments.size();
+}
+
+
 unsigned Group::count() const
 {
   unsigned cnt = 0;

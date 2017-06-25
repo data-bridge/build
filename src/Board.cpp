@@ -582,6 +582,6 @@ int Board::hash12() const
     ((valuation[2].handDist() * 25)) ^
     ((valuation[3].handDist() * 125));
 
-  return h & 0xfff;
+  return (h ^ (h >> 5)) & 0xfff;
 }
 

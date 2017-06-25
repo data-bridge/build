@@ -51,6 +51,7 @@ class Group
     void setCOCO(const Format format = BRIDGE_FORMAT_SIZE);
     bool isCOCO() const;
 
+    unsigned size() const;
     unsigned count() const;
     unsigned countBoards() const;
 
