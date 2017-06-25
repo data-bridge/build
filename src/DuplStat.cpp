@@ -13,6 +13,7 @@
 #include "DuplStat.h"
 #include "Group.h"
 #include "RefLines.h"
+#include "parse.h"
 #include "Bexcept.h"
 
 
@@ -38,8 +39,22 @@ void DuplStat::reset()
   segEvent = "";
   segSession = "";
 
+  pnames.clear();
+  playersFlag = false;
+
   numLines = 0;
   values.clear();
+}
+
+
+void DuplStat::extractPlayers()
+{
+  int seen = static_cast<int>(count(players.begin(), players.end(), ','));
+  if (seen != 7)
+    return;
+
+  playersFlag = true;
+  tokenize(players, pnames, ",");
 }
 
 
@@ -84,7 +99,9 @@ void DuplStat::set(
 
   players = segment->strPlayers(BRIDGE_FORMAT_LIN_VG);
   if (players.length() >= 10)
-    players = players.substr(3, players.length()-9) + "\n";
+    players = players.substr(3, players.length()-9);
+
+  DuplStat::extractPlayers();
 
   segNoVal = segNo;
   segSize = group->size();
@@ -118,6 +135,50 @@ bool DuplStat::sameOrigin(const DuplStat& ds2) const
   if (basename == "")
     THROW("No group");
   return (basename == ds2.basename);
+}
+
+
+bool DuplStat::differentPlayers(const DuplStat& ds2) const
+{
+  // Detect the pairs case where both are missing the closed-room
+  // players, and the open-room players are all different.
+  // Also detects when all 8 players are different.
+
+  if (! playersFlag || ! ds2.playersFlag)
+    return false;
+
+  bool emptyFlag = true;
+  for (unsigned j = 4; j < 8; j++)
+  {
+    if (pnames[j] != "" || ds2.pnames[j] != "")
+    {
+      emptyFlag = false;
+      break;
+    }
+  }
+
+  const unsigned upper = (emptyFlag ? 4u : 8u);
+  for (unsigned j = 0; j < upper; j++)
+  {
+    if (pnames[j] == ds2.pnames[j])
+      return false;
+  }
+  return true;
+}
+
+
+bool DuplStat::samePlayers(const DuplStat& ds2) const
+{
+  // All 8 players have to be identical.
+  if (! playersFlag || ! ds2.playersFlag)
+    return false;
+
+  for (unsigned j = 0; j < 8; j++)
+  {
+    if (pnames[j] != ds2.pnames[j])
+      return false;
+  }
+  return true;
 }
 
 
@@ -161,6 +222,9 @@ bool DuplStat::operator == (const DuplStat& ds2) const
   if (teams != ds2.teams)
     return false;
 
+  if (DuplStat::differentPlayers(ds2))
+    return false;
+
   for (auto it1 = values.cbegin(), it2 = ds2.values.cbegin();
       it1 != values.cend() && it2 != ds2.values.cend(); it1++, it2++)
   {
@@ -177,6 +241,12 @@ bool DuplStat::operator <= (const DuplStat& ds2) const
     return false;
 
   if (teams != ds2.teams)
+    return false;
+
+  if (DuplStat::differentPlayers(ds2))
+    return false;
+
+  if (! DuplStat::samePlayers(ds2))
     return false;
 
   auto it1 = values.cbegin();
@@ -229,7 +299,7 @@ string DuplStat::str() const
     segEvent <<
     segSession <<
     teams << 
-    players;
+    players << "\n";
   return ss.str();
 }
 
@@ -251,15 +321,21 @@ string DuplStat::str(const DuplStat& ds2) const
     DuplStat::strDiff(segEvent, ds2.segEvent) <<
     DuplStat::strDiff(segSession, ds2.segSession) <<
     DuplStat::strDiff(teams, ds2.teams) <<
-    DuplStat::strDiff(players, ds2.players);
+    DuplStat::strDiff(players, ds2.players) << "\n";
   return ss.str();
 }
 
 
-string DuplStat::strSuggest(const string& tag) const
+string DuplStat::strSuggest(const bool fullFlag) const
 {
   if (numLines == 0)
     THROW("No reflines");
+  string tag;
+  if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
+    tag = (fullFlag ? "ERR_LIN_DUPLICATE" : "ERR_LIN_SUBSET");
+  else
+    THROW("Can't yet skip format " + STR(format));
+
   return "skip {" + tag + DuplStat::strRef() + "}\n";
 }
 

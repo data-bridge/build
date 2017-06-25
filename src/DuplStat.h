@@ -43,11 +43,19 @@ class DuplStat
     unsigned segNoVal;
     unsigned segSize;
 
+    bool playersFlag;
+    vector<string> pnames;
+
     unsigned numLines;
     unsigned numHands;
     unsigned numBoards;
     
     list<unsigned> values;
+
+    void extractPlayers();
+
+    bool differentPlayers(const DuplStat& ds2) const;
+    bool samePlayers(const DuplStat& ds2) const;
 
     string strRef() const;
     string strDiff(
@@ -81,7 +89,7 @@ class DuplStat
 
     string str() const;
     string str(const DuplStat& ds2) const;
-    string strSuggest(const string& tag) const;
+    string strSuggest(const bool fullFlag) const;
 };
 
 #endif

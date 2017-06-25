@@ -76,7 +76,7 @@ void DuplStats::sortActive()
 void DuplStats::operator += (const DuplStats& dupl2)
 {
   for (unsigned i = 0; i < HASH_SIZE; i++)
-    for (unsigned j = 0; j < dupl2.hashedList.size(); j++)
+    for (unsigned j = 0; j < dupl2.hashedList[i].size(); j++)
       hashedList[i].push_back(dupl2.hashedList[i][j]);
 }
 
@@ -126,7 +126,7 @@ string DuplStats::strSame() const
           // Take the later one.
           st += stat1.str() + "---------------\n";
           st += stat2.str(stat1) + "---------------\n";
-          st += stat1.strSuggest("ERR_DUPLICATE") + "\n\n";
+          st += stat1.strSuggest(true) + "\n\n";
 
           hashedList[i][j]->activeFlag = false;
         }
@@ -171,7 +171,7 @@ string DuplStats::strSubset() const
             // Take the later one.
             st += stat1.str() + "---------------\n";
             st += stat2.str(stat1) + "---------------\n";
-            st += stat1.strSuggest("ERR_SUBSET") +  "\n\n";
+            st += stat1.strSuggest(false) +  "\n\n";
 
             hashedList[i][j]->activeFlag = false;
           }
