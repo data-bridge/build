@@ -226,7 +226,8 @@ void RefLines::checkEntries(
       re.count.boards == ractual.count.boards)
     return;
 
-  THROW("(" +
+  THROW(
+    headerComment.refFile() + ": (" +
     STR(re.count.units) + "," +
     STR(re.count.hands) + "," +
     STR(re.count.boards) + ") vs (" +

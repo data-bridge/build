@@ -994,6 +994,12 @@ void RefComment::getEntry(
 }
 
 
+string RefComment::refFile() const
+{
+  return (setFlag ? fileName : "");
+}
+
+
 string RefComment::str() const
 {
   if (! setFlag)

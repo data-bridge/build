@@ -74,6 +74,8 @@ class RefComment
       CommentType& cat,
       RefEntry &re) const;
 
+    string refFile() const;
+
     string str() const;
 
     string strComment() const;

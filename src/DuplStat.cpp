@@ -225,6 +225,9 @@ bool DuplStat::operator == (const DuplStat& ds2) const
   if (DuplStat::differentPlayers(ds2))
     return false;
 
+  if (! DuplStat::samePlayers(ds2))
+    return false;
+
   for (auto it1 = values.cbegin(), it2 = ds2.values.cbegin();
       it1 != values.cend() && it2 != ds2.values.cend(); it1++, it2++)
   {
