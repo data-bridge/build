@@ -57,8 +57,8 @@ my $i2 = 0;
 my $l1 = $#qlist1;
 my $l2 = $#qlist2;
 
-my (@reflines1, $nextpos1, $nextlno1);
-read_ref($file1, \@reflines1, \$nextpos1, \$nextlno1);
+my (@reflines1, $nextpos1, $nextlno1, $nextlnoend1);
+read_ref($file1, \@reflines1, \$nextpos1, \$nextlno1, \$nextlnoend1);
 if ($#reflines1 >= 0)
 {
   die "Old file has more than one line in ref" if ($#reflines1 > 0);
@@ -68,8 +68,8 @@ if ($#reflines1 >= 0)
   }
 }
 
-my (@reflines2, $nextpos2, $nextlno2);
-read_ref($file2, \@reflines2, \$nextpos2, \$nextlno2);
+my (@reflines2, $nextpos2, $nextlno2, $nextlnoend2);
+read_ref($file2, \@reflines2, \$nextpos2, \$nextlno2, \$nextlnoend2);
 
 my $changed_lno_flag = 0;
 my $lno2_in = 4; # After qx, rs, pn: The next line to be read
@@ -143,10 +143,12 @@ if ($#reflines1 == 0)
     }
     else
     {
-      # TODO
       my $ref1 = $file1;
       $ref1 =~ s/lin$/ref/;
-      print "Rewrite $ref1:\n$reflines1[0]\n\n";
+
+      open my $f1, '>', $ref1 or die "Can't open $ref1 $!";
+      print $f1 "$reflines1[0]\n";
+      close $f1;
     }
   }
   else
@@ -165,10 +167,12 @@ elsif ($fix_flag)
 
   if ($fix_flag)
   {
-    # TODO
     my $ref1 = $file1;
     $ref1 =~ s/lin$/ref/;
-    print "Create $ref1:\n$ll\n\n";
+
+    open my $f1, '>', $ref1 or die "Can't open $ref1 $!";
+    print $f1 "$ll\n";
+    close $f1;
   }
   else
   {
@@ -185,10 +189,13 @@ if ($changed_lno_flag)
 
   if ($fix_flag)
   {
-    # TODO
     print "Rewrite $ref2:\n";
     print "$_\n" for (@reflines2);
     print "\n";
+
+    open my $f2, '>', $ref2 or die "Can't open $ref2 $!";
+    print $f2 "$_\n" for (@reflines2);
+    close $f2;
   }
   else
   {
@@ -202,9 +209,11 @@ my $orig2 = $file2;
 $orig2 =~ s/lin$/orig/;
 if ($fix_flag)
 {
-  # TODO
-  print "rename $file2 $orig2\n";
-  print "Write $file2: string\n";
+  rename $file2, $orig2;
+
+  open my $f2, '>', $file2 or die "Can't open $file2 $!";
+  print $f2 "$strout\n";
+  close $f2;
 }
 else
 {
@@ -283,9 +292,30 @@ sub file2list
 }
 
 
+sub parse_ref_line
+{
+  my ($line, $start_ref, $end_ref) = @_;
+
+  if ($line =~ /^(\d+) /)
+  {
+    $$start_ref = $1;
+    $$end_ref = $1;
+  }
+  elsif ($line =~ /^(\d+)-(\d+) /)
+  {
+    $$start_ref = $1;
+    $$end_ref = $2;
+  }
+  else
+  {
+    die "Haven't learned ref line $line";
+  }
+}
+
+
 sub read_ref
 {
-  my ($file, $lines_ref, $nextpos_ref, $nextlno_ref) = @_;
+  my ($file, $lines_ref, $nextpos_ref, $nextlno_ref, $nextlno_ref_end) = @_;
   my $reffile = $file;
   die "$file should end on .lin" if ($reffile !~ /\.lin$/);
   $reffile =~ s/lin$/ref/;
@@ -302,33 +332,39 @@ sub read_ref
 
     if ($lines_ref->[0] =~ /skip/)
     {
+      die "Extra lines in $reffile" unless $#$lines_ref == 0;
       $$nextpos_ref = 0;
       $$nextlno_ref = -1;
+      $$nextlno_ref_end = -1;
+    }
+
+    my $pos = 0;
+    $pos++ if ($lines_ref->[0] !~ /^\d+/); # Both 10 and 10-12
+
+    while ($pos <= $#$lines_ref &&
+        $lines_ref->[$pos] =~ /^(\d+) / &&
+        $1 <= 3)
+    {
+      $pos++;
+    }
+
+    if ($pos > $#$lines_ref)
+    {
+      $$nextpos_ref = 0;
+      $$nextlno_ref = -1;
+      $$nextlno_ref_end = -1;
     }
     else
     {
-      my $pos = 0;
-      $pos++ if ($lines_ref->[0] !~ /^\d+ /);
-      if ($pos > $#$lines_ref)
-      {
-        $$nextpos_ref = 0;
-        $$nextlno_ref = -1;
-      }
-      else
-      {
-        $$nextpos_ref = $pos+1;
-        if ($lines_ref->[$pos] !~ /^(\d+) /)
-        {
-          die "Haven't learned $file, $pos yet: " . $lines_ref->[$pos];
-        }
-        $$nextlno_ref = $1;
-      }
+      $$nextpos_ref = $pos+1;
+      parse_ref_line($lines_ref->[$pos], $nextlno_ref, $nextlno_ref_end);
     }
   }
   else
   {
-   $$nextpos_ref = 0;
-   $$nextlno_ref = -1;
+    $$nextpos_ref = 0;
+    $$nextlno_ref = -1;
+    $$nextlno_ref_end = -1;
   }
 }
 
@@ -621,28 +657,31 @@ sub print_qx
     $str .= "$line\n";
     if ($two_flag)
     {
-      if ($lno2_in == $nextlno2 && $lno2_out != $lno2_in)
+      if ($lno2_in == $nextlno2 || $lno2_in == $nextlnoend2)
       {
-        my $ll = $reflines2[$nextpos2-1];
-        if ($ll !~ s/^$lno2_in/$lno2_out/)
+        if ($lno2_out != $lno2_in)
         {
-          die "Couldn't replace from $lno2_in to $lno2_out in $ll";
-        }
-        $reflines2[$nextpos2-1] = $ll;
-        $changed_lno_flag = 1;
+          my $ll = $reflines2[$nextpos2-1];
+          die "Couldn't turn $lno2_in to $lno2_out in $ll" unless
+            ($ll =~ s/\b$lno2_in\b/$lno2_out/);
 
-        if ($nextpos2 >= $#reflines2)
-        {
-          $nextlno2 = -1;
+          $reflines2[$nextpos2-1] = $ll;
+          $changed_lno_flag = 1;
         }
-        else
+
+        if ($lno2_in == $nextlnoend2)
         {
-          if ($reflines2[$nextpos2] !~ /^(\d+) /)
+          # Format "10 ..." and "10-12 ..." (matching 12).
+          if ($nextpos2 >= $#reflines2)
           {
-            die "Ref line $ll bad format";
+            $nextlno2 = -1;
           }
-          $nextpos2++;
-          $nextlno2 = $1;
+          else
+          {
+            parse_ref_line($reflines2[$nextpos2], 
+              \$nextlno2, \$nextlnoend2);
+            $nextpos2++;
+          }
         }
       }
       $lno2_in++;
