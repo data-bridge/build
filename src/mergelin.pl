@@ -5,14 +5,15 @@ use warnings;
 
 # Merges two lin numbers if possible.
 
-if ($#ARGV != 1)
+if ($#ARGV != 1 && $#ARGV != 2)
 {
-  print "Usage: perl mergelin.pl no1 no2\n";
+  print "Usage: perl mergelin.pl no1 no2 [fix]\n";
   exit;
 }
 
 my $lin1 = $ARGV[0];
 my $lin2 = $ARGV[1];
+my $fix_flag = ($#ARGV == 2 ? 1 : 0);
 
 my $DIR;
 if (`uname -a` =~ /CDD/)
@@ -49,9 +50,7 @@ die "Orders differ" if ($order1 ne $order2);
 my $results;
 merge_results($results1, $results2, \$results);
 
-print "$title2\n";
-print "$results\n";
-print "$players2\n";
+my $strout = "$title2\n$results\n$players2\n";
 
 my $i1 = 0;
 my $i2 = 0;
@@ -65,7 +64,7 @@ if ($#reflines1 >= 0)
   die "Old file has more than one line in ref" if ($#reflines1 > 0);
   if ($reflines1[0] !~ /ERR_LIN_SUBSET/)
   {
-    die "$lin1: $reflines1[0] should be SUBSET";
+    warn "$lin1: $reflines1[0] should be SUBSET";
   }
 }
 
@@ -88,64 +87,129 @@ while (1)
         if (! same_content(\@{$list1[$i1]}, \@{$list2[$i2]},
             $qlist1[$i1]))
         {
-          warn "$i1, $i2, $qlist1[$i1], $qlist2[$i2]: Not identical";
-          print_qx(\@{$list2[$i2]}, 1); # Increment lno2_in as well
+          warn "$qlist1[$i1], $i1, $i2: Not identical (take latter)";
+          $strout .= print_qx(\@{$list2[$i2]}, 1);
           $i1++, $i2++;
         }
         else
         {
-          print_qx(\@{$list2[$i2]}, 1);
+          $strout .= print_qx(\@{$list2[$i2]}, 1);
           $i1++, $i2++;
         }
       }
       else
       {
-        print_qx(\@{$list2[$i2]}, 1);
+        $strout .= print_qx(\@{$list2[$i2]}, 1);
         $i1++, $i2++;
       }
     }
     elsif (lex_before($qlist1[$i1], $qlist2[$i2], $order2))
     {
-      print_qx(\@{$list1[$i1]}, 0);
+      $strout .= print_qx(\@{$list1[$i1]}, 0);
       $i1++;
     }
     else
     {
-      print_qx(\@{$list2[$i2]}, 1);
+      $strout .= print_qx(\@{$list2[$i2]}, 1);
       $i2++;
     }
   }
   elsif ($i1 <= $l1)
   {
-    print_qx(\@{$list1[$i1]}, 0);
+    $strout .= print_qx(\@{$list1[$i1]}, 0);
     $i1++;
   }
   else # $i2 <= $l2
   {
-    print_qx(\@{$list2[$i2]}, 1);
+    $strout .= print_qx(\@{$list2[$i2]}, 1);
     $i2++;
   }
 
   last if ($i1 > $l1 && $i2 > $l2);
 }
 
+if ($nextlno2 != -1)
+{
+  die "Didn't use up the ref2 file";
+}
+
 if ($#reflines1 == 0)
 {
-  warn "Would like rewrite ref for $lin1 to MERGED";
+  if ($fix_flag)
+  {
+    if ($reflines1[0] !~ s/ERR[^(]+/ERR_LIN_MERGED/)
+    {
+      die "$lin1 ref: $reflines1[0] does not have expected format";
+    }
+    else
+    {
+      # TODO
+      my $ref1 = $file1;
+      $ref1 =~ s/lin$/ref/;
+      print "Rewrite $ref1:\n$reflines1[0]\n\n";
+    }
+  }
+  else
+  {
+    my $ref1 = $file1;
+    $ref1 =~ s/lin$/ref/;
+    print "Rewrite $ref1:\n$reflines1[0]\n\n";
+  }
 }
-else
+elsif ($fix_flag)
 {
-  warn "Would like create ref for $lin1 as MERGED";
+  my %count;
+  countLIN($lin1, \%count);
+  my $ll = "skip {ERR_LIN_MERGED(" .
+    $count{lines} . "," . $count{qxs} . "," . $count{bds} .  ")}";
+
+  if ($fix_flag)
+  {
+    # TODO
+    my $ref1 = $file1;
+    $ref1 =~ s/lin$/ref/;
+    print "Create $ref1:\n$ll\n\n";
+  }
+  else
+  {
+    my $ref1 = $file1;
+    $ref1 =~ s/lin$/ref/;
+    print "Create $ref1:\n$ll\n\n";
+  }
 }
 
 if ($changed_lno_flag)
 {
-  warn "Would like rewrite ref for $lin2:";
-  warn $_ for (@reflines2);
+  my $ref2 = $file2;
+  $ref2 =~ s/lin$/ref/;
+
+  if ($fix_flag)
+  {
+    # TODO
+    print "Rewrite $ref2:\n";
+    print "$_\n" for (@reflines2);
+    print "\n";
+  }
+  else
+  {
+    print "Rewrite $ref2:\n";
+    print "$_\n" for (@reflines2);
+    print "\n";
+  }
+}
+
+my $orig2 = $file2;
+$orig2 =~ s/lin$/orig/;
+if ($fix_flag)
+{
+  # TODO
+  print "rename $file2 $orig2\n";
+  print "Write $file2: string\n";
 }
 else
 {
-  warn "ref for $lin2 is OK (or empty)";
+  print "rename $file2 $orig2\n";
+  print "Write $file2: string\n";
 }
 
 
@@ -396,7 +460,7 @@ sub merge_results
     }
     else
     {
-      warn "rs conflict $i: $list1[$i] vs $list2[$i]";
+      warn "rs conflict $i (take latter): $list1[$i] vs $list2[$i]";
       push @listc, $list2[$i];
     }
   }
@@ -505,8 +569,9 @@ sub same_content
       {
         if ($lt1[$i1+1] ne $lt2[$i2+1] && $lt1[$i1] ne 'nt')
         {
-          die "$qx, $i1, $lt1[$i1]: Bad values " . $lt1[$i1+1] . 
-              " vs " . $lt2[$i2+1];
+          warn "$qx, $i1, $lt1[$i1]: Bad values " . $lt1[$i1+1] . 
+               " vs " . $lt2[$i2+1];
+          return 0;
         }
         $i1 += 2;
         $i2 += 2;
@@ -550,9 +615,10 @@ sub same_content
 sub print_qx
 {
   my ($list_ref, $two_flag) = @_;
+  my $str = "";
   for my $line (@$list_ref)
   {
-    print "$line\n";
+    $str .= "$line\n";
     if ($two_flag)
     {
       if ($lno2_in == $nextlno2 && $lno2_out != $lno2_in)
@@ -583,5 +649,42 @@ sub print_qx
     }
     $lno2_out++;
   }
+  return $str;
 }
 
+
+sub countLIN
+{
+  my ($file, $cref) = @_;
+
+  $cref->{lines} = 0;
+  $cref->{qxs} = 0;
+  $cref->{bds} = 0;
+
+  my $prev = "";
+  my $curr;
+  my $lno = 0;
+
+  my @seen;
+  open my $fr, '<', $file or die "Can't open $file $!";
+  while (my $line = <$fr>)
+  {
+    $lno++;
+    $cref->{lines}++;
+
+    if ($line =~ /^qx\|([^,\|]+)/ || $line =~ /\|qx\|([^,\|]+)/)
+    {
+      $curr = $1;
+      $curr = substr $curr, 1;
+      if (! defined $seen[$curr])
+      {
+        $seen[$curr] = 1;
+        $cref->{bds}++;
+      }
+
+      $cref->{qxs}++;
+      $prev = $curr;
+    }
+  }
+  close $fr;
+}
