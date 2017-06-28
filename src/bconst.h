@@ -181,6 +181,8 @@ const string LABEL_NAMES[] =
   "Deal",
   "Dealer",
   "Vulnerable",
+  "Score IMP",
+  "Score MP",
   "Double dummy",
 
   "Players",
@@ -194,8 +196,6 @@ const string LABEL_NAMES[] =
   "Play",
   "Result",
   "Score",
-  "Score IMP",
-  "Score MP",
   "New segment"
 };
 
