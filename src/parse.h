@@ -35,6 +35,10 @@ void splitIntoWords(
   const string& text,
   vector<string>& words);
 
+unsigned levenshtein(
+  const string& s1,
+  const string& s2);
+
 bool getWords(
   const string& text,
   string words[],

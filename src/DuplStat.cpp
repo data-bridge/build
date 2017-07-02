@@ -219,7 +219,12 @@ bool DuplStat::operator == (const DuplStat& ds2) const
   if (numHands != ds2.numHands || numBoards != ds2.numBoards)
     return false;
 
-  if (teams != ds2.teams)
+  // Could also just compare (teams != ds2.teams)
+  string t1 = teams;
+  toLower(t1);
+  string t2 = ds2.teams;
+  toLower(t2);
+  if (levenshtein(t1, t2) > 2)
     return false;
 
   if (DuplStat::differentPlayers(ds2))
@@ -243,7 +248,12 @@ bool DuplStat::operator <= (const DuplStat& ds2) const
   if (numHands > ds2.numHands || numBoards > ds2.numBoards)
     return false;
 
-  if (teams != ds2.teams)
+  // Could also just compare (teams != ds2.teams)
+  string t1 = teams;
+  toLower(t1);
+  string t2 = ds2.teams;
+  toLower(t2);
+  if (levenshtein(t1, t2) > 2)
     return false;
 
   if (DuplStat::differentPlayers(ds2))

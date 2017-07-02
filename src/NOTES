@@ -2,8 +2,6 @@
 ----------
 Equality and overlaps
 * Show almost-complete subsets (say 1-2 of 16 can differ)
-* case-insensitive teams
-* levenshteyn for team differences of 1 character
 
 Valuation
 * Improve setCompBalanced to go by #cards and #points, not prod,
