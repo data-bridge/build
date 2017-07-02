@@ -407,6 +407,8 @@ string HeaderLIN::strContracts(const unsigned intNo) const
 {
   if (len == 0)
     return ",,";
+  else if (intNo >= len)
+    THROW("Internal number " + STR(intNo) + " out of range");
   else
     return LINdata[intNo].data[0].contract + "," +
       LINdata[intNo].data[1].contract + ",";

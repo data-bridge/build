@@ -57,6 +57,53 @@ my $i2 = 0;
 my $l1 = $#qlist1;
 my $l2 = $#qlist2;
 
+print "$lin1:";
+print " $_" for @qlist1;
+print "\n";
+print "$lin2:";
+print " $_" for @qlist2;
+print "\n";
+
+my $str1 = "$lin1:";
+my $str2 = "$lin2:";
+while (1)
+{
+  if ($i1 <= $l1 && $i2 <= $l2)
+  {
+    if ($qlist1[$i1] eq $qlist2[$i2])
+    {
+      $i1++, $i2++;
+    }
+    elsif (lex_before($qlist1[$i1], $qlist2[$i2], $order2))
+    {
+      $str1 .= " $qlist1[$i1]";
+      $i1++;
+    }
+    else
+    {
+      $str2 .= " $qlist2[$i2]";
+      $i2++;
+    }
+  }
+  elsif ($i1 <= $l1)
+  {
+    $str1 .= " $qlist1[$i1]";
+    $i1++;
+  }
+  else # $i2 <= $l2
+  {
+    $str2 .= " $qlist2[$i2]";
+    $i2++;
+  }
+
+  last if ($i1 > $l1 && $i2 > $l2);
+}
+print "$str1\n";
+print "$str2\n\n";
+
+$i1 = 0;
+$i2 = 0;
+
 my (@reflines1, $nextpos1, $nextlno1, $nextlnoend1);
 read_ref($file1, \@reflines1, \$nextpos1, \$nextlno1, \$nextlnoend1);
 if ($#reflines1 >= 0)
@@ -161,7 +208,7 @@ if ($#reflines1 == 0)
 elsif ($fix_flag)
 {
   my %count;
-  countLIN($lin1, \%count);
+  countLIN($file1, \%count);
   my $ll = "skip {ERR_LIN_MERGED(" .
     $count{lines} . "," . $count{qxs} . "," . $count{bds} .  ")}";
 
@@ -464,7 +511,7 @@ sub res2list
   {
     die "Bad rs line: $res";
   }
-  @$list_ref = split ',', $1;
+  @$list_ref = split ',', $1, -1;
 }
 
 
@@ -530,7 +577,7 @@ sub lex_before
 
   if ($order == 0) # OCOC
   {
-    if ($o1 eq $o2 || $o1 eq 'c')
+    if ($o1 == $o2 || $o1 == 0) # 0: closed
     {
       return ($no1 < $no2);
     }
@@ -541,7 +588,7 @@ sub lex_before
   }
   elsif ($order == 1) # COCO
   {
-    if ($o1 eq $o2 || $o1 eq 'o')
+    if ($o1 = $o2 || $o1 == 1) # 1: Open
     {
       return ($no1 < $no2);
     }
@@ -552,13 +599,13 @@ sub lex_before
   }
   else # OOCC
   {
-    if ($o1 eq $o2)
+    if ($o1 == $o2)
     {
       return ($no1 < $no2);
     }
     else
     {
-      return ($o1 eq 'o');
+      return ($o1 == 1); # 1: Open
     }
   }
 }
@@ -657,7 +704,7 @@ sub print_qx
     $str .= "$line\n";
     if ($two_flag)
     {
-      if ($lno2_in == $nextlno2 || $lno2_in == $nextlnoend2)
+      while ($lno2_in == $nextlno2 || $lno2_in == $nextlnoend2)
       {
         if ($lno2_out != $lno2_in)
         {
@@ -675,6 +722,7 @@ sub print_qx
           if ($nextpos2 >= $#reflines2)
           {
             $nextlno2 = -1;
+            $nextlnoend2 = -1;
           }
           else
           {
@@ -682,6 +730,10 @@ sub print_qx
               \$nextlno2, \$nextlnoend2);
             $nextpos2++;
           }
+        }
+        else
+        {
+          last;
         }
       }
       $lno2_in++;

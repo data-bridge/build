@@ -294,7 +294,12 @@ void SheetHand::finishHand(
 
 
   if (tricksClaim.has)
+  {
+    if (! cAuction.isSet())
+      cAuction.setContract(BRIDGE_VUL_NONE, ct);
+
     cAuction.setTricks(tricksClaim.value);
+  }
   else if (tricksPlay.has)
     cAuction.setTricks(tricksPlay.value);
 

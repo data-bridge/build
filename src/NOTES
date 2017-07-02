@@ -1,11 +1,12 @@
-11.06.2017
+28.06.2017
 ----------
-Duplicates
-* Script to modify .ref files automatically from a .txt file
-* -e outputs a file
-  Do whole bridgehands directory into one file
+Equality and overlaps
+* SH, JEC, RP
+* Do whole bridgehands directory into one file
   Avoid U97123.PBN when LIN exists etc. (define pecking order, LIN first)
-* Is it worth it to have a "real" comparison on auction and play?
+* Also show almost-complete subsets (say 1-2 of 16 can differ)
+* case-insensitive teams
+* levenshteyn for team differences of 1 character
 
 Valuation
 * Improve setCompBalanced to go by #cards and #points, not prod,
@@ -50,6 +51,9 @@ Regression
 * perl skipnames.pl all (make it generate skip files)
 * perl skiphands.pl all (make it generate skip files)
 * ./reader -I -R -c -s -q -v 30 (maybe -p as well, -e)
+  - with -e, use mergelin.pl for some merges (first without fix
+    as third argument, then with it).  Manual edits of lin files
+    may be better sometimes.
 * ./reader -I -D -v 30
 * perl director.pl dir (a lot, unfortunately)
 * perl checkskip.pl all, perl checkref.pl all
