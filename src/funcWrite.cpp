@@ -163,7 +163,8 @@ static void writeFormattedFile(
         }
       }
     }
-    else if (order == ORDER_OOCC)
+    else if (order == ORDER_OOCC &&
+        FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
     {
       // o1, o2, ..., c1, c2, ...
       for (unsigned i = 0; i < 2; i++)

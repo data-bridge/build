@@ -69,6 +69,7 @@ void setPBNTables()
   PBNmap["OptimumResult"] = BRIDGE_FORMAT_LABELS_SIZE;
   PBNmap["ValidDeal"] = BRIDGE_FORMAT_LABELS_SIZE;
   PBNmap["DDS_Filters"] = BRIDGE_FORMAT_LABELS_SIZE;
+  PBNmap["Generator"] = BRIDGE_FORMAT_LABELS_SIZE;
 }
 
 

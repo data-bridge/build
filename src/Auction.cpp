@@ -965,8 +965,17 @@ string Auction::strRBNCore(const bool RBNflag) const
     s << "A";
   }
 
-  const string astr = alerts.str();
-  const string sep = (RBNflag && astr != "" ? "\n" : "");
+  string astr = alerts.str();
+  string sep;
+  if (astr == "")
+  {
+    sep = "";
+  }
+  else
+  {
+    sep = (RBNflag ? "\n" : "");
+    astr.pop_back(); // Remove last newline
+  }
   return s.str() + sep + astr;
 }
 

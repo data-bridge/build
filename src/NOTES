@@ -1,10 +1,7 @@
 28.06.2017
 ----------
 Equality and overlaps
-* SH, JEC, RP
-* Do whole bridgehands directory into one file
-  Avoid U97123.PBN when LIN exists etc. (define pecking order, LIN first)
-* Also show almost-complete subsets (say 1-2 of 16 can differ)
+* Show almost-complete subsets (say 1-2 of 16 can differ)
 * case-insensitive teams
 * levenshteyn for team differences of 1 character
 
@@ -54,6 +51,7 @@ Regression
   - with -e, use mergelin.pl for some merges (first without fix
     as third argument, then with it).  Manual edits of lin files
     may be better sometimes.
+    Can run on whole bridgedata/hands directory, at least -e
 * ./reader -I -D -v 30
 * perl director.pl dir (a lot, unfortunately)
 * perl checkskip.pl all, perl checkref.pl all

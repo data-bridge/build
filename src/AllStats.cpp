@@ -31,6 +31,9 @@ void mergeResults(
     allStatsList[0].refstats += allStatsList[i].refstats;
   }
 
+  if (options.equalFlag)
+    allStatsList[0].duplstats.sortOverall();
+
   if (! options.fileLog.setFlag)
     return;
 

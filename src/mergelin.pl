@@ -11,8 +11,6 @@ if ($#ARGV != 1 && $#ARGV != 2)
   exit;
 }
 
-my $lin1 = $ARGV[0];
-my $lin2 = $ARGV[1];
 my $fix_flag = ($#ARGV == 2 ? 1 : 0);
 
 my $DIR;
@@ -27,8 +25,28 @@ else
   $DIR = "../../../bridgedata/hands/BBOVG";
 }
 
-my $file1 = no2file($lin1);
-my $file2 = no2file($lin2);
+my ($lin1, $lin2, $file1, $file2);
+if ($ARGV[0] =~ /^\d+$/ && $ARGV[1] =~ /^\d+$/)
+{
+  $lin1 = $ARGV[0];
+  $lin2 = $ARGV[1];
+
+  $file1 = no2file($lin1);
+  $file2 = no2file($lin2);
+}
+else
+{
+  $file1 = $ARGV[0];
+  $file2 = $ARGV[1];
+
+  $lin1 = $file1;
+  die "What is $lin1?" unless ($lin1 =~ /([^\/]+).lin/);
+  $lin1 = $1;
+
+  $lin2 = $file2;
+  die "What is $lin2?" unless ($lin2 =~ /([^\/]+).lin/);
+  $lin2 = $1;
+}
 
 my (@list1, @qlist1, $title1, $results1, $players1);
 file2list($file1, \@list1, \@qlist1, \$title1, \$results1, \$players1);
