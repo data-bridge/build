@@ -61,8 +61,8 @@ if ($order1 == 3 || $order2 == 3)
   die "At least one order is general";
 }
 
-die "Titles differ:\n$title1\n$title2" if ($title1 ne $title2);
-die "Players differ:\n$players1\n$players2" if ($players1 ne $players2);
+warn "Titles differ:\n$title1\n$title2" if ($title1 ne $title2);
+warn "Players differ:\n$players1\n$players2" if ($players1 ne $players2);
 die "Orders differ" if ($order1 ne $order2);
 
 my $results;
@@ -668,7 +668,8 @@ sub same_content
     {
       if ($lt1[$i1] eq $lt2[$i2])
       {
-        if ($lt1[$i1+1] ne $lt2[$i2+1] && $lt1[$i1] ne 'nt')
+        if ($lt1[$i1+1] ne $lt2[$i2+1] && $lt1[$i1] ne 'nt' &&
+            lc($lt1[$i1+1]) ne lc($lt2[$i2+1]))
         {
           warn "$qx, $i1, $lt1[$i1]: Bad values " . $lt1[$i1+1] . 
                " vs " . $lt2[$i2+1];

@@ -54,8 +54,12 @@ class DuplStat
 
     void extractPlayers();
 
-    bool differentPlayers(const DuplStat& ds2) const;
-    bool samePlayers(const DuplStat& ds2) const;
+    bool similarPlayerGroup(
+      const DuplStat& ds2,
+      const unsigned number,
+      const unsigned ds2offset) const;
+
+    bool similarPlayers(const DuplStat& ds2) const;
 
     string strRef() const;
     string strDiff(

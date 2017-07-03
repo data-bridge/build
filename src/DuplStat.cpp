@@ -49,12 +49,23 @@ void DuplStat::reset()
 
 void DuplStat::extractPlayers()
 {
-  int seen = static_cast<int>(count(players.begin(), players.end(), ','));
-  if (seen != 7)
-    return;
-
   playersFlag = true;
   tokenize(players, pnames, ",");
+
+  if (pnames.size() & 0x3)
+    return;
+
+  for (unsigned i = 0; i < pnames.size(); i += 4)
+  {
+    if (pnames[i] == "north")
+      pnames[i] = "";
+    if (pnames[i+1] == "east")
+      pnames[i+1] = "";
+    if (pnames[i+2] == "south")
+      pnames[i+2] = "";
+    if (pnames[i+3] == "west")
+      pnames[i+3] = "";
+  }
 }
 
 
@@ -102,6 +113,7 @@ void DuplStat::set(
   if (players.length() >= 10)
     players = players.substr(3, players.length()-9);
 
+  toLower(players);
   DuplStat::extractPlayers();
 
   segNoVal = segNo;
@@ -139,47 +151,72 @@ bool DuplStat::sameOrigin(const DuplStat& ds2) const
 }
 
 
-bool DuplStat::differentPlayers(const DuplStat& ds2) const
+bool DuplStat::similarPlayerGroup(
+  const DuplStat& ds2,
+  const unsigned number,
+  const unsigned ds2offset) const
 {
-  // Detect the pairs case where both are missing the closed-room
-  // players, and the open-room players are all different.
-  // Also detects when all 8 players are different.
+  unsigned similar = 0;
+  unsigned actual = 0;
 
-  if (! playersFlag || ! ds2.playersFlag)
-    return false;
-
-  bool emptyFlag = true;
-  for (unsigned j = 4; j < 8; j++)
+  for (unsigned i = 0; i < number; i++)
   {
-    if (pnames[j] != "" || ds2.pnames[j] != "")
+    const int l1 = static_cast<int>(pnames[i].length());
+    const int l2 = static_cast<int>(ds2.pnames[ds2offset+i].length());
+
+    if (l1 == 0 || l2 == 0)
+      continue;
+    else if (abs(l1-l2) > 2 || 
+        ! levenshtein_test(pnames[i], ds2.pnames[ds2offset+i], 2))
     {
-      emptyFlag = false;
-      break;
+      actual++;
+      continue;
+    }
+    else
+    {
+      actual++;
+      similar++;
     }
   }
 
-  const unsigned upper = (emptyFlag ? 4u : 8u);
-  for (unsigned j = 0; j < upper; j++)
-  {
-    if (pnames[j] == ds2.pnames[j])
-      return false;
-  }
-  return true;
+  // 4: Need 3.
+  // 8: Need 5.
+  return (similar >= 2 && 3*similar >= 2*actual-1);
 }
 
 
-bool DuplStat::samePlayers(const DuplStat& ds2) const
+bool DuplStat::similarPlayers(const DuplStat& ds2) const
 {
-  // All 8 players have to be identical.
   if (! playersFlag || ! ds2.playersFlag)
     return false;
 
-  for (unsigned j = 0; j < 8; j++)
+  const unsigned l1 = pnames.size();
+  const unsigned l2 = ds2.pnames.size();
+
+  if (l1 == l2)
   {
-    if (pnames[j] != ds2.pnames[j])
-      return false;
+    return DuplStat::similarPlayerGroup(ds2, l1, 0);
   }
-  return true;
+  else if (l1 == 8 && (l2 & 0x7) == 0)
+  {
+    for (unsigned i = 0; i < l2; i += 8)
+    {
+      if (DuplStat::similarPlayerGroup(ds2, 8, i))
+        return true;
+    }
+    return false;
+  }
+  else if (l2 == 8 && (l1 & 0x7) == 0)
+  {
+    for (unsigned i = 0; i < l1; i += 8)
+    {
+      if (ds2.similarPlayerGroup(* this, 8, i))
+        return true;
+    }
+    return false;
+  }
+  else
+    return false;
 }
 
 
@@ -224,18 +261,16 @@ bool DuplStat::operator == (const DuplStat& ds2) const
   if (levenshtein(teams, ds2.teams) > 2)
     return false;
 
-  if (DuplStat::differentPlayers(ds2))
-    return false;
-
-  if (! DuplStat::samePlayers(ds2))
-    return false;
-
   for (auto it1 = values.cbegin(), it2 = ds2.values.cbegin();
       it1 != values.cend() && it2 != ds2.values.cend(); it1++, it2++)
   {
     if (*it1 != *it2)
       return false;
   }
+
+  if (! DuplStat::similarPlayers(ds2))
+    return false;
+
   return true;
 }
 
@@ -265,10 +300,7 @@ bool DuplStat::operator <= (const DuplStat& ds2) const
   if (it1 != values.cend())
     return false;
 
-  if (DuplStat::differentPlayers(ds2))
-    return false;
-
-  if (! DuplStat::samePlayers(ds2))
+  if (! DuplStat::similarPlayers(ds2))
     return false;
 
   // Could also just compare (teams != ds2.teams)
