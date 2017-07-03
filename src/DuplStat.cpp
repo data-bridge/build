@@ -96,6 +96,7 @@ void DuplStat::set(
     segSession = s;
 
   teams = segment->strTeams(BRIDGE_FORMAT_TXT) + "\n";
+  toLower(teams);
 
   players = segment->strPlayers(BRIDGE_FORMAT_LIN_VG);
   if (players.length() >= 10)
@@ -220,11 +221,7 @@ bool DuplStat::operator == (const DuplStat& ds2) const
     return false;
 
   // Could also just compare (teams != ds2.teams)
-  string t1 = teams;
-  toLower(t1);
-  string t2 = ds2.teams;
-  toLower(t2);
-  if (levenshtein(t1, t2) > 2)
+  if (levenshtein(teams, ds2.teams) > 2)
     return false;
 
   if (DuplStat::differentPlayers(ds2))
@@ -245,15 +242,27 @@ bool DuplStat::operator == (const DuplStat& ds2) const
 
 bool DuplStat::operator <= (const DuplStat& ds2) const
 {
+  // This function is quite time-consuming.  The ordering of the
+  // various tests is on purpose.
+
   if (numHands > ds2.numHands || numBoards > ds2.numBoards)
     return false;
 
-  // Could also just compare (teams != ds2.teams)
-  string t1 = teams;
-  toLower(t1);
-  string t2 = ds2.teams;
-  toLower(t2);
-  if (levenshtein(t1, t2) > 2)
+  const int l1 = static_cast<int>(teams.length());
+  const int l2 = static_cast<int>(ds2.teams.length());
+  if (abs(l1-l2) > 2)
+    return false;
+
+  auto it1 = values.cbegin();
+  for (auto it2 = ds2.values.cbegin();
+      it1 != values.cend() && it2 != ds2.values.cend(); it2++)
+  {
+    if (*it1 < *it2)
+      return false;
+    if (*it1 == *it2)
+      it1++;
+  }
+  if (it1 != values.cend())
     return false;
 
   if (DuplStat::differentPlayers(ds2))
@@ -262,14 +271,8 @@ bool DuplStat::operator <= (const DuplStat& ds2) const
   if (! DuplStat::samePlayers(ds2))
     return false;
 
-  auto it1 = values.cbegin();
-  for (auto it2 = ds2.values.cbegin();
-      it1 != values.cend() && it2 != ds2.values.cend(); it2++)
-  {
-    if (*it1 == *it2)
-      it1++;
-  }
-  return (it1 == values.cend());
+  // Could also just compare (teams != ds2.teams)
+  return levenshtein_test(teams, ds2.teams, 2);
 }
 
 

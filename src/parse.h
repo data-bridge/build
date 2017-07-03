@@ -39,6 +39,11 @@ unsigned levenshtein(
   const string& s1,
   const string& s2);
 
+bool levenshtein_test(
+  const string& s1,
+  const string& s2,
+  const unsigned at_most);
+
 bool getWords(
   const string& text,
   string words[],

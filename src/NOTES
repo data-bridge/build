@@ -2,6 +2,25 @@
 ----------
 Equality and overlaps
 * Show almost-complete subsets (say 1-2 of 16 can differ)
+  - Probably requires better "comparison" in DuplStat.cpp, <=
+* Players comparison
+  lowercase
+  split into vector
+  if same length
+    if length == 8
+      west .. south are effectively empty (in right position)
+      if at least [4] are within levenshtein <= 2
+        flag
+        empty-empty is a match, empty-nonempty is not a match
+      end
+    else
+      // should probably always be > 8 as multiple of 8
+      similar, with a threshold of e.g. half of length
+    end
+  else
+    // should probably always be 8 vs longer
+    look for group of 8 with at least [4] overlap
+  end
 
 Valuation
 * Improve setCompBalanced to go by #cards and #points, not prod,

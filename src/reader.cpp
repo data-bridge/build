@@ -45,10 +45,10 @@ int main(int argc, char * argv[])
   for (unsigned i = 0; i < options.numThreads; i++)
     thr[i].join();
 
-  timer.stop();
-
   mergeResults(allStatsList, options);
   printResults(allStatsList[0], options);
+
+  timer.stop();
 
   cout << "Time spent overall (elapsed): " << timer.str(2) << "\n";
 }

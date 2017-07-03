@@ -150,6 +150,47 @@ unsigned levenshtein(
 }
 
 
+bool levenshtein_test(
+  const string& s1, 
+  const string& s2,
+  const unsigned at_most)
+{
+  unsigned s1len = s1.size();
+  unsigned s2len = s2.size();
+	
+  auto column_start = (decltype(s1len))1;
+	
+  auto column = new decltype(s1len)[s1len + 1];
+  std::iota(column + column_start, column + s1len + 1, column_start);
+	
+  for (auto x = column_start; x <= s2len; x++) 
+  {
+    column[0] = x;
+    unsigned running_min = x;
+    auto last_diagonal = x - column_start;
+    for (auto y = column_start; y <= s1len; y++) 
+    {
+      auto old_diagonal = column[y];
+      auto possibilities = 
+      {
+        column[y] + 1,
+        column[y - 1] + 1,
+        last_diagonal + (s1[y - 1] == s2[x - 1]? 0 : 1)
+      };
+      column[y] = min(possibilities);
+      last_diagonal = old_diagonal;
+      if (column[y] < running_min)
+        running_min = column[y];
+    }
+    if (running_min > at_most)
+      return false;
+  }
+  auto result = column[s1len];
+  delete[] column;
+  return (result <= at_most);
+}
+
+
 // getWords splits on one or more whitespaces
 
 bool getWords(
