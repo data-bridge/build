@@ -288,16 +288,23 @@ bool DuplStat::operator <= (const DuplStat& ds2) const
   if (abs(l1-l2) > 2)
     return false;
 
+  unsigned overlap = 0;
   auto it1 = values.cbegin();
-  for (auto it2 = ds2.values.cbegin();
-      it1 != values.cend() && it2 != ds2.values.cend(); it2++)
+  auto it2 = ds2.values.cbegin();
+  while (it1 != values.cend() && it2 != ds2.values.cend())
   {
     if (*it1 < *it2)
-      return false;
-    if (*it1 == *it2)
       it1++;
+    else if (*it1 > *it2)
+      it2++;
+    else
+    {
+      it1++;
+      it2++;
+      overlap++;
+    }
   }
-  if (it1 != values.cend())
+  if (overlap == 0 || (numHands >= 8 && overlap == 1))
     return false;
 
   if (! DuplStat::similarPlayers(ds2))
