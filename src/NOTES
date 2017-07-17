@@ -1,33 +1,19 @@
 In perl
-  - If there are header differences: Recommend a ref line to fix it
-    end
-  - For each md that's not in the lin file
-    Go through files +/- 100
-    If md exists
-      if it doesn't fit, say where it first differs, then end
-    end
-    All the others in source file must also be there?
-    warn if not present at all
-    warn if different
-  - modify pre-existing ref file (find that line from lin in orig)
+* Get orig -> untangle done
+  - Check MERGED and DUPLICATE
+  - Anything left in orig directory? No MERGED, maybe DUPLICATE
+* make a mergelin that goes from "orig" (the copy) to untangle
+  directly
+* compare with untangle
+* Write C++ to parse new format (only permit one lin copy file)
+  - Must read ../12345.lin as well
+  - Count hands
+  - Make statistics with proper tags
 
-Way to streamline all the replaceLIN for rs?
-
-* Change .orig idea to diff-like
-  - a insert file2.lin c-d (or maybe o21?)
-  - a-b replace file2.lin d-d (or maybe o21?)
 * Download all lin files again
 * diff them against current ones (33464.lin should have an orig)
 
 * Make another directory with the original lin, ref and skipref files
-
-Need
-1. reader must read the new format, incl. statistics
-   - what tag to use for statistics?
-   - .ref has ../12345.lin as well as 12345.lin
-   - ref should use DUPLICATE/MERGED correctly
-2. mergelin must generate the new format
-3. convert the old .orig format to the new one
 
 28.06.2017
 ----------

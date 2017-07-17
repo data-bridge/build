@@ -47,19 +47,19 @@ if ($titleL ne $titleO)
 {
   print "$titleL\n";
   print "$titleO\n";
-  die "Titles differ -- fix first";
+  warn "Titles differ -- fix first?";
 }
 
-my @resreflines;
+my @reflines;
 if ($resultsL ne $resultsO)
 {
   my (@reslistL, @reslistO);
   res2list($resultsL, \@reslistL);
   res2list($resultsO, \@reslistO);
 
-  reslist2ref(\@reslistL, \@reslistO, \@resreflines);
+  reslist2ref(\@reslistL, \@reslistO, \@reflines);
 
-  if ($#resreflines > 23)
+  if ($#reflines > 23)
   {
     print "$resultsL\n";
     print "$resultsO\n";
@@ -75,21 +75,8 @@ if ($playersL ne $playersO)
 }
 
 my $reffile = "$DIR/orig/$linno.ref";
-die "Can't yet do $reffile" if (-e $reffile);
 
-# TODO
-# For each ref line
-#   if end-number is less than first qx pos0, then leave
-#   else find qx range in lin, orig
-#   correct range by the difference if diff != 0
-# end
-# later merge, sort by pos0
-# if pos0 same
-#   if above first qx pos0, die
-#   sort on field number
-# end
-
-my (@reflines, @qxlines);
+my @qxlines;
 my $offset = 0;
 my $nL = 0;
 my $nO = 0;
@@ -130,33 +117,45 @@ while ($nL <= $#qlistL)
       }
     }
 
+    if (! $file_cached)
+    {
+      die "Could not find source file";
+    }
+
     if (! defined $mdlistS{$md})
     {
       print "nL $nL, nO $nO\n";
       print "md $md\n";
-      die "Could not find md";
+      die "Could not find md in $rno";
     }
 
     my $qfound = 0;
     my $chunkno;
-    for my $cno (@{$mdlistS{$md}})
-    {
-      if (same_lines($listL[$nL], $listS[$cno]))
-      {
-        $qfound = 1;
-        $chunkno = $cno;
-      }
-    }
+    find_in($qlistL[$nL]{qx}, \@qlistS, \@{$mdlistS{$md}},
+      \$qfound, \$chunkno);
 
     if (! $qfound)
     {
-      print "Couldn't find:\n";
-      print "$qlistL[$nL]{qx}\n";
-      die "Fatal error";
-      # TODO: Locate the first difference
-      # Look in list to find the line
-      # Know the corresponding file line number in orig
-      # Propose a fix
+      die "Couldn't find $qlistL[$nL]{qx}:\n";
+    }
+    elsif (! same_lines($listL[$nL], $listS[$chunkno]))
+    {
+      print "Different $qlistL[$nL]{qx}:\n";
+      my $n1 = $#{$listL[$nL]};
+      my $n2 = $#{$listS[$chunkno]};
+      my $m = ($n1 < $n2 ? $n1 : $n2);
+      for my $n (0 .. $m)
+      {
+        if ($listL[$nL][$n] ne $listS[$chunkno][$n])
+        {
+          print "lin $listL[$nL][$n]\n";
+          print "src $listS[$chunkno][$n]\n";
+          my $lno = $qlistO[$nO]{lno0} + $n;
+          print "$lno replaceLIN ... {ERR_LIN_MC_REPLACE(1,1,1)}\n";
+          # TODO: Propose a fix
+          die "Fatal error";
+        }
+      }
     }
 
     my $rline;
@@ -204,30 +203,77 @@ if ($nO <= $#qlistO)
   die "orig not used up";
 }
 
+
+my $srcreffile = "$DIR/orig/$rno.ref";
+my @srcreflines;
+read_ref($srcreffile, \@srcreflines);
+die "Want exactly one source ref line" unless ($#srcreflines == 0);
+die "First source ref line must be skip" unless $srcreflines[0] =~ /^skip/;
+
+
+my @existreflines;
+if (-e $reffile)
+{
+  read_ref($reffile, \@existreflines);
+  die "$reffile is a skip" if ($existreflines[0] =~ /skip/);
+
+  fix_exist(\@existreflines, \@srcreflines,
+    \@qlistL, \@qlistO, \%mdlistO, \@qlistS, \%mdlistS,
+    $rno);
+}
+
+
+
 if ($fix_flag)
 {
+  # The source lin file just survives unchanged
   rename "$DIR/orig/$rno.lin", "$DIR/untangle/$rno.lin";
 
-  rename "$DIR/orig/$rno.ref", "$DIR/untangle/$rno.ref";
+  my $oldsrcref = "$DIR/orig/$rno.ref";
+  my $newsrcref = "$DIR/untangle/$rno.ref";
+  if ($#srcreflines >= 1)
+  {
+    unlink $oldsrcref; 
+    
+    open my $fs, '>', $newsrcref or die "Can't write $newsrcref: $!";
+    print $fs "$_\n" for (@srcreflines);
+    close $fs;
+  }
+  else
+  {
+    rename $oldsrcref, $newsrcref;
+  }
 
+  # The orig lin file becomes the lin file again.
   rename $origfile, "$DIR/untangle/$linno.lin";
 
+  # The .orig file goes away
   unlink $linfile;
 
-  # TODO: Remove the old ref file
+  # merge reflines and existreflines
+  push @reflines, @existreflines;
+  my @final = sort reflex @reflines;
 
   my $newref = "$DIR/untangle/$linno.ref";
   open my $fn, '>', $newref or die "Can't write $newref: $!";
-  print $fn "$_\n" for (@resreflines);
-  print $fn "$_\n" for (@reflines);
+  print $fn "$_\n" for (@final);
   close $fn;
 }
 else
 {
+  push @reflines, @existreflines;
+  my @final = sort reflex @reflines;
+
   print "$reffile:\n";
-  print "$_\n" for (@resreflines);
-  print "$_\n" for (@reflines);
-  print "$_\n" for (@qxlines);
+  print "$_\n" for (@final);
+  print "$_ " for (@qxlines);
+  print "\n";
+
+  if ($#srcreflines >= 1)
+  {
+    print "\nSource ref file:\n";
+    print "$_\n" for (@srcreflines);
+  }
 }
 
 
@@ -311,79 +357,103 @@ sub file2list
 }
 
 
-sub parse_ref_line
+sub read_ref
 {
-  my ($line, $start_ref, $end_ref) = @_;
-
-  if ($line =~ /^(\d+) /)
+  my ($reffile, $lines_ref) = @_;
+  open my $fr, '<', $reffile or die "Can't open $reffile $!";
+  while (my $line = <$fr>)
   {
-    $$start_ref = $1;
-    $$end_ref = $1;
+    chomp $line;
+    $line =~ s///g;
+    push @$lines_ref, $line;
   }
-  elsif ($line =~ /^(\d+)-(\d+) /)
-  {
-    $$start_ref = $1;
-    $$end_ref = $2;
-  }
-  else
-  {
-    die "Haven't learned ref line $line";
-  }
+  close $fr;
 }
 
 
-sub read_ref
+sub fix_exist
 {
-  my ($file, $lines_ref, $nextpos_ref, $nextlno_ref, $nextlno_ref_end) = @_;
-  my $reffile = $file;
-  die "$file should end on .lin" if ($reffile !~ /\.lin$/);
-  $reffile =~ s/lin$/ref/;
-  if (-e $reffile)
+  my ($reflinesref, $srclinesref,
+      $qlistLref, $qlistOref, $mdlistOref, $qlistSref, $mdlistSref,
+      $rno) = @_;
+
+  my @refcopy = @$reflinesref;
+  @$reflinesref = ();
+
+  for my $n (0 .. $#refcopy)
   {
-    open my $fr, '<', $reffile or die "Can't open $reffile $!";
-    while (my $line = <$fr>)
+    my $line = $refcopy[$n];
+
+    my ($l0, $l1, $rest);
+    if ($line =~ /^(\d+) (.*)$/)
     {
-      chomp $line;
-      $line =~ s///g;
-      push @$lines_ref, $line;
+      $l0 = $1;
+      $l1 = $1;
+      $rest = $2;
     }
-    close $fr;
-
-    if ($lines_ref->[0] =~ /skip/)
+    elsif ($line =~ /^(\d+)-(\d+) (.*)$/)
     {
-      die "Extra lines in $reffile" unless $#$lines_ref == 0;
-      $$nextpos_ref = 0;
-      $$nextlno_ref = -1;
-      $$nextlno_ref_end = -1;
-    }
-
-    my $pos = 0;
-    $pos++ if ($lines_ref->[0] !~ /^\d+/); # Both 10 and 10-12
-
-    while ($pos <= $#$lines_ref &&
-        $lines_ref->[$pos] =~ /^(\d+) / &&
-        $1 <= 3)
-    {
-      $pos++;
-    }
-
-    if ($pos > $#$lines_ref)
-    {
-      $$nextpos_ref = 0;
-      $$nextlno_ref = -1;
-      $$nextlno_ref_end = -1;
+      $l0 = $1;
+      $l1 = $2;
+      $rest = $3;
     }
     else
     {
-      $$nextpos_ref = $pos+1;
-      parse_ref_line($lines_ref->[$pos], $nextlno_ref, $nextlno_ref_end);
+      die "Haven't learned ref line $line";
     }
-  }
-  else
-  {
-    $$nextpos_ref = 0;
-    $$nextlno_ref = -1;
-    $$nextlno_ref_end = -1;
+
+    if ($l0 < $qlistLref->[0]{lno0})
+    {
+      push @$reflinesref, $line;
+      next;
+    }
+
+    my $found = 0;
+    for my $m (0 .. $#$qlistLref)
+    {
+      next unless ($l0 >= $qlistLref->[$m]{lno0});
+      next unless ($l1 <= $qlistLref->[$m]{lno1});
+
+      my $qx = $qlistLref->[$m]{qx};
+      my $md = $qlistLref->[$m]{md};
+
+      my $qfound = 0;
+      my $chunkno;
+      find_in($qx, $qlistOref, \@{$mdlistOref->{$md}},
+        \$qfound, \$chunkno);
+
+
+      if ($qfound)
+      {
+        $found = 1;
+        next if ($qlistLref->[$n]{lno0} == $qlistOref->[$chunkno]{lno0});
+
+        $line = shift_ref($l0, $l1, $rest,
+          $qlistOref->[$chunkno]{lno0} - $qlistLref->[$m]{lno0});
+        push @$reflinesref, $line;
+        last;
+      }
+
+      find_in($qx, $qlistSref, \@{$mdlistSref->{$md}},
+        \$qfound, \$chunkno);
+
+      if (! $qfound)
+      {
+        print "The ref line for $qx is nowhere to be found ($rno)\n";
+        die "Fatal error";
+      }
+
+      $found = 1;
+      $line = shift_ref($l0, $l1, $rest,
+        $qlistSref->[$chunkno]{lno0} - $qlistLref->[$m]{lno0});
+      push @$srclinesref, $line;
+      last;
+    }
+
+    if (! $found)
+    {
+      die "Couldn't find $l0";
+    }
   }
 }
 
@@ -625,3 +695,68 @@ sub file_eligible
   return 0 unless ($line =~ /LIN_MERGED/ || $line =~ /LIN_DUPLICATE/);
   return 1;
 }
+
+
+sub find_in
+{
+  my ($qx, $qlistref, $mdlistref, $foundref, $cnoref) = @_;
+  for my $cno (@$mdlistref)
+  {
+    if ($qx eq $qlistref->[$cno]{qx})
+    {
+      $$foundref = 1;
+      $$cnoref = $cno;
+      return;
+    }
+  }
+}
+
+
+sub shift_ref
+{
+  my ($l0, $l1, $rest, $delta) = @_;
+  my $line;
+  if ($l0 == $l1)
+  {
+    $line = $l0 + $delta;
+  }
+  else
+  {
+    $line = ($l0 + $delta) . "-" . ($l1 + $delta);
+  }
+  $line .= " $rest";
+  return $line;
+}
+
+
+sub ref_parse
+{
+  my ($line, $lnoref, $fnoref) = @_;
+  $$fnoref = 0;
+
+  if ($line !~ /^(\d+)/)
+  {
+    $$lnoref = 0;
+    return;
+  }
+
+  $$lnoref = $1;
+
+  if ($line =~ /\"\d+,(\d+),/)
+  {
+    $$fnoref = $1;
+  }
+}
+
+
+sub reflex
+{
+  my ($a1, $a2, $b1, $b2);
+  ref_parse($a, \$a1, \$a2);
+  ref_parse($b, \$b1, \$b2);
+
+  return -1 if $a1 < $b1;
+  return 1 if $a1 > $b1;
+  return ($a2 <=> $b2);
+}
+
