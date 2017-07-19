@@ -119,7 +119,7 @@ while ($nL <= $#qlistL)
 
     if (! $file_cached)
     {
-      die "Could not find source file";
+      die "Could not find source file for $qlistL[$nL]{qx}";
     }
 
     if (! defined $mdlistS{$md})
@@ -136,7 +136,7 @@ while ($nL <= $#qlistL)
 
     if (! $qfound)
     {
-      die "Couldn't find $qlistL[$nL]{qx}:\n";
+      die "Couldn't find $qlistL[$nL]{qx} ($rno)\n";
     }
     elsif (! same_lines($listL[$nL], $listS[$chunkno]))
     {
@@ -203,12 +203,25 @@ if ($nO <= $#qlistO)
   die "orig not used up";
 }
 
+if (! $file_cached)
+{
+  die "Didn't need a source file!";
+}
+
 
 my $srcreffile = "$DIR/orig/$rno.ref";
 my @srcreflines;
-read_ref($srcreffile, \@srcreflines);
-die "Want exactly one source ref line" unless ($#srcreflines == 0);
-die "First source ref line must be skip" unless $srcreflines[0] =~ /^skip/;
+if (-e $srcreffile)
+{
+  read_ref($srcreffile, \@srcreflines);
+  die "Want exactly one source ref line" unless ($#srcreflines == 0);
+  die "First source ref line must be skip" 
+    unless $srcreflines[0] =~ /^skip/;
+}
+else
+{
+  die "No ref file for $rno";
+}
 
 
 my @existreflines;
@@ -494,7 +507,7 @@ sub reslist2ref
   my ($rlistLref, $rlistOref, $resref) = @_;
   if ($#$rlistLref != $#$rlistOref)
   {
-    die "Different lengths";
+    die "Different lengths: $#$rlistLref vs $#$rlistOref";
   }
   
   for my $i (0 .. $#$rlistLref)

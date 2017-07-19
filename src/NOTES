@@ -1,3 +1,6 @@
+40985: Already has a c1, but shorter than in c1
+- Need replace (of interval of lines), not insert
+
 In perl
 * Get orig -> untangle done
   - Check MERGED and DUPLICATE
