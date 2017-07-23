@@ -59,11 +59,11 @@ if ($resultsL ne $resultsO)
 
   reslist2ref(\@reslistL, \@reslistO, \@reflines);
 
-  if ($#reflines > 23)
+  if ($#reflines > 40)
   {
     print "$resultsL\n";
     print "$resultsO\n";
-    die "Results differ -- fix first";
+    die "Results differ -- fix first ($#reflines)";
   }
 }
 
@@ -126,6 +126,7 @@ while ($nL <= $#qlistL)
     {
       print "nL $nL, nO $nO\n";
       print "md $md\n";
+      print "qx $qlistL[$nL]{qx}\n";
       die "Could not find md in $rno";
     }
 
@@ -150,10 +151,10 @@ while ($nL <= $#qlistL)
         {
           print "lin $listL[$nL][$n]\n";
           print "src $listS[$chunkno][$n]\n";
-          my $lno = $qlistO[$nO]{lno0} + $n;
+          my $lno = $qlistS[$chunkno]{lno0} + $n;
           print "$lno replaceLIN ... {ERR_LIN_MC_REPLACE(1,1,1)}\n";
           # TODO: Propose a fix
-          die "Fatal error";
+          die "Fatal error ($rno)";
         }
       }
     }
@@ -214,7 +215,7 @@ my @srcreflines;
 if (-e $srcreffile)
 {
   read_ref($srcreffile, \@srcreflines);
-  die "Want exactly one source ref line" unless ($#srcreflines == 0);
+  die "Want exactly one source ref line ($rno)" unless ($#srcreflines == 0);
   die "First source ref line must be skip" 
     unless $srcreflines[0] =~ /^skip/;
 }
@@ -705,7 +706,9 @@ sub file_eligible
   close $fr;
 
   return 0 unless $line =~ /^skip/;
-  return 0 unless ($line =~ /LIN_MERGED/ || $line =~ /LIN_DUPLICATE/);
+  return 0 unless ($line =~ /LIN_MERGED/ || 
+    $line =~ /LIN_DUPLICATE/ ||
+    $line =~ /LIN_OMIT/);
   return 1;
 }
 

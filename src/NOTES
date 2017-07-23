@@ -1,10 +1,29 @@
+RefLines
+- Parsing an insert file.lin
+  - Has * Buffer, initially nullptr
+  - When first line requires it, is new'ed and read
+  - When going out of scope, is given up (delete'd)
+- Keep filename for comparison (only one allowed for now)
+- RefLines gets insertion() similar to deletion()
+- Buffer::fix
+  - [What is line 422 doing?  "Deleted a field"?]
+  - INSERT: modify() into a vector<string> of size insertion
+  - Loop over and make LineData to classify and insert
+  - REPLACE and external reference (need function to tell: isExternal())
+    - More than one line removed?
+    - More than one line added?
+
+
 40985: Already has a c1, but shorter than in c1
 - Need replace (of interval of lines), not insert
+
+A few .ref skips still have origs (27294)
 
 In perl
 * Get orig -> untangle done
   - Check MERGED and DUPLICATE
   - Anything left in orig directory? No MERGED, maybe DUPLICATE
+  - No SUBSET any more (use MERGED)
 * make a mergelin that goes from "orig" (the copy) to untangle
   directly
 * compare with untangle
