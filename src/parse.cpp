@@ -608,6 +608,16 @@ string basefile(const string& path)
 }
 
 
+string filepath(const string& path)
+{
+  size_t pos = path.find_last_of("/\\");
+  if (pos == string::npos)
+    return "./";
+  else
+    return path.substr(0, pos+1);
+}
+
+
 void toUpper(
   string& text)
 {

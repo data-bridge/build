@@ -11,6 +11,7 @@ SOURCE_FILES 	=		\
 	Chunk.cpp		\
 	CompStats.cpp		\
 	Contract.cpp		\
+	DDInfo.cpp		\
 	Date.cpp		\
 	Deal.cpp		\
 	DuplStat.cpp		\
@@ -150,13 +151,14 @@ Canvas.obj: Canvas.h
 Chunk.obj: Chunk.h bconst.h parse.h Bexcept.h Bdiff.h
 CompStats.obj: CompStats.h bconst.h parse.h
 Contract.obj: Contract.h bconst.h parse.h Bexcept.h Bdiff.h
+DDInfo.obj: DDInfo.h parse.h bconst.h Bexcept.h
 Date.obj: Date.h bconst.h parse.h Bexcept.h Bdiff.h
 Deal.obj: Deal.h bconst.h parse.h Bexcept.h Bdiff.h
-DuplStat.obj: DuplStat.h Group.h Segment.h Date.h bconst.h Location.h
+DuplStat.obj: DuplStat.h bconst.h Group.h Segment.h Date.h Location.h
 DuplStat.obj: Session.h Scoring.h Teams.h Team.h HeaderLIN.h Board.h Deal.h
 DuplStat.obj: Tableau.h Valuation.h Term.h GivenScore.h Instance.h Players.h
 DuplStat.obj: Auction.h Contract.h Play.h ddsIF.h dll.h RefLines.h RefLine.h
-DuplStat.obj: RefEdit.h refconst.h RefComment.h RefAction.h Bexcept.h
+DuplStat.obj: RefEdit.h refconst.h RefComment.h RefAction.h parse.h Bexcept.h
 DuplStats.obj: DuplStats.h DuplStat.h bconst.h Group.h Segment.h Date.h
 DuplStats.obj: Location.h Session.h Scoring.h Teams.h Team.h HeaderLIN.h
 DuplStats.obj: Board.h Deal.h Tableau.h Valuation.h Term.h GivenScore.h

@@ -110,6 +110,7 @@ void toUpper(string& text);
 void toLower(string& text);
 
 string basefile(const string& path);
+string filepath(const string& path);
 
 unsigned trimLeading(
   string& text,
