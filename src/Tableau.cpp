@@ -260,6 +260,15 @@ bool Tableau::set(
 }
 
 
+void Tableau::setDDS(const int resDDS[5][4])
+{
+  // No checks.
+  for (unsigned d = 0; d < BRIDGE_DENOMS; d++)
+    for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
+      table[d][p] = static_cast<unsigned>(resDDS[d][p]);
+}
+
+
 unsigned Tableau::get(
   const Player player,
   const Denom denom) const

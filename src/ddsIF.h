@@ -23,4 +23,9 @@ struct RunningDD
 unsigned tricksDD(
   RunningDD& running);
 
+void tableauDD(
+  ddTableDealsPBN * tablePBN,
+  ddTablesRes * resDDS,
+  unsigned numThreads);
+
 #endif

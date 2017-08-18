@@ -15,6 +15,8 @@
 #include <list>
 #include <map>
 
+#include "bconst.h"
+
 using namespace std;
 
 
@@ -22,7 +24,7 @@ class DDInfo
 {
   private:
 
-    typedef map<string, string> BoardResults;
+    typedef map<unsigned, string> BoardResults;
     typedef map<string, BoardResults*> FileResults;
 
     struct DirEntry
@@ -49,15 +51,15 @@ class DDInfo
 
     bool boardsHaveResults(
       const string& fname,
-      const vector<string>& boardsIn,
-      vector<string>& boardsMissing) const;
+      const vector<unsigned>& boardsIn,
+      vector<unsigned>& boardsMissing) const;
 
     void add(
       const string& fname,
-      const vector<string>& boardsMissing,
+      const vector<unsigned>& boardsMissing,
       const vector<string>& infoMissing);
 
-    void write(const string& fnameDD = "tableau.log") const;
+    void write(const string& fnameDD = "tableaux.log") const;
 };
 
 #endif

@@ -48,6 +48,11 @@ int main(int argc, char * argv[])
   mergeResults(allStatsList, options);
   printResults(allStatsList[0], options);
 
+  if (options.solveFlag)
+    files.writeDDInfo(BRIDGE_DD_INFO_SOLVE);
+  if (options.traceFlag)
+    files.writeDDInfo(BRIDGE_DD_INFO_TRACE);
+
   timer.stop();
 
   cout << "Time spent overall (elapsed): " << timer.str(2) << "\n";

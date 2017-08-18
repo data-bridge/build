@@ -19,6 +19,7 @@
 #include "RefLines.h"
 
 #include "funcCompare.h"
+#include "funcDD.h"
 #include "funcDigest.h"
 #include "funcDupl.h"
 #include "funcIMPSheet.h"
@@ -93,6 +94,14 @@ void dispatch(
 
     if (options.playersFlag)
       dispatchPlayersValidate(group, flog);
+
+    if (options.solveFlag)
+      dispatchDD(BRIDGE_DD_INFO_SOLVE, group, files, task.fileInput, 
+        options, flog);
+
+    if (options.traceFlag)
+      dispatchDD(BRIDGE_DD_INFO_TRACE, group, files, task.fileInput, 
+        options, flog);
 
     if (options.statsFlag)
     {

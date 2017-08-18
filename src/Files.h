@@ -14,6 +14,7 @@
 #include <vector>
 #include <map>
 
+#include "DDInfo.h"
 #include "bconst.h"
 
 using namespace std;
@@ -33,6 +34,9 @@ class Files
 
     vector<FileTask> fileTasks;
     unsigned nextNo;
+
+    vector<DDInfo> infoDD;
+    vector<string> dirList; // Sloppy to keep this
 
     bool fillEntry(
       const string& text,
@@ -55,6 +59,10 @@ class Files
       const bool keepFlag,
       const map<string, vector<FileEntry>>& refMap);
 
+    void readDDInfoFile(
+      const string& dir,
+      const Options& options);
+
 
   public:
 
@@ -72,6 +80,19 @@ class Files
 
     void print() const;
 
+    bool boardsHaveResults(
+      const DDInfoType infoNo,
+      const string& fname,
+      const vector<unsigned>& boardsIn,
+      vector<unsigned>& boardsMissing) const;
+      
+    void addDDInfo(
+      const DDInfoType infoNo,
+      const string& fname,
+      const vector<unsigned>& boardsMissing,
+      const vector<string>& infoMissing);
+
+    void writeDDInfo(const DDInfoType infoNo) const;
 };
 
 #endif

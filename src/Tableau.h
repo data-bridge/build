@@ -137,6 +137,8 @@ class Tableau
       const Denom denom,
       const unsigned t);
 
+    void setDDS(const int resDDS[5][4]);
+
     unsigned get(
       const Player player,
       const Denom denom) const;

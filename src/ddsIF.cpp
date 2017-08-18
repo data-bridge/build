@@ -26,6 +26,18 @@ static mutex mtx;
 using namespace std;
 
 
+void errorDD(const int res)
+{
+  char line[80];
+  mtx.lock();
+  ErrorMessage(res, line);
+  mtx.unlock();
+  stringstream ss;
+  ss << "DDS error: " << line;
+  THROW(ss.str());
+}
+
+
 unsigned tricksDD(
   RunningDD& running)
 {
@@ -35,17 +47,27 @@ unsigned tricksDD(
   mtx.unlock();
 
   if (res != RETURN_NO_FAULT)
-  {
-    char line[80];
-    mtx.lock();
-    ErrorMessage(res, line);
-    mtx.unlock();
-    stringstream ss;
-    ss << "DDS error: " << line;
-    THROW(ss.str());
-  }
+    errorDD(res);
 
   return (running.declLeadFlag ? running.tricksDecl + fut.score[0] :
     13 - (running.tricksDef + fut.score[0]));
+}
+
+
+void tableauDD(
+  ddTableDealsPBN * tablePBN,
+  ddTablesRes * resDDS,
+  unsigned numThreads)
+{
+  int trumpFilter[5] = {0, 0, 0, 0, 0};
+
+  mtx.lock();
+  if (numThreads != 1u)
+    SetMaxThreads(static_cast<int>(numThreads));
+  int res = CalcAllTablesPBN(tablePBN, -1, trumpFilter, resDDS, nullptr);
+  mtx.unlock();
+
+  if (res != RETURN_NO_FAULT)
+    errorDD(res);
 }
 

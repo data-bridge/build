@@ -56,6 +56,7 @@ SOURCE_FILES 	=		\
 	fileLIN.cpp		\
 	fileREC.cpp		\
 	funcCompare.cpp		\
+	funcDD.cpp		\
 	funcDigest.cpp		\
 	funcDupl.cpp		\
 	funcIMPSheet.cpp	\
@@ -151,7 +152,7 @@ Canvas.obj: Canvas.h
 Chunk.obj: Chunk.h bconst.h parse.h Bexcept.h Bdiff.h
 CompStats.obj: CompStats.h bconst.h parse.h
 Contract.obj: Contract.h bconst.h parse.h Bexcept.h Bdiff.h
-DDInfo.obj: DDInfo.h parse.h bconst.h Bexcept.h
+DDInfo.obj: DDInfo.h bconst.h parse.h Bexcept.h
 Date.obj: Date.h bconst.h parse.h Bexcept.h Bdiff.h
 Deal.obj: Deal.h bconst.h parse.h Bexcept.h Bdiff.h
 DuplStat.obj: DuplStat.h bconst.h Group.h Segment.h Date.h Location.h
@@ -165,7 +166,7 @@ DuplStats.obj: Board.h Deal.h Tableau.h Valuation.h Term.h GivenScore.h
 DuplStats.obj: Instance.h Players.h Auction.h Contract.h Play.h ddsIF.h dll.h
 DuplStats.obj: RefLines.h RefLine.h RefEdit.h refconst.h RefComment.h
 DuplStats.obj: RefAction.h Bexcept.h
-Files.obj: Files.h bconst.h parse.h
+Files.obj: Files.h DDInfo.h bconst.h parse.h
 GivenScore.obj: bconst.h GivenScore.h parse.h Bexcept.h Bdiff.h
 Group.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
 Group.obj: Teams.h Team.h HeaderLIN.h Board.h Deal.h Tableau.h Valuation.h
@@ -216,12 +217,12 @@ dispatch.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h
 dispatch.obj: Scoring.h Teams.h Team.h HeaderLIN.h Board.h Deal.h Tableau.h
 dispatch.obj: Valuation.h Term.h GivenScore.h Instance.h Players.h Auction.h
 dispatch.obj: Contract.h Play.h ddsIF.h dll.h dispatch.h validate.h Files.h
-dispatch.obj: AllStats.h ValStats.h ValProfile.h TextStats.h CompStats.h
-dispatch.obj: RefStats.h refconst.h DuplStats.h DuplStat.h Timers.h Timer.h
-dispatch.obj: RefLines.h RefLine.h RefEdit.h RefComment.h RefAction.h
-dispatch.obj: funcCompare.h funcDigest.h funcDupl.h funcIMPSheet.h funcRead.h
-dispatch.obj: funcPlayerVal.h funcRefStats.h funcTextStats.h funcValidate.h
-dispatch.obj: funcValuation.h funcWrite.h
+dispatch.obj: DDInfo.h AllStats.h ValStats.h ValProfile.h TextStats.h
+dispatch.obj: CompStats.h RefStats.h refconst.h DuplStats.h DuplStat.h
+dispatch.obj: Timers.h Timer.h RefLines.h RefLine.h RefEdit.h RefComment.h
+dispatch.obj: RefAction.h funcCompare.h funcDD.h funcDigest.h funcDupl.h
+dispatch.obj: funcIMPSheet.h funcRead.h funcPlayerVal.h funcRefStats.h
+dispatch.obj: funcTextStats.h funcValidate.h funcValuation.h funcWrite.h
 fileEML.obj: Segment.h Date.h bconst.h Location.h Session.h Scoring.h Teams.h
 fileEML.obj: Team.h HeaderLIN.h Board.h Deal.h Tableau.h Valuation.h Term.h
 fileEML.obj: GivenScore.h Instance.h Players.h Auction.h Contract.h Play.h
@@ -254,6 +255,10 @@ funcCompare.obj: Scoring.h Teams.h Team.h HeaderLIN.h Board.h Deal.h
 funcCompare.obj: Tableau.h Valuation.h Term.h GivenScore.h Instance.h
 funcCompare.obj: Players.h Auction.h Contract.h Play.h ddsIF.h dll.h Buffer.h
 funcCompare.obj: CompStats.h funcCompare.h funcRead.h Bexcept.h Bdiff.h
+funcDD.obj: Group.h Segment.h Date.h bconst.h Location.h Session.h Scoring.h
+funcDD.obj: Teams.h Team.h HeaderLIN.h Board.h Deal.h Tableau.h Valuation.h
+funcDD.obj: Term.h GivenScore.h Instance.h Players.h Auction.h Contract.h
+funcDD.obj: Play.h ddsIF.h dll.h Files.h DDInfo.h Bexcept.h
 funcDigest.obj: funcDigest.h bconst.h Sheet.h Contract.h Deal.h Auction.h
 funcDigest.obj: Play.h ddsIF.h dll.h Buffer.h SheetHand.h Reflines.h
 funcDigest.obj: RefLine.h RefEdit.h refconst.h RefComment.h RefAction.h
@@ -321,9 +326,9 @@ validateEML.obj: validate.h bconst.h valint.h Buffer.h ValProfile.h
 validateEML.obj: validateEML.h
 validateREC.obj: validate.h bconst.h valint.h Buffer.h ValProfile.h
 validateREC.obj: validateREC.h parse.h
-reader.obj: args.h bconst.h Files.h AllStats.h ValStats.h ValProfile.h
-reader.obj: TextStats.h CompStats.h RefStats.h refconst.h DuplStats.h
-reader.obj: DuplStat.h Timers.h Timer.h dispatch.h
-reader.obj: args.h bconst.h Files.h AllStats.h ValStats.h ValProfile.h
-reader.obj: TextStats.h CompStats.h RefStats.h refconst.h DuplStats.h
-reader.obj: DuplStat.h Timers.h Timer.h dispatch.h
+reader.obj: args.h bconst.h Files.h DDInfo.h AllStats.h ValStats.h
+reader.obj: ValProfile.h TextStats.h CompStats.h RefStats.h refconst.h
+reader.obj: DuplStats.h DuplStat.h Timers.h Timer.h dispatch.h
+reader.obj: args.h bconst.h Files.h DDInfo.h AllStats.h ValStats.h
+reader.obj: ValProfile.h TextStats.h CompStats.h RefStats.h refconst.h
+reader.obj: DuplStats.h DuplStat.h Timers.h Timer.h dispatch.h

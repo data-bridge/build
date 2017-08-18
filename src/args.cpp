@@ -25,7 +25,7 @@ struct OptEntry
   unsigned numArgs;
 };
 
-#define BRIDGE_NUM_OPTIONS 20
+#define BRIDGE_NUM_OPTIONS 21
 
 static const OptEntry OPT_LIST[BRIDGE_NUM_OPTIONS] =
 {
@@ -37,14 +37,15 @@ static const OptEntry OPT_LIST[BRIDGE_NUM_OPTIONS] =
   {"R", "refdir", 1},
   {"d", "digfile", 1},
   {"D", "digdir", 1},
-  {"T", "tableIMP", 0},
+  {"t", "tableIMP", 0},
   {"l", "logfile", 1},
   {"c", "compare", 0},
   {"p", "players", 0},
   {"e", "equal", 0},
   {"V", "valuation", 0},
+  {"S", "solve", 0},
+  {"T", "trace", 0},
   {"f", "format", 1},
-  {"w", "write", 1},
   {"s", "stats", 0},
   {"q", "quotes", 0},
   {"n", "threads", 1},
@@ -109,12 +110,15 @@ void usage(
     "-V, --valuation    Perform valuation of hands.\n" <<
     "                   (Default: not set)\n" <<
     "\n" <<
+    "-S, --solve        Perform double-dummy tableau analysis.\n" <<
+    "                   (Default: not set)\n" <<
+    "\n" <<
+    "-T, --trace        Perform double-dummy trace analysis.\n" <<
+    "                   (Default: not set)\n" <<
+    "\n" <<
     "-f, --format s     Output format for -O (default: ALL).\n" <<
     "                   Values LIN, PBN, RBN, TXT, EML, DOC, REC, ALL.\n" <<
     "                   Some dialects are set by the input filename.\n" <<
-    "\n" <<
-    "-w, --write s      Write .ref file for next run (default: 0).\n" <<
-    "                   Values 0 (none), 1 (clear ones), 2 (all).\n" <<
     "\n" <<
     "-s, --stats        Output length stats of free-form fields.\n" <<
     "                   (Default: not set)\n" <<
@@ -201,14 +205,14 @@ static void setDefaults(Options& options)
   options.playersFlag = false;
   options.equalFlag = false;
   options.valuationFlag = false;
+  options.solveFlag = false;
+  options.traceFlag = false;
 
   options.formatSetFlag = false;
   options.format = BRIDGE_FORMAT_SIZE;
 
   options.statsFlag = false;
   options.quoteFlag = false;
-
-  options.refLevel = REF_LEVEL_NONE;
 
   options.numThreads = 1;
 
@@ -259,6 +263,16 @@ void printOptions(const Options& options)
   else
     cout << setw(12) << "players" << setw(12) << "not set" << "\n";
 
+  if (options.solveFlag)
+    cout << setw(12) << "solve" << setw(12) << "set" << "\n";
+  else
+    cout << setw(12) << "solve" << setw(12) << "not set" << "\n";
+
+  if (options.traceFlag)
+    cout << setw(12) << "trace" << setw(12) << "set" << "\n";
+  else
+    cout << setw(12) << "trace" << setw(12) << "not set" << "\n";
+
   if (options.formatSetFlag)
   {
     cout << setw(12) << "format" << 
@@ -271,8 +285,6 @@ void printOptions(const Options& options)
     cout << setw(12) << "stats" << setw(12) << "set" << "\n";
   else
     cout << setw(12) << "stats" << setw(12) << "not set" << "\n";
-
-  cout << setw(12) << "ref level" << setw(12) << options.refLevel << "\n\n";
 
   cout << setw(12) << "threads" << setw(12) << options.numThreads << "\n\n";
 }
@@ -406,7 +418,7 @@ void readArgs(
         options.fileLog = {true, optarg};
         break;
 
-      case 'T':
+      case 't':
         options.tableIMPFlag = true;
         break;
 
@@ -425,6 +437,14 @@ void readArgs(
 
       case 'V':
         options.valuationFlag = true;
+        break;
+
+      case 'S':
+        options.solveFlag = true;
+        break;
+
+      case 'T':
+        options.traceFlag = true;
         break;
 
       case 'f':
@@ -454,25 +474,6 @@ void readArgs(
 
       case 'q':
         options.quoteFlag = true;
-        break;
-
-      case 'w':
-        mu = static_cast<unsigned>(strtol(optarg, &temp, 0));
-        if (temp == optarg || temp == '\0' || errno == ERANGE)
-        {
-          cout << "Could not parse write\n";
-          nextToken -= 2;
-          errFlag = true;
-        }
-        
-        if (mu > REF_LEVEL_ALL)
-        {
-          cout << "numThreads out of range\n";
-          nextToken -= 2;
-          errFlag = true;
-        }
-
-        options.refLevel = static_cast<RefLevel>(mu);
         break;
 
       case 'n':
