@@ -38,7 +38,10 @@ void makeTableau(
   tableauDD(tablePBN, &resDDS, numThreads);
 
   for (int i = 0; i < tablePBN->noOfTables; i++)
-    infoMissing.push_back(DDS2RBN(resDDS.results[i].resTable));
+  {
+    const string s = DDS2RBN(resDDS.results[i].resTable);
+    infoMissing.push_back(s.substr(4, s.length()-6));
+  }
 
   tablePBN->noOfTables = 0;
 }
@@ -67,25 +70,35 @@ void makeDD(
     for (auto &bp: segment)
       boardsIn.push_back(bp.extNo);
     
-    vector<unsigned> boardsMissing;
+    vector<unsigned> boardsMissAll, boardsMissing;
     vector<string> infoMissing;
-    if (files.boardsHaveResults(infoNo, fname, boardsIn, boardsMissing))
+    if (files.boardsHaveResults(infoNo, fname, boardsIn, boardsMissAll))
       continue;
     
-    for (unsigned extNo: boardsMissing)
+    for (unsigned extNo: boardsMissAll)
     {
       const Board * bd = segment.getBoard(extNo);
       if (bd == nullptr)
         THROW("Bad board");
 
       string tmp = bd->strDeal(BRIDGE_WEST,BRIDGE_FORMAT_PBN);
-      tmp.copy(tablePBN.deals[tablePBN.noOfTables++].cards, 
-        tmp.length()+1);
+      const size_t l = tmp.length();
+      if (l < 40)
+        THROW("Not PBN: " + tmp);
+
+      // Skip "Deal [" and the trailing stuff.
+      copy(tmp.begin()+7, tmp.end()-3, 
+        tablePBN.deals[tablePBN.noOfTables].cards);
+      tablePBN.deals[tablePBN.noOfTables].cards[l-10] = '\0';
+      tablePBN.noOfTables++;
+
+      boardsMissing.push_back(extNo);
 
       if (tablePBN.noOfTables == MAXNOOFTABLES)
       {
         makeTableau(&tablePBN, options.numThreads, infoMissing);
         files.addDDInfo(infoNo, fname, boardsMissing, infoMissing);
+        boardsMissing.clear();
         infoMissing.clear();
       }
     }

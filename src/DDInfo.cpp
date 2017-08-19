@@ -50,7 +50,7 @@ void DDInfo::read(const string& resName)
 {
   ifstream resstr(resName.c_str());
   if (! resstr.is_open())
-    THROW("File " + resName + " cannot be opened");
+    return; // File not found
 
   const string path = filepath(resName);
   auto itDir = dirResults.find(path);
@@ -185,7 +185,8 @@ void DDInfo::add(
     if (itBoard == bres.end())
       bres[boardsMissing[i]] = infoMissing[i];
     else
-      THROW("Attempting to reset an existing DD value");
+      THROW("Attempting to reset an existing DD value: " + fname +
+        ", " + STR(i) + ", " + STR(boardsMissing[i]));
   }
 }
 

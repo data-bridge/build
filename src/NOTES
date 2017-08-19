@@ -1,3 +1,12 @@
+Double dummy
+- Multi-threading works or not?
+- unsigned -> string in DDInfo
+- Fill out Tableau in Board
+- Do Trace as well (needs o1, c1, ...)
+- Multiple segments: Data structure needs list of pointers, not pointer,
+  for file results
+- Rerun just to see that tableaux.log gets picked up
+
 RefLines
 - Parsing an insert file.lin
   - Has * Buffer, initially nullptr
@@ -13,6 +22,7 @@ RefLines
     - More than one line removed?
     - More than one line added?
 
+44913: Already uses new format, so doesn't work
 
 40985: Already has a c1, but shorter than in c1
 - Need replace (of interval of lines), not insert
@@ -107,7 +117,6 @@ Board: Valuation
 
 Double-dummy
 ------------
-* Tableau: Call DDS
 * Trace: 
   - (1) old trace, can count mistakes
   - (2) new trace, can compare within suit and between suits,
