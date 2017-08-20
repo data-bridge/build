@@ -366,8 +366,8 @@ void Files::print() const
 bool Files::boardsHaveResults(
   const DDInfoType infoNo,
   const string& fname,
-  const vector<unsigned>& boardsIn,
-  vector<unsigned>& boardsMissing) const
+  const vector<string>& boardsIn,
+  vector<string>& boardsMissing) const
 {
   return infoDD[infoNo].boardsHaveResults(fname, boardsIn, boardsMissing);
 }
@@ -376,7 +376,7 @@ bool Files::boardsHaveResults(
 void Files::addDDInfo(
   const DDInfoType infoNo,
   const string& fname,
-  const vector<unsigned>& boardsMissing,
+  const vector<string>& boardsMissing,
   const vector<string>& infoMissing)
 {
   infoDD[infoNo].add(fname, boardsMissing, infoMissing);

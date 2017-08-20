@@ -1,5 +1,4 @@
 Double dummy
-- unsigned -> string in DDInfo
 - Do Trace as well (needs o1, c1, ...)
 - Multiple segments: Data structure needs list of pointers, not pointer,
   for file results

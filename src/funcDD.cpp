@@ -14,6 +14,7 @@
 
 #include "Group.h"
 #include "Files.h"
+#include "parse.h"
 
 #include "dll.h"
 #include "Bexcept.h"
@@ -61,18 +62,21 @@ void makeDD(
       continue;
     segNo++;
 
-    vector<unsigned> boardsIn;
+    vector<string> boardsIn;
     for (auto &bp: * segment)
-      boardsIn.push_back(bp.extNo);
+      boardsIn.push_back(to_string(bp.extNo));
     
-    vector<unsigned> boardsMissAll, boardsMissing;
+    vector<string> boardsMissAll, boardsMissing, infoMissing;
     array<Board *, MAXNOOFTABLES> bpMissing;
-    vector<string> infoMissing;
     if (files.boardsHaveResults(infoNo, fname, boardsIn, boardsMissAll))
       continue;
     
-    for (unsigned extNo: boardsMissAll)
+    for (string extStr: boardsMissAll)
     {
+      unsigned extNo;
+      if (! str2unsigned(extStr, extNo))
+        THROW("Not a number: " + extStr);
+
       if (segment->getBoard(extNo) == nullptr)
         THROW("Bad board");
       Board * bd = segment->acquireBoard(extNo);
@@ -87,7 +91,7 @@ void makeDD(
         tablePBN.deals[tablePBN.noOfTables].cards);
       tablePBN.deals[tablePBN.noOfTables].cards[l-10] = '\0';
 
-      boardsMissing.push_back(extNo);
+      boardsMissing.push_back(extStr);
       bpMissing[static_cast<unsigned>(tablePBN.noOfTables)] = bd;
 
       tablePBN.noOfTables++;

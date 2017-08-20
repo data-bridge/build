@@ -95,11 +95,8 @@ void DDInfo::read(const string& resName)
     vector<string> tokens(2);
     tokens.clear();
     tokenize(line, tokens, " ");
-    unsigned v;
-    if (! str2unsigned(tokens[0], v))
-      THROW(tokens[0] + " is not a number");
 
-    (*bres)[v] = tokens[1];
+    (*bres)[tokens[0]] = tokens[1];
   }
 
   resstr.close();
@@ -108,8 +105,8 @@ void DDInfo::read(const string& resName)
 
 bool DDInfo::boardsHaveResults(
   const string& fname,
-  const vector<unsigned>& boardsIn,
-  vector<unsigned>& boardsMissing) const
+  const vector<string>& boardsIn,
+  vector<string>& boardsMissing) const
 {
   const string path = filepath(fname);
   const string base = basefile(fname);
@@ -144,7 +141,7 @@ bool DDInfo::boardsHaveResults(
 
 void DDInfo::add(
   const string& fname,
-  const vector<unsigned>& boardsMissing,
+  const vector<string>& boardsMissing,
   const vector<string>& infoMissing)
 {
   mtx.lock();
