@@ -89,6 +89,8 @@ class Board
       const string& text,
       const Format format);
 
+    void setTableauDDS(const int res[5][4]);
+
     bool setTableauEntry(
       const Player player,
       const Denom denom,

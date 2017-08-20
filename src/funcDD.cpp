@@ -8,6 +8,7 @@
 
 
 #include <iomanip>
+#include <array>
 #include <sstream>
 #include <fstream>
 
@@ -21,16 +22,9 @@
 using namespace std;
 
 
-string DDS2RBN(const int res[5][4])
-{
-  Tableau tableau;
-  tableau.setDDS(res);
-  return tableau.str(BRIDGE_FORMAT_RBN);
-}
-
-
 void makeTableau(
   ddTableDealsPBN * tablePBN,
+  array<Board *, MAXNOOFTABLES> bpMissing,
   vector<string>& infoMissing)
 {
   ddTablesRes resDDS;
@@ -38,7 +32,10 @@ void makeTableau(
 
   for (int i = 0; i < tablePBN->noOfTables; i++)
   {
-    const string s = DDS2RBN(resDDS.results[i].resTable);
+    const size_t u = static_cast<unsigned>(i);
+    bpMissing[u]->setTableauDDS(resDDS.results[i].resTable);
+
+    const string s = bpMissing[u]->strTableau(BRIDGE_FORMAT_RBN);
     infoMissing.push_back(s.substr(4, s.length()-6));
   }
 
@@ -48,7 +45,7 @@ void makeTableau(
 
 void makeDD(
   const DDInfoType infoNo,
-  const Group& group,
+  Group& group,
   Files& files,
   const string& fname)
 {
@@ -58,26 +55,27 @@ void makeDD(
   tablePBN.noOfTables = 0;
 
   unsigned segNo = 0;
-  for (auto &segment: group)
+  for (auto segment = group.mbegin(); segment != group.mend(); segment++)
   {
-    if (segment.size() == 0)
+    if (segment->size() == 0)
       continue;
     segNo++;
 
     vector<unsigned> boardsIn;
-    for (auto &bp: segment)
+    for (auto &bp: * segment)
       boardsIn.push_back(bp.extNo);
     
     vector<unsigned> boardsMissAll, boardsMissing;
+    array<Board *, MAXNOOFTABLES> bpMissing;
     vector<string> infoMissing;
     if (files.boardsHaveResults(infoNo, fname, boardsIn, boardsMissAll))
       continue;
     
     for (unsigned extNo: boardsMissAll)
     {
-      const Board * bd = segment.getBoard(extNo);
-      if (bd == nullptr)
+      if (segment->getBoard(extNo) == nullptr)
         THROW("Bad board");
+      Board * bd = segment->acquireBoard(extNo);
 
       string tmp = bd->strDeal(BRIDGE_WEST,BRIDGE_FORMAT_PBN);
       const size_t l = tmp.length();
@@ -88,13 +86,15 @@ void makeDD(
       copy(tmp.begin()+7, tmp.end()-3, 
         tablePBN.deals[tablePBN.noOfTables].cards);
       tablePBN.deals[tablePBN.noOfTables].cards[l-10] = '\0';
-      tablePBN.noOfTables++;
 
       boardsMissing.push_back(extNo);
+      bpMissing[static_cast<unsigned>(tablePBN.noOfTables)] = bd;
+
+      tablePBN.noOfTables++;
 
       if (tablePBN.noOfTables == MAXNOOFTABLES)
       {
-        makeTableau(&tablePBN, infoMissing);
+        makeTableau(&tablePBN, bpMissing, infoMissing);
         files.addDDInfo(infoNo, fname, boardsMissing, infoMissing);
         tablePBN.noOfTables = 0;
         boardsMissing.clear();
@@ -105,7 +105,7 @@ void makeDD(
     if (tablePBN.noOfTables > 0)
     {
       // Stragglers.
-      makeTableau(&tablePBN, infoMissing);
+      makeTableau(&tablePBN, bpMissing, infoMissing);
       files.addDDInfo(infoNo, fname, boardsMissing, infoMissing);
     }
   }
@@ -114,7 +114,7 @@ void makeDD(
 
 void dispatchDD(
   const DDInfoType infoNo,
-  const Group& group,
+  Group& group,
   Files& files,
   const string& fname,
   ostream& flog)

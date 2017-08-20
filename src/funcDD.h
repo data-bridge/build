@@ -20,7 +20,7 @@ using namespace std;
 
 void dispatchDD(
   const DDInfoType infoNo,
-  const Group& group,
+  Group& group,
   Files& files,
   const string& fname,
   ostream& flog);

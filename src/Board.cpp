@@ -251,6 +251,12 @@ void Board::setTableau(
 }
 
 
+void Board::setTableauDDS(const int res[5][4])
+{
+  tableau.setDDS(res);
+}
+
+
 bool Board::setTableauEntry(
   const Player player,
   const Denom denom,
