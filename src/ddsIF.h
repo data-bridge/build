@@ -25,7 +25,6 @@ unsigned tricksDD(
 
 void tableauDD(
   ddTableDealsPBN * tablePBN,
-  ddTablesRes * resDDS,
-  unsigned numThreads);
+  ddTablesRes * resDDS);
 
 #endif

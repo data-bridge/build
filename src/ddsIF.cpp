@@ -22,7 +22,6 @@
 #include "Bexcept.h"
 
 static mutex mtx;
-static bool setNumThreads = false;
 
 using namespace std;
 
@@ -57,18 +56,11 @@ unsigned tricksDD(
 
 void tableauDD(
   ddTableDealsPBN * tablePBN,
-  ddTablesRes * resDDS,
-  unsigned numThreads)
+  ddTablesRes * resDDS)
 {
   int trumpFilter[5] = {0, 0, 0, 0, 0};
 
   mtx.lock();
-  if (numThreads != 1u && ! setNumThreads)
-  {
-    SetMaxThreads(static_cast<int>(numThreads));
-    setNumThreads = true;
-  }
-
   int res = CalcAllTablesPBN(tablePBN, -1, trumpFilter, resDDS, nullptr);
   mtx.unlock();
 

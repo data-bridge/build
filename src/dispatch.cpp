@@ -97,11 +97,11 @@ void dispatch(
 
     if (options.solveFlag)
       dispatchDD(BRIDGE_DD_INFO_SOLVE, group, files, task.fileInput, 
-        options, flog);
+        flog);
 
     if (options.traceFlag)
       dispatchDD(BRIDGE_DD_INFO_TRACE, group, files, task.fileInput, 
-        options, flog);
+        flog);
 
     if (options.statsFlag)
     {

@@ -36,3 +36,6 @@
 *.skip
 *.sht
 *.opendb
+*.ipch
+*.json
+*.sqlite

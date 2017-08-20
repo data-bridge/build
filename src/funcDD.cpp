@@ -31,11 +31,10 @@ string DDS2RBN(const int res[5][4])
 
 void makeTableau(
   ddTableDealsPBN * tablePBN,
-  const unsigned numThreads,
   vector<string>& infoMissing)
 {
   ddTablesRes resDDS;
-  tableauDD(tablePBN, &resDDS, numThreads);
+  tableauDD(tablePBN, &resDDS);
 
   for (int i = 0; i < tablePBN->noOfTables; i++)
   {
@@ -51,8 +50,7 @@ void makeDD(
   const DDInfoType infoNo,
   const Group& group,
   Files& files,
-  const string& fname,
-  const Options& options)
+  const string& fname)
 {
   ddTableDealsPBN tablePBN;
   if (infoNo == BRIDGE_DD_INFO_TRACE)
@@ -96,8 +94,9 @@ void makeDD(
 
       if (tablePBN.noOfTables == MAXNOOFTABLES)
       {
-        makeTableau(&tablePBN, options.numThreads, infoMissing);
+        makeTableau(&tablePBN, infoMissing);
         files.addDDInfo(infoNo, fname, boardsMissing, infoMissing);
+        tablePBN.noOfTables = 0;
         boardsMissing.clear();
         infoMissing.clear();
       }
@@ -106,7 +105,7 @@ void makeDD(
     if (tablePBN.noOfTables > 0)
     {
       // Stragglers.
-      makeTableau(&tablePBN, options.numThreads, infoMissing);
+      makeTableau(&tablePBN, infoMissing);
       files.addDDInfo(infoNo, fname, boardsMissing, infoMissing);
     }
   }
@@ -118,12 +117,11 @@ void dispatchDD(
   const Group& group,
   Files& files,
   const string& fname,
-  const Options& options,
   ostream& flog)
 {
   try
   {
-    makeDD(infoNo, group, files, fname, options);
+    makeDD(infoNo, group, files, fname);
   }
   catch (Bexcept& bex)
   {

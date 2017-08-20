@@ -23,7 +23,6 @@ void dispatchDD(
   const Group& group,
   Files& files,
   const string& fname,
-  const Options& options,
   ostream& flog);
 
 #endif

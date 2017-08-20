@@ -1,11 +1,9 @@
 Double dummy
-- Multi-threading works or not?
 - unsigned -> string in DDInfo
 - Fill out Tableau in Board
 - Do Trace as well (needs o1, c1, ...)
 - Multiple segments: Data structure needs list of pointers, not pointer,
   for file results
-- Rerun just to see that tableaux.log gets picked up
 
 RefLines
 - Parsing an insert file.lin

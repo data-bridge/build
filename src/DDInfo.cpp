@@ -60,9 +60,9 @@ void DDInfo::read(const string& resName)
   fileResults.emplace_back(FileResults());
   FileResults& fres = fileResults.back();
 
-  itDir->second.fileRes = &fres;
-  itDir->second.fnameDD = basefile(resName);
-  itDir->second.dirtyFlag = false;
+  dirResults[path].fileRes = &fres;
+  dirResults[path].fnameDD = basefile(resName);
+  dirResults[path].dirtyFlag = false;
 
   string line;
   BoardResults * bres = nullptr;
@@ -81,8 +81,7 @@ void DDInfo::read(const string& resName)
       
       boardResults.emplace_back(BoardResults());
       bres = &boardResults.back();
-
-      itFile->second = bres;
+      fres[fname] = bres;
       continue;
     }
 
@@ -160,7 +159,10 @@ void DDInfo::add(
     dirResults[path] = {fresp, "", true};
   }
   else
+  {
     fresp = itDir->second.fileRes;
+    dirResults[path].dirtyFlag = true;
+  }
 
   FileResults& fres = * fresp;
   const string base = basefile(fname);
