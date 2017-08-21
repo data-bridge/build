@@ -629,6 +629,27 @@ void Play::getStateDDS(RunningDD& runningDD) const
 }
 
 
+void Play::getPlayedBy(vector<Player>& playedBy) const
+{
+  if (! Play::isOver())
+    THROW("Play is not over.");
+  
+  const unsigned lm = (len > 48 ? 48u : len); // Never last trick
+  const unsigned ttp = (trickToPlay == 12 ? 11u : trickToPlay);
+  for (unsigned c = 0; c < lm; c += 4)
+  {
+    const unsigned t = c >> 2;
+    const unsigned m = (t == ttp ? len - 4*ttp : 4);
+    const unsigned l = static_cast<unsigned>(leads[t].leader);
+    for (unsigned r = 0; r < m; r++)
+    {
+      Player p = static_cast<Player>((l+r) % 4);
+      playedBy.push_back(p);
+    }
+  }
+}
+
+
 bool Play::operator == (const Play& play2) const
 {
   // We don't require the holdings to be identical.
@@ -987,6 +1008,16 @@ string Play::strREC() const
 }
 
 
+string Play::strPAR() const
+{
+  string st = "";
+  const unsigned m = (len > 48 ? 48u : len); // Never last trick
+  for (unsigned p = 0; p < m; p++)
+    st += PLAY_NO_TO_CARD[sequence[p]];
+  return st;
+}
+
+
 string Play::str(const Format format) const
 {
   switch(format)
@@ -1020,6 +1051,9 @@ string Play::str(const Format format) const
 
     case BRIDGE_FORMAT_REC:
       return Play::strREC();
+
+    case BRIDGE_FORMAT_PAR:
+      return Play::strPAR();
 
     default:
       THROW("Invalid format: " + STR(format));

@@ -503,6 +503,14 @@ const string VUL_NAMES_TXT[BRIDGE_SUITS] =
   "None", "Both", "N-S", "E-W"
 };
 
+// TODO: For starters, to expand later.
+
+enum PlayError
+{
+  BRIDGE_PLAY_WRONG_CARD = 0,
+  BRIDGE_PLAY_SIZE = 1
+};
+
 enum Room
 {
   BRIDGE_ROOM_OPEN = 0,

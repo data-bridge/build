@@ -27,6 +27,7 @@
 #include "funcPlayerVal.h"
 #include "funcRefStats.h"
 #include "funcTextStats.h"
+#include "funcTrace.h"
 #include "funcValidate.h"
 #include "funcValuation.h"
 #include "funcWrite.h"
@@ -96,12 +97,10 @@ void dispatch(
       dispatchPlayersValidate(group, flog);
 
     if (options.solveFlag)
-      dispatchDD(BRIDGE_DD_INFO_SOLVE, group, files, task.fileInput, 
-        flog);
+      dispatchDD(group, files, task.fileInput, flog);
 
     if (options.traceFlag)
-      dispatchDD(BRIDGE_DD_INFO_TRACE, group, files, task.fileInput, 
-        flog);
+      dispatchTrace(group, files, task.fileInput, flog);
 
     if (options.statsFlag)
     {

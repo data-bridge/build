@@ -1,7 +1,6 @@
 Double dummy
-- Do Trace as well (needs o1, c1, ...)
-- Multiple segments: Data structure needs list of pointers, not pointer,
-  for file results
+- If tableaux.log exists, load its data into Tableau
+- Same for traces.log
 
 RefLines
 - Parsing an insert file.lin
@@ -113,13 +112,7 @@ Board: Valuation
 
 Double-dummy
 ------------
-* Trace: 
-  - (1) old trace, can count mistakes
-  - (2) new trace, can compare within suit and between suits,
-    probably friend of Deal.  Need new DDS function?
-
-How to multi-thread the DDS calls?
-Threads consume single boards from segments (all instances).
+* New trace in DDS: Classify type of error (within suit etc.)
 
 Database
 --------

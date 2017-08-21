@@ -686,6 +686,15 @@ Player Contract::getDeclarer() const
 }
 
 
+Player Contract::getLeader() const
+{
+  if (! setContractFlag || contract.level == 0)
+    return BRIDGE_NORTH_SOUTH; // Error
+  return static_cast<Player> 
+    ((static_cast<unsigned>(contract.declarer) + 1) % 4);
+}
+
+
 Vul Contract::getVul() const
 {
   if (! setVulFlag)

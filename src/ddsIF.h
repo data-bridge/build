@@ -27,4 +27,9 @@ void tableauDD(
   ddTableDealsPBN * tablePBN,
   ddTablesRes * resDDS);
 
+void traceDD(
+  boardsPBN * bopPBN,
+  playTracesPBN * plpPBN,
+  solvedPlays * resDDS);
+
 #endif

@@ -7,8 +7,8 @@
 */
 
 
-#ifndef BRIDGE_FUNCDD_H
-#define BRIDGE_FUNCDD_H
+#ifndef BRIDGE_FUNCTRACE_H
+#define BRIDGE_FUNCTRACE_H
 
 #include "bconst.h"
 
@@ -18,7 +18,7 @@ class Files;
 using namespace std;
 
 
-void dispatchDD(
+void dispatchTrace(
   Group& group,
   Files& files,
   const string& fname,

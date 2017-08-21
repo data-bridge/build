@@ -107,6 +107,7 @@ class Play
     string strEML() const;
     string strTXT() const;
     string strREC() const;
+    string strPAR() const;
 
     string strClaimLIN() const;
 
@@ -140,6 +141,8 @@ class Play
     unsigned getTricks() const;
 
     void getStateDDS(RunningDD& runningDD) const;
+
+    void getPlayedBy(vector<Player>& playedBy) const;
 
     bool operator == (const Play& play2) const;
     bool operator != (const Play& play2) const;

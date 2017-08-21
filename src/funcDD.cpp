@@ -45,14 +45,15 @@ void makeTableau(
 
 
 void makeDD(
-  const DDInfoType infoNo,
   Group& group,
   Files& files,
   const string& fname)
 {
+  // It is a bug that multiple segments in an input file which use
+  // overlapping board numbers will fail.  This doesn't happen in
+  // the input files I use, so I haven't fixed DDInfo.
+
   ddTableDealsPBN tablePBN;
-  if (infoNo == BRIDGE_DD_INFO_TRACE)
-    THROW("Trace not yet implemented");
   tablePBN.noOfTables = 0;
 
   unsigned segNo = 0;
@@ -68,7 +69,8 @@ void makeDD(
     
     vector<string> boardsMissAll, boardsMissing, infoMissing;
     array<Board *, MAXNOOFTABLES> bpMissing;
-    if (files.boardsHaveResults(infoNo, fname, boardsIn, boardsMissAll))
+    if (files.boardsHaveResults(BRIDGE_DD_INFO_SOLVE, fname, 
+        boardsIn, boardsMissAll))
       continue;
     
     for (string extStr: boardsMissAll)
@@ -99,7 +101,8 @@ void makeDD(
       if (tablePBN.noOfTables == MAXNOOFTABLES)
       {
         makeTableau(&tablePBN, bpMissing, infoMissing);
-        files.addDDInfo(infoNo, fname, boardsMissing, infoMissing);
+        files.addDDInfo(BRIDGE_DD_INFO_SOLVE, fname, 
+          boardsMissing, infoMissing);
         tablePBN.noOfTables = 0;
         boardsMissing.clear();
         infoMissing.clear();
@@ -110,14 +113,14 @@ void makeDD(
     {
       // Stragglers.
       makeTableau(&tablePBN, bpMissing, infoMissing);
-      files.addDDInfo(infoNo, fname, boardsMissing, infoMissing);
+      files.addDDInfo(BRIDGE_DD_INFO_SOLVE, fname, 
+        boardsMissing, infoMissing);
     }
   }
 }
 
 
 void dispatchDD(
-  const DDInfoType infoNo,
   Group& group,
   Files& files,
   const string& fname,
@@ -125,7 +128,7 @@ void dispatchDD(
 {
   try
   {
-    makeDD(infoNo, group, files, fname);
+    makeDD(group, files, fname);
   }
   catch (Bexcept& bex)
   {

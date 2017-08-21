@@ -213,6 +213,18 @@ bool Instance::contractIsSet() const
 }
 
 
+Denom Instance::getDenom() const
+{
+  return contract.getDenom();
+}
+
+
+Player Instance::getLeader() const
+{
+  return contract.getLeader();
+}
+
+
 void Instance::setScore(
   const string& text,
   const Format format)
@@ -387,6 +399,24 @@ void Instance::setRoom(
 Room Instance::room() const
 {
   return players.room();
+}
+
+
+void Instance::setTrace(
+  const int number,
+  const int * tricks)
+{
+  vector<Player> playedBy;
+  play.getPlayedBy(playedBy);
+  trace.set(number, tricks, playedBy);
+}
+
+
+void Instance::setTrace(const string& strCompact)
+{
+  vector<Player> playedBy;
+  play.getPlayedBy(playedBy);
+  trace.set(strCompact, playedBy);
 }
 
 
@@ -610,5 +640,17 @@ string Instance::strRoom(
   const Format format) const
 {
   return players.strRoom(no, format);
+}
+
+
+string Instance::strTrace() const
+{
+  return trace.str();
+}
+
+
+string Instance::strTraceCompact() const
+{
+  return trace.strCompact();
 }
 

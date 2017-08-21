@@ -68,3 +68,18 @@ void tableauDD(
     errorDD(res);
 }
 
+
+void traceDD(
+  boardsPBN * bopPBN,
+  playTracesPBN * plpPBN,
+  solvedPlays * resDDS)
+{
+  // TODO
+  mtx.lock();
+  int res = AnalyseAllPlaysPBN(bopPBN, plpPBN, resDDS, 0);
+  mtx.unlock();
+
+  if (res != RETURN_NO_FAULT)
+    errorDD(res);
+}
+

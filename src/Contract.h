@@ -135,6 +135,7 @@ class Contract
     int getScore() const;
 
     Player getDeclarer() const;
+    Player getLeader() const;
 
     Vul getVul() const;
 

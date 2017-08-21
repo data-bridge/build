@@ -16,6 +16,7 @@
 #include "Auction.h"
 #include "Contract.h"
 #include "Play.h"
+#include "PlayTrace.h"
 
 using namespace std;
 
@@ -28,6 +29,7 @@ class Instance
     Auction auction;
     Contract contract;
     Play play;
+    PlayTrace trace;
 
     LINInstData const * LINdata;
     bool LINset;
@@ -105,6 +107,10 @@ class Instance
 
     bool contractIsSet() const;
 
+    Denom getDenom() const;
+
+    Player getLeader() const;
+
     void setScore(
       const string& text,
       const Format format);
@@ -173,6 +179,12 @@ class Instance
 
     Room room() const;
 
+    void setTrace(
+      const int number,
+      const int * tricks);
+
+    void setTrace(const string& strCompact);
+
     bool operator == (const Instance& inst2) const;
     bool operator != (const Instance& inst2) const;
     bool operator <= (const Instance& inst2) const;
@@ -223,9 +235,13 @@ class Instance
       const string& team,
       const Format format) const;
     
+
     string strRoom(
       const unsigned no,
       const Format format) const;
+    
+    string strTrace() const;
+    string strTraceCompact() const;
 };
 
 #endif
