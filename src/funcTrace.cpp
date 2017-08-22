@@ -77,6 +77,31 @@ void makeInstanceList(
 }
 
 
+void str2BoardInstance(
+  const string& st, 
+  Segment * segment,
+  Board ** bd, 
+  Instance ** inst)
+{
+  if (st.length() < 2)
+    THROW("Bad board: " + st);
+
+  const string room = st.substr(0, 1);
+  if (room != "o" && room != "c")
+    THROW("Not a room: " + room);
+
+  const string rest = st.substr(1);
+  unsigned extNo;
+  if (! str2unsigned(rest, extNo))
+    THROW("Not a number: " + rest);
+
+  if (segment->getBoard(extNo) == nullptr)
+    THROW("Bad board");
+  * bd = segment->acquireBoard(extNo);
+  * inst = (* bd)->acquireInstance(room == "o" ? 0u : 1u);
+}
+
+
 void makeTrace(
   Group& group,
   Files& files,
@@ -102,29 +127,26 @@ void makeTrace(
     makeInstanceList(* segment, instancesIn);
 
     vector<string> instMissAll, instMissing, infoMissing;
+    CaseResults infoSeen;
     array<Instance *, MAXNOOFBOARDS> instpMissing;
-    if (files.boardsHaveResults(BRIDGE_DD_INFO_TRACE, fname, 
-        instancesIn, instMissAll))
-      continue;
+    files.haveResults(BRIDGE_DD_INFO_TRACE, fname, 
+        instancesIn, infoSeen, instMissAll);
     
+    Segment * segptr = &*segment;
+    for (auto& itSeen: infoSeen)
+    {
+      // Fill out the instance traces from file memory.
+      Board * bd;
+      Instance * inst;
+      str2BoardInstance(itSeen.first, segptr, &bd, &inst);
+      inst->setTrace(itSeen.second);
+    }
+
     for (string extStr: instMissAll)
     {
-      if (extStr.length() < 2)
-        THROW("Bad board: " + extStr);
-
-      const string room = extStr.substr(0, 1);
-      if (room != "o" && room != "c")
-        THROW("Not a room: " + room);
-
-      const string rest = extStr.substr(1);
-      unsigned extNo;
-      if (! str2unsigned(rest, extNo))
-        THROW("Not a number: " + rest);
-
-      if (segment->getBoard(extNo) == nullptr)
-        THROW("Bad board");
-      Board * bd = segment->acquireBoard(extNo);
-      Instance * inst = bd->acquireInstance(room == "o" ? 0u : 1u);
+      Board * bd;
+      Instance * inst;
+      str2BoardInstance(extStr, segptr, &bd, &inst);
 
       if (inst->isPassedOut() || ! inst->contractIsSet())
         continue;

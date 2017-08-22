@@ -76,7 +76,7 @@ void PlayTrace::setTricks(const string& st)
 
     if (c == '^')
     {
-      if (pos+3 >= len)
+      if (pos+3 >= slen)
         THROW("Bad ^ syntax in " + st);
 
       repeat = 16 * PlayTrace::hexchar2unsigned(st.at(pos+1)) +
@@ -86,7 +86,7 @@ void PlayTrace::setTricks(const string& st)
     }
     else if (c == '*')
     {
-      if (pos+2 >= len)
+      if (pos+2 >= slen)
         THROW("Bad * syntax in " + st);
 
       repeat = PlayTrace::hexchar2unsigned(st.at(pos+1));
@@ -336,7 +336,6 @@ string PlayTrace::strCompact() const
         st += c;
     }
     i = j;
-    cout << "st " << st << endl;
   }
 
   if (playErrorSet)

@@ -42,7 +42,7 @@ void DDInfo::reset()
 {
   dirResults.clear();
   fileResults.clear();
-  boardResults.clear();
+  caseResults.clear();
 }
 
 
@@ -65,7 +65,7 @@ void DDInfo::read(const string& resName)
   dirResults[path].dirtyFlag = false;
 
   string line;
-  BoardResults * bres = nullptr;
+  CaseResults * bres = nullptr;
 
   while (getline(resstr, line))
   {
@@ -79,8 +79,8 @@ void DDInfo::read(const string& resName)
       if (itFile != fres.end())
         THROW("In directory " + path + ", file " + fname + " already seen");
       
-      boardResults.emplace_back(BoardResults());
-      bres = &boardResults.back();
+      caseResults.emplace_back(CaseResults());
+      bres = &caseResults.back();
       fres[fname] = bres;
       continue;
     }
@@ -103,10 +103,11 @@ void DDInfo::read(const string& resName)
 }
 
 
-bool DDInfo::boardsHaveResults(
+bool DDInfo::haveResults(
   const string& fname,
-  const vector<string>& boardsIn,
-  vector<string>& boardsMissing) const
+  const vector<string>& casesIn,
+  CaseResults& infoSeen,
+  vector<string>& casesMissing) const
 {
   const string path = filepath(fname);
   const string base = basefile(fname);
@@ -114,7 +115,8 @@ bool DDInfo::boardsHaveResults(
   auto itDir = dirResults.find(path);
   if (itDir == dirResults.end())
   {
-    boardsMissing = boardsIn;
+    infoSeen.clear();
+    casesMissing = casesIn;
     return false;
   }
 
@@ -122,26 +124,29 @@ bool DDInfo::boardsHaveResults(
   auto itFile = fres.find(base);
   if (itFile == fres.end())
   {
-    boardsMissing = boardsIn;
+    infoSeen.clear();
+    casesMissing = casesIn;
     return false;
   }
 
-  const BoardResults& bres = *(itFile->second);
-  boardsMissing.clear();
-  for (auto &it: boardsIn)
+  const CaseResults& bres = *(itFile->second);
+  casesMissing.clear();
+  for (auto &it: casesIn)
   {
-    auto itBoard = bres.find(it);
-    if (itBoard == bres.end())
-      boardsMissing.push_back(it);
+    auto itCase = bres.find(it);
+    if (itCase == bres.end())
+      casesMissing.push_back(it);
+    else
+      infoSeen[itCase->first] = itCase->second;
   }
 
-  return (boardsMissing.size() == 0);
+  return (casesMissing.size() == 0);
 }
 
 
 void DDInfo::add(
   const string& fname,
-  const vector<string>& boardsMissing,
+  const vector<string>& casesMissing,
   const vector<string>& infoMissing)
 {
   mtx.lock();
@@ -164,12 +169,12 @@ void DDInfo::add(
   FileResults& fres = * fresp;
   const string base = basefile(fname);
 
-  BoardResults * bresp;
+  CaseResults * bresp;
   auto itFile = fres.find(base);
   if (itFile == fres.end())
   {
-    boardResults.emplace_back(BoardResults());
-    bresp = &boardResults.back();
+    caseResults.emplace_back(CaseResults());
+    bresp = &caseResults.back();
     fres[base] = bresp;
   }
   else
@@ -177,15 +182,15 @@ void DDInfo::add(
   
   mtx.unlock();
 
-  BoardResults& bres = * bresp;
-  for (unsigned i = 0; i < boardsMissing.size(); i++)
+  CaseResults& bres = * bresp;
+  for (unsigned i = 0; i < casesMissing.size(); i++)
   {
-    auto itBoard = bres.find(boardsMissing[i]);
-    if (itBoard == bres.end())
-      bres[boardsMissing[i]] = infoMissing[i];
+    auto itCase = bres.find(casesMissing[i]);
+    if (itCase == bres.end())
+      bres[casesMissing[i]] = infoMissing[i];
     else
       THROW("Attempting to reset an existing DD value: " + fname +
-        ", " + STR(i) + ", " + STR(boardsMissing[i]));
+        ", " + STR(i) + ", " + STR(casesMissing[i]));
   }
 }
 
@@ -208,11 +213,11 @@ void DDInfo::write(const string& resName) const
     for (auto const &itFile: fres)
     {
       const string inFile = itFile.first;
-      BoardResults& bres = *(itFile.second);
+      CaseResults& bres = *(itFile.second);
 
       dd << inFile << ":\n";
-      for (auto const &itBoard: bres)
-        dd << itBoard.first << " " << itBoard.second << "\n";
+      for (auto const &itCase: bres)
+        dd << itCase.first << " " << itCase.second << "\n";
       dd << "\n";
     }
     dd.close();

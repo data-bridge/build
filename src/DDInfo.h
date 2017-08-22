@@ -19,13 +19,13 @@
 
 using namespace std;
 
+typedef map<string, string> CaseResults;
 
 class DDInfo
 {
   private:
 
-    typedef map<string, string> BoardResults;
-    typedef map<string, BoardResults*> FileResults;
+    typedef map<string, CaseResults*> FileResults;
 
     struct DirEntry
     {
@@ -34,7 +34,7 @@ class DDInfo
       bool dirtyFlag;
     };
 
-    list<BoardResults> boardResults;
+    list<CaseResults> caseResults;
     list<FileResults> fileResults;
     map<string, DirEntry> dirResults;
 
@@ -49,14 +49,15 @@ class DDInfo
 
     void read(const string& resName);
 
-    bool boardsHaveResults(
+    bool haveResults(
       const string& fname,
-      const vector<string>& boardsIn,
-      vector<string>& boardsMissing) const;
+      const vector<string>& casesIn,
+      CaseResults& infoSeen,
+      vector<string>& casesMissing) const;
 
     void add(
       const string& fname,
-      const vector<string>& boardsMissing,
+      const vector<string>& casesMissing,
       const vector<string>& infoMissing);
 
     void write(const string& fnameDD = "tableaux.log") const;

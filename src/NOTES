@@ -1,6 +1,5 @@
 Double dummy
-- If tableaux.log exists, load its data into Tableau
-- Same for traces.log
+- New kind of trace?  Goes in DDS as well
 
 RefLines
 - Parsing an insert file.lin
@@ -105,14 +104,6 @@ cygwin  yes     segf
 mingw   almost
 clang
 ubuntu
-
-Valuation
----------
-Board: Valuation
-
-Double-dummy
-------------
-* New trace in DDS: Classify type of error (within suit etc.)
 
 Database
 --------

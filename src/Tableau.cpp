@@ -361,23 +361,25 @@ string Tableau::strRBN() const
   text << hex << uppercase;
   text << "::" << n;
   if (n == s)
-    text << "-";
+    text << "=";
   else
     text << "+" << s;
   text << ":";
+
   if (ninv == w)
     text << "!";
   else
     text << w;
+
   if (ninv != w && sinv != e && w != e)
     text << "+";
   if (sinv == e)
     text << "!";
   else if (w == e)
-    text << "=\n";
+    text << "=";
   else
-    text << e << "\n";
-  text << dec << nouppercase;
+    text << e;
+  text << "\n" << dec << nouppercase;
 
   return text.str();
 }

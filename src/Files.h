@@ -80,16 +80,17 @@ class Files
 
     void print() const;
 
-    bool boardsHaveResults(
+    bool haveResults(
       const DDInfoType infoNo,
       const string& fname,
-      const vector<string>& boardsIn,
-      vector<string>& boardsMissing) const;
+      const vector<string>& casesIn,
+      CaseResults& infoSeen,
+      vector<string>& casesMissing) const;
       
     void addDDInfo(
       const DDInfoType infoNo,
       const string& fname,
-      const vector<string>& boardsMissing,
+      const vector<string>& casesMissing,
       const vector<string>& infoMissing);
 
     void writeDDInfo(const DDInfoType infoNo) const;

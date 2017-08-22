@@ -363,23 +363,25 @@ void Files::print() const
 }
 
 
-bool Files::boardsHaveResults(
+bool Files::haveResults(
   const DDInfoType infoNo,
   const string& fname,
-  const vector<string>& boardsIn,
-  vector<string>& boardsMissing) const
+  const vector<string>& casesIn,
+  CaseResults& infoSeen,
+  vector<string>& casesMissing) const
 {
-  return infoDD[infoNo].boardsHaveResults(fname, boardsIn, boardsMissing);
+  return infoDD[infoNo].haveResults(fname, casesIn, infoSeen, 
+    casesMissing);
 }
 
 
 void Files::addDDInfo(
   const DDInfoType infoNo,
   const string& fname,
-  const vector<string>& boardsMissing,
+  const vector<string>& casesMissing,
   const vector<string>& infoMissing)
 {
-  infoDD[infoNo].add(fname, boardsMissing, infoMissing);
+  infoDD[infoNo].add(fname, casesMissing, infoMissing);
 }
 
 

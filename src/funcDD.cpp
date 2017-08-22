@@ -44,6 +44,21 @@ void makeTableau(
 }
 
 
+void str2Board(
+  const string& st,
+  Segment * segment,
+  Board ** bd)
+{
+  unsigned extNo;
+  if (! str2unsigned(st, extNo))
+    THROW("Not a number: " + st);
+
+  if (segment->getBoard(extNo) == nullptr)
+    THROW("Bad board");
+  * bd = segment->acquireBoard(extNo);
+}
+
+
 void makeDD(
   Group& group,
   Files& files,
@@ -68,20 +83,24 @@ void makeDD(
       boardsIn.push_back(to_string(bp.extNo));
     
     vector<string> boardsMissAll, boardsMissing, infoMissing;
+    CaseResults infoSeen;
     array<Board *, MAXNOOFTABLES> bpMissing;
-    if (files.boardsHaveResults(BRIDGE_DD_INFO_SOLVE, fname, 
-        boardsIn, boardsMissAll))
-      continue;
+    files.haveResults(BRIDGE_DD_INFO_SOLVE, fname, 
+        boardsIn, infoSeen, boardsMissAll);
     
+    Segment * segptr = &*segment;
+    for (auto& itSeen: infoSeen)
+    {
+      // Fill out the instance traces from file memory.
+      Board * bd;
+      str2Board(itSeen.first, segptr, &bd);
+      bd->setTableau("::" + itSeen.second, BRIDGE_FORMAT_RBN);
+    }
+
     for (string extStr: boardsMissAll)
     {
-      unsigned extNo;
-      if (! str2unsigned(extStr, extNo))
-        THROW("Not a number: " + extStr);
-
-      if (segment->getBoard(extNo) == nullptr)
-        THROW("Bad board");
-      Board * bd = segment->acquireBoard(extNo);
+      Board * bd;
+      str2Board(extStr, segptr, &bd);
 
       string tmp = bd->strDeal(BRIDGE_WEST,BRIDGE_FORMAT_PBN);
       const size_t l = tmp.length();
