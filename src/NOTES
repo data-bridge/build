@@ -1,20 +1,15 @@
 Double dummy
 - New kind of trace?  Goes in DDS as well
 
+Syntax: insertfrom, insertfrom "..." !
+- 104 insert 10033.lin:79-112 {ERR_LIN_HAND_INSERT(0,1,1)}
+- 669 insertLIN 9686.lin:77-210 {ERR_LIN_HAND_INSERT(0,9,5)}
+  should be insert, not insertLIN (734 lines)
+- 147-156 replace 41067.lin:21-123 {ERR_LIN_HAND_REPLACE(0,10,5)}
+
 RefLines
-- Parsing an insert file.lin
-  - Has * Buffer, initially nullptr
-  - When first line requires it, is new'ed and read
-  - When going out of scope, is given up (delete'd)
-- Keep filename for comparison (only one allowed for now)
-- RefLines gets insertion() similar to deletion()
 - Buffer::fix
   - [What is line 422 doing?  "Deleted a field"?]
-  - INSERT: modify() into a vector<string> of size insertion
-  - Loop over and make LineData to classify and insert
-  - REPLACE and external reference (need function to tell: isExternal())
-    - More than one line removed?
-    - More than one line added?
 
 44913: Already uses new format, so doesn't work
 

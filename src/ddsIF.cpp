@@ -74,7 +74,6 @@ void traceDD(
   playTracesPBN * plpPBN,
   solvedPlays * resDDS)
 {
-  // TODO
   mtx.lock();
   int res = AnalyseAllPlaysPBN(bopPBN, plpPBN, resDDS, 0);
   mtx.unlock();

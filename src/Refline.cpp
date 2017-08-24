@@ -65,6 +65,9 @@ void RefLine::reset()
   action.reset();
   edit.reset();
   comment.reset();
+  fnameEmbed = "";
+  rangeEmbed.lno = 0;
+  rangeEmbed.lcount = 0;
 }
 
 
@@ -97,6 +100,9 @@ void RefLine::setTables()
   ParseList[REF_ACTION_REPLACE_WORD] = &RefLine::parseReplaceWORD;
   ParseList[REF_ACTION_INSERT_WORD] = &RefLine::parseInsertWORD;
   ParseList[REF_ACTION_DELETE_WORD] = &RefLine::parseDeleteWORD;
+
+  ParseList[REF_ACTION_REPLACE_FROM] = &RefLine::parseReplaceFrom;
+  ParseList[REF_ACTION_INSERT_FROM] = &RefLine::parseInsertFrom;
 
   ParseList[REF_ACTION_DELETE_EML] = &RefLine::parseDeleteEML;
 }
@@ -132,34 +138,30 @@ void RefLine::parseRange(
   const string& refName,
   const string& line,
   const string& rtext,
-  const unsigned start,
-  const unsigned end)
+  Range& rangeIn)
 {
   // Start with either upos (unsigned positive number) or upos-upos.
   // Set lno and count.
-
-  if (start >= end)
-    THROW("Ref file " + refName + ": Syntax error in '" + line + "'");
 
   unsigned dash = rtext.find("-");
   if (dash == string::npos || dash == rtext.length()-1)
   {
     // upos.
-    if (! str2upos(rtext, range.lno))
+    if (! str2upos(rtext, rangeIn.lno))
       THROW("Ref file " + refName + ": No line number in '" + line + "'");
-    range.lcount = 1;
+    rangeIn.lcount = 1;
   }
   else
   {
     // upos-upos.
-    if (! str2upos(rtext, range.lno))
+    if (! str2upos(rtext, rangeIn.lno))
       THROW("Ref file " + refName + ": No line number in '" + line + "'");
     unsigned c;
     if (! str2upos(rtext.substr(dash+1), c))
       THROW("Ref file " + refName + ": No end line in '" + line + "'");
-    if (c <= range.lno)
+    if (c <= rangeIn.lno)
       THROW("Ref file " + refName + ": Bad range in '" + line + "'");
-    range.lcount = c + 1 - range.lno;
+    rangeIn.lcount = c + 1 - rangeIn.lno;
   }
 }
 
@@ -186,7 +188,10 @@ bool RefLine::parse(
 
   // Otherwise it should be a number or a range.
   start = r.length()+1;
-  RefLine::parseRange(refName, line, r, start, end);
+  if (start >= end)
+    THROW("Ref file " + refName + ": Syntax error in '" + line + "'");
+
+  RefLine::parseRange(refName, line, r, range);
 
   // Then the action word, e.g. replaceLIN.
   if (! readNextWord(line, start, a))
@@ -730,6 +735,42 @@ void RefLine::parseDeleteWORD(
 
 ////////////////////////////////////////////////////////////////////////
 //                                                                    //
+// parseFrom functions                                                //
+//                                                                    //
+////////////////////////////////////////////////////////////////////////
+
+
+void RefLine::parseFrom(
+  const string& refName,
+  const string& quote)
+{
+  const unsigned pos = quote.find_first_of(":");
+  if (pos == string::npos)
+    THROW("Ref file " + refName + ": No colon in '" + quote + "'");
+  
+  fnameEmbed = quote.substr(0, pos);
+  RefLine::parseRange(refName, quote, quote.substr(pos+1), rangeEmbed);
+}
+
+
+void RefLine::parseReplaceFrom(
+  const string& refName,
+  const string& quote)
+{
+  RefLine::parseFrom(refName, quote);
+}
+
+
+void RefLine::parseInsertFrom(
+  const string& refName,
+  const string& quote)
+{
+  RefLine::parseFrom(refName, quote);
+}
+
+
+////////////////////////////////////////////////////////////////////////
+//                                                                    //
 // parseEML functions                                                 //
 //                                                                    //
 ////////////////////////////////////////////////////////////////////////
@@ -752,6 +793,12 @@ void RefLine::parseDeleteEML(
 unsigned RefLine::lineno() const
 {
   return range.lno;
+}
+
+
+unsigned RefLine::linenoEmbed() const
+{
+  return rangeEmbed.lno;
 }
 
 
@@ -791,6 +838,12 @@ string RefLine::was() const
 }
 
 
+string RefLine::embeddedRef() const
+{
+  return fnameEmbed;
+}
+
+
 bool RefLine::isUncommented() const
 {
   return comment.isUncommented();
@@ -803,9 +856,15 @@ ActionCategory RefLine::type() const
 }
 
 
-unsigned RefLine::deletion() const
+unsigned RefLine::rangeCount() const
 {
   return range.lcount;
+}
+
+
+unsigned RefLine::rangeEmbedCount() const
+{
+  return rangeEmbed.lcount;
 }
 
 
@@ -1140,13 +1199,18 @@ void RefLine::checkMultiLineCounts(const vector<string>& lines) const
 
 void RefLine::modify(vector<string>& lines) const
 {
+  RefLine::checkMultiLine(lines);
+  edit.modify(lines, action.number());
+}
+
+
+void RefLine::checkMultiLine(const vector<string>& lines) const
+{
   if (! setFlag)
     THROW("RefLine not set (multi-line)");
 
   if (comment.isCommented())
     RefLine::checkMultiLineCounts(lines);
-
-  edit.modify(lines, action.number());
 }
 
 

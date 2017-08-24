@@ -37,6 +37,9 @@ class RefLine
     RefEdit edit;
     RefComment comment;
 
+    string fnameEmbed;
+    Range rangeEmbed;
+
 
     void setTables();
 
@@ -51,17 +54,19 @@ class RefLine
       const string& refFile,
       const string& line,
       const string& range,
-      const unsigned start,
-      const unsigned end);
+      Range& rangeIn);
 
     void parseFlexibleNumber(
+      const string& refName,
+      const string& field);
+
+    void parseFrom(
       const string& refName,
       const string& field);
 
     string unquote(const string& entry) const;
 
     void parseReplaceGen(const string& refName, const string& line);
-
     void parseInsertGen(const string& refName, const string& line);
     void parseDeleteGen(const string& refName, const string& line);
 
@@ -84,6 +89,9 @@ class RefLine
     void parseReplaceWORD(const string& refName, const string& line);
     void parseInsertWORD(const string& refName, const string& line);
     void parseDeleteWORD(const string& refName, const string& line);
+
+    void parseReplaceFrom(const string& refName, const string& line);
+    void parseInsertFrom(const string& refName, const string& line);
 
     void parseDeleteEML(const string& refName, const string& line);
 
@@ -140,19 +148,24 @@ class RefLine
       const string& line);
 
     unsigned lineno() const;
+    unsigned linenoEmbed() const;
 
     bool isSet() const;
     string line() const;
     string tag() const;
     string is() const;
     string was() const;
+    string embeddedRef() const;
     bool isCommented() const;
     bool isUncommented() const;
     ActionCategory type() const;
-    unsigned deletion() const;
+    unsigned rangeCount() const;
+    unsigned rangeEmbedCount() const;
 
     void modify(string& line) const;
-    void modify(vector<string>& line) const;
+    void modify(vector<string>& lines) const;
+
+    void checkMultiLine(const vector<string>& lines) const;
 
     void countHands(
       const vector<string>& lines,

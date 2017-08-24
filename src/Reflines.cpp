@@ -13,6 +13,7 @@
 #include <regex>
 
 #include "RefLines.h"
+#include "Buffer.h"
 #include "parse.h"
 #include "Bexcept.h"
 

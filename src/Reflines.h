@@ -16,6 +16,8 @@
 
 using namespace std;
 
+class Buffer;
+
 
 class RefLines
 {

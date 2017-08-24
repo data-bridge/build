@@ -384,8 +384,8 @@ void Sheet::parseRefs()
       continue;
 
     const unsigned handNoFirst = Sheet::refLineNoToHandNo(rl.lineno());
-    const unsigned handNoLast = (rl.deletion() <= 1 ?  handNoFirst : 
-      Sheet::refLineNoToHandNo(rl.lineno() + rl.deletion() - 1));
+    const unsigned handNoLast = (rl.rangeCount() <= 1 ?  handNoFirst : 
+      Sheet::refLineNoToHandNo(rl.lineno() + rl.rangeCount() - 1));
 
     if (handNoFirst == BIGNUM || handNoLast == BIGNUM)
       continue;

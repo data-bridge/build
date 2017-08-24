@@ -12,10 +12,12 @@
 
 #include <string>
 #include <vector>
+#include <list>
 
 #include "bconst.h"
 
 class RefLines;
+class RefLine;
 
 using namespace std;
 
@@ -33,6 +35,9 @@ class Buffer
     unsigned posLIN;
     unsigned posRBX;
 
+    Buffer * embeddedBuf;
+    string embeddedName;
+
 
     void readBinaryFile(const string& fname);
 
@@ -40,6 +45,12 @@ class Buffer
     bool isPBN(LineData& ld);
     bool isRBN(LineData& ld);
     bool isRBX(LineData& ld);
+
+    void cacheEmbedded(const string& embeddedNameIn);
+
+    void getEmbeddedData(
+      const RefLine& rl,
+      list<LineData>& lnew);
 
     bool fix(const RefLines& refLines);
 
