@@ -7,9 +7,12 @@
 */
 
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <vector>
 #include <sstream>
 #include <regex>
+#pragma warning(pop)
 
 #include "Segment.h"
 #include "Board.h"

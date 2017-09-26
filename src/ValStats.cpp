@@ -6,9 +6,13 @@
    See LICENSE and README.
 */
 
+
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <iomanip>
 #include <sstream>
 #include <assert.h>
+#pragma warning(pop)
 
 #include "ValStats.h"
 

@@ -10,7 +10,10 @@
 #ifndef BRIDGE_COMPSTATS_H
 #define BRIDGE_COMPSTATS_H
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <iostream>
+#pragma warning(pop)
 
 #include "bconst.h"
 

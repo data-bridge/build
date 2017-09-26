@@ -10,10 +10,13 @@
 #ifndef BRIDGE_DDINFO_H
 #define BRIDGE_DDINFO_H
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <string>
 #include <vector>
 #include <list>
 #include <map>
+#pragma warning(pop)
 
 #include "bconst.h"
 

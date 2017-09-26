@@ -17,6 +17,9 @@
 #ifndef WIN32_LEAN_AND_MEAN
 #   define WIN32_LEAN_AND_MEAN
 #endif
+
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <windows.h>
 
 #include <stdio.h>
@@ -28,6 +31,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
+#pragma warning(pop)
 
 /* Indicates that d_type field is available in dirent structure */
 #define _DIRENT_HAVE_D_TYPE

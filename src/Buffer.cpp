@@ -6,6 +6,9 @@
    See LICENSE and README.
 */
 
+
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -15,6 +18,7 @@
 #include <io.h>
 #include <fcntl.h>
 #include <cstdint>
+#pragma warning(pop)
 
 #if defined(__CYGWIN__)
   #include <unistd.h>

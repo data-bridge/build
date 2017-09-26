@@ -10,9 +10,12 @@
 #ifndef BRIDGE_AUCTION_H
 #define BRIDGE_AUCTION_H
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <iostream>
 #include <string>
 #include <vector>
+#pragma warning(pop)
 
 #include "bconst.h"
 

@@ -10,8 +10,11 @@
 #ifndef BRIDGE_CONSTANTS_H
 #define BRIDGE_CONSTANTS_H
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <string>
 #include <vector>
+#pragma warning(pop)
 
 using namespace std;
 

@@ -10,7 +10,10 @@
 #ifndef BRIDGE_EXCEPT_H
 #define BRIDGE_EXCEPT_H
 
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
+#pragma warning(push, 0)
 #include <string>
+#pragma warning(pop)
 
 using namespace std;
 

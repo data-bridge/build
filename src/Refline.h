@@ -10,8 +10,11 @@
 #ifndef BRIDGE_REFLINE_H
 #define BRIDGE_REFLINE_H
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <string>
 #include <map>
+#pragma warning(pop)
 
 #include "RefEdit.h"
 #include "RefComment.h"

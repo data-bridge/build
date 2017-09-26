@@ -10,9 +10,12 @@
 #ifndef BRIDGE_BOARD_H
 #define BRIDGE_BOARD_H
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <string>
 #include <vector>
 #include <array>
+#pragma warning(pop)
 
 #include "Deal.h"
 #include "Tableau.h"

@@ -7,6 +7,8 @@
 */
 
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #if defined(_WIN32) && defined(__MINGW32__)
   #include "mingw.thread.h"
   #include "mingw.mutex.h"
@@ -19,6 +21,7 @@
 #include <iomanip>
 #include <sstream>
 #include <fstream>
+#pragma warning(pop)
 
 #include "DDInfo.h"
 #include "parse.h"

@@ -10,8 +10,11 @@
 #ifndef BRIDGE_PLAYTRACE_H
 #define BRIDGE_PLAYTRACE_H
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <vector>
 #include <list>
+#pragma warning(pop)
 
 #include "PlayScore.h"
 #include "bconst.h"

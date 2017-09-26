@@ -10,7 +10,10 @@
 #ifndef BRIDGE_SHEET_H
 #define BRIDGE_SHEET_H
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <string>
+#pragma warning(pop)
 
 #include "Contract.h"
 #include "Deal.h"

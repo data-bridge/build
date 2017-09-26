@@ -7,6 +7,8 @@
 */
 
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -19,6 +21,7 @@
   #include <thread>
   #include <mutex>
 #endif
+#pragma warning(pop)
 
 #include "Contract.h"
 #include "parse.h"

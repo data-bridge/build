@@ -6,9 +6,13 @@
    See LICENSE and README.
 */
 
+
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <string>
 #include <iomanip>
 #include <sstream>
+#pragma warning(pop)
 
 #include "DuplStats.h"
 #include "Group.h"

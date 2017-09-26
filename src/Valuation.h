@@ -10,7 +10,10 @@
 #ifndef BRIDGE_VALUATION_H
 #define BRIDGE_VALUATION_H
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <array>
+#pragma warning(pop)
 
 #include "Term.h"
 #include "bconst.h"
