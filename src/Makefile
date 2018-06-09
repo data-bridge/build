@@ -103,6 +103,8 @@ WARN_FLAGS      =               \
         /wd4986                 \
         /wd4987                 \
         /wd4996                 \
+        /wd5039                 \
+        /wd5045                 \
         /WX
 
 CC_FLAGS_VS     = /O2 /Oi /Ot /Oy /GL /Zi /EHsc

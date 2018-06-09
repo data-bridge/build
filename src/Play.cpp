@@ -986,20 +986,21 @@ string Play::strREC() const
 
     for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
     {
-      unsigned pp = 4*t + p;
+      const unsigned pp = 4*t + p;
       if (pp >= len)
         break;
+      const unsigned spp = sequence[pp];
 
       if (p == 0)
-        ss << setw(3) << right << PLAY_NO_TO_CARD[sequence[pp]];
-      else if (PLAY_NO_TO_INFO[sequence[pp]].suit != 
+        ss << setw(3) << right << PLAY_NO_TO_CARD[spp];
+      else if (PLAY_NO_TO_INFO[spp].suit != 
           static_cast<unsigned>(leads[t].suit))
       {
-        ss << setw(3) << right << PLAY_NO_TO_CARD[sequence[pp]];
+        ss << setw(3) << right << PLAY_NO_TO_CARD[spp];
       }
       else
         ss << setw(3) << right << 
-            PLAY_CARDS[PLAY_NO_TO_INFO[sequence[pp]].rank];
+            PLAY_CARDS[PLAY_NO_TO_INFO[spp].rank];
 
       if (p != 3 && pp != len-1)
         ss << ",";
