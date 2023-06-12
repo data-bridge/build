@@ -13,23 +13,23 @@
 #include <sstream>
 #include <fstream>
 
-#include "Group.h"
-#include "Chunk.h"
-#include "RefLines.h"
+#include "../Group.h"
+#include "../Chunk.h"
+#include "../RefLines.h"
 
-#include "fileLIN.h"
-#include "filePBN.h"
-#include "fileRBN.h"
-#include "fileTXT.h"
-#include "fileEML.h"
-#include "fileREC.h"
+#include "../fileLIN.h"
+#include "../filePBN.h"
+#include "../fileRBN.h"
+#include "../fileTXT.h"
+#include "../fileEML.h"
+#include "../fileREC.h"
+
+#include "../OrderCounts.h"
+
+#include "../parse.h"
+#include "../Bexcept.h"
 
 #include "funcRead.h"
-#include "OrderCounts.h"
-
-#include "parse.h"
-#include "Bexcept.h"
-
 
 using namespace std;
 

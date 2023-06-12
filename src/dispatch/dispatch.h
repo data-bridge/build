@@ -9,6 +9,7 @@
 #ifndef BRIDGE_DISPATCH_H
 #define BRIDGE_DISPATCH_H
 
+struct Options;
 class Files;
 struct AllStats;
 

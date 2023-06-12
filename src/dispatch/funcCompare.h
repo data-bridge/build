@@ -10,7 +10,7 @@
 #ifndef BRIDGE_FUNCCOMPARE_H
 #define BRIDGE_FUNCCOMPARE_H
 
-#include "bconst.h"
+#include "../bconst.h"
 
 class Group;
 class CompStats;

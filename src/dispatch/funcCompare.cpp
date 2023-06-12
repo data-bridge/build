@@ -7,15 +7,15 @@
 */
 
 
-#include "Group.h"
-#include "Buffer.h"
-#include "CompStats.h"
+#include "../Group.h"
+#include "../Buffer.h"
+#include "../CompStats.h"
 
 #include "funcCompare.h"
 #include "funcRead.h"
 
-#include "Bexcept.h"
-#include "Bdiff.h"
+#include "../Bexcept.h"
+#include "../Bdiff.h"
 
 
 void dispatchCompare(

@@ -10,10 +10,10 @@
 #include <sstream>
 #include <fstream>
 
-#include "Group.h"
+#include "../Group.h"
+#include "../Bexcept.h"
 
 #include "funcPlayerVal.h"
-#include "Bexcept.h"
 
 
 static void validatePlayers(

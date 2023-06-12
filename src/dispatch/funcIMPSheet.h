@@ -7,18 +7,18 @@
 */
 
 
-#ifndef BRIDGE_FUNCVALUATION_H
-#define BRIDGE_FUNCVALUATION_H
+#ifndef BRIDGE_FUNCIMPSHEET_H
+#define BRIDGE_FUNCIMPSHEET_H
 
-#include "bconst.h"
+#include "../bconst.h"
 
 class Group;
 
 using namespace std;
 
 
-void dispatchValuation(
-  Group& group,
+void dispatchIMPSheet(
+  const Group& group,
   ostream& flog);
 
 #endif

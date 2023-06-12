@@ -18,7 +18,8 @@
 #include "args.h"
 #include "Files.h"
 #include "AllStats.h"
-#include "dispatch.h"
+
+#include "dispatch/dispatch.h"
 
 using namespace std;
 

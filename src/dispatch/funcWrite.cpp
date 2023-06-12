@@ -11,17 +11,17 @@
 #include <sstream>
 #include <fstream>
 
-#include "Group.h"
+#include "../Group.h"
 
-#include "fileLIN.h"
-#include "filePBN.h"
-#include "fileRBN.h"
-#include "fileTXT.h"
-#include "fileEML.h"
-#include "fileREC.h"
+#include "../fileLIN.h"
+#include "../filePBN.h"
+#include "../fileRBN.h"
+#include "../fileTXT.h"
+#include "../fileEML.h"
+#include "../fileREC.h"
 
-#include "parse.h"
-#include "Bexcept.h"
+#include "../parse.h"
+#include "../Bexcept.h"
 
 
 using namespace std;

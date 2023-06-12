@@ -7,17 +7,17 @@
 */
 
 
-#ifndef BRIDGE_FUNCPLAYERVAL_H
-#define BRIDGE_FUNCPLAYERVAL_H
+#ifndef BRIDGE_FUNCEQUALS_H
+#define BRIDGE_FUNCEQUALS_H
 
-#include "bconst.h"
+#include "../bconst.h"
 
 class Group;
 
 using namespace std;
 
 
-void dispatchPlayersValidate(
+void dispatchEquals(
   const Group& group,
   ostream& flog);
 

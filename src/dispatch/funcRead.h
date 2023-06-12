@@ -14,7 +14,7 @@ class Group;
 class Buffer;
 class RefLines;
 
-#include "bconst.h"
+#include "../bconst.h"
 
 using namespace std;
 

@@ -13,9 +13,9 @@
 #include <fstream>
 
 #include "funcValidate.h"
-#include "Bexcept.h"
+#include "../Bexcept.h"
 
-#include "validate/validate.h"
+#include "../validate/validate.h"
 
 
 void dispatchValidate(

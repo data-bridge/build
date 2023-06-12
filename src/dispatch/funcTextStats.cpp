@@ -7,10 +7,10 @@
 */
 
 
-#include "Group.h"
-#include "TextStats.h"
+#include "../Group.h"
+#include "../TextStats.h"
 #include "funcTextStats.h"
-#include "Bexcept.h"
+#include "../Bexcept.h"
 
 
 static void logLengths(

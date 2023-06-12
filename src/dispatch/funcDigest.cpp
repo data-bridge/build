@@ -10,9 +10,10 @@
 #include <fstream>
 
 #include "funcDigest.h"
-#include "Sheet.h"
-#include "parse.h"
-#include "Bexcept.h"
+
+#include "../Sheet.h"
+#include "../parse.h"
+#include "../Bexcept.h"
 
 
 void dispatchDigest(

@@ -10,7 +10,7 @@
 #ifndef BRIDGE_FUNCDIGEST_H
 #define BRIDGE_FUNCDIGEST_H
 
-#include "bconst.h"
+#include "../bconst.h"
 
 using namespace std;
 

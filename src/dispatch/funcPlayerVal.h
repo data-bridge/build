@@ -7,21 +7,18 @@
 */
 
 
-#ifndef BRIDGE_FUNCTEXTSTATS_H
-#define BRIDGE_FUNCTEXTSTATS_H
+#ifndef BRIDGE_FUNCPLAYERVAL_H
+#define BRIDGE_FUNCPLAYERVAL_H
 
-#include "bconst.h"
+#include "../bconst.h"
 
 class Group;
-class TextStats;
 
 using namespace std;
 
 
-void dispatchTextStats(
-  const FileTask& task,
+void dispatchPlayersValidate(
   const Group& group,
-  TextStats& tstats,
   ostream& flog);
 
 #endif

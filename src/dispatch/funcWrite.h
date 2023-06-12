@@ -10,7 +10,7 @@
 #ifndef BRIDGE_FUNCWRITE_H
 #define BRIDGE_FUNCWRITE_H
 
-#include "bconst.h"
+#include "../bconst.h"
 
 class Group;
 

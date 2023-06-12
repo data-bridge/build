@@ -7,11 +7,12 @@
 */
 
 
-#include "Group.h"
-#include "Sheet.h"
+#include "../Group.h"
+#include "../Sheet.h"
 
 #include "funcIMPSheet.h"
-#include "Bexcept.h"
+
+#include "../Bexcept.h"
 
 
 void dispatchIMPSheet(

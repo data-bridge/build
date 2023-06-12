@@ -7,18 +7,18 @@
 */
 
 
-#ifndef BRIDGE_FUNCEQUALS_H
-#define BRIDGE_FUNCEQUALS_H
+#ifndef BRIDGE_FUNCVALUATION_H
+#define BRIDGE_FUNCVALUATION_H
 
-#include "bconst.h"
+#include "../bconst.h"
 
 class Group;
 
 using namespace std;
 
 
-void dispatchEquals(
-  const Group& group,
+void dispatchValuation(
+  Group& group,
   ostream& flog);
 
 #endif

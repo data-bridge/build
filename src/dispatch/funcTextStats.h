@@ -7,18 +7,21 @@
 */
 
 
-#ifndef BRIDGE_FUNCIMPSHEET_H
-#define BRIDGE_FUNCIMPSHEET_H
+#ifndef BRIDGE_FUNCTEXTSTATS_H
+#define BRIDGE_FUNCTEXTSTATS_H
 
-#include "bconst.h"
+#include "../bconst.h"
 
 class Group;
+class TextStats;
 
 using namespace std;
 
 
-void dispatchIMPSheet(
+void dispatchTextStats(
+  const FileTask& task,
   const Group& group,
+  TextStats& tstats,
   ostream& flog);
 
 #endif
