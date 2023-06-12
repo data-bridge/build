@@ -6,6 +6,9 @@
    See LICENSE and README.
 */
 
+
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -18,6 +21,7 @@
   #include <thread>
   #include <mutex>
 #endif
+#pragma warning(pop)
 
 #include "RefAction.h"
 #include "Bexcept.h"
@@ -92,6 +96,9 @@ void RefAction::setTables()
   ActionMap["insertWORD"] = REF_ACTION_INSERT_WORD;
   ActionMap["deleteWORD"] = REF_ACTION_DELETE_WORD;
 
+  ActionMap["replacefrom"] = REF_ACTION_REPLACE_FROM;
+  ActionMap["insertfrom"] = REF_ACTION_INSERT_FROM;
+
   ActionMap["deleteEML"] = REF_ACTION_DELETE_EML;
 
   for (auto &s: ActionMap)
@@ -102,6 +109,9 @@ void RefAction::setTables()
 
   ActionCatTable[REF_ACTION_INSERT_GEN] = ACTION_INSERT_LINE;
   ActionCatTable[REF_ACTION_DELETE_GEN] = ACTION_DELETE_LINE;
+
+  ActionCatTable[REF_ACTION_INSERT_FROM] = ACTION_INSERT_FROM;
+  ActionCatTable[REF_ACTION_REPLACE_FROM] = ACTION_REPLACE_FROM;
 
   ActionCatTable[REF_ACTION_INSERT_PBN] = ACTION_INSERT_LINE;
   ActionCatTable[REF_ACTION_DELETE_PBN] = ACTION_DELETE_LINE;

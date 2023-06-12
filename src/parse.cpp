@@ -9,7 +9,10 @@
 // The functions in this file help to parse files.
 
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <iostream>
+#include <numeric>
 #include <sstream>
 #include <fstream>
 #include <iomanip>
@@ -18,6 +21,7 @@
 #include <iterator>
 #include <algorithm>
 #include <regex>
+#pragma warning(pop)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -111,6 +115,82 @@ void splitIntoWords(
 
   if (! isSpace)
     words.push_back(text.substr(startPos, pos-startPos));
+}
+
+// https://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Levenshtein_distance#C.2B.2B
+unsigned levenshtein(
+  const string& s1, 
+  const string& s2)
+{
+  unsigned s1len = s1.size();
+  unsigned s2len = s2.size();
+	
+  auto column_start = (decltype(s1len))1;
+	
+  auto column = new decltype(s1len)[s1len + 1];
+  std::iota(column + column_start, column + s1len + 1, column_start);
+	
+  for (auto x = column_start; x <= s2len; x++) 
+  {
+    column[0] = x;
+    auto last_diagonal = x - column_start;
+    for (auto y = column_start; y <= s1len; y++) 
+    {
+      auto old_diagonal = column[y];
+      auto possibilities = 
+      {
+        column[y] + 1,
+        column[y - 1] + 1,
+        last_diagonal + (s1[y - 1] == s2[x - 1]? 0 : 1)
+      };
+      column[y] = min(possibilities);
+      last_diagonal = old_diagonal;
+    }
+  }
+  auto result = column[s1len];
+  delete[] column;
+  return result;
+}
+
+
+bool levenshtein_test(
+  const string& s1, 
+  const string& s2,
+  const unsigned at_most)
+{
+  unsigned s1len = s1.size();
+  unsigned s2len = s2.size();
+	
+  auto column_start = (decltype(s1len))1;
+	
+  auto column = new decltype(s1len)[s1len + 1];
+  std::iota(column + column_start, column + s1len + 1, column_start);
+	
+  for (auto x = column_start; x <= s2len; x++) 
+  {
+    column[0] = x;
+    unsigned running_min = x;
+    auto last_diagonal = x - column_start;
+    for (auto y = column_start; y <= s1len; y++) 
+    {
+      auto old_diagonal = column[y];
+      auto possibilities = 
+      {
+        column[y] + 1,
+        column[y - 1] + 1,
+        last_diagonal + (s1[y - 1] == s2[x - 1]? 0 : 1)
+      };
+      column[y] = min(possibilities);
+      last_diagonal = old_diagonal;
+      if (column[y] < running_min)
+        running_min = column[y];
+    }
+    if (running_min > at_most)
+      return false;
+  }
+  auto result = column[s1len];
+  delete[] column;
+  return (result <= at_most);
 }
 
 
@@ -520,6 +600,16 @@ string basefile(const string& path)
     return path;
   else
     return path.substr(pos+1);
+}
+
+
+string filepath(const string& path)
+{
+  size_t pos = path.find_last_of("/\\");
+  if (pos == string::npos)
+    return "./";
+  else
+    return path.substr(0, pos+1);
 }
 
 

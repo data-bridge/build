@@ -7,12 +7,16 @@
 */
 
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <regex>
+#pragma warning(pop)
 
 #include "RefLines.h"
+#include "Buffer.h"
 #include "parse.h"
 #include "Bexcept.h"
 
@@ -193,6 +197,17 @@ bool RefLines::getHeaderEntry(
 }
 
 
+void RefLines::getHeaderData(
+  unsigned& nl,
+  unsigned& nh,
+  unsigned& nb) const
+{
+  nl = bufferLines;
+  nh = numHands;
+  nb = numBoards;
+}
+
+
 bool RefLines::getControlEntry(
   CommentType& cat,
   RefEntry& re) const
@@ -215,7 +230,8 @@ void RefLines::checkEntries(
       re.count.boards == ractual.count.boards)
     return;
 
-  THROW("(" +
+  THROW(
+    headerComment.refFile() + ": (" +
     to_string(re.count.units) + "," +
     to_string(re.count.hands) + "," +
     to_string(re.count.boards) + ") vs (" +

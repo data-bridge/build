@@ -6,6 +6,9 @@
    See LICENSE and README.
 */
 
+
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -19,6 +22,7 @@
   #include <thread>
   #include <mutex>
 #endif
+#pragma warning(pop)
 
 #include "RefComment.h"
 #include "parse.h"
@@ -280,6 +284,12 @@ const vector<CommentBundle> CommentList =
 
   {ERR_LIN_TAG_SYNTAX, "ERR_LIN_TAG_SYNTAX",
     BRIDGE_FORMAT_LIN, REF_COUNT_SINGLE},
+  {ERR_LIN_DUPLICATE, "ERR_LIN_DUPLICATE",
+    BRIDGE_FORMAT_LIN, REF_COUNT_HANDS},
+  {ERR_LIN_SUBSET, "ERR_LIN_SUBSET",
+    BRIDGE_FORMAT_LIN, REF_COUNT_HANDS},
+  {ERR_LIN_MERGED, "ERR_LIN_MERGED",
+    BRIDGE_FORMAT_LIN, REF_COUNT_HANDS},
   {ERR_LIN_SYNTAX, "ERR_LIN_SYNTAX",
     BRIDGE_FORMAT_LIN, REF_COUNT_HANDS},
   {ERR_LIN_OMIT, "ERR_LIN_OMIT",
@@ -987,6 +997,12 @@ void RefComment::getEntry(
   re.count.units = count1;
   re.count.hands = count2;
   re.count.boards = count3;
+}
+
+
+string RefComment::refFile() const
+{
+  return (setFlag ? fileName : "");
 }
 
 

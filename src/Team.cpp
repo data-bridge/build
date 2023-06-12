@@ -7,9 +7,12 @@
 */
 
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <regex>
 #include <sstream>
 #include <iomanip>
+#pragma warning(pop)
 
 #include "Team.h"
 #include "parse.h"

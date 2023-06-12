@@ -10,11 +10,16 @@
 #ifndef BRIDGE_REFLINES_H
 #define BRIDGE_REFLINES_H
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <string>
+#pragma warning(pop)
 
 #include "RefLine.h"
 
 using namespace std;
+
+class Buffer;
 
 
 class RefLines
@@ -79,6 +84,11 @@ class RefLines
     bool getHeaderEntry(
       CommentType& cat,
       RefEntry& re) const;
+
+    void getHeaderData(
+      unsigned& nl,
+      unsigned& nh,
+      unsigned& nb) const;
 
     bool getControlEntry(
       CommentType& cat,

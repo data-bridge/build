@@ -7,6 +7,8 @@
 */
 
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -20,6 +22,7 @@
   #include <thread>
   #include <mutex>
 #endif
+#pragma warning(pop)
 
 #include "Play.h"
 #include "Contract.h"
@@ -631,6 +634,27 @@ void Play::getStateDDS(RunningDD& runningDD) const
 }
 
 
+void Play::getPlayedBy(vector<Player>& playedBy) const
+{
+  if (! Play::isOver())
+    THROW("Play is not over.");
+  
+  const unsigned lm = (len > 48 ? 48u : len); // Never last trick
+  const unsigned ttp = (trickToPlay == 12 ? 11u : trickToPlay);
+  for (unsigned c = 0; c < lm; c += 4)
+  {
+    const unsigned t = c >> 2;
+    const unsigned m = (t == ttp ? len - 4*ttp : 4);
+    const unsigned l = static_cast<unsigned>(leads[t].leader);
+    for (unsigned r = 0; r < m; r++)
+    {
+      Player p = static_cast<Player>((l+r) % 4);
+      playedBy.push_back(p);
+    }
+  }
+}
+
+
 bool Play::operator == (const Play& play2) const
 {
   // We don't require the holdings to be identical.
@@ -665,6 +689,35 @@ bool Play::operator != (const Play& play2) const
 {
   return ! (* this == play2);
 }
+
+
+bool Play::operator <= (const Play& play2) const
+{
+  // We don't require the holdings to be identical.
+
+  if (setDDFlag != play2.setDDFlag)
+    DIFF("DD not set in same way");
+  if (setDDFlag && (declarer != play2.declarer || denom != play2.denom))
+    DIFF("DD difference");
+  if (setDealFlag != play2.setDealFlag)
+    DIFF("Deal difference");
+  if (len > play2.len)
+    DIFF("Length difference");
+  if (playOverFlag && ! play2.playOverFlag)
+    DIFF("Play-over difference");
+  if (claimMadeFlag && ! play2.claimMadeFlag)
+    DIFF("Claim status difference");
+  if (tricksDecl != play2.tricksDecl || tricksDef != play2.tricksDef)
+    DIFF("Claim difference");
+
+  for (unsigned n = 0; n < len; n++)
+    if (sequence[n] != play2.sequence[n])
+      DIFF("Sequence difference");
+    
+  // Leads are implicitly identical when the plays are identical.
+  return true;
+}
+
 
 
 string Play::strLIN() const
@@ -935,20 +988,21 @@ string Play::strREC() const
 
     for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
     {
-      unsigned pp = 4*t + p;
+      const unsigned pp = 4*t + p;
       if (pp >= len)
         break;
+      const unsigned spp = sequence[pp];
 
       if (p == 0)
-        ss << setw(3) << right << PLAY_NO_TO_CARD[sequence[pp]];
-      else if (PLAY_NO_TO_INFO[sequence[pp]].suit != 
+        ss << setw(3) << right << PLAY_NO_TO_CARD[spp];
+      else if (PLAY_NO_TO_INFO[spp].suit != 
           static_cast<unsigned>(leads[t].suit))
       {
-        ss << setw(3) << right << PLAY_NO_TO_CARD[sequence[pp]];
+        ss << setw(3) << right << PLAY_NO_TO_CARD[spp];
       }
       else
         ss << setw(3) << right << 
-            PLAY_CARDS[PLAY_NO_TO_INFO[sequence[pp]].rank];
+            PLAY_CARDS[PLAY_NO_TO_INFO[spp].rank];
 
       if (p != 3 && pp != len-1)
         ss << ",";
@@ -957,6 +1011,16 @@ string Play::strREC() const
   }
 
   return ss.str() + "\n";
+}
+
+
+string Play::strPAR() const
+{
+  string st = "";
+  const unsigned m = (len > 48 ? 48u : len); // Never last trick
+  for (unsigned p = 0; p < m; p++)
+    st += PLAY_NO_TO_CARD[sequence[p]];
+  return st;
 }
 
 
@@ -993,6 +1057,9 @@ string Play::str(const Format format) const
 
     case BRIDGE_FORMAT_REC:
       return Play::strREC();
+
+    case BRIDGE_FORMAT_PAR:
+      return Play::strPAR();
 
     default:
       THROW("Invalid format: " + to_string(format));

@@ -10,13 +10,16 @@
 #ifndef BRIDGE_BOARD_H
 #define BRIDGE_BOARD_H
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <string>
 #include <vector>
 #include <array>
+#pragma warning(pop)
 
 #include "Deal.h"
 #include "Tableau.h"
-// #include "Valuation.h"
+#include "Valuation.h"
 #include "GivenScore.h"
 #include "Instance.h"
 
@@ -29,7 +32,7 @@ class Board
 
     Deal deal;
     Tableau tableau;
-    // array<Valuation, BRIDGE_PLAYERS> valuation;
+    vector<Valuation> valuation;
     vector<Instance> instances;
     vector<bool> skip;
     GivenScore givenScore;
@@ -89,6 +92,8 @@ class Board
       const string& text,
       const Format format);
 
+    void setTableauDDS(const int res[5][4]);
+
     bool setTableauEntry(
       const Player player,
       const Denom denom,
@@ -115,8 +120,8 @@ class Board
     void performValuation(const bool fullFlag = false);
 
     bool operator == (const Board& b2) const;
-
     bool operator != (const Board& b2) const;
+    bool operator <= (const Board& b2) const;
 
     string strDeal(const Format format) const;
     string strDeal(
@@ -163,6 +168,7 @@ class Board
     string strValuation() const;
 
     int hash8() const;
+    int hash12() const;
 };
 
 #endif

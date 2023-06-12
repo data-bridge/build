@@ -10,12 +10,17 @@
 #ifndef BRIDGE_BUFFER_H
 #define BRIDGE_BUFFER_H
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <string>
 #include <vector>
+#include <list>
+#pragma warning(pop)
 
 #include "bconst.h"
 
 class RefLines;
+class RefLine;
 
 using namespace std;
 
@@ -33,6 +38,9 @@ class Buffer
     unsigned posLIN;
     unsigned posRBX;
 
+    Buffer * embeddedBuf;
+    string embeddedName;
+
 
     void readBinaryFile(const string& fname);
 
@@ -40,6 +48,12 @@ class Buffer
     bool isPBN(LineData& ld);
     bool isRBN(LineData& ld);
     bool isRBX(LineData& ld);
+
+    void cacheEmbedded(const string& embeddedNameIn);
+
+    void getEmbeddedData(
+      const RefLine& rl,
+      list<LineData>& lnew);
 
     bool fix(const RefLines& refLines);
 

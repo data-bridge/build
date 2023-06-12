@@ -7,6 +7,8 @@
 */
 
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <iostream>
 
 #if defined(_WIN32) && defined(__MINGW32__)
@@ -14,6 +16,7 @@
 #else
   #include <thread>
 #endif
+#pragma warning(pop)
 
 #include "args.h"
 #include "Files.h"
@@ -46,10 +49,15 @@ int main(int argc, char * argv[])
   for (size_t i = 0; i < options.numThreads; i++)
     thr[i].join();
 
-  timer.stop();
-
   mergeResults(allStatsList, options);
   printResults(allStatsList[0], options);
+
+  if (options.solveFlag)
+    files.writeDDInfo(BRIDGE_DD_INFO_SOLVE);
+  if (options.traceFlag)
+    files.writeDDInfo(BRIDGE_DD_INFO_TRACE);
+
+  timer.stop();
 
   cout << "Time spent overall (elapsed): " << timer.str(2) << "\n";
 }

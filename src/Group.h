@@ -10,8 +10,11 @@
 #ifndef BRIDGE_GROUP_H
 #define BRIDGE_GROUP_H
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <string>
 #include <list>
+#pragma warning(pop)
 
 #include "Segment.h"
 
@@ -51,11 +54,13 @@ class Group
     void setCOCO(const Format format = BRIDGE_FORMAT_SIZE);
     bool isCOCO() const;
 
+    unsigned size() const;
     unsigned count() const;
     unsigned countBoards() const;
 
     bool operator == (const Group& group2) const;
     bool operator != (const Group& group2) const;
+    bool operator <= (const Group& group2) const;
 };
 
 #endif

@@ -10,7 +10,10 @@
 #ifndef BRIDGE_PLAY_H
 #define BRIDGE_PLAY_H
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <string>
+#pragma warning(pop)
 
 #include "bconst.h"
 #include "ddsIF.h"
@@ -107,6 +110,7 @@ class Play
     string strEML() const;
     string strTXT() const;
     string strREC() const;
+    string strPAR() const;
 
     string strClaimLIN() const;
 
@@ -141,9 +145,11 @@ class Play
 
     void getStateDDS(RunningDD& runningDD) const;
 
-    bool operator == (const Play& play2) const;
+    void getPlayedBy(vector<Player>& playedBy) const;
 
+    bool operator == (const Play& play2) const;
     bool operator != (const Play& play2) const;
+    bool operator <= (const Play& play2) const;
 
     string str(const Format format) const;
 

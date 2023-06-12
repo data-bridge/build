@@ -7,10 +7,13 @@
 */
 
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <regex>
+#pragma warning(pop)
 
 #include "SheetHand.h"
 #include "parse.h"
@@ -294,7 +297,12 @@ void SheetHand::finishHand(
 
 
   if (tricksClaim.has)
+  {
+    if (! cAuction.isSet())
+      cAuction.setContract(BRIDGE_VUL_NONE, ct);
+
     cAuction.setTricks(tricksClaim.value);
+  }
   else if (tricksPlay.has)
     cAuction.setTricks(tricksPlay.value);
 

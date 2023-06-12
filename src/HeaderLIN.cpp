@@ -7,10 +7,13 @@
 */
 
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <iostream>
 #include <sstream>
 #include <iomanip>
 #include <string>
+#pragma warning(pop)
 
 #include "HeaderLIN.h"
 #include "parse.h"
@@ -407,6 +410,8 @@ string HeaderLIN::strContracts(const unsigned intNo) const
 {
   if (len == 0)
     return ",,";
+  else if (intNo >= len)
+    THROW("Internal number " + STR(intNo) + " out of range");
   else
     return LINdata[intNo].data[0].contract + "," +
       LINdata[intNo].data[1].contract + ",";

@@ -10,10 +10,14 @@
 #ifndef BRIDGE_FILES_H
 #define BRIDGE_FILES_H
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <string>
 #include <vector>
 #include <map>
+#pragma warning(pop)
 
+#include "DDInfo.h"
 #include "bconst.h"
 
 using namespace std;
@@ -33,6 +37,9 @@ class Files
 
     vector<FileTask> fileTasks;
     unsigned nextNo;
+
+    vector<DDInfo> infoDD;
+    vector<string> dirList; // Sloppy to keep this
 
     bool fillEntry(
       const string& text,
@@ -55,6 +62,10 @@ class Files
       const bool keepFlag,
       const map<string, vector<FileEntry>>& refMap);
 
+    void readDDInfoFile(
+      const string& dir,
+      const Options& options);
+
 
   public:
 
@@ -72,6 +83,20 @@ class Files
 
     void print() const;
 
+    bool haveResults(
+      const DDInfoType infoNo,
+      const string& fname,
+      const vector<string>& casesIn,
+      CaseResults& infoSeen,
+      vector<string>& casesMissing) const;
+      
+    void addDDInfo(
+      const DDInfoType infoNo,
+      const string& fname,
+      const vector<string>& casesMissing,
+      const vector<string>& infoMissing);
+
+    void writeDDInfo(const DDInfoType infoNo) const;
 };
 
 #endif

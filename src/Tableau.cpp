@@ -7,11 +7,14 @@
 */
 
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <vector>
 #include <algorithm>
+#pragma warning(pop)
 
 #include "Tableau.h"
 #include "Contract.h"
@@ -260,6 +263,17 @@ bool Tableau::set(
 }
 
 
+void Tableau::setDDS(const int resDDS[5][4])
+{
+  // No checks.
+  for (unsigned d = 0; d < BRIDGE_DENOMS; d++)
+    for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
+      table[d][p] = static_cast<unsigned>(resDDS[d][p]);
+  
+  setNum = 20;
+}
+
+
 unsigned Tableau::get(
   const Player player,
   const Denom denom) const
@@ -350,23 +364,25 @@ string Tableau::strRBN() const
   text << hex << uppercase;
   text << "::" << n;
   if (n == s)
-    text << "-";
+    text << "=";
   else
     text << "+" << s;
   text << ":";
+
   if (ninv == w)
     text << "!";
   else
     text << w;
+
   if (ninv != w && sinv != e && w != e)
     text << "+";
   if (sinv == e)
     text << "!";
   else if (w == e)
-    text << "=\n";
+    text << "=";
   else
-    text << e << "\n";
-  text << dec << nouppercase;
+    text << e;
+  text << "\n" << dec << nouppercase;
 
   return text.str();
 }

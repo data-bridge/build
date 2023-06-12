@@ -14,8 +14,6 @@
 
 class Group;
 
-using namespace std;
-
 
 void dispatchIMPSheet(
   const Group& group,

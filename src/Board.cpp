@@ -7,14 +7,17 @@
 */
 
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <regex>
+#pragma warning(pop)
 
 #include "bconst.h"
 #include "Board.h"
-// #include "Valuation.h"
+#include "Valuation.h"
 #include "parse.h"
 #include "Bexcept.h"
 #include "Bdiff.h"
@@ -37,6 +40,7 @@ void Board::reset()
 
   deal.reset();
   tableau.reset();
+  valuation.clear();
   instances.clear();
   skip.clear();
   givenScore.reset();
@@ -250,6 +254,12 @@ void Board::setTableau(
 }
 
 
+void Board::setTableauDDS(const int res[5][4])
+{
+  tableau.setDDS(res);
+}
+
+
 bool Board::setTableauEntry(
   const Player player,
   const Denom denom,
@@ -306,9 +316,11 @@ void Board::performValuation([[maybe_unused]] const bool fullFlag)
   unsigned cards[BRIDGE_PLAYERS][BRIDGE_SUITS];
   deal.getDDS(cards);
 
-  // TODO
-  // for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
-    // valuation[p].evaluate(cards[p], fullFlag);
+  if (valuation.size() == 0)
+    valuation.resize(BRIDGE_PLAYERS);
+
+  for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
+    valuation[p].evaluate(cards[p], fullFlag);
 }
 
 
@@ -350,6 +362,42 @@ bool Board::operator == (const Board& board2) const
 bool Board::operator != (const Board& board2) const
 {
   return ! (* this == board2);
+}
+
+
+bool Board::operator <= (const Board& board2) const
+{
+  if (len > board2.len)
+    DIFF("Too many instances");
+
+  bool wholeSkip = Board::skippedAll();
+  bool wholeSkip2 = board2.skippedAll();
+
+  if (wholeSkip != wholeSkip2)
+    THROW("Whole skips differ");
+
+  if (wholeSkip)
+    return true;
+
+  // These object comparisons will actually throw exceptions, not fail.
+  if (deal != board2.deal)
+    return false;
+  if (tableau != board2.tableau)
+    return false;
+
+  for (unsigned b = 0; b < len; b++)
+  {
+    if (skip[b])
+      continue;
+
+    if (board2.skip[b])
+      THROW("Individual skips differ");
+
+    if (! (instances[b] <= board2.instances[b]))
+      return false;
+  }
+
+  return true;
 }
 
 
@@ -518,9 +566,8 @@ string Board::strIMPSheetLine(
 string Board::strValuation() const
 {
   string st;
-  // TODO
-  // for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
-    // st += valuation[p].str();
+  for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
+    st += valuation[p].str();
 
   return st;
 }
@@ -528,15 +575,22 @@ string Board::strValuation() const
 
 int Board::hash8() const
 {
-  // This is the same hash function as in DDS (TransTable).
-  return 0;
-  /*
   const int h = valuation[0].handDist() ^
     ((valuation[1].handDist() * 5)) ^
     ((valuation[2].handDist() * 25)) ^
     ((valuation[3].handDist() * 125));
 
-  return (h ^(h >> 5)) & 0xff;
-  */
+  return (h ^ (h >> 5)) & 0xff;
+}
+
+
+int Board::hash12() const
+{
+  const int h = valuation[0].handDist() ^
+    ((valuation[1].handDist() * 5)) ^
+    ((valuation[2].handDist() * 25)) ^
+    ((valuation[3].handDist() * 125));
+
+  return (h ^ (h >> 5)) & 0xfff;
 }
 

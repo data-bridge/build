@@ -7,7 +7,10 @@
 */
 
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <unordered_map>
+#pragma warning(pop)
 
 #include "filePBN.h"
 
@@ -70,6 +73,7 @@ void setPBNTables()
   PBNmap["OptimumResult"] = BRIDGE_FORMAT_LABELS_SIZE;
   PBNmap["ValidDeal"] = BRIDGE_FORMAT_LABELS_SIZE;
   PBNmap["DDS_Filters"] = BRIDGE_FORMAT_LABELS_SIZE;
+  PBNmap["Generator"] = BRIDGE_FORMAT_LABELS_SIZE;
 }
 
 

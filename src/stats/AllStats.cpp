@@ -6,10 +6,14 @@
    See LICENSE and README.
 */
 
+
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <string>
 #include <iomanip>
 #include <fstream>
 #include <sstream>
+#pragma warning(pop)
 
 #include "AllStats.h"
 
@@ -27,8 +31,12 @@ void mergeResults(
     allStatsList[0].tstats += allStatsList[i].tstats;
     allStatsList[0].cstats += allStatsList[i].cstats;
     allStatsList[0].timers += allStatsList[i].timers;
+    allStatsList[0].duplstats += allStatsList[i].duplstats;
     allStatsList[0].refstats += allStatsList[i].refstats;
   }
+
+  if (options.equalFlag)
+    allStatsList[0].duplstats.sortOverall();
 
   if (! options.fileLog.setFlag)
     return;
@@ -62,6 +70,8 @@ void printResults(
   const AllStats& allStats,
   const Options& options)
 {
+  if (options.equalFlag)
+    allStats.duplstats.print(cout);
   allStats.vstats.print(cout, options.verboseValStats);
   if (options.statsFlag)
     allStats.tstats.print(cout, true); // Can add switch to control

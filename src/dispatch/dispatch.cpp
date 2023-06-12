@@ -7,9 +7,12 @@
 */
 
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <iomanip>
 #include <sstream>
 #include <fstream>
+#pragma warning(pop)
 
 #include "dispatch.h"
 
@@ -21,13 +24,15 @@
 #include "../validate/validate.h"
 
 #include "funcCompare.h"
+#include "funcDD.h"
 #include "funcDigest.h"
-#include "funcEquals.h"
+#include "funcDupl.h"
 #include "funcIMPSheet.h"
 #include "funcRead.h"
 #include "funcPlayerVal.h"
 #include "funcRefStats.h"
 #include "funcTextStats.h"
+#include "funcTrace.h"
 #include "funcValidate.h"
 #include "funcValuation.h"
 #include "funcWrite.h"
@@ -96,6 +101,12 @@ void dispatch(
     if (options.playersFlag)
       dispatchPlayersValidate(group, flog);
 
+    if (options.solveFlag)
+      dispatchDD(group, files, task.fileInput, flog);
+
+    if (options.traceFlag)
+      dispatchTrace(group, files, task.fileInput, flog);
+
     if (options.statsFlag)
     {
       if (options.verboseIO)
@@ -121,7 +132,7 @@ void dispatch(
       if (options.verboseIO)
         flog << "Hand hashes " << task.fileInput << endl;
 
-      dispatchEquals(group, flog);
+      dispatchDupl(group, refLines, allStats.duplstats, flog);
     }
 
     for (auto &t: task.taskList)

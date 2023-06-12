@@ -10,7 +10,10 @@
 #ifndef BRIDGE_REFACTION_H
 #define BRIDGE_REFACTION_H
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <string>
+#pragma warning(pop)
 
 #include "refconst.h"
 
@@ -21,8 +24,10 @@ enum ActionCategory
 {
   ACTION_DELETE_LINE = 0,
   ACTION_INSERT_LINE = 1,
-  ACTION_GENERAL = 2,
-  ACTION_ERROR = 3
+  ACTION_INSERT_FROM = 2,
+  ACTION_REPLACE_FROM = 3,
+  ACTION_GENERAL = 4,
+  ACTION_ERROR = 5
 };
 
 

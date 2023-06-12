@@ -10,8 +10,12 @@
 #ifndef BRIDGE_TABLEAU_H
 #define BRIDGE_TABLEAU_H
 
+
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <string>
 #include <list>
+#pragma warning(pop)
 
 #include "bconst.h"
 
@@ -136,6 +140,8 @@ class Tableau
       const Player player,
       const Denom denom,
       const unsigned t);
+
+    void setDDS(const int resDDS[5][4]);
 
     unsigned get(
       const Player player,

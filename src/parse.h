@@ -9,8 +9,11 @@
 #ifndef BRIDGE_PARSE_H
 #define BRIDGE_PARSE_H
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <string>
 #include <vector>
+#pragma warning(pop)
 
 #include "bconst.h"
 
@@ -34,6 +37,15 @@ unsigned countDelimiters(
 void splitIntoWords(
   const string& text,
   vector<string>& words);
+
+unsigned levenshtein(
+  const string& s1,
+  const string& s2);
+
+bool levenshtein_test(
+  const string& s1,
+  const string& s2,
+  const unsigned at_most);
 
 bool getWords(
   const string& text,
@@ -101,6 +113,7 @@ void toUpper(string& text);
 void toLower(string& text);
 
 string basefile(const string& path);
+string filepath(const string& path);
 
 unsigned trimLeading(
   string& text,

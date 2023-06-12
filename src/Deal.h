@@ -10,7 +10,10 @@
 #ifndef BRIDGE_DEAL_H
 #define BRIDGE_DEAL_H
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <string>
+#pragma warning(pop)
 
 #include "bconst.h"
 
@@ -87,7 +90,6 @@ class Deal
     void getDDS(unsigned cards[][BRIDGE_SUITS]) const;
 
     bool operator == (const Deal& deal2) const;
-
     bool operator != (const Deal& deal2) const;
 
     string str(

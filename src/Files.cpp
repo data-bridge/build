@@ -7,6 +7,8 @@
 */
 
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <iostream>
 #include <fstream>
 #include <filesystem>
@@ -20,6 +22,8 @@
   #include <thread>
   #include <mutex>
 #endif
+
+#pragma warning(pop)
 
 #include "Files.h"
 #include "parse.h"
@@ -42,6 +46,7 @@ void Files::reset()
 {
   nextNo = 0;
   fileTasks.clear();
+  infoDD.clear();
 }
 
 
@@ -173,21 +178,55 @@ void Files::extendTaskList(
 }
 
 
+void Files::readDDInfoFile(
+  const string& dir,
+  const Options& options)
+{
+  if (options.solveFlag)
+  {
+    const string resName = dir + "/" + DDInfoNames[BRIDGE_DD_INFO_SOLVE];
+    infoDD[BRIDGE_DD_INFO_SOLVE].read(resName);
+  }
+
+  if (options.traceFlag)
+  {
+    const string resName = dir + "/" + DDInfoNames[BRIDGE_DD_INFO_TRACE];
+    infoDD[BRIDGE_DD_INFO_TRACE].read(resName);
+  }
+}
+
+
 void Files::set(const Options& options)
 {
   vector<FileEntry> inputList, refList, outputList;
   map<string, vector<FileEntry>> refMap;
+
+  if (options.solveFlag || options.traceFlag)
+    infoDD.resize(BRIDGE_DD_INFO_SIZE);
 
   // Set inputList
   if (options.fileInput.setFlag)
   {
     FileEntry e;
     if (Files::fillEntry(options.fileInput.name, e))
+    {
       inputList.push_back(e);
+      const string dir = filepath(options.fileInput.name);
+      Files::readDDInfoFile(dir, options);
+    }
   }
   else
+  {
+    dirList.clear();
     Files::buildFileList(options.dirInput.name, inputList, 
       BRIDGE_FORMAT_SIZE);
+
+    if (options.solveFlag || options.traceFlag)
+    {
+      for (auto &s: dirList)
+        Files::readDDInfoFile(s, options);
+    }
+  }
 
   // Set refMap, a map of reference files indexed by basename
   if (options.fileRef.setFlag)
@@ -301,5 +340,33 @@ void Files::print() const
     }
     cout << endl;
   }
+}
+
+
+bool Files::haveResults(
+  const DDInfoType infoNo,
+  const string& fname,
+  const vector<string>& casesIn,
+  CaseResults& infoSeen,
+  vector<string>& casesMissing) const
+{
+  return infoDD[infoNo].haveResults(fname, casesIn, infoSeen, 
+    casesMissing);
+}
+
+
+void Files::addDDInfo(
+  const DDInfoType infoNo,
+  const string& fname,
+  const vector<string>& casesMissing,
+  const vector<string>& infoMissing)
+{
+  infoDD[infoNo].add(fname, casesMissing, infoMissing);
+}
+
+
+void Files::writeDDInfo(const DDInfoType infoNo) const
+{
+  infoDD[infoNo].write(DDInfoNames[infoNo]);
 }
 

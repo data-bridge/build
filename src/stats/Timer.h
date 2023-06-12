@@ -10,7 +10,10 @@
 #ifndef BRIDGE_TIMER_H
 #define BRIDGE_TIMER_H
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <chrono>
+#pragma warning(pop)
 
 using namespace std;
 

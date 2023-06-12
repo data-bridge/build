@@ -10,7 +10,10 @@
 #ifndef BRIDGE_CONTRACT_H
 #define BRIDGE_CONTRACT_H
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <string>
+#pragma warning(pop)
 
 #include "bconst.h"
 
@@ -135,6 +138,7 @@ class Contract
     int getScore() const;
 
     Player getDeclarer() const;
+    Player getLeader() const;
 
     Vul getVul() const;
 

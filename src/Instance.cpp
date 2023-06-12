@@ -7,9 +7,12 @@
 */
 
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#pragma warning(pop)
 
 #include "Instance.h"
 #include "bconst.h"
@@ -212,6 +215,18 @@ bool Instance::contractIsSet() const
 }
 
 
+Denom Instance::getDenom() const
+{
+  return contract.getDenom();
+}
+
+
+Player Instance::getLeader() const
+{
+  return contract.getLeader();
+}
+
+
 void Instance::setScore(
   const string& text,
   const Format format)
@@ -385,10 +400,27 @@ Room Instance::room() const
 }
 
 
+void Instance::setTrace(
+  const int number,
+  const int * tricks)
+{
+  vector<Player> playedBy;
+  play.getPlayedBy(playedBy);
+  trace.set(number, tricks, playedBy);
+}
+
+
+void Instance::setTrace(const string& strCompact)
+{
+  vector<Player> playedBy;
+  play.getPlayedBy(playedBy);
+  trace.set(strCompact, playedBy);
+}
+
+
 bool Instance::operator == (const Instance& inst2) const
 {
-  if (players != inst2.players)
-    return false;
+  // We don't compare players.
   if (auction != inst2.auction)
     return false;
   if (contract != inst2.contract)
@@ -403,6 +435,21 @@ bool Instance::operator == (const Instance& inst2) const
 bool Instance::operator != (const Instance& inst2) const
 {
   return ! (* this == inst2);
+}
+
+
+bool Instance::operator <= (const Instance& inst2) const
+{
+  if (players != inst2.players)
+    return false;
+  if (auction != inst2.auction)
+    return false;
+  if (contract != inst2.contract)
+    return false;
+  if (! (play <= inst2.play))
+    return false;
+
+  return true;
 }
 
 
@@ -591,5 +638,17 @@ string Instance::strRoom(
   const Format format) const
 {
   return players.strRoom(no, format);
+}
+
+
+string Instance::strTrace() const
+{
+  return trace.str();
+}
+
+
+string Instance::strTraceCompact() const
+{
+  return trace.strCompact();
 }
 

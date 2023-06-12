@@ -6,6 +6,9 @@
    See LICENSE and README.
 */
 
+
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -15,6 +18,7 @@
 #include <io.h>
 #include <fcntl.h>
 #include <cstdint>
+#pragma warning(pop)
 
 #if defined(__CYGWIN__)
   #include <unistd.h>
@@ -50,6 +54,8 @@ void Buffer::reset()
   posLIN = 0;
   posRBX = 0;
   lines.reserve(CHUNK_SIZE);
+  embeddedBuf = nullptr;
+  embeddedName = "";
 }
 
 
@@ -386,6 +392,50 @@ bool Buffer::fix(
 }
 
 
+void Buffer::cacheEmbedded(const string& embeddedNameIn)
+{
+  if (embeddedBuf == nullptr)
+  {
+    // Lop off our reffile and add the relative file.
+    const string full = filepath(fileName) + embeddedNameIn;
+    embeddedBuf = new Buffer;
+    embeddedName = embeddedNameIn;
+    RefLines rltmp;
+    embeddedBuf->read(full, format, rltmp);
+    if (! rltmp.skip())
+      THROW("cacheEmbedded: Reference should be a skip");
+  }
+  else
+  {
+    if (embeddedName != embeddedNameIn)
+      THROW("cacheEmbedded: Attempted to read a second reference");
+  }
+}
+
+
+void Buffer::getEmbeddedData(
+  const RefLine& rl, 
+  list<LineData>& lnew)
+{
+  const unsigned estart = rl.linenoEmbed();
+  const unsigned ecount = rl.rangeEmbedCount();
+  vector<string> tmplines;
+
+  for (unsigned j = estart; j < estart+ecount-1; j++)
+  {
+    const string st = embeddedBuf->getLine(j);
+    tmplines.push_back(st);
+    lnew.emplace_back(LineData());
+    LineData& active = lnew.back();
+    active.len = static_cast<unsigned>(st.length());
+    active.no = rl.lineno(); // All the same
+    Buffer::classify(active);
+  }
+
+  rl.checkMultiLine(tmplines);
+}
+
+
 bool Buffer::fix(const RefLines& refLines)
 {
   for (auto &rl: refLines)
@@ -398,6 +448,7 @@ bool Buffer::fix(const RefLines& refLines)
     const ActionCategory refType = rl.type();
     if (refType == ACTION_INSERT_LINE)
     {
+      // Normal insert.
       LineData lnew;
       rl.modify(lnew.line);
       lnew.len = static_cast<unsigned>(lnew.line.length());
@@ -406,9 +457,42 @@ bool Buffer::fix(const RefLines& refLines)
       lines.insert(lines.begin() + static_cast<int>(i), lnew);
       len++;
     }
+    else if (refType == ACTION_INSERT_FROM)
+    {
+      // Insert from embedded reference.
+      Buffer::cacheEmbedded(rl.embeddedRef());
+
+      list<LineData> lnew;
+      Buffer::getEmbeddedData(rl, lnew);
+      
+      lines.insert(lines.begin() + static_cast<int>(i),
+        lnew.begin(), lnew.end());
+      len += rl.rangeEmbedCount();
+    }
+    else if (refType == ACTION_REPLACE_FROM)
+    {
+      // Insert from embedded reference.
+      Buffer::cacheEmbedded(rl.embeddedRef());
+
+      list<LineData> lnew;
+      Buffer::getEmbeddedData(rl, lnew);
+      
+      // We could reuse the space -- this is the simple way.
+      const unsigned deletion = rl.rangeCount();
+      if (i + deletion > len)
+        THROW("Too large deletion");
+
+     lines.erase(lines.begin() + static_cast<int>(i), 
+          lines.begin() + static_cast<int>(deletion + i));
+      len -= deletion;
+
+      lines.insert(lines.begin() + static_cast<int>(i),
+        lnew.begin(), lnew.end());
+      len += rl.rangeEmbedCount();
+    }
     else if (refType == ACTION_DELETE_LINE)
     {
-      const unsigned deletion = rl.deletion();
+      const unsigned deletion = rl.rangeCount();
       if (i + deletion > len)
         THROW("Too large deletion");
 
@@ -445,6 +529,11 @@ bool Buffer::fix(const RefLines& refLines)
     }
     else 
       THROW("Bad reference line type");
+  }
+  if (embeddedBuf != nullptr)
+  {
+    delete embeddedBuf;
+    embeddedBuf = nullptr;
   }
   return true;
 }

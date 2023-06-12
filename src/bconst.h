@@ -10,8 +10,11 @@
 #ifndef BRIDGE_CONSTANTS_H
 #define BRIDGE_CONSTANTS_H
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <string>
 #include <vector>
+#pragma warning(pop)
 
 using namespace std;
 
@@ -181,6 +184,8 @@ const string LABEL_NAMES[] =
   "Deal",
   "Dealer",
   "Vulnerable",
+  "Score IMP",
+  "Score MP",
   "Double dummy",
 
   "Players",
@@ -194,8 +199,6 @@ const string LABEL_NAMES[] =
   "Play",
   "Result",
   "Score",
-  "Score IMP",
-  "Score MP",
   "New segment"
 };
 
@@ -228,15 +231,6 @@ struct FileOption
   string name;
 };
 
-// ref file option.
-
-enum RefLevel
-{
-  REF_LEVEL_NONE = 0,
-  REF_LEVEL_SOME = 1,
-  REF_LEVEL_ALL = 2
-};
-
 struct Options
 {
   FileOption fileInput; // -i, --infile
@@ -258,14 +252,14 @@ struct Options
   bool playersFlag; // -p, --players
   bool equalFlag; // -e, --equal
   bool valuationFlag; // -V, --valuation
+  bool solveFlag; // -S, --solve
+  bool traceFlag; // -T, --trace
 
   bool formatSetFlag; // -f, --format
   Format format;
 
   bool statsFlag; // -s, --stats
   bool quoteFlag; // -q, --quote
-
-  RefLevel refLevel;
 
   unsigned numThreads;
 
@@ -295,6 +289,19 @@ struct FileTask
   bool removeOutputFlag;
 
   vector<FileOutputTask> taskList;
+};
+
+enum DDInfoType
+{
+  BRIDGE_DD_INFO_SOLVE = 0,
+  BRIDGE_DD_INFO_TRACE = 1,
+  BRIDGE_DD_INFO_SIZE = 2
+};
+
+const string DDInfoNames[]
+{
+  "tableaux.log",
+  "traces.log"
 };
 
 
@@ -497,6 +504,14 @@ const string VUL_NAMES_RBN[BRIDGE_SUITS] =
 const string VUL_NAMES_TXT[BRIDGE_SUITS] =
 {
   "None", "Both", "N-S", "E-W"
+};
+
+// TODO: For starters, to expand later.
+
+enum PlayError
+{
+  BRIDGE_PLAY_WRONG_CARD = 0,
+  BRIDGE_PLAY_SIZE = 1
 };
 
 enum Room

@@ -7,7 +7,10 @@
 */
 
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <sstream>
+#pragma warning(pop)
 
 #include "Group.h"
 #include "Bdiff.h"
@@ -80,6 +83,12 @@ Segment * Group::make()
 }
 
 
+unsigned Group::size() const
+{
+  return segments.size();
+}
+
+
 unsigned Group::count() const
 {
   unsigned cnt = 0;
@@ -123,5 +132,26 @@ bool Group::operator == (const Group& group2) const
 bool Group::operator != (const Group& group2) const
 {
   return ! (* this == group2);
+}
+
+
+bool Group::operator <= (const Group& group2) const
+{
+  const unsigned s1 = segments.size();
+  const unsigned s2 = group2.segments.size();
+  if (s1 > s2)
+    DIFF("Invalid lengths: " + STR(s1) + " vs. " + STR(s2));
+
+  // Has to be the last segments that are missing (to make it easy).
+  for (auto it1 = segments.cbegin(),
+       it2 = group2.segments.cbegin();
+       it1 != segments.cend() && it2 != group2.segments.cend();
+       it1++, it2++)
+  {
+    if (! (*it1 <= *it2))
+      return false;
+  }
+
+  return true;
 }
 

@@ -10,9 +10,12 @@
 #ifndef BRIDGE_SEGMENT_H
 #define BRIDGE_SEGMENT_H
 
+#pragma warning(push)
+#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <string>
 #include <list>
 #include <iostream>
+#pragma warning(pop)
 
 #include "Date.h"
 #include "Location.h"
@@ -58,6 +61,8 @@ class Segment
     unsigned getExtBoardNo(const unsigned intNo) const;
 
     unsigned getLINActiveNo(const unsigned intNo) const;
+
+    void equalHeader(const Segment& segment2) const;
 
     string strTitleLINCore() const;
     string strTitleLIN() const;
@@ -176,8 +181,8 @@ class Segment
       unsigned& score2) const;
 
     bool operator == (const Segment& s2) const;
-
     bool operator != (const Segment& s2) const;
+    bool operator <= (const Segment& s2) const;
 
     string strTitle(const Format format) const;
     string strDate(const Format format) const;
