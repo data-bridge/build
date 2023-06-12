@@ -9,7 +9,7 @@
 #ifndef BRIDGE_VALINT_H
 #define BRIDGE_VALINT_H
 
-#include "Buffer.h"
+#include "../Buffer.h"
 
 using namespace std;
 

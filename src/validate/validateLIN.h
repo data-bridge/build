@@ -9,6 +9,7 @@
 #ifndef BRIDGE_VALLIN_H
 #define BRIDGE_VALLIN_H
 
+struct ValState;
 class ValProfile;
 
 

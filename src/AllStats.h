@@ -13,11 +13,12 @@
 #include <iostream>
 #include <vector>
 
-#include "ValStats.h"
 #include "TextStats.h"
 #include "CompStats.h"
 #include "RefStats.h"
 #include "Timers.h"
+
+#include "validate/ValStats.h"
 
 #include "bconst.h"
 

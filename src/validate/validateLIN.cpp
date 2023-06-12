@@ -15,14 +15,15 @@
 #include <map>
 #include <regex>
 
-#include "Deal.h"
+#include "../Deal.h"
+#include "../parse.h"
+#include "../Bexcept.h"
+#include "../Bdiff.h"
+
 #include "valint.h"
 #include "ValProfile.h"
 #include "validate.h"
 #include "validateLIN.h"
-#include "parse.h"
-#include "Bexcept.h"
-#include "Bdiff.h"
 
 #define PLOG(x) prof.log(x, valState.dataOut, valState.dataRef)
 

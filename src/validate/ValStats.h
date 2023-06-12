@@ -14,7 +14,8 @@
 #include <iostream>
 
 #include "ValProfile.h"
-#include "bconst.h"
+
+#include "../bconst.h"
 
 
 using namespace std;

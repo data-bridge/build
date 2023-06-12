@@ -9,11 +9,12 @@
 // The functions in this file help to parse files.
 
 
+#include "../parse.h"
+
 #include "validate.h"
 #include "valint.h"
-#include "ValProfile.h"
 #include "validateTXT.h"
-#include "parse.h"
+#include "ValProfile.h"
 
 #define PLOG(x) prof.log(x, valState.dataOut, valState.dataRef)
 

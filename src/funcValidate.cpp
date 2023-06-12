@@ -12,9 +12,10 @@
 #include <iomanip>
 #include <fstream>
 
-#include "validate.h"
 #include "funcValidate.h"
 #include "Bexcept.h"
+
+#include "validate/validate.h"
 
 
 void dispatchValidate(

@@ -10,12 +10,13 @@
 #include <regex>
 #include <algorithm>
 
-#include "parse.h"
+#include "../parse.h"
+#include "../Chunk.h"
+
 #include "validate.h"
 #include "valint.h"
-#include "ValProfile.h"
 #include "validatePBN.h"
-#include "Chunk.h"
+#include "ValProfile.h"
 
 #define PLOG(x) prof.log(x, valState.dataOut, valState.dataRef)
 

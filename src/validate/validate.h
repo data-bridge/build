@@ -11,7 +11,7 @@
 
 #include <string>
 
-#include "bconst.h"
+#include "../bconst.h"
 
 using namespace std;
 
