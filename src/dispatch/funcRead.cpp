@@ -17,12 +17,12 @@
 #include "../Chunk.h"
 #include "../RefLines.h"
 
-#include "../fileLIN.h"
-#include "../filePBN.h"
-#include "../fileRBN.h"
-#include "../fileTXT.h"
-#include "../fileEML.h"
-#include "../fileREC.h"
+#include "../formats/fileLIN.h"
+#include "../formats/filePBN.h"
+#include "../formats/fileRBN.h"
+#include "../formats/fileTXT.h"
+#include "../formats/fileEML.h"
+#include "../formats/fileREC.h"
 
 #include "../OrderCounts.h"
 

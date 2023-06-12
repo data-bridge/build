@@ -10,11 +10,12 @@
 #include <sstream>
 #include <regex>
 
-#include "Segment.h"
-#include "Canvas.h"
 #include "fileTXT.h"
-#include "parse.h"
-#include "Bexcept.h"
+
+#include "../Segment.h"
+#include "../Canvas.h"
+#include "../parse.h"
+#include "../Bexcept.h"
 
 using namespace std;
 

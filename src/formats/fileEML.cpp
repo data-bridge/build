@@ -9,14 +9,15 @@
 
 #include <sstream>
 
-#include "Segment.h"
-#include "Board.h"
-#include "Buffer.h"
-#include "Chunk.h"
-#include "Canvas.h"
 #include "fileEML.h"
-#include "parse.h"
-#include "Bexcept.h"
+
+#include "../Segment.h"
+#include "../Board.h"
+#include "../Buffer.h"
+#include "../Chunk.h"
+#include "../Canvas.h"
+#include "../parse.h"
+#include "../Bexcept.h"
 
 using namespace std;
 

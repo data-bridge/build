@@ -6,25 +6,35 @@
    See LICENSE and README.
 */
 
-#ifndef BRIDGE_READEML_H
-#define BRIDGE_READEML_H
+#ifndef BRIDGE_READLIN_H
+#define BRIDGE_READLIN_H
 
 #include <string>
 
+#include "../bconst.h"
+
 using namespace std;
 
+class Group;
+class Segment;
+class Board;
 class Buffer;
 class Chunk;
 
 
-void setEMLTables();
+void setLINTables();
 
-void readEMLChunk(
+void readLINChunk(
   Buffer& buffer,
   Chunk& chunk,
   bool& newSegFlag);
 
-void writeEMLBoardLevel(
+void writeLINSegmentLevel(
+  string& st,
+  const Segment& segment,
+  const Format format);
+
+void writeLINBoardLevel(
   string& st,
   const Segment& segment,
   const Board& board,

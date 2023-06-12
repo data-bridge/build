@@ -6,29 +6,30 @@
    See LICENSE and README.
 */
 
-#ifndef BRIDGE_READPBN_H
-#define BRIDGE_READPBN_H
+#ifndef BRIDGE_READEML_H
+#define BRIDGE_READEML_H
 
 #include <string>
 
-class Segment;
-class Board;
-class Buffer;
-class Chunk;
+#include "../bconst.h"
 
 using namespace std;
 
-class Group;
+class Buffer;
+class Chunk;
+class Segment;
+class Board;
+struct WriteInfo;
 
 
-void setPBNTables();
+void setEMLTables();
 
-void readPBNChunk(
+void readEMLChunk(
   Buffer& buffer,
   Chunk& chunk,
   bool& newSegFlag);
 
-void writePBNBoardLevel(
+void writeEMLBoardLevel(
   string& st,
   const Segment& segment,
   const Board& board,

@@ -6,31 +6,31 @@
    See LICENSE and README.
 */
 
-#ifndef BRIDGE_READLIN_H
-#define BRIDGE_READLIN_H
+#ifndef BRIDGE_READPBN_H
+#define BRIDGE_READPBN_H
 
 #include <string>
+
+#include "../bconst.h"
+
+class Segment;
+class Board;
+class Buffer;
+class Chunk;
 
 using namespace std;
 
 class Group;
-class Buffer;
-class Chunk;
 
 
-void setLINTables();
+void setPBNTables();
 
-void readLINChunk(
+void readPBNChunk(
   Buffer& buffer,
   Chunk& chunk,
   bool& newSegFlag);
 
-void writeLINSegmentLevel(
-  string& st,
-  const Segment& segment,
-  const Format format);
-
-void writeLINBoardLevel(
+void writePBNBoardLevel(
   string& st,
   const Segment& segment,
   const Board& board,

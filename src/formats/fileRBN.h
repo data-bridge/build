@@ -6,25 +6,36 @@
    See LICENSE and README.
 */
 
-#ifndef BRIDGE_READREC_H
-#define BRIDGE_READREC_H
+#ifndef BRIDGE_READRBN_H
+#define BRIDGE_READRBN_H
 
 #include <string>
+
+#include "../bconst.h"
 
 class Group;
 class Buffer;
 class Chunk;
+class Segment;
+class Board;
 struct WriteInfo;
 
 using namespace std;
 
 
-void readRECChunk(
+void setRBNTables();
+
+void readRBNChunk(
   Buffer& buffer,
   Chunk& chunk,
   bool& newSegFlag);
 
-void writeRECBoardLevel(
+void writeRBNSegmentLevel(
+  string& st,
+  const Segment& segment,
+  const Format format);
+
+void writeRBNBoardLevel(
   string& st,
   const Segment& segment,
   const Board& board,

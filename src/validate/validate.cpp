@@ -14,7 +14,8 @@
 #include "../Chunk.h"
 #include "../RefLines.h"
 
-#include "../filePBN.h"
+#include "../formats/filePBN.h"
+
 #include "../parse.h"
 
 #include "validateLIN.h"

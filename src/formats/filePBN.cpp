@@ -9,13 +9,14 @@
 
 #include <unordered_map>
 
-#include "Segment.h"
-#include "Board.h"
-#include "Buffer.h"
-#include "Chunk.h"
-
 #include "filePBN.h"
-#include "Bexcept.h"
+
+#include "../Segment.h"
+#include "../Board.h"
+#include "../Buffer.h"
+#include "../Chunk.h"
+
+#include "../Bexcept.h"
 
 using namespace std;
 

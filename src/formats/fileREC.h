@@ -6,33 +6,29 @@
    See LICENSE and README.
 */
 
-#ifndef BRIDGE_READTXT_H
-#define BRIDGE_READTXT_H
+#ifndef BRIDGE_READREC_H
+#define BRIDGE_READREC_H
 
 #include <string>
-#include <vector>
 
-#include "Buffer.h"
-#include "Chunk.h"
+#include "../bconst.h"
+
+class Group;
+class Segment;
+class Board;
+class Buffer;
+class Chunk;
+struct WriteInfo;
 
 using namespace std;
 
-class Group;
 
-
-void setTXTTables();
-
-void readTXTChunk(
+void readRECChunk(
   Buffer& buffer,
   Chunk& chunk,
   bool& newSegFlag);
 
-void writeTXTSegmentLevel(
-  string& st,
-  const Segment& segment,
-  const Format format);
-
-void writeTXTBoardLevel(
+void writeRECBoardLevel(
   string& st,
   const Segment& segment,
   const Board& board,

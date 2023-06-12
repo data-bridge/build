@@ -10,14 +10,15 @@
 #include <sstream>
 #include <map>
 
-#include "Segment.h"
-#include "Board.h"
-#include "Buffer.h"
-#include "Chunk.h"
-
 #include "fileLIN.h"
-#include "parse.h"
-#include "Bexcept.h"
+
+#include "../Segment.h"
+#include "../Board.h"
+#include "../Buffer.h"
+#include "../Chunk.h"
+
+#include "../parse.h"
+#include "../Bexcept.h"
 
 using namespace std;
 

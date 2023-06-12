@@ -7,13 +7,14 @@
 */
 
 
-#include "Segment.h"
-#include "Buffer.h"
-#include "Chunk.h"
-
 #include "fileRBN.h"
-#include "parse.h"
-#include "Bexcept.h"
+
+#include "../Segment.h"
+#include "../Buffer.h"
+#include "../Chunk.h"
+
+#include "../parse.h"
+#include "../Bexcept.h"
 
 using namespace std;
 
