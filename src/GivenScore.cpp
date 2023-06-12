@@ -78,7 +78,7 @@ void GivenScore::setIMP(
     if (! str2float(fixed, score))
       THROW("Bad RBN IMP score: " + fixed);
 
-    score *= side;
+    score *= static_cast<float>(side);
     setFlag = true;
   }
 }

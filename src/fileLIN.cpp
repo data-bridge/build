@@ -127,7 +127,7 @@ void readLINChunk(
       if (label == "an")
       {
         alerts << aNo << " " << value << "\n";
-        chunk.append(BRIDGE_FORMAT_AUCTION, "^" + STR(aNo));
+        chunk.append(BRIDGE_FORMAT_AUCTION, "^" + to_string(aNo));
         aNo++;
         continue;
       }

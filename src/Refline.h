@@ -51,8 +51,8 @@ class RefLine
       const string& refFile,
       const string& line,
       const string& range,
-      const unsigned start,
-      const unsigned end);
+      const size_t start,
+      const size_t end);
 
     void parseFlexibleNumber(
       const string& refName,

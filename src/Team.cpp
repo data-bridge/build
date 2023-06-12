@@ -106,7 +106,7 @@ void Team::set(
       return;
     
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -123,7 +123,7 @@ void Team::setPair(
 bool Team::operator == (const Team& team2) const
 {
   if (name != team2.name)
-    DIFF("Different team name: " + STR(name) + " / " + STR(team2.name));
+    DIFF("Different team name: " + name + " / " + team2.name);
 
   if (carry != team2.carry)
     DIFF("Different team carry type");
@@ -244,7 +244,8 @@ string Team::strTXT(const int score) const
       break;
 
     case BRIDGE_CARRY_FLOAT:
-      ss << fixed << setprecision(2) << score + carryf;
+      ss << fixed << setprecision(2) << 
+        static_cast<float>(score) + carryf;
       break;
 
     default:
@@ -271,7 +272,7 @@ string Team::str(
       return Team::strTXT();
     
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -286,7 +287,7 @@ string Team::str(
       return Team::strTXT(score);
     
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 

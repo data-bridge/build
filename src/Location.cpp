@@ -69,7 +69,7 @@ void Location::set(
       return;
     
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -133,7 +133,7 @@ string Location::str(const Format format) const
       return Location::strCore(", ");
 
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 

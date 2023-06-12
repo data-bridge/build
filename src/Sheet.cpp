@@ -273,7 +273,8 @@ void Sheet::parse(Buffer& buffer)
       {
         header.linenoRS.push_back(lineData.no);
         header.lineRS.push_back(buffer.getLine(lineData.no));
-        header.indexmin.push_back(hands.size()+1); // Next index
+        header.indexmin.push_back(
+          static_cast<unsigned>(hands.size()+1)); // Next index
       }
       Sheet::parseRS(lineData.value, clist);
     }
@@ -355,18 +356,18 @@ void Sheet::parse(Buffer& buffer)
 
 unsigned Sheet::refLineNoToHandNo(const unsigned lineNo) const
 {
-  const unsigned l = hands.size();
+  const size_t l = hands.size();
   if (lineNo < hands[0].linenoQX)
     return BIGNUM; // Header
 
-  for (unsigned i = 0; i < l-1; i++)
+  for (size_t i = 0; i < l-1; i++)
   {
     if (lineNo < hands[i+1].linenoQX)
-      return i;
+      return static_cast<unsigned>(i);
   }
 
   if (lineNo >= hands[l-1].linenoQX)
-    return l-1;
+    return static_cast<unsigned>(l-1);
   else
     return BIGNUM;
 }
@@ -483,7 +484,7 @@ string Sheet::strHand(
 
   if (index != BIGNUM)
   {
-    const unsigned l = hands.size();
+    const size_t l = hands.size();
     if (index < l-1)
     {
       ss << "--\n";
@@ -584,9 +585,9 @@ string Sheet::handRange(const unsigned index) const
     hands[index+1].linenoQX-1);
 
   if (hands[index].linenoQX == e)
-    return STR(hands[index].linenoQX);
+    return to_string(hands[index].linenoQX);
   else
-    return STR(hands[index].linenoQX) + "-" + STR(e);
+    return to_string(hands[index].linenoQX) + "-" + to_string(e);
 }
 
 
@@ -594,7 +595,7 @@ unsigned Sheet::tagNo(
   const string& line,
   const string& tag) const
 {
-  const unsigned p = line.find(tag);
+  const size_t p = line.find(tag);
   if (p == string::npos)
     return 0;
   if (p == 0)

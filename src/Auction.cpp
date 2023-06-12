@@ -181,7 +181,7 @@ void Auction::setDealer(
       break;
     
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
   setDVFlag = true;
 }
@@ -210,7 +210,7 @@ void Auction::setVul(
       break;
     
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
   setDVFlag = true;
 }
@@ -319,7 +319,7 @@ void Auction::addCall(
     numPasses = 0;
   }
   else if (n <= activeCNo)
-    THROW("Call " + STR(n) + " too low");
+    THROW("Call " + to_string(n) + " too low");
   else
   {
     numPasses = 0;
@@ -343,7 +343,7 @@ void Auction::addAlert(
   // their bid number.  But as that takes more storage and it only
   // occurs in some formats, we do the inefficient search.
 
-  const string lookFor = "[" + STR(alertNo) + "]";
+  const string lookFor = "[" + to_string(alertNo) + "]";
   for (unsigned b = 0; b < len; b++)
   {
     if (sequence[b].alert == lookFor)
@@ -353,7 +353,7 @@ void Auction::addAlert(
     }
   }
 
-  THROW("Alert number not given: " + STR(alertNo));
+  THROW("Alert number not given: " + to_string(alertNo));
 }
 
 
@@ -373,7 +373,7 @@ unsigned Auction::getRBNAlertNo(
 {
   char c = s.at(pos);
   if (c < '0' || c > '9')
-    THROW("Bad alert number " + STR(c));
+    THROW("Bad alert number " + to_string(c));
 
   unsigned aNo = static_cast<unsigned>(c - '0');
   pos++;
@@ -387,7 +387,7 @@ unsigned Auction::getRBNAlertNo(
       THROW("Missing end of alert");
 
     if (c < '0' || c > '9')
-      THROW("Bad alert number, second digit " + STR(c));
+      THROW("Bad alert number, second digit " + to_string(c));
 
     aNo = 10*aNo + static_cast<unsigned>(c - '0');
   }
@@ -552,7 +552,7 @@ void Auction::addAuctionPBN(const vector<string>& list)
         THROW("Not an alert number");
 
       if (ano == 0 || ano > alerts.size())
-        THROW("Alert number out of range: " + STR(ano));
+        THROW("Alert number out of range: " + to_string(ano));
 
       Auction::addCall(words[i], alerts[ano-1]);
 
@@ -570,7 +570,7 @@ void Auction::addAuctionPBN(const vector<string>& list)
       // Alert is with bid (1S=1=).
       
       size_t p = words[i].find("=");
-      const unsigned ll = words[i].length();
+      const unsigned ll = static_cast<unsigned>(words[i].length());
       if (p == string::npos || p == 0 || p > ll-3)
         THROW("Odd string: " + words[i]);
       const string a = words[i].substr(p+1);
@@ -580,7 +580,7 @@ void Auction::addAuctionPBN(const vector<string>& list)
         THROW("Not an alert number");
 
       if (ano == 0 || ano > alerts.size())
-        THROW("Alert number out of range: " + STR(ano));
+        THROW("Alert number out of range: " + to_string(ano));
 
       Auction::addCall(words[i].substr(0, p), alerts[ano-1]);
     }
@@ -654,7 +654,7 @@ void Auction::addAuctionRBNCore(
         THROW("Alerts not in ascending order");
 
       aNo = aNoNew;
-      sequence[len-1].alert = "[" + STR(aNo) + "]";
+      sequence[len-1].alert = "[" + to_string(aNo) + "]";
     }
     else if (c == '*' || c == '!') 
     {
@@ -719,7 +719,7 @@ void Auction::addAuction(
       break;
     
     default:
-      THROW("Unknown format: " + STR(format));
+      THROW("Unknown format: " + to_string(format));
   }
 }
 
@@ -1142,7 +1142,7 @@ string Auction::str(
       return Auction::strREC();
     
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -1155,7 +1155,7 @@ string Auction::strDealer(const Format format) const
   switch(format)
   {
     case BRIDGE_FORMAT_LIN:
-      return STR(PLAYER_DDS_TO_LIN_DEALER[dealer]);
+      return to_string(PLAYER_DDS_TO_LIN_DEALER[dealer]);
     
     case BRIDGE_FORMAT_PBN:
     case BRIDGE_FORMAT_RBN:
@@ -1169,7 +1169,7 @@ string Auction::strDealer(const Format format) const
       return PLAYER_NAMES_LONG[dealer] + " Dlr";
     
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -1208,7 +1208,7 @@ string Auction::strVul(const Format format) const
       return VUL_NAMES_LIN[vul];
     
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 

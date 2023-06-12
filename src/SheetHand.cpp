@@ -209,24 +209,24 @@ void SheetHand::setPlayDistance(const string& plays)
 
 void SheetHand::incrPlayDistance(const string& trick)
 {
-  const unsigned l = trick.length();
+  const size_t l = trick.length();
   if (l % 2 || l > 8)
     SheetHand::fail("Bad trick: " + trick);
 
   if (l == 0)
     return;
 
-  const unsigned c = l >> 1;
+  const size_t c = l >> 1;
   const int ci = static_cast<int>(c);
   vector<int> cards(4);
-  for (unsigned i = 0; i < c; i++)
+  for (size_t i = 0; i < c; i++)
   {
     cards[i] = static_cast<int>(deal.holdsCard(trick.substr(2*i, 2)));
     if (cards[i] == BRIDGE_PLAYER_SIZE)
       SheetHand::fail("Bad card in: " + trick);
   }
 
-  unsigned distBest = c-1;
+  size_t distBest = c-1;
   for (int startPos = 0; startPos < ci; startPos++)
   {
     const int start = cards[static_cast<unsigned>(startPos)];
@@ -244,10 +244,10 @@ void SheetHand::incrPlayDistance(const string& trick)
   }
 
   playDistance.numTricks++;
-  playDistance.numCards += c;
+  playDistance.numCards += static_cast<unsigned>(c);
   if (distBest == 0)
     playDistance.goodTricks++;
-  playDistance.distance += distBest;
+  playDistance.distance += static_cast<unsigned>(distBest);
 }
 
 
@@ -357,11 +357,10 @@ void SheetHand::finishHand(
         tricksDDS.value = tricksDD(runningDD);
       }
     }
-    catch (Bexcept& bex)
+    catch ([[maybe_unused]] Bexcept& bex)
     {
       playFlawed = true;
       SheetHand::setPlayDistance(plays);
-      UNUSED(bex);
       // bex.print(cout);
     }
   }
@@ -484,7 +483,7 @@ string SheetHand::tstr(const SheetTricks& tr) const
   if (! tr.has)
     return "-";
   else
-    return STR(tr.value);
+    return to_string(tr.value);
 }
 
 
@@ -495,11 +494,11 @@ string SheetHand::tstr(
   if (! tr.has)
     return "-";
   else if (! tbase.has)
-    return STR(tr.value);
+    return to_string(tr.value);
   else if (tr.value == tbase.value)
     return ".";
   else
-    return STR(tr.value);
+    return to_string(tr.value);
 }
 
 
@@ -541,28 +540,28 @@ string SheetHand::suggestTrick(
     if (! tricks2.has)
     {
       if (tricks1.value != tbase.value)
-        return STR(tricks1.value);
+        return to_string(tricks1.value);
       else
         return "Y"; // No ideas
     }
     else if (tricks1.value == tricks2.value)
     {
       if (tricks1.value != tbase.value)
-        return STR(tricks1.value);
+        return to_string(tricks1.value);
       else
         return "Y";
     }
     else if (tricks1.value == tbase.value)
-      return STR(tricks2.value);
+      return to_string(tricks2.value);
     else if (tricks2.value == tbase.value)
-      return STR(tricks1.value);
+      return to_string(tricks1.value);
     else
       return "X"; // Too many different values
   }
   else if (tricks2.has)
   {
     if (tricks2.value != tbase.value)
-      return STR(tricks2.value);
+      return to_string(tricks2.value);
     else
       return "Y";
   }

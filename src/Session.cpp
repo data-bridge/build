@@ -323,7 +323,7 @@ void Session::set(
       return;
     
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -589,7 +589,7 @@ string Session::str(const Format format) const
       return Session::strTXT();
 
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 

@@ -132,8 +132,8 @@ void RefLine::parseRange(
   const string& refName,
   const string& line,
   const string& rtext,
-  const unsigned start,
-  const unsigned end)
+  const size_t start,
+  const size_t end)
 {
   // Start with either upos (unsigned positive number) or upos-upos.
   // Set lno and count.
@@ -141,7 +141,7 @@ void RefLine::parseRange(
   if (start >= end)
     THROW("Ref file " + refName + ": Syntax error in '" + line + "'");
 
-  unsigned dash = rtext.find("-");
+  size_t dash = rtext.find("-");
   if (dash == string::npos || dash == rtext.length()-1)
   {
     // upos.
@@ -174,8 +174,8 @@ bool RefLine::parse(
   inputLine = line;
 
   string r, a, q;
-  unsigned start = 0;
-  unsigned end = line.length()-1;
+  size_t start = 0;
+  size_t end = line.length()-1;
 
   if (! readNextWord(line, 0, r))
     THROW("Ref file " + refName + ": Line start '" + line + "'");
@@ -239,7 +239,7 @@ void RefLine::parseFlexibleNumber(
 
 string RefLine::unquote(const string& entry) const
 {
-  const unsigned l = entry.length();
+  const size_t l = entry.length();
   if (l == 0)
     return "";
 
@@ -315,7 +315,7 @@ void RefLine::parseReplaceLIN(
   vector<string> v;
   v.clear();
   tokenize(quote, v, ",");
-  const unsigned vlen = v.size();
+  const size_t vlen = v.size();
 
   if (vlen <= 1)
     THROW("Ref file " + refName + ": Short quotes '" + quote + "'");
@@ -348,7 +348,7 @@ void RefLine::parseInsertLIN(
   vector<string> v;
   v.clear();
   tokenize(quote, v, ",");
-  const unsigned vlen = v.size();
+  const size_t vlen = v.size();
 
   if (vlen <= 1)
     THROW("Ref file " + refName + ": Short quotes '" + quote + "'");
@@ -389,7 +389,7 @@ void RefLine::parseDeleteLIN(
   vector<string> v;
   v.clear();
   tokenize(quote, v, ",");
-  const unsigned vlen = v.size();
+  const size_t vlen = v.size();
 
   if (vlen == 0)
     THROW("Ref file " + refName + ": Short quotes '" + quote + "'");
@@ -451,7 +451,7 @@ void RefLine::parseReplacePBN(
   vector<string> v;
   v.clear();
   tokenize(quote, v, ",");
-  const unsigned vlen = v.size();
+  const size_t vlen = v.size();
 
   if (vlen != 3)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
@@ -511,7 +511,7 @@ void RefLine::parseReplaceRBN(
   vector<string> v;
   v.clear();
   tokenize(quote, v, ",");
-  const unsigned vlen = v.size();
+  const size_t vlen = v.size();
 
   if (vlen != 3 && vlen != 4)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
@@ -540,7 +540,7 @@ void RefLine::parseInsertRBN(
   vector<string> v;
   v.clear();
   tokenize(quote, v, ",");
-  const unsigned vlen = v.size();
+  const size_t vlen = v.size();
 
   if (vlen != 3 && vlen != 4)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
@@ -571,7 +571,7 @@ void RefLine::parseDeleteRBN(
   vector<string> v;
   v.clear();
   tokenize(quote, v, ",");
-  const unsigned vlen = v.size();
+  const size_t vlen = v.size();
 
   if (vlen < 1 && vlen > 4)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
@@ -608,7 +608,7 @@ void RefLine::parseReplaceTXT(
   vector<string> v;
   v.clear();
   tokenize(quote, v, ",");
-  const unsigned vlen = v.size();
+  const size_t vlen = v.size();
 
   if (vlen < 2 && vlen > 3)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
@@ -634,7 +634,7 @@ void RefLine::parseInsertTXT(
   vector<string> v;
   v.clear();
   tokenize(quote, v, ",");
-  const unsigned vlen = v.size();
+  const size_t vlen = v.size();
 
   if (vlen != 2)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
@@ -651,7 +651,7 @@ void RefLine::parseDeleteTXT(
   vector<string> v;
   v.clear();
   tokenize(quote, v, ",");
-  const unsigned vlen = v.size();
+  const size_t vlen = v.size();
 
   if (vlen != 1 && vlen != 2)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
@@ -680,7 +680,7 @@ void RefLine::parseReplaceWORD(
   vector<string> v;
   v.clear();
   tokenize(quote, v, ",");
-  const unsigned vlen = v.size();
+  const size_t vlen = v.size();
 
   if (vlen != 3)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
@@ -699,7 +699,7 @@ void RefLine::parseInsertWORD(
   vector<string> v;
   v.clear();
   tokenize(quote, v, ",");
-  const unsigned vlen = v.size();
+  const size_t vlen = v.size();
 
   if (vlen != 2)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
@@ -717,7 +717,7 @@ void RefLine::parseDeleteWORD(
   vector<string> v;
   v.clear();
   tokenize(quote, v, ",");
-  const unsigned vlen = v.size();
+  const size_t vlen = v.size();
 
   if (vlen != 2)
     THROW("Ref file " + refName + ": Wrong-length quotes '" + quote + "'");
@@ -819,9 +819,9 @@ void RefLine::checkEntries(
     return;
 
   THROW(comment.strComment() + ": (" + 
-    STR(ractual.count.units) + "," +
-    STR(ractual.count.hands) + "," + 
-    STR(ractual.count.boards) + ")");
+    to_string(ractual.count.units) + "," +
+    to_string(ractual.count.hands) + "," + 
+    to_string(ractual.count.boards) + ")");
 }
 
 
@@ -905,7 +905,7 @@ void RefLine::checkCounts() const
     RefLine::checkEntries(re, ractual);
   }
   else
-    THROW("Bad count type: " + STR(rc) + ", " + inputLine);
+    THROW("Bad count type: " + to_string(rc) + ", " + inputLine);
 }
 
 
@@ -927,7 +927,8 @@ void RefLine::countHandsLIN(
   const string& line,
   vector<unsigned>& seen) const
 {
-  unsigned pos = 0, p, b;
+  size_t pos = 0, p;
+  unsigned b;
   while (1)
   {
     p = line.find("qx|", pos);
@@ -1098,7 +1099,6 @@ void RefLine::checkMultiLineCounts(const vector<string>& lines) const
   RefEntry re, ractual;
   comment.getEntry(cat, re);
   const RefCountType rc = comment.countType();
-  const ActionType act = action.number();
 
   if (rc == REF_COUNT_SINGLE)
   {
@@ -1134,7 +1134,7 @@ void RefLine::checkMultiLineCounts(const vector<string>& lines) const
     RefLine::checkEntries(re, ractual);
   }
   else
-    THROW("Bad count type: " + STR(rc) + ", " + inputLine);
+    THROW("Bad count type: " + to_string(rc) + ", " + inputLine);
 }
 
 

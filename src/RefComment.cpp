@@ -816,13 +816,13 @@ void RefComment::setTagTable()
 void RefComment::parse(
   const string& refName,
   const string& line,
-  const unsigned start,
-  unsigned& end)
+  const size_t start,
+  size_t& end)
 {
   // Set commentFlag, category and count1..3.
   // Modifies end.
 
-  unsigned openb = line.find_last_of("{");
+  size_t openb = line.find_last_of("{");
   if (openb == string::npos)
     return;
   if (openb < start)
@@ -1010,6 +1010,7 @@ string RefComment::strComment() const
     return "";
 
   return "{" + CommentList[category].name + "(" +
-    STR(count1) + "," + STR(count2) + "," + STR(count3) + ")}";
+    to_string(count1) + "," + to_string(count2) + "," + 
+      to_string(count3) + ")}";
 }
 

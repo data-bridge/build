@@ -39,10 +39,10 @@ int main(int argc, char * argv[])
   Timer timer;
   timer.start();
 
-  for (unsigned i = 0; i < options.numThreads; i++)
+  for (size_t i = 0; i < options.numThreads; i++)
     thr[i] = thread(dispatch, i, ref(files), options, ref(allStatsList[i]));
 
-  for (unsigned i = 0; i < options.numThreads; i++)
+  for (size_t i = 0; i < options.numThreads; i++)
     thr[i].join();
 
   timer.stop();

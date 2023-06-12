@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <filesystem>
 #include <regex>
 
 
@@ -18,16 +19,6 @@
 #else
   #include <thread>
   #include <mutex>
-#endif
-
-#if defined(__CYGWIN__)
-  #include "dirent.h"
-#elif defined(_WIN32)
-  #include "dirent.h"
-  #include <windows.h>
-  #include "Shlwapi.h"
-#else
-  #include <dirent.h>
 #endif
 
 #include "Files.h"
@@ -90,39 +81,25 @@ void Files::buildFileList(
   vector<FileEntry>& fileList,
   const Format formatOnly)
 {
-  DIR *dir;
-  struct dirent *ent;
   FileEntry entry;
+  const filesystem::path dir(dirName);
 
-  if ((dir = opendir(dirName.c_str())) == nullptr) 
+  if (! filesystem::exists(dir) || ! filesystem::is_directory(dir))
     return;
-
-  while ((ent = readdir(dir)) != nullptr) 
+  
+  for (const auto& elem: filesystem::directory_iterator(dir))
   {
-    string s = dirName + "/" + string(ent->d_name);
-    switch (ent->d_type)
+    if (elem.is_directory())
     {
-      case DT_REG:
-        if (Files::fillEntry(s, entry))
-        {
-          if (formatOnly == BRIDGE_FORMAT_SIZE || 
-              entry.format == formatOnly)
-          fileList.push_back(entry);
-        }
-        break;
-
-      case DT_DIR:
-        if (strcmp(ent->d_name, ".") != 0 &&
-            strcmp(ent->d_name, "..") != 0)
-        {
-          Files::buildFileList(s, fileList, formatOnly);
-        }
-
-      default:
-        break;
+      Files::buildFileList(elem.path().string(), fileList, formatOnly);
+    }
+    else if (Files::fillEntry(elem.path().string(), entry))
+    {
+      if (formatOnly == BRIDGE_FORMAT_SIZE ||
+          entry.format == formatOnly)
+        fileList.push_back(entry);
     }
   }
-  closedir(dir);
 }
 
 

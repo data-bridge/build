@@ -40,14 +40,14 @@ void setTables()
 
 
 void dispatch(
-  const int thrNo,
+  const size_t thrNo,
   Files& files,
   const Options& options,
   AllStats& allStats)
 {
   ofstream freal;
   if (options.fileLog.setFlag)
-    freal.open(options.fileLog.name + (thrNo == 0 ? "" : STR(thrNo)));
+    freal.open(options.fileLog.name + (thrNo == 0 ? "" : to_string(thrNo)));
   ostream& flog = (options.fileLog.setFlag ? freal : cout);
 
   FileTask task;

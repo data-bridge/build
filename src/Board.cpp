@@ -301,13 +301,12 @@ bool Board::overlappingPlayers() const
 }
 
 
-void Board::performValuation(const bool fullFlag)
+void Board::performValuation([[maybe_unused]] const bool fullFlag)
 {
   unsigned cards[BRIDGE_PLAYERS][BRIDGE_SUITS];
   deal.getDDS(cards);
 
   // TODO
-  UNUSED(fullFlag);
   // for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
     // valuation[p].evaluate(cards[p], fullFlag);
 }
@@ -432,7 +431,7 @@ string Board::strPlayersBoard(
       return "pn|" + st + "|pg||\n\n";
 
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 

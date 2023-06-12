@@ -144,7 +144,7 @@ void Scoring::set(
       return Scoring::setRBN(text);
     
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -229,7 +229,7 @@ string Scoring::str(const Format format) const
       return Scoring::strREC();
 
     default:
-      THROW("Invalid format " + STR(format));
+      THROW("Invalid format " + to_string(format));
   }
 }
 

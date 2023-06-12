@@ -40,7 +40,7 @@ void mergeResults(
   string line;
   for (unsigned i = 1; i < options.numThreads; i++)
   {
-    const string fname = options.fileLog.name + STR(i);
+    const string fname = options.fileLog.name + to_string(i);
     ifstream flog(fname);
     if (! flog.is_open())
       continue;

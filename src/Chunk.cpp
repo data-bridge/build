@@ -199,7 +199,7 @@ void Chunk::getCounts(
       format == BRIDGE_FORMAT_RBX)
   {
     const string sn = chunk[BRIDGE_FORMAT_PLAYERS];
-    const unsigned sl = sn.length();
+    const unsigned sl = static_cast<unsigned>(sn.length());
     if (sn != "" && sl >= 2)
     {
       const string r = sn.substr(sl-2);
@@ -252,7 +252,7 @@ void Chunk::guessDealerAndVul(
       return;
 
     chunk[BRIDGE_FORMAT_DEALER] = 
-      STR(PLAYER_DDS_TO_LIN_DEALER[BOARD_TO_DEALER[u % 4]]);
+      to_string(PLAYER_DDS_TO_LIN_DEALER[BOARD_TO_DEALER[u % 4]]);
     chunk[BRIDGE_FORMAT_VULNERABLE] = 
       VUL_NAMES_LIN[BOARD_TO_VUL[u % 16]];
   }
@@ -390,8 +390,9 @@ string Chunk::strRange() const
   }
 
   if (lo == hi)
-    return "Line number:  " + STR(lo) + "\n\n";
+    return "Line number:  " + to_string(lo) + "\n\n";
   else
-    return "Line numbers: " + STR(lo) + " to " + STR(hi) + "\n\n";
+    return "Line numbers: " + to_string(lo) + " to " + 
+      to_string(hi) + "\n\n";
 }
 

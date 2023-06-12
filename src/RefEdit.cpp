@@ -212,7 +212,7 @@ void RefEdit::modify(
       act != REF_ACTION_DELETE_RBN &&
       act != REF_ACTION_DELETE_RBX &&
       act != REF_ACTION_DELETE_EML)
-    THROW("Multi-line must be delete: " + STR(act) + ", " + lines[0]);
+    THROW("Multi-line must be delete: " + to_string(act) + ", " + lines[0]);
     
   if (act == REF_ACTION_DELETE_EML)
     modifyDeleteEML(lines);
@@ -257,14 +257,14 @@ void RefEdit::modifyDeleteGen(string& line) const
 void RefEdit::modifyLINCommon(
   const string& line,
   const bool insertFlag,
-  unsigned& start,
+  size_t& start,
   vector<string>& v,
   vector<string>& f,
   bool& endsOnPipe) const
 {
   v.clear();
   tokenizeMinus(line, v, "|");
-  const unsigned vlen = v.size();
+  const size_t vlen = v.size();
 
   if (tagno == 0)
     modifyFail(line, "No tag number");
@@ -317,7 +317,7 @@ unsigned RefEdit::countUnitsLIN() const
 
 void RefEdit::modifyReplaceLIN(string& line) const
 {
-  unsigned start;
+  size_t start;
   vector<string> v, f;
   bool endsOnPipe;
   RefEdit::modifyLINCommon(line, false, start, v, f, endsOnPipe);
@@ -338,7 +338,7 @@ void RefEdit::modifyReplaceLIN(string& line) const
     if (v[start+1] != wasVal)
     {
       // Permit a not too short prefix.
-      const unsigned l = wasVal.length();
+      const size_t l = wasVal.length();
       if (l < 2 ||
           l >= v[start+1].length() ||
           v[start+1].substr(0, l) != wasVal)
@@ -355,7 +355,7 @@ void RefEdit::modifyReplaceLIN(string& line) const
 
 void RefEdit::modifyInsertLIN(string& line) const
 {
-  unsigned start;
+  size_t start;
   vector<string> v, f;
   bool endsOnPipe;
   RefEdit::modifyLINCommon(line, true, start, v, f, endsOnPipe);
@@ -387,7 +387,7 @@ void RefEdit::modifyInsertLIN(string& line) const
 
 void RefEdit::modifyDeleteLIN(string& line) const
 {
-  unsigned start;
+  size_t start;
   vector<string> v, f;
   bool endsOnPipe;
   RefEdit::modifyLINCommon(line, false, start, v, f, endsOnPipe);
@@ -499,7 +499,7 @@ void RefEdit::modifyRBNCommon(
   const string& line,
   string& s) const
 {
-  const unsigned l = line.length();
+  const size_t l = line.length();
   if (l == 0)
     THROW("RBN line too short: " + line);
 
@@ -534,7 +534,7 @@ void RefEdit::modifyReplaceRBN(string& line) const
     vector<string> f;
     f.clear();
     tokenize(s, f, ":");
-    const unsigned flen = f.size();
+    const size_t flen = f.size();
     if (fieldno > flen)
       THROW("RBN field number too large: " + line);
     if (f[fieldno-1] != wasVal)
@@ -555,7 +555,7 @@ void RefEdit::modifyInsertRBN(string& line) const
   vector<string> f;
   f.clear();
   tokenize(s, f, ":");
-  const unsigned flen = f.size();
+  const size_t flen = f.size();
   if (fieldno > flen+1)
     THROW("RBN field number too large: " + line);
   else if (fieldno == flen+1)
@@ -585,7 +585,7 @@ void RefEdit::modifyDeleteRBN(string& line) const
     vector<string> f;
     f.clear();
     tokenize(s, f, ":");
-    const unsigned flen = f.size();
+    const size_t flen = f.size();
     if (fieldno > flen)
       THROW("RBN field number too large: " + line);
     if (f[fieldno-1] != wasVal)
@@ -617,16 +617,16 @@ bool RefEdit::modifyCommonRBX(
   const string& line,
   vector<string>& v,
   string& s,
-  unsigned& pos) const
+  size_t& pos) const
 {
   v.clear();
   tokenize(line, v, "}");
   v.pop_back(); // Last empty field
-  const unsigned vlen = v.size();
+  const size_t vlen = v.size();
 
-  for (unsigned i = 0; i < vlen; i++)
+  for (size_t i = 0; i < vlen; i++)
   {
-    const unsigned flen = v[i].length();
+    const size_t flen = v[i].length();
     if (flen <= 1)
       continue;
 
@@ -648,7 +648,7 @@ void RefEdit::modifyReplaceRBX(string& line) const
 {
   vector<string> v;
   string s;
-  unsigned pos;
+  size_t pos;
 
   if (! RefEdit::modifyCommonRBX(line, v, s, pos))
     THROW("RBN tag not found: " + line);
@@ -667,7 +667,7 @@ void RefEdit::modifyInsertRBX(string& line) const
 {
   vector<string> v;
   string s;
-  unsigned pos;
+  size_t pos;
 
   if (RefEdit::modifyCommonRBX(line, v, s, pos))
   {
@@ -702,7 +702,7 @@ void RefEdit::modifyDeleteRBX(string& line) const
 {
   vector<string> v;
   string s;
-  unsigned pos;
+  size_t pos;
 
   if (! RefEdit::modifyCommonRBX(line, v, s, pos))
     THROW("RBN tag not found: " + line);
@@ -727,11 +727,11 @@ unsigned RefEdit::modifyCommonTXT(const string& line) const
 {
   if (charno == 0)
   {
-    const unsigned p = line.find(wasVal);
+    const size_t p = line.find(wasVal);
     if (p == string::npos)
       return 0;
     else
-      return p+1;
+      return static_cast<unsigned>(p+1);
   }
   else
     return charno; // As already 1-based
@@ -744,8 +744,8 @@ void RefEdit::modifyReplaceTXT(string& line) const
   if (p == 0)
     THROW("No character position and string not found: " + line);
 
-  unsigned lw = wasVal.length();
-  unsigned li = isVal.length();
+  size_t lw = wasVal.length();
+  size_t li = isVal.length();
 
   if (line.substr(p-1, lw) != wasVal)
     THROW("Old TXT value: " + line.substr(p-1, lw) + " vs " + wasVal);
@@ -801,7 +801,7 @@ void RefEdit::modifyDeleteTXT(string& line) const
 unsigned RefEdit::modifyCommonWORD(const string& line) const
 {
   unsigned pos = 0;
-  const unsigned l = line.length();
+  const size_t l = line.length();
   for (unsigned wno = 0; wno < tagno; wno++)
   {
     while (pos < l && line.at(pos) == ' ')
@@ -827,8 +827,8 @@ void RefEdit::modifyReplaceWORD(string& line) const
   if (pos == 0)
     modifyFail(line, "replaceWORD: Too few words");
 
-  const unsigned lw = wasVal.length();
-  const unsigned li = isVal.length();
+  const size_t lw = wasVal.length();
+  const size_t li = isVal.length();
 
   if (line.substr(pos-1, lw) != wasVal)
     modifyFail(line, "Old value wrong");
@@ -861,11 +861,11 @@ void RefEdit::modifyInsertWORD(string& line) const
 
 void RefEdit::modifyDeleteWORD(string& line) const
 {
-  const unsigned pos = RefEdit::modifyCommonWORD(line);
+  const size_t pos = RefEdit::modifyCommonWORD(line);
   if (pos == 0)
     modifyFail(line, "deleteWORD: Too few words");
 
-  const unsigned lw = wasVal.length();
+  const size_t lw = wasVal.length();
   if (line.substr(pos-1, lw) != wasVal)
     modifyFail(line, "Old value wrong");
 
@@ -881,8 +881,8 @@ void RefEdit::modifyDeleteWORD(string& line) const
 
 void RefEdit::modifyDeleteEML(vector<string>& lines) const
 {
-  unsigned lc = lines.size();
-  unsigned resLine = 0;
+  size_t lc = lines.size();
+  size_t resLine = 0;
   while (resLine < lc &&
       (lines[resLine].length() < 49 || 
        lines[resLine].substr(42, 6) != "Result"))
@@ -896,7 +896,7 @@ void RefEdit::modifyDeleteEML(vector<string>& lines) const
   if (resLine < 2)
     THROW("Result line too high");
   
-  unsigned nextLine = resLine+1;
+  size_t nextLine = resLine+1;
   while (nextLine < lc && lines[nextLine].length() > 48)
     nextLine++;
 
@@ -906,8 +906,8 @@ void RefEdit::modifyDeleteEML(vector<string>& lines) const
   if (nextLine-resLine > 3)
     THROW("Too many intermediate lines");
   
-  unsigned start = 2;
-  for (unsigned i = 0; i < lc; i++)
+  size_t start = 2;
+  for (size_t i = 0; i < lc; i++)
   {
     if (i >= resLine && i <= nextLine)
     {

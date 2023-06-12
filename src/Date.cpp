@@ -215,7 +215,7 @@ void Date::set(
       return;
     
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -339,7 +339,7 @@ string Date::str(const Format format) const
       return Date::strTXT();
     
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 

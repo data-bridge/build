@@ -186,10 +186,10 @@ void Play::setDeclAndDenom(
   }
 
   if (declIn >= BRIDGE_NORTH_SOUTH)
-    THROW("Invalid declarer: " + STR(declIn));
+    THROW("Invalid declarer: " + to_string(declIn));
 
   if (denomIn >  BRIDGE_NOTRUMP)
-    THROW("Invalid denomination: " + STR(denomIn));
+    THROW("Invalid denomination: " + to_string(denomIn));
 
   setDDFlag = true;
   declarer = declIn;
@@ -365,8 +365,8 @@ void Play::setPlaysPBN(const vector<string>& list)
   if ((declarer + 1) % 4 != opldr)
     THROW("Wrong opening leader");
 
-  const unsigned l = list.size();
-  for (unsigned i = 1; i < l; i++)
+  const size_t l = list.size();
+  for (size_t i = 1; i < l; i++)
   {
     // Compress adjacent spaces just to be sure.
     string s = list[i];
@@ -452,22 +452,22 @@ void Play::setPlaysRBN(
       cards.push_back(ss.str());
     }
 
-    unsigned cs = cards.size();
+    size_t cs = cards.size();
     if (cs > BRIDGE_PLAYERS)
       THROW("Too many plays in trick " + trick);
 
     if (format == BRIDGE_FORMAT_LIN_VG && cs > 1)
     {
-      const unsigned offset = Play::getRotationalOffset(cards);
+      const size_t offset = Play::getRotationalOffset(cards);
       if (offset == BRIDGE_PLAYER_SIZE)
         THROW("No rotational offset fits: " + tricks[t]);
 
-      for (unsigned cn = offset; cn < offset + cs; cn++)
+      for (size_t cn = offset; cn < offset + cs; cn++)
         Play::addPlay(cards[cn % cs]);
     }
     else
     {
-      for (unsigned cn = 0; cn < cs; cn++)
+      for (size_t cn = 0; cn < cs; cn++)
         Play::addPlay(cards[cn]);
     }
   }
@@ -504,7 +504,7 @@ void Play::setPlays(
       break;
 
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -573,9 +573,11 @@ void Play::makeClaim(const unsigned tricks)
       THROW("Claim when play is already over");
   }
   else if (tricks < tricksDecl)
-    THROW("Claim too low: " + STR(tricks) + " vs. " + STR(tricksDecl));
+    THROW("Claim too low: " + to_string(tricks) + " vs. " + 
+      to_string(tricksDecl));
   else if (tricks + tricksDef > 13)
-    THROW("Claim too high: " + STR(tricks) + " vs. " + STR(13-tricksDecl));
+    THROW("Claim too high: " + to_string(tricks) + " vs. " + 
+      to_string(13-tricksDecl));
   else
   {
     playOverFlag = true;
@@ -993,7 +995,7 @@ string Play::str(const Format format) const
       return Play::strREC();
 
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -1021,7 +1023,7 @@ string Play::strLead(const Format format) const
         return PLAY_NO_TO_CARD[sequence[0]];
 
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -1034,7 +1036,7 @@ string Play::strDeclarer(const Format format) const
       return PLAYER_NAMES_SHORT[declarer];
 
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -1044,7 +1046,7 @@ string Play::strClaimLIN() const
   if (! claimMadeFlag)
     return "";
 
-  return "mc|" + STR(tricksDecl) + "|";
+  return "mc|" + to_string(tricksDecl) + "|";
   
 }
 
@@ -1078,7 +1080,7 @@ string Play::strClaim(const Format format) const
         return Play::strClaimLIN() + "pg||\n";
 
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 

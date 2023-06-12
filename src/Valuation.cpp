@@ -31,7 +31,7 @@ static bool setValuationTables = false;
 static CardArray POWER = 
 {
   4096, 2048, 1024, 512, 256, 128, 64, 32, 16, 8, 4, 2, 1
-};
+;
 
 static CardArray BITS =
 {
@@ -390,7 +390,7 @@ void Valuation::setSuitCCCC(
     // +2 for no Q, +1 for no J, +0.5 for having the T.
     if (! cards[2]) adder += 4;
     if (! cards[3]) adder += 2;
-    if (cards[2]) adder++;
+    if (cards[4]) adder++;
   }
   else if (list[VS_LENGTH] == 8)
   {

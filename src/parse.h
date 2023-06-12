@@ -116,7 +116,7 @@ bool getNextWord(
 
 bool readNextWord(
   const string& text,
-  const unsigned startPos,
+  const size_t startPos,
   string& word);
 
 bool readNextWord(

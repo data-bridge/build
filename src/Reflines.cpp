@@ -69,7 +69,7 @@ bool RefLines::parseComment(
   else
     return false;
 
-  unsigned end;
+  size_t end;
   headerComment.parse(fname, line, 0, end);
   return true;
 }
@@ -129,7 +129,7 @@ void RefLines::setOrder(const BoardOrder order)
   else if (order == ORDER_OOCC)
     control = ERR_REF_OUT_OOCC;
   else
-    THROW("Unexpected input order: " + STR(order));
+    THROW("Unexpected input order: " + to_string(order));
 }
 
 
@@ -182,7 +182,7 @@ bool RefLines::getHeaderEntry(
     // Synthesize a mini-header.
     cat = static_cast<CommentType>(0);
     re.files = 1;
-    re.noRefLines = lines.size();
+    re.noRefLines = static_cast<unsigned>(lines.size());
     re.count.lines = bufferLines;
     re.count.units = 0;
     re.count.hands = numHands;
@@ -216,12 +216,12 @@ void RefLines::checkEntries(
     return;
 
   THROW("(" +
-    STR(re.count.units) + "," +
-    STR(re.count.hands) + "," +
-    STR(re.count.boards) + ") vs (" +
-    STR(ractual.count.units) + "," +
-    STR(ractual.count.hands) + "," +
-    STR(ractual.count.boards) + ")");
+    to_string(re.count.units) + "," +
+    to_string(re.count.hands) + "," +
+    to_string(re.count.boards) + ") vs (" +
+    to_string(ractual.count.units) + "," +
+    to_string(ractual.count.hands) + "," +
+    to_string(ractual.count.boards) + ")");
 }
 
 

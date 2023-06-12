@@ -297,7 +297,7 @@ static void getRECFields(
   getRECDeal(canvas, chunk);
   getRECAuction(canvas, chunk);
 
-  unsigned i;
+  size_t i;
   if (playExists)
   {
     getRECPlay(canvas, playLine, chunk);

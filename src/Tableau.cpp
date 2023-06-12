@@ -52,11 +52,11 @@ bool Tableau::setPBN(const string& text)
   vector<string> lines;
   str2lines(text, lines);
   
-  const unsigned l = lines.size();
+  const size_t l = lines.size();
   if (l <= 1)
     THROW("Bad PBN tableau");
 
-  for (unsigned i = 1; i < l; i++)
+  for (size_t i = 1; i < l; i++)
   {
     vector<string> words;
     splitIntoWords(lines[i], words);
@@ -96,7 +96,7 @@ bool Tableau::RBNStringToList(
     else if (c >= 'A' && c <= 'D')
       t = static_cast<unsigned>(c - 'A' + 10);
     else
-      THROW("Invalid number of tricks: '" + STR(c) + "'");
+      THROW("Invalid number of tricks: '" + to_string(c) + "'");
 
     listRBN[drbn] = (invertFlag ? 13-t : t);
   }
@@ -234,7 +234,7 @@ bool Tableau::set(
       return Tableau::setPBN(text);
 
     default:
-      THROW("Tableau format not implemented:" + STR(format));
+      THROW("Tableau format not implemented:" + to_string(format));
   }
 }
 
@@ -280,14 +280,14 @@ bool Tableau::operator == (const Tableau& tableau2) const
       if (table[d][p] == BRIDGE_TRICKS+1)
       {
         if (tableau2.table[d][p] != BRIDGE_TRICKS+1)
-	  DIFF("p " + STR(p) + ", d " + STR(d) + 
+	  DIFF("p " + to_string(p) + ", d " + to_string(d) + 
               ": First unset, second set");
       }
       else if (tableau2.table[d][p] == BRIDGE_TRICKS+1)
-        DIFF("p " + STR(p) + ", d " + STR(d) + 
+        DIFF("p " + to_string(p) + ", d " + to_string(d) + 
           ": First set, second unset");
       else if (table[d][p] != tableau2.table[d][p])
-        DIFF("p " + STR(p) + ", d " + STR(d) + 
+        DIFF("p " + to_string(p) + ", d " + to_string(d) + 
           ": Different values");
     }
   }
@@ -406,7 +406,7 @@ string Tableau::str(const Format format) const
       return Tableau::strTXT();
     
     default:
-      THROW("Unknown format: " + STR(format));
+      THROW("Unknown format: " + to_string(format));
   }
 }
 

@@ -49,8 +49,8 @@ class RefComment
     void parse(
       const string& refFile,
       const string& line,
-      const unsigned start,
-      unsigned& end);
+      const size_t start,
+      size_t& end);
 
     void checkAction(const ActionType action) const;
 

@@ -48,7 +48,7 @@ void HeaderLIN::setResultsList(
   const Format format)
 {
   if (FORMAT_INPUT_MAP[format] != BRIDGE_FORMAT_LIN)
-    THROW("Invalid format: " + STR(format));
+    THROW("Invalid format: " + to_string(format));
   
   size_t c = countDelimiters(text, ",");
   if (c == 0 || c > 256)
@@ -99,7 +99,7 @@ void HeaderLIN::setPlayersList(
   if (format != BRIDGE_FORMAT_LIN && 
       format != BRIDGE_FORMAT_LIN_VG &&
       format != BRIDGE_FORMAT_LIN_TRN)
-    THROW("Invalid format: " + STR(format));
+    THROW("Invalid format: " + to_string(format));
 
   size_t c = countDelimiters(text, ",");
   vector<string> tokens(c+1);
@@ -160,8 +160,8 @@ void HeaderLIN::setPlayersList(
       {
         if (c+5 == 4*len || c+9 == 4*len)
         {
-          const unsigned cnt = 4*len-c-1;
-          for (unsigned i = 0; i < cnt; i++)
+          const size_t cnt = 4*len-c-1;
+          for (size_t i = 0; i < cnt; i++)
             tokens.push_back("");
           c += cnt;
         }
@@ -172,8 +172,8 @@ void HeaderLIN::setPlayersList(
         }
 
         if (c+1 != 4*len && (c != 4*len || tokens[c] != ""))
-          THROW("Wrong number of fields: " + STR(c) + " vs. " + 
-            " 4*len " + STR(4*len));
+          THROW("Wrong number of fields: " + to_string(c) + " vs. " + 
+            " 4*len " + to_string(4*len));
 
         for (size_t b = 0; b < c; b += 4)
           for (unsigned d = 0; d < BRIDGE_PLAYERS; d++)
@@ -187,7 +187,7 @@ void HeaderLIN::setPlayersList(
     {
       if (c+1 != 8*len)
         THROW("Wrong number of fields: " + 
-          STR(c+1) + " vs. "  + STR(8*len));
+          to_string(c+1) + " vs. "  + to_string(8*len));
     
       for (size_t b = 0; b < c; b += 8)
       {
@@ -205,8 +205,8 @@ void HeaderLIN::setPlayersList(
   else
   {
     if (c+1 != 4*len)
-      THROW("Wrong number of fields: " + STR(c) + " vs. " + 
-        " 4*len " + STR(4*len));
+      THROW("Wrong number of fields: " + to_string(c) + " vs. " + 
+        " 4*len " + to_string(4*len));
 
     for (size_t b = 0; b < c; b += 4)
     {
@@ -221,15 +221,15 @@ void HeaderLIN::setPlayersList(
 
 
 string HeaderLIN::getEffectivePlayer(
-  const unsigned start,
-  const unsigned offset,
-  const unsigned step,
+  const size_t start,
+  const size_t offset,
+  const size_t step,
   const vector<string>& tokens) const
 {
   // start must be a multiple of step.
   // Search backwards for the first non-empty entry.
 
-  for (unsigned e = 0; e <= start; e += step)
+  for (size_t e = 0; e <= start; e += step)
   {
     if (tokens[(start-e)+offset] != "")
       return tokens[(start-e)+offset];
@@ -244,7 +244,7 @@ void HeaderLIN::setPlayersHeader(
   const Format format)
 {
   if (FORMAT_INPUT_MAP[format] != BRIDGE_FORMAT_LIN)
-    THROW("Invalid format: " + STR(format));
+    THROW("Invalid format: " + to_string(format));
 
   size_t c = countDelimiters(text, ",");
   vector<string> tokens(c+1);
@@ -292,15 +292,15 @@ void HeaderLIN::setPlayersHeader(
 
 
 void HeaderLIN::checkPlayersTrailing(
-  const unsigned first,
-  const unsigned lastIncl,
+  const size_t first,
+  const size_t lastIncl,
   const vector<string>& tokens) const
 {
-  for (unsigned i = first; i <= lastIncl; i++)
+  for (size_t i = first; i <= lastIncl; i++)
     if (tokens[i] != "" &&
         tokens[i] != PLAYER_NAMES_LONG[PLAYER_LIN_TO_DDS[i % 4]])
-      THROW("Bad number of fields: " + STR(first) + " vs. " + 
-                " lastIncl " + STR(lastIncl));
+      THROW("Bad number of fields: " + to_string(first) + " vs. " + 
+                " lastIncl " + to_string(lastIncl));
 }
 
 
@@ -310,7 +310,7 @@ void HeaderLIN::setScoresList(
   const Format format)
 {
   if (FORMAT_INPUT_MAP[format] != BRIDGE_FORMAT_LIN)
-    THROW("Invalid format: " + STR(format));
+    THROW("Invalid format: " + to_string(format));
 
   size_t c = countDelimiters(text, ",");
   if (format ==  BRIDGE_FORMAT_LIN_VG && scoring == "P")
@@ -323,7 +323,7 @@ void HeaderLIN::setScoresList(
     tokenize(text, tokens, ",");
 
     if (c+1 != 2*len && (c != 2*len || tokens[c] != ""))
-      THROW("Wrong number of fields: " + STR(c+1));
+      THROW("Wrong number of fields: " + to_string(c+1));
 
     for (size_t b = 0, d = 0; b < c; b += 2, d++)
     {
@@ -346,7 +346,7 @@ void HeaderLIN::setBoardsList(
   const Format format)
 {
   if (FORMAT_INPUT_MAP[format] != BRIDGE_FORMAT_LIN)
-    THROW("Invalid format: " + STR(format));
+    THROW("Invalid format: " + to_string(format));
   
   size_t c = countDelimiters(text, ",");
   if (c > 100)

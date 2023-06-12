@@ -166,7 +166,7 @@ void Players::set(
       break;
     
     default:
-      THROW("Invalid format: " + STR(format) + ", " + text);
+      THROW("Invalid format: " + to_string(format) + ", " + text);
   }
 }
 
@@ -278,7 +278,7 @@ void Players::setRoom(
       break;
     
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -453,7 +453,7 @@ string Players::str(const Format format) const
       return Players::strREC();
     
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -476,7 +476,7 @@ string Players::strDelta(
       return st;
 
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -505,7 +505,7 @@ string Players::strPlayer(
         return players[player].substr(0, 11);
 
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -523,7 +523,7 @@ string Players::strRoom(
     case BRIDGE_FORMAT_LIN_RP:
     case BRIDGE_FORMAT_LIN_VG:
     case BRIDGE_FORMAT_LIN_TRN:
-      return "qx|" + ROOM_LIN[roomVal] + STR(no) + "|";
+      return "qx|" + ROOM_LIN[roomVal] + to_string(no) + "|";
     
     case BRIDGE_FORMAT_PBN:
       return "[Room \"" + ROOM_PBN[roomVal] + "\"]\n";
@@ -532,7 +532,7 @@ string Players::strRoom(
       return ROOM_PBN[roomVal];
     
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 

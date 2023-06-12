@@ -45,7 +45,7 @@ void Timer::stop()
     (end - begin);
 
   no++;
-  sum += delta.count();
+  sum += static_cast<double>(delta.count());
 }
 
 

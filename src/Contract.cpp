@@ -435,7 +435,7 @@ void Contract::setContract(
       break;
 
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -478,7 +478,7 @@ void Contract::setTricks(const unsigned tricksIn)
     if (tricksRelative != trel)
     {
       if (! Contract::isPassedOut() || tricksIn != 0)
-        THROW("Tricks already set to " + STR(Contract::getTricks()));
+        THROW("Tricks already set to " + to_string(Contract::getTricks()));
     }
   }
   else if (! setContractFlag)
@@ -587,7 +587,7 @@ void Contract::setResult(
       break;
 
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -932,7 +932,7 @@ string Contract::str(const Format format) const
       return Contract::strPar();
 
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -954,7 +954,7 @@ string Contract::strDeclarer(const Format format) const
       return PLAYER_NAMES_SHORT[contract.declarer];
 
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -993,7 +993,7 @@ string Contract::strVul(const Format format) const
       return VUL_NAMES_LIN[vul];
 
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 
 }
@@ -1007,10 +1007,10 @@ string Contract::strTricks(const Format format) const
       if (! setResultFlag || contract.level == 0)
         return "";
       else
-        return "[Result \"" + STR(Contract::getTricks()) + "\"]\n";
+        return "[Result \"" + to_string(Contract::getTricks()) + "\"]\n";
 
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -1021,9 +1021,9 @@ string Contract::strScorePBN() const
     return "";
 
   if (score > 0)
-    return "[Score \"NS " + STR(score) + "\"]\n";
+    return "[Score \"NS " + to_string(score) + "\"]\n";
   else
-    return "[Score \"EW " + STR(-score) + "\"]\n";
+    return "[Score \"EW " + to_string(-score) + "\"]\n";
 }
 
 
@@ -1052,14 +1052,14 @@ string Contract::strScoreTXT() const
   if (! setContractFlag || ! setResultFlag)
     return "";
 
-  return "Score   : " + STR(score) + "\n";
+  return "Score   : " + to_string(score) + "\n";
 }
 
 
 string Contract::strScoreEML() const
 {
   if (setResultFlag)
-    return "Score: " + STR(score) + ",  IMPs:";
+    return "Score: " + to_string(score) + ",  IMPs:";
   else
     return "Score: 0,  IMPs:";
 }
@@ -1106,7 +1106,7 @@ string Contract::strScore(const Format format) const
       return Contract::strScoreREC();
 
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -1124,7 +1124,7 @@ string Contract::strScore(
       return Contract::strScoreEML(refScore);
 
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -1149,7 +1149,7 @@ string Contract::strScoreIMP(
       return ss.str(); 
 
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -1312,10 +1312,10 @@ string Contract::strResult(const Format format) const
       return Contract::strResultREC();
 
     case BRIDGE_FORMAT_PAR:
-      return STR(Contract::getTricks());
+      return to_string(Contract::getTricks());
 
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -1336,7 +1336,7 @@ string Contract::strResult(
       return Contract::strResultRBX(refScore);
 
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -1355,7 +1355,7 @@ string Contract::strResult(
       return Contract::strResultTXT(refScore, team);
 
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 

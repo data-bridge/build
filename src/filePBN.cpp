@@ -76,7 +76,7 @@ static string modifyContract(
   const string& st,
   const string& decl)
 {
-  const unsigned l = st.length();
+  const size_t l = st.length();
   // Can be P, or 1NT.
   if (l == 1 || (l == 4 && st == "Pass"))
     return st;

@@ -17,7 +17,7 @@ using namespace std;
 void setTables();
 
 void dispatch(
-  const int thrNo, 
+  const size_t thrNo, 
   Files& files,
   const Options& options,
   AllStats& allStats);

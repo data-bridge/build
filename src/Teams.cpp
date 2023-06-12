@@ -90,9 +90,8 @@ void Teams::setRBN(const string& text)
     w[2] = v[3];
     w[3] = v[4];
 
-    const unsigned l0 = v[0].length();
-    const unsigned l1 = v[1].length();
-    const unsigned l2 = v[2].length();
+    const size_t l0 = v[0].length();
+    const size_t l1 = v[1].length();
     const char l0end = (l0 > 0 ? v[0].at(l0-1) : '$');
     const char l1end = (l1 > 0 ? v[1].at(l1-1) : '$');
 
@@ -152,7 +151,7 @@ void Teams::set(
       return Teams::setTXT(text);
     
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -168,7 +167,7 @@ void Teams::setFirst(
       return;
     
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -184,7 +183,7 @@ void Teams::setSecond(
       return;
     
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -333,7 +332,8 @@ string Teams::strTXT(
       break;
 
     case BRIDGE_CARRY_FLOAT:
-      if (score1 + team1.carryf < score2 + team2.carryf)
+      if (static_cast<float>(score1) + team1.carryf < 
+          static_cast<float>(score2) + team2.carryf)
         order12Flag = false;
       break;
 
@@ -372,7 +372,7 @@ string Teams::str(
       return Teams::strTXT(swapFlag);
     
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -389,7 +389,7 @@ string Teams::str(
       return Teams::strTXT(score1, score2, swapFlag);
     
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -411,7 +411,7 @@ string Teams::strFirst(
       return team1.name;
 
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -433,7 +433,7 @@ string Teams::strSecond(
       return team2.name;
 
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 

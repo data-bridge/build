@@ -272,8 +272,8 @@ bool auctionFormat(
   str2lines(auctionRef, linesRef);
   str2lines(auctionOut, linesOut);
 
-  const unsigned lRef = linesRef.size();
-  const unsigned lOut = linesOut.size();
+  const size_t lRef = linesRef.size();
+  const size_t lOut = linesOut.size();
 
   if (lRef == 0 || lOut == 0)
     return false;
@@ -380,8 +380,8 @@ bool playFormat(
   str2lines(playRef, linesRef);
   str2lines(playOut, linesOut);
 
-  unsigned lRef = linesRef.size();
-  unsigned lOut = linesOut.size();
+  size_t lRef = linesRef.size();
+  size_t lOut = linesOut.size();
 
   if (lRef == 0 || lOut == 0)
     return false;
@@ -441,8 +441,8 @@ bool doubleDummyFormat(
   str2lines(ddRef, linesRef);
   str2lines(ddOut, linesOut);
 
-  unsigned lRef = linesRef.size();
-  unsigned lOut = linesOut.size();
+  size_t lRef = linesRef.size();
+  size_t lOut = linesOut.size();
 
   if (lRef != 21 || lOut != 21)
     return false;
@@ -473,8 +473,8 @@ bool scoreFormat(
   const string& scoreRef,
   const string& scoreOut)
 {
-  const unsigned lRef = scoreRef.length();
-  const unsigned lOut = scoreOut.length();
+  const size_t lRef = scoreRef.length();
+  const size_t lOut = scoreOut.length();
 
   if ((scoreRef == "NS 0" || scoreRef == "0") && 
       scoreOut == "")
@@ -518,7 +518,7 @@ bool str2IMPScore(
 
   if (str2float(rest, score))
   {
-    score *= side;
+    score *= static_cast<float>(side);
     return true;
   }
   else

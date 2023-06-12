@@ -166,7 +166,7 @@ void Deal::setHandAltVoidSyntax(
   unsigned pholding[])
 {
   // Some LIN files leave out a suit symbol name if void in that suit.
-  const unsigned l = delimiters.length();
+  const unsigned l = static_cast<unsigned>(delimiters.length());
   for (unsigned s = 0; s < l; s++)
   {
     const size_t p0 = hand.find(delimiters.at(s));
@@ -337,7 +337,7 @@ void Deal::set(
       break;
 
     default:
-      THROW("Invalid format:" + STR(format));
+      THROW("Invalid format:" + to_string(format));
   }
 }
 
@@ -677,7 +677,7 @@ string Deal::str(
       return Deal::strREC();
 
     default:
-      THROW("Deal format not implemented: " + STR(format));
+      THROW("Deal format not implemented: " + to_string(format));
   }
 }
 

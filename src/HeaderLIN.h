@@ -28,14 +28,14 @@ class HeaderLIN
     bool isShortPass(const string& st) const;
 
     string getEffectivePlayer(
-      const unsigned start,
-      const unsigned offset,
-      const unsigned step,
+      const size_t start,
+      const size_t offset,
+      const size_t step,
       const vector<string>& token) const;
 
     void checkPlayersTrailing(
-      const unsigned first,
-      const unsigned lastIncl,
+      const size_t first,
+      const size_t lastIncl,
       const vector<string>& token) const;
 
     string strContractsCore(const Format format) const;

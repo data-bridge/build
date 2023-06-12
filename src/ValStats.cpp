@@ -94,7 +94,7 @@ string ValStats::posOrDash(const unsigned u) const
   if (u == 0)
     return "-";
   else
-    return STR(u);
+    return to_string(u);
 }
 
 

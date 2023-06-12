@@ -42,7 +42,7 @@ static void validatePlayers(
           c += instance.missingPlayers();
       }
       if (c > 65)
-        THROW("Bad combo: " + STR(c));
+        THROW("Bad combo: " + to_string(c));
       if (c > 0)
         nonFull = true;
       if (completions[c] == 0)

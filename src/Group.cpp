@@ -102,10 +102,10 @@ unsigned Group::countBoards() const
 
 bool Group::operator == (const Group& group2) const
 {
-  const unsigned s1 = segments.size();
-  const unsigned s2 = group2.segments.size();
+  const size_t s1 = segments.size();
+  const size_t s2 = group2.segments.size();
   if (s1 != s2)
-    DIFF("Different lengths: " + STR(s1) + " vs. " + STR(s2));
+    DIFF("Different lengths: " + to_string(s1) + " vs. " + to_string(s2));
 
   for (auto it1 = segments.cbegin(),
        it2 = group2.segments.cbegin();

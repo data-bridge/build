@@ -306,8 +306,8 @@ static void collapseList(
   for (unsigned i = 0; i < 4; i++)
     out.push_back(in[i]);
 
-  const unsigned l = in.size();
-  for (unsigned i = 4; i+3 < l; i += 4)
+  const size_t l = in.size();
+  for (size_t i = 4; i+3 < l; i += 4)
   {
     if (in[i] != in[i-4] ||
         in[i+1] != in[i-3] ||
@@ -331,9 +331,9 @@ static void despaceList(
   const vector<string>& in,
   vector<string>& out)
 {
-  const unsigned l = in.size();
-  unsigned start;
-  for (unsigned i = 0; i+3 < l; i += 4)
+  const size_t l = in.size();
+  size_t start;
+  for (size_t i = 0; i+3 < l; i += 4)
   {
     if (in[i] != "South" || in[i+1] != "West" || 
         in[i+2] != "North" || in[i+3] != "East")
@@ -350,8 +350,8 @@ static void despaceList(
   if (out.size() == 0)
     return;
 
-  unsigned ol = 4;
-  for (unsigned i = start; i+3 < l; i += 4)
+  size_t ol = 4;
+  for (size_t i = start; i+3 < l; i += 4)
   {
     if (in[i] != out[ol-4] ||
         in[i+1] != out[ol-3] ||
@@ -365,7 +365,7 @@ static void despaceList(
           in[i+2] == "North" && in[i+3] == "East")
         continue;
 
-      for (unsigned j = 0; j < 4; j++)
+      for (size_t j = 0; j < 4; j++)
       {
         if (in[i+j] == "")
           out.push_back(out[ol+j-4]);
@@ -377,7 +377,7 @@ static void despaceList(
   }
 
   // Stragglers.
-  for (unsigned i = (l & 0xfffc); i < l; i++)
+  for (size_t i = (l & 0xfffc); i < l; i++)
     out.push_back(in[i]);
 }
 
@@ -624,8 +624,10 @@ static bool isPlayersList(
   if (outPruned == refPruned)
     return true;
 
-  const int refCommas = count(refPruned.begin(), refPruned.end(), ',');
-  const int outCommas = count(outPruned.begin(), outPruned.end(), ',');
+  const int refCommas = 
+    static_cast<int>(count(refPruned.begin(), refPruned.end(), ','));
+  const int outCommas = 
+    static_cast<int>(count(outPruned.begin(), outPruned.end(), ','));
 
   if (refCommas < 3 || outCommas < 3)
     return false;
@@ -644,11 +646,11 @@ static bool isPlayersList(
   collapseList(refList, refCollapsed);
   collapseList(outList, outCollapsed);
 
-  const unsigned lRef = refCollapsed.size();
-  const unsigned lOut = outCollapsed.size();
+  const size_t lRef = refCollapsed.size();
+  const size_t lOut = outCollapsed.size();
   if (lRef == lOut)
   {
-    for (unsigned i = 0; i < lRef; i++)
+    for (size_t i = 0; i < lRef; i++)
     {
       if (refCollapsed[i] != outCollapsed[i] &&
           refCollapsed[i] != "" &&
@@ -664,16 +666,16 @@ static bool isPlayersList(
   despaceList(refCollapsed, refDespaced);
   despaceList(outCollapsed, outDespaced);
 
-  const unsigned nRef = refDespaced.size();
-  const unsigned nOut = outDespaced.size();
+  const size_t nRef = refDespaced.size();
+  const size_t nOut = outDespaced.size();
   if (nRef != nOut)
     return false;
 
-  for (unsigned i = 0; i < nRef; i++)
+  for (size_t i = 0; i < nRef; i++)
   {
     if (refDespaced[i] != outDespaced[i])
     {
-      for (unsigned j = 0; j < nRef; j++)
+      for (size_t j = 0; j < nRef; j++)
       {
         cout << j << ": ref " << refDespaced[j] << " out " <<
           outDespaced[j] << "\n";
@@ -715,7 +717,7 @@ static bool isContracts(
     return true;
 
   // Tolerate single stray comma in reference.
-  const unsigned lr = refPass.length();
+  const size_t lr = refPass.length();
   if (outPruned.length()+1 == lr &&
       refPass.at(lr-1) == ',' &&
       outPruned == refPass.substr(0, lr-1))
@@ -732,8 +734,8 @@ static bool isBoard(
   if (valueRef == valueOut)
     return true;
 
-  const unsigned lr = valueRef.length();
-  const unsigned lo = valueOut.length();
+  const size_t lr = valueRef.length();
+  const size_t lo = valueOut.length();
 
   if (lo+8 > lr || valueRef.substr(0, lo) != valueOut)
     return false;
@@ -749,8 +751,8 @@ static bool isDeal(
   const string& valueRef,
   const string& valueOut)
 {
-  const unsigned lr = valueRef.length();
-  const unsigned lo = valueOut.length();
+  const size_t lr = valueRef.length();
+  const size_t lo = valueOut.length();
 
   if (lr == 54 && lo == 72 && valueOut.substr(0, lr-4) == valueRef)
   {
@@ -766,14 +768,12 @@ static bool isDeal(
 
       return (dealRef == dealOut);
     }
-    catch (Bexcept& bex)
+    catch ([[maybe_unused]] Bexcept& bex)
     {
-      UNUSED(bex);
       return false;
     }
-    catch (Bdiff& bdiff)
+    catch ([[maybe_unused]] Bdiff& bdiff)
     {
-      UNUSED(bdiff);
       return false;
     }
   }
@@ -798,9 +798,8 @@ static bool isVul(
 
 static bool isRotatedPlay(
   ValState& valState,
-  ValProfile& prof)
+  [[maybe_unused]] ValProfile& prof)
 {
-  UNUSED(prof);
   vector<string> playRef, playOut;
 
   do
@@ -834,15 +833,15 @@ static bool isRotatedPlay(
     if (playRef.size() != playOut.size())
       return false;
 
-    const unsigned ps = playRef.size();
-    unsigned offset = 0;
+    const size_t ps = playRef.size();
+    size_t offset = 0;
     while (offset < ps && ! isDifferentCase(playOut[offset], playRef[0]))
       offset++;
 
     if (offset == ps)
       return false;
 
-    for (unsigned i = 1; i < ps; i++)
+    for (size_t i = 1; i < ps; i++)
     {
       if (! isDifferentCase(playRef[i], playOut[(offset+i) % ps]))
         return false;
@@ -905,8 +904,8 @@ static bool isCall(
   const string& valueRef,
   const string& valueOut)
 {
-  const unsigned lr = valueRef.length();
-  const unsigned lo = valueOut.length();
+  const size_t lr = valueRef.length();
+  const size_t lo = valueOut.length();
 
   if ((lr == 2 || lr == 3) && lo+1 == lr && valueRef.at(lo) == '!')
   {

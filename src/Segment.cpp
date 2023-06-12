@@ -112,7 +112,7 @@ unsigned Segment::getIntBoardNo(const unsigned extNo) const
     if (p.extNo == extNo)
       return p.intNo;
 
-  THROW("Bad external board number: " + STR(extNo));
+  THROW("Bad external board number: " + to_string(extNo));
 }
 
 
@@ -122,7 +122,7 @@ unsigned Segment::getExtBoardNo(const unsigned intNo) const
     if (p.intNo == intNo)
       return p.extNo;
 
-  THROW("Bad internal board number: " + STR(intNo));
+  THROW("Bad internal board number: " + to_string(intNo));
 }
 
 
@@ -290,7 +290,7 @@ void Segment::setTitle(
       break;
 
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -313,9 +313,8 @@ void Segment::setLocation(
 
 void Segment::setEvent(
   const string& text,
-  const Format format)
+  [[maybe_unused]] const Format format)
 {
-  UNUSED(format);
   event = text;
 }
 
@@ -404,22 +403,18 @@ void Segment::setBoardsList(
 
 
 void Segment::setRoom(
-  const string& text,
-  const Format format)
+  [[maybe_unused]] const string& text,
+  [[maybe_unused]] const Format format)
 {
   // We have already selected the room, so don't need this.
-  UNUSED(text);
-  UNUSED(format);
 }
 
 
 void Segment::setNumber(
-  const string& text,
-  const Format format)
+  [[maybe_unused]]const string& text,
+  [[maybe_unused]]const Format format)
 {
   // We have already selected the room, so don't need this.
-  UNUSED(text);
-  UNUSED(format);
 }
 
 
@@ -587,7 +582,7 @@ string Segment::strTitle(const Format format) const
       return title;
 
     default:
-      THROW("Invalid format " + STR(format));
+      THROW("Invalid format " + to_string(format));
   }
 }
 
@@ -632,7 +627,7 @@ string Segment::strEvent(const Format format) const
       return event;
 
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -733,7 +728,7 @@ string Segment::strNumber(
       return ss.str();
 
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -779,7 +774,7 @@ string Segment::strContracts(const Format format) const
       return Segment::strContractsCore(BRIDGE_FORMAT_PAR);
 
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -854,7 +849,7 @@ string Segment::strPlayers(const Format format) const
       return boards.front().board.strPlayersBoard(BRIDGE_FORMAT_LIN_VG);
 
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -878,7 +873,7 @@ string Segment::strScores(const Format format) const
       return "";
 
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -913,7 +908,7 @@ string Segment::strBoards(const Format format) const
       return "";
 
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 

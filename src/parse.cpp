@@ -142,7 +142,7 @@ string posOrDash(const unsigned u)
   if (u == 0)
     return "-";
   else
-    return STR(u);
+    return to_string(u);
 }
 
 
@@ -171,14 +171,12 @@ bool str2unsigned(
   {
     u = stoul(text, nullptr, 0);
   }
-  catch (const invalid_argument& ia)
+  catch ([[maybe_unused]] const invalid_argument& ia)
   {
-    UNUSED(ia);
     return false;
   }
-  catch (const out_of_range& ia)
+  catch ([[maybe_unused]] const out_of_range& ia)
   {
-    UNUSED(ia);
     return false;
   }
 
@@ -196,14 +194,12 @@ bool str2upos(
   {
     u = stoul(text, nullptr, 10);
   }
-  catch (const invalid_argument& ia)
+  catch ([[maybe_unused]] const invalid_argument& ia)
   {
-    UNUSED(ia);
     return false;
   }
-  catch (const out_of_range& ia)
+  catch ([[maybe_unused]] const out_of_range& ia)
   {
-    UNUSED(ia);
     return false;
   }
 
@@ -228,14 +224,12 @@ bool str2int(
       return false;
 
   }
-  catch (const invalid_argument& ia)
+  catch ([[maybe_unused]] const invalid_argument& ia)
   {
-    UNUSED(ia);
     return false;
   }
-  catch (const out_of_range& ia)
+  catch ([[maybe_unused]] const out_of_range& ia)
   {
-    UNUSED(ia);
     return false;
   }
 
@@ -256,14 +250,12 @@ bool str2float(
     if (pos != text.size())
       return false;
   }
-  catch (const invalid_argument& ia)
+  catch ([[maybe_unused]] const invalid_argument& ia)
   {
-    UNUSED(ia);
     return false;
   }
-  catch (const out_of_range& ia)
+  catch ([[maybe_unused]] const out_of_range& ia)
   {
-    UNUSED(ia);
     return false;
   }
 
@@ -473,7 +465,7 @@ void appendFile(
   fout.open(fn);
   regex re("^(\\d+)\\s+(\\w+)\\s+\"(.*)\"\\s*$");
   smatch match;
-  const string newline = STR(lineno) + " " + 
+  const string newline = to_string(lineno) + " " + 
     command + " \"" + text + "\"\n";
 
   bool seen = false;
@@ -606,11 +598,11 @@ bool getNextWord(
 
 bool readNextWord(
   const string& text,
-  const unsigned startPos,
+  const size_t startPos,
   string& word)
 {
-  unsigned l = static_cast<unsigned>(text.length());
-  unsigned pos = startPos;
+  size_t l = text.length();
+  size_t pos = startPos;
   while (pos < l && text.at(pos) != ' ')
     pos++;
   
@@ -794,13 +786,13 @@ string guessOriginalLine(
   if (regex_search(basename, match, re))
   {
     // Looks like RPmajors origin.
-    return match.str(1) + ".RBN " + STR(count+1) + " records " + 
-      STR(count/2) + " deals";
+    return match.str(1) + ".RBN " + to_string(count+1) + " records " + 
+      to_string(count/2) + " deals";
   }
   else
   {
-    return basename + " " + STR(count) + " records " + 
-      STR(count/2) + " deals";
+    return basename + " " + to_string(count) + " records " + 
+      to_string(count/2) + " deals";
   }
 }
 

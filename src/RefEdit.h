@@ -48,7 +48,7 @@ class RefEdit
     void modifyLINCommon(
       const string& line,
       const bool insertFlag,
-      unsigned& start,
+      size_t& start,
       vector<string>& v,
       vector<string>& f,
       bool& endsOnPipe) const;
@@ -61,7 +61,7 @@ class RefEdit
       const string& line,
       vector<string>& v,
       string& s,
-      unsigned& pos) const;
+      size_t& pos) const;
 
     unsigned modifyCommonTXT(const string& line) const;
     unsigned modifyCommonWORD(const string& line) const;

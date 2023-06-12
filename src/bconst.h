@@ -523,21 +523,5 @@ const string DATE_MONTHS[] =
   "December"
 };
 
-
-#define STR(x) \
-        static_cast<ostringstream*>(&(ostringstream() << x))->str()
-
-// http://stackoverflow.com/a/4030983/211160
-// Use to indicate a variable is being intentionally not referred to (which
-// usually generates a compiler warning)
-#ifndef UNUSED
-  #define UNUSED(x) ((void)(true ? 0 : ((x), void(), 0)))
-#endif
-
-// Macro to help in concatening strings for output.
-
-#define CONCAT(tp, tmp, ext) \
-  tmp = ext; strcpy(tp, tmp.c_str()); tp += tmp.length()
-
 #endif
 

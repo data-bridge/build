@@ -25,8 +25,8 @@ SOURCE_FILES 	=		\
 	RefAction.cpp		\
 	RefComment.cpp		\
 	RefEdit.cpp		\
-	RefLine.cpp		\
-	RefLines.cpp		\
+	Refline.cpp		\
+	Reflines.cpp		\
 	RefStats.cpp		\
         Scoring.cpp             \
         Segment.cpp             \
@@ -94,9 +94,10 @@ WARN_FLAGS      =               \
         /wd4986                 \
         /wd4987                 \
         /wd4996                 \
+        /wd5045                 \
         /WX
 
-CC_FLAGS_VS     = /O2 /Oi /Ot /Oy /GL /Zi /EHsc
+CC_FLAGS_VS     = /O2 /Oi /Ot /Oy /GL /Zi /EHsc /std:c++17
 # CC_FLAGS_VS     = /O2 /Oi /Ot /Oy /GL /Zi /EHa /DEBUG
 CC_FLAGS_DEBUG  = /DEBUG
 

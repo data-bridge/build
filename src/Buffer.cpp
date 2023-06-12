@@ -94,9 +94,9 @@ void Buffer::readBinaryFile(const string& fname)
     while ((p = static_cast<char *>(memchr(prev, '\n', 
         static_cast<size_t>
         (
-          (reinterpret_cast<long int>(buf) + 
-           static_cast<long int>(bytes_read)) -
-           reinterpret_cast<long int>(prev)
+          (reinterpret_cast<long long int>(buf) + 
+           static_cast<long long int>(bytes_read)) -
+           reinterpret_cast<long long int>(prev)
         )
         ))) != nullptr)
       // static_cast<size_t>((buf + bytes_read) - prev))) != nullptr)
@@ -118,7 +118,7 @@ void Buffer::readBinaryFile(const string& fname)
   if (leftover != "")
   {
     lineData.line = leftover;
-    lineData.len = leftover.size();
+    lineData.len = static_cast<unsigned>(leftover.size());
     lineData.no = ++no;
     lines.push_back(lineData);
   }
@@ -292,7 +292,7 @@ void Buffer::classify(LineData& ld)
       break;
 
     default:
-      THROW("Invalid format: " + STR(format));
+      THROW("Invalid format: " + to_string(format));
   }
 }
 
@@ -392,7 +392,7 @@ bool Buffer::fix(const RefLines& refLines)
   {
     const unsigned i = Buffer::getInternalNumber(rl.lineno());
     if (i == BIGNUM)
-      THROW("Cannot find ref line number " + STR(rl.lineno()));
+      THROW("Cannot find ref line number " + to_string(rl.lineno()));
     LineData& ld = lines[i];
 
     const ActionCategory refType = rl.type();
@@ -519,8 +519,8 @@ bool Buffer::nextLIN(
   {
     THROW("Bad LIN line: " + lines[current].line + 
       ", remainder: " + lines[current].line.substr(posLIN) + 
-      ", line " + STR(current+1) + ", posLIN " + 
-      STR(posLIN) + ", e " + STR(e));
+      ", line " + to_string(current+1) + ", posLIN " + 
+      to_string(posLIN) + ", e " + to_string(e));
   }
 
   vside.label = lines[current].line.substr(posLIN, 2);
@@ -532,7 +532,7 @@ bool Buffer::nextLIN(
     if (current == len-1)
     {
       THROW("Bad LIN line: " + lines[current].line + 
-        ", " + STR(current));
+        ", " + to_string(current));
     }
     else
     {
@@ -554,7 +554,7 @@ bool Buffer::nextLIN(
     vside.value = lines[current].line.substr(posLIN);
     if (! Buffer::extendLINValue(vside))
       THROW("Bad LIN line: " + lines[current].line + 
-        ", " + STR(current));
+        ", " + to_string(current));
   }
   else
   {
@@ -575,7 +575,7 @@ bool Buffer::nextLIN(
       vside.value = lines[current].line.substr(posLIN);
       if (! Buffer::extendLINValue(vside))
         THROW("Bad LIN line: " + lines[current].line + 
-          ", " + STR(current));
+          ", " + to_string(current));
     }
     else
     {
