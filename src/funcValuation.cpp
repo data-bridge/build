@@ -21,10 +21,8 @@ using namespace std;
 
 void writeValuation(
   Group& group,
-  ostream& flog)
+  [[maybe_unused]] ostream& flog)
 {
-  UNUSED(flog);
-
   for (auto segment = group.mbegin(); segment != group.mend(); segment++)
   {
     if (segment->size() == 0)

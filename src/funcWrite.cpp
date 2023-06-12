@@ -35,13 +35,10 @@ static BoardPtr boardPtr[BRIDGE_FORMAT_LABELS_SIZE];
 
 
 static void writeDummySegmentLevel(
-  string& st,
-  const Segment& segment,
-  const Format format)
+  [[maybe_unused]] string& st,
+  [[maybe_unused]] const Segment& segment,
+  [[maybe_unused]] const Format format)
 {
-  UNUSED(st);
-  UNUSED(segment);
-  UNUSED(format);
 }
 
 

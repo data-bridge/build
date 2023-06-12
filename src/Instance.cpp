@@ -200,9 +200,8 @@ void Instance::setContract(
 
 void Instance::setDeclarer(
   const string& text,
-  const Format format)
+  [[maybe_unused]] const Format format)
 {
-  UNUSED(format);
   contract.setDeclarer(text);
 }
 
@@ -324,36 +323,32 @@ void Instance::setPlayer(
 
 void Instance::setWest(
   const string& text,
-  const Format format)
+  [[maybe_unused]]const Format format)
 {
-  UNUSED(format);
   players.setPlayer(text, BRIDGE_WEST);
 }
 
 
 void Instance::setNorth(
   const string& text,
-  const Format format)
+  [[maybe_unused]]const Format format)
 {
-  UNUSED(format);
   players.setPlayer(text, BRIDGE_NORTH);
 }
 
 
 void Instance::setEast(
   const string& text,
-  const Format format)
+  [[maybe_unused]]const Format format)
 {
-  UNUSED(format);
   players.setPlayer(text, BRIDGE_EAST);
 }
 
 
 void Instance::setSouth(
   const string& text,
-  const Format format)
+  [[maybe_unused]]const Format format)
 {
-  UNUSED(format);
   players.setPlayer(text, BRIDGE_SOUTH);
 }
 

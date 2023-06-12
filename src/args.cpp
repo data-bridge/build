@@ -102,7 +102,7 @@ void usage(
     "-p, --players      Flag incomplete tables of players.\n" <<
     "                   (Default: not set)\n" <<
     "\n" <<
-    "-e, --equal        Write hash-line list of hands in order to look" <<
+    "-e, --equal        Write hash-line list of hands in order to look\n" <<
     "                   for equals separately. (Default: not set).\n" <<
     "                   Implies --valuation flag as well.\n" <<
     "\n" <<
