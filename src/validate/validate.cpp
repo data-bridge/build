@@ -26,8 +26,9 @@
 #include "validateREC.h"
 
 #include "valint.h"
-#include "ValStats.h"
 #include "ValProfile.h"
+
+#include "../stats/ValStats.h"
 
 #define PLOG(x) prof.log(x, valState.dataOut, valState.dataRef)
 

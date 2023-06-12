@@ -13,7 +13,7 @@
 #include <string>
 #include <iostream>
 
-#include "ValProfile.h"
+#include "../validate/ValProfile.h"
 
 #include "../bconst.h"
 

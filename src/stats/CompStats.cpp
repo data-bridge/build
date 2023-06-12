@@ -12,7 +12,8 @@
 #include <assert.h>
 
 #include "CompStats.h"
-#include "parse.h"
+
+#include "../parse.h"
 
 
 CompStats::CompStats()

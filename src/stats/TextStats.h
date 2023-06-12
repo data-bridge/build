@@ -13,7 +13,7 @@
 #include <iostream>
 #include <vector>
 
-#include "bconst.h"
+#include "../bconst.h"
 
 
 using namespace std;

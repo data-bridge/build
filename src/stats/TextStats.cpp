@@ -18,7 +18,8 @@
 #endif
 
 #include "TextStats.h"
-#include "parse.h"
+
+#include "../parse.h"
 
 #define BRIDGE_STATS_MAX_LENGTH 64
 #define BRIDGE_STATS_NUM_FIELDS 7

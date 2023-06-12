@@ -14,7 +14,8 @@
 #include <chrono>
 
 #include "Timer.h"
-#include "bconst.h"
+
+#include "../bconst.h"
 
 using namespace std;
 

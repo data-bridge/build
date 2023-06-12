@@ -16,11 +16,11 @@
 #include "TextStats.h"
 #include "CompStats.h"
 #include "RefStats.h"
+#include "ValStats.h"
+
 #include "Timers.h"
 
-#include "validate/ValStats.h"
-
-#include "bconst.h"
+#include "../bconst.h"
 
 
 using namespace std;

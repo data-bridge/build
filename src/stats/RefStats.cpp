@@ -12,8 +12,9 @@
 #include <vector>
 
 #include "RefStats.h"
-#include "RefComment.h"
-#include "Bexcept.h"
+
+#include "../RefComment.h"
+#include "../Bexcept.h"
 
 using namespace std;
 

@@ -13,8 +13,8 @@
 #include <iostream>
 #include <string>
 
-#include "refconst.h"
-#include "bconst.h"
+#include "../refconst.h"
+#include "../bconst.h"
 
 using namespace std;
 

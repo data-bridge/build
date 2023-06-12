@@ -12,7 +12,7 @@
 
 #include <iostream>
 
-#include "bconst.h"
+#include "../bconst.h"
 
 
 using namespace std;
