@@ -15,12 +15,12 @@
 #include <fstream>
 #pragma warning(pop)
 
-#include "Group.h"
-#include "Files.h"
-#include "parse.h"
+#include "../Group.h"
+#include "../Files.h"
+#include "../parse.h"
 
-#include "dll.h"
-#include "Bexcept.h"
+#include "../dll.h"
+#include "../Bexcept.h"
 
 
 using namespace std;
@@ -56,8 +56,8 @@ void makeInstanceList(
   unsigned firstBno = segment.firstBoardNumber();
   unsigned lastBno = segment.lastRealBoardNumber();
   if (firstBno == BIGNUM || lastBno == BIGNUM)
-    THROW("Bad segment board range: " + STR(firstBno) +
-      " to " + STR(lastBno));
+    THROW("Bad segment board range: " + to_string(firstBno) +
+      " to " + to_string(lastBno));
 
   for (unsigned bno = firstBno; bno <= lastBno; bno++)
   {

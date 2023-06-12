@@ -9,7 +9,8 @@
 
 #include "../Group.h"
 #include "../Buffer.h"
-#include "../CompStats.h"
+
+#include "../stats/CompStats.h"
 
 #include "funcCompare.h"
 #include "funcRead.h"

@@ -12,12 +12,14 @@
 #include <string>
 #include <iomanip>
 #include <sstream>
+#include <algorithm>
 #pragma warning(pop)
 
 #include "DuplStats.h"
-#include "Group.h"
-#include "RefLines.h"
-#include "Bexcept.h"
+
+#include "../Group.h"
+#include "../RefLines.h"
+#include "../Bexcept.h"
 
 #define HASH_SIZE 4096 // Relies on <= 12-bit hash values
 
@@ -103,7 +105,7 @@ string DuplStats::strSame() const
   string st;
   for (unsigned i = 0; i < HASH_SIZE; i++)
   {
-    const unsigned lh = hashedList[i].size();
+    const size_t lh = hashedList[i].size();
     if (lh == 0)
       continue;
     for (unsigned j = 0; j < lh-1; j++)
@@ -147,21 +149,21 @@ string DuplStats::strSame() const
 string DuplStats::strSubset() const
 {
   string st;
-  for (unsigned i = 0; i < HASH_SIZE; i++)
+  for (size_t i = 0; i < HASH_SIZE; i++)
   {
-    const unsigned lh = hashedList[i].size();
+    const size_t lh = hashedList[i].size();
     if (lh == 0)
       continue;
 
-    for (unsigned j = 0; j < lh; j++)
+    for (size_t j = 0; j < lh; j++)
     {
       if (! hashedList[i][j]->activeFlag)
         continue;
 
-      for (unsigned i2 = 0; i2 <= i; i2++)
+      for (size_t i2 = 0; i2 <= i; i2++)
       {
         // i's can only be subsets of ones with lower first.
-        for (unsigned k = 0; k < hashedList[i2].size(); k++)
+        for (size_t k = 0; k < hashedList[i2].size(); k++)
         {
           if (! hashedList[i2][k]->activeFlag)
             continue;

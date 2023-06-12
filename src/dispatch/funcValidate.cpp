@@ -16,6 +16,9 @@
 #pragma warning(pop)
 
 #include "funcValidate.h"
+
+#include "../stats/ValStats.h"
+
 #include "../Bexcept.h"
 
 #include "../validate/validate.h"

@@ -8,8 +8,10 @@
 
 
 #include "../Group.h"
-#include "../TextStats.h"
+#include "../stats/TextStats.h"
+
 #include "funcTextStats.h"
+
 #include "../Bexcept.h"
 
 

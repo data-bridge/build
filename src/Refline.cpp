@@ -748,7 +748,7 @@ void RefLine::parseFrom(
   const string& refName,
   const string& quote)
 {
-  const unsigned pos = quote.find_first_of(":");
+  const size_t pos = quote.find_first_of(":");
   if (pos == string::npos)
     THROW("Ref file " + refName + ": No colon in '" + quote + "'");
   

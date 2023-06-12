@@ -16,11 +16,13 @@
 #include <vector>
 #pragma warning(pop)
 
+#include "ValStats.h"
 #include "TextStats.h"
 #include "CompStats.h"
 #include "RefStats.h"
 #include "DuplStats.h"
 #include "Timers.h"
+
 
 #include "../bconst.h"
 

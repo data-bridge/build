@@ -193,7 +193,7 @@ void DDInfo::add(
       bres[casesMissing[i]] = infoMissing[i];
     else
       THROW("Attempting to reset an existing DD value: " + fname +
-        ", " + STR(i) + ", " + STR(casesMissing[i]));
+        ", " + to_string(i) + ", " + casesMissing[i]);
   }
 }
 

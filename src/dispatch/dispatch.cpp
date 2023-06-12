@@ -18,8 +18,9 @@
 
 #include "../Group.h"
 #include "../Files.h"
-#include "../AllStats.h"
 #include "../RefLines.h"
+
+#include "../stats/AllStats.h"
 
 #include "../validate/validate.h"
 

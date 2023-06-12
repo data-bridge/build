@@ -16,7 +16,7 @@
 #include <list>
 #pragma warning(pop)
 
-#include "bconst.h"
+#include "../bconst.h"
 
 
 class Group;
@@ -59,8 +59,8 @@ class DuplStat
 
     bool similarPlayerGroup(
       const DuplStat& ds2,
-      const unsigned number,
-      const unsigned ds2offset) const;
+      const size_t number,
+      const size_t ds2offset) const;
 
     bool similarPlayers(const DuplStat& ds2) const;
 

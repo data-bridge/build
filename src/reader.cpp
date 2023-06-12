@@ -20,7 +20,8 @@
 
 #include "args.h"
 #include "Files.h"
-#include "AllStats.h"
+
+#include "stats/AllStats.h"
 
 #include "dispatch/dispatch.h"
 

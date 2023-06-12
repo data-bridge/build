@@ -122,8 +122,8 @@ unsigned levenshtein(
   const string& s1, 
   const string& s2)
 {
-  unsigned s1len = s1.size();
-  unsigned s2len = s2.size();
+  size_t s1len = s1.size();
+  size_t s2len = s2.size();
 	
   auto column_start = (decltype(s1len))1;
 	
@@ -149,7 +149,7 @@ unsigned levenshtein(
   }
   auto result = column[s1len];
   delete[] column;
-  return result;
+  return static_cast<unsigned>(result);
 }
 
 
@@ -158,8 +158,8 @@ bool levenshtein_test(
   const string& s2,
   const unsigned at_most)
 {
-  unsigned s1len = s1.size();
-  unsigned s2len = s2.size();
+  size_t s1len = s1.size();
+  size_t s2len = s2.size();
 	
   auto column_start = (decltype(s1len))1;
 	
@@ -169,7 +169,7 @@ bool levenshtein_test(
   for (auto x = column_start; x <= s2len; x++) 
   {
     column[0] = x;
-    unsigned running_min = x;
+    size_t running_min = x;
     auto last_diagonal = x - column_start;
     for (auto y = column_start; y <= s1len; y++) 
     {

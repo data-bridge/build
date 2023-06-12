@@ -85,7 +85,7 @@ Segment * Group::make()
 
 unsigned Group::size() const
 {
-  return segments.size();
+  return static_cast<unsigned>(segments.size());
 }
 
 
@@ -137,10 +137,10 @@ bool Group::operator != (const Group& group2) const
 
 bool Group::operator <= (const Group& group2) const
 {
-  const unsigned s1 = segments.size();
-  const unsigned s2 = group2.segments.size();
+  const size_t s1 = segments.size();
+  const size_t s2 = group2.segments.size();
   if (s1 > s2)
-    DIFF("Invalid lengths: " + STR(s1) + " vs. " + STR(s2));
+    DIFF("Invalid lengths: " + to_string(s1) + " vs. " + to_string(s2));
 
   // Has to be the last segments that are missing (to make it easy).
   for (auto it1 = segments.cbegin(),

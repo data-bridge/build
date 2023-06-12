@@ -60,7 +60,7 @@ char PlayTrace::unsigned2hexchar(const unsigned u) const
   else if (u < 16)
     return static_cast<char>('A' + u - 10);
   
-  THROW("Bad unsigned: " + STR(u));
+  THROW("Bad unsigned: " + to_string(u));
 }
 
 
@@ -70,8 +70,8 @@ void PlayTrace::setTricks(const string& st)
   // ^xxy means the same, but with two digits for x.
   // x and y are in hex.
 
-  const unsigned slen = st.length();
-  unsigned pos = 0;
+  const size_t slen = st.length();
+  size_t pos = 0;
   while (pos < slen)
   {
     const char c = st.at(pos);
@@ -108,15 +108,15 @@ void PlayTrace::setTricks(const string& st)
 
     pos += step;
   }
-  len = tricks.size();
+  len = static_cast<unsigned>(tricks.size());
 }
 
 
 void PlayTrace::setPlayedBy(const vector<Player>& playedByIn)
 {
   if (len != playedByIn.size()+1) // Offset due to before-lead trick
-    THROW("Bad playedByIn length: " + STR(len) + " vs. " +
-      STR(playedByIn.size()));
+    THROW("Bad playedByIn length: " + to_string(len) + " vs. " +
+      to_string(playedByIn.size()));
 
   playedBy = playedByIn;
   playErrorSet = false;
@@ -198,7 +198,7 @@ void PlayTrace::set(
   const string& strCompact,
   const vector<Player>& playedByIn)
 {
-  const unsigned pos = strCompact.find_first_of("-");
+  const size_t pos = strCompact.find_first_of("-");
   if (pos == string::npos)
   {
     PlayTrace::setTricks(strCompact);

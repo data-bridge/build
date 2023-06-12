@@ -9,7 +9,8 @@
 
 #include "../Buffer.h"
 #include "../RefLines.h"
-#include "../RefStats.h"
+
+#include "../stats/RefStats.h"
 
 #include "funcRefStats.h"
 

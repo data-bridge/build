@@ -14,11 +14,12 @@
 #include <fstream>
 #pragma warning(pop)
 
-#include "Group.h"
-#include "RefLines.h"
-#include "DuplStats.h"
+#include "../Group.h"
+#include "../RefLines.h"
 
-#include "Bexcept.h"
+#include "../stats/DuplStats.h"
+
+#include "../Bexcept.h"
 
 
 using namespace std;

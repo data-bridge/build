@@ -10,7 +10,7 @@
 #ifndef BRIDGE_FUNCVALIDATE_H
 #define BRIDGE_FUNCVALIDATE_H
 
-#include "../validate/ValStats.h"
+class ValStats;
 
 #include "../bconst.h"
 

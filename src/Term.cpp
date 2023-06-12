@@ -37,9 +37,8 @@ void Term::reset()
 }
 
 
-void Term::set(const string& text)
+void Term::set([[maybe_unused]] const string& text)
 {
-  UNUSED(text);
 }
 
 

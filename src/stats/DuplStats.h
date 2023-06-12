@@ -16,7 +16,8 @@
 #pragma warning(pop)
 
 #include "DuplStat.h"
-#include "bconst.h"
+
+#include "../bconst.h"
 
 
 class Group;

@@ -15,10 +15,11 @@
 #pragma warning(pop)
 
 #include "DuplStat.h"
-#include "Group.h"
-#include "RefLines.h"
-#include "parse.h"
-#include "Bexcept.h"
+
+#include "../Group.h"
+#include "../RefLines.h"
+#include "../parse.h"
+#include "../Bexcept.h"
 
 
 DuplStat::DuplStat()
@@ -157,13 +158,13 @@ bool DuplStat::sameOrigin(const DuplStat& ds2) const
 
 bool DuplStat::similarPlayerGroup(
   const DuplStat& ds2,
-  const unsigned number,
-  const unsigned ds2offset) const
+  const size_t number,
+  const size_t ds2offset) const
 {
-  unsigned similar = 0;
-  unsigned actual = 0;
+  size_t similar = 0;
+  size_t actual = 0;
 
-  for (unsigned i = 0; i < number; i++)
+  for (size_t i = 0; i < number; i++)
   {
     const int l1 = static_cast<int>(pnames[i].length());
     const int l2 = static_cast<int>(ds2.pnames[ds2offset+i].length());
@@ -194,8 +195,8 @@ bool DuplStat::similarPlayers(const DuplStat& ds2) const
   if (! playersFlag || ! ds2.playersFlag)
     return false;
 
-  const unsigned l1 = pnames.size();
-  const unsigned l2 = ds2.pnames.size();
+  const size_t l1 = pnames.size();
+  const size_t l2 = ds2.pnames.size();
 
   if (l1 == l2)
   {
@@ -203,7 +204,7 @@ bool DuplStat::similarPlayers(const DuplStat& ds2) const
   }
   else if (l1 == 8 && (l2 & 0x7) == 0)
   {
-    for (unsigned i = 0; i < l2; i += 8)
+    for (size_t i = 0; i < l2; i += 8)
     {
       if (DuplStat::similarPlayerGroup(ds2, 8, i))
         return true;
@@ -212,7 +213,7 @@ bool DuplStat::similarPlayers(const DuplStat& ds2) const
   }
   else if (l2 == 8 && (l1 & 0x7) == 0)
   {
-    for (unsigned i = 0; i < l1; i += 8)
+    for (size_t i = 0; i < l1; i += 8)
     {
       if (ds2.similarPlayerGroup(* this, 8, i))
         return true;
@@ -393,7 +394,7 @@ string DuplStat::strSuggest(const bool fullFlag) const
   if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
     tag = (fullFlag ? "ERR_LIN_DUPLICATE" : "ERR_LIN_SUBSET");
   else
-    THROW("Can't yet skip format " + STR(format));
+    THROW("Can't yet skip format " + to_string(format));
 
   return "skip {" + tag + DuplStat::strRef() + "}\n";
 }

@@ -10,7 +10,7 @@
 #ifndef BRIDGE_FUNCTRACE_H
 #define BRIDGE_FUNCTRACE_H
 
-#include "bconst.h"
+#include "../bconst.h"
 
 class Group;
 class Files;
