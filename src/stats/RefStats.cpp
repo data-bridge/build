@@ -58,12 +58,6 @@ void RefStats::resetSeen()
 void RefStats::resetRefEntry(RefEntry& re) const
 {
   re.reset();
-  // re.files = 0;
-  // re.noRefLines = 0;
-  // re.count.lines = 0;
-  // re.count.units = 0;
-  // re.count.hands = 0;
-  // re.count.boards = 0;
 }
 
 
@@ -85,12 +79,6 @@ void RefStats::incrRefEntry(
   const RefEntry& re2) const
 {
   re += re2;
-  // re.files += re2.files;
-  // re.noRefLines += re2.noRefLines;
-  // re.count.lines += re2.count.lines;
-  // re.count.units += re2.count.units;
-  // re.count.hands += re2.count.hands;
-  // re.count.boards += re2.count.boards;
 }
 
 
@@ -100,14 +88,6 @@ void RefStats::incr(
   const RefEntry& re)
 {
   data[table][cat] += re;
-  /*
-  data[table][cat].files += re.files;
-  data[table][cat].noRefLines += re.noRefLines;
-  data[table][cat].count.lines += re.count.lines;
-  data[table][cat].count.units += re.count.units;
-  data[table][cat].count.hands += re.count.hands;
-  data[table][cat].count.boards += re.count.boards;
-  */
 }
 
 
@@ -196,7 +176,6 @@ void RefStats::logRef(
   RefEntry& re)
 {
   re.setFiles(catSeen[cat] ? 0u : 1u);
-  // re.files = (catSeen[cat] ? 0u : 1u);
   catSeen[cat] = true;
 
   RefStats::incr(REFSTATS_REF, cat, re);
@@ -236,20 +215,11 @@ void RefStats::print(ostream& fstr) const
 
     fstr << setw(28) << left << "Reference" <<
       refSum.strLineHeader();
-      /*
-      setw(7) << right << "Files" <<
-      setw(9) << right << "Lines" <<
-      setw(7) << right << "Refs" <<
-      setw(7) << right << "Units" <<
-      setw(7) << right << "Hands" <<
-      setw(7) << right << "Boards" << "\n";
-      */
 
     RefStats::resetRefEntry(refSum);
 
     for (unsigned comm = 0; comm < ERR_SIZE; comm++)
     {
-      // if (data[table][comm].files == 0)
       if (data[table][comm].getFiles() == 0)
         continue;
 
@@ -261,28 +231,11 @@ void RefStats::print(ostream& fstr) const
       fstr << setw(28) << left << 
         comment.comment2str(static_cast<CommentType>(comm)) <<
         data[table][comm].strLine();
-        /*
-        setw(7) << right << data[table][comm].files <<
-        setw(9) << right << data[table][comm].count.lines <<
-        setw(7) << right << data[table][comm].noRefLines <<
-        setw(7) << right << data[table][comm].count.units <<
-        setw(7) << right << data[table][comm].count.hands <<
-        setw(7) << right << data[table][comm].count.boards << "\n";
-        */
     }
 
     fstr << dashes << "\n";
 
-    fstr << setw(28) << left << "Sum" <<
-      refSum.strLine() << "\n";
-      /*
-      setw(7) << right << refSum.files <<
-      setw(9) << right << refSum.count.lines <<
-      setw(7) << right << refSum.noRefLines <<
-      setw(7) << right << refSum.count.units <<
-      setw(7) << right << refSum.count.hands <<
-      setw(7) << right << refSum.count.boards << "\n\n";
-      */
+    fstr << setw(28) << left << "Sum" << refSum.strLine() << "\n";
   }
 }
 
