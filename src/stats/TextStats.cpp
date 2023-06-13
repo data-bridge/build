@@ -59,12 +59,7 @@ void TextStats::reset()
   {
     stats[f].resize(BRIDGE_STATS_NUM_FIELDS);
     for (unsigned l = 0; l < BRIDGE_STATS_NUM_FIELDS; l++)
-    {
-      stats[f][l].count = 0;
-      stats[f][l].datum.resize(BRIDGE_STATS_MAX_LENGTH);
-      for (unsigned i = 0; i < BRIDGE_STATS_MAX_LENGTH; i++)
-        stats[f][l].datum[i].reset();
-    }
+      stats[f][l].reset();
   }
 }
 
@@ -101,20 +96,8 @@ void TextStats::add(
   assert(format < BRIDGE_FORMAT_SIZE);
   unsigned lb = BRIDGE_STATS_MAP[label];
   assert(lb < BRIDGE_STATS_NUM_FIELDS);
-  unsigned len = static_cast<unsigned>(text.length());
-  assert(len < BRIDGE_STATS_MAX_LENGTH);
 
-  /*
-  if (stats[format][lb].datum[len].count == 0)
-  {
-    stats[format][lb].datum[len].source = basefile(source);
-    stats[format][lb].datum[len].example = text;
-  }
-  stats[format][lb].datum[len].count++;
-  */
-  stats[format][lb].datum[len].add(basefile(source), text);
-
-  stats[format][lb].count++;
+  stats[format][lb].add(source, text);
 }
 
 
@@ -127,44 +110,16 @@ void TextStats::add(
   assert(format < BRIDGE_FORMAT_SIZE);
   unsigned lb = BRIDGE_STATS_MAP[label];
   assert(lb < BRIDGE_STATS_NUM_FIELDS);
-  assert(len < BRIDGE_STATS_MAX_LENGTH);
 
-  stats[format][lb].datum[len].add(basefile(source), "");
-  /*
-  if (stats[format][lb].datum[len].count == 0)
-    stats[format][lb].datum[len].source = basefile(source);
-
-  stats[format][lb].datum[len].count++;
-  */
-
-  stats[format][lb].count++;
+  stats[format][lb].add(source, len);
 }
 
 
 void TextStats::operator += (const TextStats& statsIn)
 {
   for (unsigned f = 0; f < BRIDGE_FORMAT_SIZE; f++)
-  {
     for (unsigned l = 0; l < BRIDGE_STATS_NUM_FIELDS; l++)
-    {
-      for (unsigned i = 0; i < BRIDGE_STATS_MAX_LENGTH; i++)
-      {
-        TextDatum &td = stats[f][l].datum[i];
-        const TextDatum &tdIn = statsIn.stats[f][l].datum[i];
-
-        td += tdIn;
-        /*
-        if (td.count == 0)
-        {
-          td.source = tdIn.source;
-          td.example = tdIn.example;
-        }
-        td.count += tdIn.count;
-        */
-      }
-      stats[f][l].count += statsIn.stats[f][l].count;
-    }
-  }
+        stats[f][l] += statsIn.stats[f][l];
 }
 
 
@@ -179,41 +134,13 @@ void TextStats::printDetails(
     setw(24) << left << "source" <<
     left << "example" << endl;
 
-  vector<TextDatum> labelSum;
-  labelSum.resize(BRIDGE_STATS_MAX_LENGTH);
-  for (unsigned i = 0; i < BRIDGE_STATS_MAX_LENGTH; i++)
-    labelSum[i].reset();
-    // labelSum[i].count = 0;
-
+  TextStat labelSum;
+  labelSum.reset();
 
   for (unsigned f = 0; f < BRIDGE_FORMAT_SIZE; f++)
-    for (unsigned i = 0; i < BRIDGE_STATS_MAX_LENGTH; i++)
-    {
-      // const unsigned c = stats[f][label].datum[i].count;
-      labelSum[i] += stats[f][label].datum[i];
-      /*
-      labelSum[i].count += c;
-      if (c)
-      {
-        labelSum[i].source = stats[f][label].datum[i].source;
-        labelSum[i].example = stats[f][label].datum[i].example;
-      }
-      */
-    }
+    labelSum += stats[f][label];
 
-  for (unsigned i = 0; i < BRIDGE_STATS_MAX_LENGTH; i++)
-  {
-    unsigned j = BRIDGE_STATS_MAX_LENGTH-1-i;
-    if (! labelSum[j].empty())
-    // if (labelSum[j].count == 0)
-      // continue;
-
-      fstr << setw(10) << left << j << labelSum[j].str() << endl;
-      // setw(6) << right << labelSum[j].count << "  " <<
-      // setw(24) << left << labelSum[j].source <<
-      // left << labelSum[j].example << endl;
-  }
-  fstr << "\n";
+  fstr << labelSum.str();
 }
 
 
@@ -232,7 +159,7 @@ void TextStats::print(
   {
     for (unsigned l = 0; l < BRIDGE_STATS_NUM_FIELDS; l++)
     {
-      if (stats[f][l].count)
+      if (! stats[f][l].empty())
       {
         activeFormats.push_back(f);
         break;
@@ -248,15 +175,10 @@ void TextStats::print(
   for (unsigned lb = 0; lb < BRIDGE_STATS_NUM_FIELDS; lb++)
   {
     fstr << setw(8) << left << BRIDGE_STATS_NAMES[lb];
-    unsigned m = 0;
+    size_t m = 0;
     for (auto &f: activeFormats)
     {
-      unsigned mf = 0;
-      for (unsigned l = 0; l < BRIDGE_STATS_MAX_LENGTH; l++)
-      {
-        if (! stats[f][lb].datum[l].empty())
-          mf = l;
-      }
+      size_t mf = stats[f][lb].last_used();
 
       fstr << setw(8) << right << mf;
       m = Max(m, mf);

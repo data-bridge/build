@@ -21,7 +21,7 @@ class TextDatum
 
     string source;
     string example;
-    unsigned count;
+    size_t count;
 
   public:
 
@@ -30,7 +30,7 @@ class TextDatum
     void add(
       const string& sourceIn,
       const string& exampleIn,
-      const unsigned countIn = 1);
+      const size_t countIn = 1);
 
     void operator += (const TextDatum& td2);
 

@@ -23,7 +23,7 @@ void TextDatum::reset()
 void TextDatum::add(
   const string& sourceIn,
   const string& exampleIn,
-  const unsigned countIn)
+  const size_t countIn)
 {
   if (count == 0)
   {

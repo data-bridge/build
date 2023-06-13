@@ -17,6 +17,7 @@
 #pragma warning(pop)
 
 #include "TextDatum.h"
+#include "TextStat.h"
 
 #include "../bconst.h"
 
@@ -28,11 +29,13 @@ class TextStats
 {
   private:
 
+    /*
     struct TextStat
     {
       vector<TextDatum> datum;
       unsigned count;
     };
+    */
 
     vector<vector<TextStat>> stats;
 
