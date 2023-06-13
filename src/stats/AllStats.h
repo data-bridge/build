@@ -1,7 +1,7 @@
 /* 
    Part of BridgeData.
 
-   Copyright (C) 2016-17 by Soren Hein.
+   Copyright (C) 2016-23 by Soren Hein.
 
    See LICENSE and README.
 */
@@ -10,11 +10,7 @@
 #ifndef BRIDGE_ALLSTATS_H
 #define BRIDGE_ALLSTATS_H
 
-#pragma warning(push)
-#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
-#include <iostream>
 #include <vector>
-#pragma warning(pop)
 
 #include "ValStats.h"
 #include "TextStats.h"
@@ -23,11 +19,9 @@
 #include "DuplStats.h"
 #include "Timers.h"
 
-
-#include "../bconst.h"
-
-
 using namespace std;
+
+struct Options;
 
 struct AllStats
 {
@@ -37,6 +31,16 @@ struct AllStats
   RefStats refstats;
   DuplStats duplstats;
   Timers timers;
+
+  void operator += (const AllStats& as2)
+  {
+    vstats += as2.vstats;
+    tstats += as2.tstats;
+    cstats += as2.cstats;
+    refstats += as2.refstats;
+    duplstats += as2.duplstats;
+    timers += as2.timers;
+  };
 };
 
 

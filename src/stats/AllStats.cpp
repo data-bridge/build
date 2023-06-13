@@ -1,19 +1,14 @@
 /* 
    Part of BridgeData.
 
-   Copyright (C) 2016-17 by Soren Hein.
+   Copyright (C) 2016-23 by Soren Hein.
 
    See LICENSE and README.
 */
 
 
-#pragma warning(push)
-#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <string>
-#include <iomanip>
 #include <fstream>
-#include <sstream>
-#pragma warning(pop)
 
 #include "AllStats.h"
 
@@ -26,14 +21,7 @@ void mergeResults(
     return;
 
   for (unsigned i = 1; i < options.numThreads; i++)
-  {
-    allStatsList[0].vstats += allStatsList[i].vstats;
-    allStatsList[0].tstats += allStatsList[i].tstats;
-    allStatsList[0].cstats += allStatsList[i].cstats;
-    allStatsList[0].timers += allStatsList[i].timers;
-    allStatsList[0].duplstats += allStatsList[i].duplstats;
-    allStatsList[0].refstats += allStatsList[i].refstats;
-  }
+    allStatsList[0] += allStatsList[i];
 
   if (options.equalFlag)
     allStatsList[0].duplstats.sortOverall();
@@ -74,7 +62,7 @@ void printResults(
     allStats.duplstats.print(cout);
   allStats.vstats.print(cout, options.verboseValStats);
   if (options.statsFlag)
-    allStats.tstats.print(cout, true); // Can add switch to control
+    allStats.tstats.print(cout, options.verboseTextStats);
   if (options.compareFlag)
     allStats.cstats.print(cout);
   if (options.quoteFlag)

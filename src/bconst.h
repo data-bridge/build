@@ -269,6 +269,8 @@ struct Options
 
   bool verboseValStats;
   bool verboseValDetails;
+
+  bool verboseTextStats;
 };
 
 

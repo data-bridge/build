@@ -137,6 +137,7 @@ void usage(
     "                   0x04: Show input error details.\n" <<
     "                   0x08: Show validation issue type stats.\n" <<
     "                   0x10: Show an example of each issue.\n" <<
+    "                   0x20: Show text stats details.\n" <<
     endl;
 }
 
@@ -224,6 +225,7 @@ static void setDefaults(Options& options)
   options.verboseBatch = false;
   options.verboseValStats = true;
   options.verboseValDetails = true;
+  options.verboseTextStats = true;
 }
 
 
@@ -513,6 +515,7 @@ void readArgs(
         options.verboseBatch = ((m & 0x04) != 0);
         options.verboseValStats = ((m & 0x08) != 0);
         options.verboseValDetails = ((m & 0x10) != 0);
+        options.verboseTextStats = ((m & 0x20) != 0);
         break;
 
       default:
