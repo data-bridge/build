@@ -6,35 +6,16 @@
    See LICENSE and README.
 */
 
-// #include <string>
 #include <sstream>
 #include <iomanip>
-#include <mutex>
 #include <assert.h>
 
 #include "TextStats.h"
-
-// #include "../parse.h"
-
-#define BRIDGE_STATS_NUM_FIELDS 7
-
-static mutex mtx;
-static bool setTextTables = false;
-static unsigned BRIDGE_STATS_MAP[BRIDGE_FORMAT_LABELS_SIZE];
-static string BRIDGE_STATS_NAMES[BRIDGE_STATS_NUM_FIELDS];
 
 
 TextStats::TextStats()
 {
   TextStats::reset();
-  if (! setTextTables)
-  {
-    mtx.lock();
-    if (! setTextTables)
-      TextStats::setTables();
-    setTextTables = true;
-    mtx.unlock();
-  }
 }
 
 
@@ -48,33 +29,10 @@ void TextStats::reset()
   stats.resize(BRIDGE_FORMAT_SIZE);
   for (unsigned f = 0; f < BRIDGE_FORMAT_SIZE; f++)
   {
-    stats[f].resize(BRIDGE_STATS_NUM_FIELDS);
+    stats[f].resize(BRIDGE_FORMAT_LABELS_SIZE);
     for (auto& labelStat: stats[f])
       labelStat.reset();
   }
-}
-
-
-void TextStats::setTables()
-{
-  for (unsigned lb = 0; lb < BRIDGE_FORMAT_LABELS_SIZE; lb++)
-    BRIDGE_STATS_MAP[lb] = BRIDGE_FORMAT_LABELS_SIZE;
-
-  BRIDGE_STATS_MAP[BRIDGE_FORMAT_TITLE] = 0;
-  BRIDGE_STATS_MAP[BRIDGE_FORMAT_LOCATION] = 1;
-  BRIDGE_STATS_MAP[BRIDGE_FORMAT_EVENT] = 2;
-  BRIDGE_STATS_MAP[BRIDGE_FORMAT_SESSION] = 3;
-  BRIDGE_STATS_MAP[BRIDGE_FORMAT_TEAMS] = 4;
-  BRIDGE_STATS_MAP[BRIDGE_FORMAT_AUCTION] = 5;
-  BRIDGE_STATS_MAP[BRIDGE_FORMAT_PLAYERS] = 6;
-
-  BRIDGE_STATS_NAMES[0] = LABEL_NAMES[BRIDGE_FORMAT_TITLE];
-  BRIDGE_STATS_NAMES[1] = LABEL_NAMES[BRIDGE_FORMAT_LOCATION];
-  BRIDGE_STATS_NAMES[2] = LABEL_NAMES[BRIDGE_FORMAT_EVENT];
-  BRIDGE_STATS_NAMES[3] = LABEL_NAMES[BRIDGE_FORMAT_SESSION];
-  BRIDGE_STATS_NAMES[4] = LABEL_NAMES[BRIDGE_FORMAT_TEAMS];
-  BRIDGE_STATS_NAMES[5] = LABEL_NAMES[BRIDGE_FORMAT_AUCTION];
-  BRIDGE_STATS_NAMES[6] = LABEL_NAMES[BRIDGE_FORMAT_PLAYERS];
 }
 
 
@@ -85,32 +43,54 @@ void TextStats::add(
   const Format format)
 {
   assert(format < BRIDGE_FORMAT_SIZE);
-  unsigned lb = BRIDGE_STATS_MAP[label];
-  assert(lb < BRIDGE_STATS_NUM_FIELDS);
+  assert(label < BRIDGE_FORMAT_LABELS_SIZE);
 
-  stats[format][lb].add(source, text);
+  stats[format][label].add(source, text);
 }
 
 
-void TextStats::add(
+  void TextStats::add(
   const unsigned len,
   const string& source,
   const Label label,
   const Format format)
 {
   assert(format < BRIDGE_FORMAT_SIZE);
-  unsigned lb = BRIDGE_STATS_MAP[label];
-  assert(lb < BRIDGE_STATS_NUM_FIELDS);
+  assert(label < BRIDGE_FORMAT_LABELS_SIZE);
 
-  stats[format][lb].add(source, len);
+  stats[format][label].add(source, len);
 }
 
 
 void TextStats::operator += (const TextStats& statsIn)
 {
   for (unsigned f = 0; f < BRIDGE_FORMAT_SIZE; f++)
-    for (unsigned l = 0; l < BRIDGE_STATS_NUM_FIELDS; l++)
+    for (unsigned l = 0; l < BRIDGE_FORMAT_LABELS_SIZE; l++)
       stats[f][l] += statsIn.stats[f][l];
+}
+
+
+void TextStats::strPrepare(
+  vector<size_t>& activeFormats,
+  vector<size_t>& labelMaxima) const
+{
+  // Find those formats have non-zero entries.
+  // Find the highest count for each label across all formats.
+
+  activeFormats.resize(BRIDGE_FORMAT_SIZE);
+  labelMaxima.resize(BRIDGE_FORMAT_LABELS_SIZE);
+  for (unsigned f = 0; f < BRIDGE_FORMAT_SIZE; f++)
+  {
+    for (unsigned label = 0; label < BRIDGE_FORMAT_LABELS_SIZE; label++)
+    {
+      const auto& labelStat = stats[f][label];
+      if (! labelStat.empty())
+      {
+        activeFormats[f] = 1;
+        labelMaxima[label] = max(labelMaxima[label], labelStat.last_used());
+      }
+    }
+  }
 }
 
 
@@ -118,7 +98,7 @@ void TextStats::printDetails(
   const unsigned label,
   ostream& fstr) const
 {
-  assert(label < BRIDGE_STATS_NUM_FIELDS);
+  assert(label < BRIDGE_FORMAT_LABELS_SIZE);
 
   TextStat labelSum;
 
@@ -126,8 +106,50 @@ void TextStats::printDetails(
   for (unsigned f = 0; f < BRIDGE_FORMAT_SIZE; f++)
     labelSum += stats[f][label];
 
-  fstr << labelSum.strHeader(BRIDGE_STATS_NAMES[label]);
+  if (labelSum.empty())
+    return;
+
+  fstr << labelSum.strHeader(LABEL_NAMES[label]);
   fstr << labelSum.str();
+}
+
+
+string TextStats::strParamHeader(const vector<size_t>& activeFormats) const
+{
+  stringstream ss;
+  ss << setw(8) << left << "Param.";
+
+  for (unsigned f = 0; f < BRIDGE_FORMAT_SIZE; f++)
+    if (activeFormats[f])
+      ss << setw(8) << right << FORMAT_NAMES[f];
+
+  ss << setw(8) << right << "max" << "\n";
+
+  return ss.str();
+}
+
+
+string TextStats::strParams(
+  const vector<size_t>& activeFormats,
+  const vector<size_t>& labelMaxima) const
+{
+  stringstream ss;
+
+  for (unsigned label = 0; label < BRIDGE_FORMAT_LABELS_SIZE; label++)
+  {
+    if (! labelMaxima[label])
+      continue;
+
+    ss << setw(8) << left << LABEL_NAMES[label];
+
+    for (unsigned f = 0; f < BRIDGE_FORMAT_SIZE; f++)
+      if (activeFormats[f])
+        ss << setw(8) << right << stats[f][label].last_used();
+
+    ss << setw(8) << right << labelMaxima[label] << "\n";
+  }
+
+  return ss.str();
 }
 
 
@@ -136,42 +158,40 @@ void TextStats::print(
   const bool detailsFlag) const
 {
   if (detailsFlag)
-    for (unsigned l = 0; l < BRIDGE_STATS_NUM_FIELDS; l++)
+    for (unsigned l = 0; l < BRIDGE_FORMAT_LABELS_SIZE; l++)
       TextStats::printDetails(l, fstr);
   fstr << "\n";
 
   // Add up across formats, preserve one example and source per size
-  vector<unsigned> activeFormats;
-  for (unsigned f = 0; f < BRIDGE_FORMAT_SIZE; f++)
-  {
-    for (unsigned l = 0; l < BRIDGE_STATS_NUM_FIELDS; l++)
-    {
-      if (! stats[f][l].empty())
-      {
-        activeFormats.push_back(f);
-        break;
-      }
-    }
-  }
+  vector<size_t> activeFormats;
+  vector<size_t> labelMaxima;
+  TextStats::strPrepare(activeFormats, labelMaxima);
 
+  fstr << TextStats::strParamHeader(activeFormats);
+  fstr << TextStats::strParams(activeFormats, labelMaxima);
+  /*
   fstr << setw(8) << left << "Param.";
   for (auto &f: activeFormats)
     fstr << setw(8) << right << FORMAT_NAMES[f];
   fstr << setw(8) << right << "max" << "\n";
+  */
 
-  for (unsigned lb = 0; lb < BRIDGE_STATS_NUM_FIELDS; lb++)
+  /*
+  for (unsigned label = 0; label < BRIDGE_FORMAT_LABELS_SIZE; label++)
   {
-    fstr << setw(8) << left << BRIDGE_STATS_NAMES[lb];
-    size_t m = 0;
-    for (auto &f: activeFormats)
-    {
-      size_t mf = stats[f][lb].last_used();
+    if (! labelMaxima[label])
+      continue;
 
-      fstr << setw(8) << right << mf;
-      m = Max(m, mf);
+    fstr << setw(8) << left << LABEL_NAMES[label];
+    for (unsigned f = 0; f < BRIDGE_FORMAT_SIZE; f++)
+    {
+      if (activeFormats[f])
+        fstr << setw(8) << right << stats[f][label].last_used();
     }
-    fstr << setw(8) << right << m << "\n";
+
+    fstr << setw(8) << right << labelMaxima[label] << "\n";
   }
+  */
   fstr << "\n";
 }
 

@@ -29,21 +29,21 @@ class TextStats
 {
   private:
 
-    /*
-    struct TextStat
-    {
-      vector<TextDatum> datum;
-      unsigned count;
-    };
-    */
-
     vector<vector<TextStat>> stats;
 
-    void setTables();
+    void strPrepare(
+      vector<size_t>& activeFormats,
+      vector<size_t>& labelMaxima) const;
 
     void printDetails(
       const unsigned label,
       ostream& fstr) const;
+
+    string strParamHeader(const vector<size_t>& activeFormats) const;
+
+    string strParams(
+      const vector<size_t>& activeFormats,
+      const vector<size_t>& labelMaxima) const;
 
   public:
 
