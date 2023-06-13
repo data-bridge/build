@@ -173,7 +173,7 @@ void TextStats::printDetails(
     left << "example" << endl;
 
   vector<TextDatum> labelSum;
-  labelSum.reserve(BRIDGE_STATS_MAX_LENGTH);
+  labelSum.resize(BRIDGE_STATS_MAX_LENGTH);
   for (unsigned i = 0; i < BRIDGE_STATS_MAX_LENGTH; i++)
     labelSum[i].count = 0;
 
