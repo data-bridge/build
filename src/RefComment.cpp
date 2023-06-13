@@ -505,9 +505,10 @@ void RefComment::reset()
   setFlag = false;
 
   category = ERR_SIZE;
-  count1 = 0;
-  count2 = 0;
-  count3 = 0;
+  re.reset();
+  // count1 = 0;
+  // count2 = 0;
+  // count3 = 0;
 
   quote = "";
 }
@@ -854,12 +855,15 @@ void RefComment::parse(
 
   category = it->second;
 
+  unsigned count1, count2, count3;
   if (! str2unsigned(match.str(2), count1))
     THROW("Ref file " + refName + ": Bad comment no1 in '" + line + "'");
   if (! str2unsigned(match.str(3), count2))
     THROW("Ref file " + refName + ": Bad comment no2 in '" + line + "'");
   if (! str2unsigned(match.str(4), count3))
     THROW("Ref file " + refName + ": Bad comment no3 in '" + line + "'");
+
+  re.set(count1, count2, count3);
   
   fileName = refName;
   quote = line.substr(openb);
@@ -984,19 +988,23 @@ bool RefComment::isUncommented() const
 
 void RefComment::getEntry(
   CommentType& cat,
-  RefEntry& re) const
+  RefEntry& reIn) const
 {
   if (! setFlag)
     THROW("RefComment not set");
 
   cat = category;
 
+  reIn = re;
+  // reIn.set(count1, count2, count3);
+  /*
   re.files = 1;
   re.noRefLines = 1;
   re.count.lines = 0;
   re.count.units = count1;
   re.count.hands = count2;
   re.count.boards = count3;
+  */
 }
 
 
@@ -1013,9 +1021,10 @@ string RefComment::str() const
 
   stringstream ss;
   ss << setw(14) << "Count detail" << CommentList[category].name << "\n";
-  ss << setw(14) << "Count tags" << count1 << "\n";
-  ss << setw(14) << "Count hands" << count2 << "\n";
-  ss << setw(14) << "Count boards" << count3 << "\n";
+  ss << re.strCount();
+  // ss << setw(14) << "Count tags" << count1 << "\n";
+  // ss << setw(14) << "Count hands" << count2 << "\n";
+  // ss << setw(14) << "Count boards" << count3 << "\n";
   return ss.str();
 }
 
@@ -1026,7 +1035,8 @@ string RefComment::strComment() const
     return "";
 
   return "{" + CommentList[category].name + "(" +
-    to_string(count1) + "," + to_string(count2) + "," + 
-      to_string(count3) + ")}";
+    re.strCountShort() + ")}";
+    // to_string(count1) + "," + to_string(count2) + "," + 
+      // to_string(count3) + ")}";
 }
 

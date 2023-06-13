@@ -174,9 +174,11 @@ bool RefLines::getHeaderEntry(
     headerComment.getEntry(cat, re);
 
     // Fix the order.
-    re.count.lines = re.count.units;
-    re.count.units = 0;
-    re.noRefLines = 1;
+    // TODO Not at all sure why this is needed?
+    re.fixSomething();
+    
+    // TODO Not sure about files also being 1?
+    re.setFileData(1, 1);
 
     if (cat == ERR_SIZE)
       cat = static_cast<CommentType>(0);
@@ -185,12 +187,12 @@ bool RefLines::getHeaderEntry(
   {
     // Synthesize a mini-header.
     cat = static_cast<CommentType>(0);
-    re.files = 1;
-    re.noRefLines = static_cast<unsigned>(lines.size());
-    re.count.lines = bufferLines;
-    re.count.units = 0;
-    re.count.hands = numHands;
-    re.count.boards = numBoards;
+
+    // Due to side effects in RefEntry, do not change the order
+    // of the next few method calls!
+    re.set(0, numHands, numBoards);
+    re.setLines(bufferLines);
+    re.setFileData(1, lines.size());
   }
 
   return true;
@@ -216,7 +218,7 @@ bool RefLines::getControlEntry(
     return false;
 
   headerComment.getEntry(cat, re);
-  re.count.lines = 1;
+  re.setLines(1);
   return true;
 }
 
@@ -225,28 +227,22 @@ void RefLines::checkEntries(
   const RefEntry& re,
   const RefEntry& ractual) const
 {
-  if (re.count.units == ractual.count.units &&
-      re.count.hands == ractual.count.hands &&
-      re.count.boards == ractual.count.boards)
+  if (re.sameCountValues(ractual))
     return;
 
   THROW(
     headerComment.refFile() + ": (" +
-    to_string(re.count.units) + "," +
-    to_string(re.count.hands) + "," +
-    to_string(re.count.boards) + ") vs (" +
-    to_string(ractual.count.units) + "," +
-    to_string(ractual.count.hands) + "," +
-    to_string(ractual.count.boards) + ")");
+    re.strCountShort() +
+    ") vs (" +
+    ractual.strCountShort() +
+    ")");
 }
 
 
 void RefLines::checkHeader() const
 {
   RefEntry ra, re;
-  ra.count.units = bufferLines;
-  ra.count.hands = numHands;
-  ra.count.boards = numBoards;
+  ra.set(bufferLines, numHands, numBoards);
 
   if (headerComment.isCommented())
   {
@@ -266,16 +262,12 @@ void RefLines::checkHeader() const
   RefEntry rsum;
   for (auto &p: cumulCount)
   {
-    rsum.count.units = 0;
-    rsum.count.hands = 0;
-    rsum.count.boards = 0;
-
+    rsum.reset();
     for (auto &q: p.second)
-    {
-      rsum.count.hands += q.count.hands;
-      rsum.count.boards += q.count.boards;
-    }
-    rsum.count.units = bufferLines;
+      rsum += q;
+
+    rsum.setUnitsFrom(ra);
+
     RefLines::checkEntries(rsum, ra);
   }
 }

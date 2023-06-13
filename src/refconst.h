@@ -10,7 +10,9 @@
 #ifndef REF_ACTIONCONST_H
 #define REF_ACTIONCONST_H
 
+#include "RefEntry.h"
 
+/*
 struct RefCount
 {
   unsigned lines;
@@ -25,6 +27,7 @@ struct RefEntry
   unsigned noRefLines;
   RefCount count;
 };
+*/
 
 
 enum ActionType

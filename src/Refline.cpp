@@ -876,15 +876,11 @@ void RefLine::checkEntries(
   const RefEntry& re,
   const RefEntry& ractual) const
 {
-  if (re.count.units == ractual.count.units &&
-      re.count.hands == ractual.count.hands &&
-      re.count.boards == ractual.count.boards)
+  if (re.sameCountValues(ractual))
     return;
 
   THROW(comment.strComment() + ": (" + 
-    to_string(ractual.count.units) + "," +
-    to_string(ractual.count.hands) + "," + 
-    to_string(ractual.count.boards) + ")");
+    ractual.strCountShort() + ")");
 }
 
 
@@ -904,9 +900,7 @@ void RefLine::checkCounts() const
       // in fact a tag.
       comment.checkTag(edit.is());
 
-      ractual.count.units = 1;
-      ractual.count.hands = 1;
-      ractual.count.boards = 1;
+      ractual.set(1, 1, 1);
       RefLine::checkEntries(re, ractual);
       return;
     }
@@ -914,9 +908,7 @@ void RefLine::checkCounts() const
         act == REF_ACTION_REPLACE_TXT)
     {
       // It may also be deleteLIN "2"
-      ractual.count.units = 1;
-      ractual.count.hands = 1;
-      ractual.count.boards = 1;
+      ractual.set(1, 1, 1);
       RefLine::checkEntries(re, ractual);
       return;
     }
@@ -930,40 +922,33 @@ void RefLine::checkCounts() const
   }
   else if (rc == REF_COUNT_SINGLE)
   {
-    ractual.count.units = 1;
-    ractual.count.hands = 1;
-    ractual.count.boards = 1;
+    ractual.set(1, 1, 1);
     RefLine::checkEntries(re, ractual);
   }
   else if (rc == REF_COUNT_LIN_IS)
   {
-    ractual.count.units = edit.countUnitsLIN();
+    size_t u = edit.countUnitsLIN();
     if (action.number() == ACTION_INSERT_LINE)
-      ractual.count.units--;
-    ractual.count.hands = 1;
-    ractual.count.boards = 1;
+      u--;
+
+    ractual.set(u, 1, 1);
     RefLine::checkEntries(re, ractual);
   }
   else if (rc == REF_COUNT_LIN_REPEAT)
   {
-    ractual.count.units = edit.repeatCount();
-    ractual.count.hands = 1;
-    ractual.count.boards = 1;
+    ractual.set(edit.repeatCount(), 1, 1);
     RefLine::checkEntries(re, ractual);
   }
   else if (rc == REF_COUNT_LIN_FIELDS)
   {
     const unsigned u = edit.repeatCount();
-    ractual.count.units = 1;
     if (u == 1)
     {
-      ractual.count.hands = 1;
-      ractual.count.boards = 1;
+      ractual.set(1, 1, 1);
     }
     else
     {
-      ractual.count.hands = u;
-      ractual.count.boards = u/2;
+      ractual.set(1, u, u/2);
     }
     RefLine::checkEntries(re, ractual);
   }
@@ -1166,9 +1151,7 @@ void RefLine::checkMultiLineCounts(const vector<string>& lines) const
   if (rc == REF_COUNT_SINGLE)
   {
     // Convenience for RBN L, shouldn't really happen.
-    ractual.count.units = 1;
-    ractual.count.hands = 1;
-    ractual.count.boards = 1;
+    ractual.set(1, 1, 1);
     RefLine::checkEntries(re, ractual);
   }
   else if (rc == REF_COUNT_HEADER)
@@ -1183,16 +1166,13 @@ void RefLine::checkMultiLineCounts(const vector<string>& lines) const
     unsigned h, b;
     RefLine::countHands(lines, format, h, b);
 
-    ractual.count.units = 0;
     if (h <= 1)
     {
-      ractual.count.hands = 1;
-      ractual.count.boards = 1;
+      ractual.set(0, 1, 1);
     }
     else
     {
-      ractual.count.hands = h;
-      ractual.count.boards = b;
+      ractual.set(0, h, b);
     }
     RefLine::checkEntries(re, ractual);
   }
@@ -1234,18 +1214,22 @@ void RefLine::checkHeader(
   if (act == ACTION_DELETE_LINE)
   {
     // Must be the full count.
-    if (re.count.units > 1)
+    if (re.getUnits() > 1)
       THROW("Line delete should have <= 1 units");
 
-    re.count.units = ractual.count.units; // Not whole file
+    re.setUnitsFrom(ractual);
     RefLine::checkEntries(re, ractual);
     return;
   }
 
   // If it fits, we just assume the tag only shows up once.
-  if (re.count.units == 1 &&
-      re.count.hands == ractual.count.hands &&
-      re.count.boards == ractual.count.boards)
+  //
+  // TODO 2023-06-13 It used to be that re.count.units should be 1,
+  // and the test was for this.  Now I copy the units from ractual
+  // and test sameCountValues against raction.  Not sure this is
+  // the same as before?
+  re.setUnitsFrom(ractual);
+  if (re.sameCountValues(ractual))
     return;
 
   if (comment.format() != BRIDGE_FORMAT_LIN)
@@ -1274,7 +1258,7 @@ void RefLine::getEntry(
     THROW("RefLine not set");
     
   comment.getEntry(cat, re);
-  re.count.lines = range.lcount;
+  re.setLines(range.lcount);
 }
 
 

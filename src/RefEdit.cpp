@@ -15,6 +15,7 @@
 #include <algorithm>
 #include <regex>
 #include <map>
+#include <assert.h>
 
 #if defined(_WIN32) && defined(__MINGW32__)
   #include "mingw.thread.h"
@@ -75,10 +76,14 @@ void RefEdit::reset()
 
 void RefEdit::setCount(const unsigned v)
 {
+  assert(v == 0);
+  count.reset();
+  /*
   count.lines = v;
   count.units = v;
   count.hands = v;
   count.boards = v;
+  */
 }
 
 
@@ -938,9 +943,9 @@ string RefEdit::str() const
   stringstream ss;
 
   if (reverseFlag)
-    ss << setw(14) << "Tag number" << tagno << " (from the back)\n";
+    ss << left << setw(14) << "Tag number" << tagno << " (from the back)\n";
   else
-    ss << setw(14) << "Tag number" << tagno << "\n";
+    ss << left << setw(14) << "Tag number" << tagno << "\n";
 
   ss << setw(14) << "Tag" << tagVal << "\n";
   if (fieldno > 0)

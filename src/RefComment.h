@@ -16,6 +16,7 @@
 #pragma warning(pop)
 
 #include "refconst.h"
+#include "RefEntry.h"
 #include "bconst.h"
 
 
@@ -29,7 +30,8 @@ class RefComment
   bool setFlag;
   string fileName;
   CommentType category; // "ERR_LIN_VG_FIRST", for example
-  unsigned count1, count2, count3;
+  // unsigned count1, count2, count3;
+  RefEntry re;
   string quote;
 
   void setTables();

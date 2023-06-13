@@ -59,7 +59,8 @@ void dispatchRefStats(
     {
       // We might have inferred a non-standard board order,
       // but it was not stated.
-      re.noRefLines = 1;
+      // re.noRefLines = 1;
+      re.setLines(1);
       if (refLines.orderCOCO())
         refstats.logOrder(ORDER_COCO, format, re);
       else if (refLines.orderOOCC())
