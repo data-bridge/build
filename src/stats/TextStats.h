@@ -1,7 +1,7 @@
 /* 
    Part of BridgeData.
 
-   Copyright (C) 2016-17 by Soren Hein.
+   Copyright (C) 2016-23 by Soren Hein.
 
    See LICENSE and README.
 */
@@ -10,17 +10,12 @@
 #ifndef BRIDGE_TEXTSTATS_H
 #define BRIDGE_TEXTSTATS_H
 
-#pragma warning(push)
-#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
-#include <iostream>
 #include <vector>
-#pragma warning(pop)
 
-#include "TextDatum.h"
 #include "TextStat.h"
 
-#include "../bconst.h"
-
+enum Format: unsigned;
+enum Label: unsigned;
 
 using namespace std;
 
@@ -31,13 +26,15 @@ class TextStats
 
     vector<vector<TextStat>> stats;
 
+    void strExamplesPrepare(
+      TextStat& labelSum,
+      const Label label) const;
+
     void strPrepare(
       vector<size_t>& activeFormats,
       vector<size_t>& labelMaxima) const;
 
-    void printDetails(
-      const unsigned label,
-      ostream& fstr) const;
+    string strExamples(const Label label) const;
 
     string strParamHeader(const vector<size_t>& activeFormats) const;
 
@@ -54,7 +51,7 @@ class TextStats
     void reset();
 
     void add(
-      const string& text,
+      const string& example,
       const string& source,
       const Label label,
       const Format format);
@@ -67,9 +64,7 @@ class TextStats
 
     void operator += (const TextStats& statsIn);
       
-    void print(
-      ostream& fstr,
-      const bool detailsFlag = false) const;
+    string str(const bool examplesFlag = false) const;
 };
 
 #endif

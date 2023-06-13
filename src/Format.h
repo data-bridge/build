@@ -10,11 +10,14 @@
 #ifndef BRIDGE_FORMATS_H
 #define BRIDGE_FORMATS_H
 
+#include <string>
+
 using namespace std;
 
 // Bridge file formats.
 
-enum Format
+
+enum Format: unsigned
 {
   BRIDGE_FORMAT_LIN = 0,
   BRIDGE_FORMAT_LIN_RP = 1, // A la Pavlicek
@@ -28,6 +31,21 @@ enum Format
   BRIDGE_FORMAT_REC = 9,
   BRIDGE_FORMAT_PAR = 10, // Not a real file format
   BRIDGE_FORMAT_SIZE = 11
+};
+
+const string FORMAT_NAMES[BRIDGE_FORMAT_SIZE] =
+{
+  "LIN",
+  "LIN-RP",
+  "LIN-VG",
+  "LIN-TRN",
+  "PBN",
+  "RBN",
+  "RBX",
+  "TXT",
+  "EML",
+  "REC",
+  "PAR"
 };
 
 #endif

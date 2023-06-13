@@ -1,7 +1,7 @@
 /* 
    Part of BridgeData.
 
-   Copyright (C) 2016-17 by Soren Hein.
+   Copyright (C) 2016-23 by Soren Hein.
 
    See LICENSE and README.
 */
@@ -11,6 +11,9 @@
 #include <assert.h>
 
 #include "TextStats.h"
+
+#include "../Format.h"
+#include "../Label.h"
 
 
 TextStats::TextStats()
@@ -37,7 +40,7 @@ void TextStats::reset()
 
 
 void TextStats::add(
-  const string& text,
+  const string& example,
   const string& source,
   const Label label,
   const Format format)
@@ -45,7 +48,7 @@ void TextStats::add(
   assert(format < BRIDGE_FORMAT_SIZE);
   assert(label < BRIDGE_FORMAT_LABELS_SIZE);
 
-  stats[format][label].add(source, text);
+  stats[format][label].add(source, example);
 }
 
 
@@ -94,23 +97,27 @@ void TextStats::strPrepare(
 }
 
 
-void TextStats::printDetails(
-  const unsigned label,
-  ostream& fstr) const
+void TextStats::strExamplesPrepare(
+  TextStat& labelSum,
+  const Label label) const
 {
-  assert(label < BRIDGE_FORMAT_LABELS_SIZE);
-
-  TextStat labelSum;
-
   labelSum.reset();
   for (unsigned f = 0; f < BRIDGE_FORMAT_SIZE; f++)
     labelSum += stats[f][label];
+}
 
+
+string TextStats::strExamples(const Label label) const
+{
+  TextStat labelSum;
+  TextStats::strExamplesPrepare(labelSum, label);
   if (labelSum.empty())
-    return;
+    return "";
 
-  fstr << labelSum.strHeader(LABEL_NAMES[label]);
-  fstr << labelSum.str();
+  stringstream ss;
+  ss << labelSum.strHeader(LABEL_NAMES[label]);
+  ss << labelSum.str();
+  return ss.str();
 }
 
 
@@ -153,45 +160,27 @@ string TextStats::strParams(
 }
 
 
-void TextStats::print(
-  ostream& fstr,
-  const bool detailsFlag) const
+string TextStats::str(const bool examplesFlag) const
 {
-  if (detailsFlag)
-    for (unsigned l = 0; l < BRIDGE_FORMAT_LABELS_SIZE; l++)
-      TextStats::printDetails(l, fstr);
-  fstr << "\n";
+  stringstream ss;
+
+  if (examplesFlag)
+  {
+    // Show an example of each label.
+    for (unsigned label = 0; label < BRIDGE_FORMAT_LABELS_SIZE; label++)
+      ss << TextStats::strExamples(static_cast<Label>(label));
+
+    ss << "\n";
+  }
 
   // Add up across formats, preserve one example and source per size
   vector<size_t> activeFormats;
   vector<size_t> labelMaxima;
   TextStats::strPrepare(activeFormats, labelMaxima);
 
-  fstr << TextStats::strParamHeader(activeFormats);
-  fstr << TextStats::strParams(activeFormats, labelMaxima);
-  /*
-  fstr << setw(8) << left << "Param.";
-  for (auto &f: activeFormats)
-    fstr << setw(8) << right << FORMAT_NAMES[f];
-  fstr << setw(8) << right << "max" << "\n";
-  */
+  ss << TextStats::strParamHeader(activeFormats);
+  ss << TextStats::strParams(activeFormats, labelMaxima);
 
-  /*
-  for (unsigned label = 0; label < BRIDGE_FORMAT_LABELS_SIZE; label++)
-  {
-    if (! labelMaxima[label])
-      continue;
-
-    fstr << setw(8) << left << LABEL_NAMES[label];
-    for (unsigned f = 0; f < BRIDGE_FORMAT_SIZE; f++)
-    {
-      if (activeFormats[f])
-        fstr << setw(8) << right << stats[f][label].last_used();
-    }
-
-    fstr << setw(8) << right << labelMaxima[label] << "\n";
-  }
-  */
-  fstr << "\n";
+  return ss.str() + "\n";
 }
 

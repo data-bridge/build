@@ -64,7 +64,7 @@ void printResults(
     allStats.duplstats.print(cout);
   allStats.vstats.print(cout, options.verboseValStats);
   if (options.statsFlag)
-    allStats.tstats.print(cout, options.verboseTextStats);
+    cout << allStats.tstats.str(options.verboseTextStats);
   if (options.compareFlag)
     allStats.cstats.print(cout);
   if (options.quoteFlag)
