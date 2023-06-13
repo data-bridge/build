@@ -16,6 +16,8 @@
 #include <vector>
 #pragma warning(pop)
 
+#include "Options.h"
+
 using namespace std;
 
 
@@ -31,25 +33,6 @@ using namespace std;
 #define Min(x, y) (((x) <= (y)) ? (x) : (y))
 
 #define BIGNUM 9999999
-
-
-// Bridge file formats.
-
-enum Format
-{
-  BRIDGE_FORMAT_LIN = 0,
-  BRIDGE_FORMAT_LIN_RP = 1, // A la Pavlicek
-  BRIDGE_FORMAT_LIN_VG = 2, // A la BBO Vugraph
-  BRIDGE_FORMAT_LIN_TRN = 3, // A la BBO tournament play
-  BRIDGE_FORMAT_PBN = 4,
-  BRIDGE_FORMAT_RBN = 5,
-  BRIDGE_FORMAT_RBX = 6,
-  BRIDGE_FORMAT_TXT = 7,
-  BRIDGE_FORMAT_EML = 8,
-  BRIDGE_FORMAT_REC = 9,
-  BRIDGE_FORMAT_PAR = 10, // Not a real file format
-  BRIDGE_FORMAT_SIZE = 11
-};
 
 
 const string FORMAT_NAMES[BRIDGE_FORMAT_SIZE] =
@@ -220,57 +203,6 @@ struct WriteInfo
 
   int score1;
   int score2;
-};
-
-
-// Input options.
-
-struct FileOption
-{
-  bool setFlag;
-  string name;
-};
-
-struct Options
-{
-  FileOption fileInput; // -i, --infile
-  FileOption dirInput; // -I, --indir
-
-  FileOption fileOutput; // -o, --outfile
-  FileOption dirOutput; // -O, --outdir
-
-  FileOption fileRef; // -r, --reffile
-  FileOption dirRef; // -R, --refdir
-
-  FileOption fileDigest; // -d, --digfile
-  FileOption dirDigest; // -D, --digdir
-
-  FileOption fileLog; // -l, --logfile
-
-  bool tableIMPFlag; // -T, --tableIMP
-  bool compareFlag; // -c, --compare
-  bool playersFlag; // -p, --players
-  bool equalFlag; // -e, --equal
-  bool valuationFlag; // -V, --valuation
-  bool solveFlag; // -S, --solve
-  bool traceFlag; // -T, --trace
-
-  bool formatSetFlag; // -f, --format
-  Format format;
-
-  bool statsFlag; // -s, --stats
-  bool quoteFlag; // -q, --quote
-
-  unsigned numThreads;
-
-  bool verboseIO;
-  bool verboseThrow;
-  bool verboseBatch;
-
-  bool verboseValStats;
-  bool verboseValDetails;
-
-  bool verboseTextStats;
 };
 
 

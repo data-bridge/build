@@ -12,6 +12,8 @@
 
 #include "AllStats.h"
 
+#include "../Options.h"
+
 
 void mergeResults(
   vector<AllStats>& allStatsList,
