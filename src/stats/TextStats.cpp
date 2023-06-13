@@ -6,25 +6,16 @@
    See LICENSE and README.
 */
 
-#pragma warning(push)
-#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
-#include <string>
-#include <iomanip>
+// #include <string>
 #include <sstream>
+#include <iomanip>
+#include <mutex>
 #include <assert.h>
-
-#if defined(_WIN32) && defined(__MINGW32__)
-  #include "mingw.mutex.h"
-#else
-  #include <mutex>
-#endif
-#pragma warning(pop)
 
 #include "TextStats.h"
 
-#include "../parse.h"
+// #include "../parse.h"
 
-#define BRIDGE_STATS_MAX_LENGTH 64
 #define BRIDGE_STATS_NUM_FIELDS 7
 
 static mutex mtx;
@@ -58,8 +49,8 @@ void TextStats::reset()
   for (unsigned f = 0; f < BRIDGE_FORMAT_SIZE; f++)
   {
     stats[f].resize(BRIDGE_STATS_NUM_FIELDS);
-    for (unsigned l = 0; l < BRIDGE_STATS_NUM_FIELDS; l++)
-      stats[f][l].reset();
+    for (auto& labelStat: stats[f])
+      labelStat.reset();
   }
 }
 
@@ -119,7 +110,7 @@ void TextStats::operator += (const TextStats& statsIn)
 {
   for (unsigned f = 0; f < BRIDGE_FORMAT_SIZE; f++)
     for (unsigned l = 0; l < BRIDGE_STATS_NUM_FIELDS; l++)
-        stats[f][l] += statsIn.stats[f][l];
+      stats[f][l] += statsIn.stats[f][l];
 }
 
 
@@ -129,17 +120,13 @@ void TextStats::printDetails(
 {
   assert(label < BRIDGE_STATS_NUM_FIELDS);
 
-  fstr << setw(10) << left << BRIDGE_STATS_NAMES[label] <<
-    setw(6) << right << "count" << "  " <<
-    setw(24) << left << "source" <<
-    left << "example" << endl;
-
   TextStat labelSum;
-  labelSum.reset();
 
+  labelSum.reset();
   for (unsigned f = 0; f < BRIDGE_FORMAT_SIZE; f++)
     labelSum += stats[f][label];
 
+  fstr << labelSum.strHeader(BRIDGE_STATS_NAMES[label]);
   fstr << labelSum.str();
 }
 

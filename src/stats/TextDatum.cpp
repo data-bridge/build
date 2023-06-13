@@ -8,6 +8,7 @@
 
 #include <sstream>
 #include <iomanip>
+#include <filesystem>
 
 #include "TextDatum.h"
 
@@ -27,7 +28,8 @@ void TextDatum::add(
 {
   if (count == 0)
   {
-    source = sourceIn;
+    filesystem::path p(sourceIn);
+    source = p.filename().string();
     example = exampleIn;
   }
   count += countIn;

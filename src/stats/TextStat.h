@@ -44,6 +44,8 @@ class TextStat
 
     size_t last_used() const;
       
+    string strHeader(const string& label) const;
+
     string str() const;
 };
 

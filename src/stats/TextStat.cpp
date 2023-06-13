@@ -8,7 +8,6 @@
 
 #include <sstream>
 #include <iomanip>
-#include <filesystem>
 #include <assert.h>
 
 #include "TextStat.h"
@@ -34,8 +33,7 @@ void TextStat::add(
   const size_t len = example.length();
   assert(len < BRIDGE_STATS_MAX_LENGTH);
 
-  filesystem::path p(source);
-  datum[len].add(p.filename().string(), example);
+  datum[len].add(source, example);
 
   count++;
 }
@@ -47,8 +45,7 @@ void TextStat::add(
 {
   assert(len < BRIDGE_STATS_MAX_LENGTH);
 
-  filesystem::path p(source);
-  datum[len].add(p.filename().string(), "");
+  datum[len].add(source, "");
 
   count++;
 }
@@ -77,6 +74,14 @@ size_t TextStat::last_used() const
       l = i;
 
   return l;
+}
+
+
+string TextStat::strHeader(const string& label) const
+{
+  stringstream ss;
+  ss << setw(10) << left << label << datum[0].strHeader() << "\n";
+  return ss.str();
 }
 
 
