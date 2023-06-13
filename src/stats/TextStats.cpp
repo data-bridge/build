@@ -63,11 +63,7 @@ void TextStats::reset()
       stats[f][l].count = 0;
       stats[f][l].datum.resize(BRIDGE_STATS_MAX_LENGTH);
       for (unsigned i = 0; i < BRIDGE_STATS_MAX_LENGTH; i++)
-      {
-        stats[f][l].datum[i].count = 0;
-        stats[f][l].datum[i].source = "";
-        stats[f][l].datum[i].example = "";
-      }
+        stats[f][l].datum[i].reset();
     }
   }
 }
@@ -108,12 +104,16 @@ void TextStats::add(
   unsigned len = static_cast<unsigned>(text.length());
   assert(len < BRIDGE_STATS_MAX_LENGTH);
 
+  /*
   if (stats[format][lb].datum[len].count == 0)
   {
     stats[format][lb].datum[len].source = basefile(source);
     stats[format][lb].datum[len].example = text;
   }
   stats[format][lb].datum[len].count++;
+  */
+  stats[format][lb].datum[len].add(basefile(source), text);
+
   stats[format][lb].count++;
 }
 
@@ -129,10 +129,14 @@ void TextStats::add(
   assert(lb < BRIDGE_STATS_NUM_FIELDS);
   assert(len < BRIDGE_STATS_MAX_LENGTH);
 
+  stats[format][lb].datum[len].add(basefile(source), "");
+  /*
   if (stats[format][lb].datum[len].count == 0)
     stats[format][lb].datum[len].source = basefile(source);
 
   stats[format][lb].datum[len].count++;
+  */
+
   stats[format][lb].count++;
 }
 
@@ -148,12 +152,15 @@ void TextStats::operator += (const TextStats& statsIn)
         TextDatum &td = stats[f][l].datum[i];
         const TextDatum &tdIn = statsIn.stats[f][l].datum[i];
 
+        td += tdIn;
+        /*
         if (td.count == 0)
         {
           td.source = tdIn.source;
           td.example = tdIn.example;
         }
         td.count += tdIn.count;
+        */
       }
       stats[f][l].count += statsIn.stats[f][l].count;
     }
@@ -175,31 +182,36 @@ void TextStats::printDetails(
   vector<TextDatum> labelSum;
   labelSum.resize(BRIDGE_STATS_MAX_LENGTH);
   for (unsigned i = 0; i < BRIDGE_STATS_MAX_LENGTH; i++)
-    labelSum[i].count = 0;
+    labelSum[i].reset();
+    // labelSum[i].count = 0;
 
 
   for (unsigned f = 0; f < BRIDGE_FORMAT_SIZE; f++)
     for (unsigned i = 0; i < BRIDGE_STATS_MAX_LENGTH; i++)
     {
-      const unsigned c = stats[f][label].datum[i].count;
+      // const unsigned c = stats[f][label].datum[i].count;
+      labelSum[i] += stats[f][label].datum[i];
+      /*
       labelSum[i].count += c;
       if (c)
       {
         labelSum[i].source = stats[f][label].datum[i].source;
         labelSum[i].example = stats[f][label].datum[i].example;
       }
+      */
     }
 
   for (unsigned i = 0; i < BRIDGE_STATS_MAX_LENGTH; i++)
   {
     unsigned j = BRIDGE_STATS_MAX_LENGTH-1-i;
-    if (labelSum[j].count == 0)
-      continue;
+    if (! labelSum[j].empty())
+    // if (labelSum[j].count == 0)
+      // continue;
 
-    fstr << setw(10) << left << j <<
-      setw(6) << right << labelSum[j].count << "  " <<
-      setw(24) << left << labelSum[j].source <<
-      left << labelSum[j].example << endl;
+      fstr << setw(10) << left << j << labelSum[j].str() << endl;
+      // setw(6) << right << labelSum[j].count << "  " <<
+      // setw(24) << left << labelSum[j].source <<
+      // left << labelSum[j].example << endl;
   }
   fstr << "\n";
 }
@@ -242,7 +254,7 @@ void TextStats::print(
       unsigned mf = 0;
       for (unsigned l = 0; l < BRIDGE_STATS_MAX_LENGTH; l++)
       {
-        if (stats[f][lb].datum[l].count)
+        if (! stats[f][lb].datum[l].empty())
           mf = l;
       }
 

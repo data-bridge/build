@@ -16,6 +16,8 @@
 #include <vector>
 #pragma warning(pop)
 
+#include "TextDatum.h"
+
 #include "../bconst.h"
 
 
@@ -25,13 +27,6 @@ using namespace std;
 class TextStats
 {
   private:
-
-    struct TextDatum
-    {
-      unsigned count;
-      string source;
-      string example;
-    };
 
     struct TextStat
     {

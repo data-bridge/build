@@ -1,3 +1,12 @@
+2023-06-13
+./reader -I ../../../bbodata/hands/BBOVG/026000 -R ../../../bbodata/hands/BBOVG/026000 -c -s -q -v 62 > OUT
+Unexpected input order: -1545469952
+(in line 814)
+
+
+
+
+
 Double dummy
 - New kind of trace?  Goes in DDS as well
 
