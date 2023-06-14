@@ -38,6 +38,7 @@ void ValStats::reset()
       for (unsigned s = 0; s < BRIDGE_VAL_SUMM_SIZE; s++)
         stat.count[s] = 0;
     }
+    statsNew[vOrig].reset();
   }
 }
 
@@ -49,6 +50,8 @@ void ValStats::add(
 {
   assert(formatOrig != BRIDGE_FORMAT_LABELS_SIZE);
   assert(formatRef != BRIDGE_FORMAT_LABELS_SIZE);
+
+  statsNew[formatOrig].add(formatRef, prof);
 
   ValStat& current = stats[formatOrig][formatRef];
 
@@ -80,6 +83,7 @@ void ValStats::operator += (const ValStats& statsIn)
 {
   for (unsigned vOrig = 0; vOrig < BRIDGE_FORMAT_LABELS_SIZE; vOrig++)
   {
+    statsNew[vOrig] += statsIn.statsNew[vOrig];
     for (unsigned vRef = 0; vRef < BRIDGE_FORMAT_LABELS_SIZE; vRef++)
     {
       ValStat& current = stats[vOrig][vRef];
@@ -93,7 +97,7 @@ void ValStats::operator += (const ValStats& statsIn)
 }
 
 
-string ValStats::posOrDash(const unsigned u) const
+string ValStats::posOrDash(const size_t u) const
 {
   if (u == 0)
     return "-";
@@ -165,7 +169,7 @@ void ValStats::printSummRow(
 
   fstr << setw(7) << left << header;
   for (auto &g: FORMAT_ACTIVE)
-    fstr << setw(7) << right << posOrDash(stat[g].count[summLabel]);
+    fstr << setw(7) << right << ValStats::posOrDash(stat[g].count[summLabel]);
   fstr << "\n";
 }
 
@@ -201,6 +205,57 @@ void ValStats::print(
     ValStats::printSummRow(fstr, stats[f], "MAJOR", BRIDGE_VAL_MAJOR);
 
     if (ValStats::summRowHasEntries(stats[f], BRIDGE_VAL_ALL))
+      fstr << "\n";
+  }
+}
+
+void ValStats::printNew(
+  ostream& fstr,
+  const bool detailFlag) const
+{
+  fstr << setw(7) << "";
+  for (auto &f: FORMAT_ACTIVE)
+    fstr << setw(7) << right << FORMAT_NAMES[f];
+  fstr << "\n\n";
+
+  for (auto &f: FORMAT_ACTIVE)
+  {
+    fstr << statsNew[f].strCount(FORMAT_NAMES[f], BRIDGE_VAL_ALL);
+
+    if (detailFlag)
+    {
+      for (unsigned v = 0; v < BRIDGE_VAL_TXT_ALL_PASS; v++)
+      {
+        if (statsNew[f].profileHasLabel(v))
+          fstr << statsNew[f].strProfile(v);
+      }
+    }
+
+    fstr << statsNew[f].strCount("MINOR", BRIDGE_VAL_MINOR);
+
+    if (detailFlag)
+    {
+      for (unsigned v =  BRIDGE_VAL_TXT_ALL_PASS; v < BRIDGE_VAL_ERROR; v++)
+      {
+        if (statsNew[f].profileHasLabel(v))
+          fstr << statsNew[f].strProfile(v);
+      }
+    }
+
+    fstr << statsNew[f].strCount("RPBUG", BRIDGE_VAL_PAVLICEK);
+
+    if (detailFlag)
+    {
+      for (unsigned v =  BRIDGE_VAL_ERROR; v < BRIDGE_VAL_SIZE; v++)
+      {
+        if (statsNew[f].profileHasLabel(v))
+          fstr << statsNew[f].strProfile(v);
+      }
+    }
+
+    fstr << statsNew[f].strCount("MAJOR", BRIDGE_VAL_MAJOR);
+
+    if (statsNew[f].countHasLabel(BRIDGE_VAL_ALL))
       fstr << "\n";
   }
 }

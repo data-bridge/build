@@ -17,6 +17,7 @@
 #pragma warning(pop)
 
 #include "../validate/ValProfile.h"
+#include "ValRow.h"
 
 #include "../bconst.h"
 
@@ -28,6 +29,7 @@ class ValStats
 {
   private:
 
+    /*
     enum ValSumm
     {
       BRIDGE_VAL_ALL = 0,
@@ -42,11 +44,14 @@ class ValStats
       ValProfile profile;
       unsigned count[BRIDGE_VAL_SUMM_SIZE];
     };
+    */
 
     ValStat stats[BRIDGE_FORMAT_LABELS_SIZE][BRIDGE_FORMAT_LABELS_SIZE];
 
+    ValRow statsNew[BRIDGE_FORMAT_LABELS_SIZE];
 
-    string posOrDash(const unsigned u) const;
+
+    string posOrDash(const size_t u) const;
 
     bool rowHasEntries(
       const ValStat stat[],
@@ -90,6 +95,10 @@ class ValStats
     void operator += (const ValStats& statsIn);
       
     void print(
+      ostream& fstr,
+      const bool detailFlag = true) const;
+      
+    void printNew(
       ostream& fstr,
       const bool detailFlag = true) const;
 };

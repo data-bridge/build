@@ -70,21 +70,6 @@ const Format FORMAT_INPUT_MAP[] =
 };
 
 
-const vector<Format> FORMAT_ACTIVE =
-{
-  BRIDGE_FORMAT_LIN,
-  BRIDGE_FORMAT_LIN_RP,
-  BRIDGE_FORMAT_LIN_VG,
-  BRIDGE_FORMAT_LIN_TRN,
-  BRIDGE_FORMAT_PBN,
-  BRIDGE_FORMAT_RBN,
-  BRIDGE_FORMAT_RBX,
-  BRIDGE_FORMAT_TXT,
-  BRIDGE_FORMAT_EML,
-  BRIDGE_FORMAT_REC
-};
-
-
 // Useful for write functions.
 
 struct WriteInfo
