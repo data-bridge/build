@@ -32,31 +32,8 @@ void ValRow::add(
   const Format formatRef,
   const ValProfile& prof)
 {
-  // TODO Could be a method of ValStat
   assert(formatRef < BRIDGE_FORMAT_LABELS_SIZE);
-
-  ValStat& current = row[formatRef];
-  bool minorFlag, pavlicekBugFlag, programErrorFlag;
-
-  current.profile.addRange(prof, 0, 
-    BRIDGE_VAL_TXT_ALL_PASS, minorFlag);
-
-  current.profile.addRange(prof, BRIDGE_VAL_TXT_ALL_PASS, 
-    BRIDGE_VAL_ERROR, pavlicekBugFlag);
-
-  current.profile.addRange(prof, BRIDGE_VAL_ERROR, 
-    BRIDGE_VAL_SIZE, programErrorFlag);
-
-  current.count[BRIDGE_VAL_ALL]++;
-
-  if (minorFlag)
-    current.count[BRIDGE_VAL_MINOR]++;
-
-  if (pavlicekBugFlag)
-    current.count[BRIDGE_VAL_PAVLICEK]++;
-
-  if (programErrorFlag)
-    current.count[BRIDGE_VAL_MAJOR]++;
+  row[formatRef].add(prof);
 }
 
 
