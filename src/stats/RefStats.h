@@ -1,95 +1,101 @@
 /* 
    Part of BridgeData.
 
-   Copyright (C) 2016-17 by Soren Hein.
+   Copyright (C) 2016-23 by Soren Hein.
 
    See LICENSE and README.
+*/
+
+/*
+   This class generates a summary of source and reference files
+   (that "edit" the source files), like this:
+
+Source files
+
+Reference                     Files   Refs    Lines  Units  Hands Boards
+------------------------------------------------------------------------
+Sum                             998    597   256062      0  19063  11068
+
+   This counts the actual source files (LIN, PBN etc.)  
+   * Refs is the number of reference files.  
+   * Lines is the total number of lines in the source files.  
+   * Units the number of times that the reference occurs
+     (not relevant for source files).
+   * Hands is the number of hands (so if the board is played twice,
+   * that count as 2).
+   * Boards is the number of boards.
+
+Ref files
+
+Reference                     Files   Refs    Lines  Units  Hands Boards
+ERR_LIN_VG_REPLACE                1      1        1      1     18     10
+ERR_LIN_RS_REPLACE               12     13       13     13     13     13
+...
+    
+   These are the edits/comments in ref files.
+
+   Skips are a special form of edit where entire input files are
+   skipped.
+
+   Noval are files that are not subject to validation.
+
+   Order are files in which the hand ordering is non-standard.
+   I think I may have given up on this and just edited the original
+   LIN files in the few, early cases where this occurred.
 */
 
 
 #ifndef BRIDGE_REFSTATS_H
 #define BRIDGE_REFSTATS_H
 
-#pragma warning(push)
-#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
-#include <iostream>
+#include <vector>
+#include <deque>
 #include <string>
-#pragma warning(pop)
 
-#include "../refconst.h"
-#include "../bconst.h"
+#include "../RefEntry.h"
 
 using namespace std;
+
+enum CommentType: unsigned;
+
+enum RefTables
+{
+  REFSTATS_SOURCE = 0,
+  REFSTATS_REF = 1,
+  REFSTATS_SKIP = 2,
+  REFSTATS_NOVAL = 3,
+  REFSTATS_ORDER = 4,
+  REFSTATS_SIZE = 5
+};
 
 
 class RefStats
 {
   private:
 
-    enum RefTables
-    {
-      REFSTATS_SOURCE = 0,
-      REFSTATS_REF = 1,
-      REFSTATS_SKIP = 2,
-      REFSTATS_NOVAL = 3,
-      REFSTATS_ORDER = 4,
-      REFSTATS_SIZE = 5
-    };
-
     vector<vector<RefEntry>> data;
-    vector<bool> catSeen;
+    vector<deque<bool>> seenComment;
     vector<unsigned> numFiles;
-
-    void resetRefEntry(RefEntry& re) const;
-
-    void incrRefEntry(
-      RefEntry& re,
-      const RefEntry& ref2) const;
-
-    void resetSeen();
-
-    void incr(
-      const RefTables table,
-      const CommentType cat,
-      const RefEntry& count);
 
 
   public:
 
     RefStats();
 
-    ~RefStats();
-
     void reset();
 
-    void logFile(const RefEntry& re);
+    // This is called once per file.
+    void logFile(const RefTables table);
 
-    void logRefFile();
-
-    void logSkip(
-      const CommentType cat,
+    // This may be called multiple times per file.
+    void log(
+      const RefTables table,
+      const CommentType comment,
       const RefEntry& re);
 
-    void logOrder(
-      const CommentType cat,
-      const RefEntry& re);
+    void operator += (const RefStats& rs2);
 
-    void logOrder(
-      const BoardOrder order,
-      const Format format,
-      const RefEntry& re);
-
-    void logNoval(
-      const CommentType cat,
-      const RefEntry& re);
-
-    void logRef(
-      const CommentType cat,
-      RefEntry& re);
-
-    void operator += (const RefStats& rf2);
-
-    void print(ostream& fstr) const;
+    string str() const;
 };
 
 #endif

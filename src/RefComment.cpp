@@ -113,6 +113,7 @@ const vector<TagBundle> TagList =
   {REF_TAGS_RBN_R, "R"}
 };
 
+/*
 struct CommentBundle
 {
   CommentType val;
@@ -470,6 +471,7 @@ const vector<CommentBundle> CommentList =
   {ERR_SIZE, "ERR_SIZE",
     BRIDGE_FORMAT_SIZE, REF_COUNT_SIZE},
 };
+*/
 
 
 static map<string, CommentType> CommentMap;
@@ -906,6 +908,7 @@ RefTag RefComment::str2ref(const string& refstr) const
 }
 
 
+/*
 string RefComment::comment2str(const CommentType c) const
 {
   if (c == ERR_SIZE)
@@ -913,6 +916,7 @@ string RefComment::comment2str(const CommentType c) const
 
   return CommentList[c].name;
 }
+*/
 
 
 bool RefComment::isTag(const string& refstr) const

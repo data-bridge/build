@@ -16,6 +16,7 @@
 #include <vector>
 #pragma warning(pop)
 
+#include "RefCount.h"
 #include "refconst.h"
 
 using namespace std;

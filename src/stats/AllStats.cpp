@@ -68,7 +68,7 @@ void printResults(
   if (options.compareFlag)
     allStats.cstats.print(cout);
   if (options.quoteFlag)
-    allStats.refstats.print(cout);
+    cout << allStats.refstats.str();
 
   allStats.timers.print(options.numThreads);
 }

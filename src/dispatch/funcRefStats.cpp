@@ -51,7 +51,10 @@ void dispatchRefStats(
     RefEntry re;
 
     if (refLines.getHeaderEntry(cat, re))
-      refstats.logFile(re);
+    {
+      refstats.logFile(REFSTATS_SOURCE);
+      refstats.log(REFSTATS_SOURCE, static_cast<CommentType>(0), re);
+    }
     else
       THROW("No header in refLines");
 
@@ -59,37 +62,67 @@ void dispatchRefStats(
     {
       // We might have inferred a non-standard board order,
       // but it was not stated.
-      // re.noRefLines = 1;
       re.setLines(1);
       if (refLines.orderCOCO())
-        refstats.logOrder(ORDER_COCO, format, re);
+      {
+        refstats.logFile(REFSTATS_ORDER);
+        if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
+          refstats.log(REFSTATS_ORDER, ERR_LIN_ORDER_COCO_INFER, re);
+        else if (format == BRIDGE_FORMAT_PBN)
+          refstats.log(REFSTATS_ORDER, ERR_PBN_ORDER_COCO_INFER, re);
+        else if (format == BRIDGE_FORMAT_RBN)
+          refstats.log(REFSTATS_ORDER, ERR_RBN_ORDER_COCO_INFER, re);
+        else if (format == BRIDGE_FORMAT_RBX)
+          refstats.log(REFSTATS_ORDER, ERR_RBX_ORDER_COCO_INFER, re);
+        else
+          THROW("Bad format");
+      }
       else if (refLines.orderOOCC())
-        refstats.logOrder(ORDER_OOCC, format, re);
+      {
+        refstats.logFile(REFSTATS_ORDER);
+        if (FORMAT_INPUT_MAP[format] == BRIDGE_FORMAT_LIN)
+          refstats.log(REFSTATS_ORDER, ERR_LIN_ORDER_OOCC_INFER, re);
+        else if (format == BRIDGE_FORMAT_PBN)
+          refstats.log(REFSTATS_ORDER, ERR_PBN_ORDER_OOCC_INFER, re);
+        else if (format == BRIDGE_FORMAT_RBN)
+          refstats.log(REFSTATS_ORDER, ERR_RBN_ORDER_OOCC_INFER, re);
+        else if (format == BRIDGE_FORMAT_RBX)
+          refstats.log(REFSTATS_ORDER, ERR_RBX_ORDER_OOCC_INFER, re);
+        else
+          THROW("Bad format");
+      }
     }
     else
     {
       // A non-standard board order might have been stated.
       if (refLines.orderCOCO() || refLines.orderOOCC())
-        refstats.logOrder(cat, re);
+      {
+        refstats.logFile(REFSTATS_ORDER);
+        refstats.log(REFSTATS_ORDER, cat, re);
+      }
     }
 
     if (! refLines.hasComments())
       return;
 
-    refstats.logRefFile();
+    refstats.logFile(REFSTATS_REF);
 
     if (refLines.skip())
     {
-      refstats.logSkip(cat, re);
+      refstats.logFile(REFSTATS_SKIP);
+      refstats.log(REFSTATS_SKIP, cat, re);
       return;
     }
     else if (! refLines.validate())
-      refstats.logNoval(cat, re);
+    {
+      refstats.logFile(REFSTATS_NOVAL);
+      refstats.log(REFSTATS_NOVAL, cat, re);
+    }
 
     for (auto &rl: refLines)
     {
       rl.getEntry(cat, re);
-      refstats.logRef(cat, re);
+      refstats.log(REFSTATS_REF, cat, re);
     }
   }
   catch (Bexcept& bex)
