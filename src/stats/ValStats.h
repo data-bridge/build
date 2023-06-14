@@ -1,26 +1,36 @@
 /* 
    Part of BridgeData.
 
-   Copyright (C) 2016-17 by Soren Hein.
+   Copyright (C) 2016-23 by Soren Hein.
 
    See LICENSE and README.
 */
 
+/*
+   This class uses classes ValRow and ValStat.
+   It generates a summary of errors by input and output format
+   as follows:
+
+           LIN LIN-RP LIN-VGLIN-TRN    PBN    RBN    RBX    ...
+LIN        745      -      -      -      -      -      -    ...
+  an        88      -      -      -      -      -      -    ...
+  ...
+  
+   where the columns are reference formats, and the rows are
+   original formats.  The rows are further divided into a couple
+   of groups.
+*/
 
 #ifndef BRIDGE_VALSTATS_H
 #define BRIDGE_VALSTATS_H
 
-#pragma warning(push)
-#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <string>
-#include <iostream>
-#pragma warning(pop)
 
-#include "../validate/ValProfile.h"
 #include "ValRow.h"
 
-#include "../bconst.h"
+class ValProfile;
 
+enum Format: unsigned;
 
 using namespace std;
 
@@ -29,61 +39,16 @@ class ValStats
 {
   private:
 
-    /*
-    enum ValSumm
-    {
-      BRIDGE_VAL_ALL = 0,
-      BRIDGE_VAL_MINOR = 1,
-      BRIDGE_VAL_PAVLICEK = 2,
-      BRIDGE_VAL_MAJOR = 3,
-      BRIDGE_VAL_SUMM_SIZE = 4
-    };
+    ValRow stats[BRIDGE_FORMAT_LABELS_SIZE];
 
-    struct ValStat
-    {
-      ValProfile profile;
-      unsigned count[BRIDGE_VAL_SUMM_SIZE];
-    };
-    */
-
-    ValStat stats[BRIDGE_FORMAT_LABELS_SIZE][BRIDGE_FORMAT_LABELS_SIZE];
-
-    ValRow statsNew[BRIDGE_FORMAT_LABELS_SIZE];
-
-
-    string posOrDash(const size_t u) const;
-
-    bool rowHasEntries(
-      const ValStat stat[],
-      const unsigned label) const;
-
-    bool summRowHasEntries(
-      const ValStat stat[],
-      const unsigned summLabel) const;
-
-    void printRow(
-      ostream& fstr,
-      const ValStat vstat[],
-      const unsigned label) const;
-
-    void printRows(
-      ostream& fstr,
-      const ValStat vstat[],
+    string strDetails(
       const unsigned lower,
-      const unsigned upper) const;
-
-    void printSummRow(
-      ostream& fstr,
-      const ValStat vstat[],
-      const string& header,
-      const ValSumm summLabel) const;
-
+      const unsigned upper,
+      const Format fOrig) const;
 
   public:
 
     ValStats();
-
-    ~ValStats();
 
     void reset();
 
@@ -92,15 +57,9 @@ class ValStats
       const Format formatRef,
       const ValProfile& prof);
 
-    void operator += (const ValStats& statsIn);
+    void operator += (const ValStats& vs2);
       
-    void print(
-      ostream& fstr,
-      const bool detailFlag = true) const;
-      
-    void printNew(
-      ostream& fstr,
-      const bool detailFlag = true) const;
+    string str(const bool detailFlag = true) const;
 };
 
 #endif
