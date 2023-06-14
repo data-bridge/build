@@ -13,7 +13,7 @@
 
 #include "RefStats.h"
 
-#include "../refconst.h"
+#include "../Comment.h"
 #include "../Bexcept.h"
 
 
