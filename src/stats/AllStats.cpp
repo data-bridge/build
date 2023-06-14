@@ -66,7 +66,7 @@ void printResults(
   if (options.statsFlag)
     cout << allStats.tstats.str(options.verboseTextStats);
   if (options.compareFlag)
-    allStats.cstats.print(cout);
+    cout << allStats.cstats.str();
   if (options.quoteFlag)
     cout << allStats.refstats.str();
 

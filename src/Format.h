@@ -10,6 +10,7 @@
 #ifndef BRIDGE_FORMATS_H
 #define BRIDGE_FORMATS_H
 
+#include <vector>
 #include <string>
 
 using namespace std;

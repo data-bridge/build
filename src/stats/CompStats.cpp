@@ -1,19 +1,15 @@
 /* 
    Part of BridgeData.
 
-   Copyright (C) 2016-17 by Soren Hein.
+   Copyright (C) 2016-23 by Soren Hein.
 
    See LICENSE and README.
 */
 
 
-#pragma warning(push)
-#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
-#include <string>
 #include <iomanip>
 #include <sstream>
 #include <assert.h>
-#pragma warning(pop)
 
 #include "CompStats.h"
 
@@ -23,11 +19,6 @@
 CompStats::CompStats()
 {
   CompStats::reset();
-}
-
-
-CompStats::~CompStats()
-{
 }
 
 
@@ -62,9 +53,11 @@ void CompStats::operator += (const CompStats& statsIn)
 }
 
 
-void CompStats::print(ostream& fstr) const
+string CompStats::str() const
 {
-  fstr << setw(8) << left << "format" << 
+  stringstream ss;
+
+  ss << setw(8) << left << "format" << 
     setw(8) << right << "count" << 
     setw(8) << "errors" << endl;
 
@@ -72,11 +65,11 @@ void CompStats::print(ostream& fstr) const
   {
     if (stats[f].count)
     {
-      fstr << setw(8) << left << FORMAT_NAMES[f] <<
+      ss << setw(8) << left << FORMAT_NAMES[f] <<
         setw(8) << right << stats[f].count <<
         setw(8) << posOrDash(stats[f].errors) << endl;
     }
   }
-  fstr << "\n\n";
+  return ss.str() + "\n\n";
 }
 
