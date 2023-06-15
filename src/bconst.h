@@ -1,7 +1,7 @@
 /* 
    Part of BridgeData.
 
-   Copyright (C) 2016-17 by Soren Hein.
+   Copyright (C) 2016-23 by Soren Hein.
 
    See LICENSE and README.
 */
@@ -10,11 +10,8 @@
 #ifndef BRIDGE_CONSTANTS_H
 #define BRIDGE_CONSTANTS_H
 
-#pragma warning(push)
-#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <string>
 #include <vector>
-#pragma warning(pop)
 
 #include "Options.h"
 #include "Format.h"
@@ -31,10 +28,10 @@ using namespace std;
 #define BRIDGE_TRICKS 13
 #define BRIDGE_VULS 4
 
-#define Max(x, y) (((x) >= (y)) ? (x) : (y))
-#define Min(x, y) (((x) <= (y)) ? (x) : (y))
+// #define Max(x, y) (((x) >= (y)) ? (x) : (y))
+// #define Min(x, y) (((x) <= (y)) ? (x) : (y))
 
-#define BIGNUM 9999999
+// #define BIGNUM 9999999
 
 
 const string FORMAT_EXTENSIONS[BRIDGE_FORMAT_SIZE] =
@@ -72,6 +69,7 @@ const Format FORMAT_INPUT_MAP[] =
 
 // Useful for write functions.
 
+/*
 struct WriteInfo
 {
   unsigned bno;
@@ -87,113 +85,6 @@ struct WriteInfo
 
   int score1;
   int score2;
-};
-
-
-/*
-struct FileOutputTask
-{
-  string fileOutput;
-  Format formatOutput;
-
-  bool refFlag;
-  string fileRef;
-};
-
-
-struct FileTask
-{
-  string fileInput;
-  Format formatInput;
-  bool removeOutputFlag;
-
-  vector<FileOutputTask> taskList;
-};
-*/
-
-/*
-enum DDInfoType
-{
-  BRIDGE_DD_INFO_SOLVE = 0,
-  BRIDGE_DD_INFO_TRACE = 1,
-  BRIDGE_DD_INFO_SIZE = 2
-};
-
-const string DDInfoNames[]
-{
-  "tableaux.log",
-  "traces.log"
-};
-*/
-
-// This is used in dispatch.
-
-/*
-struct Counts
-{
-  unsigned segno;
-  unsigned bno;
-  unsigned prevno;
-  bool openFlag;
-};
-
-enum BoardOrder: unsigned
-{
-  ORDER_OCOC = 0,
-  ORDER_COCO = 1,
-  ORDER_OOCC = 2,
-  ORDER_GENERAL = 3
-};
-
-const string orderNames[] =
-{
-  "OCOC",
-  "COCO",
-  "OOCC",
-  "General"
-};
-*/
-
-
-// This is used for header-level LIN data.
-
-/*
-struct LINInstData // TODO: Can later be called LINData
-{
-  string contract;
-  string players[4];
-  string mp;
-};
-
-struct LINData
-{
-  LINInstData data[2];
-  string no;
-};
-*/
-
-
-// This is used in Buffer and validate.
-
-/*
-enum LineType
-{
-  BRIDGE_BUFFER_STRUCTURED = 0,
-  BRIDGE_BUFFER_EMPTY = 1,
-  BRIDGE_BUFFER_DASHES = 2,
-  BRIDGE_BUFFER_COMMENT = 3,
-  BRIDGE_BUFFER_GENERAL = 4,
-  BRIDGE_BUFFER_SIZE = 5
-};
-
-struct LineData
-{
-  string line;
-  unsigned len;
-  unsigned no;
-  LineType type;
-  string label;
-  string value;
 };
 */
 
@@ -346,23 +237,6 @@ enum Room
   BRIDGE_ROOM_OPEN = 0,
   BRIDGE_ROOM_CLOSED = 1,
   BRIDGE_ROOM_UNDEFINED = 2
-};
-
-const string DATE_MONTHS[] =
-{
-  "None",
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December"
 };
 
 #endif

@@ -32,7 +32,7 @@ void Segment::reset()
   len = 0;
   boards.clear();
 
-  bmin = BIGNUM;
+  bmin = numeric_limits<unsigned>::max();
   bmax = 0;
 
   title = ""; 
@@ -242,7 +242,7 @@ void Segment::setTitleLIN(
     
   // Board numbers (3-4).
   if (v[3] == "")
-    bmin = BIGNUM;
+    bmin = numeric_limits<unsigned>::max();
   else if (! str2upos(v[3], bmin))
     THROW("Not a board number");
 
@@ -417,8 +417,8 @@ void Segment::setNumber(
 unsigned Segment::firstBoardNumber() const
 {
   if (len == 0)
-    return BIGNUM;
-  else if (bmin == BIGNUM)
+    return numeric_limits<unsigned>::max();
+  else if (bmin == numeric_limits<unsigned>::max())
     return boards.front().extNo;
   else
     return bmin;
@@ -428,7 +428,7 @@ unsigned Segment::firstBoardNumber() const
 unsigned Segment::lastRealBoardNumber() const
 {
   if (len == 0)
-    return BIGNUM;
+    return numeric_limits<unsigned>::max();
   else
     return boards.back().extNo;
 }

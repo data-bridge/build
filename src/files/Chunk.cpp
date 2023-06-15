@@ -88,7 +88,7 @@ void Chunk::reset()
   {
     chunk[i].reserve(128);
     chunk[i] = "";
-    lineno[i] = BIGNUM;
+    lineno[i] = numeric_limits<unsigned>::max();
   }
 }
 
@@ -108,7 +108,7 @@ void Chunk::reset(const ChunkRange range)
   for (unsigned i = 0; i < end; i++)
   {
     chunk[i] = "";
-    lineno[i] = BIGNUM;
+    lineno[i] = numeric_limits<unsigned>::max();
   }
 }  
 
@@ -379,11 +379,11 @@ string Chunk::str() const
 
 string Chunk::strRange() const
 {
-  unsigned lo = BIGNUM;
+  unsigned lo = numeric_limits<unsigned>::max();
   unsigned hi = 0;
   for (unsigned i = 0; i < BRIDGE_FORMAT_LABELS_SIZE; i++)
   {
-    if (lineno[i] == BIGNUM)
+    if (lineno[i] == numeric_limits<unsigned>::max())
       continue;
     if (lineno[i] > hi)
       hi = lineno[i];

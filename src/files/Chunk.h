@@ -55,7 +55,7 @@ class Chunk
     void set(
       const Label label,
       const string& value,
-      const unsigned lno = BIGNUM);
+      const unsigned lno = numeric_limits<unsigned>::max());
 
     void append(
       const Label label,

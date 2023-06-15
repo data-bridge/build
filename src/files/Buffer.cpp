@@ -436,7 +436,7 @@ bool Buffer::fix(const RefLines& refLines)
   for (auto &rl: refLines)
   {
     const unsigned i = Buffer::getInternalNumber(rl.lineno());
-    if (i == BIGNUM)
+    if (i == numeric_limits<unsigned>::max())
       THROW("Cannot find ref line number " + to_string(rl.lineno()));
     LineData& ld = lines[i];
 
@@ -787,7 +787,7 @@ unsigned Buffer::previousHeaderStart() const
 unsigned Buffer::firstRS() const
 {
   if (format != BRIDGE_FORMAT_LIN_VG)
-    return BIGNUM;
+    return numeric_limits<unsigned>::max();
 
   for (unsigned i = 0; i < len; i++)
   {
@@ -796,14 +796,14 @@ unsigned Buffer::firstRS() const
       return lines[i].no;
   }
 
-  return BIGNUM;
+  return numeric_limits<unsigned>::max();
 }
 
 
 unsigned Buffer::getInternalNumber(const unsigned no) const
 {
   if (no == 0 || no > lines[len-1].no)
-    return BIGNUM;
+    return numeric_limits<unsigned>::max();
   
   unsigned i = no-1;
   if (i >= len)
@@ -818,7 +818,7 @@ unsigned Buffer::getInternalNumber(const unsigned no) const
     while (i >= 1 && lines[i-1].no != no)
       i--;
     if (i == 0)
-      return BIGNUM;
+      return numeric_limits<unsigned>::max();
     else
       return i-1;
   }
@@ -828,7 +828,7 @@ unsigned Buffer::getInternalNumber(const unsigned no) const
     while (i <= len && lines[i-1].no != no)
       i++;
     if (i > len)
-      return BIGNUM;
+      return numeric_limits<unsigned>::max();
     else
       return i-1;
   }
@@ -841,7 +841,7 @@ string Buffer::getLine(const unsigned no) const
     return "";
 
   const unsigned intNo = Buffer::getInternalNumber(no);
-  if (intNo == BIGNUM)
+  if (intNo == numeric_limits<unsigned>::max())
     return "";
   else
     return lines[intNo].line;

@@ -469,7 +469,7 @@ string Instance::strAuction(const Format format) const
       Player pp = PLAYER_DDS_TO_TXT[p];
       lengths[p] = static_cast<int>
         (players.strPlayer(pp, format).length());
-      lengths[p] = Max(12, lengths[p]+1);
+      lengths[p] = max(12, lengths[p]+1);
     }
     return auction.str(format, lengths);
   }

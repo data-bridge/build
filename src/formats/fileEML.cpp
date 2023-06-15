@@ -14,6 +14,7 @@
 
 #include "fileEML.h"
 #include "Canvas.h"
+#include "WriteInfo.h"
 
 #include "../records/Segment.h"
 #include "../records/Board.h"
@@ -444,10 +445,10 @@ void writeEMLBoardLevel(
   // Height of auction determines dimensions.
   // It seems we leave out the play if that makes the canvas too large.
   const unsigned as = static_cast<unsigned>(auction.size());
-  const unsigned a = Max(4, as);
+  const unsigned a = max(4u, as);
   const unsigned alstart = (a <= 6 ? 14 : a+8);
   bool const playFlag = (play[0].size() > 2 && alstart < 19 ? true : false);
-  const unsigned clen = (playFlag ? alstart + 5 : Max(18, as+6));
+  const unsigned clen = (playFlag ? alstart + 5 : max(18u, as+6));
   const unsigned acstart = (play[0].length() > 38 ? 39u : 42u);
 
   Canvas canvas;

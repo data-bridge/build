@@ -10,6 +10,7 @@
 #include <unordered_map>
 
 #include "filePBN.h"
+#include "WriteInfo.h"
 
 #include "../records/Segment.h"
 #include "../records/Board.h"

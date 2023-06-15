@@ -18,6 +18,23 @@
 #include "../handling/Bexcept.h"
 #include "../handling/Bdiff.h"
 
+const string DATE_MONTHS[] =
+{
+  "None",
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December"
+};
+
 
 Date::Date()
 {

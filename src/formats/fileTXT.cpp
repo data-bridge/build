@@ -11,9 +11,14 @@
 #include <regex>
 
 #include "fileTXT.h"
+#include "WriteInfo.h"
 #include "Canvas.h"
 
 #include "../records/Segment.h"
+
+#include "../files/Buffer.h"
+#include "../files/Chunk.h"
+#include "../files/LineData.h"
 
 #include "../parse.h"
 
@@ -125,7 +130,7 @@ static void getTXTCanvasOffset(
   string st;
   if (readAllWordsOverlong(canvas[aline], n, n+11, st))
   {
-    n += static_cast<unsigned>(Max(12, st.length()+1));
+    n += max(12u, static_cast<unsigned>(st.length()+1));
     chunk.set(BRIDGE_FORMAT_WEST, st);
   }
   else
@@ -133,7 +138,7 @@ static void getTXTCanvasOffset(
 
   if (readAllWordsOverlong(canvas[aline], n, n+11, st))
   {
-    n += static_cast<unsigned>(Max(12, st.length()+1));
+    n += max(12u, static_cast<unsigned>(st.length()+1));
     chunk.set(BRIDGE_FORMAT_NORTH, st);
   }
   else
@@ -141,7 +146,7 @@ static void getTXTCanvasOffset(
 
   if (readAllWordsOverlong(canvas[aline], n, n+11, st))
   {
-    n += static_cast<unsigned>(Max(12, st.length()+1));
+    n += max(12u, static_cast<unsigned>(st.length()+1));
     chunk.set(BRIDGE_FORMAT_EAST, st);
   }
   else

@@ -8,6 +8,7 @@
 
 
 #include "fileRBN.h"
+#include "WriteInfo.h"
 
 #include "../records/Segment.h"
 

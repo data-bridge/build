@@ -12,7 +12,7 @@
 
 #include <string>
 
-#include "../refconst.h"
+#include "refconst.h"
 
 using namespace std;
 

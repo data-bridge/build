@@ -13,8 +13,8 @@
 #include <vector>
 #include <string>
 
-#include "Format.h"
-#include "Comment.h"
+#include "../Format.h"
+#include "../Comment.h"
 
 using namespace std;
 

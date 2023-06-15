@@ -55,7 +55,8 @@ void makeInstanceList(
 {
   unsigned firstBno = segment.firstBoardNumber();
   unsigned lastBno = segment.lastRealBoardNumber();
-  if (firstBno == BIGNUM || lastBno == BIGNUM)
+  if (firstBno == numeric_limits<unsigned>::max() || 
+      lastBno == numeric_limits<unsigned>::max())
     THROW("Bad segment board range: " + to_string(firstBno) +
       " to " + to_string(lastBno));
 

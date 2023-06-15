@@ -22,6 +22,9 @@
 #include "../formats/fileTXT.h"
 #include "../formats/fileEML.h"
 #include "../formats/fileREC.h"
+#include "../formats/writeInfo.h"
+
+#include "Order.h"
 
 #include "../parse.h"
 

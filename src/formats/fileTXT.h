@@ -12,18 +12,15 @@
 #include <string>
 #include <vector>
 
-#include "../files/Buffer.h"
-#include "../files/Chunk.h"
+class Buffer;
+class Chunk;
+class Segment;
+class Board;
+struct WriteInfo;
 
 enum Format: unsigned;
 
-// #include "../bconst.h"
-
 using namespace std;
-
-class Group;
-class Segment;
-class Board;
 
 
 void setTXTTables();

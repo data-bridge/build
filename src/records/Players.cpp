@@ -391,7 +391,7 @@ string Players::strTXT() const
   {
     const unsigned pTXT = PLAYER_DDS_TO_TXT[p];
     const unsigned l = 1u + 
-      static_cast<unsigned>(Max(11, players[pTXT].length()));
+      max(11u, static_cast<unsigned>(players[pTXT].length()));
     ss << setw(static_cast<int>(l)) << left << players[pTXT];
   }
 

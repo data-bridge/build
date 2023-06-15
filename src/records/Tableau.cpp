@@ -583,7 +583,7 @@ bool Tableau::getPar(
 
     if (down <= target)
     {
-      bestDown = Max(bestDown, down);
+      bestDown = max(bestDown, down);
       if (sacFound)
       {
         // Declarer will never get a higher sacrifice by bidding
@@ -600,7 +600,7 @@ bool Tableau::getPar(
     }
     else
     {
-      bestPlus = Max(bestPlus, lists[n].score);
+      bestPlus = max(bestPlus, lists[n].score);
       type[n] = 1;
       sacGap[n] = static_cast<int>(target - down);
     }
@@ -681,7 +681,7 @@ void Tableau::surveyScores(
     {
       ListTableau * slist = &list[side][dno];
       const unsigned * t = table[ DENOM_PAR_TO_DDS[dno] ];
-      const unsigned best = Max(t[side], t[side+2]);
+      const unsigned best = max(t[side], t[side+2]);
 
       if (best < 7)
       {
@@ -703,10 +703,10 @@ void Tableau::surveyScores(
       else if (slist->score == sside->dearestScore)
       {
         /* The lowest such, e.g. 3NT and 5C. */
-        sside->dearestMakingNo = Min(sside->dearestMakingNo, slist->no);
+        sside->dearestMakingNo = min(sside->dearestMakingNo, slist->no);
       }
 
-      sside->highestMakingNo = Max(sside->highestMakingNo, slist->no);
+      sside->highestMakingNo = max(sside->highestMakingNo, slist->no);
     }
   }
 
@@ -793,12 +793,12 @@ void Tableau::bestSacrifice(
 {
   const unsigned other = 1 - side;
   const ListTableau * sacrList = slist[other];
-  bestDown = BIGNUM;
+  bestDown = numeric_limits<unsigned>::max();
 
   for (unsigned eno = 0; eno < BRIDGE_DENOMS; eno++)
   {
     ListTableau sacr = sacrList[eno];
-    unsigned down = BIGNUM;
+    unsigned down = numeric_limits<unsigned>::max();
 
     if (eno == dno)
     {
@@ -817,20 +817,20 @@ void Tableau::bestSacrifice(
         else
         {
           unsigned local = diff + incrFlag;
-	  down = Min(down, local);
+	  down = min(down, local);
         }
       }
       if (sacr.no + 5 * down > 35) 
-        down = BIGNUM;
+        down = numeric_limits<unsigned>::max();
     }
     else
     {
       down = (no - sacr.no + 4) / 5;
       if (sacr.no + 5 * down > 35) 
-        down = BIGNUM;
+        down = numeric_limits<unsigned>::max();
     }
     sacrTable[dno][eno] = down;
-    bestDown = Min(bestDown, down);
+    bestDown = min(bestDown, down);
   }
 }
 
@@ -861,7 +861,7 @@ void Tableau::reduceContract(
   // is a bad sacrifice against 2M=, while 2m*-1 would be a good
   // sacrifice against 1M+1. */
   unsigned noSacLevel = no + 5 * static_cast<unsigned>(sacGap + 1);
-  unsigned noNew = Max(noSacLevel, flr);
+  unsigned noNew = max(noSacLevel, flr);
   plus = (no - noNew) / 5;
   no = noNew;
 }
@@ -971,7 +971,7 @@ bool Tableau::addContract(
 
   const unsigned ta = table[denom][side];
   const unsigned tb = table[denom][side + 2];
-  const unsigned tricks = Max(ta, tb);
+  const unsigned tricks = max(ta, tb);
 
   if (ta == tb)
     declarer = (side == 0 ? BRIDGE_NORTH_SOUTH : BRIDGE_EAST_WEST);

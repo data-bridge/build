@@ -12,6 +12,7 @@
 #include <regex>
 
 #include "fileREC.h"
+#include "WriteInfo.h"
 #include "Canvas.h"
 
 #include "../records/Segment.h"

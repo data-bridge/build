@@ -43,10 +43,10 @@ void Sheet::resetHeader()
   header.lineRS.clear();
   header.indexmin.clear();
 
-  header.lineCount = BIGNUM;
+  header.lineCount = numeric_limits<unsigned>::max();
 
   bmin = 0;
-  bmax = BIGNUM;
+  bmax = numeric_limits<unsigned>::max();
 }
 
 
@@ -54,9 +54,9 @@ void Sheet::resetHand(SheetHandData& hd)
 {
   hd.label = "";
   hd.roomQX = "";
-  hd.numberQX = BIGNUM;
-  hd.linenoQX = BIGNUM;
-  hd.linenoMC = BIGNUM;
+  hd.numberQX = numeric_limits<unsigned>::max();
+  hd.linenoQX = numeric_limits<unsigned>::max();
+  hd.linenoMC = numeric_limits<unsigned>::max();
   hd.lineMC = "";
   hd.claim = "";
   hd.hand.reset();
@@ -91,7 +91,7 @@ void Sheet::parseVG(const string& value)
       bmin = u;
   }
   else
-    bmin = BIGNUM;
+    bmin = numeric_limits<unsigned>::max();
 
   if (tokens[4] != "" && str2unsigned(tokens[4], u))
   {
@@ -99,7 +99,7 @@ void Sheet::parseVG(const string& value)
     bmax = u;
   }
   else
-    bmax = BIGNUM;
+    bmax = numeric_limits<unsigned>::max();
 }
 
 
@@ -139,7 +139,7 @@ void Sheet::parseBN(
     if (str2unsigned(tokens[i], u))
       blist.push_back(u);
     else
-      blist.push_back(BIGNUM);
+      blist.push_back(numeric_limits<unsigned>::max());
   }
 }
 
@@ -357,7 +357,7 @@ unsigned Sheet::refLineNoToHandNo(const unsigned lineNo) const
 {
   const size_t l = hands.size();
   if (lineNo < hands[0].linenoQX)
-    return BIGNUM; // Header
+    return numeric_limits<unsigned>::max(); // Header
 
   for (size_t i = 0; i < l-1; i++)
   {
@@ -368,7 +368,7 @@ unsigned Sheet::refLineNoToHandNo(const unsigned lineNo) const
   if (lineNo >= hands[l-1].linenoQX)
     return static_cast<unsigned>(l-1);
   else
-    return BIGNUM;
+    return numeric_limits<unsigned>::max();
 }
 
 
@@ -387,7 +387,8 @@ void Sheet::parseRefs()
     const unsigned handNoLast = (rl.rangeCount() <= 1 ?  handNoFirst : 
       Sheet::refLineNoToHandNo(rl.lineno() + rl.rangeCount() - 1));
 
-    if (handNoFirst == BIGNUM || handNoLast == BIGNUM)
+    if (handNoFirst == numeric_limits<unsigned>::max() || 
+        handNoLast == numeric_limits<unsigned>::max())
       continue;
 
     for (unsigned hno = handNoFirst; hno <= handNoLast; hno++)
@@ -440,7 +441,7 @@ unsigned Sheet::findHandNo(const string& label) const
     if (hands[i].label == label)
       return i;
   }
-  return BIGNUM;
+  return numeric_limits<unsigned>::max();
 }
 
 
@@ -481,7 +482,7 @@ string Sheet::strHand(
   ss << ho.hand.strNotes();
   ss << ho.hand.strChat();
 
-  if (index != BIGNUM)
+  if (index != numeric_limits<unsigned>::max())
   {
     const size_t l = hands.size();
     if (index < l-1)
@@ -657,7 +658,7 @@ string Sheet::suggestTricks(
   ss << ho.hand.strContractTag() << "(1,1,1)}\n";
 
   const string tricksDiff = ho.hand.tricksAlt();
-  if (tricksDiff != "Y" && ho.linenoMC != BIGNUM)
+  if (tricksDiff != "Y" && ho.linenoMC != numeric_limits<unsigned>::max())
   {
     // Play was completed, so offer mc.
     const unsigned mcno = Sheet::tagNo(ho.lineMC, "mc");

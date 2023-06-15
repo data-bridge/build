@@ -15,7 +15,7 @@
 
 #include "RefCount.h"
 
-#include "../refconst.h"
+#include "refconst.h"
 
 using namespace std;
 

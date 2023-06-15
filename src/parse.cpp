@@ -737,7 +737,7 @@ bool readAllWords(
   if (l == 0 || l < startPos || text.at(startPos) == ' ')
     return false;
 
-  unsigned pos = Min(l-1, stopPosInclusive);
+  unsigned pos = min(l-1, stopPosInclusive);
   while (pos > startPos && text.at(pos) == ' ')
     pos--;
   
@@ -769,7 +769,7 @@ bool readAllWordsOverlong(
     return false;
 
   // Spill over end until end of a word is reached.
-  unsigned pos = Min(l-1, stopPosInclusive);
+  unsigned pos = min(l-1, stopPosInclusive);
   while (pos < l && text.at(pos) != ' ')
     pos++;
 

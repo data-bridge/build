@@ -19,6 +19,7 @@
 
 #include "../records/Group.h"
 
+#include "../files/Buffer.h"
 #include "../files/Chunk.h"
 
 #include "../edits/RefLines.h"
