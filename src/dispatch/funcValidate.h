@@ -1,7 +1,7 @@
 /* 
    Part of BridgeData.
 
-   Copyright (C) 2016-17 by Soren Hein.
+   Copyright (C) 2016-23 by Soren Hein.
 
    See LICENSE and README.
 */
@@ -10,9 +10,13 @@
 #ifndef BRIDGE_FUNCVALIDATE_H
 #define BRIDGE_FUNCVALIDATE_H
 
-class ValStats;
+#include <string>
+#include <iostream>
 
-#include "../bconst.h"
+struct FileTask;
+struct FileOutputTask;
+struct Options;
+class ValStats;
 
 using namespace std;
 

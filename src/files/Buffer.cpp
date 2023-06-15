@@ -1,14 +1,12 @@
 /* 
    Part of BridgeData.
 
-   Copyright (C) 2016-17 by Soren Hein.
+   Copyright (C) 2016-23 by Soren Hein.
 
    See LICENSE and README.
 */
 
 
-#pragma warning(push)
-#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -18,7 +16,6 @@
 #include <io.h>
 #include <fcntl.h>
 #include <cstdint>
-#pragma warning(pop)
 
 #if defined(__CYGWIN__)
   #include <unistd.h>
@@ -26,11 +23,11 @@
 
 #include "Buffer.h"
 
-#include "edits/RefLines.h"
+#include "../edits/RefLines.h"
 
-#include "parse.h"
+#include "../parse.h"
 
-#include "handling/Bexcept.h"
+#include "../handling/Bexcept.h"
 
 #define CHUNK_SIZE 1024
 
@@ -38,11 +35,6 @@
 Buffer::Buffer()
 {
   Buffer::reset();
-}
-
-
-Buffer::~Buffer()
-{
 }
 
 
@@ -229,7 +221,8 @@ void Buffer::classify(LineData& ld)
     ld.type = BRIDGE_BUFFER_EMPTY;
     return;
   }
-  else if ((format == BRIDGE_FORMAT_LIN || format == BRIDGE_FORMAT_LIN_TRN) &&
+  else if ((format == BRIDGE_FORMAT_LIN || 
+      format == BRIDGE_FORMAT_LIN_TRN) &&
       ld.len >= 17 && ld.len <= 23 &&
       ld.line.substr(0, 3) == "qx|")
   {

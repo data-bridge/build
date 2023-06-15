@@ -1,7 +1,7 @@
 /* 
    Part of BridgeData.
 
-   Copyright (C) 2016-17 by Soren Hein.
+   Copyright (C) 2016-23 by Soren Hein.
 
    See LICENSE and README.
 */
@@ -10,16 +10,17 @@
 #ifndef BRIDGE_FILES_H
 #define BRIDGE_FILES_H
 
-#pragma warning(push)
-#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <string>
 #include <vector>
 #include <map>
-#pragma warning(pop)
 
-#include "analysis/DDInfo.h"
+#include "FileTask.h"
 
-#include "bconst.h"
+#include "../Format.h"
+
+#include "../analysis/DDInfo.h"
+
+struct Options;
 
 using namespace std;
 
@@ -71,8 +72,6 @@ class Files
   public:
 
     Files();
-
-    ~Files();
 
     void reset();
 

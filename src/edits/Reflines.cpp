@@ -16,7 +16,8 @@
 
 #include "../dispatch/Order.h"
 
-#include "../Buffer.h"
+#include "../files/Buffer.h"
+
 #include "../parse.h"
 
 #include "../handling/Bexcept.h"

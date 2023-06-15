@@ -95,5 +95,6 @@ int Term::limit2() const
 
 string Term::str() const
 {
+  return "";
 }
 

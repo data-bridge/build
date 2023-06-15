@@ -12,7 +12,7 @@
 #include "funcRead.h"
 #include "Order.h"
 
-#include "../Buffer.h"
+#include "../files/Buffer.h"
 
 #include "../records/Group.h"
 

@@ -7,15 +7,13 @@
 */
 
 
-#pragma warning(push)
-#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <iomanip>
 #include <array>
 #include <sstream>
 #include <fstream>
-#pragma warning(pop)
 
-#include "../Files.h"
+#include "../files/Files.h"
+
 #include "../parse.h"
 
 #include "../records/Group.h"

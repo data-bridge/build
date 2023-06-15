@@ -7,18 +7,15 @@
 */
 
 
-#pragma warning(push)
-#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <unordered_map>
-#pragma warning(pop)
 
 #include "filePBN.h"
 
 #include "../records/Segment.h"
 #include "../records/Board.h"
 
-#include "../Buffer.h"
-#include "../Chunk.h"
+#include "../files/Buffer.h"
+#include "../files/Chunk.h"
 
 #include "../handling/Bexcept.h"
 

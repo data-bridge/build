@@ -1,32 +1,21 @@
 /* 
    Part of BridgeData.
 
-   Copyright (C) 2016-17 by Soren Hein.
+   Copyright (C) 2016-23 by Soren Hein.
 
    See LICENSE and README.
 */
 
 
-#pragma warning(push)
-#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <iostream>
 #include <fstream>
 #include <filesystem>
 #include <regex>
-
-
-#if defined(_WIN32) && defined(__MINGW32__)
-  #include "mingw.thread.h"
-  #include "mingw.mutex.h"
-#else
-  #include <thread>
-  #include <mutex>
-#endif
-
-#pragma warning(pop)
+#include <mutex>
 
 #include "Files.h"
-#include "parse.h"
+
+#include "../parse.h"
 
 static mutex mtx;
 
@@ -34,11 +23,6 @@ static mutex mtx;
 Files::Files()
 {
   Files::reset();
-}
-
-
-Files::~Files()
-{
 }
 
 

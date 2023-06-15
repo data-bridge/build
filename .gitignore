@@ -39,3 +39,7 @@
 *.ipch
 *.json
 *.sqlite
+*.vsidx
+*.lock
+*.bin
+*.wsuo

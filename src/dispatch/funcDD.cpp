@@ -1,27 +1,24 @@
 /* 
    Part of BridgeData.
 
-   Copyright (C) 2016-17 by Soren Hein.
+   Copyright (C) 2016-23 by Soren Hein.
 
    See LICENSE and README.
 */
 
 
-#pragma warning(push)
-#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <iomanip>
 #include <array>
 #include <sstream>
 #include <fstream>
-#pragma warning(pop)
 
-#include "../Files.h"
+#include "../files/Files.h"
+
 #include "../parse.h"
 
 #include "../dll.h"
 
 #include "../records/Group.h"
-
 
 #include "../handling/Bexcept.h"
 

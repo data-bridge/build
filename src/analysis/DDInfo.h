@@ -19,6 +19,19 @@ using namespace std;
 
 typedef map<string, string> CaseResults;
 
+enum DDInfoType
+{
+  BRIDGE_DD_INFO_SOLVE = 0,
+  BRIDGE_DD_INFO_TRACE = 1,
+  BRIDGE_DD_INFO_SIZE = 2
+};
+
+const string DDInfoNames[]
+{
+  "tableaux.log",
+  "traces.log"
+};
+
 
 class DDInfo
 {

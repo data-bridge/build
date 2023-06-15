@@ -15,7 +15,8 @@
 #include "Segment.h"
 #include "Sheet.h"
 
-#include "../Buffer.h"
+#include "../files/Buffer.h"
+
 #include "../parse.h"
 
 #include "../analysis/ddsIF.h"

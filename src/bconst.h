@@ -90,6 +90,7 @@ struct WriteInfo
 };
 
 
+/*
 struct FileOutputTask
 {
   string fileOutput;
@@ -108,7 +109,9 @@ struct FileTask
 
   vector<FileOutputTask> taskList;
 };
+*/
 
+/*
 enum DDInfoType
 {
   BRIDGE_DD_INFO_SOLVE = 0,
@@ -121,7 +124,7 @@ const string DDInfoNames[]
   "tableaux.log",
   "traces.log"
 };
-
+*/
 
 // This is used in dispatch.
 
@@ -172,6 +175,7 @@ struct LINData
 
 // This is used in Buffer and validate.
 
+/*
 enum LineType
 {
   BRIDGE_BUFFER_STRUCTURED = 0,
@@ -191,6 +195,7 @@ struct LineData
   string label;
   string value;
 };
+*/
 
 
 // This is the same encoding as in DDS.

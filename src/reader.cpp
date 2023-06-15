@@ -1,30 +1,23 @@
 /* 
    Part of BridgeData.
 
-   Copyright (C) 2016-17 by Soren Hein.
+   Copyright (C) 2016-23 by Soren Hein.
 
    See LICENSE and README.
 */
 
 
-#pragma warning(push)
-#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <iostream>
-
-#if defined(_WIN32) && defined(__MINGW32__)
-  #include "mingw.thread.h"
-#else
-  #include <thread>
-#endif
-#pragma warning(pop)
+#include <thread>
 
 #include "args.h"
-#include "Files.h"
+
+#include "files/Files.h"
+
+#include "dispatch/dispatch.h"
 
 #include "stats/AllStats.h"
 #include "stats/Timer.h"
-
-#include "dispatch/dispatch.h"
 
 using namespace std;
 

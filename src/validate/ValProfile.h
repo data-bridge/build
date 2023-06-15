@@ -1,7 +1,7 @@
 /* 
    Part of BridgeData.
 
-   Copyright (C) 2016-17 by Soren Hein.
+   Copyright (C) 2016-23 by Soren Hein.
 
    See LICENSE and README.
 */
@@ -10,14 +10,11 @@
 #ifndef BRIDGE_VALPROF_H
 #define BRIDGE_VALPROF_H
 
-#pragma warning(push)
-#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <string>
 #include <iostream>
 #include <vector>
-#pragma warning(pop)
 
-#include "../bconst.h"
+struct LineData;
 
 using namespace std;
 
@@ -163,8 +160,6 @@ class ValProfile
   public:
 
     ValProfile();
-
-    ~ValProfile();
 
     void reset();
 

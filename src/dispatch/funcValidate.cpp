@@ -1,7 +1,7 @@
 /* 
    Part of BridgeData.
 
-   Copyright (C) 2016-17 by Soren Hein.
+   Copyright (C) 2016-23 by Soren Hein.
 
    See LICENSE and README.
 */
@@ -15,6 +15,8 @@
 #include "funcValidate.h"
 
 #include "../validate/validate.h"
+
+#include "../files/FileTask.h"
 
 #include "../stats/ValStats.h"
 

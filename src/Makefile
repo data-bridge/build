@@ -1,7 +1,7 @@
 EXPORTER	= Exports.def
 
-INCL_SOURCE	= Makefiles/sources.txt
-INCL_DEPENDS	= Makefiles/depends_obj.txt
+INCL_SOURCE	= Makefiles/sources
+INCL_DEPENDS	= Makefiles/depends_obj
 
 DLIB		= dds.lib
 
@@ -31,7 +31,8 @@ WARN_FLAGS      =               \
         /wd5045                 \
         /WX
 
-CC_FLAGS_VS     = /O2 /Oi /Ot /Oy /GL /Zi /EHsc /std:c++17
+CC_FLAGS_VS     = /O2 /Oi /Ot /Oy /Zi /EHsc /std:c++17
+# CC_FLAGS_VS     = /O2 /Oi /Ot /Oy /GL /Zi /EHsc /std:c++17
 # CC_FLAGS_VS     = /O2 /Oi /Ot /Oy /GL /Zi /EHa /DEBUG
 CC_FLAGS_DEBUG  = /DEBUG
 
@@ -53,7 +54,9 @@ OBJ_FILES 	= $(subst .cpp,.obj,$(SOURCE_FILES))
 # Linking directly.
 
 reader:	$(OBJ_FILES)
-	link /LTCG $(LD_FLAGS) $(OBJ_FILES) $(DLIB) /out:$(TEST).exe
+	link $(LD_FLAGS) $(OBJ_FILES) $(DLIB) /out:$(TEST).exe
+
+# link /LTCG $(LD_FLAGS) $(OBJ_FILES) $(DLIB) /out:$(TEST).exe
 
 %.obj:	%.cpp
 	$(CC) $(CC_FLAGS) /c $< -Fo$@

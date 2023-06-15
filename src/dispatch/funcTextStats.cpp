@@ -11,6 +11,8 @@
 
 #include "../records/Group.h"
 
+#include "../files/FileTask.h"
+
 #include "../stats/TextStats.h"
 
 #include "../handling/Bexcept.h"

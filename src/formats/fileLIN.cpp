@@ -18,8 +18,8 @@
 #include "../records/Segment.h"
 #include "../records/Board.h"
 
-#include "../Buffer.h"
-#include "../Chunk.h"
+#include "../files/Buffer.h"
+#include "../files/Chunk.h"
 
 #include "../parse.h"
 

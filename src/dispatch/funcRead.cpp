@@ -19,7 +19,8 @@
 
 #include "../records/Group.h"
 
-#include "../Chunk.h"
+#include "../files/Chunk.h"
+
 #include "../edits/RefLines.h"
 
 #include "../formats/fileLIN.h"
