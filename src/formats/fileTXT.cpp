@@ -14,11 +14,13 @@
 #pragma warning(pop)
 
 #include "fileTXT.h"
+#include "Canvas.h"
 
-#include "../Segment.h"
-#include "../Canvas.h"
+#include "../records/Segment.h"
+
 #include "../parse.h"
-#include "../Bexcept.h"
+
+#include "../handling/Bexcept.h"
 
 using namespace std;
 

@@ -9,16 +9,18 @@
 // The functions in this file help to parse files.
 
 
-#pragma warning(push)
-#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
+#include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <fstream>
-#pragma warning(pop)
 
-#include "../Group.h"
+#include "funcRead.h"
+#include "OrderCounts.h"
+
+#include "../records/Group.h"
+
 #include "../Chunk.h"
-#include "../RefLines.h"
+#include "../edits/RefLines.h"
 
 #include "../formats/fileLIN.h"
 #include "../formats/filePBN.h"
@@ -27,12 +29,10 @@
 #include "../formats/fileEML.h"
 #include "../formats/fileREC.h"
 
-#include "../OrderCounts.h"
-
 #include "../parse.h"
-#include "../Bexcept.h"
 
-#include "funcRead.h"
+#include "../handling/Bexcept.h"
+
 
 using namespace std;
 

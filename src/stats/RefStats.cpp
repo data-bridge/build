@@ -14,7 +14,8 @@
 #include "RefStats.h"
 
 #include "../Comment.h"
-#include "../Bexcept.h"
+
+#include "../handling/Bexcept.h"
 
 
 static const vector<string> RefTableNames =

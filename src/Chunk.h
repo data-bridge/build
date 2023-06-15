@@ -15,6 +15,8 @@
 #include <string>
 #pragma warning(pop)
 
+#include "dispatch/Order.h"
+
 #include "bconst.h"
 
 using namespace std;

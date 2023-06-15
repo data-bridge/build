@@ -1,16 +1,15 @@
 /* 
    Part of BridgeData.
 
-   Copyright (C) 2016-17 by Soren Hein.
+   Copyright (C) 2016-23 by Soren Hein.
 
    See LICENSE and README.
 */
 
 
-#pragma warning(push)
-#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
+#include <iostream>
 #include <iomanip>
-#pragma warning(pop)
+#include <sstream>
 
 #include "Timers.h"
 
@@ -31,11 +30,6 @@ const string TimerName[]
 Timers::Timers()
 {
   Timers::reset();
-}
-
-
-Timers::~Timers()
-{
 }
 
 
@@ -90,36 +84,38 @@ void Timers::findActive(vector<unsigned>& active) const
 }
 
 
-void Timers::printTable(
+string Timers::strTable(
   const string& header,
   const double table[][BRIDGE_FORMAT_SIZE],
-  const vector<unsigned> active,
+  const vector<unsigned>& active,
   const int prec) const
 {
-  cout << setw(8) << left << header;
+  stringstream ss;
+
+  ss << setw(8) << left << header;
   for (auto &fnc: active)
-    cout << setw(12) << right << TimerName[fnc];
-  cout << "\n";
+    ss << setw(12) << right << TimerName[fnc];
+  ss << "\n";
 
   for (unsigned format = 0; format < BRIDGE_FORMAT_SIZE; format++)
   {
-    cout << setw(8) << left << FORMAT_NAMES[format];
+    ss << setw(8) << left << FORMAT_NAMES[format];
 
     for (auto &fnc: active)
     {
       if (table[fnc][format] == 0.)
-        cout << setw(12) << right << "-";
+        ss << setw(12) << right << "-";
       else
-        cout << setw(12) << right << fixed << setprecision(prec) <<
+        ss << setw(12) << right << fixed << setprecision(prec) <<
           table[fnc][format];
     }
-    cout << "\n";
+    ss << "\n";
   }
-  cout << "\n";
+  return ss.str() + "\n";
 }
 
 
-void Timers::print(const unsigned numThreads) const 
+string Timers::str(const unsigned numThreads) const 
 {
   double table[BRIDGE_TIMER_SIZE][BRIDGE_FORMAT_SIZE];
   double sum = 0.;
@@ -128,7 +124,7 @@ void Timers::print(const unsigned numThreads) const
       sum += timer[fnc][format].sum;
 
   if (sum == 0.)
-    return;
+    return "";
 
   vector<unsigned> active;
   Timers::findActive(active);
@@ -137,7 +133,9 @@ void Timers::print(const unsigned numThreads) const
     for (unsigned format = 0; format < BRIDGE_FORMAT_SIZE; format++)
       table[fnc][format] = 100. * timer[fnc][format].sum / sum;
 
-  Timers::printTable("Sum %", table, active);
+  stringstream ss;
+
+  ss << Timers::strTable("Sum %", table, active);
 
   for (unsigned fnc = 0; fnc < BRIDGE_TIMER_SIZE; fnc++)
   {
@@ -153,13 +151,13 @@ void Timers::print(const unsigned numThreads) const
     }
   }
 
-  Timers::printTable("Avg ms", table, active);
+  ss << Timers::strTable("Avg ms", table, active);
 
-  cout << "Time spent in main functions: " <<
+  ss << "Time spent in main functions: " <<
     fixed << setprecision(2) << sum / 1000000. << " seconds";
   if (numThreads > 1)
-    cout << " (" << numThreads << " threads)";
-  cout << "\n";
+    ss << " (" << numThreads << " threads)";
 
+  return ss.str() + "\n";
 }
 

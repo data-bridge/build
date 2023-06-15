@@ -7,19 +7,19 @@
 */
 
 
-#pragma warning(push)
-#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <string>
 #include <iomanip>
 #include <sstream>
-#pragma warning(pop)
 
 #include "DuplStat.h"
 
-#include "../Group.h"
-#include "../RefLines.h"
+#include "../records/Group.h"
+
+#include "../edits/RefLines.h"
+
 #include "../parse.h"
-#include "../Bexcept.h"
+
+#include "../handling/Bexcept.h"
 
 
 DuplStat::DuplStat()
@@ -75,15 +75,15 @@ void DuplStat::extractPlayers()
 
 
 void DuplStat::set(
-  const Group * group,
-  const Segment * segment,
+  const Group& group,
+  const Segment& segment,
   const unsigned segNo,
-  const RefLines * reflines)
+  const RefLines& reflines)
 {
   DuplStat::reset();
 
-  fname = group->name();
-  format = group->format();
+  fname = group.name();
+  format = group.format();
 
   basename = fname;
   size_t l = basename.find_last_of("\\/");
@@ -93,28 +93,28 @@ void DuplStat::set(
   if (l != string::npos)
     basename = basename.substr(0, l);
 
-  segTitle = segment->strTitle(BRIDGE_FORMAT_TXT);
+  segTitle = segment.strTitle(BRIDGE_FORMAT_TXT);
 
-  string s = segment->strDate(BRIDGE_FORMAT_TXT);
+  string s = segment.strDate(BRIDGE_FORMAT_TXT);
   if (s != "\n") 
     segDate = s;
 
-  s = segment->strLocation(BRIDGE_FORMAT_TXT);
+  s = segment.strLocation(BRIDGE_FORMAT_TXT);
   if (s != "\n") 
     segLocation = s;
 
-  s = segment->strEvent(BRIDGE_FORMAT_TXT);
+  s = segment.strEvent(BRIDGE_FORMAT_TXT);
   if (s != "\n") 
     segEvent = s;
 
-  s = segment->strSession(BRIDGE_FORMAT_TXT);
+  s = segment.strSession(BRIDGE_FORMAT_TXT);
   if (s != "\n") 
     segSession = s;
 
-  teams = segment->strTeams(BRIDGE_FORMAT_TXT) + "\n";
+  teams = segment.strTeams(BRIDGE_FORMAT_TXT) + "\n";
   toLower(teams);
 
-  players = segment->strPlayers(BRIDGE_FORMAT_LIN_VG);
+  players = segment.strPlayers(BRIDGE_FORMAT_LIN_VG);
   if (players.length() >= 10)
     players = players.substr(3, players.length()-9);
 
@@ -122,9 +122,9 @@ void DuplStat::set(
   DuplStat::extractPlayers();
 
   segNoVal = segNo;
-  segSize = group->size();
+  segSize = group.size();
 
-  reflines->getHeaderData(numLines, numHands, numBoards);
+  reflines.getHeaderData(numLines, numHands, numBoards);
 }
 
 

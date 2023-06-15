@@ -15,7 +15,7 @@
 #pragma warning(pop)
 
 #include "../Chunk.h"
-#include "../RefLines.h"
+#include "../edits/RefLines.h"
 
 #include "../formats/filePBN.h"
 

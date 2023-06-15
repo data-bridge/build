@@ -24,11 +24,13 @@
   #include <unistd.h>
 #endif
 
-#include "RefLines.h"
 #include "Buffer.h"
 
+#include "edits/RefLines.h"
+
 #include "parse.h"
-#include "Bexcept.h"
+
+#include "handling/Bexcept.h"
 
 #define CHUNK_SIZE 1024
 

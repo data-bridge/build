@@ -6,50 +6,58 @@
    See LICENSE and README.
 */
 
+/*
+   This is a collective class for the main statistics that we
+   collect over a run, a lot of it for debugging input files.
+   Example outputs are shown in the .h files of the main classes.
+   Output is controlled mainly by Options.
+
+   Code that wants to use the AllStats members must include the
+   relevant .h files.  The separation is an attempt to contain
+   the necessary include files across the whole project.
+*/
 
 #ifndef BRIDGE_ALLSTATS_H
 #define BRIDGE_ALLSTATS_H
 
 #include <vector>
+#include <string>
 
-#include "ValStats.h"
-#include "TextStats.h"
-#include "CompStats.h"
-#include "RefStats.h"
-#include "DuplStats.h"
-#include "Timers.h"
-
-using namespace std;
+class ValStats;
+class TextStats;
+class CompStats;
+class RefStats;
+class DuplStats;
+class Timers;
 
 struct Options;
 
+using namespace std;
+
+
 struct AllStats
 {
-  ValStats vstats;
-  TextStats tstats;
-  CompStats cstats;
-  RefStats refstats;
-  DuplStats duplstats;
-  Timers timers;
+  ValStats * valStatsPtr;
+  TextStats * textStatsPtr;
+  CompStats * compStatsPtr;
+  RefStats * refStatsPtr;
+  DuplStats * duplStatsPtr;
+  Timers * timersPtr;
 
-  void operator += (const AllStats& as2)
-  {
-    vstats += as2.vstats;
-    tstats += as2.tstats;
-    cstats += as2.cstats;
-    refstats += as2.refstats;
-    duplstats += as2.duplstats;
-    timers += as2.timers;
-  };
+  AllStats();
+
+  ~AllStats();
+
+  void operator += (const AllStats& as2);
+
+  string str(const Options& options) const;
 };
 
 
+// This is not a struct method.
+
 void mergeResults(
   vector<AllStats>& allStatsList,
-  const Options& options);
-
-void printResults(
-  const AllStats& allStats,
   const Options& options);
 
 #endif

@@ -14,10 +14,11 @@
 #include <fstream>
 #pragma warning(pop)
 
-#include "../Group.h"
-#include "../Bexcept.h"
+#include "../records/Group.h"
 
 #include "funcPlayerVal.h"
+
+#include "../handling/Bexcept.h"
 
 
 static void validatePlayers(

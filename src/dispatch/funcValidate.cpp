@@ -9,19 +9,16 @@
 // The functions in this file help to parse files.
 
 
-#pragma warning(push)
-#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <iomanip>
 #include <fstream>
-#pragma warning(pop)
 
 #include "funcValidate.h"
 
+#include "../validate/validate.h"
+
 #include "../stats/ValStats.h"
 
-#include "../Bexcept.h"
-
-#include "../validate/validate.h"
+#include "../handling/Bexcept.h"
 
 
 void dispatchValidate(

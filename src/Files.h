@@ -17,7 +17,8 @@
 #include <map>
 #pragma warning(pop)
 
-#include "DDInfo.h"
+#include "analysis/DDInfo.h"
+
 #include "bconst.h"
 
 using namespace std;

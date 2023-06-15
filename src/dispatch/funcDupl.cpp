@@ -14,12 +14,13 @@
 #include <fstream>
 #pragma warning(pop)
 
-#include "../Group.h"
-#include "../RefLines.h"
+#include "../records/Group.h"
+
+#include "../edits/RefLines.h"
 
 #include "../stats/DuplStats.h"
 
-#include "../Bexcept.h"
+#include "../handling/Bexcept.h"
 
 
 using namespace std;
@@ -36,7 +37,7 @@ void writeDupl(
     if (segment.size() == 0)
       continue;
 
-    duplstats.set(&group, &segment, segNo, &reflines);
+    duplstats.set(group, segment, segNo, reflines);
     segNo++;
 
     for (auto &bp: segment)

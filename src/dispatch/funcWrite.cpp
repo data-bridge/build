@@ -14,7 +14,7 @@
 #include <fstream>
 #pragma warning(pop)
 
-#include "../Group.h"
+#include "../records/Group.h"
 
 #include "../formats/fileLIN.h"
 #include "../formats/filePBN.h"
@@ -24,7 +24,8 @@
 #include "../formats/fileREC.h"
 
 #include "../parse.h"
-#include "../Bexcept.h"
+
+#include "../handling/Bexcept.h"
 
 
 using namespace std;

@@ -6,13 +6,14 @@
    See LICENSE and README.
 */
 
-
-#include "../Group.h"
-#include "../Sheet.h"
+#include <iostream>
 
 #include "funcIMPSheet.h"
 
-#include "../Bexcept.h"
+#include "../records/Group.h"
+#include "../records/Sheet.h"
+
+#include "../handling/Bexcept.h"
 
 
 void dispatchIMPSheet(

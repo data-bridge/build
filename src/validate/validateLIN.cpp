@@ -18,15 +18,17 @@
 #include <regex>
 #pragma warning(pop)
 
-#include "../Deal.h"
+#include "../records/Deal.h"
+
 #include "../parse.h"
-#include "../Bexcept.h"
-#include "../Bdiff.h"
 
 #include "valint.h"
 #include "ValProfile.h"
 #include "validate.h"
 #include "validateLIN.h"
+
+#include "../handling/Bexcept.h"
+#include "../handling/Bdiff.h"
 
 #define PLOG(x) prof.log(x, valState.dataOut, valState.dataRef)
 

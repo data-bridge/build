@@ -10,14 +10,11 @@
 #ifndef BRIDGE_DUPLSTAT_H
 #define BRIDGE_DUPLSTAT_H
 
-#pragma warning(push)
-#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
-#include <iostream>
+#include <vector>
 #include <list>
-#pragma warning(pop)
+#include <string>
 
-#include "../bconst.h"
-
+#include "../Format.h"
 
 class Group;
 class Segment;
@@ -78,10 +75,10 @@ class DuplStat
     void reset();
 
     void set(
-      const Group * group,
-      const Segment * segment,
+      const Group& group,
+      const Segment& segment,
       const unsigned segNo,
-      const RefLines * reflines);
+      const RefLines& reflines);
 
     void append(const int hashVal);
 

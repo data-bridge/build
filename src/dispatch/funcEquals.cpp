@@ -11,9 +11,9 @@
 #include <sstream>
 #include <fstream>
 
-#include "../Group.h"
+#include "../records/Group.h"
 
-#include "../Bexcept.h"
+#include "../handling/Bexcept.h"
 
 
 using namespace std;

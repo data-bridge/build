@@ -10,19 +10,14 @@
 #ifndef BRIDGE_DUPLSTATS_H
 #define BRIDGE_DUPLSTATS_H
 
-#pragma warning(push)
-#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
 #include <list>
-#pragma warning(pop)
+#include <string>
 
 #include "DuplStat.h"
 
-#include "../bconst.h"
-
-
 class Group;
 class Segment;
-
+class RefLines;
 
 using namespace std;
 
@@ -46,15 +41,13 @@ class DuplStats
 
     DuplStats();
 
-    ~DuplStats();
-
     void reset();
 
     void set(
-      const Group * group,
-      const Segment * segment,
+      const Group& group,
+      const Segment& segment,
       const unsigned segNo,
-      const RefLines * reflines);
+      const RefLines& reflines);
 
     void append(const int hashVal);
 
@@ -65,9 +58,10 @@ class DuplStats
     void sortOverall();
 
     string strSame() const;
+
     string strSubset() const;
 
-    void print(ostream& fstr) const;
+    string str() const;
 };
 
 #endif

@@ -6,17 +6,20 @@
    See LICENSE and README.
 */
 
-
-#include "../Group.h"
-#include "../Buffer.h"
-
-#include "../stats/CompStats.h"
+#include <iostream>
 
 #include "funcCompare.h"
 #include "funcRead.h"
+#include "Order.h"
 
-#include "../Bexcept.h"
-#include "../Bdiff.h"
+#include "../Buffer.h"
+
+#include "../records/Group.h"
+
+#include "../stats/CompStats.h"
+
+#include "../handling/Bexcept.h"
+#include "../handling/Bdiff.h"
 
 
 void dispatchCompare(

@@ -125,6 +125,7 @@ const string DDInfoNames[]
 
 // This is used in dispatch.
 
+/*
 struct Counts
 {
   unsigned segno;
@@ -133,7 +134,7 @@ struct Counts
   bool openFlag;
 };
 
-enum BoardOrder
+enum BoardOrder: unsigned
 {
   ORDER_OCOC = 0,
   ORDER_COCO = 1,
@@ -148,10 +149,12 @@ const string orderNames[] =
   "OOCC",
   "General"
 };
+*/
 
 
 // This is used for header-level LIN data.
 
+/*
 struct LINInstData // TODO: Can later be called LINData
 {
   string contract;
@@ -164,6 +167,7 @@ struct LINData
   LINInstData data[2];
   string no;
 };
+*/
 
 
 // This is used in Buffer and validate.

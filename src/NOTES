@@ -3,6 +3,11 @@
 Unexpected input order: -1545469952
 (in line 814)
 
+2023-06-14
+In stats/, mainly figure out what DuplStats actually does,
+and comment it and check it for obvious bugs.  With that,
+stats/ is mostly done I think.
+
 
 
 

@@ -14,7 +14,10 @@ class Group;
 class Buffer;
 class RefLines;
 
-#include "../bconst.h"
+struct Options;
+
+enum Format: unsigned;
+enum BoardOrder: unsigned;
 
 using namespace std;
 

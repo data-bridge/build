@@ -7,18 +7,18 @@
 */
 
 
-#pragma warning(push)
-#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
+#include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <fstream>
-#pragma warning(pop)
 
 #include "dispatch.h"
 
-#include "../Group.h"
+#include "../records/Group.h"
+
 #include "../Files.h"
-#include "../RefLines.h"
+
+#include "../edits/RefLines.h"
 
 #include "../stats/AllStats.h"
 
@@ -37,6 +37,8 @@
 #include "funcValidate.h"
 #include "funcValuation.h"
 #include "funcWrite.h"
+
+#include "../stats/Timers.h"
 
 
 void setTables()
@@ -75,10 +77,10 @@ void dispatch(
       goto DIGEST;
 
     refLines.reset();
-    allStats.timers.start(BRIDGE_TIMER_READ, task.formatInput);
+    allStats.timersPtr->start(BRIDGE_TIMER_READ, task.formatInput);
     bool b = dispatchReadFile(task.fileInput, task.formatInput, 
       options, group, refLines, flog);
-    allStats.timers.stop(BRIDGE_TIMER_READ, task.formatInput);
+    allStats.timersPtr->stop(BRIDGE_TIMER_READ, task.formatInput);
     if (! b)
     {
       flog << "Failed to read " << task.fileInput << endl;
@@ -90,10 +92,10 @@ void dispatch(
       if (options.verboseIO)
         flog << "Ref file for " << task.fileInput << endl;
     
-      allStats.timers.start(BRIDGE_TIMER_REF_STATS, task.formatInput);
+      allStats.timersPtr->start(BRIDGE_TIMER_REF_STATS, task.formatInput);
       dispatchRefStats(task.fileInput, task.formatInput, 
-        refLines, allStats.refstats, flog);
-      allStats.timers.stop(BRIDGE_TIMER_REF_STATS, task.formatInput);
+        refLines, * allStats.refStatsPtr, flog);
+      allStats.timersPtr->stop(BRIDGE_TIMER_REF_STATS, task.formatInput);
     }
 
     if (refLines.skip())
@@ -113,9 +115,9 @@ void dispatch(
       if (options.verboseIO)
         flog << "Input " << task.fileInput << endl;
     
-      allStats.timers.start(BRIDGE_TIMER_STATS, task.formatInput);
-      dispatchTextStats(task, group, allStats.tstats, flog);
-      allStats.timers.stop(BRIDGE_TIMER_STATS, task.formatInput);
+      allStats.timersPtr->start(BRIDGE_TIMER_STATS, task.formatInput);
+      dispatchTextStats(task, group, * allStats.textStatsPtr, flog);
+      allStats.timersPtr->stop(BRIDGE_TIMER_STATS, task.formatInput);
     }
 
     if (options.valuationFlag)
@@ -123,9 +125,9 @@ void dispatch(
       if (options.verboseIO)
         flog << "Valuation " << task.fileInput << endl;
 
-      allStats.timers.start(BRIDGE_TIMER_VALUE, task.formatInput);
+      allStats.timersPtr->start(BRIDGE_TIMER_VALUE, task.formatInput);
       dispatchValuation(group, flog);
-      allStats.timers.stop(BRIDGE_TIMER_VALUE, task.formatInput);
+      allStats.timersPtr->stop(BRIDGE_TIMER_VALUE, task.formatInput);
     }
 
     if (options.equalFlag)
@@ -133,7 +135,7 @@ void dispatch(
       if (options.verboseIO)
         flog << "Hand hashes " << task.fileInput << endl;
 
-      dispatchDupl(group, refLines, allStats.duplstats, flog);
+      dispatchDupl(group, refLines, * allStats.duplStatsPtr, flog);
     }
 
     for (auto &t: task.taskList)
@@ -141,10 +143,10 @@ void dispatch(
       if (options.verboseIO && t.fileOutput != "")
         flog << "Output " << t.fileOutput << endl;
 
-      allStats.timers.start(BRIDGE_TIMER_WRITE, t.formatOutput);
+      allStats.timersPtr->start(BRIDGE_TIMER_WRITE, t.formatOutput);
       dispatchWrite(t.fileOutput, t.formatOutput, refLines.order(), 
         group, text, flog);
-      allStats.timers.stop(BRIDGE_TIMER_WRITE, t.formatOutput);
+      allStats.timersPtr->stop(BRIDGE_TIMER_WRITE, t.formatOutput);
 
       if (t.refFlag && refLines.validate())
       {
@@ -152,9 +154,10 @@ void dispatch(
           flog << "Validating " << t.fileOutput <<
               " against " << t.fileRef << endl;
 
-        allStats.timers.start(BRIDGE_TIMER_VALIDATE, t.formatOutput);
-        dispatchValidate(task, t, options, text, allStats.vstats, flog);
-        allStats.timers.stop(BRIDGE_TIMER_VALIDATE, t.formatOutput);
+        allStats.timersPtr->start(BRIDGE_TIMER_VALIDATE, t.formatOutput);
+        dispatchValidate(task, t, options, text, 
+          * allStats.valStatsPtr, flog);
+        allStats.timersPtr->stop(BRIDGE_TIMER_VALIDATE, t.formatOutput);
       }
 
       if (options.compareFlag && task.formatInput == t.formatOutput)
@@ -163,10 +166,10 @@ void dispatch(
           flog << "Comparing " << t.fileOutput <<
               " against " << task.fileInput << endl;
 
-        allStats.timers.start(BRIDGE_TIMER_COMPARE, t.formatOutput);
+        allStats.timersPtr->start(BRIDGE_TIMER_COMPARE, t.formatOutput);
         dispatchCompare(task.fileInput, task.formatInput, options,
-          text, group, allStats.cstats, flog);
-        allStats.timers.stop(BRIDGE_TIMER_COMPARE, t.formatOutput);
+          text, group, * allStats.compStatsPtr, flog);
+        allStats.timersPtr->stop(BRIDGE_TIMER_COMPARE, t.formatOutput);
       }
 
       if (task.removeOutputFlag)
@@ -179,9 +182,9 @@ void dispatch(
       if (options.verboseIO)
         flog << "Digest input " << task.fileInput << endl;
     
-      allStats.timers.start(BRIDGE_TIMER_DIGEST, task.formatInput);
+      allStats.timersPtr->start(BRIDGE_TIMER_DIGEST, task.formatInput);
       dispatchDigest(task, options, flog);
-      allStats.timers.stop(BRIDGE_TIMER_DIGEST, task.formatInput);
+      allStats.timersPtr->stop(BRIDGE_TIMER_DIGEST, task.formatInput);
     }
 
     if (options.tableIMPFlag)

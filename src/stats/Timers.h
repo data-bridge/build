@@ -1,7 +1,7 @@
 /* 
    Part of BridgeData.
 
-   Copyright (C) 2016-17 by Soren Hein.
+   Copyright (C) 2016-23 by Soren Hein.
 
    See LICENSE and README.
 */
@@ -10,15 +10,12 @@
 #ifndef BRIDGE_TIMERS_H
 #define BRIDGE_TIMERS_H
 
-#pragma warning(push)
-#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
-#include <iostream>
+#include <string>
 #include <chrono>
-#pragma warning(pop)
 
 #include "Timer.h"
 
-#include "../bconst.h"
+#include "../Format.h"
 
 using namespace std;
 
@@ -47,18 +44,16 @@ class Timers
 
     void findActive(vector<unsigned>& active) const;
 
-    void printTable(
+    string strTable(
       const string& header,
       const double table[][BRIDGE_FORMAT_SIZE],
-      const vector<unsigned> active,
+      const vector<unsigned>& active,
       const int prec = 1) const;
 
 
   public:
 
     Timers();
-
-    ~Timers();
 
     void reset();
 
@@ -72,7 +67,7 @@ class Timers
 
     void operator += (const Timers& timers2);
 
-    void print(const unsigned numThreads = 1) const;
+    string str(const unsigned numThreads = 1) const;
 };
 
 #endif

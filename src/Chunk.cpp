@@ -16,8 +16,9 @@
 
 #include "Chunk.h"
 #include "parse.h"
-#include "Bexcept.h"
-#include "Bdiff.h"
+
+#include "handling/Bexcept.h"
+#include "handling/Bdiff.h"
 
 //
 // Modulo 4, so West for Board "0" (4, 8, ...) etc.

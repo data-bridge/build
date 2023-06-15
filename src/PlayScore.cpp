@@ -16,9 +16,6 @@
 
 #include "PlayScore.h"
 
-#include "Bexcept.h"
-#include "Bdiff.h"
-
 
 PlayScore::PlayScore()
 {

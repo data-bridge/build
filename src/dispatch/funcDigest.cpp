@@ -9,15 +9,18 @@
 
 #pragma warning(push)
 #pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
+#include <iostream>
 #include <iomanip>
 #include <fstream>
 #pragma warning(pop)
 
 #include "funcDigest.h"
 
-#include "../Sheet.h"
+#include "../records/Sheet.h"
+
 #include "../parse.h"
-#include "../Bexcept.h"
+
+#include "../handling/Bexcept.h"
 
 
 void dispatchDigest(

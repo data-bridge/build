@@ -9,12 +9,13 @@
 
 #include "fileRBN.h"
 
-#include "../Segment.h"
+#include "../records/Segment.h"
+
 #include "../Buffer.h"
 #include "../Chunk.h"
-
 #include "../parse.h"
-#include "../Bexcept.h"
+
+#include "../handling/Bexcept.h"
 
 using namespace std;
 

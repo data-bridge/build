@@ -22,6 +22,7 @@
 #include "Files.h"
 
 #include "stats/AllStats.h"
+#include "stats/Timer.h"
 
 #include "dispatch/dispatch.h"
 
@@ -51,7 +52,7 @@ int main(int argc, char * argv[])
     thr[i].join();
 
   mergeResults(allStatsList, options);
-  printResults(allStatsList[0], options);
+  cout << allStatsList[0].str(options);
 
   if (options.solveFlag)
     files.writeDDInfo(BRIDGE_DD_INFO_SOLVE);

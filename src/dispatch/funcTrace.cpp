@@ -15,12 +15,14 @@
 #include <fstream>
 #pragma warning(pop)
 
-#include "../Group.h"
 #include "../Files.h"
 #include "../parse.h"
 
+#include "../records/Group.h"
+
 #include "../dll.h"
-#include "../Bexcept.h"
+
+#include "../handling/Bexcept.h"
 
 
 using namespace std;

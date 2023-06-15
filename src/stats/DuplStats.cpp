@@ -7,19 +7,12 @@
 */
 
 
-#pragma warning(push)
-#pragma warning(disable: 4365 4571 4625 4626 4774 5026 5027)
-#include <string>
-#include <iomanip>
-#include <sstream>
 #include <algorithm>
-#pragma warning(pop)
 
 #include "DuplStats.h"
 
-#include "../Group.h"
-#include "../RefLines.h"
-#include "../Bexcept.h"
+#include "../handling/Bexcept.h"
+
 
 #define HASH_SIZE 4096 // Relies on <= 12-bit hash values
 
@@ -27,11 +20,6 @@
 DuplStats::DuplStats()
 {
   DuplStats::reset();
-}
-
-
-DuplStats::~DuplStats()
-{
 }
 
 
@@ -46,10 +34,10 @@ void DuplStats::reset()
 
 
 void DuplStats::set(
-  const Group * group,
-  const Segment * segment,
+  const Group& group,
+  const Segment& segment,
   const unsigned segNo,
-  const RefLines * reflines)
+  const RefLines& reflines)
 {
   statList.emplace_back(DuplElem());
   activeList = &statList.back();
@@ -192,9 +180,8 @@ string DuplStats::strSubset() const
 }
 
 
-void DuplStats::print(ostream& fstr) const
+string DuplStats::str() const
 {
-  fstr << DuplStats::strSame();
-  fstr << DuplStats::strSubset();
+  return DuplStats::strSame() + DuplStats::strSubset();
 }
 

@@ -7,14 +7,15 @@
 */
 
 
+#include "funcRefStats.h"
+
 #include "../Buffer.h"
-#include "../RefLines.h"
+
+#include "../edits/RefLines.h"
 
 #include "../stats/RefStats.h"
 
-#include "funcRefStats.h"
-
-#include "../Bexcept.h"
+#include "../handling/Bexcept.h"
 
 
 void dispatchRefStats(

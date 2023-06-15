@@ -15,13 +15,15 @@
 
 #include "fileLIN.h"
 
-#include "../Segment.h"
-#include "../Board.h"
+#include "../records/Segment.h"
+#include "../records/Board.h"
+
 #include "../Buffer.h"
 #include "../Chunk.h"
 
 #include "../parse.h"
-#include "../Bexcept.h"
+
+#include "../handling/Bexcept.h"
 
 using namespace std;
 

@@ -52,7 +52,7 @@ ERR_LIN_RS_REPLACE               12     13       13     13     13     13
 #include <deque>
 #include <string>
 
-#include "../RefEntry.h"
+#include "../edits/RefEntry.h"
 
 using namespace std;
 
