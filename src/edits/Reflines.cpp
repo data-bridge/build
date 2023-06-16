@@ -13,6 +13,7 @@
 #include <regex>
 
 #include "RefLines.h"
+#include "Comment.h" // TODO Only for ERR_SIZE -- somehow change?
 
 #include "../dispatch/Order.h"
 

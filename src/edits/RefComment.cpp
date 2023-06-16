@@ -15,6 +15,7 @@
 #include <mutex>
 
 #include "RefComment.h"
+#include "Comment.h"
 
 #include "../parse.h"
 

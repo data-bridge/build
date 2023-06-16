@@ -13,9 +13,10 @@
 
 #include "RefStats.h"
 
-#include "../Comment.h"
-
+#include "../edits/Comment.h"
 #include "../handling/Bexcept.h"
+
+enum CommentType: unsigned;
 
 
 static const vector<string> RefTableNames =

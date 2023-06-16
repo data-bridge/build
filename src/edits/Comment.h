@@ -13,7 +13,7 @@
 #include <vector>
 #include <string>
 
-#include "Format.h"
+#include "../Format.h"
 
 using namespace std;
 
@@ -208,7 +208,7 @@ enum CommentType: unsigned
 };
 
 
-enum RefCountType
+enum RefCountType: unsigned
 {
   REF_COUNT_INACTIVE = 0,
   REF_COUNT_HEADER = 1, // Single-tag header, (1,n,m)

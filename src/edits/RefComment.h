@@ -16,6 +16,9 @@
 
 #include "refconst.h"
 
+enum CommentType: unsigned;
+enum RefCountType: unsigned;
+
 
 using namespace std;
 

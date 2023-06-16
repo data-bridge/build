@@ -12,6 +12,7 @@
 #include "../files/Buffer.h"
 
 #include "../edits/RefLines.h"
+#include "../edits/Comment.h"
 
 #include "../stats/RefStats.h"
 

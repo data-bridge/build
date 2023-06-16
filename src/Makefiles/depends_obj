@@ -23,16 +23,16 @@ dispatch/dispatch.obj: dll.h records/PlayTrace.h records/GivenScore.h
 dispatch/dispatch.obj: analysis/Valuation.h analysis/Term.h files/Files.h
 dispatch/dispatch.obj: files/FileTask.h Format.h analysis/DDInfo.h
 dispatch/dispatch.obj: edits/RefLines.h edits/RefLine.h edits/RefEdit.h
-dispatch/dispatch.obj: edits/RefCount.h edits/refconst.h Comment.h
-dispatch/dispatch.obj: edits/RefComment.h edits/RefEntry.h edits/RefAction.h
-dispatch/dispatch.obj: stats/AllStats.h validate/validate.h
-dispatch/dispatch.obj: dispatch/funcCompare.h dispatch/funcDD.h
-dispatch/dispatch.obj: dispatch/funcDigest.h dispatch/funcDupl.h
-dispatch/dispatch.obj: dispatch/funcIMPSheet.h dispatch/funcRead.h
-dispatch/dispatch.obj: dispatch/funcPlayerVal.h dispatch/funcRefStats.h
-dispatch/dispatch.obj: dispatch/funcTextStats.h dispatch/funcTrace.h
-dispatch/dispatch.obj: dispatch/funcValidate.h dispatch/funcValuation.h
-dispatch/dispatch.obj: dispatch/funcWrite.h stats/Timers.h stats/Timer.h
+dispatch/dispatch.obj: edits/RefCount.h edits/refconst.h edits/RefComment.h
+dispatch/dispatch.obj: edits/RefEntry.h edits/RefAction.h stats/AllStats.h
+dispatch/dispatch.obj: validate/validate.h dispatch/funcCompare.h
+dispatch/dispatch.obj: dispatch/funcDD.h dispatch/funcDigest.h
+dispatch/dispatch.obj: dispatch/funcDupl.h dispatch/funcIMPSheet.h
+dispatch/dispatch.obj: dispatch/funcRead.h dispatch/funcPlayerVal.h
+dispatch/dispatch.obj: dispatch/funcRefStats.h dispatch/funcTextStats.h
+dispatch/dispatch.obj: dispatch/funcTrace.h dispatch/funcValidate.h
+dispatch/dispatch.obj: dispatch/funcValuation.h dispatch/funcWrite.h
+dispatch/dispatch.obj: stats/Timers.h stats/Timer.h
 dispatch/funcCompare.obj: dispatch/funcCompare.h dispatch/funcRead.h
 dispatch/funcCompare.obj: dispatch/Order.h files/Buffer.h files/LineData.h
 dispatch/funcCompare.obj: records/Group.h records/Segment.h records/Date.h
@@ -64,9 +64,9 @@ dispatch/funcDigest.obj: Label.h records/Deal.h records/Auction.h
 dispatch/funcDigest.obj: records/Play.h analysis/ddsIF.h dll.h
 dispatch/funcDigest.obj: records/SheetHand.h edits/Reflines.h edits/RefLine.h
 dispatch/funcDigest.obj: edits/RefEdit.h edits/RefCount.h edits/refconst.h
-dispatch/funcDigest.obj: Format.h Comment.h edits/RefComment.h
-dispatch/funcDigest.obj: edits/RefEntry.h edits/RefAction.h files/FileTask.h
-dispatch/funcDigest.obj: parse.h bconst.h handling/Bexcept.h
+dispatch/funcDigest.obj: Format.h edits/RefComment.h edits/RefEntry.h
+dispatch/funcDigest.obj: edits/RefAction.h files/FileTask.h parse.h bconst.h
+dispatch/funcDigest.obj: handling/Bexcept.h
 dispatch/funcDupl.obj: records/Group.h records/Segment.h records/Date.h
 dispatch/funcDupl.obj: records/Location.h records/Session.h records/Teams.h
 dispatch/funcDupl.obj: records/Team.h records/Scoring.h records/HeaderLIN.h
@@ -77,7 +77,7 @@ dispatch/funcDupl.obj: records/Contract.h records/Play.h analysis/ddsIF.h
 dispatch/funcDupl.obj: dll.h records/PlayTrace.h records/GivenScore.h
 dispatch/funcDupl.obj: analysis/Valuation.h analysis/Term.h edits/RefLines.h
 dispatch/funcDupl.obj: edits/RefLine.h edits/RefEdit.h edits/RefCount.h
-dispatch/funcDupl.obj: edits/refconst.h Format.h Comment.h edits/RefComment.h
+dispatch/funcDupl.obj: edits/refconst.h Format.h edits/RefComment.h
 dispatch/funcDupl.obj: edits/RefEntry.h edits/RefAction.h stats/DuplStats.h
 dispatch/funcDupl.obj: stats/DuplStat.h handling/Bexcept.h
 dispatch/funcEquals.obj: records/Group.h records/Segment.h records/Date.h
@@ -104,7 +104,7 @@ dispatch/funcIMPSheet.obj: analysis/Valuation.h analysis/Term.h
 dispatch/funcIMPSheet.obj: records/Sheet.h records/SheetHand.h
 dispatch/funcIMPSheet.obj: edits/Reflines.h edits/RefLine.h edits/RefEdit.h
 dispatch/funcIMPSheet.obj: edits/RefCount.h edits/refconst.h Format.h
-dispatch/funcIMPSheet.obj: Comment.h edits/RefComment.h edits/RefEntry.h
+dispatch/funcIMPSheet.obj: edits/RefComment.h edits/RefEntry.h
 dispatch/funcIMPSheet.obj: edits/RefAction.h handling/Bexcept.h
 dispatch/funcPlayerVal.obj: records/Group.h records/Segment.h records/Date.h
 dispatch/funcPlayerVal.obj: records/Location.h records/Session.h
@@ -131,7 +131,7 @@ dispatch/funcRead.obj: dll.h records/PlayTrace.h records/GivenScore.h
 dispatch/funcRead.obj: analysis/Valuation.h analysis/Term.h files/Buffer.h
 dispatch/funcRead.obj: files/LineData.h files/Chunk.h dispatch/Order.h
 dispatch/funcRead.obj: edits/RefLines.h edits/RefLine.h edits/RefEdit.h
-dispatch/funcRead.obj: edits/RefCount.h edits/refconst.h Format.h Comment.h
+dispatch/funcRead.obj: edits/RefCount.h edits/refconst.h Format.h
 dispatch/funcRead.obj: edits/RefComment.h edits/RefEntry.h edits/RefAction.h
 dispatch/funcRead.obj: formats/fileLIN.h formats/filePBN.h formats/fileRBN.h
 dispatch/funcRead.obj: formats/fileTXT.h formats/fileEML.h formats/fileREC.h
@@ -139,10 +139,10 @@ dispatch/funcRead.obj: parse.h bconst.h handling/Bexcept.h
 dispatch/funcRefStats.obj: dispatch/funcRefStats.h bconst.h Format.h Label.h
 dispatch/funcRefStats.obj: files/Buffer.h files/LineData.h edits/RefLines.h
 dispatch/funcRefStats.obj: edits/RefLine.h edits/RefEdit.h edits/RefCount.h
-dispatch/funcRefStats.obj: edits/refconst.h Format.h Comment.h
-dispatch/funcRefStats.obj: edits/RefComment.h edits/RefEntry.h
-dispatch/funcRefStats.obj: edits/RefAction.h stats/RefStats.h
-dispatch/funcRefStats.obj: edits/RefEntry.h handling/Bexcept.h
+dispatch/funcRefStats.obj: edits/refconst.h Format.h edits/RefComment.h
+dispatch/funcRefStats.obj: edits/RefEntry.h edits/RefAction.h
+dispatch/funcRefStats.obj: stats/RefStats.h edits/RefEntry.h
+dispatch/funcRefStats.obj: handling/Bexcept.h
 dispatch/funcTextStats.obj: dispatch/funcTextStats.h records/Group.h
 dispatch/funcTextStats.obj: records/Segment.h records/Date.h
 dispatch/funcTextStats.obj: records/Location.h records/Session.h
@@ -197,31 +197,29 @@ dispatch/funcWrite.obj: analysis/Term.h formats/fileLIN.h formats/filePBN.h
 dispatch/funcWrite.obj: formats/fileRBN.h formats/fileTXT.h formats/fileEML.h
 dispatch/funcWrite.obj: formats/fileREC.h formats/writeInfo.h
 dispatch/funcWrite.obj: dispatch/Order.h parse.h bconst.h handling/Bexcept.h
-edits/RefAction.obj: edits/RefAction.h edits/refconst.h Format.h Comment.h
-edits/RefAction.obj: Format.h handling/Bexcept.h
+edits/RefAction.obj: edits/RefAction.h edits/refconst.h Format.h
+edits/RefAction.obj: handling/Bexcept.h
 edits/RefComment.obj: edits/RefComment.h edits/RefEntry.h edits/RefCount.h
-edits/RefComment.obj: edits/refconst.h Format.h Comment.h Format.h parse.h
-edits/RefComment.obj: bconst.h Label.h handling/Bexcept.h
+edits/RefComment.obj: edits/refconst.h Format.h parse.h bconst.h Format.h
+edits/RefComment.obj: Label.h handling/Bexcept.h
 edits/RefCount.obj: edits/RefCount.h
 edits/RefEdit.obj: edits/RefEdit.h edits/RefCount.h edits/refconst.h Format.h
-edits/RefEdit.obj: Comment.h Format.h parse.h bconst.h Label.h
-edits/RefEdit.obj: handling/Bexcept.h
+edits/RefEdit.obj: parse.h bconst.h Format.h Label.h handling/Bexcept.h
 edits/RefEntry.obj: edits/RefEntry.h edits/RefCount.h
 edits/Refline.obj: edits/RefLine.h edits/RefEdit.h edits/RefCount.h
-edits/Refline.obj: edits/refconst.h Format.h Comment.h Format.h
-edits/Refline.obj: edits/RefComment.h edits/RefEntry.h edits/RefAction.h
-edits/Refline.obj: parse.h bconst.h Label.h handling/Bexcept.h
+edits/Refline.obj: edits/refconst.h Format.h edits/RefComment.h
+edits/Refline.obj: edits/RefEntry.h edits/RefAction.h parse.h bconst.h
+edits/Refline.obj: Format.h Label.h handling/Bexcept.h
 edits/Reflines.obj: edits/RefLines.h edits/RefLine.h edits/RefEdit.h
-edits/Reflines.obj: edits/RefCount.h edits/refconst.h Format.h Comment.h
-edits/Reflines.obj: Format.h edits/RefComment.h edits/RefEntry.h
-edits/Reflines.obj: edits/RefAction.h dispatch/Order.h files/Buffer.h
-edits/Reflines.obj: files/LineData.h parse.h bconst.h Label.h
-edits/Reflines.obj: handling/Bexcept.h
+edits/Reflines.obj: edits/RefCount.h edits/refconst.h Format.h
+edits/Reflines.obj: edits/RefComment.h edits/RefEntry.h edits/RefAction.h
+edits/Reflines.obj: dispatch/Order.h files/Buffer.h files/LineData.h parse.h
+edits/Reflines.obj: bconst.h Format.h Label.h handling/Bexcept.h
 files/Buffer.obj: files/Buffer.h files/LineData.h edits/RefLines.h
 files/Buffer.obj: edits/RefLine.h edits/RefEdit.h edits/RefCount.h
-files/Buffer.obj: edits/refconst.h Format.h Comment.h Format.h
-files/Buffer.obj: edits/RefComment.h edits/RefEntry.h edits/RefAction.h
-files/Buffer.obj: parse.h bconst.h Label.h handling/Bexcept.h
+files/Buffer.obj: edits/refconst.h Format.h edits/RefComment.h
+files/Buffer.obj: edits/RefEntry.h edits/RefAction.h parse.h bconst.h
+files/Buffer.obj: Format.h Label.h handling/Bexcept.h
 files/Chunk.obj: files/Chunk.h dispatch/Order.h bconst.h Format.h Label.h
 files/Chunk.obj: parse.h bconst.h handling/Bexcept.h handling/Bdiff.h
 files/Files.obj: files/Files.h files/FileTask.h Format.h analysis/DDInfo.h
@@ -368,7 +366,7 @@ records/Sheet.obj: analysis/ddsIF.h dll.h records/PlayTrace.h
 records/Sheet.obj: records/GivenScore.h analysis/Valuation.h analysis/Term.h
 records/Sheet.obj: records/Sheet.h records/SheetHand.h edits/Reflines.h
 records/Sheet.obj: edits/RefLine.h edits/RefEdit.h edits/RefCount.h
-records/Sheet.obj: edits/refconst.h Format.h Comment.h edits/RefComment.h
+records/Sheet.obj: edits/refconst.h Format.h edits/RefComment.h
 records/Sheet.obj: edits/RefEntry.h edits/RefAction.h files/Buffer.h
 records/Sheet.obj: files/LineData.h parse.h bconst.h handling/Bexcept.h
 records/Sheet.obj: handling/Bdiff.h
@@ -400,13 +398,12 @@ stats/DuplStat.obj: records/Auction.h records/Contract.h records/Play.h
 stats/DuplStat.obj: analysis/ddsIF.h dll.h records/PlayTrace.h
 stats/DuplStat.obj: records/GivenScore.h analysis/Valuation.h analysis/Term.h
 stats/DuplStat.obj: edits/RefLines.h edits/RefLine.h edits/RefEdit.h
-stats/DuplStat.obj: edits/RefCount.h edits/refconst.h Comment.h
-stats/DuplStat.obj: edits/RefComment.h edits/RefEntry.h edits/RefAction.h
-stats/DuplStat.obj: parse.h bconst.h handling/Bexcept.h
+stats/DuplStat.obj: edits/RefCount.h edits/refconst.h edits/RefComment.h
+stats/DuplStat.obj: edits/RefEntry.h edits/RefAction.h parse.h bconst.h
+stats/DuplStat.obj: handling/Bexcept.h
 stats/DuplStats.obj: stats/DuplStats.h stats/DuplStat.h Format.h
 stats/DuplStats.obj: handling/Bexcept.h
-stats/RefStats.obj: stats/RefStats.h edits/RefEntry.h Comment.h Format.h
-stats/RefStats.obj: handling/Bexcept.h
+stats/RefStats.obj: stats/RefStats.h edits/RefEntry.h handling/Bexcept.h
 stats/TextDatum.obj: stats/TextDatum.h
 stats/TextStat.obj: stats/TextStat.h stats/TextDatum.h
 stats/TextStats.obj: stats/TextStats.h stats/TextStat.h stats/TextDatum.h
@@ -420,7 +417,7 @@ validate/ValProfile.obj: validate/ValProfile.h files/LineData.h
 validate/validate.obj: files/Chunk.h dispatch/Order.h bconst.h Format.h
 validate/validate.obj: Label.h files/LineData.h edits/RefLines.h
 validate/validate.obj: edits/RefLine.h edits/RefEdit.h edits/RefCount.h
-validate/validate.obj: edits/refconst.h Format.h Comment.h edits/RefComment.h
+validate/validate.obj: edits/refconst.h Format.h edits/RefComment.h
 validate/validate.obj: edits/RefEntry.h edits/RefAction.h formats/filePBN.h
 validate/validate.obj: parse.h bconst.h validate/validateLIN.h
 validate/validate.obj: validate/validatePBN.h validate/validateRBN.h
