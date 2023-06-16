@@ -1,27 +1,27 @@
-parse.obj: parse.h bridge.h Format.h Label.h
 reader.obj: control/args.h control/Options.h files/Files.h files/FileTask.h
-reader.obj: Format.h analysis/DDInfo.h dispatch/dispatch.h stats/AllStats.h
-reader.obj: stats/Timer.h
-control/args.obj: control/args.h control/Options.h Format.h
-analysis/DDInfo.obj: analysis/DDInfo.h parse.h bridge.h Format.h Label.h
-analysis/DDInfo.obj: handling/Bexcept.h
-analysis/Term.obj: analysis/Term.h analysis/Valuation.h bridge.h Format.h
-analysis/Term.obj: Label.h handling/Bexcept.h
-analysis/Valuation.obj: analysis/Valuation.h analysis/Term.h bridge.h
-analysis/Valuation.obj: Format.h Label.h handling/Bexcept.h
-analysis/ddsIF.obj: analysis/ddsIF.h dll.h handling/Bexcept.h
+reader.obj: include/Format.h analysis/DDInfo.h dispatch/dispatch.h
+reader.obj: stats/AllStats.h stats/Timer.h
+analysis/DDInfo.obj: analysis/DDInfo.h util/parse.h include/bridge.h
+analysis/DDInfo.obj: include/Format.h include/Label.h handling/Bexcept.h
+analysis/Term.obj: analysis/Term.h analysis/Valuation.h include/bridge.h
+analysis/Term.obj: include/Format.h include/Label.h handling/Bexcept.h
+analysis/Valuation.obj: analysis/Valuation.h analysis/Term.h include/bridge.h
+analysis/Valuation.obj: include/Format.h include/Label.h handling/Bexcept.h
+analysis/ddsIF.obj: analysis/ddsIF.h analysis/dll.h handling/Bexcept.h
+control/args.obj: control/args.h control/Options.h include/Format.h
 dispatch/OrderCounts.obj: dispatch/OrderCounts.h dispatch/Order.h
 dispatch/dispatch.obj: dispatch/dispatch.h control/Options.h records/Group.h
 dispatch/dispatch.obj: records/Segment.h records/Date.h records/Location.h
 dispatch/dispatch.obj: records/Session.h records/Teams.h records/Team.h
 dispatch/dispatch.obj: records/Scoring.h records/HeaderLIN.h
 dispatch/dispatch.obj: records/LINData.h records/Board.h records/Deal.h
-dispatch/dispatch.obj: bridge.h Format.h Label.h records/Tableau.h
-dispatch/dispatch.obj: records/Instance.h records/Players.h records/Auction.h
-dispatch/dispatch.obj: records/Contract.h records/Play.h analysis/ddsIF.h
-dispatch/dispatch.obj: dll.h records/PlayTrace.h records/GivenScore.h
+dispatch/dispatch.obj: include/bridge.h include/Format.h include/Label.h
+dispatch/dispatch.obj: records/Tableau.h records/Instance.h records/Players.h
+dispatch/dispatch.obj: records/Auction.h records/Contract.h records/Play.h
+dispatch/dispatch.obj: analysis/ddsIF.h analysis/dll.h records/PlayTrace.h
+dispatch/dispatch.obj: analysis/PlayError.h records/GivenScore.h
 dispatch/dispatch.obj: analysis/Valuation.h analysis/Term.h files/Files.h
-dispatch/dispatch.obj: files/FileTask.h Format.h analysis/DDInfo.h
+dispatch/dispatch.obj: files/FileTask.h include/Format.h analysis/DDInfo.h
 dispatch/dispatch.obj: edits/RefLines.h edits/RefLine.h edits/RefEdit.h
 dispatch/dispatch.obj: edits/RefCount.h edits/refconst.h edits/RefComment.h
 dispatch/dispatch.obj: edits/RefEntry.h edits/RefAction.h stats/AllStats.h
@@ -39,416 +39,475 @@ dispatch/funcCompare.obj: records/Group.h records/Segment.h records/Date.h
 dispatch/funcCompare.obj: records/Location.h records/Session.h
 dispatch/funcCompare.obj: records/Teams.h records/Team.h records/Scoring.h
 dispatch/funcCompare.obj: records/HeaderLIN.h records/LINData.h
-dispatch/funcCompare.obj: records/Board.h records/Deal.h bridge.h Format.h
-dispatch/funcCompare.obj: Label.h records/Tableau.h records/Instance.h
-dispatch/funcCompare.obj: records/Players.h records/Auction.h
-dispatch/funcCompare.obj: records/Contract.h records/Play.h analysis/ddsIF.h
-dispatch/funcCompare.obj: dll.h records/PlayTrace.h records/GivenScore.h
+dispatch/funcCompare.obj: records/Board.h records/Deal.h include/bridge.h
+dispatch/funcCompare.obj: include/Format.h include/Label.h records/Tableau.h
+dispatch/funcCompare.obj: records/Instance.h records/Players.h
+dispatch/funcCompare.obj: records/Auction.h records/Contract.h records/Play.h
+dispatch/funcCompare.obj: analysis/ddsIF.h analysis/dll.h records/PlayTrace.h
+dispatch/funcCompare.obj: analysis/PlayError.h records/GivenScore.h
 dispatch/funcCompare.obj: analysis/Valuation.h analysis/Term.h
-dispatch/funcCompare.obj: stats/CompStats.h Format.h handling/Bexcept.h
-dispatch/funcCompare.obj: handling/Bdiff.h
-dispatch/funcDD.obj: files/Files.h files/FileTask.h Format.h
-dispatch/funcDD.obj: analysis/DDInfo.h parse.h bridge.h Format.h Label.h
-dispatch/funcDD.obj: dll.h records/Group.h records/Segment.h records/Date.h
-dispatch/funcDD.obj: records/Location.h records/Session.h records/Teams.h
-dispatch/funcDD.obj: records/Team.h records/Scoring.h records/HeaderLIN.h
-dispatch/funcDD.obj: records/LINData.h records/Board.h records/Deal.h
-dispatch/funcDD.obj: bridge.h records/Tableau.h records/Instance.h
+dispatch/funcCompare.obj: stats/CompStats.h include/Format.h
+dispatch/funcCompare.obj: handling/Bexcept.h handling/Bdiff.h
+dispatch/funcDD.obj: files/Files.h files/FileTask.h include/Format.h
+dispatch/funcDD.obj: analysis/DDInfo.h records/Group.h records/Segment.h
+dispatch/funcDD.obj: records/Date.h records/Location.h records/Session.h
+dispatch/funcDD.obj: records/Teams.h records/Team.h records/Scoring.h
+dispatch/funcDD.obj: records/HeaderLIN.h records/LINData.h records/Board.h
+dispatch/funcDD.obj: records/Deal.h include/bridge.h include/Format.h
+dispatch/funcDD.obj: include/Label.h records/Tableau.h records/Instance.h
 dispatch/funcDD.obj: records/Players.h records/Auction.h records/Contract.h
-dispatch/funcDD.obj: records/Play.h analysis/ddsIF.h records/PlayTrace.h
+dispatch/funcDD.obj: records/Play.h analysis/ddsIF.h analysis/dll.h
+dispatch/funcDD.obj: records/PlayTrace.h analysis/PlayError.h
 dispatch/funcDD.obj: records/GivenScore.h analysis/Valuation.h
-dispatch/funcDD.obj: analysis/Term.h handling/Bexcept.h
-dispatch/funcDigest.obj: control/Options.h dispatch/funcDigest.h
-dispatch/funcDigest.obj: records/Sheet.h records/Contract.h bridge.h Format.h
-dispatch/funcDigest.obj: Label.h records/Deal.h records/Auction.h
-dispatch/funcDigest.obj: records/Play.h analysis/ddsIF.h dll.h
-dispatch/funcDigest.obj: records/SheetHand.h edits/Reflines.h edits/RefLine.h
-dispatch/funcDigest.obj: edits/RefEdit.h edits/RefCount.h edits/refconst.h
-dispatch/funcDigest.obj: Format.h edits/RefComment.h edits/RefEntry.h
-dispatch/funcDigest.obj: edits/RefAction.h files/FileTask.h parse.h bridge.h
-dispatch/funcDigest.obj: handling/Bexcept.h
+dispatch/funcDD.obj: analysis/Term.h util/parse.h analysis/dll.h
+dispatch/funcDD.obj: handling/Bexcept.h
+dispatch/funcDigest.obj: dispatch/funcDigest.h control/Options.h
+dispatch/funcDigest.obj: files/FileTask.h records/Sheet.h records/Contract.h
+dispatch/funcDigest.obj: include/bridge.h include/Format.h include/Label.h
+dispatch/funcDigest.obj: records/Deal.h records/Auction.h records/Play.h
+dispatch/funcDigest.obj: analysis/ddsIF.h analysis/dll.h records/SheetHand.h
+dispatch/funcDigest.obj: edits/Reflines.h edits/RefLine.h edits/RefEdit.h
+dispatch/funcDigest.obj: edits/RefCount.h edits/refconst.h include/Format.h
+dispatch/funcDigest.obj: edits/RefComment.h edits/RefEntry.h
+dispatch/funcDigest.obj: edits/RefAction.h util/parse.h handling/Bexcept.h
 dispatch/funcDupl.obj: records/Group.h records/Segment.h records/Date.h
 dispatch/funcDupl.obj: records/Location.h records/Session.h records/Teams.h
 dispatch/funcDupl.obj: records/Team.h records/Scoring.h records/HeaderLIN.h
 dispatch/funcDupl.obj: records/LINData.h records/Board.h records/Deal.h
-dispatch/funcDupl.obj: bridge.h Format.h Label.h records/Tableau.h
-dispatch/funcDupl.obj: records/Instance.h records/Players.h records/Auction.h
-dispatch/funcDupl.obj: records/Contract.h records/Play.h analysis/ddsIF.h
-dispatch/funcDupl.obj: dll.h records/PlayTrace.h records/GivenScore.h
+dispatch/funcDupl.obj: include/bridge.h include/Format.h include/Label.h
+dispatch/funcDupl.obj: records/Tableau.h records/Instance.h records/Players.h
+dispatch/funcDupl.obj: records/Auction.h records/Contract.h records/Play.h
+dispatch/funcDupl.obj: analysis/ddsIF.h analysis/dll.h records/PlayTrace.h
+dispatch/funcDupl.obj: analysis/PlayError.h records/GivenScore.h
 dispatch/funcDupl.obj: analysis/Valuation.h analysis/Term.h edits/RefLines.h
 dispatch/funcDupl.obj: edits/RefLine.h edits/RefEdit.h edits/RefCount.h
-dispatch/funcDupl.obj: edits/refconst.h Format.h edits/RefComment.h
+dispatch/funcDupl.obj: edits/refconst.h include/Format.h edits/RefComment.h
 dispatch/funcDupl.obj: edits/RefEntry.h edits/RefAction.h stats/DuplStats.h
 dispatch/funcDupl.obj: stats/DuplStat.h handling/Bexcept.h
 dispatch/funcEquals.obj: records/Group.h records/Segment.h records/Date.h
 dispatch/funcEquals.obj: records/Location.h records/Session.h records/Teams.h
 dispatch/funcEquals.obj: records/Team.h records/Scoring.h records/HeaderLIN.h
 dispatch/funcEquals.obj: records/LINData.h records/Board.h records/Deal.h
-dispatch/funcEquals.obj: bridge.h Format.h Label.h records/Tableau.h
-dispatch/funcEquals.obj: records/Instance.h records/Players.h
-dispatch/funcEquals.obj: records/Auction.h records/Contract.h records/Play.h
-dispatch/funcEquals.obj: analysis/ddsIF.h dll.h records/PlayTrace.h
-dispatch/funcEquals.obj: records/GivenScore.h analysis/Valuation.h
-dispatch/funcEquals.obj: analysis/Term.h handling/Bexcept.h
+dispatch/funcEquals.obj: include/bridge.h include/Format.h include/Label.h
+dispatch/funcEquals.obj: records/Tableau.h records/Instance.h
+dispatch/funcEquals.obj: records/Players.h records/Auction.h
+dispatch/funcEquals.obj: records/Contract.h records/Play.h analysis/ddsIF.h
+dispatch/funcEquals.obj: analysis/dll.h records/PlayTrace.h
+dispatch/funcEquals.obj: analysis/PlayError.h records/GivenScore.h
+dispatch/funcEquals.obj: analysis/Valuation.h analysis/Term.h
+dispatch/funcEquals.obj: handling/Bexcept.h
 dispatch/funcIMPSheet.obj: dispatch/funcIMPSheet.h records/Group.h
 dispatch/funcIMPSheet.obj: records/Segment.h records/Date.h
 dispatch/funcIMPSheet.obj: records/Location.h records/Session.h
 dispatch/funcIMPSheet.obj: records/Teams.h records/Team.h records/Scoring.h
 dispatch/funcIMPSheet.obj: records/HeaderLIN.h records/LINData.h
-dispatch/funcIMPSheet.obj: records/Board.h records/Deal.h bridge.h Format.h
-dispatch/funcIMPSheet.obj: Label.h records/Tableau.h records/Instance.h
-dispatch/funcIMPSheet.obj: records/Players.h records/Auction.h
-dispatch/funcIMPSheet.obj: records/Contract.h records/Play.h analysis/ddsIF.h
-dispatch/funcIMPSheet.obj: dll.h records/PlayTrace.h records/GivenScore.h
-dispatch/funcIMPSheet.obj: analysis/Valuation.h analysis/Term.h
-dispatch/funcIMPSheet.obj: records/Sheet.h records/SheetHand.h
-dispatch/funcIMPSheet.obj: edits/Reflines.h edits/RefLine.h edits/RefEdit.h
-dispatch/funcIMPSheet.obj: edits/RefCount.h edits/refconst.h Format.h
+dispatch/funcIMPSheet.obj: records/Board.h records/Deal.h include/bridge.h
+dispatch/funcIMPSheet.obj: include/Format.h include/Label.h records/Tableau.h
+dispatch/funcIMPSheet.obj: records/Instance.h records/Players.h
+dispatch/funcIMPSheet.obj: records/Auction.h records/Contract.h
+dispatch/funcIMPSheet.obj: records/Play.h analysis/ddsIF.h analysis/dll.h
+dispatch/funcIMPSheet.obj: records/PlayTrace.h analysis/PlayError.h
+dispatch/funcIMPSheet.obj: records/GivenScore.h analysis/Valuation.h
+dispatch/funcIMPSheet.obj: analysis/Term.h records/Sheet.h
+dispatch/funcIMPSheet.obj: records/SheetHand.h edits/Reflines.h
+dispatch/funcIMPSheet.obj: edits/RefLine.h edits/RefEdit.h edits/RefCount.h
+dispatch/funcIMPSheet.obj: edits/refconst.h include/Format.h
 dispatch/funcIMPSheet.obj: edits/RefComment.h edits/RefEntry.h
 dispatch/funcIMPSheet.obj: edits/RefAction.h handling/Bexcept.h
 dispatch/funcPlayerVal.obj: records/Group.h records/Segment.h records/Date.h
 dispatch/funcPlayerVal.obj: records/Location.h records/Session.h
 dispatch/funcPlayerVal.obj: records/Teams.h records/Team.h records/Scoring.h
 dispatch/funcPlayerVal.obj: records/HeaderLIN.h records/LINData.h
-dispatch/funcPlayerVal.obj: records/Board.h records/Deal.h bridge.h Format.h
-dispatch/funcPlayerVal.obj: Label.h records/Tableau.h records/Instance.h
+dispatch/funcPlayerVal.obj: records/Board.h records/Deal.h include/bridge.h
+dispatch/funcPlayerVal.obj: include/Format.h include/Label.h
+dispatch/funcPlayerVal.obj: records/Tableau.h records/Instance.h
 dispatch/funcPlayerVal.obj: records/Players.h records/Auction.h
 dispatch/funcPlayerVal.obj: records/Contract.h records/Play.h
-dispatch/funcPlayerVal.obj: analysis/ddsIF.h dll.h records/PlayTrace.h
+dispatch/funcPlayerVal.obj: analysis/ddsIF.h analysis/dll.h
+dispatch/funcPlayerVal.obj: records/PlayTrace.h analysis/PlayError.h
 dispatch/funcPlayerVal.obj: records/GivenScore.h analysis/Valuation.h
 dispatch/funcPlayerVal.obj: analysis/Term.h dispatch/funcPlayerVal.h
 dispatch/funcPlayerVal.obj: handling/Bexcept.h
 dispatch/funcRead.obj: dispatch/funcRead.h dispatch/OrderCounts.h
-dispatch/funcRead.obj: dispatch/Order.h control/Options.h records/Group.h
-dispatch/funcRead.obj: records/Segment.h records/Date.h records/Location.h
-dispatch/funcRead.obj: records/Session.h records/Teams.h records/Team.h
-dispatch/funcRead.obj: records/Scoring.h records/HeaderLIN.h
-dispatch/funcRead.obj: records/LINData.h records/Board.h records/Deal.h
-dispatch/funcRead.obj: bridge.h Format.h Label.h records/Tableau.h
-dispatch/funcRead.obj: records/Instance.h records/Players.h records/Auction.h
-dispatch/funcRead.obj: records/Contract.h records/Play.h analysis/ddsIF.h
-dispatch/funcRead.obj: dll.h records/PlayTrace.h records/GivenScore.h
-dispatch/funcRead.obj: analysis/Valuation.h analysis/Term.h files/Buffer.h
+dispatch/funcRead.obj: dispatch/Order.h formats/fileLIN.h formats/filePBN.h
+dispatch/funcRead.obj: formats/fileRBN.h formats/fileTXT.h formats/fileEML.h
+dispatch/funcRead.obj: formats/fileREC.h control/Options.h files/Buffer.h
 dispatch/funcRead.obj: files/LineData.h files/Chunk.h dispatch/Order.h
-dispatch/funcRead.obj: Format.h edits/RefLines.h edits/RefLine.h
+dispatch/funcRead.obj: include/Label.h records/Group.h records/Segment.h
+dispatch/funcRead.obj: records/Date.h records/Location.h records/Session.h
+dispatch/funcRead.obj: records/Teams.h records/Team.h records/Scoring.h
+dispatch/funcRead.obj: records/HeaderLIN.h records/LINData.h records/Board.h
+dispatch/funcRead.obj: records/Deal.h include/bridge.h include/Format.h
+dispatch/funcRead.obj: include/Label.h records/Tableau.h records/Instance.h
+dispatch/funcRead.obj: records/Players.h records/Auction.h records/Contract.h
+dispatch/funcRead.obj: records/Play.h analysis/ddsIF.h analysis/dll.h
+dispatch/funcRead.obj: records/PlayTrace.h analysis/PlayError.h
+dispatch/funcRead.obj: records/GivenScore.h analysis/Valuation.h
+dispatch/funcRead.obj: analysis/Term.h edits/RefLines.h edits/RefLine.h
 dispatch/funcRead.obj: edits/RefEdit.h edits/RefCount.h edits/refconst.h
-dispatch/funcRead.obj: edits/RefComment.h edits/RefEntry.h edits/RefAction.h
-dispatch/funcRead.obj: formats/fileLIN.h formats/filePBN.h formats/fileRBN.h
-dispatch/funcRead.obj: formats/fileTXT.h formats/fileEML.h formats/fileREC.h
-dispatch/funcRead.obj: parse.h bridge.h handling/Bexcept.h
+dispatch/funcRead.obj: include/Format.h edits/RefComment.h edits/RefEntry.h
+dispatch/funcRead.obj: edits/RefAction.h util/parse.h handling/Bexcept.h
 dispatch/funcRefStats.obj: dispatch/funcRefStats.h files/Buffer.h
 dispatch/funcRefStats.obj: files/LineData.h edits/RefLines.h edits/RefLine.h
 dispatch/funcRefStats.obj: edits/RefEdit.h edits/RefCount.h edits/refconst.h
-dispatch/funcRefStats.obj: Format.h edits/RefComment.h edits/RefEntry.h
-dispatch/funcRefStats.obj: edits/RefAction.h edits/Comment.h stats/RefStats.h
-dispatch/funcRefStats.obj: edits/RefEntry.h handling/Bexcept.h
+dispatch/funcRefStats.obj: include/Format.h edits/RefComment.h
+dispatch/funcRefStats.obj: edits/RefEntry.h edits/RefAction.h edits/Comment.h
+dispatch/funcRefStats.obj: stats/RefStats.h edits/RefEntry.h
+dispatch/funcRefStats.obj: handling/Bexcept.h
 dispatch/funcTextStats.obj: dispatch/funcTextStats.h records/Group.h
 dispatch/funcTextStats.obj: records/Segment.h records/Date.h
 dispatch/funcTextStats.obj: records/Location.h records/Session.h
 dispatch/funcTextStats.obj: records/Teams.h records/Team.h records/Scoring.h
 dispatch/funcTextStats.obj: records/HeaderLIN.h records/LINData.h
-dispatch/funcTextStats.obj: records/Board.h records/Deal.h bridge.h Format.h
-dispatch/funcTextStats.obj: Label.h records/Tableau.h records/Instance.h
+dispatch/funcTextStats.obj: records/Board.h records/Deal.h include/bridge.h
+dispatch/funcTextStats.obj: include/Format.h include/Label.h
+dispatch/funcTextStats.obj: records/Tableau.h records/Instance.h
 dispatch/funcTextStats.obj: records/Players.h records/Auction.h
 dispatch/funcTextStats.obj: records/Contract.h records/Play.h
-dispatch/funcTextStats.obj: analysis/ddsIF.h dll.h records/PlayTrace.h
+dispatch/funcTextStats.obj: analysis/ddsIF.h analysis/dll.h
+dispatch/funcTextStats.obj: records/PlayTrace.h analysis/PlayError.h
 dispatch/funcTextStats.obj: records/GivenScore.h analysis/Valuation.h
 dispatch/funcTextStats.obj: analysis/Term.h files/FileTask.h
 dispatch/funcTextStats.obj: stats/TextStats.h stats/TextStat.h
 dispatch/funcTextStats.obj: stats/TextDatum.h handling/Bexcept.h
-dispatch/funcTrace.obj: files/Files.h files/FileTask.h Format.h
-dispatch/funcTrace.obj: analysis/DDInfo.h parse.h bridge.h Format.h Label.h
-dispatch/funcTrace.obj: records/Group.h records/Segment.h records/Date.h
-dispatch/funcTrace.obj: records/Location.h records/Session.h records/Teams.h
-dispatch/funcTrace.obj: records/Team.h records/Scoring.h records/HeaderLIN.h
-dispatch/funcTrace.obj: records/LINData.h records/Board.h records/Deal.h
-dispatch/funcTrace.obj: bridge.h records/Tableau.h records/Instance.h
+dispatch/funcTrace.obj: files/Files.h files/FileTask.h include/Format.h
+dispatch/funcTrace.obj: analysis/DDInfo.h records/Group.h records/Segment.h
+dispatch/funcTrace.obj: records/Date.h records/Location.h records/Session.h
+dispatch/funcTrace.obj: records/Teams.h records/Team.h records/Scoring.h
+dispatch/funcTrace.obj: records/HeaderLIN.h records/LINData.h records/Board.h
+dispatch/funcTrace.obj: records/Deal.h include/bridge.h include/Format.h
+dispatch/funcTrace.obj: include/Label.h records/Tableau.h records/Instance.h
 dispatch/funcTrace.obj: records/Players.h records/Auction.h
 dispatch/funcTrace.obj: records/Contract.h records/Play.h analysis/ddsIF.h
-dispatch/funcTrace.obj: dll.h records/PlayTrace.h records/GivenScore.h
-dispatch/funcTrace.obj: analysis/Valuation.h analysis/Term.h
-dispatch/funcTrace.obj: handling/Bexcept.h
+dispatch/funcTrace.obj: analysis/dll.h records/PlayTrace.h
+dispatch/funcTrace.obj: analysis/PlayError.h records/GivenScore.h
+dispatch/funcTrace.obj: analysis/Valuation.h analysis/Term.h analysis/dll.h
+dispatch/funcTrace.obj: util/parse.h handling/Bexcept.h
 dispatch/funcValidate.obj: dispatch/funcValidate.h validate/validate.h
 dispatch/funcValidate.obj: files/FileTask.h stats/ValStats.h stats/ValRow.h
-dispatch/funcValidate.obj: validate/ValProfile.h Format.h Label.h
-dispatch/funcValidate.obj: handling/Bexcept.h
+dispatch/funcValidate.obj: validate/ValProfile.h include/Format.h
+dispatch/funcValidate.obj: include/Label.h handling/Bexcept.h
 dispatch/funcValuation.obj: records/Group.h records/Segment.h records/Date.h
 dispatch/funcValuation.obj: records/Location.h records/Session.h
 dispatch/funcValuation.obj: records/Teams.h records/Team.h records/Scoring.h
 dispatch/funcValuation.obj: records/HeaderLIN.h records/LINData.h
-dispatch/funcValuation.obj: records/Board.h records/Deal.h bridge.h Format.h
-dispatch/funcValuation.obj: Label.h records/Tableau.h records/Instance.h
+dispatch/funcValuation.obj: records/Board.h records/Deal.h include/bridge.h
+dispatch/funcValuation.obj: include/Format.h include/Label.h
+dispatch/funcValuation.obj: records/Tableau.h records/Instance.h
 dispatch/funcValuation.obj: records/Players.h records/Auction.h
 dispatch/funcValuation.obj: records/Contract.h records/Play.h
-dispatch/funcValuation.obj: analysis/ddsIF.h dll.h records/PlayTrace.h
+dispatch/funcValuation.obj: analysis/ddsIF.h analysis/dll.h
+dispatch/funcValuation.obj: records/PlayTrace.h analysis/PlayError.h
 dispatch/funcValuation.obj: records/GivenScore.h analysis/Valuation.h
 dispatch/funcValuation.obj: analysis/Term.h handling/Bexcept.h
-dispatch/funcWrite.obj: records/Group.h records/Segment.h records/Date.h
-dispatch/funcWrite.obj: records/Location.h records/Session.h records/Teams.h
-dispatch/funcWrite.obj: records/Team.h records/Scoring.h records/HeaderLIN.h
-dispatch/funcWrite.obj: records/LINData.h records/Board.h records/Deal.h
-dispatch/funcWrite.obj: bridge.h Format.h Label.h records/Tableau.h
-dispatch/funcWrite.obj: records/Instance.h records/Players.h
-dispatch/funcWrite.obj: records/Auction.h records/Contract.h records/Play.h
-dispatch/funcWrite.obj: analysis/ddsIF.h dll.h records/PlayTrace.h
-dispatch/funcWrite.obj: records/GivenScore.h analysis/Valuation.h
-dispatch/funcWrite.obj: analysis/Term.h formats/fileLIN.h formats/filePBN.h
-dispatch/funcWrite.obj: formats/fileRBN.h formats/fileTXT.h formats/fileEML.h
-dispatch/funcWrite.obj: formats/fileREC.h formats/writeInfo.h
-dispatch/funcWrite.obj: dispatch/Order.h parse.h bridge.h handling/Bexcept.h
-edits/RefAction.obj: edits/RefAction.h edits/refconst.h Format.h
+dispatch/funcWrite.obj: dispatch/Order.h records/Group.h records/Segment.h
+dispatch/funcWrite.obj: records/Date.h records/Location.h records/Session.h
+dispatch/funcWrite.obj: records/Teams.h records/Team.h records/Scoring.h
+dispatch/funcWrite.obj: records/HeaderLIN.h records/LINData.h records/Board.h
+dispatch/funcWrite.obj: records/Deal.h include/bridge.h include/Format.h
+dispatch/funcWrite.obj: include/Label.h records/Tableau.h records/Instance.h
+dispatch/funcWrite.obj: records/Players.h records/Auction.h
+dispatch/funcWrite.obj: records/Contract.h records/Play.h analysis/ddsIF.h
+dispatch/funcWrite.obj: analysis/dll.h records/PlayTrace.h
+dispatch/funcWrite.obj: analysis/PlayError.h records/GivenScore.h
+dispatch/funcWrite.obj: analysis/Valuation.h analysis/Term.h
+dispatch/funcWrite.obj: formats/fileLIN.h formats/filePBN.h formats/fileRBN.h
+dispatch/funcWrite.obj: formats/fileTXT.h formats/fileEML.h formats/fileREC.h
+dispatch/funcWrite.obj: formats/writeInfo.h util/parse.h handling/Bexcept.h
+edits/RefAction.obj: edits/RefAction.h edits/refconst.h include/Format.h
 edits/RefAction.obj: handling/Bexcept.h
 edits/RefComment.obj: edits/RefComment.h edits/RefEntry.h edits/RefCount.h
-edits/RefComment.obj: edits/refconst.h Format.h edits/Comment.h parse.h
-edits/RefComment.obj: bridge.h Format.h Label.h handling/Bexcept.h
+edits/RefComment.obj: edits/refconst.h include/Format.h edits/Comment.h
+edits/RefComment.obj: util/parse.h include/bridge.h include/Format.h
+edits/RefComment.obj: include/Label.h handling/Bexcept.h
 edits/RefCount.obj: edits/RefCount.h
-edits/RefEdit.obj: edits/RefEdit.h edits/RefCount.h edits/refconst.h Format.h
-edits/RefEdit.obj: parse.h bridge.h Format.h Label.h handling/Bexcept.h
+edits/RefEdit.obj: edits/RefEdit.h edits/RefCount.h edits/refconst.h
+edits/RefEdit.obj: include/Format.h util/parse.h include/bridge.h
+edits/RefEdit.obj: include/Format.h include/Label.h handling/Bexcept.h
 edits/RefEntry.obj: edits/RefEntry.h edits/RefCount.h
 edits/Refline.obj: edits/RefLine.h edits/RefEdit.h edits/RefCount.h
-edits/Refline.obj: edits/refconst.h Format.h edits/RefComment.h
-edits/Refline.obj: edits/RefEntry.h edits/RefAction.h edits/Comment.h parse.h
-edits/Refline.obj: bridge.h Format.h Label.h handling/Bexcept.h
+edits/Refline.obj: edits/refconst.h include/Format.h edits/RefComment.h
+edits/Refline.obj: edits/RefEntry.h edits/RefAction.h edits/Comment.h
+edits/Refline.obj: util/parse.h include/bridge.h include/Format.h
+edits/Refline.obj: include/Label.h handling/Bexcept.h
 edits/Reflines.obj: edits/RefLines.h edits/RefLine.h edits/RefEdit.h
-edits/Reflines.obj: edits/RefCount.h edits/refconst.h Format.h
+edits/Reflines.obj: edits/RefCount.h edits/refconst.h include/Format.h
 edits/Reflines.obj: edits/RefComment.h edits/RefEntry.h edits/RefAction.h
 edits/Reflines.obj: edits/Comment.h dispatch/Order.h files/Buffer.h
-edits/Reflines.obj: files/LineData.h parse.h bridge.h Format.h Label.h
-edits/Reflines.obj: handling/Bexcept.h
+edits/Reflines.obj: files/LineData.h util/parse.h include/bridge.h
+edits/Reflines.obj: include/Format.h include/Label.h handling/Bexcept.h
 files/Buffer.obj: files/Buffer.h files/LineData.h edits/RefLines.h
 files/Buffer.obj: edits/RefLine.h edits/RefEdit.h edits/RefCount.h
-files/Buffer.obj: edits/refconst.h Format.h edits/RefComment.h
-files/Buffer.obj: edits/RefEntry.h edits/RefAction.h parse.h bridge.h
-files/Buffer.obj: Format.h Label.h handling/Bexcept.h
-files/Chunk.obj: files/Chunk.h dispatch/Order.h Format.h parse.h bridge.h
-files/Chunk.obj: Format.h Label.h handling/Bexcept.h handling/Bdiff.h
-files/Files.obj: files/Files.h files/FileTask.h Format.h analysis/DDInfo.h
-files/Files.obj: parse.h bridge.h Format.h Label.h control/Options.h
+files/Buffer.obj: edits/refconst.h include/Format.h edits/RefComment.h
+files/Buffer.obj: edits/RefEntry.h edits/RefAction.h util/parse.h
+files/Buffer.obj: include/bridge.h include/Format.h include/Label.h
+files/Buffer.obj: handling/Bexcept.h
+files/Chunk.obj: files/Chunk.h dispatch/Order.h include/Label.h util/parse.h
+files/Chunk.obj: include/bridge.h include/Format.h include/Label.h
+files/Chunk.obj: handling/Bexcept.h handling/Bdiff.h
+files/Files.obj: files/Files.h files/FileTask.h include/Format.h
+files/Files.obj: analysis/DDInfo.h util/parse.h include/bridge.h
+files/Files.obj: include/Format.h include/Label.h control/Options.h
 formats/Canvas.obj: formats/Canvas.h
 formats/fileEML.obj: formats/fileEML.h formats/Canvas.h formats/WriteInfo.h
 formats/fileEML.obj: records/Segment.h records/Date.h records/Location.h
 formats/fileEML.obj: records/Session.h records/Teams.h records/Team.h
 formats/fileEML.obj: records/Scoring.h records/HeaderLIN.h records/LINData.h
-formats/fileEML.obj: records/Board.h records/Deal.h bridge.h Format.h Label.h
-formats/fileEML.obj: records/Tableau.h records/Instance.h records/Players.h
-formats/fileEML.obj: records/Auction.h records/Contract.h records/Play.h
-formats/fileEML.obj: analysis/ddsIF.h dll.h records/PlayTrace.h
+formats/fileEML.obj: records/Board.h records/Deal.h include/bridge.h
+formats/fileEML.obj: include/Format.h include/Label.h records/Tableau.h
+formats/fileEML.obj: records/Instance.h records/Players.h records/Auction.h
+formats/fileEML.obj: records/Contract.h records/Play.h analysis/ddsIF.h
+formats/fileEML.obj: analysis/dll.h records/PlayTrace.h analysis/PlayError.h
 formats/fileEML.obj: records/GivenScore.h analysis/Valuation.h
 formats/fileEML.obj: analysis/Term.h records/Board.h files/Buffer.h
-formats/fileEML.obj: files/LineData.h files/Chunk.h dispatch/Order.h Format.h
-formats/fileEML.obj: parse.h bridge.h handling/Bexcept.h
+formats/fileEML.obj: files/LineData.h files/Chunk.h dispatch/Order.h
+formats/fileEML.obj: include/Label.h util/parse.h handling/Bexcept.h
 formats/fileLIN.obj: formats/fileLIN.h formats/WriteInfo.h records/Segment.h
 formats/fileLIN.obj: records/Date.h records/Location.h records/Session.h
 formats/fileLIN.obj: records/Teams.h records/Team.h records/Scoring.h
 formats/fileLIN.obj: records/HeaderLIN.h records/LINData.h records/Board.h
-formats/fileLIN.obj: records/Deal.h bridge.h Format.h Label.h
-formats/fileLIN.obj: records/Tableau.h records/Instance.h records/Players.h
-formats/fileLIN.obj: records/Auction.h records/Contract.h records/Play.h
-formats/fileLIN.obj: analysis/ddsIF.h dll.h records/PlayTrace.h
+formats/fileLIN.obj: records/Deal.h include/bridge.h include/Format.h
+formats/fileLIN.obj: include/Label.h records/Tableau.h records/Instance.h
+formats/fileLIN.obj: records/Players.h records/Auction.h records/Contract.h
+formats/fileLIN.obj: records/Play.h analysis/ddsIF.h analysis/dll.h
+formats/fileLIN.obj: records/PlayTrace.h analysis/PlayError.h
 formats/fileLIN.obj: records/GivenScore.h analysis/Valuation.h
 formats/fileLIN.obj: analysis/Term.h records/Board.h files/Buffer.h
-formats/fileLIN.obj: files/LineData.h files/Chunk.h dispatch/Order.h Format.h
-formats/fileLIN.obj: parse.h bridge.h handling/Bexcept.h
+formats/fileLIN.obj: files/LineData.h files/Chunk.h dispatch/Order.h
+formats/fileLIN.obj: include/Label.h util/parse.h handling/Bexcept.h
 formats/filePBN.obj: formats/filePBN.h formats/WriteInfo.h records/Segment.h
 formats/filePBN.obj: records/Date.h records/Location.h records/Session.h
 formats/filePBN.obj: records/Teams.h records/Team.h records/Scoring.h
 formats/filePBN.obj: records/HeaderLIN.h records/LINData.h records/Board.h
-formats/filePBN.obj: records/Deal.h bridge.h Format.h Label.h
-formats/filePBN.obj: records/Tableau.h records/Instance.h records/Players.h
-formats/filePBN.obj: records/Auction.h records/Contract.h records/Play.h
-formats/filePBN.obj: analysis/ddsIF.h dll.h records/PlayTrace.h
+formats/filePBN.obj: records/Deal.h include/bridge.h include/Format.h
+formats/filePBN.obj: include/Label.h records/Tableau.h records/Instance.h
+formats/filePBN.obj: records/Players.h records/Auction.h records/Contract.h
+formats/filePBN.obj: records/Play.h analysis/ddsIF.h analysis/dll.h
+formats/filePBN.obj: records/PlayTrace.h analysis/PlayError.h
 formats/filePBN.obj: records/GivenScore.h analysis/Valuation.h
 formats/filePBN.obj: analysis/Term.h records/Board.h files/Buffer.h
-formats/filePBN.obj: files/LineData.h files/Chunk.h dispatch/Order.h Format.h
-formats/filePBN.obj: handling/Bexcept.h
+formats/filePBN.obj: files/LineData.h files/Chunk.h dispatch/Order.h
+formats/filePBN.obj: include/Label.h handling/Bexcept.h
 formats/fileRBN.obj: formats/fileRBN.h formats/WriteInfo.h records/Segment.h
 formats/fileRBN.obj: records/Date.h records/Location.h records/Session.h
 formats/fileRBN.obj: records/Teams.h records/Team.h records/Scoring.h
 formats/fileRBN.obj: records/HeaderLIN.h records/LINData.h records/Board.h
-formats/fileRBN.obj: records/Deal.h bridge.h Format.h Label.h
-formats/fileRBN.obj: records/Tableau.h records/Instance.h records/Players.h
-formats/fileRBN.obj: records/Auction.h records/Contract.h records/Play.h
-formats/fileRBN.obj: analysis/ddsIF.h dll.h records/PlayTrace.h
+formats/fileRBN.obj: records/Deal.h include/bridge.h include/Format.h
+formats/fileRBN.obj: include/Label.h records/Tableau.h records/Instance.h
+formats/fileRBN.obj: records/Players.h records/Auction.h records/Contract.h
+formats/fileRBN.obj: records/Play.h analysis/ddsIF.h analysis/dll.h
+formats/fileRBN.obj: records/PlayTrace.h analysis/PlayError.h
 formats/fileRBN.obj: records/GivenScore.h analysis/Valuation.h
 formats/fileRBN.obj: analysis/Term.h files/Buffer.h files/LineData.h
-formats/fileRBN.obj: files/Chunk.h dispatch/Order.h Format.h parse.h bridge.h
-formats/fileRBN.obj: handling/Bexcept.h
+formats/fileRBN.obj: files/Chunk.h dispatch/Order.h include/Label.h
+formats/fileRBN.obj: util/parse.h handling/Bexcept.h
 formats/fileREC.obj: formats/fileREC.h formats/WriteInfo.h formats/Canvas.h
 formats/fileREC.obj: records/Segment.h records/Date.h records/Location.h
 formats/fileREC.obj: records/Session.h records/Teams.h records/Team.h
 formats/fileREC.obj: records/Scoring.h records/HeaderLIN.h records/LINData.h
-formats/fileREC.obj: records/Board.h records/Deal.h bridge.h Format.h Label.h
-formats/fileREC.obj: records/Tableau.h records/Instance.h records/Players.h
-formats/fileREC.obj: records/Auction.h records/Contract.h records/Play.h
-formats/fileREC.obj: analysis/ddsIF.h dll.h records/PlayTrace.h
+formats/fileREC.obj: records/Board.h records/Deal.h include/bridge.h
+formats/fileREC.obj: include/Format.h include/Label.h records/Tableau.h
+formats/fileREC.obj: records/Instance.h records/Players.h records/Auction.h
+formats/fileREC.obj: records/Contract.h records/Play.h analysis/ddsIF.h
+formats/fileREC.obj: analysis/dll.h records/PlayTrace.h analysis/PlayError.h
 formats/fileREC.obj: records/GivenScore.h analysis/Valuation.h
 formats/fileREC.obj: analysis/Term.h records/Board.h files/Buffer.h
-formats/fileREC.obj: files/LineData.h files/Chunk.h dispatch/Order.h Format.h
-formats/fileREC.obj: parse.h bridge.h handling/Bexcept.h
+formats/fileREC.obj: files/LineData.h files/Chunk.h dispatch/Order.h
+formats/fileREC.obj: include/Label.h util/parse.h handling/Bexcept.h
 formats/fileTXT.obj: formats/fileTXT.h formats/WriteInfo.h formats/Canvas.h
 formats/fileTXT.obj: records/Segment.h records/Date.h records/Location.h
 formats/fileTXT.obj: records/Session.h records/Teams.h records/Team.h
 formats/fileTXT.obj: records/Scoring.h records/HeaderLIN.h records/LINData.h
-formats/fileTXT.obj: records/Board.h records/Deal.h bridge.h Format.h Label.h
-formats/fileTXT.obj: records/Tableau.h records/Instance.h records/Players.h
-formats/fileTXT.obj: records/Auction.h records/Contract.h records/Play.h
-formats/fileTXT.obj: analysis/ddsIF.h dll.h records/PlayTrace.h
+formats/fileTXT.obj: records/Board.h records/Deal.h include/bridge.h
+formats/fileTXT.obj: include/Format.h include/Label.h records/Tableau.h
+formats/fileTXT.obj: records/Instance.h records/Players.h records/Auction.h
+formats/fileTXT.obj: records/Contract.h records/Play.h analysis/ddsIF.h
+formats/fileTXT.obj: analysis/dll.h records/PlayTrace.h analysis/PlayError.h
 formats/fileTXT.obj: records/GivenScore.h analysis/Valuation.h
 formats/fileTXT.obj: analysis/Term.h files/Buffer.h files/LineData.h
-formats/fileTXT.obj: files/Chunk.h dispatch/Order.h Format.h files/LineData.h
-formats/fileTXT.obj: parse.h bridge.h handling/Bexcept.h
+formats/fileTXT.obj: files/Chunk.h dispatch/Order.h include/Label.h
+formats/fileTXT.obj: files/LineData.h util/parse.h handling/Bexcept.h
 handling/Bdiff.obj: handling/Bdiff.h
 handling/Bexcept.obj: handling/Bexcept.h
-records/Auction.obj: records/Auction.h bridge.h Format.h Label.h
-records/Auction.obj: records/Contract.h parse.h bridge.h handling/Bexcept.h
-records/Auction.obj: handling/Bdiff.h
-records/Board.obj: records/Board.h records/Deal.h bridge.h Format.h Label.h
-records/Board.obj: records/Tableau.h records/Instance.h records/Players.h
-records/Board.obj: records/Auction.h records/Contract.h records/Play.h
-records/Board.obj: analysis/ddsIF.h dll.h records/PlayTrace.h
+records/Auction.obj: records/Auction.h include/bridge.h include/Format.h
+records/Auction.obj: include/Label.h records/Contract.h util/parse.h
+records/Auction.obj: handling/Bexcept.h handling/Bdiff.h
+records/Board.obj: records/Board.h records/Deal.h include/bridge.h
+records/Board.obj: include/Format.h include/Label.h records/Tableau.h
+records/Board.obj: records/Instance.h records/Players.h records/Auction.h
+records/Board.obj: records/Contract.h records/Play.h analysis/ddsIF.h
+records/Board.obj: analysis/dll.h records/PlayTrace.h analysis/PlayError.h
 records/Board.obj: records/LINData.h records/GivenScore.h
-records/Board.obj: analysis/Valuation.h analysis/Term.h parse.h bridge.h
+records/Board.obj: analysis/Valuation.h analysis/Term.h util/parse.h
 records/Board.obj: handling/Bexcept.h handling/Bdiff.h
-records/Contract.obj: records/Contract.h bridge.h Format.h Label.h parse.h
-records/Contract.obj: bridge.h handling/Bexcept.h handling/Bdiff.h
-records/Date.obj: records/Date.h parse.h bridge.h Format.h Label.h
-records/Date.obj: handling/Bexcept.h handling/Bdiff.h
-records/Deal.obj: records/Deal.h bridge.h Format.h Label.h parse.h bridge.h
-records/Deal.obj: handling/Bexcept.h handling/Bdiff.h
-records/GivenScore.obj: records/GivenScore.h parse.h bridge.h Format.h
-records/GivenScore.obj: Label.h handling/Bexcept.h handling/Bdiff.h
+records/Contract.obj: records/Contract.h include/bridge.h include/Format.h
+records/Contract.obj: include/Label.h util/parse.h handling/Bexcept.h
+records/Contract.obj: handling/Bdiff.h
+records/Date.obj: records/Date.h util/parse.h include/bridge.h
+records/Date.obj: include/Format.h include/Label.h handling/Bexcept.h
+records/Date.obj: handling/Bdiff.h
+records/Deal.obj: records/Deal.h include/bridge.h include/Format.h
+records/Deal.obj: include/Label.h util/parse.h handling/Bexcept.h
+records/Deal.obj: handling/Bdiff.h
+records/GivenScore.obj: records/GivenScore.h util/parse.h include/bridge.h
+records/GivenScore.obj: include/Format.h include/Label.h handling/Bexcept.h
+records/GivenScore.obj: handling/Bdiff.h
 records/Group.obj: records/Group.h records/Segment.h records/Date.h
 records/Group.obj: records/Location.h records/Session.h records/Teams.h
 records/Group.obj: records/Team.h records/Scoring.h records/HeaderLIN.h
-records/Group.obj: records/LINData.h records/Board.h records/Deal.h bridge.h
-records/Group.obj: Format.h Label.h records/Tableau.h records/Instance.h
-records/Group.obj: records/Players.h records/Auction.h records/Contract.h
-records/Group.obj: records/Play.h analysis/ddsIF.h dll.h records/PlayTrace.h
-records/Group.obj: records/GivenScore.h analysis/Valuation.h analysis/Term.h
-records/Group.obj: handling/Bdiff.h
-records/HeaderLIN.obj: records/HeaderLIN.h records/LINData.h parse.h bridge.h
-records/HeaderLIN.obj: Format.h Label.h handling/Bexcept.h
-records/Instance.obj: records/Instance.h records/Players.h bridge.h Format.h
-records/Instance.obj: Label.h records/Auction.h records/Contract.h
-records/Instance.obj: records/Play.h analysis/ddsIF.h dll.h
-records/Instance.obj: records/PlayTrace.h records/LINData.h parse.h bridge.h
-records/Instance.obj: handling/Bexcept.h handling/Bdiff.h
-records/Location.obj: records/Location.h Format.h handling/Bexcept.h
+records/Group.obj: records/LINData.h records/Board.h records/Deal.h
+records/Group.obj: include/bridge.h include/Format.h include/Label.h
+records/Group.obj: records/Tableau.h records/Instance.h records/Players.h
+records/Group.obj: records/Auction.h records/Contract.h records/Play.h
+records/Group.obj: analysis/ddsIF.h analysis/dll.h records/PlayTrace.h
+records/Group.obj: analysis/PlayError.h records/GivenScore.h
+records/Group.obj: analysis/Valuation.h analysis/Term.h handling/Bdiff.h
+records/HeaderLIN.obj: records/HeaderLIN.h records/LINData.h util/parse.h
+records/HeaderLIN.obj: include/bridge.h include/Format.h include/Label.h
+records/HeaderLIN.obj: handling/Bexcept.h
+records/Instance.obj: records/Instance.h records/Players.h include/bridge.h
+records/Instance.obj: include/Format.h include/Label.h records/Auction.h
+records/Instance.obj: records/Contract.h records/Play.h analysis/ddsIF.h
+records/Instance.obj: analysis/dll.h records/PlayTrace.h analysis/PlayError.h
+records/Instance.obj: records/LINData.h util/parse.h handling/Bexcept.h
+records/Instance.obj: handling/Bdiff.h
+records/Location.obj: records/Location.h include/Format.h handling/Bexcept.h
 records/Location.obj: handling/Bdiff.h
-records/Play.obj: records/Play.h bridge.h Format.h Label.h analysis/ddsIF.h
-records/Play.obj: dll.h records/Contract.h parse.h bridge.h
-records/Play.obj: handling/Bexcept.h handling/Bdiff.h
-records/PlayTrace.obj: records/PlayTrace.h bridge.h Format.h Label.h
+records/Play.obj: records/Play.h include/bridge.h include/Format.h
+records/Play.obj: include/Label.h analysis/ddsIF.h analysis/dll.h
+records/Play.obj: records/Contract.h util/parse.h handling/Bexcept.h
+records/Play.obj: handling/Bdiff.h
+records/PlayTrace.obj: records/PlayTrace.h include/bridge.h include/Format.h
+records/PlayTrace.obj: include/Label.h analysis/PlayError.h
 records/PlayTrace.obj: handling/Bexcept.h handling/Bdiff.h
-records/Players.obj: records/Players.h bridge.h Format.h Label.h parse.h
-records/Players.obj: bridge.h handling/Bexcept.h handling/Bdiff.h
-records/Scoring.obj: records/Scoring.h handling/Bexcept.h handling/Bdiff.h
+records/Players.obj: records/Players.h include/bridge.h include/Format.h
+records/Players.obj: include/Label.h util/parse.h handling/Bexcept.h
+records/Players.obj: handling/Bdiff.h
+records/Scoring.obj: records/Scoring.h include/Format.h handling/Bexcept.h
+records/Scoring.obj: handling/Bdiff.h
 records/Segment.obj: records/Segment.h records/Date.h records/Location.h
 records/Segment.obj: records/Session.h records/Teams.h records/Team.h
 records/Segment.obj: records/Scoring.h records/HeaderLIN.h records/LINData.h
-records/Segment.obj: records/Board.h records/Deal.h bridge.h Format.h Label.h
-records/Segment.obj: records/Tableau.h records/Instance.h records/Players.h
-records/Segment.obj: records/Auction.h records/Contract.h records/Play.h
-records/Segment.obj: analysis/ddsIF.h dll.h records/PlayTrace.h
+records/Segment.obj: records/Board.h records/Deal.h include/bridge.h
+records/Segment.obj: include/Format.h include/Label.h records/Tableau.h
+records/Segment.obj: records/Instance.h records/Players.h records/Auction.h
+records/Segment.obj: records/Contract.h records/Play.h analysis/ddsIF.h
+records/Segment.obj: analysis/dll.h records/PlayTrace.h analysis/PlayError.h
 records/Segment.obj: records/GivenScore.h analysis/Valuation.h
-records/Segment.obj: analysis/Term.h parse.h bridge.h handling/Bexcept.h
+records/Segment.obj: analysis/Term.h util/parse.h handling/Bexcept.h
 records/Segment.obj: handling/Bdiff.h
-records/Session.obj: records/Session.h Format.h parse.h bridge.h Format.h
-records/Session.obj: Label.h handling/Bdiff.h handling/Bexcept.h
-records/Sheet.obj: records/Segment.h records/Date.h records/Location.h
-records/Sheet.obj: records/Session.h records/Teams.h records/Team.h
-records/Sheet.obj: records/Scoring.h records/HeaderLIN.h records/LINData.h
-records/Sheet.obj: records/Board.h records/Deal.h bridge.h Format.h Label.h
-records/Sheet.obj: records/Tableau.h records/Instance.h records/Players.h
-records/Sheet.obj: records/Auction.h records/Contract.h records/Play.h
-records/Sheet.obj: analysis/ddsIF.h dll.h records/PlayTrace.h
-records/Sheet.obj: records/GivenScore.h analysis/Valuation.h analysis/Term.h
-records/Sheet.obj: records/Sheet.h records/SheetHand.h edits/Reflines.h
+records/Session.obj: records/Session.h include/Format.h util/parse.h
+records/Session.obj: include/bridge.h include/Format.h include/Label.h
+records/Session.obj: handling/Bdiff.h handling/Bexcept.h
+records/Sheet.obj: records/Sheet.h records/Contract.h include/bridge.h
+records/Sheet.obj: include/Format.h include/Label.h records/Deal.h
+records/Sheet.obj: records/Auction.h records/Play.h analysis/ddsIF.h
+records/Sheet.obj: analysis/dll.h records/SheetHand.h edits/Reflines.h
 records/Sheet.obj: edits/RefLine.h edits/RefEdit.h edits/RefCount.h
-records/Sheet.obj: edits/refconst.h Format.h edits/RefComment.h
-records/Sheet.obj: edits/RefEntry.h edits/RefAction.h files/Buffer.h
-records/Sheet.obj: files/LineData.h parse.h bridge.h handling/Bexcept.h
-records/Sheet.obj: handling/Bdiff.h
-records/SheetHand.obj: records/SheetHand.h records/Contract.h bridge.h
-records/SheetHand.obj: Format.h Label.h records/Deal.h records/Auction.h
-records/SheetHand.obj: records/Play.h analysis/ddsIF.h dll.h parse.h bridge.h
+records/Sheet.obj: edits/refconst.h include/Format.h edits/RefComment.h
+records/Sheet.obj: edits/RefEntry.h edits/RefAction.h records/Segment.h
+records/Sheet.obj: records/Date.h records/Location.h records/Session.h
+records/Sheet.obj: records/Teams.h records/Team.h records/Scoring.h
+records/Sheet.obj: records/HeaderLIN.h records/LINData.h records/Board.h
+records/Sheet.obj: records/Tableau.h records/Instance.h records/Players.h
+records/Sheet.obj: records/PlayTrace.h analysis/PlayError.h
+records/Sheet.obj: records/GivenScore.h analysis/Valuation.h analysis/Term.h
+records/Sheet.obj: files/Buffer.h files/LineData.h util/parse.h
+records/Sheet.obj: handling/Bexcept.h handling/Bdiff.h
+records/SheetHand.obj: records/SheetHand.h records/Contract.h
+records/SheetHand.obj: include/bridge.h include/Format.h include/Label.h
+records/SheetHand.obj: records/Deal.h records/Auction.h records/Play.h
+records/SheetHand.obj: analysis/ddsIF.h analysis/dll.h util/parse.h
 records/SheetHand.obj: handling/Bexcept.h handling/Bdiff.h
-records/Tableau.obj: records/Tableau.h bridge.h Format.h Label.h
-records/Tableau.obj: records/Contract.h parse.h bridge.h handling/Bexcept.h
-records/Tableau.obj: handling/Bdiff.h
-records/Team.obj: records/Team.h parse.h bridge.h Format.h Label.h
-records/Team.obj: handling/Bexcept.h handling/Bdiff.h
-records/Teams.obj: records/Teams.h records/Team.h Format.h parse.h bridge.h
-records/Teams.obj: Format.h Label.h handling/Bexcept.h handling/Bdiff.h
+records/Tableau.obj: records/Tableau.h include/bridge.h include/Format.h
+records/Tableau.obj: include/Label.h records/Contract.h util/parse.h
+records/Tableau.obj: handling/Bexcept.h handling/Bdiff.h
+records/Team.obj: records/Team.h util/parse.h include/bridge.h
+records/Team.obj: include/Format.h include/Label.h handling/Bexcept.h
+records/Team.obj: handling/Bdiff.h
+records/Teams.obj: records/Teams.h records/Team.h include/Format.h
+records/Teams.obj: util/parse.h include/bridge.h include/Format.h
+records/Teams.obj: include/Label.h handling/Bexcept.h handling/Bdiff.h
 stats/AllStats.obj: stats/AllStats.h stats/ValStats.h stats/ValRow.h
-stats/AllStats.obj: validate/ValProfile.h Format.h Label.h stats/TextStats.h
-stats/AllStats.obj: stats/TextStat.h stats/TextDatum.h stats/CompStats.h
-stats/AllStats.obj: stats/RefStats.h edits/RefEntry.h stats/DuplStats.h
-stats/AllStats.obj: stats/DuplStat.h stats/Timers.h stats/Timer.h
-stats/CompStats.obj: stats/CompStats.h Format.h parse.h bridge.h Format.h
-stats/CompStats.obj: Label.h
-stats/DuplStat.obj: stats/DuplStat.h Format.h records/Group.h
+stats/AllStats.obj: validate/ValProfile.h include/Format.h include/Label.h
+stats/AllStats.obj: stats/TextStats.h stats/TextStat.h stats/TextDatum.h
+stats/AllStats.obj: stats/CompStats.h stats/RefStats.h edits/RefEntry.h
+stats/AllStats.obj: stats/DuplStats.h stats/DuplStat.h stats/Timers.h
+stats/AllStats.obj: stats/Timer.h control/Options.h
+stats/CompStats.obj: stats/CompStats.h include/Format.h util/parse.h
+stats/CompStats.obj: include/bridge.h include/Format.h include/Label.h
+stats/DuplStat.obj: stats/DuplStat.h include/Format.h records/Group.h
 stats/DuplStat.obj: records/Segment.h records/Date.h records/Location.h
 stats/DuplStat.obj: records/Session.h records/Teams.h records/Team.h
 stats/DuplStat.obj: records/Scoring.h records/HeaderLIN.h records/LINData.h
-stats/DuplStat.obj: records/Board.h records/Deal.h bridge.h Format.h Label.h
-stats/DuplStat.obj: records/Tableau.h records/Instance.h records/Players.h
-stats/DuplStat.obj: records/Auction.h records/Contract.h records/Play.h
-stats/DuplStat.obj: analysis/ddsIF.h dll.h records/PlayTrace.h
+stats/DuplStat.obj: records/Board.h records/Deal.h include/bridge.h
+stats/DuplStat.obj: include/Format.h include/Label.h records/Tableau.h
+stats/DuplStat.obj: records/Instance.h records/Players.h records/Auction.h
+stats/DuplStat.obj: records/Contract.h records/Play.h analysis/ddsIF.h
+stats/DuplStat.obj: analysis/dll.h records/PlayTrace.h analysis/PlayError.h
 stats/DuplStat.obj: records/GivenScore.h analysis/Valuation.h analysis/Term.h
 stats/DuplStat.obj: edits/RefLines.h edits/RefLine.h edits/RefEdit.h
 stats/DuplStat.obj: edits/RefCount.h edits/refconst.h edits/RefComment.h
-stats/DuplStat.obj: edits/RefEntry.h edits/RefAction.h parse.h bridge.h
+stats/DuplStat.obj: edits/RefEntry.h edits/RefAction.h util/parse.h
 stats/DuplStat.obj: handling/Bexcept.h
-stats/DuplStats.obj: stats/DuplStats.h stats/DuplStat.h Format.h
+stats/DuplStats.obj: stats/DuplStats.h stats/DuplStat.h include/Format.h
 stats/DuplStats.obj: handling/Bexcept.h
 stats/RefStats.obj: stats/RefStats.h edits/RefEntry.h edits/Comment.h
-stats/RefStats.obj: Format.h handling/Bexcept.h
+stats/RefStats.obj: include/Format.h handling/Bexcept.h
 stats/TextDatum.obj: stats/TextDatum.h
 stats/TextStat.obj: stats/TextStat.h stats/TextDatum.h
 stats/TextStats.obj: stats/TextStats.h stats/TextStat.h stats/TextDatum.h
-stats/TextStats.obj: Format.h Label.h
+stats/TextStats.obj: include/Format.h include/Label.h
 stats/Timer.obj: stats/Timer.h
-stats/Timers.obj: stats/Timers.h stats/Timer.h Format.h
-stats/ValRow.obj: stats/ValRow.h validate/ValProfile.h Format.h Label.h
+stats/Timers.obj: stats/Timers.h stats/Timer.h include/Format.h
+stats/ValRow.obj: stats/ValRow.h validate/ValProfile.h include/Format.h
+stats/ValRow.obj: include/Label.h
 stats/ValStats.obj: stats/ValStats.h stats/ValRow.h validate/ValProfile.h
-stats/ValStats.obj: Format.h Label.h
+stats/ValStats.obj: include/Format.h include/Label.h
+util/parse.obj: util/parse.h include/bridge.h include/Format.h
+util/parse.obj: include/Label.h
 validate/ValProfile.obj: validate/ValProfile.h files/LineData.h
-validate/validate.obj: files/Chunk.h dispatch/Order.h Format.h
-validate/validate.obj: files/LineData.h edits/RefLines.h edits/RefLine.h
-validate/validate.obj: edits/RefEdit.h edits/RefCount.h edits/refconst.h
-validate/validate.obj: edits/RefComment.h edits/RefEntry.h edits/RefAction.h
-validate/validate.obj: formats/filePBN.h parse.h bridge.h Format.h Label.h
 validate/validate.obj: validate/validateLIN.h validate/validatePBN.h
 validate/validate.obj: validate/validateRBN.h validate/validateTXT.h
 validate/validate.obj: validate/validateEML.h validate/validateREC.h
 validate/validate.obj: validate/valint.h files/Buffer.h files/LineData.h
-validate/validate.obj: validate/ValProfile.h stats/ValStats.h stats/ValRow.h
-validate/validate.obj: validate/ValProfile.h Label.h control/Options.h
+validate/validate.obj: validate/ValProfile.h control/Options.h files/Chunk.h
+validate/validate.obj: dispatch/Order.h include/Label.h files/LineData.h
+validate/validate.obj: formats/filePBN.h edits/RefLines.h edits/RefLine.h
+validate/validate.obj: edits/RefEdit.h edits/RefCount.h edits/refconst.h
+validate/validate.obj: include/Format.h edits/RefComment.h edits/RefEntry.h
+validate/validate.obj: edits/RefAction.h stats/ValStats.h stats/ValRow.h
+validate/validate.obj: validate/ValProfile.h util/parse.h include/bridge.h
+validate/validate.obj: include/Format.h include/Label.h
 validate/validateEML.obj: validate/validate.h validate/valint.h
 validate/validateEML.obj: files/Buffer.h files/LineData.h
 validate/validateEML.obj: validate/ValProfile.h validate/validateEML.h
-validate/validateLIN.obj: records/Deal.h bridge.h Format.h Label.h parse.h
-validate/validateLIN.obj: bridge.h validate/valint.h files/Buffer.h
-validate/validateLIN.obj: files/LineData.h validate/ValProfile.h
-validate/validateLIN.obj: validate/validate.h validate/validateLIN.h
-validate/validateLIN.obj: handling/Bexcept.h handling/Bdiff.h
-validate/validatePBN.obj: files/Chunk.h dispatch/Order.h Format.h parse.h
-validate/validatePBN.obj: bridge.h Format.h Label.h validate/validate.h
-validate/validatePBN.obj: validate/valint.h files/Buffer.h files/LineData.h
+validate/validateLIN.obj: validate/valint.h files/Buffer.h files/LineData.h
+validate/validateLIN.obj: validate/ValProfile.h validate/validate.h
+validate/validateLIN.obj: validate/validateLIN.h records/Deal.h
+validate/validateLIN.obj: include/bridge.h include/Format.h include/Label.h
+validate/validateLIN.obj: util/parse.h handling/Bexcept.h handling/Bdiff.h
+validate/validatePBN.obj: validate/validate.h validate/valint.h
+validate/validatePBN.obj: files/Buffer.h files/LineData.h
 validate/validatePBN.obj: validate/validatePBN.h validate/ValProfile.h
-validate/validateRBN.obj: parse.h bridge.h Format.h Label.h
+validate/validatePBN.obj: files/Chunk.h dispatch/Order.h include/Label.h
+validate/validatePBN.obj: util/parse.h include/bridge.h include/Format.h
+validate/validatePBN.obj: include/Label.h
 validate/validateRBN.obj: validate/validate.h validate/valint.h
 validate/validateRBN.obj: files/Buffer.h files/LineData.h
 validate/validateRBN.obj: validate/validateRBN.h validate/ValProfile.h
-validate/validateREC.obj: parse.h bridge.h Format.h Label.h
+validate/validateRBN.obj: util/parse.h include/bridge.h include/Format.h
+validate/validateRBN.obj: include/Label.h
 validate/validateREC.obj: validate/validate.h validate/valint.h
 validate/validateREC.obj: files/Buffer.h files/LineData.h
 validate/validateREC.obj: validate/validateREC.h validate/ValProfile.h
-validate/validateTXT.obj: parse.h bridge.h Format.h Label.h
+validate/validateREC.obj: util/parse.h include/bridge.h include/Format.h
+validate/validateREC.obj: include/Label.h
 validate/validateTXT.obj: validate/validate.h validate/valint.h
 validate/validateTXT.obj: files/Buffer.h files/LineData.h
 validate/validateTXT.obj: validate/validateTXT.h validate/ValProfile.h
+validate/validateTXT.obj: util/parse.h include/bridge.h include/Format.h
+validate/validateTXT.obj: include/Label.h
 reader.obj: control/args.h control/Options.h files/Files.h files/FileTask.h
-reader.obj: Format.h analysis/DDInfo.h dispatch/dispatch.h stats/AllStats.h
-reader.obj: stats/Timer.h
+reader.obj: include/Format.h analysis/DDInfo.h dispatch/dispatch.h
+reader.obj: stats/AllStats.h stats/Timer.h

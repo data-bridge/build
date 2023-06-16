@@ -12,7 +12,7 @@
 
 #include <string>
 
-#include "../bridge.h"
+#include "../include/bridge.h"
 
 using namespace std;
 

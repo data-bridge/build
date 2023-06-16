@@ -11,17 +11,15 @@
 #include <regex>
 
 #include "fileTXT.h"
+
 #include "WriteInfo.h"
 #include "Canvas.h"
 
 #include "../records/Segment.h"
-
 #include "../files/Buffer.h"
 #include "../files/Chunk.h"
 #include "../files/LineData.h"
-
-#include "../parse.h"
-
+#include "../util/parse.h"
 #include "../handling/Bexcept.h"
 
 using namespace std;

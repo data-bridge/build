@@ -14,7 +14,7 @@
 #include <list>
 #include <string>
 
-#include "../Format.h"
+#include "../include/Format.h"
 
 class Group;
 class Segment;

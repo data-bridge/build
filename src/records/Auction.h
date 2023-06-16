@@ -13,7 +13,7 @@
 #include <vector>
 #include <string>
 
-#include "../bridge.h"
+#include "../include/bridge.h"
 
 class Contract;
 

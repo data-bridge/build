@@ -14,8 +14,8 @@
 
 #include "../validate/ValProfile.h"
 
-#include "../Format.h"
-#include "../Label.h"
+#include "../include/Format.h"
+#include "../include/Label.h"
 
 
 using namespace std;

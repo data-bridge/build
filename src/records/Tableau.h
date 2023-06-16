@@ -13,7 +13,7 @@
 #include <string>
 #include <list>
 
-#include "../bridge.h"
+#include "../include/bridge.h"
 
 using namespace std;
 

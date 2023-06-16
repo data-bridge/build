@@ -11,15 +11,14 @@
 #include <iomanip>
 #include <sstream>
 #include <algorithm>
-#include <regex>
 #include <map>
-#include <assert.h>
+#include <regex>
 #include <mutex>
+#include <assert.h>
 
 #include "RefEdit.h"
 
-#include "../parse.h"
-
+#include "../util/parse.h"
 #include "../handling/Bexcept.h"
 
 using namespace std;

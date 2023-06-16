@@ -9,7 +9,7 @@
 #ifndef BRIDGE_DDSIF_H
 #define BRIDGE_DDSIF_H
 
-#include "../dll.h"
+#include "dll.h"
 
 
 struct RunningDD

@@ -13,14 +13,12 @@
 #include <regex>
 
 #include "RefLines.h"
+
 #include "Comment.h" // TODO Only for ERR_SIZE -- somehow change?
 
 #include "../dispatch/Order.h"
-
 #include "../files/Buffer.h"
-
-#include "../parse.h"
-
+#include "../util/parse.h"
 #include "../handling/Bexcept.h"
 
 

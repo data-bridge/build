@@ -15,7 +15,7 @@
 
 #include "Files.h"
 
-#include "../parse.h"
+#include "../util/parse.h"
 #include "../control/Options.h"
 
 static mutex mtx;

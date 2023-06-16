@@ -15,16 +15,8 @@
 #include <fstream>
 
 #include "funcRead.h"
+
 #include "OrderCounts.h"
-
-#include "../control/Options.h"
-
-#include "../records/Group.h"
-
-#include "../files/Buffer.h"
-#include "../files/Chunk.h"
-
-#include "../edits/RefLines.h"
 
 #include "../formats/fileLIN.h"
 #include "../formats/filePBN.h"
@@ -32,9 +24,14 @@
 #include "../formats/fileTXT.h"
 #include "../formats/fileEML.h"
 #include "../formats/fileREC.h"
+#include "../control/Options.h"
 
-#include "../parse.h"
+#include "../files/Buffer.h"
+#include "../files/Chunk.h"
+#include "../records/Group.h"
+#include "../edits/RefLines.h"
 
+#include "../util/parse.h"
 #include "../handling/Bexcept.h"
 
 

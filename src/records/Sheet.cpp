@@ -12,15 +12,13 @@
 #include <sstream>
 #include <regex>
 
-#include "Segment.h"
 #include "Sheet.h"
 
+#include "Segment.h"
+
 #include "../files/Buffer.h"
-
-#include "../parse.h"
-
 #include "../analysis/ddsIF.h"
-
+#include "../util/parse.h"
 #include "../handling/Bexcept.h"
 #include "../handling/Bdiff.h"
 

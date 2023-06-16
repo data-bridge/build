@@ -1,13 +1,12 @@
 SOURCE_FILES =                  \
-parse.cpp                       \
 reader.cpp                      \
-                                \
-control/args.cpp                \
                                 \
 analysis/DDInfo.cpp             \
 analysis/Term.cpp               \
 analysis/Valuation.cpp          \
 analysis/ddsIF.cpp              \
+                                \
+control/args.cpp                \
                                 \
 dispatch/OrderCounts.cpp        \
 dispatch/dispatch.cpp           \
@@ -83,6 +82,8 @@ stats/Timer.cpp                 \
 stats/Timers.cpp                \
 stats/ValRow.cpp                \
 stats/ValStats.cpp              \
+                                \
+util/parse.cpp                  \
                                 \
 validate/ValProfile.cpp         \
 validate/validate.cpp           \

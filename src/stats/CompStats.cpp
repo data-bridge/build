@@ -13,7 +13,7 @@
 
 #include "CompStats.h"
 
-#include "../parse.h"
+#include "../util/parse.h"
 
 
 CompStats::CompStats()

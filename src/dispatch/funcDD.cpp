@@ -13,13 +13,9 @@
 #include <fstream>
 
 #include "../files/Files.h"
-
-#include "../parse.h"
-
-#include "../dll.h"
-
 #include "../records/Group.h"
-
+#include "../util/parse.h"
+#include "../analysis/dll.h"
 #include "../handling/Bexcept.h"
 
 

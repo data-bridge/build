@@ -12,17 +12,15 @@
 #include <regex>
 
 #include "fileREC.h"
+
 #include "WriteInfo.h"
 #include "Canvas.h"
 
 #include "../records/Segment.h"
 #include "../records/Board.h"
-
 #include "../files/Buffer.h"
 #include "../files/Chunk.h"
-
-#include "../parse.h"
-
+#include "../util/parse.h"
 #include "../handling/Bexcept.h"
 
 using namespace std;

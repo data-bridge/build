@@ -16,8 +16,7 @@
 
 #include "FileTask.h"
 
-#include "../Format.h"
-
+#include "../include/Format.h"
 #include "../analysis/DDInfo.h"
 
 struct Options;

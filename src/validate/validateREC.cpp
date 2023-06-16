@@ -1,7 +1,7 @@
 /* 
    Part of BridgeData.
 
-   Copyright (C) 2016-17 by Soren Hein.
+   Copyright (C) 2016-23 by Soren Hein.
 
    See LICENSE and README.
 */
@@ -9,12 +9,12 @@
 // The functions in this file help to parse files.
 
 
-#include "../parse.h"
-
 #include "validate.h"
 #include "valint.h"
 #include "validateREC.h"
 #include "ValProfile.h"
+
+#include "../util/parse.h"
 
 #define PLOG(x) prof.log(x, valState.dataOut, valState.dataRef)
 

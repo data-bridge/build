@@ -11,27 +11,22 @@
 
 #include <regex>
 
-#include "../files/Chunk.h"
-#include "../files/LineData.h"
-
-#include "../edits/RefLines.h"
-
-#include "../formats/filePBN.h"
-
-#include "../parse.h"
-
 #include "validateLIN.h"
 #include "validatePBN.h"
 #include "validateRBN.h"
 #include "validateTXT.h"
 #include "validateEML.h"
 #include "validateREC.h"
-
 #include "valint.h"
 #include "ValProfile.h"
 
-#include "../stats/ValStats.h"
 #include "../control/Options.h"
+#include "../files/Chunk.h"
+#include "../files/LineData.h"
+#include "../formats/filePBN.h"
+#include "../edits/RefLines.h"
+#include "../stats/ValStats.h"
+#include "../util/parse.h"
 
 #define PLOG(x) prof.log(x, valState.dataOut, valState.dataRef)
 

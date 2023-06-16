@@ -12,8 +12,7 @@
 
 #include "Location.h"
 
-#include "../Format.h"
-
+#include "../include/Format.h"
 #include "../handling/Bexcept.h"
 #include "../handling/Bdiff.h"
 

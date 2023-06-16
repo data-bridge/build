@@ -13,7 +13,7 @@
 #include <vector>
 #include <list>
 
-#include "../bridge.h"
+#include "../include/bridge.h"
 #include "../analysis/PlayError.h"
 
 using namespace std;

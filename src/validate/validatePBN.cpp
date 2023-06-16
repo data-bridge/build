@@ -1,7 +1,7 @@
 /* 
    Part of BridgeData.
 
-   Copyright (C) 2016-17 by Soren Hein.
+   Copyright (C) 2016-23 by Soren Hein.
 
    See LICENSE and README.
 */
@@ -10,14 +10,13 @@
 #include <regex>
 #include <algorithm>
 
-#include "../files/Chunk.h"
-
-#include "../parse.h"
-
 #include "validate.h"
 #include "valint.h"
 #include "validatePBN.h"
 #include "ValProfile.h"
+
+#include "../files/Chunk.h"
+#include "../util/parse.h"
 
 #define PLOG(x) prof.log(x, valState.dataOut, valState.dataRef)
 

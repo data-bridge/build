@@ -24,9 +24,7 @@
 #include "Buffer.h"
 
 #include "../edits/RefLines.h"
-
-#include "../parse.h"
-
+#include "../util/parse.h"
 #include "../handling/Bexcept.h"
 
 #define CHUNK_SIZE 1024

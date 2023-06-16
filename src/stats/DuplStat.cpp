@@ -14,11 +14,8 @@
 #include "DuplStat.h"
 
 #include "../records/Group.h"
-
 #include "../edits/RefLines.h"
-
-#include "../parse.h"
-
+#include "../util/parse.h"
 #include "../handling/Bexcept.h"
 
 

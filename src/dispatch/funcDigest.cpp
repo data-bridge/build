@@ -11,16 +11,13 @@
 #include <iomanip>
 #include <fstream>
 
-#include "../control/Options.h"
 
 #include "funcDigest.h"
 
-#include "../records/Sheet.h"
-
+#include "../control/Options.h"
 #include "../files/FileTask.h"
-
-#include "../parse.h"
-
+#include "../records/Sheet.h"
+#include "../util/parse.h"
 #include "../handling/Bexcept.h"
 
 

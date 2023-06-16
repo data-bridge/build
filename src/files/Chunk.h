@@ -13,8 +13,7 @@
 #include <string>
 
 #include "../dispatch/Order.h"
-
-#include "../Label.h"
+#include "../include/Label.h"
 
 enum Format: unsigned;
 

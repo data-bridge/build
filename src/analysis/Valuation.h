@@ -15,7 +15,7 @@
 
 #include "Term.h"
 
-#include "../bridge.h"
+#include "../include/bridge.h"
 
 using namespace std;
 

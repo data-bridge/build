@@ -8,15 +8,13 @@
 
 
 #include "fileRBN.h"
+
 #include "WriteInfo.h"
 
 #include "../records/Segment.h"
-
 #include "../files/Buffer.h"
 #include "../files/Chunk.h"
-
-#include "../parse.h"
-
+#include "../util/parse.h"
 #include "../handling/Bexcept.h"
 
 using namespace std;
