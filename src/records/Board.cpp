@@ -15,7 +15,6 @@
 #include "Board.h"
 
 #include "../parse.h"
-#include "../bconst.h"
 
 #include "../handling/Bexcept.h"
 #include "../handling/Bdiff.h"

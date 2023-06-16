@@ -13,80 +13,17 @@
 #include <string>
 #include <vector>
 
-// #include "Options.h"
 #include "Format.h"
 #include "Label.h"
 
 using namespace std;
 
 
-#define MAXNOOFCORES 12
-
 #define BRIDGE_PLAYERS 4
 #define BRIDGE_SUITS 4
 #define BRIDGE_DENOMS 5
 #define BRIDGE_TRICKS 13
 #define BRIDGE_VULS 4
-
-// #define Max(x, y) (((x) >= (y)) ? (x) : (y))
-// #define Min(x, y) (((x) <= (y)) ? (x) : (y))
-
-// #define BIGNUM 9999999
-
-
-const string FORMAT_EXTENSIONS[BRIDGE_FORMAT_SIZE] =
-{
-  "LIN",
-  "LIN",
-  "LIN",
-  "LIN",
-  "PBN", 
-  "RBN", 
-  "RBX", 
-  "TXT", 
-  "EML",
-  "REC",
-  "PAR"
-};
-
-
-const Format FORMAT_INPUT_MAP[] =
-{
-  BRIDGE_FORMAT_LIN,
-  BRIDGE_FORMAT_LIN,
-  BRIDGE_FORMAT_LIN,
-  BRIDGE_FORMAT_LIN,
-  BRIDGE_FORMAT_PBN,
-  BRIDGE_FORMAT_RBN,
-  BRIDGE_FORMAT_RBX,
-  BRIDGE_FORMAT_TXT,
-  BRIDGE_FORMAT_EML,
-  BRIDGE_FORMAT_REC,
-  BRIDGE_FORMAT_SIZE,
-  BRIDGE_FORMAT_SIZE
-};
-
-
-// Useful for write functions.
-
-/*
-struct WriteInfo
-{
-  unsigned bno;
-  unsigned instNo;
-  unsigned ino;
-  unsigned numBoards;
-  unsigned numInst;
-  unsigned numInstActive;
-  bool first;
-  bool last;
-
-  string namesOld[2];
-
-  int score1;
-  int score2;
-};
-*/
 
 
 // This is the same encoding as in DDS.
@@ -222,14 +159,6 @@ const string VUL_NAMES_RBN[BRIDGE_SUITS] =
 const string VUL_NAMES_TXT[BRIDGE_SUITS] =
 {
   "None", "Both", "N-S", "E-W"
-};
-
-// TODO: For starters, to expand later.
-
-enum PlayError
-{
-  BRIDGE_PLAY_WRONG_CARD = 0,
-  BRIDGE_PLAY_SIZE = 1
 };
 
 enum Room

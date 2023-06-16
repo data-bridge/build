@@ -21,7 +21,7 @@
 #include "DuplStats.h"
 #include "Timers.h"
 
-#include "../Options.h"
+#include "../control/Options.h"
 
 
 // This is not a struct method.

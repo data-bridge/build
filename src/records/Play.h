@@ -13,9 +13,8 @@
 #include <vector>
 #include <string>
 
+#include "../bridge.h"
 #include "../analysis/ddsIF.h"
-
-#include "../bconst.h"
 
 class Contract;
 

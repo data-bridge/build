@@ -1,7 +1,7 @@
 /* 
    Part of BridgeData.
 
-   Copyright (C) 2016-17 by Soren Hein.
+   Copyright (C) 2016-23 by Soren Hein.
 
    See LICENSE and README.
 */
@@ -10,7 +10,7 @@
 #ifndef BRIDGE_FUNCVALUATION_H
 #define BRIDGE_FUNCVALUATION_H
 
-#include "../bconst.h"
+#include <iostream>
 
 class Group;
 

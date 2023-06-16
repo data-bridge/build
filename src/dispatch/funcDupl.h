@@ -10,7 +10,7 @@
 #ifndef BRIDGE_FUNCDUPL_H
 #define BRIDGE_FUNCDUPL_H
 
-#include "../bconst.h"
+#include <iostream>
 
 class Group;
 class RefLines;

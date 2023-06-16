@@ -1,7 +1,7 @@
 /* 
    Part of BridgeData.
 
-   Copyright (C) 2016-17 by Soren Hein.
+   Copyright (C) 2016-23 by Soren Hein.
 
    See LICENSE and README.
 */
@@ -10,9 +10,13 @@
 #ifndef BRIDGE_FUNCWRITE_H
 #define BRIDGE_FUNCWRITE_H
 
-#include "../bconst.h"
+#include <iostream>
+#include <string>
 
 class Group;
+
+enum Format: unsigned;
+enum BoardOrder: unsigned;
 
 using namespace std;
 

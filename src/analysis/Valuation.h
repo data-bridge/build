@@ -15,7 +15,7 @@
 
 #include "Term.h"
 
-#include "../bconst.h"
+#include "../bridge.h"
 
 using namespace std;
 

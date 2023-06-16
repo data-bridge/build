@@ -9,8 +9,7 @@
 
 #include "Scoring.h"
 
-#include "../bconst.h"
-
+#include "../Format.h"
 #include "../handling/Bexcept.h"
 #include "../handling/Bdiff.h"
 

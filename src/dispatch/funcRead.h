@@ -10,6 +10,9 @@
 #ifndef BRIDGE_FUNCREAD_H
 #define BRIDGE_FUNCREAD_H
 
+#include <iostream>
+#include <string>
+
 struct Options;
 class Buffer;
 class Group;

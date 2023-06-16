@@ -10,8 +10,8 @@
 #ifndef BRIDGE_FUNCVALIDATE_H
 #define BRIDGE_FUNCVALIDATE_H
 
-#include <string>
 #include <iostream>
+#include <string>
 
 struct FileTask;
 struct FileOutputTask;

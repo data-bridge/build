@@ -10,7 +10,8 @@
 #ifndef BRIDGE_FUNCDD_H
 #define BRIDGE_FUNCDD_H
 
-#include "../bconst.h"
+#include <iostream>
+#include <string>
 
 class Group;
 class Files;

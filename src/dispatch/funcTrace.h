@@ -1,7 +1,7 @@
 /* 
    Part of BridgeData.
 
-   Copyright (C) 2016-17 by Soren Hein.
+   Copyright (C) 2016-23 by Soren Hein.
 
    See LICENSE and README.
 */
@@ -10,7 +10,8 @@
 #ifndef BRIDGE_FUNCTRACE_H
 #define BRIDGE_FUNCTRACE_H
 
-#include "../bconst.h"
+#include <iostream>
+#include <string>
 
 class Group;
 class Files;

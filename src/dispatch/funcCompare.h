@@ -11,6 +11,7 @@
 #define BRIDGE_FUNCCOMPARE_H
 
 #include <iostream>
+#include <string>
 
 struct Options;
 class Group;

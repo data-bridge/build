@@ -14,9 +14,9 @@
 
 #include "../dispatch/Order.h"
 
-#include "../bconst.h"
+#include "../Label.h"
 
-using namespace std;
+enum Format: unsigned;
 
 enum ChunkRange
 {
@@ -28,6 +28,8 @@ enum ChunkRange
   CHUNK_PBN = 5,
   CHUNK_PBN_SOFTLY = 6
 };
+
+using namespace std;
 
 
 class Chunk

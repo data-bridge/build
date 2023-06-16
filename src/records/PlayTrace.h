@@ -13,8 +13,8 @@
 #include <vector>
 #include <list>
 
-// #include "PlayScore.h"
-#include "../bconst.h"
+#include "../bridge.h"
+#include "../analysis/PlayError.h"
 
 using namespace std;
 

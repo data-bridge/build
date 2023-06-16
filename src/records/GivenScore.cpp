@@ -13,7 +13,6 @@
 
 #include "GivenScore.h"
 
-#include "../bconst.h"
 #include "../parse.h"
 
 #include "../handling/Bexcept.h"

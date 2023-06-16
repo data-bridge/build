@@ -10,11 +10,10 @@
 #ifndef BRIDGE_TABLEAU_H
 #define BRIDGE_TABLEAU_H
 
-
 #include <string>
 #include <list>
 
-#include "../bconst.h"
+#include "../bridge.h"
 
 using namespace std;
 
