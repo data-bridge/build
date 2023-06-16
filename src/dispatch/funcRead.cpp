@@ -17,6 +17,8 @@
 #include "funcRead.h"
 #include "OrderCounts.h"
 
+#include "../control/Options.h"
+
 #include "../records/Group.h"
 
 #include "../files/Buffer.h"

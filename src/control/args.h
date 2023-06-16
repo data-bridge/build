@@ -1,7 +1,7 @@
 /* 
    Part of BridgeData.
 
-   Copyright (C) 2016-17 by Soren Hein.
+   Copyright (C) 2016-23 by Soren Hein.
 
    See LICENSE and README.
 */
@@ -9,7 +9,7 @@
 #ifndef BRIDGE_ARGS_H
 #define BRIDGE_ARGS_H
 
-#include "bconst.h"
+#include "Options.h"
 
 
 void usage(const char base[]);

@@ -31,6 +31,7 @@
 #include "ValProfile.h"
 
 #include "../stats/ValStats.h"
+#include "../control/Options.h"
 
 #define PLOG(x) prof.log(x, valState.dataOut, valState.dataRef)
 

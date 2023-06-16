@@ -10,7 +10,7 @@
 #ifndef BRIDGE_OPTIONS_H
 #define BRIDGE_OPTIONS_H
 
-#include "Format.h"
+enum Format: unsigned;
 
 using namespace std;
 

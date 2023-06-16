@@ -1,8 +1,8 @@
 SOURCE_FILES =                  \
-PlayScore.cpp                   \
-args.cpp                        \
 parse.cpp                       \
 reader.cpp                      \
+                                \
+control/args.cpp                \
                                 \
 analysis/DDInfo.cpp             \
 analysis/Term.cpp               \

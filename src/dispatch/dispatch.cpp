@@ -14,6 +14,8 @@
 
 #include "dispatch.h"
 
+#include "../control/Options.h"
+
 #include "../records/Group.h"
 
 #include "../files/Files.h"
