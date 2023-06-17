@@ -36,6 +36,7 @@ edits/Reflines.cpp              \
 files/Buffer.cpp                \
 files/Chunk.cpp                 \
 files/Files.cpp                 \
+files/FileTask.cpp              \
                                 \
 formats/Canvas.cpp              \
 formats/fileEML.cpp             \

@@ -34,6 +34,8 @@ struct FileTask
   bool removeOutputFlag;
 
   vector<FileOutputTask> taskList;
+
+  string str() const;
 };
 
 #endif

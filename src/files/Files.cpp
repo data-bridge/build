@@ -45,7 +45,7 @@ bool Files::fillEntry(
   const string& text,
   FileEntry& entry) const
 {
-  regex re("([^./]+)\\.(\\w+)$");
+  regex re("([^./\\\\]+)\\.(\\w+)$");
   smatch match;
   if (regex_search(text, match, re) && match.size() >= 2)
   {
