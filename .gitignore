@@ -43,3 +43,5 @@
 *.lock
 *.bin
 *.wsuo
+*.db-wal
+*.db-shm

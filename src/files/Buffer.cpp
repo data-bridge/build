@@ -395,8 +395,11 @@ void Buffer::cacheEmbedded(const string& embeddedNameIn)
     embeddedName = embeddedNameIn;
     RefLines rltmp;
     embeddedBuf->read(full, format, rltmp);
+
     if (! rltmp.skip())
       THROW("cacheEmbedded: Reference should be a skip");
+
+    embeddedBuf->readForce(full, format);
   }
   else
   {
@@ -414,12 +417,13 @@ void Buffer::getEmbeddedData(
   const unsigned ecount = rl.rangeEmbedCount();
   vector<string> tmplines;
 
-  for (unsigned j = estart; j < estart+ecount-1; j++)
+  for (unsigned j = estart; j < estart+ecount; j++)
   {
     const string st = embeddedBuf->getLine(j);
     tmplines.push_back(st);
     lnew.emplace_back(LineData());
     LineData& active = lnew.back();
+    active.line = st;
     active.len = static_cast<unsigned>(st.length());
     active.no = rl.lineno(); // All the same
     Buffer::classify(active);
@@ -433,12 +437,21 @@ bool Buffer::fix(const RefLines& refLines)
 {
   for (auto &rl: refLines)
   {
-    const unsigned i = Buffer::getInternalNumber(rl.lineno());
-    if (i == numeric_limits<unsigned>::max())
-      THROW("Cannot find ref line number " + to_string(rl.lineno()));
-    LineData& ld = lines[i];
-
     const ActionCategory refType = rl.type();
+    unsigned i = Buffer::getInternalNumber(rl.lineno());
+
+    if (i == numeric_limits<unsigned>::max())
+    {
+      if (refType == ACTION_INSERT_FROM &&
+          rl.lineno() == lines[len-1].no+1)
+      {
+        // Special case: Append at the end.
+        i = len;
+      }
+      else
+        THROW("Cannot find ref line number " + to_string(rl.lineno()));
+    }
+
     if (refType == ACTION_INSERT_LINE)
     {
       // Normal insert.
@@ -516,6 +529,7 @@ bool Buffer::fix(const RefLines& refLines)
     }
     else if (refType == ACTION_GENERAL)
     {
+      LineData& ld = lines[i];
       rl.modify(ld.line);
       ld.len = static_cast<unsigned>(ld.line.length());
       Buffer::classify(ld);
@@ -523,6 +537,7 @@ bool Buffer::fix(const RefLines& refLines)
     else 
       THROW("Bad reference line type");
   }
+
   if (embeddedBuf != nullptr)
   {
     delete embeddedBuf;
