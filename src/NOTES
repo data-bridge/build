@@ -3,50 +3,25 @@ In stats/, mainly figure out what DuplStats actually does,
 and comment it and check it for obvious bugs.  With that,
 stats/ is mostly done I think.
 
+Look at code that is flagged in the Excel spreadsheet.
 
+dispatch
+* More general language parser?
+  Write dispatch language suitable also for later SQL queries
+* Select by year as well?
+* Maybe just DLL callable from Python
 
-
-
-Double dummy
-- New kind of trace?  Goes in DDS as well
-
-Syntax: insertfrom, insertfrom "..." !
-- 104 insert 10033.lin:79-112 {ERR_LIN_HAND_INSERT(0,1,1)}
-- 669 insertLIN 9686.lin:77-210 {ERR_LIN_HAND_INSERT(0,9,5)}
-  should be insert, not insertLIN (734 lines)
-- 147-156 replace 41067.lin:21-123 {ERR_LIN_HAND_REPLACE(0,10,5)}
 
 RefLines
 - Buffer::fix
   - [What is line 422 doing?  "Deleted a field"?]
 
-44913: Already uses new format, so doesn't work
-
-40985: Already has a c1, but shorter than in c1
-- Need replace (of interval of lines), not insert
-
-A few .ref skips still have origs (27294)
-
-In perl
-* Get orig -> untangle done
-  - Check MERGED and DUPLICATE
-  - Anything left in orig directory? No MERGED, maybe DUPLICATE
-  - No SUBSET any more (use MERGED)
-* make a mergelin that goes from "orig" (the copy) to untangle
-  directly
-* compare with untangle
-* Write C++ to parse new format (only permit one lin copy file)
-  - Must read ../12345.lin as well
-  - Count hands
-  - Make statistics with proper tags
-
-* Download all lin files again
-* diff them against current ones (33464.lin should have an orig)
-
-* Make another directory with the original lin, ref and skipref files
 
 28.06.2017
 ----------
+Double dummy
+- New kind of trace?  Goes in DDS as well
+
 Valuation
 * Improve setCompBalanced to go by #cards and #points, not prod,
   to calculate distances
@@ -56,18 +31,8 @@ Term
 * Implement Term more generally
 * Think about limits that one Term imposes on other terms (big table)
 
-dispatch
-* More general language parser?
-  Write dispatch language suitable also for later SQL queries
-* Select by year as well?
-
-Perl scripts in BBOVG
-- Make director.pl run without warnings 
-  (so have log files of acceptable deviations)
-
 Data
 - Include BBOVG and BBOSH up to today
-- Look for more sources?  Later...
 - Check that Sheet and SheetHand still work
 
 NERs
@@ -87,16 +52,15 @@ update Pavlicek missive and Excel
 
 Regression
 ----------
-* perl skipnames.pl all (make it generate skip files)
-* perl skiphands.pl all (make it generate skip files)
-* ./reader -I -R -c -s -q -v 30 (maybe -p as well, -e)
-  - with -e, use mergelin.pl for some merges (first without fix
-    as third argument, then with it).  Manual edits of lin files
-    may be better sometimes.
-    Can run on whole bridgedata/hands directory, at least -e
-* ./reader -I -D -v 30
-* perl director.pl dir (a lot, unfortunately)
-* perl checkskip.pl all, perl checkref.pl all
+./reader -I -R -c -s -q -v 30 (maybe -p as well, -e)
+
+In principle there is lots to do with
+* -e (whatever it does)
+* -p (ditto)
+* perl skipnames.pl all
+* perl skiphands.pl all
+* perl director.pl dir
+* perl checkskip.pl
 
 
 Makefiles

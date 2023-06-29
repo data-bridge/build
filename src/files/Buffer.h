@@ -79,7 +79,8 @@ class Buffer
     bool read(
       const string& fname,
       const Format format,
-      RefLines& refLines);
+      RefLines& refLines,
+      bool forceFlag = false);
 
     void readForce(
       const string& fname,

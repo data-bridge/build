@@ -867,7 +867,7 @@ void RefLine::checkEntries(
   if (re.sameCountValues(ractual))
     return;
 
-  THROW(comment.strComment() + ": (" + 
+  THROW(inputLine + ", " + comment.strComment() + ": (" + 
     ractual.strCountShort() + ")");
 }
 

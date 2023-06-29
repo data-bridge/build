@@ -299,13 +299,17 @@ void Buffer::classify(LineData& ld)
 bool Buffer::read(
   const string& fname,
   const Format formatIn,
-  RefLines& refLines)
+  RefLines& refLines,
+  bool forceFlag)
 {
   fileName = fname;
   format = formatIn;
 
   refLines.read(fname);
-  if (refLines.skip())
+
+  // We use forceFlag when insertfrom or replacefrom are being
+  // used to get pieces of files that themselves are faulty.
+  if (refLines.skip() && ! forceFlag)
     return false;
 
   Buffer::readBinaryFile(fname);
@@ -394,12 +398,13 @@ void Buffer::cacheEmbedded(const string& embeddedNameIn)
     embeddedBuf = new Buffer;
     embeddedName = embeddedNameIn;
     RefLines rltmp;
-    embeddedBuf->read(full, format, rltmp);
+    embeddedBuf->read(full, format, rltmp, true);
 
     if (! rltmp.skip())
       THROW("cacheEmbedded: Reference should be a skip");
 
-    embeddedBuf->readForce(full, format);
+    // TODO Can also delete readForce method
+    // embeddedBuf->readForce(full, format);
   }
   else
   {

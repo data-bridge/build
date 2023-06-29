@@ -323,7 +323,8 @@ void RefEdit::modifyReplaceLIN(string& line) const
   if (fieldno > 0)
   {
     if (f[fieldno-1] != wasVal)
-      modifyFail(line, "Old field wrong");
+      modifyFail(line, 
+        "Old field wrong: " + wasVal + " -> " + f[fieldno-1]);
 
     f[fieldno-1] = isVal;
     v[start+1] = concat(f, ",");
@@ -393,7 +394,8 @@ void RefEdit::modifyDeleteLIN(string& line) const
       modifyFail(line, "Different LIN tags");
 
     if (f[fieldno-1] != wasVal)
-      modifyFail(line, "Old field wrong");
+      modifyFail(line, 
+        "Old field wrong: " + wasVal + " -> " + f[fieldno-1]);
 
     auto sf = f.begin() + static_cast<int>(fieldno-1);
     const unsigned d = (tagcount == 0 ? 1 : tagcount);

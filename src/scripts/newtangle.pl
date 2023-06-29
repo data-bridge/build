@@ -29,14 +29,14 @@ else
 die "Expected lin number as first argument" unless $ARGV[0] =~ /^\d+$/;
 my $linno = $ARGV[0];
 
-my $linfile = "$DIR/orig/$linno.lin";
+my $linfile = "$DIR/new/$linno.lin";
 die "No lin file $linfile" unless (-e $linfile);
 
 my (@listL, @qlistL, %mdlistL, $titleL, $resultsL, $playersL);
 file2list($linfile, \@listL, \@qlistL, \%mdlistL,
   \$titleL, \$resultsL, \$playersL);
 
-my $origfile = "$DIR/orig/$linno.orig";
+my $origfile = "$DIR/new/$linno.orig";
 die "No orig file $origfile" unless (-e $origfile);
 
 my (@listO, @qlistO, %mdlistO, $titleO, $resultsO, $playersO);
@@ -74,7 +74,7 @@ if ($playersL ne $playersO)
   warn "Players differ -- fix first?";
 }
 
-my $reffile = "$DIR/orig/$linno.ref";
+my $reffile = "$DIR/new/$linno.ref";
 
 my @qxlines;
 my $offset = 0;
@@ -92,7 +92,7 @@ while ($nL <= $#qlistL)
     my $md = $qlistL[$nL]{md};
     if (! $file_cached)
     {
-      my @sources = glob("$DIR/orig/*.ref");
+      my @sources = glob("$DIR/new/*.ref");
       for my $rfile (@sources)
       {
         die "Bad ref name" unless $rfile =~ /(\d+).ref$/;
@@ -210,7 +210,7 @@ if (! $file_cached)
 }
 
 
-my $srcreffile = "$DIR/orig/$rno.ref";
+my $srcreffile = "$DIR/new/$rno.ref";
 my @srcreflines;
 if (-e $srcreffile)
 {
@@ -241,9 +241,9 @@ if (-e $reffile)
 if ($fix_flag)
 {
   # The source lin file just survives unchanged
-  rename "$DIR/orig/$rno.lin", "$DIR/untangle/$rno.lin";
+  rename "$DIR/new/$rno.lin", "$DIR/untangle/$rno.lin";
 
-  my $oldsrcref = "$DIR/orig/$rno.ref";
+  my $oldsrcref = "$DIR/new/$rno.ref";
   my $newsrcref = "$DIR/untangle/$rno.ref";
   if ($#srcreflines >= 1)
   {
