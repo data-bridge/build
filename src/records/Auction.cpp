@@ -773,6 +773,26 @@ bool Auction::isEmpty() const
 }
 
 
+
+bool Auction::startsWith(const vector<string>& calls) const
+{
+  if (calls.size() >= len)
+    return false;
+
+  for (size_t i = 0; i < calls.size(); i++)
+  {
+    auto it = AUCTION_CALL_TO_NO.find(calls[i]);
+    if (it == AUCTION_CALL_TO_NO.end())
+      THROW("Illegal call: " + calls[i]);
+
+    unsigned no = it->second;
+    if (no != sequence[i].no)
+      return false;
+  }
+  return true;
+}
+
+
 bool Auction::lateAlerts() const
 {
   if (len < 3 || numPasses < 3)

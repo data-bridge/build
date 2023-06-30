@@ -11,6 +11,7 @@
 #include <iomanip>
 #include <sstream>
 #include <regex>
+#include <cassert>
 
 #include "Board.h"
 
@@ -265,6 +266,19 @@ unsigned Board::getTableauEntry(
   const Denom denom) const
 {
   return tableau.get(player, denom);
+}
+
+
+Player Board::getDealer() const
+{
+  assert(instances.size() > 0);
+  return instances[0].getDealer();
+}
+
+
+const vector<Valuation>& Board::getValuations() const
+{
+  return valuation;
 }
 
 

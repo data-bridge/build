@@ -114,6 +114,20 @@ dispatch/funcIMPSheet.obj: edits/RefLine.h edits/RefEdit.h edits/RefCount.h
 dispatch/funcIMPSheet.obj: edits/refconst.h include/Format.h
 dispatch/funcIMPSheet.obj: edits/RefComment.h edits/RefEntry.h
 dispatch/funcIMPSheet.obj: edits/RefAction.h handling/Bexcept.h
+dispatch/funcPasses.obj: records/Group.h records/Segment.h records/Date.h
+dispatch/funcPasses.obj: records/Location.h records/Session.h records/Teams.h
+dispatch/funcPasses.obj: records/Team.h records/Scoring.h records/HeaderLIN.h
+dispatch/funcPasses.obj: records/LINData.h records/Board.h records/Deal.h
+dispatch/funcPasses.obj: include/bridge.h include/Format.h include/Label.h
+dispatch/funcPasses.obj: records/Tableau.h records/Instance.h
+dispatch/funcPasses.obj: records/Players.h records/Auction.h
+dispatch/funcPasses.obj: records/Contract.h records/Play.h analysis/ddsIF.h
+dispatch/funcPasses.obj: analysis/dll.h records/PlayTrace.h
+dispatch/funcPasses.obj: analysis/PlayError.h records/GivenScore.h
+dispatch/funcPasses.obj: analysis/Valuation.h analysis/Term.h
+dispatch/funcPasses.obj: dispatch/funcPasses.h stats/Stats1D.h
+dispatch/funcPasses.obj: stats/StatsInfo.h stats/Stats2D.h stats/StatsInfo.h
+dispatch/funcPasses.obj: handling/Bexcept.h
 dispatch/funcPlayerVal.obj: records/Group.h records/Segment.h records/Date.h
 dispatch/funcPlayerVal.obj: records/Location.h records/Session.h
 dispatch/funcPlayerVal.obj: records/Teams.h records/Team.h records/Scoring.h
@@ -248,6 +262,7 @@ files/Chunk.obj: handling/Bexcept.h handling/Bdiff.h
 files/Files.obj: files/Files.h files/FileTask.h include/Format.h
 files/Files.obj: analysis/DDInfo.h util/parse.h include/bridge.h
 files/Files.obj: include/Format.h include/Label.h control/Options.h
+files/FileTask.obj: files/FileTask.h
 formats/Canvas.obj: formats/Canvas.h
 formats/fileEML.obj: formats/fileEML.h formats/Canvas.h formats/WriteInfo.h
 formats/fileEML.obj: records/Segment.h records/Date.h records/Location.h
@@ -454,6 +469,8 @@ stats/DuplStats.obj: stats/DuplStats.h stats/DuplStat.h include/Format.h
 stats/DuplStats.obj: handling/Bexcept.h
 stats/RefStats.obj: stats/RefStats.h edits/RefEntry.h edits/Comment.h
 stats/RefStats.obj: include/Format.h handling/Bexcept.h
+stats/Stats1D.obj: stats/Stats1D.h stats/StatsInfo.h
+stats/Stats2D.obj: stats/Stats2D.h stats/StatsInfo.h
 stats/TextDatum.obj: stats/TextDatum.h
 stats/TextStat.obj: stats/TextStat.h stats/TextDatum.h
 stats/TextStats.obj: stats/TextStats.h stats/TextStat.h stats/TextDatum.h

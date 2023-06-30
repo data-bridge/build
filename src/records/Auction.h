@@ -142,6 +142,8 @@ class Auction
 
     bool isEmpty() const;
 
+    bool startsWith(const vector<string>& calls) const;
+
 
     bool operator == (const Auction& a2) const;
     bool operator != (const Auction& a2) const;

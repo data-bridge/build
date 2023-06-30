@@ -16,6 +16,7 @@ dispatch/funcDigest.cpp         \
 dispatch/funcDupl.cpp           \
 dispatch/funcEquals.cpp         \
 dispatch/funcIMPSheet.cpp       \
+dispatch/funcPasses.cpp         \
 dispatch/funcPlayerVal.cpp      \
 dispatch/funcRead.cpp           \
 dispatch/funcRefStats.cpp       \
@@ -76,6 +77,8 @@ stats/CompStats.cpp             \
 stats/DuplStat.cpp              \
 stats/DuplStats.cpp             \
 stats/RefStats.cpp              \
+stats/Stats1D.cpp               \
+stats/Stats2D.cpp               \
 stats/TextDatum.cpp             \
 stats/TextStat.cpp              \
 stats/TextStats.cpp             \

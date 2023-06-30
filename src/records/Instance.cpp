@@ -410,6 +410,12 @@ void Instance::setTrace(const string& strCompact)
 }
 
 
+bool Instance::auctionStarts(const vector<string>& calls) const
+{
+  return auction.startsWith(calls);
+}
+
+
 bool Instance::operator == (const Instance& inst2) const
 {
   // We don't compare players.

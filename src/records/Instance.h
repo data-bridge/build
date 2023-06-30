@@ -11,6 +11,7 @@
 #define BRIDGE_INSTANCE_H
 
 #include <string>
+#include <vector>
 
 #include "Players.h"
 #include "Auction.h"
@@ -183,6 +184,8 @@ class Instance
       const int * tricks);
 
     void setTrace(const string& strCompact);
+
+    bool auctionStarts(const vector<string>& calls) const;
 
     bool operator == (const Instance& inst2) const;
     bool operator != (const Instance& inst2) const;

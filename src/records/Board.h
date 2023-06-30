@@ -100,6 +100,10 @@ class Board
       const Player player,
       const Denom denom) const;
 
+    Player getDealer() const;
+
+    const vector<Valuation>& getValuations() const;
+
     bool getPar(
       Player dealer,
       Vul vul,

@@ -349,6 +349,8 @@ class Valuation
 
     int distance(const Term& term) const;
 
+    unsigned getCompositeParam(const CompositeParams cparam) const;
+
     string str() const;
 
     int handDist() const;

@@ -12,6 +12,7 @@
 #include <sstream>
 #include <algorithm>
 #include <mutex>
+#include <cassert>
 
 #include "Valuation.h"
 
@@ -921,6 +922,13 @@ int Valuation::distance(const Term& term) const
     default:
       THROW("Bad comparator");
   }
+}
+
+
+unsigned Valuation::getCompositeParam(const CompositeParams cparam) const
+{
+  assert(cparam < VC_SIZE);
+  return static_cast<unsigned>(compValues[cparam]);
 }
 
 
