@@ -50,6 +50,11 @@ static vector<StatsInfo> LOCAL_DATA =
   { "ZP", 0, 80, 1} // TODO Check
 };
 
+static vector<string> LOCAL_NAMES =
+{
+  "Player pos.", "Vulnerability", "Params"
+};
+
 
 void initPass1DStats(vector<vector<vector<Stats1D>>>& stats)
 {
@@ -176,11 +181,13 @@ string strPassStats(
 
 string passStats(const Group& group)
 {
+  // TODO Make static
   const vector<string> onePass = {"P"};
   const vector<string> twoPasses = {"P", "P"};
   const vector<string> threePasses = {"P", "P", "P"};
   const vector<string> fourPasses = {"P", "P", "P", "P"};
 
+  // TODO Do automatically and once
   // Relative player (dealer = 0), vul, localParams.
   vector<vector<vector<Stats1D>>> stats1D;
   initPass1DStats(stats1D);
@@ -189,12 +196,10 @@ string passStats(const Group& group)
   vector<vector<vector<Stats2D>>> stats2D;
   initPass2DStats(stats2D);
 
-unsigned bno = 0;
   for (auto &segment: group)
   {
     for (auto &bpair: segment)
     {
-bno++;
       const Board& board = bpair.board;
       const unsigned dealer = static_cast<unsigned>(board.getDealer());
       const vector<Valuation>& valuations = board.getValuations();
@@ -215,6 +220,7 @@ bno++;
           continue;
 
         // Relative to dealer, so "NS" is the dealer.
+        // TODO Make an instance.getRelativeVul(dealer)?
         Vul vul = instance.getVul();
         if (dealer == BRIDGE_EAST || dealer == BRIDGE_WEST)
         {

@@ -1,29 +1,15 @@
 2023-06-30
+All PassStats1D and 2D to AllStats
+Actually ParamStats1D and 2D, each a vector^3
+Let dispatch increment them
+
+
 In the new funcPasses, only count passes from Valuation::handDist()
 0x333, 0x334, 0x343, 0x433 (so 4-3-3-3).
 Test the new code.
 Do other distributions.
 Look at the actual results.
 
-./reader -i ../../../bbodata/hands/BBOVG/42766.lin -o 42766.lin -t -v 63
-
-Board   Dealer  Vul             HCP
-17      North   none    p       9
-18      East    NS      -
-19      South   EW      -
-20      West    both    -
-21      North   NS      -
-22      East    EW      p       9
-23      South   both    -
-24      West    none    pp      5, 4
-25      North   EW      p       5
-26      East    both    -
-27      South   none    pp      5, 8
-28      West    NS      -
-29      North   both    -
-30      East    non     -
-31      South   NS      p       8
-32      West    EW      -
 
 
 
