@@ -34,6 +34,7 @@ void Stats2D::set1(const StatsInfo& info1In)
 {
   info1 = info1In;
   counts.resize(info1.length);
+  counts1.resize(info1.length);
 }
 
 
@@ -42,6 +43,7 @@ void Stats2D::set2(const StatsInfo& info2In)
   info2 = info2In;
   for (auto& c: counts)
     c.resize(info2.length);
+  counts2.resize(info2.length);
 }
 
 
@@ -97,7 +99,7 @@ bool Stats2D::findLimits(
 
   // Find the highest, used index.
   indexHigh = 0;
-  for (unsigned i = 0; i < counts.size(); i++)
+  for (unsigned i = 0; i < countsIn.size(); i++)
   {
     if (countsIn[i].count)
       indexHigh = i;
@@ -145,7 +147,7 @@ string Stats2D::strTable(
   stringstream ss;
   ss << info1.name << " vs. " << info2.name << "\n\n";
   ss << Stats2D::strHeader(FIELD_NAMES[tableIndex], 
-    index1Low, index1High);
+    index2Low, index2High);
 
   for (unsigned i = index1Low; i <= index1High; i++)
   {
@@ -167,9 +169,9 @@ string Stats2D::strTable(
       else if (counts[i][j].count == 0)
         ss << setw(6) << "-";
       else
-        ss << setw(6) << fixed << setprecision(0) <<
-          static_cast<float>(counts[i][j].hits) /
-          static_cast<float>(counts[i][j].count);
+        ss << setw(5) << fixed << setprecision(0) <<
+          100.f * static_cast<float>(counts[i][j].hits) /
+          static_cast<float>(counts[i][j].count) << "%";
     }
     ss << "\n";
   }

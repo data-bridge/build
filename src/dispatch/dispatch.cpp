@@ -31,6 +31,7 @@
 #include "funcDigest.h"
 #include "funcDupl.h"
 #include "funcIMPSheet.h"
+#include "funcPasses.h"
 #include "funcRead.h"
 #include "funcPlayerVal.h"
 #include "funcRefStats.h"
@@ -130,6 +131,9 @@ void dispatch(
       allStats.timersPtr->start(BRIDGE_TIMER_VALUE, task.formatInput);
       dispatchValuation(group, flog);
       allStats.timersPtr->stop(BRIDGE_TIMER_VALUE, task.formatInput);
+
+      // TODO TMP
+      dispatchPasses(group, flog);
     }
 
     if (options.equalFlag)

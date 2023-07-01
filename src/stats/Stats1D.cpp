@@ -131,20 +131,25 @@ string Stats1D::str() const
       setw(7) << fixed << setprecision(2) <<
         100.f * static_cast<float>(counts[i].count) /
         static_cast<float>(countSum.count) << "%" << 
-      setw(6) << counts[i].hits <<
-      setw(7)  << fixed << setprecision(2) <<
+      setw(6) << counts[i].hits;
+    
+    if (counts[i].count)
+      ss << setw(7)  << fixed << setprecision(2) <<
         100.f * static_cast<float>(counts[i].hits) /
         static_cast<float>(counts[i].count) << "%" << 
         "\n";
+    else
+      ss << setw(8) << "-" << "\n";
   }
   
-  ss << string('-', 34) << "\n";
+  ss << string(34, '-') << "\n";
 
   ss <<
     setw(6) << "" <<
     setw(6) << countSum.count <<
     setw(8) << "" <<
     setw(6) << countSum.hits <<
+    setw(7) <<
         100.f * static_cast<float>(countSum.hits) /
         static_cast<float>(countSum.count) << "%" << 
         "\n";

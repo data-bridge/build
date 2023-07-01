@@ -95,7 +95,7 @@ void usage(
     "\n" <<
     "-D, --digdir s     Produce a sheet of contracts and tricks.\n" <<
     "\n" <<
-    "-T, --tableIMP     Produce an IMP sheet.\n" <<
+    "-t, --tableIMP     Produce an IMP sheet.\n" <<
     "\n" <<
     "-l, --logfile s    Log file for outputs (default: stdout).\n" <<
     "\n" <<

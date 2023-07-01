@@ -61,7 +61,7 @@ void initPass1DStats(vector<vector<vector<Stats1D>>>& stats)
     {
       stats[prel][vul].resize(PASS_SIZE);
       for (size_t param = 0; param < PASS_SIZE; param++)
-        stats[vul][prel][param].set(LOCAL_DATA[param]);
+        stats[prel][vul][param].set(LOCAL_DATA[param]);
     }
   }
 }
@@ -86,8 +86,8 @@ void initPass2DStats(vector<vector<vector<Stats2D>>>& stats)
       {
         for (size_t param2 = param1+1; param2 < PASS_SIZE; param2++)
         {
-          stats[vul][prel][p_run].set1(LOCAL_DATA[param1]);
-          stats[vul][prel][p_run].set2(LOCAL_DATA[param2]);
+          stats[prel][vul][p_run].set1(LOCAL_DATA[param1]);
+          stats[prel][vul][p_run].set2(LOCAL_DATA[param2]);
           
           p_run++;
         }
@@ -153,7 +153,7 @@ string strPassStats(
     {
       ss << "Player pos.   " << prel << "\n";
       ss << "Vulnerability " << VUL_NAMES_PBN[vul] << "\n";
-      ss << string('-', 18) << "\n\n";
+      ss << string(18, '-') << "\n\n";
 
       for (size_t param = 0; param < PASS_SIZE; param++)
         ss << stats1D[prel][vul][param].str() << "\n";
@@ -189,10 +189,12 @@ string passStats(const Group& group)
   vector<vector<vector<Stats2D>>> stats2D;
   initPass2DStats(stats2D);
 
+unsigned bno = 0;
   for (auto &segment: group)
   {
     for (auto &bpair: segment)
     {
+bno++;
       const Board& board = bpair.board;
       const unsigned dealer = static_cast<unsigned>(board.getDealer());
       const vector<Valuation>& valuations = board.getValuations();
@@ -212,7 +214,16 @@ string passStats(const Group& group)
         if (board.skipped(i))
           continue;
 
-        const Vul vul = instance.getVul();
+        // Relative to dealer, so "NS" is the dealer.
+        Vul vul = instance.getVul();
+        if (dealer == BRIDGE_EAST || dealer == BRIDGE_WEST)
+        {
+          if (vul == BRIDGE_VUL_NORTH_SOUTH)
+            vul = BRIDGE_VUL_EAST_WEST;
+          else if (vul == BRIDGE_VUL_EAST_WEST)
+            vul = BRIDGE_VUL_NORTH_SOUTH;
+        }
+
         const bool onePassFlag = instance.auctionStarts(onePass);
         addPassStats1D(stats1D[0][vul], params[0], onePassFlag);
         addPassStats2D(stats2D[0][vul], params[0], onePassFlag);
@@ -234,6 +245,7 @@ string passStats(const Group& group)
             {
               const bool fourPassesFlag = 
                 instance.auctionStarts(fourPasses);
+
               addPassStats1D(stats1D[3][vul], params[3], fourPassesFlag);
               addPassStats2D(stats2D[3][vul], params[3], fourPassesFlag);
             }
