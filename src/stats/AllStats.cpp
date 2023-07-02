@@ -19,6 +19,8 @@
 #include "CompStats.h"
 #include "RefStats.h"
 #include "DuplStats.h"
+#include "ParamStats1D.h"
+#include "ParamStats2D.h"
 #include "Timers.h"
 
 #include "../control/Options.h"
@@ -80,6 +82,8 @@ AllStats::AllStats()
   compStatsPtr = new CompStats;
   refStatsPtr = new RefStats;
   duplStatsPtr = new DuplStats;
+  paramStats1DPtr = new ParamStats1D;
+  paramStats2DPtr = new ParamStats2D;
   timersPtr = new Timers;
 }
 
@@ -91,6 +95,8 @@ AllStats::~AllStats()
   delete compStatsPtr;
   delete refStatsPtr;
   delete duplStatsPtr;
+  delete paramStats1DPtr;
+  delete paramStats2DPtr;
   delete timersPtr;
 }
 
@@ -102,6 +108,8 @@ void AllStats::operator += (const AllStats& as2)
   * compStatsPtr += * as2.compStatsPtr;
   * refStatsPtr += * as2.refStatsPtr;
   * duplStatsPtr += * as2.duplStatsPtr;
+  * paramStats1DPtr += * as2.paramStats1DPtr;
+  * paramStats2DPtr += * as2.paramStats2DPtr;
   * timersPtr += * as2.timersPtr;
 }
 
@@ -112,6 +120,12 @@ string AllStats::str(const Options& options) const
 
   if (options.equalFlag)
     ss << duplStatsPtr->str();
+
+  if (options.passStatsFlag)
+  {
+    ss << paramStats1DPtr->str();
+    ss << paramStats2DPtr->str();
+  }
 
   ss << valStatsPtr->str(options.verboseValStats);
 

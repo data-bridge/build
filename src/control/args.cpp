@@ -27,7 +27,7 @@ struct OptEntry
   unsigned numArgs;
 };
 
-#define BRIDGE_NUM_OPTIONS 21
+#define BRIDGE_NUM_OPTIONS 22
 
 static const OptEntry OPT_LIST[BRIDGE_NUM_OPTIONS] =
 {
@@ -43,6 +43,7 @@ static const OptEntry OPT_LIST[BRIDGE_NUM_OPTIONS] =
   {"l", "logfile", 1},
   {"c", "compare", 0},
   {"p", "players", 0},
+  {"Q", "pass", 0},
   {"e", "equal", 0},
   {"V", "valuation", 0},
   {"S", "solve", 0},
@@ -103,6 +104,9 @@ void usage(
     "                   (Default: not set)\n" <<
     "\n" <<
     "-p, --players      Flag incomplete tables of players.\n" <<
+    "                   (Default: not set)\n" <<
+    "\n" <<
+    "-Q, --pass         Some statistics for passed hands.\n" <<
     "                   (Default: not set)\n" <<
     "\n" <<
     "-e, --equal        Write hash-line list of hands in order to look\n" <<
@@ -206,6 +210,7 @@ static void setDefaults(Options& options)
   options.tableIMPFlag = false;
   options.compareFlag = false;
   options.playersFlag = false;
+  options.passStatsFlag = false;
   options.equalFlag = false;
   options.valuationFlag = false;
   options.solveFlag = false;
@@ -266,6 +271,11 @@ void printOptions(const Options& options)
     cout << setw(12) << "players" << setw(12) << "set" << "\n";
   else
     cout << setw(12) << "players" << setw(12) << "not set" << "\n";
+
+  if (options.passStatsFlag)
+    cout << setw(12) << "pass stats" << setw(12) << "set" << "\n";
+  else
+    cout << setw(12) << "pass stats" << setw(12) << "not set" << "\n";
 
   if (options.solveFlag)
     cout << setw(12) << "solve" << setw(12) << "set" << "\n";
@@ -432,6 +442,11 @@ void readArgs(
 
       case 'p':
         options.playersFlag = true;
+        break;
+
+      case 'Q':
+        options.passStatsFlag = true;
+        options.valuationFlag = true;
         break;
 
       case 'e':

@@ -23,6 +23,7 @@ const string TimerName[]
   "Stats",
   "Refs",
   "Value",
+  "Pass",
   "Sheet"
 };
 

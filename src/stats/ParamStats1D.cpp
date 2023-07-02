@@ -85,8 +85,8 @@ string ParamStats1D::str() const
   {
     for (size_t d2 = 0; d2 < paramStats1D[d1].size(); d2++)
     {
-      ss << dimNames[0] << d1 << "\n";
-      ss << dimNames[1] << d2 << "\n";
+      ss << dimNames[0] << ": " << d1 << "\n";
+      ss << dimNames[1] << ": " << d2 << "\n";
       ss << string(18, '-') << "\n\n";
 
       for (size_t d3 = 0; d3 < paramStats1D[d1][d2].size(); d3++)

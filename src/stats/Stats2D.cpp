@@ -162,6 +162,8 @@ string Stats2D::strTable(
         static_cast<float>(info1.factor);
     }
 
+    ss << setw(6) << counts1[i].count;
+
     for (unsigned j = index2Low; j <= index2High; j++)
     {
       if (tableIndex == 0)

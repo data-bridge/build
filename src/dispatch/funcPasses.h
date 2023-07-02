@@ -13,12 +13,16 @@
 #include <iostream>
 
 class Group;
+class ParamStats1D;
+class ParamStats2D;
 
 using namespace std;
 
 
 void dispatchPasses(
   const Group& group,
+  ParamStats1D& paramStats1D,
+  ParamStats2D& paramStats2D,
   ostream& flog);
 
 #endif

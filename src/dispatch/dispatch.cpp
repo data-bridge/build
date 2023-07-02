@@ -132,8 +132,16 @@ void dispatch(
       dispatchValuation(group, flog);
       allStats.timersPtr->stop(BRIDGE_TIMER_VALUE, task.formatInput);
 
-      // TODO TMP
-      dispatchPasses(group, flog);
+      if (options.passStatsFlag)
+      {
+        if (options.verboseIO)
+          flog << "Pass stats\n" << endl;
+        
+        allStats.timersPtr->start(BRIDGE_TIMER_PASS, task.formatInput);
+        dispatchPasses(group, * allStats.paramStats1DPtr,
+          * allStats.paramStats2DPtr, flog);
+        allStats.timersPtr->stop(BRIDGE_TIMER_PASS, task.formatInput);
+      }
     }
 
     if (options.equalFlag)

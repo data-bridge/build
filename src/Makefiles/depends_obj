@@ -28,11 +28,11 @@ dispatch/dispatch.obj: edits/RefEntry.h edits/RefAction.h stats/AllStats.h
 dispatch/dispatch.obj: validate/validate.h dispatch/funcCompare.h
 dispatch/dispatch.obj: dispatch/funcDD.h dispatch/funcDigest.h
 dispatch/dispatch.obj: dispatch/funcDupl.h dispatch/funcIMPSheet.h
-dispatch/dispatch.obj: dispatch/funcRead.h dispatch/funcPlayerVal.h
-dispatch/dispatch.obj: dispatch/funcRefStats.h dispatch/funcTextStats.h
-dispatch/dispatch.obj: dispatch/funcTrace.h dispatch/funcValidate.h
-dispatch/dispatch.obj: dispatch/funcValuation.h dispatch/funcWrite.h
-dispatch/dispatch.obj: stats/Timers.h stats/Timer.h
+dispatch/dispatch.obj: dispatch/funcPasses.h dispatch/funcRead.h
+dispatch/dispatch.obj: dispatch/funcPlayerVal.h dispatch/funcRefStats.h
+dispatch/dispatch.obj: dispatch/funcTextStats.h dispatch/funcTrace.h
+dispatch/dispatch.obj: dispatch/funcValidate.h dispatch/funcValuation.h
+dispatch/dispatch.obj: dispatch/funcWrite.h stats/Timers.h stats/Timer.h
 dispatch/funcCompare.obj: dispatch/funcCompare.h dispatch/funcRead.h
 dispatch/funcCompare.obj: dispatch/Order.h files/Buffer.h files/LineData.h
 dispatch/funcCompare.obj: records/Group.h records/Segment.h records/Date.h
@@ -469,6 +469,10 @@ stats/DuplStats.obj: stats/DuplStats.h stats/DuplStat.h include/Format.h
 stats/DuplStats.obj: handling/Bexcept.h
 stats/RefStats.obj: stats/RefStats.h edits/RefEntry.h edits/Comment.h
 stats/RefStats.obj: include/Format.h handling/Bexcept.h
+stats/ParamStats1D.obj: stats/ParamStats1D.h stats/Stats1D.h
+stats/ParamStats1D.obj: stats/StatsInfo.h
+stats/ParamStats2D.obj: stats/ParamStats2D.h stats/Stats2D.h
+stats/ParamStats2D.obj: stats/StatsInfo.h
 stats/Stats1D.obj: stats/Stats1D.h stats/StatsInfo.h
 stats/Stats2D.obj: stats/Stats2D.h stats/StatsInfo.h
 stats/TextDatum.obj: stats/TextDatum.h

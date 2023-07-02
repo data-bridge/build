@@ -15,9 +15,8 @@
 
 #include "funcPasses.h"
 
-#include "../stats/Stats1D.h"
-#include "../stats/Stats2D.h"
-#include "../stats/StatsInfo.h"
+#include "../stats/ParamStats1D.h"
+#include "../stats/ParamStats2D.h"
 
 #include "../include/bridge.h"
 #include "../handling/Bexcept.h"
@@ -46,8 +45,8 @@ static vector<CompositeParams> LOCAL_TO_COMPOSITE =
 static vector<StatsInfo> LOCAL_DATA =
 {
   { "HCP", 0, 40, 1},
-  { "CCCC", 0, 1200, 20}, // TODO Check
-  { "ZP", 0, 80, 1} // TODO Check
+  { "CCCC", 0, 1200, 20}, // TODO Check maxima
+  { "ZP", 0, 80, 1} // TODO Check maxima
 };
 
 static vector<string> LOCAL_NAMES =
@@ -55,51 +54,11 @@ static vector<string> LOCAL_NAMES =
   "Player pos.", "Vulnerability", "Params"
 };
 
+const static vector<string> onePass = {"P"};
+const static vector<string> twoPasses = {"P", "P"};
+const static vector<string> threePasses = {"P", "P", "P"};
+const static vector<string> fourPasses = {"P", "P", "P", "P"};
 
-void initPass1DStats(vector<vector<vector<Stats1D>>>& stats)
-{
-  stats.resize(BRIDGE_PLAYERS);
-  for (size_t prel = 0; prel < BRIDGE_PLAYERS; prel++)
-  {
-    stats[prel].resize(BRIDGE_VUL_SIZE);
-    for (size_t vul = 0; vul < BRIDGE_VUL_SIZE; vul++)
-    {
-      stats[prel][vul].resize(PASS_SIZE);
-      for (size_t param = 0; param < PASS_SIZE; param++)
-        stats[prel][vul][param].set(LOCAL_DATA[param]);
-    }
-  }
-}
-
-
-void initPass2DStats(vector<vector<vector<Stats2D>>>& stats)
-{
-  stats.resize(BRIDGE_PLAYERS);
-  for (size_t prel = 0; prel < BRIDGE_PLAYERS; prel++)
-  {
-    stats[prel].resize(BRIDGE_VUL_SIZE);
-    for (size_t vul = 0; vul < BRIDGE_VUL_SIZE; vul++)
-    {
-      // So currently
-      // 0: HCP, CCCC
-      // 1: HCP, Zar
-      // 2: CCCC, Zar
-      stats[prel][vul].resize(PASS_SIZE * (PASS_SIZE-1) / 2);
-
-      size_t p_run = 0;
-      for (size_t param1 = 0; param1+1 < PASS_SIZE; param1++)
-      {
-        for (size_t param2 = param1+1; param2 < PASS_SIZE; param2++)
-        {
-          stats[prel][vul][p_run].set1(LOCAL_DATA[param1]);
-          stats[prel][vul][p_run].set2(LOCAL_DATA[param2]);
-          
-          p_run++;
-        }
-      }
-    }
-  }
-}
 
 void setPassParams(
   vector<vector<unsigned>>& params,
@@ -120,81 +79,16 @@ void setPassParams(
 }
 
 
-void addPassStats1D(
-  vector<Stats1D>& stats1D, 
-  vector<unsigned>& params, 
-  const bool flag)
+void passStats(
+  const Group& group,
+  ParamStats1D& paramStats1D,
+  ParamStats2D& paramStats2D)
 {
-  for (unsigned localParam = 0; localParam < PASS_SIZE; localParam++)
-    stats1D[localParam].add(params[localParam], flag);
-}
+  paramStats1D.init(BRIDGE_PLAYERS, BRIDGE_VUL_SIZE, PASS_SIZE,
+    LOCAL_NAMES, LOCAL_DATA);
 
-
-void addPassStats2D(
-  vector<Stats2D>& stats2D, 
-  vector<unsigned>& params, 
-  const bool flag)
-{
-  size_t p_run = 0;
-  for (size_t param1 = 0; param1+1 < PASS_SIZE; param1++)
-  {
-    for (size_t param2 = param1+1; param2 < PASS_SIZE; param2++)
-    {
-      stats2D[p_run].add(params[param1], params[param2], flag);
-      p_run++;
-    }
-  }
-}
-
-
-string strPassStats(
-  const vector<vector<vector<Stats1D>>>& stats1D,
-  const vector<vector<vector<Stats2D>>>& stats2D)
-{
-  stringstream ss;
-  for (size_t prel = 0; prel < BRIDGE_PLAYERS; prel++)
-  {
-    for (size_t vul = 0; vul < BRIDGE_VUL_SIZE; vul++)
-    {
-      ss << "Player pos.   " << prel << "\n";
-      ss << "Vulnerability " << VUL_NAMES_PBN[vul] << "\n";
-      ss << string(18, '-') << "\n\n";
-
-      for (size_t param = 0; param < PASS_SIZE; param++)
-        ss << stats1D[prel][vul][param].str() << "\n";
-
-      size_t p_run = 0;
-      for (size_t param1 = 0; param1+1 < PASS_SIZE; param1++)
-      {
-        for (size_t param2 = param1+1; param2 < PASS_SIZE; param2++)
-        {
-          ss << stats2D[prel][vul][p_run].str() << "\n";
-          p_run++;
-        }
-      }
-    }
-  }
-
-  return ss.str();
-}
-
-
-string passStats(const Group& group)
-{
-  // TODO Make static
-  const vector<string> onePass = {"P"};
-  const vector<string> twoPasses = {"P", "P"};
-  const vector<string> threePasses = {"P", "P", "P"};
-  const vector<string> fourPasses = {"P", "P", "P", "P"};
-
-  // TODO Do automatically and once
-  // Relative player (dealer = 0), vul, localParams.
-  vector<vector<vector<Stats1D>>> stats1D;
-  initPass1DStats(stats1D);
-
-  // Relative player (dealer = 0), vul, localParams.
-  vector<vector<vector<Stats2D>>> stats2D;
-  initPass2DStats(stats2D);
+  paramStats2D.init(BRIDGE_PLAYERS, BRIDGE_VUL_SIZE, PASS_SIZE,
+    LOCAL_NAMES, LOCAL_DATA);
 
   for (auto &segment: group)
   {
@@ -231,48 +125,46 @@ string passStats(const Group& group)
         }
 
         const bool onePassFlag = instance.auctionStarts(onePass);
-        addPassStats1D(stats1D[0][vul], params[0], onePassFlag);
-        addPassStats2D(stats2D[0][vul], params[0], onePassFlag);
+        paramStats1D.add(0, vul, params[0], onePassFlag);
+        paramStats2D.add(0, vul, params[0], onePassFlag);
 
         if (onePassFlag)
         {
           const bool twoPassesFlag = instance.auctionStarts(twoPasses);
-          addPassStats1D(stats1D[1][vul], params[1], twoPassesFlag);
-          addPassStats2D(stats2D[1][vul], params[1], twoPassesFlag);
+          paramStats1D.add(1, vul, params[1], twoPassesFlag);
+          paramStats2D.add(1, vul, params[1], twoPassesFlag);
 
           if (twoPassesFlag)
           {
             const bool threePassesFlag = 
               instance.auctionStarts(threePasses);
-            addPassStats1D(stats1D[2][vul], params[2], threePassesFlag);
-            addPassStats2D(stats2D[2][vul], params[2], threePassesFlag);
+            paramStats1D.add(2, vul, params[2], threePassesFlag);
+            paramStats2D.add(2, vul, params[2], threePassesFlag);
 
             if (threePassesFlag)
             {
               const bool fourPassesFlag = 
                 instance.auctionStarts(fourPasses);
-
-              addPassStats1D(stats1D[3][vul], params[3], fourPassesFlag);
-              addPassStats2D(stats2D[3][vul], params[3], fourPassesFlag);
+              paramStats1D.add(3, vul, params[3], fourPassesFlag);
+              paramStats2D.add(3, vul, params[3], fourPassesFlag);
             }
           }
         }
       }
     }
   }
-
-  return strPassStats(stats1D, stats2D);
-
 }
 
 
 void dispatchPasses(
   const Group& group,
+  ParamStats1D& paramStats1D,
+  ParamStats2D& paramStats2D,
   ostream& flog)
 {
   try
   {
-    flog << passStats(group);
+    passStats(group, paramStats1D, paramStats2D);
   }
   catch (Bexcept& bex)
   {

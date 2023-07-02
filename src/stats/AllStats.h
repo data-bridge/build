@@ -28,6 +28,8 @@ class TextStats;
 class CompStats;
 class RefStats;
 class DuplStats;
+class ParamStats1D;
+class ParamStats2D;
 class Timers;
 
 struct Options;
@@ -42,6 +44,8 @@ struct AllStats
   CompStats * compStatsPtr;
   RefStats * refStatsPtr;
   DuplStats * duplStatsPtr;
+  ParamStats1D * paramStats1DPtr;
+  ParamStats2D * paramStats2DPtr;
   Timers * timersPtr;
 
   AllStats();
