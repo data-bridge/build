@@ -35,14 +35,14 @@ class DistMatcher
     void set(const string& specIn);
 
     bool match(
-      const unsigned spadesL,
-      const unsigned heartsL,
-      const unsigned diamondsL,
-      const unsigned clubsL,
-      const unsigned long1L,
-      const unsigned long2L,
-      const unsigned long3L,
-      const unsigned long4L) const;
+      const int spadesL,
+      const int heartsL,
+      const int diamondsL,
+      const int clubsL,
+      const int long1L,
+      const int long2L,
+      const int long3L,
+      const int long4L) const;
 
     string str() const;
 };

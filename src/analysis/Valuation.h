@@ -17,6 +17,8 @@
 
 #include "../include/bridge.h"
 
+class DistMatcher;
+
 using namespace std;
 
 /*
@@ -354,6 +356,8 @@ class Valuation
     string str() const;
 
     int handDist() const;
+
+    bool distMatch(const DistMatcher& distMatcher) const;
 };
 
 #endif

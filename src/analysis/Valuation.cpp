@@ -15,6 +15,7 @@
 #include <cassert>
 
 #include "Valuation.h"
+#include "DistMatcher.h"
 
 #include "../handling/Bexcept.h"
 
@@ -1007,5 +1008,19 @@ int Valuation::handDist() const
   return ((*suitValues[0])[VS_LENGTH] << 8) |
       ((*suitValues[1])[VS_LENGTH] << 4) |
        (*suitValues[2])[VS_LENGTH];
+}
+
+
+bool Valuation::distMatch(const DistMatcher& distMatcher) const
+{
+  return distMatcher.match(
+    (*suitValues[0])[VS_LENGTH],
+    (*suitValues[1])[VS_LENGTH],
+    (*suitValues[2])[VS_LENGTH],
+    (*suitValues[3])[VS_LENGTH],
+    (*distValues)[VD_L1],
+    (*distValues)[VD_L2],
+    (*distValues)[VD_L3],
+    (*distValues)[VD_L4]);
 }
 

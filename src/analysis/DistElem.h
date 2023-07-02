@@ -32,7 +32,7 @@ class DistElem
       const string& nameIn,
       const string& spec);
 
-    bool match(const unsigned value) const;
+    bool match(const int value) const;
 
     string str() const;
 };

@@ -138,8 +138,8 @@ void dispatch(
           flog << "Pass stats\n" << endl;
         
         allStats.timersPtr->start(BRIDGE_TIMER_PASS, task.formatInput);
-        dispatchPasses(group, * allStats.paramStats1DPtr,
-          * allStats.paramStats2DPtr, flog);
+        dispatchPasses(group, options,
+          * allStats.paramStats1DPtr, * allStats.paramStats2DPtr, flog);
         allStats.timersPtr->stop(BRIDGE_TIMER_PASS, task.formatInput);
       }
     }

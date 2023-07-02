@@ -11,6 +11,8 @@
 #include <sstream>
 #include <fstream>
 
+#include "../control/Options.h"
+
 #include "../records/Group.h"
 
 #include "funcPasses.h"
@@ -81,6 +83,7 @@ void setPassParams(
 
 void passStats(
   const Group& group,
+  const Options& options,
   ParamStats1D& paramStats1D,
   ParamStats2D& paramStats2D)
 {
@@ -90,10 +93,12 @@ void passStats(
   paramStats2D.init(BRIDGE_PLAYERS, BRIDGE_VUL_SIZE, PASS_SIZE,
     LOCAL_NAMES, LOCAL_DATA);
 
+unsigned bno = 0;
   for (auto &segment: group)
   {
     for (auto &bpair: segment)
     {
+bno++;
       const Board& board = bpair.board;
       const unsigned dealer = static_cast<unsigned>(board.getDealer());
       const vector<Valuation>& valuations = board.getValuations();
@@ -125,28 +130,51 @@ void passStats(
         }
 
         const bool onePassFlag = instance.auctionStarts(onePass);
-        paramStats1D.add(0, vul, params[0], onePassFlag);
-        paramStats2D.add(0, vul, params[0], onePassFlag);
+        const bool oneDistFlag = valuations[relPlayers[0]].distMatch(
+          options.distMatcher);
+        if (oneDistFlag)
+        {
+          paramStats1D.add(0, vul, params[0], onePassFlag);
+          paramStats2D.add(0, vul, params[0], onePassFlag);
+        }
 
         if (onePassFlag)
         {
           const bool twoPassesFlag = instance.auctionStarts(twoPasses);
-          paramStats1D.add(1, vul, params[1], twoPassesFlag);
-          paramStats2D.add(1, vul, params[1], twoPassesFlag);
+          const bool twoDistFlag = valuations[relPlayers[1]].distMatch(
+            options.distMatcher);
+
+          if (twoDistFlag)
+          {
+            paramStats1D.add(1, vul, params[1], twoPassesFlag);
+            paramStats2D.add(1, vul, params[1], twoPassesFlag);
+          }
 
           if (twoPassesFlag)
           {
             const bool threePassesFlag = 
               instance.auctionStarts(threePasses);
-            paramStats1D.add(2, vul, params[2], threePassesFlag);
-            paramStats2D.add(2, vul, params[2], threePassesFlag);
+            const bool threeDistFlag = valuations[relPlayers[2]].distMatch(
+              options.distMatcher);
+
+            if (threeDistFlag)
+            {
+              paramStats1D.add(2, vul, params[2], threePassesFlag);
+              paramStats2D.add(2, vul, params[2], threePassesFlag);
+            }
 
             if (threePassesFlag)
             {
               const bool fourPassesFlag = 
                 instance.auctionStarts(fourPasses);
-              paramStats1D.add(3, vul, params[3], fourPassesFlag);
-              paramStats2D.add(3, vul, params[3], fourPassesFlag);
+              const bool fourDistFlag = valuations[relPlayers[3]].distMatch(
+                options.distMatcher);
+
+              if (fourDistFlag)
+              {
+                paramStats1D.add(3, vul, params[3], fourPassesFlag);
+                paramStats2D.add(3, vul, params[3], fourPassesFlag);
+              }
             }
           }
         }
@@ -158,13 +186,14 @@ void passStats(
 
 void dispatchPasses(
   const Group& group,
+  const Options& options,
   ParamStats1D& paramStats1D,
   ParamStats2D& paramStats2D,
   ostream& flog)
 {
   try
   {
-    passStats(group, paramStats1D, paramStats2D);
+    passStats(group, options, paramStats1D, paramStats2D);
   }
   catch (Bexcept& bex)
   {

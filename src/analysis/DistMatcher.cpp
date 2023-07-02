@@ -57,10 +57,13 @@ void DistMatcher::set(const string& specIn)
     hearts.set("Hearts", v[1]);
     diamonds.set("Diamonds", v[2]);
     clubs.set("Clubs", v[3]);
+    setFlag = true;
+    return;
   }
-  else if (v.size() > 0)
+  else if (v.size() != 1)
     THROW("Odd distribution spec: " + spec);
 
+  v.clear();
   tokenize(spec, v, "-");
 
   if (v.size() == 4)
@@ -69,21 +72,22 @@ void DistMatcher::set(const string& specIn)
     long2.set("Long2", v[1]);
     long3.set("Long3", v[2]);
     long4.set("Long4", v[3]);
+    setFlag = true;
   }
-  else if (v.size() > 0)
+  else
     THROW("Odd distribution spec: " + spec);
 }
 
 
 bool DistMatcher::match(
-  const unsigned spadesL,
-  const unsigned heartsL,
-  const unsigned diamondsL,
-  const unsigned clubsL,
-  const unsigned long1L,
-  const unsigned long2L,
-  const unsigned long3L,
-  const unsigned long4L) const
+  const int spadesL,
+  const int heartsL,
+  const int diamondsL,
+  const int clubsL,
+  const int long1L,
+  const int long2L,
+  const int long3L,
+  const int long4L) const
 {
   if (! setFlag)
     return true;

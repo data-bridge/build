@@ -43,7 +43,7 @@ static const OptEntry OPT_LIST[BRIDGE_NUM_OPTIONS] =
   {"l", "logfile", 1},
   {"c", "compare", 0},
   {"p", "players", 0},
-  {"Q", "pass", 0},
+  {"Q", "pass", 1},
   {"e", "equal", 0},
   {"V", "valuation", 0},
   {"S", "solve", 0},
@@ -106,7 +106,8 @@ void usage(
     "-p, --players      Flag incomplete tables of players.\n" <<
     "                   (Default: not set)\n" <<
     "\n" <<
-    "-Q, --pass         Some statistics for passed hands.\n" <<
+    "-Q, --pass s       Some statistics for passed hands.\n" <<
+    "                   s can be: 5=2=3=3, 5-3-3-2, (5..6)-3-(1..2)-0\n" <<
     "                   (Default: not set)\n" <<
     "\n" <<
     "-e, --equal        Write hash-line list of hands in order to look\n" <<
@@ -447,6 +448,7 @@ void readArgs(
 
       case 'Q':
         options.passStatsFlag = true;
+        options.distMatcher.set(optarg);
         options.valuationFlag = true;
         break;
 

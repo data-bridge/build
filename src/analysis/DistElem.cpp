@@ -52,23 +52,27 @@ void DistElem::set(
     if (! str2upos(v[1], no))
       THROW("Odd second suit-length spec: " + spec);
     max = no;
+    setFlag = true;
+    return;
   }
-  else if (v.size() > 0)
+  else if (v.size() != 1)
     THROW("Odd suit-length spec: " + spec);
 
-  if (! str2upos(v[1], no))
+  if (! str2upos(v[0], no))
     THROW("Odd second suit-length spec: " + spec);
   min = no;
   max = no;
+  setFlag = true;
 }
 
 
-bool DistElem::match(const unsigned value) const
+bool DistElem::match(const int value) const
 {
   if (! setFlag)
     return true;
   else
-    return (value >= min && value <= max);
+    return (static_cast<unsigned>(value) >= min && 
+      static_cast<unsigned>(value) <= max);
 }
 
 

@@ -15,12 +15,14 @@
 class Group;
 class ParamStats1D;
 class ParamStats2D;
+struct Options;
 
 using namespace std;
 
 
 void dispatchPasses(
   const Group& group,
+  const Options& options,
   ParamStats1D& paramStats1D,
   ParamStats2D& paramStats2D,
   ostream& flog);

@@ -10,6 +10,8 @@
 #ifndef BRIDGE_OPTIONS_H
 #define BRIDGE_OPTIONS_H
 
+#include "../analysis/DistMatcher.h"
+
 enum Format: unsigned;
 
 using namespace std;
@@ -42,7 +44,7 @@ struct Options
   bool tableIMPFlag; // -T, --tableIMP
   bool compareFlag; // -c, --compare
   bool playersFlag; // -p, --players
-  bool passStatsFlag; // -q, --pass
+  bool passStatsFlag; // -Q, --pass
   bool equalFlag; // -e, --equal
   bool valuationFlag; // -V, --valuation
   bool solveFlag; // -S, --solve
@@ -50,6 +52,8 @@ struct Options
 
   bool formatSetFlag; // -f, --format
   Format format;
+
+  DistMatcher distMatcher; // Comes from -Q
 
   bool statsFlag; // -s, --stats
   bool quoteFlag; // -q, --quote
