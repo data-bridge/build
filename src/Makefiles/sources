@@ -2,6 +2,8 @@ SOURCE_FILES =                  \
 reader.cpp                      \
                                 \
 analysis/DDInfo.cpp             \
+analysis/DistElem.cpp           \
+analysis/DistMatcher.cpp        \
 analysis/Term.cpp               \
 analysis/Valuation.cpp          \
 analysis/ddsIF.cpp              \

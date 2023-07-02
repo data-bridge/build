@@ -1,8 +1,7 @@
 2023-06-30
-All PassStats1D and 2D to AllStats
-Actually ParamStats1D and 2D, each a vector^3
-Let dispatch increment them
-
+-Q could have a string argument, either "all" or
+"5-3-3-2" (any) or "5=2=2=4" or "5M-3-3-2" (m too).
+First see how many hands we actually have.
 
 In the new funcPasses, only count passes from Valuation::handDist()
 0x333, 0x334, 0x343, 0x433 (so 4-3-3-3).

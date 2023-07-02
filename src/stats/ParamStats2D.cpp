@@ -102,9 +102,9 @@ string ParamStats2D::str() const
   {
     for (size_t d2 = 0; d2 < paramStats2D[d1].size(); d2++)
     {
-      ss << dimNames[0] << ": " << d1 << "\n";
-      ss << dimNames[1] << ": " << d2 << "\n";
-      ss << string(18, '-') << "\n\n";
+      ss << setw(13) << dimNames[0] << ": " << d1 << "\n";
+      ss << setw(13) << dimNames[1] << ": " << d2 << "\n";
+      ss << string(16, '-') << "\n\n";
 
       size_t d_run = 0;
       for (unsigned par1 = 0; 
