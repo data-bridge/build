@@ -149,6 +149,10 @@ class Auction
     bool operator != (const Auction& a2) const;
 
 
+    string strCall(
+      const unsigned number,
+      const Format format) const;
+
     string str(
       const Format format,
       const int * lengths = nullptr) const;

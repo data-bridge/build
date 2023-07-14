@@ -406,6 +406,14 @@ bool Board::operator <= (const Board& board2) const
 }
 
 
+string Board::strHand(
+  const Player player,
+  const Format format) const
+{
+  return deal.strHand(player, format);
+}
+
+
 string Board::strDeal(const Format format) const
 {
   return deal.str(instances[0].getDealer(), format);

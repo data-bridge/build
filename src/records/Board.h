@@ -124,6 +124,10 @@ class Board
     bool operator != (const Board& b2) const;
     bool operator <= (const Board& b2) const;
 
+    string strHand(
+      const Player player,
+      const Format format) const;
+
     string strDeal(const Format format) const;
     string strDeal(
       const Player player,

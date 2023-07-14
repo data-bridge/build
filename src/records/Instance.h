@@ -193,6 +193,9 @@ class Instance
 
     string strDealer(const Format format) const;
     string strVul(const Format format) const;
+    string strCall(
+      const unsigned number,
+      const Format format) const;
     string strAuction(const Format format) const;
     string strContract(const Format format) const;
     string strHeaderContract() const;

@@ -413,6 +413,17 @@ bool Deal::operator != (const Deal& deal2) const
 }
 
 
+string Deal::strPlayerTXT(const Player player) const
+{
+  stringstream ss;
+    ss << cards[player][BRIDGE_SPADES] << ", " <<
+         cards[player][BRIDGE_HEARTS] << ", " <<
+         cards[player][BRIDGE_DIAMONDS] << ", " <<
+         cards[player][BRIDGE_CLUBS];
+  return ss.str();
+}
+
+
 string Deal::strLINReverse(const Player start) const
 {
   // This is an evil hack to get the cards printed in reverse order
@@ -625,6 +636,24 @@ string Deal::strREC() const
       cards[BRIDGE_SOUTH][s] << "\n";
 
   return ss.str();
+}
+
+
+string Deal::strHand(
+  const Player player,
+  const Format format) const
+{
+  if (! setFlag)
+    THROW("Not set");
+
+  switch(format)
+  {
+    case BRIDGE_FORMAT_TXT:
+      return Deal::strPlayerTXT(player);
+
+    default:
+      THROW("Deal format not implemented: " + to_string(format));
+  }
 }
 
 

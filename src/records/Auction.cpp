@@ -776,7 +776,7 @@ bool Auction::isEmpty() const
 
 bool Auction::startsWith(const vector<string>& calls) const
 {
-  if (calls.size() >= len)
+  if (calls.size() > len)
     return false;
 
   for (size_t i = 0; i < calls.size(); i++)
@@ -1103,6 +1103,24 @@ string Auction::strREC() const
     st += "\n";
 
   return st + "\n";
+}
+
+
+string Auction::strCall(
+  const unsigned number,
+  const Format format) const
+{
+  if (number >= len)
+    THROW("Bid number too large");
+
+  switch(format)
+  {
+    case BRIDGE_FORMAT_TXT:
+      return AUCTION_NO_TO_CALL_TXT[sequence[number].no];
+    
+    default:
+      THROW("Invalid format: " + to_string(format));
+  }
 }
 
 

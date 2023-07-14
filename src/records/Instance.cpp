@@ -463,6 +463,14 @@ string Instance::strVul(const Format format) const
 }
 
 
+string Instance::strCall(
+  const unsigned number,
+  const Format format) const
+{
+  return auction.strCall(number, format);
+}
+
+
 string Instance::strAuction(const Format format) const
 {
   if (format == BRIDGE_FORMAT_TXT)

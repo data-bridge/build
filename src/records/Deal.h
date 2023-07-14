@@ -48,6 +48,8 @@ class Deal
     void setPBN(const string& text);
     void setRBN(const string& text);
 
+    string strPlayerTXT(const Player player) const;
+
     string strLINReverse(const Player start) const;
     string strLINRegular(
       const Player start,
@@ -85,6 +87,10 @@ class Deal
 
     bool operator == (const Deal& deal2) const;
     bool operator != (const Deal& deal2) const;
+
+    string strHand(
+      const Player player,
+      const Format format) const;
 
     string str(
       const Player start,

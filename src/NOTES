@@ -1,13 +1,6 @@
 2023-06-30
--Q could have a string argument, either "all" or
-"5-3-3-2" (any) or "5=2=2=4" or "5M-3-3-2" (m too).
-First see how many hands we actually have.
-
-In the new funcPasses, only count passes from Valuation::handDist()
-0x333, 0x334, 0x343, 0x433 (so 4-3-3-3).
-Test the new code.
-Do other distributions.
-Look at the actual results.
+Look at the few hands with >= 13 HCP that are passed (4333).
+And <= 9 HCP that are opened.
 
 
 
