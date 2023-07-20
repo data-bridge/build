@@ -121,3 +121,8 @@ string DistMatcher::str() const
   return ss.str();
 }
 
+
+string DistMatcher::strSpec() const
+{
+  return spec;
+}

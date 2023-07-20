@@ -45,6 +45,7 @@ class DistMatcher
       const int long4L) const;
 
     string str() const;
+    string strSpec() const;
 };
 
 #endif
