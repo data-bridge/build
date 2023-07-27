@@ -281,106 +281,106 @@ bno++;
             0, matchTag, onePassFlag, playerFlag, playerTag);
         }
 
-        if (onePassFlag)
+        if (! onePassFlag)
+          continue;
+
+        const bool twoPassesFlag = instance.auctionStarts(twoPasses);
+        const bool twoDistFlag = valuations[relPlayers[1]].distMatch(
+          options.distMatcher);
+
+        if (twoDistFlag)
         {
-          const bool twoPassesFlag = instance.auctionStarts(twoPasses);
-          const bool twoDistFlag = valuations[relPlayers[1]].distMatch(
-            options.distMatcher);
-
-          if (twoDistFlag)
+          if (! hcpFlag || params[1][0] == hcpValue)
           {
-            if (! hcpFlag || params[1][0] == hcpValue)
+            // Kludge to get spades vs controls.
+            if (spadesControlFlag)
             {
-              // Kludge to get spades vs controls.
-              if (spadesControlFlag)
-              {
-                params[1][0] = static_cast<unsigned>(
-                  valuations[relPlayers[1]].handDist() >> 8);
-                params[1][2] = 10 + static_cast<unsigned>(
-                  valuations[relPlayers[1]].getCompositeParam(VC_CONTROLS));
-              }
-
-              if (! playerFlag || 
-                instance.strPlayer(static_cast<Player>(relPlayers[1]),
-                  BRIDGE_FORMAT_TXT) == playerTag)
-              {
-                paramStats1D.add(1, vulNonDealer, params[1], twoPassesFlag);
-                paramStats2D.add(1, vulNonDealer, params[1], twoPassesFlag);
-              }
+              params[1][0] = static_cast<unsigned>(
+                valuations[relPlayers[1]].handDist() >> 8);
+              params[1][2] = 10 + static_cast<unsigned>(
+                valuations[relPlayers[1]].getCompositeParam(VC_CONTROLS));
             }
 
-            strTriplet(board, instance, relPlayers, params,
-              1, matchTag, twoPassesFlag, playerFlag, playerTag);
+            if (! playerFlag || 
+              instance.strPlayer(static_cast<Player>(relPlayers[1]),
+                BRIDGE_FORMAT_TXT) == playerTag)
+            {
+              paramStats1D.add(1, vulNonDealer, params[1], twoPassesFlag);
+              paramStats2D.add(1, vulNonDealer, params[1], twoPassesFlag);
+            }
           }
 
-          if (twoPassesFlag)
+          strTriplet(board, instance, relPlayers, params,
+            1, matchTag, twoPassesFlag, playerFlag, playerTag);
+        }
+
+        if (! twoPassesFlag)
+          continue;
+
+        const bool threePassesFlag = 
+          instance.auctionStarts(threePasses);
+        const bool threeDistFlag = valuations[relPlayers[2]].distMatch(
+          options.distMatcher);
+
+        if (threeDistFlag)
+        {
+          if (! hcpFlag || params[2][0] == hcpValue)
           {
-            const bool threePassesFlag = 
-              instance.auctionStarts(threePasses);
-            const bool threeDistFlag = valuations[relPlayers[2]].distMatch(
-              options.distMatcher);
-
-            if (threeDistFlag)
+            // Kludge to get spades vs controls.
+            if (spadesControlFlag)
             {
-              if (! hcpFlag || params[2][0] == hcpValue)
-              {
-                // Kludge to get spades vs controls.
-                if (spadesControlFlag)
-                {
-                  params[2][0] = static_cast<unsigned>(
-                    valuations[relPlayers[2]].handDist() >> 8);
-                  params[2][2] = 10 + static_cast<unsigned>(
-                    valuations[relPlayers[2]].getCompositeParam(VC_CONTROLS));
-                }
-
-                if (! playerFlag || 
-                  instance.strPlayer(static_cast<Player>(relPlayers[2]),
-                    BRIDGE_FORMAT_TXT) == playerTag)
-                {
-                  paramStats1D.add(2, vulDealer, params[2], threePassesFlag);
-                  paramStats2D.add(2, vulDealer, params[2], threePassesFlag);
-                }
-              }
-
-              strTriplet(board, instance, relPlayers, params,
-                2, matchTag, threePassesFlag, playerFlag, playerTag);
+              params[2][0] = static_cast<unsigned>(
+                valuations[relPlayers[2]].handDist() >> 8);
+              params[2][2] = 10 + static_cast<unsigned>(
+                valuations[relPlayers[2]].getCompositeParam(VC_CONTROLS));
             }
 
-            if (threePassesFlag)
+            if (! playerFlag || 
+              instance.strPlayer(static_cast<Player>(relPlayers[2]),
+                BRIDGE_FORMAT_TXT) == playerTag)
             {
-              const bool fourPassesFlag = 
-                instance.auctionStarts(fourPasses);
-              const bool fourDistFlag = valuations[relPlayers[3]].distMatch(
-                options.distMatcher);
-
-              if (fourDistFlag)
-              {
-                if (! hcpFlag || params[3][0] == hcpValue)
-                {
-                  // Kludge to get spades vs controls.
-                  if (spadesControlFlag)
-                  {
-                    params[3][0] = static_cast<unsigned>(
-                      valuations[relPlayers[3]].handDist() >> 8);
-                    params[3][2] = 10 + static_cast<unsigned>(
-                      valuations[relPlayers[3]].getCompositeParam(VC_CONTROLS));
-                  }
-
-                  if (! playerFlag || 
-                    instance.strPlayer(static_cast<Player>(relPlayers[3]),
-                      BRIDGE_FORMAT_TXT) == playerTag)
-                  {
-                    paramStats1D.add(3, vulDealer, params[3], fourPassesFlag);
-                    paramStats2D.add(3, vulDealer, params[3], fourPassesFlag);
-                  }
-                }
-
-                strTriplet(board, instance, relPlayers, params,
-                  3, matchTag, fourPassesFlag, playerFlag, playerTag);
-              }
+              paramStats1D.add(2, vulDealer, params[2], threePassesFlag);
+              paramStats2D.add(2, vulDealer, params[2], threePassesFlag);
             }
+          }
+
+          strTriplet(board, instance, relPlayers, params,
+            2, matchTag, threePassesFlag, playerFlag, playerTag);
+        }
+
+        if (! threePassesFlag)
+          continue;
+
+        const bool fourPassesFlag = 
+          instance.auctionStarts(fourPasses);
+        const bool fourDistFlag = valuations[relPlayers[3]].distMatch(
+          options.distMatcher);
+
+        if (! fourDistFlag)
+          continue;
+
+        if (! hcpFlag || params[3][0] == hcpValue)
+        {
+          // Kludge to get spades vs controls.
+          if (spadesControlFlag)
+          {
+            params[3][0] = static_cast<unsigned>(
+              valuations[relPlayers[3]].handDist() >> 8);
+            params[3][2] = 10 + static_cast<unsigned>(
+              valuations[relPlayers[3]].getCompositeParam(VC_CONTROLS));
+          }
+
+          if (! playerFlag || 
+            instance.strPlayer(static_cast<Player>(relPlayers[3]),
+              BRIDGE_FORMAT_TXT) == playerTag)
+          {
+            paramStats1D.add(3, vulDealer, params[3], fourPassesFlag);
+            paramStats2D.add(3, vulDealer, params[3], fourPassesFlag);
           }
         }
+
+        strTriplet(board, instance, relPlayers, params,
+          3, matchTag, fourPassesFlag, playerFlag, playerTag);
       }
     }
   }
