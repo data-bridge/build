@@ -309,31 +309,8 @@ bno++;
               }
             }
 
-            if (! twoPassesFlag && params[1][0] < 10)
-            {
-              if (! playerFlag || 
-                instance.strPlayer(static_cast<Player>(relPlayers[1]),
-                  BRIDGE_FORMAT_TXT) == playerTag)
-                cout << 
-                  strBidData(board, instance, relPlayers, params, 1, 0, matchTag);
-            }
-            else if (params[1][0] >= 10 && params[1][0] <= 12 &&
-              isAboveOneLevel(instance.strCall(1, BRIDGE_FORMAT_TXT)))
-            {
-              if (! playerFlag || 
-                instance.strPlayer(static_cast<Player>(relPlayers[1]),
-                  BRIDGE_FORMAT_TXT) == playerTag)
-                cout << 
-                  strBidData(board, instance, relPlayers, params, 1, 1, matchTag);
-            }
-            else if (twoPassesFlag && params[1][0] > 12)
-            {
-              if (! playerFlag || 
-                instance.strPlayer(static_cast<Player>(relPlayers[1]),
-                  BRIDGE_FORMAT_TXT) == playerTag)
-                cout << 
-                  strBidData(board, instance, relPlayers, params, 1, 2, matchTag);
-            }
+            strTriplet(board, instance, relPlayers, params,
+              1, matchTag, twoPassesFlag, playerFlag, playerTag);
           }
 
           if (twoPassesFlag)
@@ -365,31 +342,8 @@ bno++;
                 }
               }
 
-              if (! threePassesFlag && params[2][0] < 10)
-              {
-                if (! playerFlag || 
-                  instance.strPlayer(static_cast<Player>(relPlayers[2]),
-                    BRIDGE_FORMAT_TXT) == playerTag)
-                  cout << 
-                    strBidData(board, instance, relPlayers, params, 2, 0, matchTag);
-              }
-              else if (params[2][0] >= 10 && params[2][0] <= 12 &&
-                isAboveOneLevel(instance.strCall(2, BRIDGE_FORMAT_TXT)))
-              {
-                if (! playerFlag || 
-                  instance.strPlayer(static_cast<Player>(relPlayers[2]),
-                    BRIDGE_FORMAT_TXT) == playerTag)
-                  cout << 
-                    strBidData(board, instance, relPlayers, params, 2, 1, matchTag);
-              }
-              else if (threePassesFlag && params[2][0] > 12)
-              {
-                if (! playerFlag || 
-                  instance.strPlayer(static_cast<Player>(relPlayers[2]),
-                    BRIDGE_FORMAT_TXT) == playerTag)
-                  cout << 
-                    strBidData(board, instance, relPlayers, params, 2, 2, matchTag);
-              }
+              strTriplet(board, instance, relPlayers, params,
+                2, matchTag, threePassesFlag, playerFlag, playerTag);
             }
 
             if (threePassesFlag)
@@ -421,31 +375,8 @@ bno++;
                   }
                 }
 
-                if (! fourPassesFlag && params[3][0] < 10)
-                {
-                  if (! playerFlag || 
-                    instance.strPlayer(static_cast<Player>(relPlayers[3]),
-                      BRIDGE_FORMAT_TXT) == playerTag)
-                    cout << 
-                      strBidData(board, instance, relPlayers, params, 3, 0, matchTag);
-                }
-                else if (params[3][0] >= 10 && params[3][0] <= 12 &&
-                  isAboveOneLevel(instance.strCall(3, BRIDGE_FORMAT_TXT)))
-                {
-                  if (! playerFlag || 
-                    instance.strPlayer(static_cast<Player>(relPlayers[3]),
-                      BRIDGE_FORMAT_TXT) == playerTag)
-                    cout << 
-                      strBidData(board, instance, relPlayers, params, 3, 1, matchTag);
-                }
-                else if (fourPassesFlag && params[3][0] > 12)
-                {
-                  if (! playerFlag || 
-                    instance.strPlayer(static_cast<Player>(relPlayers[3]),
-                      BRIDGE_FORMAT_TXT) == playerTag)
-                    cout << 
-                      strBidData(board, instance, relPlayers, params, 3, 2, matchTag);
-                }
+                strTriplet(board, instance, relPlayers, params,
+                  3, matchTag, fourPassesFlag, playerFlag, playerTag);
               }
             }
           }
