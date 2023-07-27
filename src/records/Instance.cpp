@@ -93,6 +93,52 @@ Vul Instance::getVul() const
 }
 
 
+void Instance::getVulRelative(
+  VulRelative& vulDealer,
+  VulRelative& vulNonDealer) const
+{
+  const Vul vulAbs = Instance::getVul();
+  const Player dealer = Instance::getDealer();
+
+  if (vulAbs == BRIDGE_VUL_NONE)
+  {
+    vulDealer = BRIDGE_VUL_REL_NONE;
+    vulNonDealer = BRIDGE_VUL_REL_NONE;
+  }
+  else if (vulAbs == BRIDGE_VUL_BOTH)
+  {
+    vulDealer = BRIDGE_VUL_REL_BOTH;
+    vulNonDealer = BRIDGE_VUL_REL_BOTH;
+  }
+  else if (vulAbs == BRIDGE_VUL_NORTH_SOUTH)
+  {
+    if (dealer == BRIDGE_EAST || dealer == BRIDGE_WEST)
+    {
+      vulDealer = BRIDGE_VUL_REL_ONLY_THEY;
+      vulNonDealer = BRIDGE_VUL_REL_ONLY_WE;
+    }
+    else
+    {
+      vulDealer = BRIDGE_VUL_REL_ONLY_WE;
+      vulNonDealer = BRIDGE_VUL_REL_ONLY_THEY;
+    }
+  }
+  else
+  {
+    if (dealer == BRIDGE_EAST || dealer == BRIDGE_WEST)
+    {
+      vulDealer = BRIDGE_VUL_REL_ONLY_WE;
+      vulNonDealer = BRIDGE_VUL_REL_ONLY_THEY;
+    }
+    else
+    {
+      vulDealer = BRIDGE_VUL_REL_ONLY_THEY;
+      vulNonDealer = BRIDGE_VUL_REL_ONLY_WE;
+    }
+  }
+}
+
+
 // Auction
 
 void Instance::addCall(

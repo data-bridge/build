@@ -37,6 +37,14 @@ enum Vul
   BRIDGE_VUL_SIZE = 4
 };
 
+enum VulRelative
+{
+  BRIDGE_VUL_REL_NONE = 0,
+  BRIDGE_VUL_REL_BOTH = 1,
+  BRIDGE_VUL_REL_ONLY_WE = 2,
+  BRIDGE_VUL_REL_ONLY_THEY = 3
+};
+
 enum Multiplier
 {
   BRIDGE_MULT_UNDOUBLED = 0,

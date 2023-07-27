@@ -10,6 +10,7 @@
 #include <iomanip>
 #include <sstream>
 #include <fstream>
+#include <cassert>
 
 #include "../control/Options.h"
 
@@ -81,13 +82,22 @@ void setPassParams(
 }
 
 
+bool isAboveOneLevel(const string& bid)
+{
+  if (bid.size() <= 1 || bid == "Pass")
+    return false;
+  else
+    return (bid.at(0) >= '2');
+}
+
+
 string strBidData(
   const Board& board,
   const Instance& instance,
   const vector<unsigned>& relPlayers,
   const vector<vector<unsigned>>& params,
   const unsigned pno,
-  const bool strongFlag,
+  const unsigned range,
   const string& matchTag)
 {
   stringstream ss;
@@ -131,15 +141,20 @@ string strBidData(
 
   ss << "Bid: " << instance.strCall(pno, BRIDGE_FORMAT_TXT) << "\n";
 
-  if (strongFlag)
-  {
-    // An opening pass from an unusually strong hand.
-    ss << "Tag: strong_H" << pno+1 << "_" << matchTag << "\n";
-  }
-  else
+  if (range == 0)
   {
     // An opening bid from a weak hand.
     ss << "Tag: weak_H" << pno+1 << "_" << matchTag << "\n";
+  }
+  else if (range == 1)
+  {
+    // An high opening bid from a middling hand.
+    ss << "Tag: mid_H" << pno+1 << "_" << matchTag << "\n";
+  }
+  else
+  {
+    // An opening pass from an unusually strong hand.
+    ss << "Tag: strong_H" << pno+1 << "_" << matchTag << "\n";
   }
 
   ss << instance.strResult(BRIDGE_FORMAT_TXT);
@@ -154,6 +169,13 @@ void passStats(
   ParamStats1D& paramStats1D,
   ParamStats2D& paramStats2D)
 {
+  const bool hcpFlag = false;
+  const unsigned hcpValue = 11;
+
+  const bool spadesControlFlag = false;
+  const bool playerFlag = false;
+  const string playerTag = "shein";
+
   paramStats1D.init(BRIDGE_PLAYERS, BRIDGE_VUL_SIZE, PASS_SIZE,
     LOCAL_NAMES, LOCAL_DATA);
 
@@ -187,31 +209,8 @@ bno++;
         if (board.skipped(i))
           continue;
 
-        // Relative to dealer, so "NS" means the dealer only.
-        // TODO Make an instance.getRelativeVul(dealer)?
-        Vul vulDealer = instance.getVul();
-        Vul vulNonDealer;
-        if (vulDealer == BRIDGE_VUL_NORTH_SOUTH)
-          vulNonDealer = BRIDGE_VUL_EAST_WEST;
-        else if (vulDealer == BRIDGE_VUL_EAST_WEST)
-          vulNonDealer = BRIDGE_VUL_NORTH_SOUTH;
-        else
-          vulNonDealer = vulDealer;
-
-        if (dealer == BRIDGE_EAST || dealer == BRIDGE_WEST)
-        {
-          // So now "NS" means "dealer only", "EW" means "non-dealer only".
-          if (vulDealer == BRIDGE_VUL_NORTH_SOUTH)
-          {
-            vulDealer = BRIDGE_VUL_EAST_WEST;
-            vulNonDealer = BRIDGE_VUL_NORTH_SOUTH;
-          }
-          else if (vulDealer == BRIDGE_VUL_EAST_WEST)
-          {
-            vulDealer = BRIDGE_VUL_NORTH_SOUTH;
-            vulNonDealer = BRIDGE_VUL_EAST_WEST;
-          }
-        }
+        VulRelative vulDealer, vulNonDealer;
+        instance.getVulRelative(vulDealer, vulNonDealer);
 
         const bool onePassFlag = instance.auctionStarts(onePass);
         const bool oneDistFlag = valuations[relPlayers[0]].distMatch(
@@ -219,25 +218,51 @@ bno++;
 
         if (oneDistFlag)
         {
-          // unsigned hcp = static_cast<unsigned>(params[0][0]);
-          // if (hcp == 10)
+          if (! hcpFlag || params[0][0] == hcpValue)
           {
             // Kludge to get spades vs controls.
-            // unsigned spades = static_cast<unsigned>(
-              // valuations[relPlayers[0]].handDist() >> 8);
-            // unsigned controls = 10 + static_cast<unsigned>(
-              // params[0][2] - params[0][0] - 10); // 4-4-3-2: 10 ZP dist.
+            if (spadesControlFlag)
+            {
+              params[0][0] = static_cast<unsigned>(
+                valuations[relPlayers[0]].handDist() >> 8);
+              params[0][2] = 10 + static_cast<unsigned>(
+                valuations[relPlayers[0]].getCompositeParam(VC_CONTROLS));
+            }
 
-            // params[0][0] = spades;
-            // params[0][2] = controls;
-            paramStats1D.add(0, vulDealer, params[0], onePassFlag);
-            paramStats2D.add(0, vulDealer, params[0], onePassFlag);
+            if (! playerFlag || 
+              instance.strPlayer(static_cast<Player>(relPlayers[0]),
+                BRIDGE_FORMAT_TXT) == playerTag)
+            {
+              paramStats1D.add(0, vulDealer, params[0], onePassFlag);
+              paramStats2D.add(0, vulDealer, params[0], onePassFlag);
+            }
           }
 
           if (! onePassFlag && params[0][0] < 10)
-            cout << strBidData(board, instance, relPlayers, params, 0, 0, matchTag);
+          {
+            if (! playerFlag || 
+              instance.strPlayer(static_cast<Player>(relPlayers[0]),
+                BRIDGE_FORMAT_TXT) == playerTag)
+              cout << 
+                strBidData(board, instance, relPlayers, params, 0, 0, matchTag);
+          }
+          else if (params[0][0] >= 10 && params[0][0] <= 12 &&
+            isAboveOneLevel(instance.strCall(0, BRIDGE_FORMAT_TXT)))
+          {
+            if (! playerFlag || 
+              instance.strPlayer(static_cast<Player>(relPlayers[0]),
+                BRIDGE_FORMAT_TXT) == playerTag)
+              cout << 
+                strBidData(board, instance, relPlayers, params, 0, 1, matchTag);
+          }
           else if (onePassFlag && params[0][0] > 12)
-            cout << strBidData(board, instance, relPlayers, params, 0, 1, matchTag);
+          {
+            if (! playerFlag || 
+              instance.strPlayer(static_cast<Player>(relPlayers[0]),
+                BRIDGE_FORMAT_TXT) == playerTag)
+              cout << 
+                strBidData(board, instance, relPlayers, params, 0, 2, matchTag);
+          }
         }
 
         if (onePassFlag)
@@ -248,24 +273,51 @@ bno++;
 
           if (twoDistFlag)
           {
-            // unsigned hcp = static_cast<unsigned>(params[1][0]);
-            // if (hcp == 10)
+            if (! hcpFlag || params[1][0] == hcpValue)
             {
               // Kludge to get spades vs controls.
-              // unsigned spades = static_cast<unsigned>(
-                // valuations[relPlayers[1]].handDist() >> 8);
-              // unsigned controls = 10 + static_cast<unsigned>(
-                // params[1][2] - params[1][0] - 10); // 4-4-3-2: 10 ZP dist.
-              // params[1][0] = spades;
-              // params[1][2] = controls;
-              paramStats1D.add(1, vulNonDealer, params[1], twoPassesFlag);
-              paramStats2D.add(1, vulNonDealer, params[1], twoPassesFlag);
+              if (spadesControlFlag)
+              {
+                params[1][0] = static_cast<unsigned>(
+                  valuations[relPlayers[1]].handDist() >> 8);
+                params[1][2] = 10 + static_cast<unsigned>(
+                  valuations[relPlayers[1]].getCompositeParam(VC_CONTROLS));
+              }
+
+              if (! playerFlag || 
+                instance.strPlayer(static_cast<Player>(relPlayers[1]),
+                  BRIDGE_FORMAT_TXT) == playerTag)
+              {
+                paramStats1D.add(1, vulNonDealer, params[1], twoPassesFlag);
+                paramStats2D.add(1, vulNonDealer, params[1], twoPassesFlag);
+              }
             }
 
             if (! twoPassesFlag && params[1][0] < 10)
-              cout << strBidData(board, instance, relPlayers, params, 1, 0, matchTag);
+            {
+              if (! playerFlag || 
+                instance.strPlayer(static_cast<Player>(relPlayers[1]),
+                  BRIDGE_FORMAT_TXT) == playerTag)
+                cout << 
+                  strBidData(board, instance, relPlayers, params, 1, 0, matchTag);
+            }
+            else if (params[1][0] >= 10 && params[1][0] <= 12 &&
+              isAboveOneLevel(instance.strCall(1, BRIDGE_FORMAT_TXT)))
+            {
+              if (! playerFlag || 
+                instance.strPlayer(static_cast<Player>(relPlayers[1]),
+                  BRIDGE_FORMAT_TXT) == playerTag)
+                cout << 
+                  strBidData(board, instance, relPlayers, params, 1, 1, matchTag);
+            }
             else if (twoPassesFlag && params[1][0] > 12)
-              cout << strBidData(board, instance, relPlayers, params, 1, 1, matchTag);
+            {
+              if (! playerFlag || 
+                instance.strPlayer(static_cast<Player>(relPlayers[1]),
+                  BRIDGE_FORMAT_TXT) == playerTag)
+                cout << 
+                  strBidData(board, instance, relPlayers, params, 1, 2, matchTag);
+            }
           }
 
           if (twoPassesFlag)
@@ -277,24 +329,51 @@ bno++;
 
             if (threeDistFlag)
             {
-              // unsigned hcp = static_cast<unsigned>(params[2][0]);
-              // if (hcp == 10)
+              if (! hcpFlag || params[2][0] == hcpValue)
               {
                 // Kludge to get spades vs controls.
-                // unsigned spades = static_cast<unsigned>(
-                  // valuations[relPlayers[2]].handDist() >> 8);
-                // unsigned controls = 10 + static_cast<unsigned>(
-                  // params[2][2] - params[2][0] - 10); // 4-4-3-2: 10 ZP dist.
-                // params[2][0] = spades;
-                // params[2][2] = controls;
-                paramStats1D.add(2, vulDealer, params[2], threePassesFlag);
-                paramStats2D.add(2, vulDealer, params[2], threePassesFlag);
+                if (spadesControlFlag)
+                {
+                  params[2][0] = static_cast<unsigned>(
+                    valuations[relPlayers[2]].handDist() >> 8);
+                  params[2][2] = 10 + static_cast<unsigned>(
+                    valuations[relPlayers[2]].getCompositeParam(VC_CONTROLS));
+                }
+
+                if (! playerFlag || 
+                  instance.strPlayer(static_cast<Player>(relPlayers[2]),
+                    BRIDGE_FORMAT_TXT) == playerTag)
+                {
+                  paramStats1D.add(2, vulDealer, params[2], threePassesFlag);
+                  paramStats2D.add(2, vulDealer, params[2], threePassesFlag);
+                }
               }
 
               if (! threePassesFlag && params[2][0] < 10)
-                cout << strBidData(board, instance, relPlayers, params, 2, 0, matchTag);
+              {
+                if (! playerFlag || 
+                  instance.strPlayer(static_cast<Player>(relPlayers[2]),
+                    BRIDGE_FORMAT_TXT) == playerTag)
+                  cout << 
+                    strBidData(board, instance, relPlayers, params, 2, 0, matchTag);
+              }
+              else if (params[2][0] >= 10 && params[2][0] <= 12 &&
+                isAboveOneLevel(instance.strCall(2, BRIDGE_FORMAT_TXT)))
+              {
+                if (! playerFlag || 
+                  instance.strPlayer(static_cast<Player>(relPlayers[2]),
+                    BRIDGE_FORMAT_TXT) == playerTag)
+                  cout << 
+                    strBidData(board, instance, relPlayers, params, 2, 1, matchTag);
+              }
               else if (threePassesFlag && params[2][0] > 12)
-                cout << strBidData(board, instance, relPlayers, params, 2, 1, matchTag);
+              {
+                if (! playerFlag || 
+                  instance.strPlayer(static_cast<Player>(relPlayers[2]),
+                    BRIDGE_FORMAT_TXT) == playerTag)
+                  cout << 
+                    strBidData(board, instance, relPlayers, params, 2, 2, matchTag);
+              }
             }
 
             if (threePassesFlag)
@@ -306,24 +385,51 @@ bno++;
 
               if (fourDistFlag)
               {
-                // unsigned hcp = static_cast<unsigned>(params[3][0]);
-                // if (hcp == 10)
+                if (! hcpFlag || params[3][0] == hcpValue)
                 {
                   // Kludge to get spades vs controls.
-                  // unsigned spades = static_cast<unsigned>(
-                    // valuations[relPlayers[3]].handDist() >> 8);
-                  // unsigned controls = 10 + static_cast<unsigned>(
-                    // params[3][2] - params[3][0] - 10); // 4-4-3-2: 10 ZP dist.
-                  // params[3][0] = spades;
-                  // params[3][2] = controls;
-                  paramStats1D.add(3, vulDealer, params[3], fourPassesFlag);
-                  paramStats2D.add(3, vulDealer, params[3], fourPassesFlag);
+                  if (spadesControlFlag)
+                  {
+                    params[3][0] = static_cast<unsigned>(
+                      valuations[relPlayers[3]].handDist() >> 8);
+                    params[3][2] = 10 + static_cast<unsigned>(
+                      valuations[relPlayers[3]].getCompositeParam(VC_CONTROLS));
+                  }
+
+                  if (! playerFlag || 
+                    instance.strPlayer(static_cast<Player>(relPlayers[3]),
+                      BRIDGE_FORMAT_TXT) == playerTag)
+                  {
+                    paramStats1D.add(3, vulDealer, params[3], fourPassesFlag);
+                    paramStats2D.add(3, vulDealer, params[3], fourPassesFlag);
+                  }
                 }
 
                 if (! fourPassesFlag && params[3][0] < 10)
-                  cout << strBidData(board, instance, relPlayers, params, 3, 0, matchTag);
+                {
+                  if (! playerFlag || 
+                    instance.strPlayer(static_cast<Player>(relPlayers[3]),
+                      BRIDGE_FORMAT_TXT) == playerTag)
+                    cout << 
+                      strBidData(board, instance, relPlayers, params, 3, 0, matchTag);
+                }
+                else if (params[3][0] >= 10 && params[3][0] <= 12 &&
+                  isAboveOneLevel(instance.strCall(3, BRIDGE_FORMAT_TXT)))
+                {
+                  if (! playerFlag || 
+                    instance.strPlayer(static_cast<Player>(relPlayers[3]),
+                      BRIDGE_FORMAT_TXT) == playerTag)
+                    cout << 
+                      strBidData(board, instance, relPlayers, params, 3, 1, matchTag);
+                }
                 else if (fourPassesFlag && params[3][0] > 12)
-                  cout << strBidData(board, instance, relPlayers, params, 3, 1, matchTag);
+                {
+                  if (! playerFlag || 
+                    instance.strPlayer(static_cast<Player>(relPlayers[3]),
+                      BRIDGE_FORMAT_TXT) == playerTag)
+                    cout << 
+                      strBidData(board, instance, relPlayers, params, 3, 2, matchTag);
+                }
               }
             }
           }

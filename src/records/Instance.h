@@ -60,6 +60,9 @@ class Instance
     Player getDealer() const;
 
     Vul getVul() const;
+    void getVulRelative(
+      VulRelative& vulDealer,
+      VulRelative& vulNonDealer) const;
 
     void setDeal(
       const string& text,

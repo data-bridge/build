@@ -4,6 +4,7 @@ reader.cpp                      \
 analysis/DDInfo.cpp             \
 analysis/DistElem.cpp           \
 analysis/DistMatcher.cpp        \
+analysis/Distribution.cpp       \
 analysis/Term.cpp               \
 analysis/Valuation.cpp          \
 analysis/ddsIF.cpp              \
