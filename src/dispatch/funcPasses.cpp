@@ -163,6 +163,45 @@ string strBidData(
 }
 
 
+void strTriplet(
+  const Board& board,
+  const Instance& instance,
+  const vector<unsigned>& relPlayers,
+  const vector<vector<unsigned>>& params,
+  const unsigned pno,
+  const string& matchTag,
+  const bool passFlag,
+  const bool playerFlag,
+  const string& playerTag)
+{
+  if (! passFlag && params[pno][0] < 10)
+  {
+    if (! playerFlag || 
+      instance.strPlayer(static_cast<Player>(relPlayers[pno]),
+        BRIDGE_FORMAT_TXT) == playerTag)
+      cout << 
+        strBidData(board, instance, relPlayers, params, pno, 0, matchTag);
+  }
+  else if (params[pno][0] >= 10 && params[pno][0] <= 12 &&
+    isAboveOneLevel(instance.strCall(pno, BRIDGE_FORMAT_TXT)))
+  {
+    if (! playerFlag || 
+      instance.strPlayer(static_cast<Player>(relPlayers[pno]),
+        BRIDGE_FORMAT_TXT) == playerTag)
+      cout << 
+        strBidData(board, instance, relPlayers, params, pno, 1, matchTag);
+  }
+  else if (passFlag && params[pno][0] > 12)
+  {
+    if (! playerFlag || 
+      instance.strPlayer(static_cast<Player>(relPlayers[pno]),
+        BRIDGE_FORMAT_TXT) == playerTag)
+      cout << 
+        strBidData(board, instance, relPlayers, params, pno, 2, matchTag);
+  }
+}
+
+
 void passStats(
   const Group& group,
   const Options& options,
@@ -238,31 +277,8 @@ bno++;
             }
           }
 
-          if (! onePassFlag && params[0][0] < 10)
-          {
-            if (! playerFlag || 
-              instance.strPlayer(static_cast<Player>(relPlayers[0]),
-                BRIDGE_FORMAT_TXT) == playerTag)
-              cout << 
-                strBidData(board, instance, relPlayers, params, 0, 0, matchTag);
-          }
-          else if (params[0][0] >= 10 && params[0][0] <= 12 &&
-            isAboveOneLevel(instance.strCall(0, BRIDGE_FORMAT_TXT)))
-          {
-            if (! playerFlag || 
-              instance.strPlayer(static_cast<Player>(relPlayers[0]),
-                BRIDGE_FORMAT_TXT) == playerTag)
-              cout << 
-                strBidData(board, instance, relPlayers, params, 0, 1, matchTag);
-          }
-          else if (onePassFlag && params[0][0] > 12)
-          {
-            if (! playerFlag || 
-              instance.strPlayer(static_cast<Player>(relPlayers[0]),
-                BRIDGE_FORMAT_TXT) == playerTag)
-              cout << 
-                strBidData(board, instance, relPlayers, params, 0, 2, matchTag);
-          }
+          strTriplet(board, instance, relPlayers, params,
+            0, matchTag, onePassFlag, playerFlag, playerTag);
         }
 
         if (onePassFlag)
