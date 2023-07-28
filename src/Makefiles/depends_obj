@@ -1,19 +1,30 @@
-reader.obj: control/args.h control/Options.h files/Files.h files/FileTask.h
+reader.obj: control/args.h control/Options.h analysis/DistMatcher.h
+reader.obj: analysis/DistElem.h files/Files.h files/FileTask.h
 reader.obj: include/Format.h analysis/DDInfo.h dispatch/dispatch.h
 reader.obj: stats/AllStats.h stats/Timer.h
 analysis/DDInfo.obj: analysis/DDInfo.h util/parse.h include/bridge.h
 analysis/DDInfo.obj: include/Format.h include/Label.h handling/Bexcept.h
+analysis/DistElem.obj: analysis/DistElem.h util/parse.h include/bridge.h
+analysis/DistElem.obj: include/Format.h include/Label.h handling/Bexcept.h
+analysis/DistMatcher.obj: analysis/DistMatcher.h analysis/DistElem.h
+analysis/DistMatcher.obj: util/parse.h include/bridge.h include/Format.h
+analysis/DistMatcher.obj: include/Label.h handling/Bexcept.h
+analysis/Distribution.obj: analysis/Distribution.h analysis/Distributions.h
 analysis/Term.obj: analysis/Term.h analysis/Valuation.h include/bridge.h
 analysis/Term.obj: include/Format.h include/Label.h handling/Bexcept.h
 analysis/Valuation.obj: analysis/Valuation.h analysis/Term.h include/bridge.h
-analysis/Valuation.obj: include/Format.h include/Label.h handling/Bexcept.h
+analysis/Valuation.obj: include/Format.h include/Label.h
+analysis/Valuation.obj: analysis/DistMatcher.h analysis/DistElem.h
+analysis/Valuation.obj: handling/Bexcept.h
 analysis/ddsIF.obj: analysis/ddsIF.h analysis/dll.h handling/Bexcept.h
-control/args.obj: control/args.h control/Options.h include/Format.h
+control/args.obj: control/args.h control/Options.h analysis/DistMatcher.h
+control/args.obj: analysis/DistElem.h include/Format.h
 dispatch/OrderCounts.obj: dispatch/OrderCounts.h dispatch/Order.h
-dispatch/dispatch.obj: dispatch/dispatch.h control/Options.h records/Group.h
-dispatch/dispatch.obj: records/Segment.h records/Date.h records/Location.h
-dispatch/dispatch.obj: records/Session.h records/Teams.h records/Team.h
-dispatch/dispatch.obj: records/Scoring.h records/HeaderLIN.h
+dispatch/dispatch.obj: dispatch/dispatch.h control/Options.h
+dispatch/dispatch.obj: analysis/DistMatcher.h analysis/DistElem.h
+dispatch/dispatch.obj: records/Group.h records/Segment.h records/Date.h
+dispatch/dispatch.obj: records/Location.h records/Session.h records/Teams.h
+dispatch/dispatch.obj: records/Team.h records/Scoring.h records/HeaderLIN.h
 dispatch/dispatch.obj: records/LINData.h records/Board.h records/Deal.h
 dispatch/dispatch.obj: include/bridge.h include/Format.h include/Label.h
 dispatch/dispatch.obj: records/Tableau.h records/Instance.h records/Players.h
@@ -62,6 +73,7 @@ dispatch/funcDD.obj: records/GivenScore.h analysis/Valuation.h
 dispatch/funcDD.obj: analysis/Term.h util/parse.h analysis/dll.h
 dispatch/funcDD.obj: handling/Bexcept.h
 dispatch/funcDigest.obj: dispatch/funcDigest.h control/Options.h
+dispatch/funcDigest.obj: analysis/DistMatcher.h analysis/DistElem.h
 dispatch/funcDigest.obj: files/FileTask.h records/Sheet.h records/Contract.h
 dispatch/funcDigest.obj: include/bridge.h include/Format.h include/Label.h
 dispatch/funcDigest.obj: records/Deal.h records/Auction.h records/Play.h
@@ -114,9 +126,11 @@ dispatch/funcIMPSheet.obj: edits/RefLine.h edits/RefEdit.h edits/RefCount.h
 dispatch/funcIMPSheet.obj: edits/refconst.h include/Format.h
 dispatch/funcIMPSheet.obj: edits/RefComment.h edits/RefEntry.h
 dispatch/funcIMPSheet.obj: edits/RefAction.h handling/Bexcept.h
-dispatch/funcPasses.obj: records/Group.h records/Segment.h records/Date.h
-dispatch/funcPasses.obj: records/Location.h records/Session.h records/Teams.h
-dispatch/funcPasses.obj: records/Team.h records/Scoring.h records/HeaderLIN.h
+dispatch/funcPasses.obj: control/Options.h analysis/DistMatcher.h
+dispatch/funcPasses.obj: analysis/DistElem.h records/Group.h
+dispatch/funcPasses.obj: records/Segment.h records/Date.h records/Location.h
+dispatch/funcPasses.obj: records/Session.h records/Teams.h records/Team.h
+dispatch/funcPasses.obj: records/Scoring.h records/HeaderLIN.h
 dispatch/funcPasses.obj: records/LINData.h records/Board.h records/Deal.h
 dispatch/funcPasses.obj: include/bridge.h include/Format.h include/Label.h
 dispatch/funcPasses.obj: records/Tableau.h records/Instance.h
@@ -125,8 +139,10 @@ dispatch/funcPasses.obj: records/Contract.h records/Play.h analysis/ddsIF.h
 dispatch/funcPasses.obj: analysis/dll.h records/PlayTrace.h
 dispatch/funcPasses.obj: analysis/PlayError.h records/GivenScore.h
 dispatch/funcPasses.obj: analysis/Valuation.h analysis/Term.h
-dispatch/funcPasses.obj: dispatch/funcPasses.h stats/Stats1D.h
-dispatch/funcPasses.obj: stats/StatsInfo.h stats/Stats2D.h stats/StatsInfo.h
+dispatch/funcPasses.obj: analysis/Distribution.h analysis/Distributions.h
+dispatch/funcPasses.obj: dispatch/funcPasses.h stats/ParamStats1D.h
+dispatch/funcPasses.obj: stats/Stats1D.h stats/StatsInfo.h
+dispatch/funcPasses.obj: stats/ParamStats2D.h stats/Stats2D.h
 dispatch/funcPasses.obj: handling/Bexcept.h
 dispatch/funcPlayerVal.obj: records/Group.h records/Segment.h records/Date.h
 dispatch/funcPlayerVal.obj: records/Location.h records/Session.h
@@ -145,22 +161,24 @@ dispatch/funcPlayerVal.obj: handling/Bexcept.h
 dispatch/funcRead.obj: dispatch/funcRead.h dispatch/OrderCounts.h
 dispatch/funcRead.obj: dispatch/Order.h formats/fileLIN.h formats/filePBN.h
 dispatch/funcRead.obj: formats/fileRBN.h formats/fileTXT.h formats/fileEML.h
-dispatch/funcRead.obj: formats/fileREC.h control/Options.h files/Buffer.h
-dispatch/funcRead.obj: files/LineData.h files/Chunk.h dispatch/Order.h
-dispatch/funcRead.obj: include/Label.h records/Group.h records/Segment.h
-dispatch/funcRead.obj: records/Date.h records/Location.h records/Session.h
-dispatch/funcRead.obj: records/Teams.h records/Team.h records/Scoring.h
-dispatch/funcRead.obj: records/HeaderLIN.h records/LINData.h records/Board.h
-dispatch/funcRead.obj: records/Deal.h include/bridge.h include/Format.h
-dispatch/funcRead.obj: include/Label.h records/Tableau.h records/Instance.h
-dispatch/funcRead.obj: records/Players.h records/Auction.h records/Contract.h
-dispatch/funcRead.obj: records/Play.h analysis/ddsIF.h analysis/dll.h
-dispatch/funcRead.obj: records/PlayTrace.h analysis/PlayError.h
-dispatch/funcRead.obj: records/GivenScore.h analysis/Valuation.h
-dispatch/funcRead.obj: analysis/Term.h edits/RefLines.h edits/RefLine.h
-dispatch/funcRead.obj: edits/RefEdit.h edits/RefCount.h edits/refconst.h
-dispatch/funcRead.obj: include/Format.h edits/RefComment.h edits/RefEntry.h
-dispatch/funcRead.obj: edits/RefAction.h util/parse.h handling/Bexcept.h
+dispatch/funcRead.obj: formats/fileREC.h control/Options.h
+dispatch/funcRead.obj: analysis/DistMatcher.h analysis/DistElem.h
+dispatch/funcRead.obj: files/Buffer.h files/LineData.h files/Chunk.h
+dispatch/funcRead.obj: dispatch/Order.h include/Label.h records/Group.h
+dispatch/funcRead.obj: records/Segment.h records/Date.h records/Location.h
+dispatch/funcRead.obj: records/Session.h records/Teams.h records/Team.h
+dispatch/funcRead.obj: records/Scoring.h records/HeaderLIN.h
+dispatch/funcRead.obj: records/LINData.h records/Board.h records/Deal.h
+dispatch/funcRead.obj: include/bridge.h include/Format.h include/Label.h
+dispatch/funcRead.obj: records/Tableau.h records/Instance.h records/Players.h
+dispatch/funcRead.obj: records/Auction.h records/Contract.h records/Play.h
+dispatch/funcRead.obj: analysis/ddsIF.h analysis/dll.h records/PlayTrace.h
+dispatch/funcRead.obj: analysis/PlayError.h records/GivenScore.h
+dispatch/funcRead.obj: analysis/Valuation.h analysis/Term.h edits/RefLines.h
+dispatch/funcRead.obj: edits/RefLine.h edits/RefEdit.h edits/RefCount.h
+dispatch/funcRead.obj: edits/refconst.h include/Format.h edits/RefComment.h
+dispatch/funcRead.obj: edits/RefEntry.h edits/RefAction.h util/parse.h
+dispatch/funcRead.obj: handling/Bexcept.h
 dispatch/funcRefStats.obj: dispatch/funcRefStats.h files/Buffer.h
 dispatch/funcRefStats.obj: files/LineData.h edits/RefLines.h edits/RefLine.h
 dispatch/funcRefStats.obj: edits/RefEdit.h edits/RefCount.h edits/refconst.h
@@ -262,6 +280,7 @@ files/Chunk.obj: handling/Bexcept.h handling/Bdiff.h
 files/Files.obj: files/Files.h files/FileTask.h include/Format.h
 files/Files.obj: analysis/DDInfo.h util/parse.h include/bridge.h
 files/Files.obj: include/Format.h include/Label.h control/Options.h
+files/Files.obj: analysis/DistMatcher.h analysis/DistElem.h
 files/FileTask.obj: files/FileTask.h
 formats/Canvas.obj: formats/Canvas.h
 formats/fileEML.obj: formats/fileEML.h formats/Canvas.h formats/WriteInfo.h
@@ -447,8 +466,11 @@ stats/AllStats.obj: stats/AllStats.h stats/ValStats.h stats/ValRow.h
 stats/AllStats.obj: validate/ValProfile.h include/Format.h include/Label.h
 stats/AllStats.obj: stats/TextStats.h stats/TextStat.h stats/TextDatum.h
 stats/AllStats.obj: stats/CompStats.h stats/RefStats.h edits/RefEntry.h
-stats/AllStats.obj: stats/DuplStats.h stats/DuplStat.h stats/Timers.h
-stats/AllStats.obj: stats/Timer.h control/Options.h
+stats/AllStats.obj: stats/DuplStats.h stats/DuplStat.h stats/ParamStats1D.h
+stats/AllStats.obj: stats/Stats1D.h stats/StatsInfo.h stats/ParamStats2D.h
+stats/AllStats.obj: stats/Stats2D.h stats/Timers.h stats/Timer.h
+stats/AllStats.obj: analysis/Distributions.h control/Options.h
+stats/AllStats.obj: analysis/DistMatcher.h analysis/DistElem.h
 stats/CompStats.obj: stats/CompStats.h include/Format.h util/parse.h
 stats/CompStats.obj: include/bridge.h include/Format.h include/Label.h
 stats/DuplStat.obj: stats/DuplStat.h include/Format.h records/Group.h
@@ -492,14 +514,15 @@ validate/validate.obj: validate/validateLIN.h validate/validatePBN.h
 validate/validate.obj: validate/validateRBN.h validate/validateTXT.h
 validate/validate.obj: validate/validateEML.h validate/validateREC.h
 validate/validate.obj: validate/valint.h files/Buffer.h files/LineData.h
-validate/validate.obj: validate/ValProfile.h control/Options.h files/Chunk.h
-validate/validate.obj: dispatch/Order.h include/Label.h files/LineData.h
-validate/validate.obj: formats/filePBN.h edits/RefLines.h edits/RefLine.h
-validate/validate.obj: edits/RefEdit.h edits/RefCount.h edits/refconst.h
-validate/validate.obj: include/Format.h edits/RefComment.h edits/RefEntry.h
-validate/validate.obj: edits/RefAction.h stats/ValStats.h stats/ValRow.h
-validate/validate.obj: validate/ValProfile.h util/parse.h include/bridge.h
-validate/validate.obj: include/Format.h include/Label.h
+validate/validate.obj: validate/ValProfile.h control/Options.h
+validate/validate.obj: analysis/DistMatcher.h analysis/DistElem.h
+validate/validate.obj: files/Chunk.h dispatch/Order.h include/Label.h
+validate/validate.obj: files/LineData.h formats/filePBN.h edits/RefLines.h
+validate/validate.obj: edits/RefLine.h edits/RefEdit.h edits/RefCount.h
+validate/validate.obj: edits/refconst.h include/Format.h edits/RefComment.h
+validate/validate.obj: edits/RefEntry.h edits/RefAction.h stats/ValStats.h
+validate/validate.obj: stats/ValRow.h validate/ValProfile.h util/parse.h
+validate/validate.obj: include/bridge.h include/Format.h include/Label.h
 validate/validateEML.obj: validate/validate.h validate/valint.h
 validate/validateEML.obj: files/Buffer.h files/LineData.h
 validate/validateEML.obj: validate/ValProfile.h validate/validateEML.h
@@ -529,6 +552,7 @@ validate/validateTXT.obj: files/Buffer.h files/LineData.h
 validate/validateTXT.obj: validate/validateTXT.h validate/ValProfile.h
 validate/validateTXT.obj: util/parse.h include/bridge.h include/Format.h
 validate/validateTXT.obj: include/Label.h
-reader.obj: control/args.h control/Options.h files/Files.h files/FileTask.h
+reader.obj: control/args.h control/Options.h analysis/DistMatcher.h
+reader.obj: analysis/DistElem.h files/Files.h files/FileTask.h
 reader.obj: include/Format.h analysis/DDInfo.h dispatch/dispatch.h
 reader.obj: stats/AllStats.h stats/Timer.h

@@ -24,6 +24,7 @@ void ParamStats1D::reset()
 {
   paramStats1D.clear();
   dimNames.clear();
+  emptyFlag = true;
 }
 
 
@@ -61,6 +62,14 @@ void ParamStats1D::add(
 
   for (unsigned par = 0; par < params.size(); par++)
     paramStats1D[d1][d2][par].add(params[par], flag);
+
+  emptyFlag = false;
+}
+
+
+bool ParamStats1D::empty() const
+{
+  return emptyFlag;
 }
 
 

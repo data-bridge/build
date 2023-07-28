@@ -23,6 +23,7 @@
 #include "ParamStats2D.h"
 #include "Timers.h"
 
+#include "../analysis/Distributions.h"
 #include "../control/Options.h"
 
 
@@ -82,8 +83,13 @@ AllStats::AllStats()
   compStatsPtr = new CompStats;
   refStatsPtr = new RefStats;
   duplStatsPtr = new DuplStats;
-  paramStats1DPtr = new ParamStats1D;
-  paramStats2DPtr = new ParamStats2D;
+
+  paramStats1DPtr = new vector<ParamStats1D>;
+  (* paramStats1DPtr).resize(DIST_SIZE);
+
+  paramStats2DPtr = new vector<ParamStats2D>;
+  (* paramStats2DPtr).resize(DIST_SIZE);
+
   timersPtr = new Timers;
 }
 
@@ -108,8 +114,13 @@ void AllStats::operator += (const AllStats& as2)
   * compStatsPtr += * as2.compStatsPtr;
   * refStatsPtr += * as2.refStatsPtr;
   * duplStatsPtr += * as2.duplStatsPtr;
-  * paramStats1DPtr += * as2.paramStats1DPtr;
-  * paramStats2DPtr += * as2.paramStats2DPtr;
+
+  for (unsigned i = 0; i < DIST_SIZE; i++)
+  {
+    (* paramStats1DPtr)[i] += (* as2.paramStats1DPtr)[i];
+    (* paramStats2DPtr)[i] += (* as2.paramStats2DPtr)[i];
+  }
+
   * timersPtr += * as2.timersPtr;
 }
 
@@ -123,8 +134,23 @@ string AllStats::str(const Options& options) const
 
   if (options.passStatsFlag)
   {
-    ss << paramStats1DPtr->str();
-    ss << paramStats2DPtr->str();
+    for (unsigned i = 0; i < DIST_SIZE; i++)
+    {
+      if (! (* paramStats1DPtr)[i].empty())
+      {
+        ss << DISTRIBUTION_NAMES[i] << "\n";
+        ss << (* paramStats1DPtr)[i].str();
+      }
+    }
+
+    for (unsigned i = 0; i < DIST_SIZE; i++)
+    {
+      if (! (* paramStats2DPtr)[i].empty())
+      {
+        ss << DISTRIBUTION_NAMES[i] << "\n";
+        ss << (* paramStats2DPtr)[i].str();
+      }
+    }
   }
 
   ss << valStatsPtr->str(options.verboseValStats);

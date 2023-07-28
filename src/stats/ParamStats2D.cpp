@@ -24,6 +24,7 @@ void ParamStats2D::reset()
 {
   paramStats2D.clear();
   dimNames.clear();
+  emptyFlag = true;
 }
 
 
@@ -78,6 +79,13 @@ void ParamStats2D::add(
       d_run++;
     }
   }
+  emptyFlag = false;
+}
+
+
+bool ParamStats2D::empty() const
+{
+  return emptyFlag;
 }
 
 

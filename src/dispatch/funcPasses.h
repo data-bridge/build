@@ -10,6 +10,7 @@
 #ifndef BRIDGE_FUNCPASSES_H
 #define BRIDGE_FUNCPASSES_H
 
+#include <vector>
 #include <iostream>
 
 class Group;
@@ -23,8 +24,8 @@ using namespace std;
 void dispatchPasses(
   const Group& group,
   const Options& options,
-  ParamStats1D& paramStats1D,
-  ParamStats2D& paramStats2D,
+  vector<ParamStats1D>& paramStats1D,
+  vector<ParamStats2D>& paramStats2D,
   ostream& flog);
 
 #endif

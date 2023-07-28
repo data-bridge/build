@@ -29,6 +29,8 @@ class ParamStats1D
 
     vector<string> dimNames;
 
+    bool emptyFlag;
+
 
   public:
 
@@ -48,6 +50,8 @@ class ParamStats1D
       const unsigned d2,
       const vector<unsigned>& params,
       const bool flag);
+
+    bool empty() const;
 
     void operator += (const ParamStats1D& ps2);
 

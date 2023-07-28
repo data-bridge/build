@@ -44,8 +44,8 @@ struct AllStats
   CompStats * compStatsPtr;
   RefStats * refStatsPtr;
   DuplStats * duplStatsPtr;
-  ParamStats1D * paramStats1DPtr;
-  ParamStats2D * paramStats2DPtr;
+  vector<ParamStats1D> * paramStats1DPtr;
+  vector<ParamStats2D> * paramStats2DPtr;
   Timers * timersPtr;
 
   AllStats();

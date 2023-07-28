@@ -17,6 +17,7 @@
 #include "../records/Group.h"
 
 #include "../analysis/Distribution.h"
+#include "../analysis/Distributions.h"
 
 #include "funcPasses.h"
 
@@ -191,7 +192,7 @@ void strTriplet(
   const vector<unsigned>& relPlayers,
   const vector<vector<unsigned>>& params,
   const unsigned pno,
-  const string& matchTag,
+  const unsigned& matchNumber,
   const bool passFlag,
   const FilterParams& filterParams)
 {
@@ -199,6 +200,8 @@ void strTriplet(
     instance.strPlayer(static_cast<Player>(relPlayers[pno]),
       BRIDGE_FORMAT_TXT) != filterParams.playerTag)
     return;
+
+  const string matchTag = DISTRIBUTION_NAMES[matchNumber];
 
   if (! passFlag && params[pno][0] < 10)
   {
@@ -238,11 +241,12 @@ void updatePassStatistics(
   vector<vector<unsigned>>& params, // May kludge this
   const vector<Valuation>& valuations,
   const unsigned pno,
+  const unsigned distNo,
   const vector<VulRelative> vuls,
   const bool passesFlag,
   const FilterParams& filterParams,
-  ParamStats1D& paramStats1D,
-  ParamStats2D& paramStats2D)
+  vector<ParamStats1D>& paramStats1D,
+  vector<ParamStats2D>& paramStats2D)
 {
   if (! filterParams.hcpFlag || params[pno][0] == filterParams.hcpValue)
   {
@@ -254,8 +258,8 @@ void updatePassStatistics(
       instance.strPlayer(static_cast<Player>(relPlayers[pno]),
         BRIDGE_FORMAT_TXT) == filterParams.playerTag)
     {
-      paramStats1D.add(pno, vuls[pno], params[pno], passesFlag);
-      paramStats2D.add(pno, vuls[pno], params[pno], passesFlag);
+      paramStats1D[distNo].add(pno, vuls[pno], params[pno], passesFlag);
+      paramStats2D[distNo].add(pno, vuls[pno], params[pno], passesFlag);
     }
   }
 }
@@ -264,24 +268,26 @@ void updatePassStatistics(
 void passStats(
   const Group& group,
   const Options& options,
-  ParamStats1D& paramStats1D,
-  ParamStats2D& paramStats2D)
+  vector<ParamStats1D>& paramStats1D,
+  vector<ParamStats2D>& paramStats2D)
 {
   FilterParams filterParams;
-  filterParams.distFilterFlag = true;
+  filterParams.distFilterFlag = false;
   filterParams.hcpFlag = false;
   filterParams.hcpValue = 11;
-  filterParams. spadesControlFlag = false;
+  filterParams.spadesControlFlag = false;
   filterParams.playerFlag = false;
   filterParams.playerTag = "shein";
 
   Distribution distribution;
 
-  paramStats1D.init(BRIDGE_PLAYERS, BRIDGE_VUL_SIZE, PASS_SIZE,
-    LOCAL_NAMES, LOCAL_DATA);
+  for (auto& p: paramStats1D)
+    p.init(BRIDGE_PLAYERS, BRIDGE_VUL_SIZE, PASS_SIZE,
+      LOCAL_NAMES, LOCAL_DATA);
 
-  paramStats2D.init(BRIDGE_PLAYERS, BRIDGE_VUL_SIZE, PASS_SIZE,
-    LOCAL_NAMES, LOCAL_DATA);
+  for (auto& p: paramStats2D)
+    p.init(BRIDGE_PLAYERS, BRIDGE_VUL_SIZE, PASS_SIZE,
+      LOCAL_NAMES, LOCAL_DATA);
 
 unsigned bno = 0;
   for (auto &segment: group)
@@ -324,14 +330,15 @@ bno++;
           if (! filterParams.distFilterFlag || 
             valuations[relPlayers[pos]].distMatch(options.distMatcher))
           {
+            valuations[relPlayers[pos]].getLengths(lengths);
+            const unsigned distNo = distribution.number(lengths);
+
             updatePassStatistics(instance, relPlayers, params, valuations,
-              pos, sequentialVuls, seqPassFlag, filterParams,
+              pos, distNo, sequentialVuls, seqPassFlag, filterParams,
               paramStats1D, paramStats2D);
 
-            valuations[relPlayers[pos]].getLengths(lengths);
-
             strTriplet(board, instance, relPlayers, params,
-              pos, distribution.name(lengths), seqPassFlag, filterParams);
+              pos, distNo, seqPassFlag, filterParams);
           }
 
           if (! seqPassFlag)
@@ -346,8 +353,8 @@ bno++;
 void dispatchPasses(
   const Group& group,
   const Options& options,
-  ParamStats1D& paramStats1D,
-  ParamStats2D& paramStats2D,
+  vector<ParamStats1D>& paramStats1D,
+  vector<ParamStats2D>& paramStats2D,
   ostream& flog)
 {
   try
