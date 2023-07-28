@@ -191,33 +191,28 @@ void strTriplet(
   const unsigned pno,
   const string& matchTag,
   const bool passFlag,
-  const bool playerFlag,
-  const string& playerTag)
+  const FilterParams& filterParams)
 {
+  if (filterParams.playerFlag &&
+    instance.strPlayer(static_cast<Player>(relPlayers[pno]),
+      BRIDGE_FORMAT_TXT) != filterParams.playerTag)
+    return;
+
   if (! passFlag && params[pno][0] < 10)
   {
-    if (! playerFlag || 
-      instance.strPlayer(static_cast<Player>(relPlayers[pno]),
-        BRIDGE_FORMAT_TXT) == playerTag)
-      cout << 
-        strBidData(board, instance, relPlayers, params, pno, 0, matchTag);
+    cout << 
+      strBidData(board, instance, relPlayers, params, pno, 0, matchTag);
   }
   else if (params[pno][0] >= 10 && params[pno][0] <= 12 &&
     isAboveOneLevel(instance.strCall(pno, BRIDGE_FORMAT_TXT)))
   {
-    if (! playerFlag || 
-      instance.strPlayer(static_cast<Player>(relPlayers[pno]),
-        BRIDGE_FORMAT_TXT) == playerTag)
-      cout << 
-        strBidData(board, instance, relPlayers, params, pno, 1, matchTag);
+    cout << 
+      strBidData(board, instance, relPlayers, params, pno, 1, matchTag);
   }
   else if (passFlag && params[pno][0] > 12)
   {
-    if (! playerFlag || 
-      instance.strPlayer(static_cast<Player>(relPlayers[pno]),
-        BRIDGE_FORMAT_TXT) == playerTag)
-      cout << 
-        strBidData(board, instance, relPlayers, params, pno, 2, matchTag);
+    cout << 
+      strBidData(board, instance, relPlayers, params, pno, 2, matchTag);
   }
 }
 
@@ -241,7 +236,7 @@ void updatePassStatistics(
   vector<vector<unsigned>>& params, // May kludge this
   const vector<Valuation>& valuations,
   const unsigned pno,
-  const VulRelative vul,
+  const vector<VulRelative> vuls,
   const bool passesFlag,
   const FilterParams& filterParams,
   ParamStats1D& paramStats1D,
@@ -257,8 +252,8 @@ void updatePassStatistics(
       instance.strPlayer(static_cast<Player>(relPlayers[pno]),
         BRIDGE_FORMAT_TXT) == filterParams.playerTag)
     {
-      paramStats1D.add(pno, vul, params[pno], passesFlag);
-      paramStats2D.add(pno, vul, params[pno], passesFlag);
+      paramStats1D.add(pno, vuls[pno], params[pno], passesFlag);
+      paramStats2D.add(pno, vuls[pno], params[pno], passesFlag);
     }
   }
 }
@@ -325,12 +320,11 @@ bno++;
             valuations[relPlayers[pos]].distMatch(options.distMatcher))
           {
             updatePassStatistics(instance, relPlayers, params, valuations,
-              pos, sequentialVuls[pos], seqPassFlag, filterParams,
+              pos, sequentialVuls, seqPassFlag, filterParams,
               paramStats1D, paramStats2D);
 
             strTriplet(board, instance, relPlayers, params,
-              pos, matchTag, seqPassFlag, 
-              filterParams.playerFlag, filterParams.playerTag);
+              pos, matchTag, seqPassFlag, filterParams);
           }
 
           if (! seqPassFlag)
