@@ -62,6 +62,23 @@ const static vector<string> twoPasses = {"P", "P"};
 const static vector<string> threePasses = {"P", "P", "P"};
 const static vector<string> fourPasses = {"P", "P", "P", "P"};
 
+struct FilterParams
+{
+  // Only consider a specific player distribution?
+  bool distFilterFlag;
+
+  // Only consider a specific HCP value?
+  bool hcpFlag;
+  unsigned hcpValue;
+
+  // Use spades and controls instead of HCP and ZP?
+  bool spadesControlFlag;
+
+  // Only consider a specific player name?
+  bool playerFlag;
+  string playerTag;
+};
+
 
 void setPassParams(
   vector<vector<unsigned>>& params,
@@ -202,18 +219,61 @@ void strTriplet(
 }
 
 
+void spadesControlKludge(
+  const vector<unsigned>& relPlayers,
+  vector<vector<unsigned>>& params,
+  const vector<Valuation>& valuations,
+  const unsigned pno)
+{
+  params[pno][0] = static_cast<unsigned>(
+    valuations[relPlayers[pno]].handDist() >> 8);
+  params[pno][2] = 10 + static_cast<unsigned>(
+    valuations[relPlayers[pno]].getCompositeParam(VC_CONTROLS));
+}
+
+
+void updatePassStatistics(
+  const Instance& instance,
+  const vector<unsigned>& relPlayers,
+  vector<vector<unsigned>>& params, // May kludge this
+  const vector<Valuation>& valuations,
+  const unsigned pno,
+  const VulRelative vul,
+  const bool passesFlag,
+  const FilterParams& filterParams,
+  ParamStats1D& paramStats1D,
+  ParamStats2D& paramStats2D)
+{
+  if (! filterParams.hcpFlag || params[pno][0] == filterParams.hcpValue)
+  {
+    // Kludge to get spades vs controls.
+    if (filterParams.spadesControlFlag)
+      spadesControlKludge(relPlayers, params, valuations, pno);
+
+    if (! filterParams.playerFlag || 
+      instance.strPlayer(static_cast<Player>(relPlayers[pno]),
+        BRIDGE_FORMAT_TXT) == filterParams.playerTag)
+    {
+      paramStats1D.add(pno, vul, params[pno], passesFlag);
+      paramStats2D.add(pno, vul, params[pno], passesFlag);
+    }
+  }
+}
+
+
 void passStats(
   const Group& group,
   const Options& options,
   ParamStats1D& paramStats1D,
   ParamStats2D& paramStats2D)
 {
-  const bool hcpFlag = false;
-  const unsigned hcpValue = 11;
-
-  const bool spadesControlFlag = false;
-  const bool playerFlag = false;
-  const string playerTag = "shein";
+  FilterParams filterParams;
+  filterParams.distFilterFlag = true;
+  filterParams.hcpFlag = false;
+  filterParams.hcpValue = 11;
+  filterParams. spadesControlFlag = false;
+  filterParams.playerFlag = false;
+  filterParams.playerTag = "shein";
 
   paramStats1D.init(BRIDGE_PLAYERS, BRIDGE_VUL_SIZE, PASS_SIZE,
     LOCAL_NAMES, LOCAL_DATA);
@@ -255,30 +315,15 @@ bno++;
         const bool oneDistFlag = valuations[relPlayers[0]].distMatch(
           options.distMatcher);
 
-        if (oneDistFlag)
+        if (! filterParams.distFilterFlag || oneDistFlag)
         {
-          if (! hcpFlag || params[0][0] == hcpValue)
-          {
-            // Kludge to get spades vs controls.
-            if (spadesControlFlag)
-            {
-              params[0][0] = static_cast<unsigned>(
-                valuations[relPlayers[0]].handDist() >> 8);
-              params[0][2] = 10 + static_cast<unsigned>(
-                valuations[relPlayers[0]].getCompositeParam(VC_CONTROLS));
-            }
-
-            if (! playerFlag || 
-              instance.strPlayer(static_cast<Player>(relPlayers[0]),
-                BRIDGE_FORMAT_TXT) == playerTag)
-            {
-              paramStats1D.add(0, vulDealer, params[0], onePassFlag);
-              paramStats2D.add(0, vulDealer, params[0], onePassFlag);
-            }
-          }
+          updatePassStatistics(instance, relPlayers, params, valuations,
+            0, vulDealer, onePassFlag, filterParams,
+            paramStats1D, paramStats2D);
 
           strTriplet(board, instance, relPlayers, params,
-            0, matchTag, onePassFlag, playerFlag, playerTag);
+            0, matchTag, onePassFlag, 
+            filterParams.playerFlag, filterParams.playerTag);
         }
 
         if (! onePassFlag)
@@ -288,30 +333,15 @@ bno++;
         const bool twoDistFlag = valuations[relPlayers[1]].distMatch(
           options.distMatcher);
 
-        if (twoDistFlag)
+        if (! filterParams.distFilterFlag || twoDistFlag)
         {
-          if (! hcpFlag || params[1][0] == hcpValue)
-          {
-            // Kludge to get spades vs controls.
-            if (spadesControlFlag)
-            {
-              params[1][0] = static_cast<unsigned>(
-                valuations[relPlayers[1]].handDist() >> 8);
-              params[1][2] = 10 + static_cast<unsigned>(
-                valuations[relPlayers[1]].getCompositeParam(VC_CONTROLS));
-            }
-
-            if (! playerFlag || 
-              instance.strPlayer(static_cast<Player>(relPlayers[1]),
-                BRIDGE_FORMAT_TXT) == playerTag)
-            {
-              paramStats1D.add(1, vulNonDealer, params[1], twoPassesFlag);
-              paramStats2D.add(1, vulNonDealer, params[1], twoPassesFlag);
-            }
-          }
+          updatePassStatistics(instance, relPlayers, params, valuations,
+            1, vulNonDealer, twoPassesFlag, filterParams,
+            paramStats1D, paramStats2D);
 
           strTriplet(board, instance, relPlayers, params,
-            1, matchTag, twoPassesFlag, playerFlag, playerTag);
+            1, matchTag, twoPassesFlag, 
+            filterParams.playerFlag, filterParams.playerTag);
         }
 
         if (! twoPassesFlag)
@@ -322,30 +352,15 @@ bno++;
         const bool threeDistFlag = valuations[relPlayers[2]].distMatch(
           options.distMatcher);
 
-        if (threeDistFlag)
+        if (! filterParams.distFilterFlag || threeDistFlag)
         {
-          if (! hcpFlag || params[2][0] == hcpValue)
-          {
-            // Kludge to get spades vs controls.
-            if (spadesControlFlag)
-            {
-              params[2][0] = static_cast<unsigned>(
-                valuations[relPlayers[2]].handDist() >> 8);
-              params[2][2] = 10 + static_cast<unsigned>(
-                valuations[relPlayers[2]].getCompositeParam(VC_CONTROLS));
-            }
-
-            if (! playerFlag || 
-              instance.strPlayer(static_cast<Player>(relPlayers[2]),
-                BRIDGE_FORMAT_TXT) == playerTag)
-            {
-              paramStats1D.add(2, vulDealer, params[2], threePassesFlag);
-              paramStats2D.add(2, vulDealer, params[2], threePassesFlag);
-            }
-          }
+          updatePassStatistics(instance, relPlayers, params, valuations,
+            2, vulDealer, threePassesFlag, filterParams,
+            paramStats1D, paramStats2D);
 
           strTriplet(board, instance, relPlayers, params,
-            2, matchTag, threePassesFlag, playerFlag, playerTag);
+            2, matchTag, threePassesFlag, 
+            filterParams.playerFlag, filterParams.playerTag);
         }
 
         if (! threePassesFlag)
@@ -356,31 +371,17 @@ bno++;
         const bool fourDistFlag = valuations[relPlayers[3]].distMatch(
           options.distMatcher);
 
-        if (! fourDistFlag)
-          continue;
-
-        if (! hcpFlag || params[3][0] == hcpValue)
+        if (! filterParams.distFilterFlag || fourDistFlag)
         {
-          // Kludge to get spades vs controls.
-          if (spadesControlFlag)
-          {
-            params[3][0] = static_cast<unsigned>(
-              valuations[relPlayers[3]].handDist() >> 8);
-            params[3][2] = 10 + static_cast<unsigned>(
-              valuations[relPlayers[3]].getCompositeParam(VC_CONTROLS));
-          }
+          // TODO Really vulDealer?
+          updatePassStatistics(instance, relPlayers, params, valuations,
+            3, vulDealer, fourPassesFlag, filterParams,
+            paramStats1D, paramStats2D);
 
-          if (! playerFlag || 
-            instance.strPlayer(static_cast<Player>(relPlayers[3]),
-              BRIDGE_FORMAT_TXT) == playerTag)
-          {
-            paramStats1D.add(3, vulDealer, params[3], fourPassesFlag);
-            paramStats2D.add(3, vulDealer, params[3], fourPassesFlag);
-          }
+          strTriplet(board, instance, relPlayers, params,
+            3, matchTag, fourPassesFlag, 
+            filterParams.playerFlag, filterParams.playerTag);
         }
-
-        strTriplet(board, instance, relPlayers, params,
-          3, matchTag, fourPassesFlag, playerFlag, playerTag);
       }
     }
   }
