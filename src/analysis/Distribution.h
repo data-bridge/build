@@ -46,6 +46,8 @@ class Distribution
 
     Distributions number(const vector<unsigned>& params) const;
 
+    string name(const vector<unsigned>& params) const;
+
     unsigned name2number(const string& name) const;
 };
 

@@ -16,6 +16,8 @@
 
 #include "../records/Group.h"
 
+#include "../analysis/Distribution.h"
+
 #include "funcPasses.h"
 
 #include "../stats/ParamStats1D.h"
@@ -273,13 +275,13 @@ void passStats(
   filterParams.playerFlag = false;
   filterParams.playerTag = "shein";
 
+  Distribution distribution;
+
   paramStats1D.init(BRIDGE_PLAYERS, BRIDGE_VUL_SIZE, PASS_SIZE,
     LOCAL_NAMES, LOCAL_DATA);
 
   paramStats2D.init(BRIDGE_PLAYERS, BRIDGE_VUL_SIZE, PASS_SIZE,
     LOCAL_NAMES, LOCAL_DATA);
-
-  const string matchTag = options.distMatcher.strSpec();
 
 unsigned bno = 0;
   for (auto &segment: group)
@@ -312,6 +314,9 @@ bno++;
         const vector<VulRelative> sequentialVuls =
           { vulDealer, vulNonDealer, vulDealer, vulNonDealer };
 
+        vector<unsigned> lengths;
+        lengths.resize(BRIDGE_SUITS);
+
         for (unsigned pos = 0; pos < BRIDGE_PLAYERS; pos++)
         {
           bool seqPassFlag = instance.auctionStarts(sequentialPasses[pos]);
@@ -323,8 +328,10 @@ bno++;
               pos, sequentialVuls, seqPassFlag, filterParams,
               paramStats1D, paramStats2D);
 
+            valuations[relPlayers[pos]].getLengths(lengths);
+
             strTriplet(board, instance, relPlayers, params,
-              pos, matchTag, seqPassFlag, filterParams);
+              pos, distribution.name(lengths), seqPassFlag, filterParams);
           }
 
           if (! seqPassFlag)

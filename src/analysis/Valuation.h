@@ -357,6 +357,8 @@ class Valuation
 
     int handDist() const;
 
+    void getLengths(vector<unsigned>& lenghths) const;
+
     bool distMatch(const DistMatcher& distMatcher) const;
 };
 

@@ -1011,6 +1011,16 @@ int Valuation::handDist() const
 }
 
 
+void Valuation::getLengths(vector<unsigned>& lengths) const
+{
+  lengths = { 
+    static_cast<unsigned>((*suitValues[0])[VS_LENGTH]),
+    static_cast<unsigned>((*suitValues[1])[VS_LENGTH]),
+    static_cast<unsigned>((*suitValues[2])[VS_LENGTH]),
+    static_cast<unsigned>((*suitValues[3])[VS_LENGTH]) };
+}
+
+
 bool Valuation::distMatch(const DistMatcher& distMatcher) const
 {
   return distMatcher.match(

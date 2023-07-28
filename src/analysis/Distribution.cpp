@@ -420,6 +420,12 @@ Distributions Distribution::number(const vector<unsigned>& lengths) const
 }
 
 
+string Distribution::name(const vector<unsigned>& lengths) const
+{
+  return DISTRIBUTION_NAMES[Distribution::number(lengths)];
+}
+
+
 unsigned Distribution::name2number(const string& name) const
 {
   auto it = name_to_number.find(name);
