@@ -315,10 +315,12 @@ bno++;
         instance.getVulRelative(vulDealer, vulNonDealer);
 
         const vector<VulRelative> sequentialVuls =
-        { vulDealer, vulNonDealer, vulDealer, vulNonDealer };
+          { vulDealer, vulNonDealer, vulDealer, vulNonDealer };
 
         bool seqPassFlag;
 
+        // for (unsigned pos = 0; pos < BRIDGE_PLAYERS; pos++)
+        // {
         seqPassFlag = instance.auctionStarts(sequentialPasses[0]);
 
         if (! filterParams.distFilterFlag || 
@@ -377,7 +379,7 @@ bno++;
         {
           // TODO Really vulDealer?
           updatePassStatistics(instance, relPlayers, params, valuations,
-            3, vulDealer, seqPassFlag, filterParams,
+            3, sequentialVuls[3], seqPassFlag, filterParams,
             paramStats1D, paramStats2D);
 
           strTriplet(board, instance, relPlayers, params,
