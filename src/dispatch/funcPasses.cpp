@@ -317,74 +317,24 @@ bno++;
         const vector<VulRelative> sequentialVuls =
           { vulDealer, vulNonDealer, vulDealer, vulNonDealer };
 
-        bool seqPassFlag;
-
-        // for (unsigned pos = 0; pos < BRIDGE_PLAYERS; pos++)
-        // {
-        seqPassFlag = instance.auctionStarts(sequentialPasses[0]);
-
-        if (! filterParams.distFilterFlag || 
-          valuations[relPlayers[0]].distMatch( options.distMatcher))
+        for (unsigned pos = 0; pos < BRIDGE_PLAYERS; pos++)
         {
-          updatePassStatistics(instance, relPlayers, params, valuations,
-            0, sequentialVuls[0], seqPassFlag, filterParams,
-            paramStats1D, paramStats2D);
+          bool seqPassFlag = instance.auctionStarts(sequentialPasses[pos]);
 
-          strTriplet(board, instance, relPlayers, params,
-            0, matchTag, seqPassFlag, 
-            filterParams.playerFlag, filterParams.playerTag);
-        }
+          if (! filterParams.distFilterFlag || 
+            valuations[relPlayers[pos]].distMatch(options.distMatcher))
+          {
+            updatePassStatistics(instance, relPlayers, params, valuations,
+              pos, sequentialVuls[pos], seqPassFlag, filterParams,
+              paramStats1D, paramStats2D);
 
-        if (! seqPassFlag)
-          continue;
+            strTriplet(board, instance, relPlayers, params,
+              pos, matchTag, seqPassFlag, 
+              filterParams.playerFlag, filterParams.playerTag);
+          }
 
-        seqPassFlag = instance.auctionStarts(sequentialPasses[1]);
-
-        if (! filterParams.distFilterFlag || 
-          valuations[relPlayers[1]].distMatch( options.distMatcher))
-        {
-          updatePassStatistics(instance, relPlayers, params, valuations,
-            1, sequentialVuls[1], seqPassFlag, filterParams,
-            paramStats1D, paramStats2D);
-
-          strTriplet(board, instance, relPlayers, params,
-            1, matchTag, seqPassFlag, 
-            filterParams.playerFlag, filterParams.playerTag);
-        }
-
-        if (! seqPassFlag)
-          continue;
-
-        seqPassFlag = instance.auctionStarts(sequentialPasses[2]);
-
-        if (! filterParams.distFilterFlag || 
-          valuations[relPlayers[2]].distMatch(options.distMatcher))
-        {
-          updatePassStatistics(instance, relPlayers, params, valuations,
-            2, sequentialVuls[2], seqPassFlag, filterParams,
-            paramStats1D, paramStats2D);
-
-          strTriplet(board, instance, relPlayers, params,
-            2, matchTag, seqPassFlag, 
-            filterParams.playerFlag, filterParams.playerTag);
-        }
-
-        if (! seqPassFlag)
-          continue;
-
-        seqPassFlag = instance.auctionStarts(sequentialPasses[3]);
-
-        if (! filterParams.distFilterFlag || 
-          valuations[relPlayers[3]].distMatch(options.distMatcher))
-        {
-          // TODO Really vulDealer?
-          updatePassStatistics(instance, relPlayers, params, valuations,
-            3, sequentialVuls[3], seqPassFlag, filterParams,
-            paramStats1D, paramStats2D);
-
-          strTriplet(board, instance, relPlayers, params,
-            3, matchTag, seqPassFlag, 
-            filterParams.playerFlag, filterParams.playerTag);
+          if (! seqPassFlag)
+            break;
         }
       }
     }
