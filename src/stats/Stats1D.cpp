@@ -145,7 +145,7 @@ string Stats1D::str() const
   ss << string(34, '-') << "\n";
 
   ss <<
-    setw(6) << "" <<
+    setw(6) << "SUM" <<
     setw(6) << countSum.count <<
     setw(8) << "" <<
     setw(6) << countSum.hits <<

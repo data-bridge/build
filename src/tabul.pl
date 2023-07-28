@@ -4,9 +4,8 @@ use strict;
 use warnings;
 
 # Throw-away script that parses the output from reader with
-# -Q 4-3-3-3 (say) and -v 63.
-
-my $DIR = "4432";
+# -Q 4-3-3-3 (say, but the distribution filter flag may be turned
+# to false) and -v 63.
 
 if ($#ARGV < 0)
 {
@@ -14,11 +13,19 @@ if ($#ARGV < 0)
   exit;
 }
 
+my @VUL_LIST = ( "None", "Both", "We", "They" );
+my @RANGE_LIST = ( "weak", "mid", "str" );
+
 my $file = $ARGV[0];
 
 my @store;
 my %files;
 my %summary;
+my (%odd_ones, %all_ones);
+
+my $DIR = "dist";
+
+my ($distr, $ppos, $vul, $count);
 
 open my $fr, '<', $file or die "Can't open $file $!";
 while (my $line = <$fr>)
@@ -66,16 +73,49 @@ while (my $line = <$fr>)
       }
       elsif ($l =~ /Tag: (.*)/)
       {
-        $data{tag} = $1;
+        my $tag = $1;
+        $tag =~ /([^_]*)$/;
+        my $dist = $1;
+        $data{dist} = $dist;
+
+        $tag =~ s/_$dist//;
+        $data{tag} = $tag;
+
+        $tag =~ /H(\d)/;
+        my $hand = -1 + $1;
+
+        my $range;
+        if ($tag =~ /weak/)
+        {
+          $range = "weak";
+        }
+        elsif ($tag =~ /mid/)
+        {
+          $range = "mid";
+        }
+        elsif ($tag =~ /str/)
+        {
+          $range = "str";
+        }
+        else
+        {
+          die "No range: $tag";
+        }
+
+        my $v = $data{vul};
+        $v = "Both" if ($v eq "both");
+        $v = "None" if ($v eq "none");
+
+        $odd_ones{$range}{$dist}[$hand]{$v}++;
       }
     }
 
     for my $l (@store)
     {
-      push @{$files{$data{tag}}}, "$l\n";
+      push @{$files{$data{dist}}{$data{tag}}}, "$l\n";
     }
 
-    push @{$summary{$data{tag}}}, 
+    push @{$summary{$data{dist}}{$data{tag}}}, 
       sprintf("%6s %20s %6s %6s %6s %4s   %-40s\n",
         $data{lin},
         $data{hand},
@@ -88,6 +128,25 @@ while (my $line = <$fr>)
     @store = ();
     push @store, $linline;
   }
+  elsif ($line =~ /^DISTRIBUTION (.*)/)
+  {
+    $distr = $1;
+  }
+  elsif ($line =~ /^Player pos\..*: (\d+)$/)
+  {
+    $ppos = $1;
+  }
+  elsif ($line =~ /^Vulnerability: (\d+)/)
+  {
+    my $v = $1;
+    die unless $v >= 0 && $v <= 3;
+    $vul = $VUL_LIST[$v];
+  }
+  elsif ($line =~ /^\s+SUM\s+(\d+)/)
+  {
+    my $sum = $1;
+    $all_ones{$distr}[$ppos]{$vul} += $sum;
+  }
   else
   {
     push @store, $line;
@@ -96,29 +155,114 @@ while (my $line = <$fr>)
 close $fr;
 
 
-for my $tag (sort keys %summary)
+for my $dist (sort keys %summary)
 {
-  my $file = "$DIR/$tag";
-  open my $fw, '>', $file or die "Can't open $file: $!";
+ if (! -e "$DIR/$dist")
+ {
+   mkdir "$DIR/$dist";
+ }
 
-  for my $l (@{$summary{$tag}})
+  for my $tag (sort keys %{$summary{$dist}})
   {
-    print $fw $l;
-  }
+    my $file = "$DIR/$dist/$tag";
+    open my $fw, '>', $file or die "Can't open $file: $!";
 
-  close $fw;
+    for my $l (@{$summary{$dist}{$tag}})
+    {
+      print $fw $l;
+    }
+
+    close $fw;
+  }
 }
 
 
-for my $tag (sort keys %files)
+for my $dist (sort keys %files)
 {
-  my $file = "$DIR/T$tag";
-  open my $fw, '>', $file or die "Can't open $file: $!";
-
-  for my $l (@{$files{$tag}})
+  for my $tag (sort keys %{$files{$dist}})
   {
-    print $fw $l;
-  }
+    my $file = "$DIR/$dist/T$tag";
+    open my $fw, '>', $file or die "Can't open $file: $!";
 
-  close $fw;
+    for my $l (@{$files{$dist}{$tag}})
+    {
+      print $fw $l;
+    }
+
+    close $fw;
+  }
+}
+
+
+print "ALL\n\n";
+printf("%-12s", "Dist");
+for my $hand (0 .. 3)
+{
+  for my $vul (0 .. 3)
+  {
+    my $handno = $hand+1;
+    printf("%8s", "H$handno $VUL_LIST[$vul]");
+  }
+}
+print "\n";
+
+for my $dist (sort keys %all_ones)
+{
+  printf("%12s", $dist);
+  for my $hand (0 .. 3)
+  {
+    for my $vul (0 .. 3)
+    {
+      my $x = $all_ones{$dist}[$hand]{$VUL_LIST[$vul]};
+      if (defined $x)
+      {
+        printf("%8d", $x);
+      }
+      else
+      {
+        printf("%8d", 0);
+      }
+    }
+  }
+  print "\n";
+}
+print "\n";
+
+for my $range (0 .. 2)
+{
+  my $rangetab = $RANGE_LIST[$range];
+  print $rangetab, "\n\n";
+
+  printf("%12s", "Dist");
+  for my $hand (0 .. 3)
+  {
+    for my $vul (0 .. 3)
+    {
+      my $handno = $hand+1;
+      printf("%8s", "H$handno $VUL_LIST[$vul]");
+    }
+  }
+  print "\n";
+
+  for my $dist (sort keys %all_ones)
+  {
+    printf("%12s", $dist);
+    for my $hand (0 .. 3)
+    {
+      for my $vul (0 .. 3)
+      {
+        my $x = $odd_ones{$rangetab}{$dist}[$hand]{$VUL_LIST[$vul]};
+        if (defined $x)
+        {
+          printf("%8d", $x);
+        }
+        else
+        {
+          printf("%8d", 0);
+        }
+      }
+    }
+    print "\n";
+  }
+  print "\n";
 }

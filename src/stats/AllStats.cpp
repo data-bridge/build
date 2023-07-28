@@ -138,7 +138,7 @@ string AllStats::str(const Options& options) const
     {
       if (! (* paramStats1DPtr)[i].empty())
       {
-        ss << DISTRIBUTION_NAMES[i] << "\n";
+        ss << "DISTRIBUTION " << DISTRIBUTION_NAMES[i] << "\n";
         ss << (* paramStats1DPtr)[i].str();
       }
     }
@@ -147,7 +147,7 @@ string AllStats::str(const Options& options) const
     {
       if (! (* paramStats2DPtr)[i].empty())
       {
-        ss << DISTRIBUTION_NAMES[i] << "\n";
+        ss << "DISTRIBUTION " << DISTRIBUTION_NAMES[i] << "\n";
         ss << (* paramStats2DPtr)[i].str();
       }
     }
