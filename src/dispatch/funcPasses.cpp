@@ -57,10 +57,13 @@ static vector<string> LOCAL_NAMES =
   "Player pos.", "Vulnerability", "Params"
 };
 
-const static vector<string> onePass = {"P"};
-const static vector<string> twoPasses = {"P", "P"};
-const static vector<string> threePasses = {"P", "P", "P"};
-const static vector<string> fourPasses = {"P", "P", "P", "P"};
+const static vector<vector<string>> sequentialPasses =
+{
+  {"P"},
+  {"P", "P"},
+  {"P", "P", "P"},
+  {"P", "P", "P", "P"}
+};
 
 struct FilterParams
 {
@@ -311,75 +314,74 @@ bno++;
         VulRelative vulDealer, vulNonDealer;
         instance.getVulRelative(vulDealer, vulNonDealer);
 
-        const bool onePassFlag = instance.auctionStarts(onePass);
-        const bool oneDistFlag = valuations[relPlayers[0]].distMatch(
-          options.distMatcher);
+        const vector<VulRelative> sequentialVuls =
+        { vulDealer, vulNonDealer, vulDealer, vulNonDealer };
 
-        if (! filterParams.distFilterFlag || oneDistFlag)
+        bool seqPassFlag;
+
+        seqPassFlag = instance.auctionStarts(sequentialPasses[0]);
+
+        if (! filterParams.distFilterFlag || 
+          valuations[relPlayers[0]].distMatch( options.distMatcher))
         {
           updatePassStatistics(instance, relPlayers, params, valuations,
-            0, vulDealer, onePassFlag, filterParams,
+            0, sequentialVuls[0], seqPassFlag, filterParams,
             paramStats1D, paramStats2D);
 
           strTriplet(board, instance, relPlayers, params,
-            0, matchTag, onePassFlag, 
+            0, matchTag, seqPassFlag, 
             filterParams.playerFlag, filterParams.playerTag);
         }
 
-        if (! onePassFlag)
+        if (! seqPassFlag)
           continue;
 
-        const bool twoPassesFlag = instance.auctionStarts(twoPasses);
-        const bool twoDistFlag = valuations[relPlayers[1]].distMatch(
-          options.distMatcher);
+        seqPassFlag = instance.auctionStarts(sequentialPasses[1]);
 
-        if (! filterParams.distFilterFlag || twoDistFlag)
+        if (! filterParams.distFilterFlag || 
+          valuations[relPlayers[1]].distMatch( options.distMatcher))
         {
           updatePassStatistics(instance, relPlayers, params, valuations,
-            1, vulNonDealer, twoPassesFlag, filterParams,
+            1, sequentialVuls[1], seqPassFlag, filterParams,
             paramStats1D, paramStats2D);
 
           strTriplet(board, instance, relPlayers, params,
-            1, matchTag, twoPassesFlag, 
+            1, matchTag, seqPassFlag, 
             filterParams.playerFlag, filterParams.playerTag);
         }
 
-        if (! twoPassesFlag)
+        if (! seqPassFlag)
           continue;
 
-        const bool threePassesFlag = 
-          instance.auctionStarts(threePasses);
-        const bool threeDistFlag = valuations[relPlayers[2]].distMatch(
-          options.distMatcher);
+        seqPassFlag = instance.auctionStarts(sequentialPasses[2]);
 
-        if (! filterParams.distFilterFlag || threeDistFlag)
+        if (! filterParams.distFilterFlag || 
+          valuations[relPlayers[2]].distMatch(options.distMatcher))
         {
           updatePassStatistics(instance, relPlayers, params, valuations,
-            2, vulDealer, threePassesFlag, filterParams,
+            2, sequentialVuls[2], seqPassFlag, filterParams,
             paramStats1D, paramStats2D);
 
           strTriplet(board, instance, relPlayers, params,
-            2, matchTag, threePassesFlag, 
+            2, matchTag, seqPassFlag, 
             filterParams.playerFlag, filterParams.playerTag);
         }
 
-        if (! threePassesFlag)
+        if (! seqPassFlag)
           continue;
 
-        const bool fourPassesFlag = 
-          instance.auctionStarts(fourPasses);
-        const bool fourDistFlag = valuations[relPlayers[3]].distMatch(
-          options.distMatcher);
+        seqPassFlag = instance.auctionStarts(sequentialPasses[3]);
 
-        if (! filterParams.distFilterFlag || fourDistFlag)
+        if (! filterParams.distFilterFlag || 
+          valuations[relPlayers[3]].distMatch(options.distMatcher))
         {
           // TODO Really vulDealer?
           updatePassStatistics(instance, relPlayers, params, valuations,
-            3, vulDealer, fourPassesFlag, filterParams,
+            3, vulDealer, seqPassFlag, filterParams,
             paramStats1D, paramStats2D);
 
           strTriplet(board, instance, relPlayers, params,
-            3, matchTag, fourPassesFlag, 
+            3, matchTag, seqPassFlag, 
             filterParams.playerFlag, filterParams.playerTag);
         }
       }
