@@ -77,7 +77,7 @@ Distributions Distribution::number5major(
   {
     if (params[DPAR_MIN_MAJOR] == 5)
       return DIST_55MAJ21;
-    else if (params[DPAR_MIN_MINOR] == 5)
+    else if (params[DPAR_MAX_MINOR] == 5)
       return DIST_5MAJ5MIN21;
     else
       return DIST_5MAJ431;

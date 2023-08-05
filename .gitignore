@@ -45,3 +45,5 @@
 *.wsuo
 *.db-wal
 *.db-shm
+
+src/dist/*

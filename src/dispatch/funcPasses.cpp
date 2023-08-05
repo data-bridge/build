@@ -21,6 +21,8 @@
 
 #include "funcPasses.h"
 
+#include "../util/parse.h"
+
 #include "../stats/ParamStats1D.h"
 #include "../stats/ParamStats2D.h"
 
@@ -119,6 +121,7 @@ string strBidData(
   const Instance& instance,
   const vector<unsigned>& relPlayers,
   const vector<vector<unsigned>>& params,
+  const string& boardTag,
   const unsigned pno,
   const unsigned range,
   const string& matchTag)
@@ -153,6 +156,11 @@ string strBidData(
       sv = "Vul: We";
   }
   ss << sv << "\n";
+
+  vector<string> tokens;
+  tokenize(boardTag, tokens, "|");
+  assert(tokens.size() == 3);
+  ss << "Board: " << tokens[1] << endl;
 
   ss << "HCP: " << params[pno][0] << endl;
 
@@ -191,6 +199,7 @@ void strTriplet(
   const Instance& instance,
   const vector<unsigned>& relPlayers,
   const vector<vector<unsigned>>& params,
+  const string& boardTag,
   const unsigned pno,
   const unsigned& matchNumber,
   const bool passFlag,
@@ -205,19 +214,19 @@ void strTriplet(
 
   if (! passFlag && params[pno][0] < 10)
   {
-    cout << 
-      strBidData(board, instance, relPlayers, params, pno, 0, matchTag);
+    cout << strBidData(board, instance, relPlayers, params, 
+        boardTag, pno, 0, matchTag);
   }
   else if (params[pno][0] >= 10 && params[pno][0] <= 12 &&
     isAboveOneLevel(instance.strCall(pno, BRIDGE_FORMAT_TXT)))
   {
-    cout << 
-      strBidData(board, instance, relPlayers, params, pno, 1, matchTag);
+    cout << strBidData(board, instance, relPlayers, params, 
+      boardTag, pno, 1, matchTag);
   }
   else if (passFlag && params[pno][0] > 12)
   {
-    cout << 
-      strBidData(board, instance, relPlayers, params, pno, 2, matchTag);
+    cout << strBidData(board, instance, relPlayers, params, 
+      boardTag, pno, 2, matchTag);
   }
 }
 
@@ -289,12 +298,10 @@ void passStats(
     p.init(BRIDGE_PLAYERS, BRIDGE_VUL_SIZE, PASS_SIZE,
       LOCAL_NAMES, LOCAL_DATA);
 
-unsigned bno = 0;
   for (auto &segment: group)
   {
     for (auto &bpair: segment)
     {
-bno++;
       const Board& board = bpair.board;
       const unsigned dealer = static_cast<unsigned>(board.getDealer());
       const vector<Valuation>& valuations = board.getValuations();
@@ -313,6 +320,9 @@ bno++;
         const Instance& instance = board.getInstance(i);
         if (board.skipped(i))
           continue;
+
+        const string boardTag = 
+          instance.strRoom(bpair.extNo, BRIDGE_FORMAT_LIN);
 
         VulRelative vulDealer, vulNonDealer;
         instance.getVulRelative(vulDealer, vulNonDealer);
@@ -338,7 +348,7 @@ bno++;
               paramStats1D, paramStats2D);
 
             strTriplet(board, instance, relPlayers, params,
-              pos, distNo, seqPassFlag, filterParams);
+              boardTag, pos, distNo, seqPassFlag, filterParams);
           }
 
           if (! seqPassFlag)
