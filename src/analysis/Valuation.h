@@ -145,6 +145,10 @@ using namespace std;
    * TWOCONC, the percentage (in the range 0..100) of the HCP 
      concentrated in the two longest suits.
 
+   * SHORTCONC, the number of HCP in the shortest suit that is not
+     a void.  If there are two equal-length shortest suits, this 
+     parameter is not meaningful.
+
    * OUTTOPS1..5: Similar to TOPS1..5 in SUIT_SCORE, but outside of
      the longest suit.
 
@@ -266,8 +270,9 @@ enum CompositeParams
 
   VC_MCONC = 28,
   VC_TWOCONC = 29,
+  VC_SHORTCONC = 30,
 
-  VC_SIZE = 30
+  VC_SIZE = 31
 };
 
 typedef array<int, VC_SIZE> CompositeArray;

@@ -156,7 +156,8 @@ const vector<CompBundle> CompInfo =
   {"EFF_L4", "Eff. 4th len", 2, 40},
 
   {"MCONC", "Major conc.", 1, 1},
-  {"TWOCONC", "Top-2 conc.", 1, 1}
+  {"TWOCONC", "Top-2 conc.", 1, 1},
+  {"SHORTCONC", "Short HCP", 1, 1}
 };
 
 
@@ -703,6 +704,7 @@ void Valuation::calcDetails()
   {
     compValues[VC_MCONC] = 0;
     compValues[VC_TWOCONC] = 0;
+    compValues[VC_SHORTCONC] = 0;
   }
   else
   {
@@ -714,7 +716,23 @@ void Valuation::calcDetails()
       ((*suitValues[longest1])[VS_HCP] + 
        (*suitValues[ static_cast<unsigned>((*distValues)[VD_LONGEST2]) ])
          [VS_HCP]) / compValues[VC_HCP]);
+    
+    // Find the shortest non-void suit.  If there are two such,
+    // this parameter is not meaningful.
+    int shortNonzero = numeric_limits<int>::max();
+    int shortHCP = numeric_limits<int>::max();
+    for (unsigned s = 0; s < BRIDGE_SUITS; s++)
+    {
+      const int sl = (*suitValues[s])[VS_LENGTH];
+      if (sl > 0 && sl < shortNonzero)
+      {
+        shortNonzero = sl;
+        shortHCP = (*suitValues[s])[VS_HCP];
+      }
     }
+    assert(shortHCP < 40);
+    compValues[VC_SHORTCONC] = shortHCP;
+  }
 
   for (unsigned p = VS_TOP1; p <= VS_TOP5; p++)
   {
