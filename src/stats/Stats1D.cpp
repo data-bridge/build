@@ -121,6 +121,10 @@ string Stats1D::str() const
     }
     else
     {
+      // For CCCC-type statistics, only non-zero ones.
+      if (counts[i].count == 0)
+        continue;
+
       ss << setw(6) << fixed << setprecision(2) <<
         static_cast<float>(i + info.low) / 
         static_cast<float>(info.factor);
