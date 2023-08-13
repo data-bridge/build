@@ -157,7 +157,11 @@ const vector<CompBundle> CompInfo =
 
   {"MCONC", "Major conc.", 1, 1},
   {"TWOCONC", "Top-2 conc.", 1, 1},
-  {"SHORTCONC", "Short HCP", 1, 1}
+
+  {"HCP_SHORTEST", "Short HCP", 1, 1},
+  {"HCP_LONGEST", "Log HCP", 1, 1},
+  {"HCP_LONG12", "Long12 HCP", 1, 1},
+  {"SPADES", "Spades", 1, 1}
 };
 
 
@@ -708,18 +712,27 @@ void Valuation::calcDetails()
   {
     compValues[VC_MCONC] = 0;
     compValues[VC_TWOCONC] = 0;
-    compValues[VC_SHORTCONC] = 0;
+
+    compValues[VC_HCP_SHORTEST] = 0;
+    compValues[VC_HCP_LONGEST] = 0;
+    compValues[VC_HCP_LONG12] = 0;
   }
   else
   {
+    const unsigned longest2 = 
+      static_cast<unsigned>((*distValues)[VD_LONGEST2]);
+
     compValues[VC_MCONC] = static_cast<int>(100. * 
       ((*suitValues[BRIDGE_SPADES])[VS_HCP] + 
        (*suitValues[BRIDGE_HEARTS])[VS_HCP]) / compValues[VC_HCP]);
 
     compValues[VC_TWOCONC] = static_cast<int>(100. * 
       ((*suitValues[longest1])[VS_HCP] + 
-       (*suitValues[ static_cast<unsigned>((*distValues)[VD_LONGEST2]) ])
-         [VS_HCP]) / compValues[VC_HCP]);
+       (*suitValues[longest2])[VS_HCP]) / compValues[VC_HCP]);
+
+    compValues[VC_HCP_LONGEST] = (*suitValues[longest1])[VS_HCP];
+    compValues[VC_HCP_LONG12] = (*suitValues[longest1])[VS_HCP] +
+      (*suitValues[longest2])[VS_HCP];
     
     // Find the shortest non-void suit.  If there are two such,
     // this parameter is not meaningful.
@@ -735,7 +748,7 @@ void Valuation::calcDetails()
       }
     }
     assert(shortHCP < 40);
-    compValues[VC_SHORTCONC] = shortHCP;
+    compValues[VC_HCP_SHORTEST] = shortHCP;
   }
 
   for (unsigned p = VS_TOP1; p <= VS_TOP5; p++)

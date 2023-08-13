@@ -270,10 +270,13 @@ enum CompositeParams
 
   VC_MCONC = 28,
   VC_TWOCONC = 29,
-  VC_SHORTCONC = 30,
-  VC_SPADES = 31,
 
-  VC_SIZE = 32
+  VC_HCP_SHORTEST = 30,
+  VC_HCP_LONGEST = 31,
+  VC_HCP_LONG12 = 32,
+  VC_SPADES = 33,
+
+  VC_SIZE = 34
 };
 
 typedef array<int, VC_SIZE> CompositeArray;

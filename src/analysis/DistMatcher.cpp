@@ -104,6 +104,12 @@ bool DistMatcher::match(
 }
 
 
+unsigned DistMatcher::getMaxSpades() const
+{
+  return spades.getMax();
+}
+
+
 string DistMatcher::str() const
 {
   if (! setFlag)

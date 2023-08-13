@@ -140,10 +140,10 @@ dispatch/funcPasses.obj: analysis/dll.h records/PlayTrace.h
 dispatch/funcPasses.obj: analysis/PlayError.h records/GivenScore.h
 dispatch/funcPasses.obj: analysis/Valuation.h analysis/Term.h
 dispatch/funcPasses.obj: analysis/Distribution.h analysis/Distributions.h
-dispatch/funcPasses.obj: dispatch/funcPasses.h stats/ParamStats1D.h
-dispatch/funcPasses.obj: stats/Stats1D.h stats/StatsInfo.h
-dispatch/funcPasses.obj: stats/ParamStats2D.h stats/Stats2D.h
-dispatch/funcPasses.obj: handling/Bexcept.h
+dispatch/funcPasses.obj: dispatch/funcPasses.h util/parse.h
+dispatch/funcPasses.obj: stats/ParamStats1D.h stats/Stats1D.h
+dispatch/funcPasses.obj: stats/StatsInfo.h stats/ParamStats2D.h
+dispatch/funcPasses.obj: stats/Stats2D.h handling/Bexcept.h
 dispatch/funcPlayerVal.obj: records/Group.h records/Segment.h records/Date.h
 dispatch/funcPlayerVal.obj: records/Location.h records/Session.h
 dispatch/funcPlayerVal.obj: records/Teams.h records/Team.h records/Scoring.h

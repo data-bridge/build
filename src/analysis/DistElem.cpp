@@ -45,7 +45,7 @@ void DistElem::set(
   unsigned no;
   if (v.size() == 2)
   {
-    if (! str2upos(v[0], no))
+    if (! str2unsigned(v[0], no))
       THROW("Odd first suit-length spec: " + spec);
     min = no;
 
@@ -58,7 +58,7 @@ void DistElem::set(
   else if (v.size() != 1)
     THROW("Odd suit-length spec: " + spec);
 
-  if (! str2upos(v[0], no))
+  if (! str2unsigned(v[0], no))
     THROW("Odd second suit-length spec: " + spec);
   min = no;
   max = no;
@@ -73,6 +73,12 @@ bool DistElem::match(const int value) const
   else
     return (static_cast<unsigned>(value) >= min && 
       static_cast<unsigned>(value) <= max);
+}
+
+
+unsigned DistElem::getMax() const
+{
+  return max;
 }
 
 

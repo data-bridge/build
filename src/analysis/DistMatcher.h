@@ -44,6 +44,9 @@ class DistMatcher
       const int long3L,
       const int long4L) const;
 
+    // Kludge -- really misusing spades.
+    unsigned getMaxSpades() const;
+
     string str() const;
     string strSpec() const;
 };

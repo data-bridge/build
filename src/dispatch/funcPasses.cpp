@@ -40,8 +40,10 @@ enum LocalParams
   PASS_ZAR = 2,
   PASS_SPADES = 3,
   PASS_CONTROLS = 4,
-  PASS_SHORTHCP = 5,
-  PASS_SIZE = 6
+  PASS_HCP_SHORTEST = 5,
+  PASS_HCP_LONGEST = 6,
+  PASS_HCP_LONG12 = 7,
+  PASS_SIZE = 8
 };
 
 // The mapping between the two.
@@ -53,7 +55,9 @@ static vector<CompositeParams> LOCAL_TO_COMPOSITE =
   VC_ZAR,
   VC_SPADES,
   VC_CONTROLS,
-  VC_SHORTCONC
+  VC_HCP_SHORTEST,
+  VC_HCP_LONGEST,
+  VC_HCP_LONG12
 };
 
 static vector<StatsInfo> LOCAL_DATA =
@@ -61,9 +65,11 @@ static vector<StatsInfo> LOCAL_DATA =
   { "HCP", 0, 40, 1},
   { "CCCC", 0, 1200, 20}, // TODO Check maxima
   { "ZP", 0, 80, 1}, // TODO Check maxima
-  { "Spades", 0, 20, 1}, // TODO Why problem in one of next three?
-  { "Controls", 0, 20, 1},
-  { "Short HCP", 0, 20, 1}
+  { "Spades", 0, 14, 1},
+  { "Controls", 0, 13, 1},
+  { "Short HCP", 0, 11, 1},
+  { "Long HCP", 0, 11, 1},
+  { "Long12 HCP", 0, 21, 1}
 };
 
 static vector<string> LOCAL_NAMES =
@@ -174,7 +180,7 @@ string strBidData(
   assert(tokens.size() == 3);
   ss << "Board: " << tokens[1] << endl;
 
-  ss << "HCP: " << params[pno][0] << endl;
+  ss << "HCP: " << params[pno][PASS_HCP] << endl;
 
   ss << "Hand: " << board.strHand(player1, BRIDGE_FORMAT_TXT)  << endl;
 
@@ -243,23 +249,6 @@ void strTriplet(
 }
 
 
-/*
-void spadesControlKludge(
-  const vector<unsigned>& relPlayers,
-  vector<vector<unsigned>>& params,
-  const vector<Valuation>& valuations,
-  const unsigned pno)
-{
-  params[pno][0] = static_cast<unsigned>(
-    valuations[relPlayers[pno]].handDist() >> 8);
-  params[pno][1] = 20 * static_cast<unsigned>(
-    valuations[relPlayers[pno]].getCompositeParam(VC_SHORTCONC));
-  params[pno][2] = 10 + static_cast<unsigned>(
-    valuations[relPlayers[pno]].getCompositeParam(VC_CONTROLS));
-}
-*/
-
-
 void updatePassStatistics(
   const Instance& instance,
   const vector<unsigned>& relPlayers,
@@ -274,10 +263,6 @@ void updatePassStatistics(
 {
   if (! filterParams.hcpFlag || params[pno][0] == filterParams.hcpValue)
   {
-    // Kludge to get spades vs controls.
-    // if (filterParams.spadesControlFlag)
-      // spadesControlKludge(relPlayers, params, valuations, pno);
-
     if (! filterParams.playerFlag || 
       instance.strPlayer(static_cast<Player>(relPlayers[pno]),
         BRIDGE_FORMAT_TXT) == filterParams.playerTag)
@@ -298,9 +283,9 @@ void passStats(
 {
   FilterParams filterParams;
   filterParams.distFilterFlag = false;
-  filterParams.hcpFlag = false;
-  filterParams.hcpValue = 9;
-  // filterParams.spadesControlFlag = true;
+  filterParams.hcpFlag = true;
+  // filterParams.hcpValue = 9;
+  filterParams.hcpValue = options.distMatcher.getMaxSpades(); // Kludge
   filterParams.playerFlag = false;
   filterParams.playerTag = "shein";
   filterParams.stats2DFlag = false;

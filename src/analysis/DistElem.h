@@ -34,6 +34,8 @@ class DistElem
 
     bool match(const int value) const;
 
+    unsigned getMax() const;
+
     string str() const;
 };
 
