@@ -44,9 +44,21 @@ void Distribution::reset()
 Distributions Distribution::number4(const vector<unsigned>& params) const
 {
   if (params[DPAR_MIN_LEN] == 1)
-    return DIST_4441;
+  {
+    if (params[DPAR_MIN_MAJOR] == 4)
+      return DIST_44MAJ41;
+    else
+      return DIST_44MIN41;
+  }
   else if (params[DPAR_MIN_LEN] == 2)
-    return DIST_4432;
+  {
+    if (params[DPAR_MIN_MAJOR] == 4)
+      return DIST_44MAJ32;
+    else if (params[DPAR_MIN_MINOR] == 4)
+      return DIST_44MIN32;
+    else
+      return DIST_4MAJ4MIN32;
+  }
   else if (params[DPAR_MAX_MAJOR] == 4)
     return DIST_4MAJ333;
   else
@@ -159,8 +171,10 @@ Distributions Distribution::number6major(
       return DIST_6MAJ331;
     else if (params[DPAR_MAX_MINOR] == 1)
       return DIST_65MAJ11;
+    else if (params[DPAR_MIN_MAJOR] == 4)
+      return DIST_64MAJ21;
     else
-      return DIST_6MAJ421;
+      return DIST_6MAJ4MIN21;
   }
   else if (params[DPAR_MAX_MINOR] == 6)
     return DIST_6MAJ6MIN10;
@@ -170,8 +184,10 @@ Distributions Distribution::number6major(
     return DIST_65MAJ20;
   else if (params[DPAR_MAX_MINOR] == 1)
     return DIST_66MAJ10;
+  else if (params[DPAR_MIN_MAJOR] == 4)
+    return DIST_64MAJ30;
   else
-    return DIST_6MAJ430;
+    return DIST_6MAJ4MIN30;
 }
 
 
@@ -188,8 +204,10 @@ Distributions Distribution::number6minor(
       return DIST_65MIN11;
     else if (params[DPAR_MAX_MAJOR] == 3)
       return DIST_6MIN331;
+    else if (params[DPAR_MIN_MINOR] == 4)
+      return DIST_64MIN21;
     else
-      return DIST_6MIN421;
+      return DIST_4MAJ6MIN21;
   }
   else if (params[DPAR_MAX_MAJOR] == 5)
     return DIST_5MAJ6MIN20;
@@ -197,8 +215,10 @@ Distributions Distribution::number6minor(
     return DIST_65MIN20;
   else if (params[DPAR_MAX_MAJOR] == 1)
     return DIST_66MIN10;
+  else if (params[DPAR_MIN_MINOR] == 4)
+    return DIST_64MIN30;
   else
-    return DIST_6MIN430;
+    return DIST_4MAJ6MIN30;
 }
 
 
