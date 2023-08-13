@@ -38,7 +38,10 @@ enum LocalParams
   PASS_HCP = 0,
   PASS_CCCC = 1,
   PASS_ZAR = 2,
-  PASS_SIZE = 3
+  PASS_SPADES = 3,
+  PASS_CONTROLS = 4,
+  PASS_SHORTHCP = 5,
+  PASS_SIZE = 6
 };
 
 // The mapping between the two.
@@ -47,14 +50,20 @@ static vector<CompositeParams> LOCAL_TO_COMPOSITE =
 {
   VC_HCP,
   VC_CCCC,
-  VC_ZAR
+  VC_ZAR,
+  VC_SPADES,
+  VC_CONTROLS,
+  VC_SHORTCONC
 };
 
 static vector<StatsInfo> LOCAL_DATA =
 {
   { "HCP", 0, 40, 1},
   { "CCCC", 0, 1200, 20}, // TODO Check maxima
-  { "ZP", 0, 80, 1} // TODO Check maxima
+  { "ZP", 0, 80, 1}, // TODO Check maxima
+  { "Spades", 0, 20, 1}, // TODO Why problem in one of next three?
+  { "Controls", 0, 20, 1},
+  { "Short HCP", 0, 20, 1}
 };
 
 static vector<string> LOCAL_NAMES =
@@ -80,11 +89,14 @@ struct FilterParams
   unsigned hcpValue;
 
   // Use spades and controls instead of HCP and ZP?
-  bool spadesControlFlag;
+  // bool spadesControlFlag;
 
   // Only consider a specific player name?
   bool playerFlag;
   string playerTag;
+
+  // Calculate 2D statistics?
+  bool stats2DFlag;
 };
 
 
@@ -231,6 +243,7 @@ void strTriplet(
 }
 
 
+/*
 void spadesControlKludge(
   const vector<unsigned>& relPlayers,
   vector<vector<unsigned>>& params,
@@ -239,16 +252,18 @@ void spadesControlKludge(
 {
   params[pno][0] = static_cast<unsigned>(
     valuations[relPlayers[pno]].handDist() >> 8);
+  params[pno][1] = 20 * static_cast<unsigned>(
+    valuations[relPlayers[pno]].getCompositeParam(VC_SHORTCONC));
   params[pno][2] = 10 + static_cast<unsigned>(
     valuations[relPlayers[pno]].getCompositeParam(VC_CONTROLS));
 }
+*/
 
 
 void updatePassStatistics(
   const Instance& instance,
   const vector<unsigned>& relPlayers,
-  vector<vector<unsigned>>& params, // May kludge this
-  const vector<Valuation>& valuations,
+  const vector<vector<unsigned>>& params, 
   const unsigned pno,
   const unsigned distNo,
   const vector<VulRelative> vuls,
@@ -260,15 +275,16 @@ void updatePassStatistics(
   if (! filterParams.hcpFlag || params[pno][0] == filterParams.hcpValue)
   {
     // Kludge to get spades vs controls.
-    if (filterParams.spadesControlFlag)
-      spadesControlKludge(relPlayers, params, valuations, pno);
+    // if (filterParams.spadesControlFlag)
+      // spadesControlKludge(relPlayers, params, valuations, pno);
 
     if (! filterParams.playerFlag || 
       instance.strPlayer(static_cast<Player>(relPlayers[pno]),
         BRIDGE_FORMAT_TXT) == filterParams.playerTag)
     {
       paramStats1D[distNo].add(pno, vuls[pno], params[pno], passesFlag);
-      paramStats2D[distNo].add(pno, vuls[pno], params[pno], passesFlag);
+      if (filterParams.stats2DFlag)
+        paramStats2D[distNo].add(pno, vuls[pno], params[pno], passesFlag);
     }
   }
 }
@@ -283,10 +299,11 @@ void passStats(
   FilterParams filterParams;
   filterParams.distFilterFlag = false;
   filterParams.hcpFlag = false;
-  filterParams.hcpValue = 11;
-  filterParams.spadesControlFlag = false;
+  filterParams.hcpValue = 9;
+  // filterParams.spadesControlFlag = true;
   filterParams.playerFlag = false;
   filterParams.playerTag = "shein";
+  filterParams.stats2DFlag = false;
 
   Distribution distribution;
 
@@ -343,7 +360,7 @@ void passStats(
             valuations[relPlayers[pos]].getLengths(lengths);
             const unsigned distNo = distribution.number(lengths);
 
-            updatePassStatistics(instance, relPlayers, params, valuations,
+            updatePassStatistics(instance, relPlayers, params,
               pos, distNo, sequentialVuls, seqPassFlag, filterParams,
               paramStats1D, paramStats2D);
 

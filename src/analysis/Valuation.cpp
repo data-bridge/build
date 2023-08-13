@@ -698,6 +698,10 @@ void Valuation::calcDetails()
   compValues[VC_EFF_L3] = v[2].len;
   compValues[VC_EFF_L4] = v[3].len;
 
+  // Doesn't really have to be a separate composite parameter,
+  // but for some things this is easier.
+  compValues[VC_SPADES] = (*suitValues[BRIDGE_SPADES])[VS_LENGTH];
+
   const unsigned longest1 = 
     static_cast<unsigned>((*distValues)[VD_LONGEST1]);
   if (compValues[VC_HCP] == 0)
