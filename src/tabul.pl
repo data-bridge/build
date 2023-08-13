@@ -3,6 +3,10 @@
 use strict;
 use warnings;
 use Scalar::Util 'looks_like_number';
+use v5.10;
+
+use lib '.';
+use Distributions;
 
 # Throw-away script that parses the output from reader with
 # -Q 4-3-3-3 (say, but the distribution filter flag may be turned
@@ -17,8 +21,7 @@ if ($#ARGV < 0)
 my @VUL_LIST = ( "None", "Both", "We", "They" );
 my @RANGE_LIST = ( "weak", "mid", "str" );
 
-my @DIST_ORDER;
-set_dist_order(\@DIST_ORDER);
+set_distributions();
 
 my $file = $ARGV[0];
 
@@ -186,7 +189,7 @@ while (my $line = <$fr>)
 close $fr;
 
 
-for my $dist (@DIST_ORDER)
+for my $dist (@DISTRIBUTIONS)
 {
  if (! -e "$DIR/$dist")
  {
@@ -208,7 +211,7 @@ for my $dist (@DIST_ORDER)
 }
 
 
-for my $dist (@DIST_ORDER)
+for my $dist (@DISTRIBUTIONS)
 {
   for my $tag (sort keys %{$files{$dist}})
   {
@@ -241,7 +244,7 @@ for my $hand (0 .. 3)
 }
 print "\n";
 
-for my $dist (@DIST_ORDER)
+for my $dist (@DISTRIBUTIONS)
 {
   printf("%12s", $dist);
   for my $hand (0 .. 3)
@@ -279,7 +282,7 @@ for my $range (0 .. 2)
   }
   print "\n";
 
-  for my $dist (@DIST_ORDER)
+  for my $dist (@DISTRIBUTIONS)
   {
     printf("%12s", $dist);
     for my $hand (0 .. 3)
@@ -438,47 +441,3 @@ sub file2list
   close $fr;
 }
 
-
-sub set_dist_order
-{
-  @DIST_ORDER = (
-  "4432",
-  "5MAJ332", "5MIN332",
-  "5MAJ431", "5MIN431",
-  "5MAJ422", "5MIN422",
-  "4333",
-  "6MAJ322", "6MIN322",
-  "6MAJ421", "6MIN421",
-  "6MAJ331", "6MIN331",
-  "55MAJ21", "5MAJ5MIN21", "55MIN21",
-  "4441",
-  "7MAJ321", "7MIN321",
-  "6MAJ430", "6MIN430",
-  "54MAJ40", "50MAJ44", "44MAJ50", "40MAJ54",
-  "55MAJ30", "53MAJ50", "50MAJ53", "55MIN30",
-  "65MAJ11", "61MAJ51", "51MAJ61", "65MIN11",
-  "65MAJ20", "6MAJ5MIN20", "5MAJ6MIN20", "65MIN20",
-  "7MAJ222", "7MIN222",
-  "74MAJ11", "71MAJ41", "74MIN11", "71MIN41",
-  "74MAJ20", "7MAJ4MIN20", "4MAJ7MIN20", "74MIN20",
-  "7MAJ330", "7MIN330",
-  "8MAJ221", "8MIN221",
-  "8MAJ311", "8MIN311",
-  "75MAJ10", "7MAJ5MIN10", "5MAJ7MIN10", "75MIN10",
-  "8MAJ320", "8MIN320",
-  "66MAJ10", "6MAJ6MIN10", "66MIN10",
-  "84MAJ10", "8MAJ4MIN10", "4MAJ8MIN10", "84MIN10",
-  "9MAJ211", "9MIN211",
-  "9MAJ310", "9MIN310",
-  "9MAJ220", "9MIN220",
-  "76MAJ00", "7MAJ6MIN", "6MAJ7MIN", "76MIN00",
-  "85MAJ00", "8MAJ5MIN00", "5MAJ8MIN00", "85MIN00",
-  "10MAJ210", "10MIN210",
-  "94MAJ00", "9MAJ4MIN00", "4MAJ9MIN00", "94MIN00",
-  "10MAJ111", "10MIN111",
-  "10MAJ300", "10MIN300",
-  "11MAJ110", "11MIN110",
-  "11MAJ200", "11MIN200",
-  "12MAJ100", "12MIN100",
-  "13MAJ000", "13MIN000" );
-}
