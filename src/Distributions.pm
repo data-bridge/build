@@ -17,7 +17,7 @@ sub set_distributions
   @DISTRIBUTIONS = (
   "4432",
   "5MAJ332", "5MIN332",
-  "5MAJ431", "5MIN431",
+  "54MAJ31", "5MAJ4MIN31", "4MAJ5MIN31", "54MIN31",
   "5MAJ422", "5MIN422",
   "4333",
   "6MAJ322", "6MIN322",

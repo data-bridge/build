@@ -79,8 +79,10 @@ Distributions Distribution::number5major(
       return DIST_55MAJ21;
     else if (params[DPAR_MAX_MINOR] == 5)
       return DIST_5MAJ5MIN21;
+    else if (params[DPAR_MIN_MAJOR] == 4)
+      return DIST_54MAJ31;
     else
-      return DIST_5MAJ431;
+      return DIST_5MAJ4MIN31;
   }
   else if (params[DPAR_MIN_LEN] == 2)
   {
@@ -118,8 +120,10 @@ Distributions Distribution::number5minor(
   {
     if (params[DPAR_MIN_MINOR] == 5)
       return DIST_55MIN21;
+    else if (params[DPAR_MAX_MAJOR] == 4)
+      return DIST_4MAJ5MIN31;
     else
-      return DIST_5MIN431;
+      return DIST_54MIN31;
   }
   else if (params[DPAR_MIN_LEN] == 2)
   {
