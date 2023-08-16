@@ -114,17 +114,8 @@ string ParamStats2D::str() const
       ss << setw(13) << dimNames[1] << ": " << d2 << "\n";
       ss << string(16, '-') << "\n\n";
 
-      size_t d_run = 0;
-      for (unsigned par1 = 0; 
-        par1 + 1 < paramStats2D[d1][d2].size(); par1++)
-      {
-        for (unsigned par2 = par1 + 1; 
-          par2 < paramStats2D[d1][d2].size(); par2++)
-        {
-          ss << paramStats2D[d1][d2][d_run].str() << "\n";
-          d_run++;
-        }
-      }
+      for (unsigned par = 0; par < paramStats2D[d1][d2].size(); par++)
+        ss << paramStats2D[d1][d2][par].str() << "\n";
     }
   }
 

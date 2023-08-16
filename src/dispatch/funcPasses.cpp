@@ -36,14 +36,14 @@
 enum LocalParams
 {
   PASS_HCP = 0,
-  PASS_CCCC = 1,
-  PASS_ZAR = 2,
-  PASS_SPADES = 3,
-  PASS_CONTROLS = 4,
-  PASS_HCP_SHORTEST = 5,
-  PASS_HCP_LONGEST = 6,
-  PASS_HCP_LONG12 = 7,
-  PASS_SIZE = 8
+  // PASS_CCCC = 1,
+  // PASS_ZAR = 2,
+  PASS_SPADES = 1,
+  PASS_CONTROLS = 2,
+  PASS_HCP_SHORTEST = 3,
+  PASS_HCP_LONGEST = 4,
+  PASS_HCP_LONG12 = 5,
+  PASS_SIZE = 6
 };
 
 // The mapping between the two.
@@ -51,8 +51,8 @@ enum LocalParams
 static vector<CompositeParams> LOCAL_TO_COMPOSITE =
 {
   VC_HCP,
-  VC_CCCC,
-  VC_ZAR,
+  // VC_CCCC,
+  // VC_ZAR,
   VC_SPADES,
   VC_CONTROLS,
   VC_HCP_SHORTEST,
@@ -63,8 +63,8 @@ static vector<CompositeParams> LOCAL_TO_COMPOSITE =
 static vector<StatsInfo> LOCAL_DATA =
 {
   { "HCP", 0, 40, 1},
-  { "CCCC", 0, 1200, 20}, // TODO Check maxima
-  { "ZP", 0, 80, 1}, // TODO Check maxima
+  // { "CCCC", 0, 1200, 20}, // TODO Check maxima
+  // { "ZP", 0, 80, 1}, // TODO Check maxima
   { "Spades", 0, 14, 1},
   { "Controls", 0, 13, 1},
   { "Short HCP", 0, 11, 1},
@@ -230,18 +230,18 @@ void strTriplet(
 
   const string matchTag = DISTRIBUTION_NAMES[matchNumber];
 
-  if (! passFlag && params[pno][0] < 10)
+  if (! passFlag && params[pno][PASS_HCP] < 10)
   {
     cout << strBidData(board, instance, relPlayers, params, 
         boardTag, pno, 0, matchTag);
   }
-  else if (params[pno][0] >= 10 && params[pno][0] <= 12 &&
+  else if (params[pno][PASS_HCP] >= 10 && params[pno][PASS_HCP] <= 12 &&
     isAboveOneLevel(instance.strCall(pno, BRIDGE_FORMAT_TXT)))
   {
     cout << strBidData(board, instance, relPlayers, params, 
       boardTag, pno, 1, matchTag);
   }
-  else if (passFlag && params[pno][0] > 12)
+  else if (passFlag && params[pno][PASS_HCP] > 12)
   {
     cout << strBidData(board, instance, relPlayers, params, 
       boardTag, pno, 2, matchTag);
@@ -261,7 +261,8 @@ void updatePassStatistics(
   vector<ParamStats1D>& paramStats1D,
   vector<ParamStats2D>& paramStats2D)
 {
-  if (! filterParams.hcpFlag || params[pno][0] == filterParams.hcpValue)
+  if (! filterParams.hcpFlag || 
+      params[pno][PASS_HCP] == filterParams.hcpValue)
   {
     if (! filterParams.playerFlag || 
       instance.strPlayer(static_cast<Player>(relPlayers[pno]),
@@ -283,12 +284,11 @@ void passStats(
 {
   FilterParams filterParams;
   filterParams.distFilterFlag = false;
-  filterParams.hcpFlag = true;
-  // filterParams.hcpValue = 9;
+  filterParams.hcpFlag = false;
   filterParams.hcpValue = options.distMatcher.getMaxSpades(); // Kludge
   filterParams.playerFlag = false;
   filterParams.playerTag = "shein";
-  filterParams.stats2DFlag = false;
+  filterParams.stats2DFlag = true;
 
   Distribution distribution;
 

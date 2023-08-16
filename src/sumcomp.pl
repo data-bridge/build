@@ -27,7 +27,8 @@ my $all_flag = ($#ARGV == 1 ? 1 : 0);
 my (%store, %sumtotal, %passtotal);
 my ($dist, $pos, $vul, $component);
 
-my @fields = ("HCP", "CCCC", "ZP", "Spades", "Controls", "Short HCP" );
+my @fields = ("HCP", "CCCC", "ZP", "Spades", "Controls", "Short HCP",
+  "Long HCP", "Long12 HCP");
 
 set_distributions();
 
@@ -54,7 +55,9 @@ while (my $line = <$fr>)
       $line =~ "ZP" ||
       $line =~ "Spades" ||
       $line =~ "Controls" ||
-      $line =~ "Short HCP")
+      $line =~ "Short HCP" ||
+      $line =~ "Long HCP" ||
+      $line =~ "Long12 HCP")
   {
     $component = $line;
   }

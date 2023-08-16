@@ -166,7 +166,7 @@ Distributions Distribution::number6major(
   else if (params[DPAR_MIN_LEN] == 1)
   {
     if (params[DPAR_MAX_MINOR] == 5)
-      return DIST_61MAJ51;
+      return DIST_6MAJ5MIN11;
     else if (params[DPAR_MAX_MINOR] == 3)
       return DIST_6MAJ331;
     else if (params[DPAR_MAX_MINOR] == 1)
@@ -177,13 +177,13 @@ Distributions Distribution::number6major(
       return DIST_6MAJ4MIN21;
   }
   else if (params[DPAR_MAX_MINOR] == 6)
-    return DIST_6MAJ6MIN10;
+    return DIST_6MAJ6MIN;
   else if (params[DPAR_MAX_MINOR] == 5)
     return DIST_6MAJ5MIN20;
   else if (params[DPAR_MAX_MINOR] == 2)
     return DIST_65MAJ20;
   else if (params[DPAR_MAX_MINOR] == 1)
-    return DIST_66MAJ10;
+    return DIST_66MAJ;
   else if (params[DPAR_MIN_MAJOR] == 4)
     return DIST_64MAJ30;
   else
@@ -199,7 +199,7 @@ Distributions Distribution::number6minor(
   else if (params[DPAR_MIN_LEN] == 1)
   {
     if (params[DPAR_MAX_MAJOR] == 5)
-      return DIST_51MAJ61;
+      return DIST_5MAJ6MIN11;
     else if (params[DPAR_MAX_MAJOR] == 1)
       return DIST_65MIN11;
     else if (params[DPAR_MAX_MAJOR] == 3)
@@ -214,7 +214,7 @@ Distributions Distribution::number6minor(
   else if (params[DPAR_MAX_MAJOR] == 2)
     return DIST_65MIN20;
   else if (params[DPAR_MAX_MAJOR] == 1)
-    return DIST_66MIN10;
+    return DIST_66MIN;
   else if (params[DPAR_MIN_MINOR] == 4)
     return DIST_64MIN30;
   else
@@ -230,7 +230,7 @@ Distributions Distribution::number7major(
   else if (params[DPAR_MIN_LEN] == 1)
   {
     if (params[DPAR_MAX_MINOR] == 4)
-      return DIST_71MAJ41;
+      return DIST_7MAJ4MIN11;
     else if (params[DPAR_MAX_MINOR] == 1)
       return DIST_74MAJ11;
     else
@@ -239,7 +239,7 @@ Distributions Distribution::number7major(
   else if (params[DPAR_MAX_MINOR] == 6)
     return DIST_7MAJ6MIN;
   else if (params[DPAR_MAX_MINOR] == 5)
-    return DIST_7MAJ5MIN10;
+    return DIST_7MAJ5MIN;
   else if (params[DPAR_MAX_MINOR] == 4)
     return DIST_7MAJ4MIN20;
   else if (params[DPAR_MAX_MINOR] == 3)
@@ -247,9 +247,9 @@ Distributions Distribution::number7major(
   else if (params[DPAR_MAX_MINOR] == 2)
     return DIST_74MAJ20;
   else if (params[DPAR_MAX_MINOR] == 1)
-    return DIST_75MAJ10;
+    return DIST_75MAJ;
   else
-    return DIST_76MAJ00;
+    return DIST_76MAJ;
 }
 
 
@@ -261,7 +261,7 @@ Distributions Distribution::number7minor(
   else if (params[DPAR_MIN_LEN] == 1)
   {
     if (params[DPAR_MAX_MAJOR] == 4)
-      return DIST_71MIN41;
+      return DIST_4MAJ7MIN11;
     else if (params[DPAR_MAX_MAJOR] == 1)
       return DIST_74MIN11;
     else
@@ -270,7 +270,7 @@ Distributions Distribution::number7minor(
   if (params[DPAR_MAX_MAJOR] == 6)
     return DIST_6MAJ7MIN;
   else if (params[DPAR_MAX_MAJOR] == 5)
-    return DIST_5MAJ7MIN10;
+    return DIST_5MAJ7MIN;
   else if (params[DPAR_MAX_MAJOR] == 4)
     return DIST_4MAJ7MIN20;
   else if (params[DPAR_MAX_MAJOR] == 3)
@@ -278,9 +278,9 @@ Distributions Distribution::number7minor(
   else if (params[DPAR_MAX_MAJOR] == 2)
     return DIST_74MIN20;
   else if (params[DPAR_MAX_MAJOR] == 1)
-    return DIST_75MIN10;
+    return DIST_75MIN;
   else
-    return DIST_76MIN00;
+    return DIST_76MIN;
 }
 
 
@@ -297,11 +297,11 @@ Distributions Distribution::number8major(
   else if (params[DPAR_MAX_MINOR] == 5)
     return DIST_8MAJ5MIN;
   else if (params[DPAR_MAX_MINOR] == 4)
-    return DIST_8MAJ4MIN10;
+    return DIST_8MAJ4MIN;
   else if (params[DPAR_MAX_MINOR] == 1)
-    return DIST_84MAJ10;
+    return DIST_84MAJ;
   else if (params[DPAR_MAX_MINOR] == 0)
-    return DIST_85MAJ00;
+    return DIST_85MAJ;
   else
     return DIST_8MAJ320;
 }
@@ -320,11 +320,11 @@ Distributions Distribution::number8minor(
   else if (params[DPAR_MAX_MAJOR] == 5)
     return DIST_5MAJ8MIN;
   else if (params[DPAR_MAX_MAJOR] == 4)
-    return DIST_4MAJ8MIN10;
+    return DIST_4MAJ8MIN;
   else if (params[DPAR_MAX_MAJOR] == 1)
-    return DIST_84MIN10;
+    return DIST_84MIN;
   else if (params[DPAR_MAX_MAJOR] == 0)
-    return DIST_85MIN00;
+    return DIST_85MIN;
   else
     return DIST_8MIN320;
 }
@@ -340,7 +340,7 @@ Distributions Distribution::number9major(
   else if (params[DPAR_MAX_MINOR] == 2)
     return DIST_9MAJ220;
   else if (params[DPAR_MAX_MINOR] == 0)
-    return DIST_94MAJ00;
+    return DIST_94MAJ;
   else
     return DIST_9MAJ310;
 }
@@ -356,7 +356,7 @@ Distributions Distribution::number9minor(
   else if (params[DPAR_MAX_MAJOR] == 2)
     return DIST_9MIN220;
   else if (params[DPAR_MAX_MAJOR] == 0)
-    return DIST_94MIN00;
+    return DIST_94MIN;
   else
     return DIST_9MIN310;
 }
@@ -431,16 +431,16 @@ Distributions Distribution::number(const vector<unsigned>& lengths) const
   else if (params[DPAR_MAX_LEN] == 12)
   {
     if (params[DPAR_MAX_MAJOR] == 12)
-      return DIST_12MAJ100;
+      return DIST_12MAJ;
     else
-      return DIST_12MIN100;
+      return DIST_12MIN;
   }
   else if (params[DPAR_MAX_LEN] == 13)
   {
     if (params[DPAR_MAX_MAJOR] == 13)
-      return DIST_13MAJ000;
+      return DIST_13MAJ;
     else
-      return DIST_13MIN000;
+      return DIST_13MIN;
   }
   else
   {
