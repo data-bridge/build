@@ -9,6 +9,8 @@ analysis/Term.cpp               \
 analysis/Valuation.cpp          \
 analysis/ddsIF.cpp              \
                                 \
+analysis/passes/PassTerm.cpp    \
+                                \
 control/args.cpp                \
                                 \
 dispatch/OrderCounts.cpp        \

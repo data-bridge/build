@@ -968,6 +968,13 @@ unsigned Valuation::getCompositeParam(const CompositeParams cparam) const
 }
 
 
+string Valuation::strName(const CompositeParams cparam) const
+{
+  assert(cparam < VC_SIZE);
+  return CompInfo[cparam].text;
+}
+
+
 string Valuation::strHeader(const string& text) const
 {
   stringstream ss;

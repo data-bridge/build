@@ -36,14 +36,14 @@
 enum LocalParams
 {
   PASS_HCP = 0,
-  // PASS_CCCC = 1,
-  // PASS_ZAR = 2,
-  PASS_SPADES = 1,
-  PASS_CONTROLS = 2,
-  PASS_HCP_SHORTEST = 3,
-  PASS_HCP_LONGEST = 4,
-  PASS_HCP_LONG12 = 5,
-  PASS_SIZE = 6
+  PASS_CCCC = 1,
+  PASS_ZAR = 2,
+  PASS_SPADES = 3,
+  PASS_CONTROLS = 4,
+  PASS_HCP_SHORTEST = 5,
+  PASS_HCP_LONGEST = 6,
+  PASS_HCP_LONG12 = 7,
+  PASS_SIZE = 8
 };
 
 // The mapping between the two.
@@ -51,8 +51,8 @@ enum LocalParams
 static vector<CompositeParams> LOCAL_TO_COMPOSITE =
 {
   VC_HCP,
-  // VC_CCCC,
-  // VC_ZAR,
+  VC_CCCC,
+  VC_ZAR,
   VC_SPADES,
   VC_CONTROLS,
   VC_HCP_SHORTEST,
@@ -63,8 +63,8 @@ static vector<CompositeParams> LOCAL_TO_COMPOSITE =
 static vector<StatsInfo> LOCAL_DATA =
 {
   { "HCP", 0, 40, 1},
-  // { "CCCC", 0, 1200, 20}, // TODO Check maxima
-  // { "ZP", 0, 80, 1}, // TODO Check maxima
+  { "CCCC", 0, 1200, 20}, // TODO Check maxima
+  { "ZP", 0, 80, 1}, // TODO Check maxima
   { "Spades", 0, 14, 1},
   { "Controls", 0, 13, 1},
   { "Short HCP", 0, 11, 1},
@@ -288,7 +288,7 @@ void passStats(
   filterParams.hcpValue = options.distMatcher.getMaxSpades(); // Kludge
   filterParams.playerFlag = false;
   filterParams.playerTag = "shein";
-  filterParams.stats2DFlag = true;
+  filterParams.stats2DFlag = false;
 
   Distribution distribution;
 

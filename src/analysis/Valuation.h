@@ -232,7 +232,7 @@ enum ValDistParams
 
 typedef array<int, VD_SIZE> DistListArray;
 
-enum CompositeParams
+enum CompositeParams: unsigned
 {
   VC_HCP = 0,
   VC_AHCP = 1,
@@ -361,6 +361,8 @@ class Valuation
     int distance(const Term& term) const;
 
     unsigned getCompositeParam(const CompositeParams cparam) const;
+
+    string strName(const CompositeParams cparam) const;
 
     string str() const;
 
