@@ -10,6 +10,7 @@ analysis/Valuation.cpp          \
 analysis/ddsIF.cpp              \
                                 \
 analysis/passes/PassTerm.cpp    \
+analysis/passes/PassRow.cpp     \
                                 \
 control/args.cpp                \
                                 \

@@ -57,11 +57,6 @@ class PassTerm
       const CompositeParams valParamIn,
       const unsigned limit);
 
-    void setExact(
-      const CompositeParams valParamIn,
-      const unsigned limit1In,
-      const unsigned limit2In);
-
     void setRange(
       const CompositeParams valParamIn,
       const unsigned limit1In,
