@@ -14,6 +14,7 @@
 #include <string>
 
 #include "Term.h"
+#include "Composites.h"
 
 #include "../include/bridge.h"
 
@@ -232,7 +233,8 @@ enum ValDistParams
 
 typedef array<int, VD_SIZE> DistListArray;
 
-enum CompositeParams: unsigned
+enum CompositeParams: unsigned;
+/*
 {
   VC_HCP = 0,
   VC_AHCP = 1,
@@ -280,6 +282,7 @@ enum CompositeParams: unsigned
 };
 
 typedef array<int, VC_SIZE> CompositeArray;
+*/
 
 
 class Valuation

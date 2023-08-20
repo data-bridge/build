@@ -13,8 +13,6 @@
 #include <vector>
 #include <cassert>
 
-#include "../Valuation.h"
-
 #include "PassRow.h"
 
 
@@ -105,6 +103,12 @@ void PassRow::setAlgo(
 }
 
 
+void PassRow::addProb(const float probIn)
+{
+  prob += probIn;
+}
+
+
 void PassRow::saturate()
 {
   if (algoFlag)
@@ -187,12 +191,12 @@ PassMatch PassRow::match(const Valuation& valuation) const
 }
 
 
-string PassRow::str(const Valuation& valuation) const
+string PassRow::str() const
 {
   stringstream ss;
   ss << "Probability " << setprecision(3) << prob << "\n";
   for (auto& term: terms)
-    ss << term.str(valuation);
+    ss << term.str();
   return ss.str() + "\n";
 }
 

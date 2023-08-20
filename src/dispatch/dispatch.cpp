@@ -26,6 +26,8 @@
 
 #include "../validate/validate.h"
 
+#include "../analysis/passes/PassTable.h"
+
 #include "funcCompare.h"
 #include "funcDD.h"
 #include "funcDigest.h"
@@ -49,6 +51,8 @@ void setTables()
   setReadTables();
   setWriteTables();
   setValidateTables();
+
+  PassTable::setStatic();
 }
 
 

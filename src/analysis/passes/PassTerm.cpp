@@ -11,6 +11,7 @@
 #include <cassert>
 
 #include "../Valuation.h"
+#include "../Composites.h"
 
 #include "PassTerm.h"
 
@@ -218,13 +219,12 @@ bool PassTerm::match(const Valuation& valuation) const
 }
 
 
-string PassTerm::str(const Valuation& valuation) const
+string PassTerm::str() const
 {
-  // I could move CompInfo from Valuation.cpp to CompInfo.h if
-  // it's too ugly to pass in a valuation just for this lookup.
   assert(termType < PASSTERM_SIZE);
 
-  string s = valuation.strName(valParam) + ": " + 
+  assert(valParam < CompInfo.size());
+  string s = CompInfo[valParam].text + ": " + 
     PASSTERM_NAMES[termType] + " " +
     to_string(limit1);
 

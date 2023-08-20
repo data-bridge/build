@@ -43,7 +43,7 @@ enum CompositeParams: unsigned;
 
 struct PassMatch
 {
-  bool match;
+  bool matchFlag;
   float prob;
 };
 
@@ -102,6 +102,8 @@ class PassRow
       const float algoParam1In,
       const float algoParam2In);
 
+    void addProb(const float probIn);
+
     // Limit a fixed probability to [0, 1].
     void saturate();
 
@@ -114,7 +116,7 @@ class PassRow
 
     PassMatch match(const Valuation& valuation) const;
 
-    string str(const Valuation & valuation) const;
+    string str() const;
 };
 
 #endif

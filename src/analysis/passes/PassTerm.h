@@ -75,7 +75,7 @@ class PassTerm
 
     bool match(const Valuation& valuation) const;
 
-    string str(const Valuation & valuation) const;
+    string str() const;
 };
 
 #endif

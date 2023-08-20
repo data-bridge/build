@@ -103,6 +103,9 @@ struct FilterParams
 
   // Calculate 2D statistics?
   bool stats2DFlag;
+
+  // Show hands that may be interesting or anomalous?
+  bool handsFlag;
 };
 
 
@@ -223,6 +226,9 @@ void strTriplet(
   const bool passFlag,
   const FilterParams& filterParams)
 {
+  if (! filterParams.handsFlag)
+    return;
+
   if (filterParams.playerFlag &&
     instance.strPlayer(static_cast<Player>(relPlayers[pno]),
       BRIDGE_FORMAT_TXT) != filterParams.playerTag)
@@ -288,7 +294,8 @@ void passStats(
   filterParams.hcpValue = options.distMatcher.getMaxSpades(); // Kludge
   filterParams.playerFlag = false;
   filterParams.playerTag = "shein";
-  filterParams.stats2DFlag = false;
+  filterParams.stats2DFlag = true;
+  filterParams.handsFlag = false;
 
   Distribution distribution;
 

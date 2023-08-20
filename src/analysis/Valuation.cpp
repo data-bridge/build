@@ -111,58 +111,61 @@ const vector<DistBundle> DistInfo =
 
 static map<int, unsigned> distCodeMap;
 
+/*
 struct CompBundle
 {
   string name;
   string text;
+  string textShort;
   int scale;
   int distance;
 };
 
 const vector<CompBundle> CompInfo =
 {
-  {"HCP", "HCP", 1, 20},
-  {"AHCP", "Adjusted HCP", 1, 20},
-  {"CCCC", "CCCC points", 20, 1},
-  {"ZAR", "Zar points", 1, 10},
-  {"FL", "FL points", 1, 20},
+  {"HCP", "HCP", "HCP", 1, 20},
+  {"AHCP", "Adjusted HCP", "AHCP", 1, 20},
+  {"CCCC", "CCCC points", "CCCC", 20, 1},
+  {"ZAR", "Zar points", "ZP", 1, 10},
+  {"FL", "FL points", "FL", 1, 20},
 
-  {"CONTROLS", "Controls", 1, 60},
-  {"PLAY_TRICKS", "Play tricks", 2, 40},
-  {"QUICK_TRICKS", "Quick tricks", 2, 40},
-  {"LOSERS", "Losers", 2, 20},
+  {"CONTROLS", "Controls", "controls", 1, 60},
+  {"PLAY_TRICKS", "Play tricks", "Playtricks", 2, 40},
+  {"QUICK_TRICKS", "Quick tricks", "Quicktricks", 2, 40},
+  {"LOSERS", "Losers", "Losers", 2, 20},
 
-  {"OUTTOPS1", "Outside tops1", 1, 60},
-  {"OUTTOPS2", "Outside tops2", 1, 60},
-  {"OUTTOPS3", "Outside tops3", 1, 60},
-  {"OUTTOPS4", "Outside tops4", 1, 40},
-  {"OUTTOPS5", "Outside tops5", 1, 40},
+  {"OUTTOPS1", "Outside tops1", "Outtops1", 1, 60},
+  {"OUTTOPS2", "Outside tops2", "Outtops2", 1, 60},
+  {"OUTTOPS3", "Outside tops3", "Outtops3", 1, 60},
+  {"OUTTOPS4", "Outside tops4", "Outtops4", 1, 40},
+  {"OUTTOPS5", "Outside tops5", "Outtops5", 1, 40},
 
-  {"BAL", "Balanced", 1, 1},
-  {"UNBAL", "Unbalanced", 1, 1},
-  {"SBAL", "Semi-balanced", 1, 1},
-  {"UNSBAL", "Not semi-BAL", 1, 1},
+  {"BAL", "Balanced", "BAL", 1, 1},
+  {"UNBAL", "Unbalanced", "UNBAL", 1, 1},
+  {"SBAL", "Semi-balanced", "SBAL", 1, 1},
+  {"UNSBAL", "Not semi-BAL", "notSBAL", 1, 1},
 
-  {"EFF_MDIFF", "Eff. S-H", 2, 40},
-  {"EFF_MABSDIFF", "Eff. abs(S-H)", 2, 40},
-  {"EFF_MMAX", "Eff. max(S,H)", 2, 40},
-  {"EFF_MMIN", "Eff. min(S,H)", 2, 40},
-  {"EFF_mMAX", "Eff. max(D,C)", 2, 40},
-  {"EFF_mMIN", "Eff. min(D,C)", 2, 40},
+  {"EFF_MDIFF", "Eff. S-H", "EffSH", 2, 40},
+  {"EFF_MABSDIFF", "Eff. abs(S-H)", "EffSHdiff", 2, 40},
+  {"EFF_MMAX", "Eff. max(S,H)", "EffSHmax", 2, 40},
+  {"EFF_MMIN", "Eff. min(S,H)", "EffSHmin", 2, 40},
+  {"EFF_mMAX", "Eff. max(D,C)", "EffDCmax", 2, 40},
+  {"EFF_mMIN", "Eff. min(D,C)", "EffDCmin", 2, 40},
 
-  {"EFF_L1", "Eff. 1st len", 2, 40},
-  {"EFF_L2", "Eff. 2nd len", 2, 40},
-  {"EFF_L3", "Eff. 3rd len", 2, 40},
-  {"EFF_L4", "Eff. 4th len", 2, 40},
+  {"EFF_L1", "Eff. 1st len", "Eff1", 2, 40},
+  {"EFF_L2", "Eff. 2nd len", "Eff2", 2, 40},
+  {"EFF_L3", "Eff. 3rd len", "Eff3", 2, 40},
+  {"EFF_L4", "Eff. 4th len", "Eff4", 2, 40},
 
-  {"MCONC", "Major conc.", 1, 1},
-  {"TWOCONC", "Top-2 conc.", 1, 1},
+  {"MCONC", "Major conc.", "Mconc", 1, 1},
+  {"TWOCONC", "Top-2 conc.", "Top2conc", 1, 1},
 
-  {"HCP_SHORTEST", "Short HCP", 1, 1},
-  {"HCP_LONGEST", "Log HCP", 1, 1},
-  {"HCP_LONG12", "Long12 HCP", 1, 1},
-  {"SPADES", "Spades", 1, 1}
+  {"HCP_SHORTEST", "Short HCP", "ShortHCP", 1, 1},
+  {"HCP_LONGEST", "Long HCP", "LongHCP", 1, 1},
+  {"HCP_LONG12", "Long12 HCP", "Long12HCP", 1, 1},
+  {"SPADES", "Spades", "spades", 1, 1}
 };
+*/
 
 
 Valuation::Valuation()
