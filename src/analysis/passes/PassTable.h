@@ -85,6 +85,8 @@ class PassTable
 
     void readFile(const string& fname);
 
+    bool empty() const;
+
     float lookup(const Valuation& valuation) const;
 
     PassTableMatch lookupFull(const Valuation& valuation) const;

@@ -12,6 +12,7 @@ analysis/ddsIF.cpp              \
 analysis/passes/PassTerm.cpp    \
 analysis/passes/PassRow.cpp     \
 analysis/passes/PassTable.cpp   \
+analysis/passes/PassTables.cpp  \
                                 \
 control/args.cpp                \
                                 \
