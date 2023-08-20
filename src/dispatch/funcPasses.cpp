@@ -29,6 +29,10 @@
 #include "../include/bridge.h"
 #include "../handling/Bexcept.h"
 
+// TODO TMP
+#include "../analysis/passes/PassTables.h"
+
+static PassTables passTables;
 
 // Effectively a subset of CompositeParams, but more compactly 
 // numbered for memory efficiency.
@@ -107,6 +111,12 @@ struct FilterParams
   // Show hands that may be interesting or anomalous?
   bool handsFlag;
 };
+
+
+void setPassTables()
+{
+  passTables.read();
+}
 
 
 void setPassParams(

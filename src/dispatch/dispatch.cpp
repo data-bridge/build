@@ -53,6 +53,7 @@ void setTables()
   setValidateTables();
 
   PassTable::setStatic();
+  setPassTables();
 }
 
 

@@ -289,6 +289,12 @@ void PassTable::readFile(const string& fname)
 }
 
 
+bool PassTable::empty() const
+{
+  return rows.empty();
+}
+
+
 float PassTable::lookup(const Valuation& valuation) const
 {
   PassMatch match;

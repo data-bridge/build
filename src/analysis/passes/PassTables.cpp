@@ -85,9 +85,9 @@ void PassTables::readAnyPosVul(
   const vector<string>& parts,
   const Distribution& distribution)
 {
-  const unsigned distNo = distribution.name2number(parts[2]);
-  assert(parts[3] == "Any");
-  assert(parts[4] == "txt");
+  const unsigned distNo = distribution.name2number(parts[1]);
+  assert(parts[2] == "Any");
+  assert(parts[3] == "txt");
 
   const unsigned index = 16 * distNo;
   tables[index].readFile(fname);
@@ -103,10 +103,10 @@ void PassTables::readAnyVul(
   const vector<string>& parts,
   const Distribution& distribution)
 {
-  const unsigned distNo = distribution.name2number(parts[2]);
-  const unsigned posNo = PassTables::string2pos(parts[3]);
-  assert(parts[4] == "Any");
-  assert(parts[5] == "txt");
+  const unsigned distNo = distribution.name2number(parts[1]);
+  const unsigned posNo = PassTables::string2pos(parts[2]);
+  assert(parts[3] == "Any");
+  assert(parts[4] == "txt");
 
   const unsigned index = 16 * distNo + 4 * posNo;
   tables[index].readFile(fname);
@@ -122,10 +122,10 @@ void PassTables::readOne(
   const vector<string>& parts,
   const Distribution& distribution)
 {
-  const unsigned distNo = distribution.name2number(parts[2]);
-  const unsigned posNo = PassTables::string2pos(parts[3]);
-  const unsigned vulNo = PassTables::string2vul(parts[4]);
-  assert(parts[5] == "txt");
+  const unsigned distNo = distribution.name2number(parts[1]);
+  const unsigned posNo = PassTables::string2pos(parts[2]);
+  const unsigned vulNo = PassTables::string2vul(parts[3]);
+  assert(parts[4] == "txt");
 
   const unsigned index = 16 * distNo + 4 * posNo + vulNo;
   tables[index].readFile(fname);
@@ -138,20 +138,37 @@ void PassTables::read()
 
   list<string> files;
   PassTables::makeFileList(
-    "../../../../Valet3/scripts/cluster/passes/tables", files);
+    "../../Valet3/scripts/cluster/passes/tables", files);
   Distribution distribution;
 
   vector<string> parts;
+  unsigned tablesIndex;
+  bool firstFlag = true;
+
   for (auto& fname: files)
   {
     parts.clear();
-    tokenize(fname, parts, "/.");
+    tokenize(fname, parts, "/\\.");
 
-    if (parts.size() == 5)
-      PassTables::readAnyPosVul(fname, parts, distribution);
-    else if (parts.size() == 6)
+    if (firstFlag)
     {
-      if (parts[4] == "Any")
+      tablesIndex = 0;
+      while (tablesIndex < parts.size() && parts[tablesIndex] != "tables")
+        tablesIndex++;
+      firstFlag = false;
+    }
+
+    parts.erase(parts.begin(), parts.begin() + tablesIndex);
+
+    cout << "SIZE " << parts.size() << endl;
+    for (auto p: parts)
+      cout << p << "\n";
+
+    if (parts.size() == 4)
+      PassTables::readAnyPosVul(fname, parts, distribution);
+    else if (parts.size() == 5)
+    {
+      if (parts[3] == "Any")
         PassTables::readAnyVul(fname, parts, distribution);
       else
         PassTables::readOne(fname, parts, distribution);

@@ -21,6 +21,8 @@ struct Options;
 using namespace std;
 
 
+void setPassTables();
+
 void dispatchPasses(
   const Group& group,
   const Options& options,
