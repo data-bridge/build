@@ -7,6 +7,7 @@
 */
 
 
+#include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <assert.h>
@@ -80,6 +81,57 @@ bool Stats1D::findLimits(
       indexHigh = i;
   }
   return true;
+}
+
+
+string Stats1D::validateProbs(const vector<float>& rowProbs) const
+{
+  const size_t upper = min(counts.size(), rowProbs.size());
+  if (counts.size() > rowProbs.size())
+  {
+    // Some extras were allocated, but for sure not used.
+    for (size_t i = upper; i < counts.size(); i++)
+      assert(counts[i].count == 0);
+  }
+
+  unsigned sum = 0;
+  for (size_t i = 0; i < upper; i++)
+    sum += counts[i].count;
+  const float sumf = static_cast<float>(sum);
+
+  float hardErrorActual = 0.;
+  float hardErrorTable = 0.;
+  float sumSqdiff = 0.;
+
+  for (size_t i = 0; i < upper; i++)
+  {
+    if (counts[i].count == 0)
+      continue;
+
+    const float countf = static_cast<float>(counts[i].count);
+
+    const float prob = countf / sumf;
+    const float propActual = static_cast<float>(counts[i].hits) / countf;
+    const float hard1 = (propActual <= 0.5 ? propActual : 1.f - propActual);
+    const float hard2 = (rowProbs[i] <= 0.5 ? rowProbs[i] :
+      1.f - rowProbs[i]);
+
+    hardErrorActual += prob * hard1;
+    hardErrorTable += prob * hard2;
+
+    const float diff = propActual - rowProbs[i];
+    sumSqdiff += prob * diff * diff;
+
+    cout << "  i " << i << ": prob " << prob << " propActual " <<
+      propActual << " rowProbs[i] " << rowProbs[i]<< "\n";
+  }
+
+  stringstream ss;
+  ss << fixed << setprecision(6) << 
+    hardErrorActual << " " <<
+    hardErrorTable << " " <<
+    sqrt(sumSqdiff);
+  return ss.str();
 }
 
 

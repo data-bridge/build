@@ -13,6 +13,7 @@
 #include "control/args.h"
 #include "files/Files.h"
 #include "dispatch/dispatch.h"
+#include "dispatch/funcPasses.h" // TODO TMP for passPostprocess
 #include "stats/AllStats.h"
 #include "stats/Timer.h"
 
@@ -45,6 +46,8 @@ int main(int argc, char * argv[])
   mergeResults(allStatsList, options);
   cout << allStatsList[0].str(options);
 
+  if (options.passStatsFlag)
+    passPostprocess(* allStatsList[0].paramStats1DPtr);
   if (options.solveFlag)
     files.writeDDInfo(BRIDGE_DD_INFO_SOLVE);
   if (options.traceFlag)

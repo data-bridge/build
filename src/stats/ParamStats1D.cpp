@@ -86,6 +86,16 @@ void ParamStats1D::operator += (const ParamStats1D& ps2)
 }
 
 
+string ParamStats1D::validateProbs(
+  const unsigned d1,
+  const unsigned d2,
+  const unsigned d3,
+  const vector<float>& rowProbs) const
+{
+  return paramStats1D[d1][d2][d3].validateProbs(rowProbs);
+}
+
+
 string ParamStats1D::str() const
 {
   stringstream ss;

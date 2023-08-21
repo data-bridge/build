@@ -110,6 +110,8 @@ class PassRow
     // Return the size of the terms list.
     size_t count() const;
 
+    float getProb() const;
+
     bool contains(const PassRow& row2) const;
 
     bool alreadyUses(const PassRow& row2) const;

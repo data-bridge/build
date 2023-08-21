@@ -70,15 +70,19 @@ class PassTables
       const unsigned distIndex,
       const unsigned relPlayerIndex,
       const unsigned relVulIndex,
-      const unsigned holding[],
-      Valuation& valuation) const;
+      const Valuation& valuation) const;
 
     PassTableMatch lookupFull(
       const unsigned distIndex,
       const unsigned relPlayerIndex,
       const unsigned relVulIndex,
-      const unsigned holding[],
-      Valuation& valuation) const;
+      const Valuation& valuation) const;
+
+    void getProbVector(
+      const unsigned distIndex,
+      const unsigned relPlayerIndex,
+      const unsigned relVulIndex,
+      vector<float>& rowProbs) const;
 };
 
 #endif

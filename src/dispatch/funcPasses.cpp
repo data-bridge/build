@@ -37,6 +37,10 @@ static PassTables passTables;
 // Effectively a subset of CompositeParams, but more compactly 
 // numbered for memory efficiency.
 
+// TODO Currently adding one at the end that is not really spades,
+// but instead the table where we log the counts of each row (line)
+// in the manually curated table of pass probabilities and criteria.
+
 enum LocalParams
 {
   PASS_HCP = 0,
@@ -47,7 +51,8 @@ enum LocalParams
   PASS_HCP_SHORTEST = 5,
   PASS_HCP_LONGEST = 6,
   PASS_HCP_LONG12 = 7,
-  PASS_SIZE = 8
+  PASS_TABLE = 8,
+  PASS_SIZE = 9
 };
 
 // The mapping between the two.
@@ -61,7 +66,8 @@ static vector<CompositeParams> LOCAL_TO_COMPOSITE =
   VC_CONTROLS,
   VC_HCP_SHORTEST,
   VC_HCP_LONGEST,
-  VC_HCP_LONG12
+  VC_HCP_LONG12,
+  VC_SPADES // Not really
 };
 
 static vector<StatsInfo> LOCAL_DATA =
@@ -73,7 +79,8 @@ static vector<StatsInfo> LOCAL_DATA =
   { "Controls", 0, 13, 1},
   { "Short HCP", 0, 11, 1},
   { "Long HCP", 0, 11, 1},
-  { "Long12 HCP", 0, 21, 1}
+  { "Long12 HCP", 0, 21, 1},
+  { "Table", 0, 40, 1}
 };
 
 static vector<string> LOCAL_NAMES =
@@ -304,7 +311,7 @@ void passStats(
   filterParams.hcpValue = options.distMatcher.getMaxSpades(); // Kludge
   filterParams.playerFlag = false;
   filterParams.playerTag = "shein";
-  filterParams.stats2DFlag = true;
+  filterParams.stats2DFlag = false;
   filterParams.handsFlag = false;
 
   Distribution distribution;
@@ -351,6 +358,8 @@ void passStats(
 
         vector<unsigned> lengths;
         lengths.resize(BRIDGE_SUITS);
+        float probCum = 1.;
+        PassTableMatch passTableMatch;
 
         for (unsigned pos = 0; pos < BRIDGE_PLAYERS; pos++)
         {
@@ -361,6 +370,23 @@ void passStats(
           {
             valuations[relPlayers[pos]].getLengths(lengths);
             const unsigned distNo = distribution.number(lengths);
+
+      /*
+      cout << 
+        DISTRIBUTION_NAMES[distNo] << "\n";
+cout << "board " << boardTag << " pos " << pos << " vul " << 
+  sequentialVuls[pos] << endl;
+  */
+            // TODO TMP Replace PASS_TABLE with the row number in the 
+            // manual probability table.  Also log the four probabilities.
+            // It is a bit wasteful to do this for every instance.
+            passTableMatch = passTables.lookupFull(
+              distNo, pos, sequentialVuls[pos], 
+              valuations[relPlayers[pos]]);
+
+            probCum *= passTableMatch.prob;
+            params[pos][PASS_TABLE] = 
+              static_cast<unsigned>(passTableMatch.rowNo);
 
             updatePassStatistics(instance, relPlayers, params,
               pos, distNo, sequentialVuls, seqPassFlag, filterParams,
@@ -375,6 +401,25 @@ void passStats(
         }
       }
     }
+  }
+}
+
+
+void passPostprocess(vector<ParamStats1D>& paramStats1D)
+{
+  vector<float> rowProbs;
+
+  for (unsigned tableIndex = 0; tableIndex < 16*DIST_SIZE; tableIndex++)
+  {
+    const unsigned distNo = tableIndex >> 4;
+    const unsigned pos = (tableIndex >> 2) & 0x3;
+    const unsigned vul = tableIndex & 0x3;
+    passTables.getProbVector(distNo, pos, vul, rowProbs);
+
+    cout << 
+      DISTRIBUTION_NAMES[distNo] << " " << pos << " " << vul << " " <<
+      paramStats1D[distNo].validateProbs(pos, vul, PASS_TABLE, rowProbs) <<
+      "\n";
   }
 }
 

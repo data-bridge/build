@@ -55,6 +55,13 @@ class ParamStats1D
 
     void operator += (const ParamStats1D& ps2);
 
+    // This is a kludge to judge the quality of pass tables.
+    string validateProbs(
+      const unsigned d1,
+      const unsigned d2,
+      const unsigned d3,
+      const vector<float>& rowProbs) const;
+
     string str() const;
 };
 

@@ -160,10 +160,6 @@ void PassTables::read()
 
     parts.erase(parts.begin(), parts.begin() + tablesIndex);
 
-    cout << "SIZE " << parts.size() << endl;
-    for (auto p: parts)
-      cout << p << "\n";
-
     if (parts.size() == 4)
       PassTables::readAnyPosVul(fname, parts, distribution);
     else if (parts.size() == 5)
@@ -195,11 +191,9 @@ float PassTables::lookup(
   const unsigned distIndex,
   const unsigned relPlayerIndex,
   const unsigned relVulIndex,
-  const unsigned holding[],
-  Valuation& valuation) const
+  const Valuation& valuation) const
 {
   const unsigned index = 16 * distIndex + 4 * relPlayerIndex + relVulIndex;
-  valuation.evaluate(holding, false);
   return tables[index].lookup(valuation);
 }
 
@@ -208,10 +202,20 @@ PassTableMatch PassTables::lookupFull(
   const unsigned distIndex,
   const unsigned relPlayerIndex,
   const unsigned relVulIndex,
-  const unsigned holding[],
-  Valuation& valuation) const
+  const Valuation& valuation) const
 {
   const unsigned index = 16 * distIndex + 4 * relPlayerIndex + relVulIndex;
-  valuation.evaluate(holding, false);
   return tables[index].lookupFull(valuation);
 }
+
+
+void PassTables::getProbVector(
+  const unsigned distIndex,
+  const unsigned relPlayerIndex,
+  const unsigned relVulIndex,
+  vector<float>& rowProbs) const
+{
+  const unsigned index = 16 * distIndex + 4 * relPlayerIndex + relVulIndex;
+  tables[index].getProbVector(rowProbs);
+}
+

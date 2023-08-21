@@ -228,7 +228,7 @@ void PassTable::parsePrimaryLine(
   RowEntry& re = rows.back();
   re.row.setProb(prob);
   re.activeFlag = true;
-  re.rowNo = rows.size();
+  re.rowNo = rows.size()-1;
 
   size_t index = 0;
   while (index < components.size())
@@ -335,6 +335,21 @@ PassTableMatch PassTable::lookupFull(const Valuation& valuation) const
 
   assert(false);
   return tableMatch;
+}
+
+
+void PassTable::getProbVector(vector<float>& rowProbs) const
+{
+  // This is semi-internal, but is used to check whether we hit
+  // the rows with roughly the expected probabilities.
+  rowProbs.resize(rows.size());
+
+  unsigned i = 0;
+  for (auto& rowEntry: rows)
+  {
+    rowProbs[i] = rowEntry.row.getProb();
+    i++;
+  }
 }
 
 

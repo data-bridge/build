@@ -91,6 +91,8 @@ class PassTable
 
     PassTableMatch lookupFull(const Valuation& valuation) const;
 
+    void getProbVector(vector<float>& rowProbs) const;
+
     string str() const;
 };
 

@@ -51,6 +51,9 @@ class Stats1D
       const unsigned param,
       const bool flag);
 
+    // Kludge to validate pass tables.
+    string validateProbs(const vector<float>& rowProbs) const;
+
     string str() const;
 };
 

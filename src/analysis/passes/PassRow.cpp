@@ -127,6 +127,12 @@ size_t PassRow::count() const
 }
 
 
+float PassRow::getProb() const
+{
+  return prob;
+}
+
+
 bool PassRow::contains(const PassRow& row2) const
 {
   if (row2.terms.size() > terms.size())
