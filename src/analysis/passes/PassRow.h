@@ -37,6 +37,7 @@
 
 using namespace std;
 
+struct RowData;
 class Valuation;
 
 enum CompositeParams: unsigned;
@@ -111,6 +112,8 @@ class PassRow
     size_t count() const;
 
     float getProb() const;
+
+    void getRowData(RowData& rowData) const;
 
     bool contains(const PassRow& row2) const;
 

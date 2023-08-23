@@ -16,6 +16,7 @@
 
 using namespace std;
 
+class PassTables;
 struct RowData;
 
 
@@ -36,7 +37,7 @@ class RuleStats
       const unsigned dim1,
       const unsigned dim2,
       const unsigned dim3,
-      const vector<RowData>& rowData);
+      const PassTables& passTables);
 
     void addPosition(
       const unsigned d1,
@@ -50,7 +51,10 @@ class RuleStats
       const unsigned d2,
       const unsigned d3,
       const unsigned ruleNo,
+      const bool flag,
       const float passProb);
+
+    bool empty() const;
 
     void operator += (const RuleStats& rs2);
 

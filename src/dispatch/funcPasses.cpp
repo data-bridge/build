@@ -32,6 +32,7 @@
 
 #include "../stats/ParamStats1D.h"
 #include "../stats/ParamStats2D.h"
+#include "../stats/RuleStats.h"
 
 #include "../include/bridge.h"
 #include "../handling/Bexcept.h"
@@ -58,8 +59,7 @@ enum LocalParams
   PASS_HCP_SHORTEST = 5,
   PASS_HCP_LONGEST = 6,
   PASS_HCP_LONG12 = 7,
-  PASS_TABLE = 8,
-  PASS_SIZE = 9
+  PASS_SIZE = 8
 };
 
 // The mapping between the two.
@@ -73,8 +73,7 @@ static vector<CompositeParams> LOCAL_TO_COMPOSITE =
   VC_CONTROLS,
   VC_HCP_SHORTEST,
   VC_HCP_LONGEST,
-  VC_HCP_LONG12,
-  VC_SPADES // Not really
+  VC_HCP_LONG12
 };
 
 static vector<StatsInfo> LOCAL_DATA =
@@ -86,8 +85,7 @@ static vector<StatsInfo> LOCAL_DATA =
   { "Controls", 0, 13, 1},
   { "Short HCP", 0, 11, 1},
   { "Long HCP", 0, 11, 1},
-  { "Long12 HCP", 0, 21, 1},
-  { "Table", 0, 101, 1}
+  { "Long12 HCP", 0, 21, 1}
 };
 
 static vector<string> LOCAL_NAMES =
@@ -365,8 +363,8 @@ void passStats(
 
         vector<unsigned> lengths;
         lengths.resize(BRIDGE_SUITS);
-        float probCum = 1.;
-        PassTableMatch passTableMatch;
+        // float probCum = 1.;
+        // PassTableMatch passTableMatch;
 
         for (unsigned pos = 0; pos < BRIDGE_PLAYERS; pos++)
         {
@@ -387,6 +385,7 @@ cout << "board " << boardTag << " pos " << pos << " vul " <<
             // TODO TMP Replace PASS_TABLE with the row number in the 
             // manual probability table.  Also log the four probabilities.
             // It is a bit wasteful to do this for every instance.
+            /*
             passTableMatch = passTables.lookupFull(
               distNo, pos, sequentialVuls[pos], 
               valuations[relPlayers[pos]]);
@@ -394,6 +393,7 @@ cout << "board " << boardTag << " pos " << pos << " vul " <<
             probCum *= passTableMatch.prob;
             params[pos][PASS_TABLE] = 
               static_cast<unsigned>(passTableMatch.rowNo);
+              */
 
             updatePassStatistics(instance, relPlayers, params,
               pos, distNo, sequentialVuls, seqPassFlag, filterParams,
@@ -415,16 +415,11 @@ cout << "board " << boardTag << " pos " << pos << " vul " <<
 void passStatsContrib(
   const Group& group,
   [[maybe_unused]] const Options& options,
-  vector<ParamStats1D>& paramStats1D)
+  RuleStats& ruleStats)
 {
   Distribution distribution;
 
-  for (auto& p: paramStats1D)
-    p.init(BRIDGE_PLAYERS, BRIDGE_VUL_SIZE, PASS_SIZE,
-      LOCAL_NAMES, LOCAL_DATA);
-
-  const float binFactor = 100.f;
-    // static_cast<float>(LOCAL_DATA[PASS_TABLE].factor);
+  ruleStats.init(BRIDGE_PLAYERS, BRIDGE_VUL_SIZE, PASS_SIZE, passTables);
 
   for (auto &segment: group)
   {
@@ -449,8 +444,8 @@ void passStatsContrib(
         if (board.skipped(i))
           continue;
 
-        const string boardTag = 
-          instance.strRoom(bpair.extNo, BRIDGE_FORMAT_LIN);
+        // const string boardTag = 
+          // instance.strRoom(bpair.extNo, BRIDGE_FORMAT_LIN);
 
         VulRelative vulDealer, vulNonDealer;
         instance.getVulRelative(vulDealer, vulNonDealer);
@@ -491,28 +486,30 @@ cout << "board " << boardTag << " pos " << pos << " vul " <<
             valuations[relPlayers[pos]]);
 
           probCum *= passTableMatch.prob;
-          rowNumbers[pos] = 
-            static_cast<unsigned>(passTableMatch.rowNo);
+          rowNumbers[pos] = static_cast<unsigned>(passTableMatch.rowNo);
 
           // strTriplet(board, instance, relPlayers, params,
             // boardTag, pos, distNo, seqPassFlag, filterParams);
         }
 
-        unsigned probBin;
-        if (probCum == 0.)
-          probBin = 0;
-        else
-        {
-          probBin = static_cast<unsigned>(probCum * binFactor + 0.99999f);
-          assert(probBin < LOCAL_DATA[PASS_TABLE].length);
-        }
-
+        bool prevSeqPassFlag = true;
         for (unsigned pos = 0; pos < BRIDGE_PLAYERS; pos++)
         {
-          paramStats1D[distNumbers[pos]].add(
-            pos, sequentialVuls[pos], PASS_TABLE,
-            // probBin, fourPassesFlag);
-            rowNumbers[pos], fourPassesFlag);
+          if  (prevSeqPassFlag)
+          {
+            const bool seqPassFlag = 
+              instance.auctionStarts(sequentialPasses[pos]);
+
+            ruleStats.addPosition(
+              distNumbers[pos], pos, sequentialVuls[pos],
+              rowNumbers[pos], seqPassFlag);
+
+            prevSeqPassFlag = seqPassFlag;
+          }
+
+          ruleStats.addHand(
+            distNumbers[pos], pos, sequentialVuls[pos],
+            rowNumbers[pos], fourPassesFlag, probCum);
         }
       }
     }
@@ -520,6 +517,7 @@ cout << "board " << boardTag << " pos " << pos << " vul " <<
 }
 
 
+/*
 void passPostprocess(vector<ParamStats1D>& paramStats1D)
 {
   vector<float> rowProbs;
@@ -537,6 +535,7 @@ void passPostprocess(vector<ParamStats1D>& paramStats1D)
       "\n";
   }
 }
+*/
 
 
 void dispatchPasses(
@@ -544,12 +543,13 @@ void dispatchPasses(
   const Options& options,
   vector<ParamStats1D>& paramStats1D,
   [[maybe_unused]] vector<ParamStats2D>& paramStats2D,
+  [[maybe_unused]] RuleStats& ruleStats,
   ostream& flog)
 {
   try
   {
-    // passStats(group, options, paramStats1D, paramStats2D);
-    passStatsContrib(group, options, paramStats1D);
+    passStats(group, options, paramStats1D, paramStats2D);
+    passStatsContrib(group, options, ruleStats);
   }
   catch (Bexcept& bex)
   {

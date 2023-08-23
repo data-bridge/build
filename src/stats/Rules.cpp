@@ -50,11 +50,12 @@ void Rules::addPosition(
 
 void Rules::addHand(
   const unsigned ruleNo,
+  const bool flag,
   const float passProb)
 {
   assert(ruleNo < ruleVector.size());
 
-  ruleVector[ruleNo].addHand(passProb);
+  ruleVector[ruleNo].addHand(flag, passProb);
 }
 
 
@@ -64,6 +65,17 @@ void Rules::operator += (const Rules& r2)
 
   for (unsigned i = 0; i < ruleVector.size(); i++)
     ruleVector[i] += r2.ruleVector[i];
+}
+
+
+bool Rules::empty() const
+{
+  for (unsigned i = 0; i < ruleVector.size(); i++)
+  {
+    if (! ruleVector[i].empty())
+      return false;
+  }
+  return true;
 }
 
 

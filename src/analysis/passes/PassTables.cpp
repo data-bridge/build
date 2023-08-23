@@ -219,3 +219,14 @@ void PassTables::getProbVector(
   tables[index].getProbVector(rowProbs);
 }
 
+
+void PassTables::getRowData(
+  const unsigned distIndex,
+  const unsigned relPlayerIndex,
+  const unsigned relVulIndex,
+  vector<RowData>& rowData) const
+{
+  const unsigned index = 16 * distIndex + 4 * relPlayerIndex + relVulIndex;
+  tables[index].getRowData(rowData);
+}
+

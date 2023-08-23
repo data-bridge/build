@@ -144,7 +144,10 @@ void dispatch(
         
         allStats.timersPtr->start(BRIDGE_TIMER_PASS, task.formatInput);
         dispatchPasses(group, options,
-          * allStats.paramStats1DPtr, * allStats.paramStats2DPtr, flog);
+          * allStats.paramStats1DPtr, 
+          * allStats.paramStats2DPtr, 
+          * allStats.ruleStatsPtr, 
+          flog);
         allStats.timersPtr->stop(BRIDGE_TIMER_PASS, task.formatInput);
       }
     }

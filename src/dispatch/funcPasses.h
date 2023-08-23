@@ -16,6 +16,7 @@
 class Group;
 class ParamStats1D;
 class ParamStats2D;
+class RuleStats;
 struct Options;
 
 using namespace std;
@@ -28,13 +29,9 @@ void dispatchPasses(
   const Options& options,
   vector<ParamStats1D>& paramStats1D,
   vector<ParamStats2D>& paramStats2D,
+  RuleStats& ruleStats,
   ostream& flog);
 
-void passStatsContrib(
-  const Group& group,
-  const Options& options,
-  vector<ParamStats1D>& paramStats1D);
-
-void passPostprocess(vector<ParamStats1D>& paramStats1D);
+// void passPostprocess(vector<ParamStats1D>& paramStats1D);
 
 #endif

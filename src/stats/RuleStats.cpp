@@ -9,7 +9,10 @@
 
 #include <cassert>
 
+#include "../analysis/passes/PassTables.h"
 #include "../analysis/Distributions.h"
+
+#include "../stats/RowData.h"
 
 #include "../include/bridge.h"
 
@@ -43,9 +46,12 @@ void RuleStats::init(
   const unsigned distNo,
   const unsigned posNo,
   const unsigned vulNo,
-  const vector<RowData>& rowData)
+  const PassTables& passTables)
 {
   const unsigned base = BRIDGE_PLAYERS * BRIDGE_VULS * distNo;
+
+  vector<RowData> rowData;
+  passTables.getRowData(distNo, posNo, vulNo, rowData);
 
   if (posNo == BRIDGE_PLAYERS)
   {
@@ -92,12 +98,13 @@ void RuleStats::addHand(
   const unsigned posNo,
   const unsigned vulNo,
   const unsigned ruleNo,
+  const bool flag,
   const float passProb)
 {
   const unsigned index = BRIDGE_PLAYERS * BRIDGE_VULS * distNo +
     BRIDGE_VULS * posNo + vulNo;
 
-  rulesVector[index].addHand(ruleNo, passProb);
+  rulesVector[index].addHand(ruleNo, flag, passProb);
 }
 
 
@@ -107,6 +114,16 @@ void RuleStats::operator += (const RuleStats& rs2)
 
   for (unsigned i = 0; i < rulesVector.size(); i++)
     rulesVector[i] += rs2.rulesVector[i];
+}
+
+
+bool RuleStats::empty() const
+{
+  for (unsigned i = 0; i < rulesVector.size(); i++)
+    if (! rulesVector[i].empty())
+      return false;
+  
+  return true;
 }
 
 

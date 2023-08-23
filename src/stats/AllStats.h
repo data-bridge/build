@@ -30,6 +30,7 @@ class RefStats;
 class DuplStats;
 class ParamStats1D;
 class ParamStats2D;
+class RuleStats;
 class Timers;
 
 struct Options;
@@ -46,6 +47,7 @@ struct AllStats
   DuplStats * duplStatsPtr;
   vector<ParamStats1D> * paramStats1DPtr;
   vector<ParamStats2D> * paramStats2DPtr;
+  RuleStats * ruleStatsPtr;
   Timers * timersPtr;
 
   AllStats();

@@ -21,6 +21,7 @@
 #include "DuplStats.h"
 #include "ParamStats1D.h"
 #include "ParamStats2D.h"
+#include "RuleStats.h"
 #include "Timers.h"
 
 #include "../analysis/Distributions.h"
@@ -90,6 +91,7 @@ AllStats::AllStats()
   paramStats2DPtr = new vector<ParamStats2D>;
   (* paramStats2DPtr).resize(DIST_SIZE);
 
+  ruleStatsPtr = new RuleStats;
   timersPtr = new Timers;
 }
 
@@ -103,6 +105,7 @@ AllStats::~AllStats()
   delete duplStatsPtr;
   delete paramStats1DPtr;
   delete paramStats2DPtr;
+  delete ruleStatsPtr;
   delete timersPtr;
 }
 
@@ -121,6 +124,7 @@ void AllStats::operator += (const AllStats& as2)
     (* paramStats2DPtr)[i] += (* as2.paramStats2DPtr)[i];
   }
 
+  * ruleStatsPtr += * as2.ruleStatsPtr;
   * timersPtr += * as2.timersPtr;
 }
 
@@ -142,6 +146,9 @@ string AllStats::str(const Options& options) const
         ss << (* paramStats1DPtr)[i].str();
       }
     }
+
+    if (! (* ruleStatsPtr).empty())
+      ss << ruleStatsPtr->str();
 
     for (unsigned i = 0; i < DIST_SIZE; i++)
     {

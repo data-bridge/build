@@ -14,6 +14,7 @@
 
 #include "../Composites.h"
 
+#include "../../stats/RowData.h"
 #include "../../util/parse.h"
 
 #include "PassTable.h"
@@ -348,6 +349,19 @@ void PassTable::getProbVector(vector<float>& rowProbs) const
   for (auto& rowEntry: rows)
   {
     rowProbs[i] = rowEntry.row.getProb();
+    i++;
+  }
+}
+
+
+void PassTable::getRowData(vector<RowData>& rowData) const
+{
+  rowData.resize(rows.size());
+
+  unsigned i = 0;
+  for (auto& rowEntry: rows)
+  {
+    rowEntry.row.getRowData(rowData[i]);
     i++;
   }
 }

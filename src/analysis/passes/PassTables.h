@@ -19,6 +19,7 @@
 
 using namespace std;
 
+struct RowData;
 class Valuation;
 class Distribution;
 
@@ -83,6 +84,12 @@ class PassTables
       const unsigned relPlayerIndex,
       const unsigned relVulIndex,
       vector<float>& rowProbs) const;
+
+    void getRowData(
+      const unsigned distIndex,
+      const unsigned relPlayerIndex,
+      const unsigned relVulIndex,
+      vector<RowData>& rowData) const;
 };
 
 #endif

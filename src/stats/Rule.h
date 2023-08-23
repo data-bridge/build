@@ -31,6 +31,7 @@ class Rule
     unsigned passesPos;
 
     unsigned hitsHand;
+    unsigned passesHand;
     float cumProbHand;
 
 
@@ -48,9 +49,13 @@ class Rule
 
     void addPosition(const bool flag);
 
-    void addHand(const float passProb);
+    void addHand(
+      const bool flag,
+      const float passProb);
 
     void operator += (const Rule& r2);
+
+    bool empty() const;
 
     string strHeader() const;
 

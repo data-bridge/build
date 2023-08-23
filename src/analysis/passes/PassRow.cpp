@@ -13,6 +13,8 @@
 #include <vector>
 #include <cassert>
 
+#include "../../stats/RowData.h"
+
 #include "PassRow.h"
 
 
@@ -130,6 +132,23 @@ size_t PassRow::count() const
 float PassRow::getProb() const
 {
   return prob;
+}
+
+
+void PassRow::getRowData(RowData& rowData) const
+{
+  rowData.text = "";
+  const size_t len = terms.size();
+  size_t i = 0;
+  for (auto& term: terms)
+  {
+    rowData.text += term.strCompact();
+    if (i+1 < len)
+      rowData.text += "&";
+    i++;
+  }
+
+  rowData.prob = prob;
 }
 
 

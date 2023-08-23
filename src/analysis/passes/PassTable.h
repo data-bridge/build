@@ -18,6 +18,7 @@
 using namespace std;
 
 class Valuation;
+struct RowData;
 
 enum CompositeParams: unsigned;
 
@@ -92,6 +93,8 @@ class PassTable
     PassTableMatch lookupFull(const Valuation& valuation) const;
 
     void getProbVector(vector<float>& rowProbs) const;
+
+    void getRowData(vector<RowData>& rowData) const;
 
     string str() const;
 };

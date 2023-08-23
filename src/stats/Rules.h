@@ -42,7 +42,10 @@ class Rules
 
     void addHand(
       const unsigned ruleNo,
+      const bool flag,
       const float passProb);
+
+    bool empty() const;
 
     void operator += (const Rules& r2);
 

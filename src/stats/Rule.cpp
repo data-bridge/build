@@ -34,6 +34,7 @@ void Rule::reset()
   passesPos = 0;
 
   hitsHand = 0;
+  passesHand = 0;
   cumProbHand = 0.f;
 }
 
@@ -60,9 +61,13 @@ void Rule::addPosition(const bool flag)
 }
 
 
-void Rule::addHand(const float passProb)
+void Rule::addHand(
+  const bool flag,
+  const float passProb)
 {
   hitsHand++;
+  if (flag)
+    passesHand++;
   cumProbHand += passProb;
 }
 
@@ -78,7 +83,14 @@ void Rule::operator += (const Rule& r2)
   passesPos += r2.passesPos;
 
   hitsHand += r2.hitsHand;
+  passesHand += r2.passesHand;
   cumProbHand = r2. cumProbHand;
+}
+
+
+bool Rule::empty() const
+{
+  return (hitsPos == 0 && hitsHand == 0);
 }
 
 
@@ -91,6 +103,7 @@ string Rule::strHeader() const
     setw(8) << "Ppasses" <<
     setw(8) << "Rprob" <<
     setw(8) << "Hhits" <<
+    setw(8) << "Hpasses" <<
     setw(8) << "Cummass" << "\n";
   return ss.str();
 }
@@ -112,6 +125,7 @@ string Rule::str() const
     setw(8) << passesPos <<
     setw(8) << setprecision(3) << fixed << rulePosProb <<
     setw(8) << hitsHand << 
+    setw(8) << passesHand << 
     setw(8) << setprecision(3) << fixed << cumProbHand << "\n";
 
   return ss.str();
