@@ -34,6 +34,15 @@ vector<string> PASSTERM_NAMES =
   "Outside the range"
 };
 
+vector<string> PASSTERM_COMPACT_NAMES =
+{
+  ">=",
+  "<=",
+  "==",
+  "in",
+  "out"
+};
+
 
 typedef bool (PassTerm::*ContainsPtr)(const PassTerm& term2) const;
 
@@ -224,8 +233,8 @@ string PassTerm::strCompact() const
   assert(termType < PASSTERM_SIZE);
 
   assert(valParam < CompInfo.size());
-  string s = CompInfo[valParam].text + ":" + 
-    PASSTERM_NAMES[termType] + to_string(limit1);
+  string s = CompInfo[valParam].text + 
+    PASSTERM_COMPACT_NAMES[termType] + to_string(limit1);
 
   if (termType == PASSTERM_RANGE || termType == PASSTERM_OUTSIDE)
     s += "-" + to_string(limit2);

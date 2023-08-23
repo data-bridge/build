@@ -98,9 +98,10 @@ string Rule::strHeader() const
 {
   stringstream ss;
   ss << 
-    setw(40) << "Rules" <<
-    setw(8) << "Phits" <<
+    setw(40) << left << "Rules" <<
+    setw(8) << right << "Phits" <<
     setw(8) << "Ppasses" <<
+    setw(8) << "Pprob" <<
     setw(8) << "Rprob" <<
     setw(8) << "Hhits" <<
     setw(8) << "Hpasses" <<
@@ -111,6 +112,9 @@ string Rule::strHeader() const
 
 string Rule::str() const
 {
+  if (Rule::empty())
+    return "";
+
   stringstream ss;
 
   const string s = 
@@ -120,9 +124,12 @@ string Rule::str() const
     ruleText + ".";
 
   ss <<
-    setw(40) << s << 
-    setw(8) << hitsPos <<
+    setw(40) << left << s << 
+    setw(8) << right << hitsPos <<
     setw(8) << passesPos <<
+    setw(8) << setprecision(3) << fixed << 
+      (hitsPos == 0 ? 0.f : 
+       static_cast<float>(passesPos) / static_cast<float>(hitsPos)) <<
     setw(8) << setprecision(3) << fixed << rulePosProb <<
     setw(8) << hitsHand << 
     setw(8) << passesHand << 

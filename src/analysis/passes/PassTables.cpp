@@ -16,6 +16,8 @@
 #include "../Distribution.h"
 #include "../Distributions.h"
 
+#include "../../stats/AllStats.h"
+#include "../../stats/RuleStats.h"
 #include "../../include/bridge.h"
 #include "../../util/parse.h"
 
@@ -83,7 +85,8 @@ unsigned PassTables::string2vul(const string& text) const
 void PassTables::readAnyPosVul(
   const string& fname,
   const vector<string>& parts,
-  const Distribution& distribution)
+  const Distribution& distribution,
+  vector<AllStats>& allStatsList)
 {
   const unsigned distNo = distribution.name2number(parts[1]);
   assert(parts[2] == "Any");
@@ -91,6 +94,9 @@ void PassTables::readAnyPosVul(
 
   const unsigned index = 16 * distNo;
   tables[index].readFile(fname);
+
+  for (auto& as: allStatsList)
+    as.ruleStatsPtr->init(distNo, BRIDGE_PLAYERS, BRIDGE_VULS, * this);
 
   // Make up the other positions and vulnerabilities.
   for (unsigned i = index+1; i < index+16; i++)
@@ -101,7 +107,8 @@ void PassTables::readAnyPosVul(
 void PassTables::readAnyVul(
   const string& fname,
   const vector<string>& parts,
-  const Distribution& distribution)
+  const Distribution& distribution,
+  vector<AllStats>& allStatsList)
 {
   const unsigned distNo = distribution.name2number(parts[1]);
   const unsigned posNo = PassTables::string2pos(parts[2]);
@@ -110,6 +117,9 @@ void PassTables::readAnyVul(
 
   const unsigned index = 16 * distNo + 4 * posNo;
   tables[index].readFile(fname);
+
+  for (auto& as: allStatsList)
+    as.ruleStatsPtr->init(distNo, posNo, BRIDGE_VULS, * this);
 
   // Make up the other vulnerabilities.
   for (unsigned i = index+1; i < index+4; i++)
@@ -120,7 +130,8 @@ void PassTables::readAnyVul(
 void PassTables::readOne(
   const string& fname,
   const vector<string>& parts,
-  const Distribution& distribution)
+  const Distribution& distribution,
+  vector<AllStats>& allStatsList)
 {
   const unsigned distNo = distribution.name2number(parts[1]);
   const unsigned posNo = PassTables::string2pos(parts[2]);
@@ -129,10 +140,13 @@ void PassTables::readOne(
 
   const unsigned index = 16 * distNo + 4 * posNo + vulNo;
   tables[index].readFile(fname);
+
+  for (auto& as: allStatsList)
+    as.ruleStatsPtr->init(distNo, posNo, vulNo, * this);
 }
 
 
-void PassTables::read()
+void PassTables::read(vector<AllStats>& allStatsList)
 {
   tables.resize(16 * DIST_SIZE);
 
@@ -161,13 +175,13 @@ void PassTables::read()
     parts.erase(parts.begin(), parts.begin() + tablesIndex);
 
     if (parts.size() == 4)
-      PassTables::readAnyPosVul(fname, parts, distribution);
+      PassTables::readAnyPosVul(fname, parts, distribution, allStatsList);
     else if (parts.size() == 5)
     {
       if (parts[3] == "Any")
-        PassTables::readAnyVul(fname, parts, distribution);
+        PassTables::readAnyVul(fname, parts, distribution, allStatsList);
       else
-        PassTables::readOne(fname, parts, distribution);
+        PassTables::readOne(fname, parts, distribution, allStatsList);
     }
     else
     {

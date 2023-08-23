@@ -155,7 +155,8 @@ void PassTable::parseModifyLine(
       index, fname);
 
   RowEntry reModif;
-  while (index < numWhen)
+  index = numWhen + 1;
+  while (index < components.size())
     index = PassTable::parseComponentsFrom(reModif.row, components,
       index, fname);
 
@@ -191,13 +192,12 @@ void PassTable::parseModifyLine(
       if (inactivePtr->row.count() < maxInactiveTermCount)
         continue;
 
-      rows.emplace_back(RowEntry());
+      rows.emplace_back(* inactivePtr);
       auto& reNew = rows.back();
       reNew.row.add(reModif.row);
       reNew.row.addProb(prob);
       reNew.activeFlag = true;
       reNew.rowNo = rows.size()-1;
-      return;
     }
   }
   else
@@ -280,7 +280,6 @@ void PassTable::readFile(const string& fname)
       PassTable::parseModifyLine(components, prob, fname);
     else
       PassTable::parsePrimaryLine(components, prob, fname);
-
   }
 
   fin.close();
@@ -333,6 +332,9 @@ PassTableMatch PassTable::lookupFull(const Valuation& valuation) const
       }
     }
   }
+
+  cout << "About to fail table lookup\n";
+  cout << PassTable::str() << "\n";
 
   assert(false);
   return tableMatch;

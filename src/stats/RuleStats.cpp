@@ -48,13 +48,14 @@ void RuleStats::init(
   const unsigned vulNo,
   const PassTables& passTables)
 {
-  const unsigned base = BRIDGE_PLAYERS * BRIDGE_VULS * distNo;
 
   vector<RowData> rowData;
-  passTables.getRowData(distNo, posNo, vulNo, rowData);
 
   if (posNo == BRIDGE_PLAYERS)
   {
+    passTables.getRowData(distNo, 0, 0, rowData);
+    const unsigned base = BRIDGE_PLAYERS * BRIDGE_VULS * distNo;
+
     // All positions, all vuls.
     rulesVector[base].init(DISTRIBUTION_NAMES[distNo], 
       "Any", "Any", rowData);
@@ -64,6 +65,10 @@ void RuleStats::init(
   }
   else if (vulNo == BRIDGE_VULS)
   {
+    passTables.getRowData(distNo, posNo, 0, rowData);
+    const unsigned base = BRIDGE_PLAYERS * BRIDGE_VULS * distNo +
+      BRIDGE_VULS * posNo;
+
     // Given position, all vuls.
     rulesVector[base].init(DISTRIBUTION_NAMES[distNo], 
       POSITIONS[posNo], "Any", rowData);
@@ -73,6 +78,10 @@ void RuleStats::init(
   }
   else
   {
+    passTables.getRowData(distNo, posNo, vulNo, rowData);
+    const unsigned base = BRIDGE_PLAYERS * BRIDGE_VULS * distNo +
+      BRIDGE_VULS * posNo + vulNo;
+
     rulesVector[base].init(DISTRIBUTION_NAMES[distNo], 
       POSITIONS[posNo], REL_VULS[vulNo], rowData);
   }

@@ -46,14 +46,19 @@
 #include "../stats/Timers.h"
 
 
-void setTables()
+void setTables(
+  vector<AllStats>& allStatsList,
+  const Options& options)
 {
   setReadTables();
   setWriteTables();
   setValidateTables();
 
-  PassTable::setStatic();
-  setPassTables();
+  if (options.passStatsFlag)
+  {
+    PassTable::setStatic();
+    setPassTables(allStatsList);
+  }
 }
 
 

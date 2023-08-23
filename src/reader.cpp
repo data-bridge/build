@@ -26,13 +26,13 @@ int main(int argc, char * argv[])
   Options options;
   readArgs(argc, argv, options);
 
-  setTables();
+  vector<AllStats> allStatsList(options.numThreads);
+  setTables(allStatsList, options);
 
   Files files;
   files.set(options);
 
   vector<thread> thr(options.numThreads);
-  vector<AllStats> allStatsList(options.numThreads);
 
   Timer timer;
   timer.start();

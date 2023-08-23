@@ -16,13 +16,14 @@
 class Group;
 class ParamStats1D;
 class ParamStats2D;
+struct AllStats;
 class RuleStats;
 struct Options;
 
 using namespace std;
 
 
-void setPassTables();
+void setPassTables(vector<AllStats>& allStatsList);
 
 void dispatchPasses(
   const Group& group,

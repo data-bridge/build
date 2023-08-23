@@ -125,9 +125,9 @@ struct FilterParams
 };
 
 
-void setPassTables()
+void setPassTables(vector<AllStats>& allStatsList)
 {
-  passTables.read();
+  passTables.read(allStatsList);
 }
 
 
@@ -419,7 +419,12 @@ void passStatsContrib(
 {
   Distribution distribution;
 
-  ruleStats.init(BRIDGE_PLAYERS, BRIDGE_VUL_SIZE, PASS_SIZE, passTables);
+  /*
+  for (unsigned d = 0; d < DIST_SIZE; d++)
+    for (unsigned pos = 0; pos < BRIDGE_PLAYERS; pos++)
+      for (unsigned vul = 0; vul < BRIDGE_VULS; vul++)
+        ruleStats.init(d, pos, vul, passTables);
+        */
 
   for (auto &segment: group)
   {
@@ -444,8 +449,8 @@ void passStatsContrib(
         if (board.skipped(i))
           continue;
 
-        // const string boardTag = 
-          // instance.strRoom(bpair.extNo, BRIDGE_FORMAT_LIN);
+        const string boardTag = 
+          instance.strRoom(bpair.extNo, BRIDGE_FORMAT_LIN);
 
         VulRelative vulDealer, vulNonDealer;
         instance.getVulRelative(vulDealer, vulNonDealer);
@@ -471,16 +476,10 @@ void passStatsContrib(
           distNumbers[pos] = distribution.number(lengths);
 
       /*
-      cout << 
-        DISTRIBUTION_NAMES[distNumbers[pos]] << "\n";
 cout << "board " << boardTag << " pos " << pos << " vul " << 
-  sequentialVuls[pos] << endl;
-  if (boardTag == "qx|o23|" && pos == 3 &&
-    sequentialVuls[pos] == 1)
-    {
-      cout << "HERE\n";
-    }
+  sequentialVuls[pos] << " " << DISTRIBUTION_NAMES[distNumbers[pos]] << endl;
   */
+
           passTableMatch = passTables.lookupFull(
             distNumbers[pos], pos, sequentialVuls[pos], 
             valuations[relPlayers[pos]]);
@@ -500,6 +499,11 @@ cout << "board " << boardTag << " pos " << pos << " vul " <<
             const bool seqPassFlag = 
               instance.auctionStarts(sequentialPasses[pos]);
 
+/*
+cout << "seqPassFlag " << seqPassFlag << 
+" distNo " << distNumbers[pos] << " pos " << pos << " vul " <<
+sequentialVuls[pos] << " row " << rowNumbers[pos] << endl;
+*/
             ruleStats.addPosition(
               distNumbers[pos], pos, sequentialVuls[pos],
               rowNumbers[pos], seqPassFlag);
@@ -507,6 +511,11 @@ cout << "board " << boardTag << " pos " << pos << " vul " <<
             prevSeqPassFlag = seqPassFlag;
           }
 
+/*
+cout << "adding Hand, " <<
+" distNo " << distNumbers[pos] << " pos " << pos << " vul " <<
+sequentialVuls[pos] << " row " << rowNumbers[pos] << endl;
+*/
           ruleStats.addHand(
             distNumbers[pos], pos, sequentialVuls[pos],
             rowNumbers[pos], fourPassesFlag, probCum);
@@ -541,14 +550,14 @@ void passPostprocess(vector<ParamStats1D>& paramStats1D)
 void dispatchPasses(
   const Group& group,
   const Options& options,
-  vector<ParamStats1D>& paramStats1D,
+  [[maybe_unused]] vector<ParamStats1D>& paramStats1D,
   [[maybe_unused]] vector<ParamStats2D>& paramStats2D,
   [[maybe_unused]] RuleStats& ruleStats,
   ostream& flog)
 {
   try
   {
-    passStats(group, options, paramStats1D, paramStats2D);
+    // passStats(group, options, paramStats1D, paramStats2D);
     passStatsContrib(group, options, ruleStats);
   }
   catch (Bexcept& bex)

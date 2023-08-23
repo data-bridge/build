@@ -22,6 +22,7 @@ using namespace std;
 struct RowData;
 class Valuation;
 class Distribution;
+struct AllStats;
 
 
 class PassTables
@@ -45,17 +46,20 @@ class PassTables
     void readAnyPosVul(
       const string& fname,
       const vector<string>& parts,
-      const Distribution& distribution);
+      const Distribution& distribution,
+      vector<AllStats>& allStatsList);
 
     void readAnyVul(
       const string& fname,
       const vector<string>& parts,
-      const Distribution& distribution);
+      const Distribution& distribution,
+      vector<AllStats>& allStatsList);
 
     void readOne(
       const string& fname,
       const vector<string>& parts,
-      const Distribution& distribution);
+      const Distribution& distribution,
+      vector<AllStats>& allStatsList);
 
 
   public:
@@ -65,7 +69,7 @@ class PassTables
 
     void reset();
 
-    void read();
+    void read(vector<AllStats>& allStatsList);
 
     float lookup(
       const unsigned distIndex,

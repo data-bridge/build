@@ -81,7 +81,7 @@ bool Rules::empty() const
 
 string Rules::str() const
 {
-  if (ruleVector.size() == 0)
+  if (ruleVector.size() == 0 || Rules::empty())
     return "";
 
   string s = ruleVector[0].strHeader();
