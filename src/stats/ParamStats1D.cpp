@@ -67,6 +67,23 @@ void ParamStats1D::add(
 }
 
 
+void ParamStats1D::add(
+  const unsigned d1,
+  const unsigned d2,
+  const unsigned d3,
+  const unsigned value,
+  const bool flag)
+{
+  assert(d1 < paramStats1D.size());
+  assert(d2 < paramStats1D[d1].size());
+  assert(d2 < paramStats1D[d1][d2].size());
+
+    paramStats1D[d1][d2][d3].add(value, flag);
+
+  emptyFlag = false;
+}
+
+
 bool ParamStats1D::empty() const
 {
   return emptyFlag;

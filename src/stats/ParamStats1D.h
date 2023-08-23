@@ -51,6 +51,13 @@ class ParamStats1D
       const vector<unsigned>& params,
       const bool flag);
 
+    void add(
+      const unsigned d1,
+      const unsigned d2,
+      const unsigned d3,
+      const unsigned value,
+      const bool flag);
+
     bool empty() const;
 
     void operator += (const ParamStats1D& ps2);

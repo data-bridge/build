@@ -197,6 +197,22 @@ PassMatch PassRow::match(const Valuation& valuation) const
 }
 
 
+string PassRow::strCompact() const
+{
+  string s;
+  const size_t len = terms.size();
+  size_t i = 0;
+  for (auto& term: terms)
+  {
+    s += term.str();
+    if (i+1 < len)
+      s += "&";
+    i++;
+  }
+  return s;
+}
+
+
 string PassRow::str() const
 {
   stringstream ss;

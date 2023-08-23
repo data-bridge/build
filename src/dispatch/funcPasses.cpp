@@ -6,6 +6,13 @@
    See LICENSE and README.
 */
 
+// This is an evil hack to share paramStats1D across two modes:
+// One where HCP, CCCC etc. are tabulated and cross-referenced,
+// and where the statistics are for each positition etc.
+// And one where the overall probability of passing (from passing
+// tables) is correlated against the binary outcome (pass/bid)
+// on each hand.  So we get the contribution of each position to
+// the passing result of the overall hand.
 
 #include <iomanip>
 #include <sstream>
@@ -80,7 +87,7 @@ static vector<StatsInfo> LOCAL_DATA =
   { "Short HCP", 0, 11, 1},
   { "Long HCP", 0, 11, 1},
   { "Long12 HCP", 0, 21, 1},
-  { "Table", 0, 40, 1}
+  { "Table", 0, 101, 1}
 };
 
 static vector<string> LOCAL_NAMES =
@@ -405,6 +412,114 @@ cout << "board " << boardTag << " pos " << pos << " vul " <<
 }
 
 
+void passStatsContrib(
+  const Group& group,
+  [[maybe_unused]] const Options& options,
+  vector<ParamStats1D>& paramStats1D)
+{
+  Distribution distribution;
+
+  for (auto& p: paramStats1D)
+    p.init(BRIDGE_PLAYERS, BRIDGE_VUL_SIZE, PASS_SIZE,
+      LOCAL_NAMES, LOCAL_DATA);
+
+  const float binFactor = 100.f;
+    // static_cast<float>(LOCAL_DATA[PASS_TABLE].factor);
+
+  for (auto &segment: group)
+  {
+    for (auto &bpair: segment)
+    {
+      const Board& board = bpair.board;
+      const unsigned dealer = static_cast<unsigned>(board.getDealer());
+      const vector<Valuation>& valuations = board.getValuations();
+
+      // 0 is the dealer.
+      const vector<unsigned> relPlayers =
+        { dealer, (dealer + 1) % 4, (dealer + 2) % 4, (dealer + 3) % 4 };
+
+      // First dimension is the player -- 0 is the dealer.
+      // Second dimension is the local parameter.
+      vector<vector<unsigned>> params;
+      setPassParams(params, relPlayers, valuations);
+
+      for (unsigned i = 0; i < board.countAll(); i++)
+      {
+        const Instance& instance = board.getInstance(i);
+        if (board.skipped(i))
+          continue;
+
+        const string boardTag = 
+          instance.strRoom(bpair.extNo, BRIDGE_FORMAT_LIN);
+
+        VulRelative vulDealer, vulNonDealer;
+        instance.getVulRelative(vulDealer, vulNonDealer);
+
+        const vector<VulRelative> sequentialVuls =
+          { vulDealer, vulNonDealer, vulDealer, vulNonDealer };
+
+        vector<unsigned> lengths;
+        lengths.resize(BRIDGE_SUITS);
+
+        float probCum = 1.;
+        PassTableMatch passTableMatch;
+
+        const bool fourPassesFlag = 
+          instance.auctionStarts(sequentialPasses[3]);
+
+        vector<unsigned> distNumbers(BRIDGE_PLAYERS);
+        vector<unsigned> rowNumbers(BRIDGE_PLAYERS);
+
+        for (unsigned pos = 0; pos < BRIDGE_PLAYERS; pos++)
+        {
+          valuations[relPlayers[pos]].getLengths(lengths);
+          distNumbers[pos] = distribution.number(lengths);
+
+      /*
+      cout << 
+        DISTRIBUTION_NAMES[distNumbers[pos]] << "\n";
+cout << "board " << boardTag << " pos " << pos << " vul " << 
+  sequentialVuls[pos] << endl;
+  if (boardTag == "qx|o23|" && pos == 3 &&
+    sequentialVuls[pos] == 1)
+    {
+      cout << "HERE\n";
+    }
+  */
+          passTableMatch = passTables.lookupFull(
+            distNumbers[pos], pos, sequentialVuls[pos], 
+            valuations[relPlayers[pos]]);
+
+          probCum *= passTableMatch.prob;
+          rowNumbers[pos] = 
+            static_cast<unsigned>(passTableMatch.rowNo);
+
+          // strTriplet(board, instance, relPlayers, params,
+            // boardTag, pos, distNo, seqPassFlag, filterParams);
+        }
+
+        unsigned probBin;
+        if (probCum == 0.)
+          probBin = 0;
+        else
+        {
+          probBin = static_cast<unsigned>(probCum * binFactor + 0.99999f);
+          assert(probBin < LOCAL_DATA[PASS_TABLE].length);
+        }
+
+        for (unsigned pos = 0; pos < BRIDGE_PLAYERS; pos++)
+        {
+          paramStats1D[distNumbers[pos]].add(
+            pos, sequentialVuls[pos], PASS_TABLE,
+            // probBin, fourPassesFlag);
+            rowNumbers[pos], fourPassesFlag);
+        }
+      }
+    }
+  }
+}
+
+
 void passPostprocess(vector<ParamStats1D>& paramStats1D)
 {
   vector<float> rowProbs;
@@ -428,12 +543,13 @@ void dispatchPasses(
   const Group& group,
   const Options& options,
   vector<ParamStats1D>& paramStats1D,
-  vector<ParamStats2D>& paramStats2D,
+  [[maybe_unused]] vector<ParamStats2D>& paramStats2D,
   ostream& flog)
 {
   try
   {
-    passStats(group, options, paramStats1D, paramStats2D);
+    // passStats(group, options, paramStats1D, paramStats2D);
+    passStatsContrib(group, options, paramStats1D);
   }
   catch (Bexcept& bex)
   {

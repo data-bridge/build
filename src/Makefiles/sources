@@ -87,6 +87,9 @@ stats/DuplStats.cpp             \
 stats/RefStats.cpp              \
 stats/ParamStats1D.cpp          \
 stats/ParamStats2D.cpp          \
+stats/RuleStats.cpp             \
+stats/Rules.cpp                 \
+stats/Rule.cpp                  \
 stats/Stats1D.cpp               \
 stats/Stats2D.cpp               \
 stats/TextDatum.cpp             \

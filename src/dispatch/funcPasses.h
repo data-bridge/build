@@ -30,6 +30,11 @@ void dispatchPasses(
   vector<ParamStats2D>& paramStats2D,
   ostream& flog);
 
+void passStatsContrib(
+  const Group& group,
+  const Options& options,
+  vector<ParamStats1D>& paramStats1D);
+
 void passPostprocess(vector<ParamStats1D>& paramStats1D);
 
 #endif

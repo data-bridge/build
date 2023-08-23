@@ -75,6 +75,8 @@ class PassTerm
 
     bool match(const Valuation& valuation) const;
 
+    string strCompact() const;
+
     string str() const;
 };
 

@@ -219,6 +219,21 @@ bool PassTerm::match(const Valuation& valuation) const
 }
 
 
+string PassTerm::strCompact() const
+{
+  assert(termType < PASSTERM_SIZE);
+
+  assert(valParam < CompInfo.size());
+  string s = CompInfo[valParam].text + ":" + 
+    PASSTERM_NAMES[termType] + to_string(limit1);
+
+  if (termType == PASSTERM_RANGE || termType == PASSTERM_OUTSIDE)
+    s += "-" + to_string(limit2);
+
+  return s;
+}
+
+
 string PassTerm::str() const
 {
   assert(termType < PASSTERM_SIZE);

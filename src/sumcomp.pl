@@ -28,7 +28,7 @@ my (%store, %sumtotal, %passtotal);
 my ($dist, $pos, $vul, $component);
 
 my @fields = ("HCP", "CCCC", "ZP", "Spades", "Controls", "Short HCP",
-  "Long HCP", "Long12 HCP");
+  "Long HCP", "Long12 HCP", "Table");
 
 set_distributions();
 
@@ -50,14 +50,15 @@ while (my $line = <$fr>)
   {
     $vul = $line;
   }
-  elsif ($line =~ "HCP" ||
-      $line =~ "CCCC" ||
-      $line =~ "ZP" ||
-      $line =~ "Spades" ||
-      $line =~ "Controls" ||
-      $line =~ "Short HCP" ||
-      $line =~ "Long HCP" ||
-      $line =~ "Long12 HCP")
+  elsif ($line =~ /HCP/ ||
+      $line =~ /CCCC/ ||
+      $line =~ /ZP/ ||
+      $line =~ /Spades/ ||
+      $line =~ /Controls/ ||
+      $line =~ /Short HCP/ ||
+      $line =~ /Long HCP/ ||
+      $line =~ /Long12 HCP/ ||
+      $line =~ /Table/)
   {
     $component = $line;
   }
