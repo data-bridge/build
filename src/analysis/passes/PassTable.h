@@ -19,6 +19,7 @@ using namespace std;
 
 class Valuation;
 struct RowData;
+struct RowProbInfo;
 
 enum CompositeParams: unsigned;
 
@@ -54,6 +55,11 @@ class PassTable
       const string& comp,
       const string& fname) const;
 
+    void parseProbInfo(
+      const string& fname,
+      const string& str,
+      RowProbInfo& rowProbInfo) const;
+
     size_t parseComponentsFrom(
       PassRow& row,
       const vector<string>& components,
@@ -71,7 +77,7 @@ class PassTable
 
     void parsePrimaryLine(
       const vector<string>& components,
-      const float prob,
+      const RowProbInfo& rowProbInfo,
       const string& fname);
 
 

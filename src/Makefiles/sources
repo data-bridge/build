@@ -13,6 +13,7 @@ analysis/passes/PassTerm.cpp    \
 analysis/passes/PassRow.cpp     \
 analysis/passes/PassTable.cpp   \
 analysis/passes/PassTables.cpp  \
+analysis/passes/Sigmoid.cpp     \
                                 \
 control/args.cpp                \
                                 \

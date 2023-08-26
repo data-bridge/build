@@ -10,6 +10,7 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <cctype>
 #include <cassert>
 
 #include "../Composites.h"
@@ -17,7 +18,10 @@
 #include "../../stats/RowData.h"
 #include "../../util/parse.h"
 
+#include "Sigmoid.h"
+#include "RowProbInfo.h"
 #include "PassTable.h"
+
 
 
 PassTable::PassTable()
@@ -69,6 +73,72 @@ unsigned PassTable::getUnsigned(
     assert(false);
   }
   return uv;
+}
+
+
+void PassTable::parseProbInfo(
+  const string& fname,
+  const string& str, 
+  RowProbInfo& rowProbInfo) const
+{
+  if (str.find("sigmoid(") != string::npos)
+  {
+    // Parse the format "sigmoid(float1, float2, float3, float4)".
+
+    string strCopy = str;
+    strCopy.erase(
+      remove_if(strCopy.begin(), strCopy.end(), 
+        [](char c){ return std::isspace(c); }), strCopy.end());
+
+    if (strCopy.back() != ')')
+    {
+      cout << "String " << str << " does not end on ')'\n";
+      assert(false);
+    }
+
+    string strCore = strCopy.substr(8, strCopy.size()-9);
+    
+    vector<string> tokens;
+    tokenize(strCore, tokens, ",");
+    assert(tokens.size() == 4);
+
+    vector<float> floats(tokens.size());
+    for (unsigned i = 0; i < tokens.size(); i++)
+    {
+      if (! str2float(tokens[i], floats[i]))
+      {
+        cout << 
+          "File " << fname << ": " <<
+          tokens[i] << " is not a floating point number\n";
+        assert(false);
+      }
+    }
+
+    rowProbInfo.prob = 0.;
+    rowProbInfo.probAdder = 0.;
+    rowProbInfo.algoFlag = true;
+    rowProbInfo.sigmoidData.mean = floats[0];
+    rowProbInfo.sigmoidData.divisor = floats[1];
+    rowProbInfo.sigmoidData.intercept = floats[2];
+    rowProbInfo.sigmoidData.slope = floats[3];
+
+    // TODO Can we use an extern one?
+    Sigmoid sigmoid;
+    rowProbInfo.sigmoidData.crossover = sigmoid.calcSigmoid(
+      rowProbInfo.sigmoidData, floats[2]);
+    return;
+  }
+
+  // Parse a single float.
+  if (! str2float(str, rowProbInfo.prob))
+  {
+    cout << 
+      "File " << fname << ": " <<
+      str << " is not a floating point number\n";
+    assert(false);
+  }
+
+  rowProbInfo.algoFlag = false;
 }
 
 
@@ -221,13 +291,13 @@ void PassTable::parseModifyLine(
 
 void PassTable::parsePrimaryLine(
   const vector<string>& components,
-  const float prob,
+  const RowProbInfo& rowProbInfo,
   const string& fname)
 {
   rows.emplace_back(RowEntry());
 
   RowEntry& re = rows.back();
-  re.row.setProb(prob);
+  re.row.setProb(rowProbInfo);
   re.activeFlag = true;
   re.rowNo = rows.size()-1;
 
@@ -245,7 +315,7 @@ void PassTable::readFile(const string& fname)
 
   string line;
   vector<string> tokens, components;
-  float prob;
+  RowProbInfo rowProbInfo;
 
   while (getline(fin, line))
   {
@@ -257,13 +327,7 @@ void PassTable::readFile(const string& fname)
     tokenize(line, tokens, ":");
     assert(tokens.size() == 2);
 
-    if (! str2float(tokens[1], prob))
-    {
-      cout << 
-        "File " << fname << ": " <<
-        tokens[1] << " is not a floating point number\n";
-      assert(false);
-    }
+    PassTable::parseProbInfo(fname, tokens[1], rowProbInfo);
 
     components.clear();
     tokenize(tokens[0], components, " ");
@@ -277,9 +341,12 @@ void PassTable::readFile(const string& fname)
     }
 
     if (components[0] == "modify")
-      PassTable::parseModifyLine(components, prob, fname);
+    {
+      assert(! rowProbInfo.algoFlag);
+      PassTable::parseModifyLine(components, rowProbInfo.prob, fname);
+    }
     else
-      PassTable::parsePrimaryLine(components, prob, fname);
+      PassTable::parsePrimaryLine(components, rowProbInfo, fname);
   }
 
   fin.close();
@@ -314,6 +381,7 @@ float PassTable::lookup(const Valuation& valuation) const
 }
 
 
+#include "../Valuation.h"
 PassTableMatch PassTable::lookupFull(const Valuation& valuation) const
 {
   PassMatch match;
@@ -335,6 +403,7 @@ PassTableMatch PassTable::lookupFull(const Valuation& valuation) const
 
   cout << "About to fail table lookup\n";
   cout << PassTable::str() << "\n";
+  cout << valuation.str() << "\n";
 
   assert(false);
   return tableMatch;

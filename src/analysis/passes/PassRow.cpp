@@ -13,9 +13,15 @@
 #include <vector>
 #include <cassert>
 
+#include "../Valuation.h"
+
 #include "../../stats/RowData.h"
 
+#include "Sigmoid.h"
+#include "RowProbInfo.h"
 #include "PassRow.h"
+
+static Sigmoid sigmoid;
 
 
 PassRow::PassRow()
@@ -29,8 +35,7 @@ void PassRow::reset()
   terms.clear();
   prob = -1.;
   algoFlag = false;
-  algoParam1 = -1.;
-  algoParam2 = -1.;
+  sigmoidData.reset();
 }
 
 
@@ -95,13 +100,19 @@ void PassRow::setProb(const float probIn)
 }
 
 
-void PassRow::setAlgo(
-  const float algoParam1In,
-  const float algoParam2In)
+void PassRow::setProb(const RowProbInfo& rowProbInfo)
 {
-  algoParam1 = algoParam1In;
-  algoParam2 = algoParam2In;
-  algoFlag = true;
+  if (rowProbInfo.algoFlag)
+  {
+    algoFlag = true;
+    prob = 0.f;
+    sigmoidData = rowProbInfo.sigmoidData;
+  }
+  else
+  {
+    algoFlag = false;
+    prob = rowProbInfo.prob;
+  }
 }
 
 
@@ -131,7 +142,17 @@ size_t PassRow::count() const
 
 float PassRow::getProb() const
 {
+  assert(! algoFlag);
   return prob;
+}
+
+
+float PassRow::getProb(const float input) const
+{
+  if (algoFlag)
+    return sigmoid.calc(sigmoidData, input) + prob;
+  else
+    return prob;
 }
 
 
@@ -203,16 +224,16 @@ PassMatch PassRow::match(const Valuation& valuation) const
 {
   for (auto& term: terms)
     if (! term.match(valuation))
-      return {false, 0.};
+      return {false, false, 0.};
 
   if (algoFlag)
   {
-    // TODO
-    assert(false);
-    return {false, 0.};
+    const unsigned cccc = valuation.getCompositeParam(VC_CCCC);
+    const float ccccFloat = static_cast<float>(cccc) / 20.f;
+    return {true, true, sigmoid.calc(sigmoidData, ccccFloat)};
   }
   else
-    return {true, prob};
+    return {true, false, prob};
 }
 
 

@@ -34,10 +34,12 @@
 #include <string>
 
 #include "PassTerm.h"
+#include "SigmoidData.h"
 
 using namespace std;
 
 struct RowData;
+struct RowProbInfo;
 class Valuation;
 
 enum CompositeParams: unsigned;
@@ -45,6 +47,7 @@ enum CompositeParams: unsigned;
 struct PassMatch
 {
   bool matchFlag;
+  bool algoFlag;
   float prob;
 };
 
@@ -61,8 +64,7 @@ class PassRow
     // not just returned, but calculated.  This may be a sigmoid with
     // two parameters, for example.
     bool algoFlag;
-    float algoParam1;
-    float algoParam2;
+    SigmoidData sigmoidData;
 
   public:
 
@@ -99,9 +101,7 @@ class PassRow
     void setProb(const float probIn);
 
     // Set parameters for a calculation.
-    void setAlgo(
-      const float algoParam1In,
-      const float algoParam2In);
+    void setProb(const RowProbInfo& rowProbInfo);
 
     void addProb(const float probIn);
 
@@ -112,6 +112,7 @@ class PassRow
     size_t count() const;
 
     float getProb() const;
+    float getProb(const float input) const;
 
     void getRowData(RowData& rowData) const;
 
