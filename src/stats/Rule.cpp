@@ -36,6 +36,7 @@ void Rule::reset()
   hitsHand = 0;
   passesHand = 0;
   cumProbHand = 0.f;
+  cumHardError = 0.f;
 }
 
 
@@ -67,7 +68,13 @@ void Rule::addHand(
 {
   hitsHand++;
   if (flag)
+  {
     passesHand++;
+    cumHardError += 1.f - passProb;
+  }
+  else
+    cumHardError += passProb;
+
   cumProbHand += passProb;
 }
 
@@ -105,7 +112,8 @@ string Rule::strHeader() const
     setw(8) << "Rprob" <<
     setw(8) << "Hhits" <<
     setw(8) << "Hpasses" <<
-    setw(8) << "Cummass" << "\n";
+    setw(8) << "Cummass" << 
+    setw(8) << "CumHE" << "\n";
   return ss.str();
 }
 
@@ -133,7 +141,8 @@ string Rule::str() const
     setw(8) << setprecision(3) << fixed << rulePosProb <<
     setw(8) << hitsHand << 
     setw(8) << passesHand << 
-    setw(8) << setprecision(3) << fixed << cumProbHand << "\n";
+    setw(8) << setprecision(3) << fixed << cumProbHand <<
+    setw(8) << setprecision(3) << fixed << cumHardError << "\n";
 
   return ss.str();
 }

@@ -399,13 +399,12 @@ void Valuation::setSuitCCCC(
       adder += (cards[3] ? 0 : 2);
     else
       adder += 4;
-    if (cards[4])
-      adder++;
+    if (cards[4]) adder++;
   }
   else if (list[VS_LENGTH] == 7)
   {
-    // +0.5 for lacking both Q and J, +0.5 for having the T.
-    if (! cards[2] && ! cards[3]) adder++;
+    // +0.5 for lacking Q or J, +0.5 for having the T.
+    if (! cards[2] || ! cards[3]) adder++;
     if (cards[4]) adder++;
   }
   else
@@ -415,7 +414,11 @@ void Valuation::setSuitCCCC(
       adder += ((list[VS_TOP3] >= 2 || cards[3]) ? 2 : 1);
 
     // +0.5 for the 9 with two+ higher, the T or the 8.
-    if (cards[5] && (list[VS_TOP3] >= 2 && cards[4] || cards[6]))
+    if (cards[5] && (list[VS_TOP3] >= 2 || cards[4] || cards[6]))
+      adder++;
+
+    // 4-6 cards with no eight or ten, and exactly three higher.
+    if (cards[5] && ! cards[4] && ! cards[6] && list[VS_TOP4] == 3)
       adder++;
   }
 

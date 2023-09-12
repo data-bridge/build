@@ -33,6 +33,7 @@ class Rule
     unsigned hitsHand;
     unsigned passesHand;
     float cumProbHand;
+    float cumHardError;
 
 
   public:

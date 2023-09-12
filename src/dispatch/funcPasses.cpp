@@ -475,11 +475,6 @@ void passStatsContrib(
           valuations[relPlayers[pos]].getLengths(lengths);
           distNumbers[pos] = distribution.number(lengths);
 
-      /*
-cout << "board " << boardTag << " pos " << pos << " vul " << 
-  sequentialVuls[pos] << " " << DISTRIBUTION_NAMES[distNumbers[pos]] << endl;
-  */
-
           passTableMatch = passTables.lookupFull(
             distNumbers[pos], pos, sequentialVuls[pos], 
             valuations[relPlayers[pos]]);
@@ -487,6 +482,16 @@ cout << "board " << boardTag << " pos " << pos << " vul " <<
           probCum *= passTableMatch.prob;
           rowNumbers[pos] = static_cast<unsigned>(passTableMatch.rowNo);
 
+      /*
+cout << "board " << boardTag << " pos " << pos << " vul " << 
+  sequentialVuls[pos] << " " << DISTRIBUTION_NAMES[distNumbers[pos]] << 
+    ", prob " << passTableMatch.prob << ", probCum " << probCum << endl;
+
+if (probCum < 0.)
+{
+  cout << valuations[relPlayers[pos]].str() << "\n";
+}
+  */
           // strTriplet(board, instance, relPlayers, params,
             // boardTag, pos, distNo, seqPassFlag, filterParams);
         }
@@ -516,6 +521,8 @@ cout << "adding Hand, " <<
 " distNo " << distNumbers[pos] << " pos " << pos << " vul " <<
 sequentialVuls[pos] << " row " << rowNumbers[pos] << endl;
 */
+          assert(probCum >= 0.);
+
           ruleStats.addHand(
             distNumbers[pos], pos, sequentialVuls[pos],
             rowNumbers[pos], fourPassesFlag, probCum);

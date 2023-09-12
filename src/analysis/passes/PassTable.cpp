@@ -149,6 +149,12 @@ size_t PassTable::parseComponentsFrom(
   const string& fname) const
 {
   // Return the next unparsed index.
+  if (index+2 >= components.size())
+  {
+    cout << "About to fail in file " << fname << endl;
+    assert(false);
+  }
+
   assert(index+2 < components.size());
 
   const CompositeParams tag = 
@@ -159,6 +165,9 @@ size_t PassTable::parseComponentsFrom(
 
   if (oper == "in" || oper == "notin")
   {
+    if (index+3 >= components.size())
+      cout << "About to fail in file " << fname << endl;
+
     assert(index+3 < components.size());
 
     const unsigned uv2 = PassTable::getUnsigned(components[index+3], fname);
@@ -179,7 +188,10 @@ size_t PassTable::parseComponentsFrom(
     else if (oper == "==")
       row.addExact(tag, uv1);
     else
+    {
+      cout << "About to fail in file " << fname << endl;
       assert(false);
+    }
     
     return index+3;
   }
@@ -325,6 +337,14 @@ void PassTable::readFile(const string& fname)
     
     tokens.clear();
     tokenize(line, tokens, ":");
+
+    if (tokens.size() != 2)
+    {
+      cout << 
+        "File " << fname << ": not exactly one colon in " <<
+        line << "\n";
+    }
+
     assert(tokens.size() == 2);
 
     PassTable::parseProbInfo(fname, tokens[1], rowProbInfo);

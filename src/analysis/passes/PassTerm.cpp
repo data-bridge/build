@@ -118,7 +118,7 @@ void PassTerm::setOutside(
   const unsigned limit1In,
   const unsigned limit2In)
 {
-  termType = PASSTERM_RANGE;
+  termType = PASSTERM_OUTSIDE;
   valParam = valParamIn;
   limit1 = limit1In;
   limit2 = limit2In;
@@ -172,10 +172,10 @@ bool PassTerm::rangeContains(const PassTerm& term2) const
     return false;
   else if (term2.limit1 < limit1)
     return false;
-  else if (term2.limit2 < limit2)
-    return true;
-  else
+  else if (term2.limit2 > limit2)
     return false;
+  else
+    return true;
 }
 
 
@@ -233,7 +233,7 @@ string PassTerm::strCompact() const
   assert(termType < PASSTERM_SIZE);
 
   assert(valParam < CompInfo.size());
-  string s = CompInfo[valParam].text + 
+  string s = CompInfo[valParam].textShort + 
     PASSTERM_COMPACT_NAMES[termType] + to_string(limit1);
 
   if (termType == PASSTERM_RANGE || termType == PASSTERM_OUTSIDE)

@@ -18,7 +18,7 @@ float Sigmoid::calcLinear(
   const SigmoidData& sigmoidData,
   const float input) const
 {
-  const float value = sigmoidData.crossover + 
+  const float value = sigmoidData.crossover - 
     sigmoidData.slope * (input - sigmoidData.intercept);
 
   return (value >= 1.f ? 1.f : value);
