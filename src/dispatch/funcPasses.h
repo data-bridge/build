@@ -28,6 +28,7 @@ void setPassTables(vector<AllStats>& allStatsList);
 void dispatchPasses(
   const Group& group,
   const Options& options,
+  const string& fname,
   vector<ParamStats1D>& paramStats1D,
   vector<ParamStats2D>& paramStats2D,
   RuleStats& ruleStats,

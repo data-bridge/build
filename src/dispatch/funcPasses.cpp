@@ -17,6 +17,7 @@
 #include <iomanip>
 #include <sstream>
 #include <fstream>
+#include <regex>
 #include <cassert>
 
 #include "../control/Options.h"
@@ -52,9 +53,9 @@ static PassTables passTables;
 enum LocalParams
 {
   PASS_HCP = 0,
-  PASS_CCCC = 1,
-  PASS_ZAR = 2,
-  PASS_SPADES = 3,
+  PASS_SPADES = 1,
+  PASS_CCCC_LIGHT = 2,
+  PASS_QTRICKS = 3,
   PASS_CONTROLS = 4,
   PASS_HCP_SHORTEST = 5,
   PASS_HCP_LONGEST = 6,
@@ -67,9 +68,9 @@ enum LocalParams
 static vector<CompositeParams> LOCAL_TO_COMPOSITE =
 {
   VC_HCP,
-  VC_CCCC,
-  VC_ZAR,
   VC_SPADES,
+  VC_CCCC_LIGHT,
+  VC_QUICK_TRICKS,
   VC_CONTROLS,
   VC_HCP_SHORTEST,
   VC_HCP_LONGEST,
@@ -79,9 +80,9 @@ static vector<CompositeParams> LOCAL_TO_COMPOSITE =
 static vector<StatsInfo> LOCAL_DATA =
 {
   { "HCP", 0, 40, 1},
-  { "CCCC", 0, 1200, 20}, // TODO Check maxima
-  { "ZP", 0, 80, 1}, // TODO Check maxima
   { "Spades", 0, 14, 1},
+  { "CCCC light", 0, 160, 4}, // TODO Check maxima
+  { "Qtricks", 0, 40, 2},
   { "Controls", 0, 13, 1},
   { "Short HCP", 0, 11, 1},
   { "Long HCP", 0, 11, 1},
@@ -412,6 +413,74 @@ cout << "board " << boardTag << " pos " << pos << " vul " <<
 }
 
 
+void passWrite(
+  const Group& group,
+  const string& fname)
+{
+  regex pattern(R"([\\/]([0-9]+)\.lin$)");
+  smatch match;
+  assert(regex_search(fname, match, pattern) && match.size() > 1);
+
+  regex bpattern(R"(\|([^|]+)\|)");
+  smatch bmatch;
+
+  for (auto &segment: group)
+  {
+    for (auto &bpair: segment)
+    {
+      const Board& board = bpair.board;
+      const unsigned dealer = static_cast<unsigned>(board.getDealer());
+      const vector<Valuation>& valuations = board.getValuations();
+
+      // 0 is the dealer.
+      const vector<unsigned> relPlayers =
+        { dealer, (dealer + 1) % 4, (dealer + 2) % 4, (dealer + 3) % 4 };
+
+      // First dimension is the player -- 0 is the dealer.
+      // Second dimension is the local parameter.
+      vector<vector<unsigned>> params;
+      setPassParams(params, relPlayers, valuations);
+
+      for (unsigned i = 0; i < board.countAll(); i++)
+      {
+        const Instance& instance = board.getInstance(i);
+        if (board.skipped(i))
+          continue;
+
+        const string boardTag = 
+          instance.strRoom(bpair.extNo, BRIDGE_FORMAT_LIN);
+        assert(regex_search(boardTag, bmatch, bpattern) && 
+         bmatch.size() > 1);
+
+        const string wholeTag = match[1].str() + "-" + bmatch[1].str();
+
+        VulRelative vulDealer, vulNonDealer;
+        instance.getVulRelative(vulDealer, vulNonDealer);
+
+        const vector<VulRelative> sequentialVuls =
+          { vulDealer, vulNonDealer, vulDealer, vulNonDealer };
+
+        for (unsigned pos = 0; pos < BRIDGE_PLAYERS; pos++)
+        {
+          const bool cumPasses = 
+            instance.auctionStarts(sequentialPasses[pos]);
+
+          cout << 
+            wholeTag << "," <<
+            pos << "," <<
+            sequentialVuls[pos] << "," <<
+            (cumPasses ? 1 : 0) << "," <<
+            valuations[relPlayers[pos]].strCorrData() << "\n";
+
+          if (! cumPasses)
+            break;
+        }
+      }
+    }
+  }
+}
+
+
 void passStatsContrib(
   const Group& group,
   [[maybe_unused]] const Options& options,
@@ -474,6 +543,9 @@ void passStatsContrib(
         {
           valuations[relPlayers[pos]].getLengths(lengths);
           distNumbers[pos] = distribution.number(lengths);
+
+// assert(valuations[relPlayers[pos]].getCompositeParam(VC_HCP) * 4 ==
+ // valuations[relPlayers[pos]].getCompositeParam(VC_CCCC_LIGHT));
 
           passTableMatch = passTables.lookupFull(
             distNumbers[pos], pos, sequentialVuls[pos], 
@@ -556,7 +628,8 @@ void passPostprocess(vector<ParamStats1D>& paramStats1D)
 
 void dispatchPasses(
   const Group& group,
-  const Options& options,
+  [[maybe_unused]] const Options& options,
+  const string& fname,
   [[maybe_unused]] vector<ParamStats1D>& paramStats1D,
   [[maybe_unused]] vector<ParamStats2D>& paramStats2D,
   [[maybe_unused]] RuleStats& ruleStats,
@@ -565,7 +638,8 @@ void dispatchPasses(
   try
   {
     // passStats(group, options, paramStats1D, paramStats2D);
-    passStatsContrib(group, options, ruleStats);
+    passWrite(group,  fname);
+    // passStatsContrib(group, options, ruleStats);
   }
   catch (Bexcept& bex)
   {

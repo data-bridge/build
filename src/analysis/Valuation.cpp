@@ -54,6 +54,7 @@ const vector<SuitBundle> SuitInfo =
   {"HCP", "HCP", 1, 20},
   {"AHCP", "Adjusted HCP", 1, 20},
   {"CCCC", "CCCC comp.", 20, 1}, // As already scaled by 20
+  {"CCCC_LIGHT", "CCCC light", 4, 1},
   {"ZAR", "Zar comp.", 1, 10},
   {"FL", "FL points", 1, 20},
 
@@ -111,61 +112,13 @@ const vector<DistBundle> DistInfo =
 
 static map<int, unsigned> distCodeMap;
 
-/*
-struct CompBundle
+struct SuitMapEntry
 {
-  string name;
-  string text;
-  string textShort;
-  int scale;
-  int distance;
+  unsigned no;
+  unsigned count;
 };
 
-const vector<CompBundle> CompInfo =
-{
-  {"HCP", "HCP", "HCP", 1, 20},
-  {"AHCP", "Adjusted HCP", "AHCP", 1, 20},
-  {"CCCC", "CCCC points", "CCCC", 20, 1},
-  {"ZAR", "Zar points", "ZP", 1, 10},
-  {"FL", "FL points", "FL", 1, 20},
-
-  {"CONTROLS", "Controls", "controls", 1, 60},
-  {"PLAY_TRICKS", "Play tricks", "Playtricks", 2, 40},
-  {"QUICK_TRICKS", "Quick tricks", "Quicktricks", 2, 40},
-  {"LOSERS", "Losers", "Losers", 2, 20},
-
-  {"OUTTOPS1", "Outside tops1", "Outtops1", 1, 60},
-  {"OUTTOPS2", "Outside tops2", "Outtops2", 1, 60},
-  {"OUTTOPS3", "Outside tops3", "Outtops3", 1, 60},
-  {"OUTTOPS4", "Outside tops4", "Outtops4", 1, 40},
-  {"OUTTOPS5", "Outside tops5", "Outtops5", 1, 40},
-
-  {"BAL", "Balanced", "BAL", 1, 1},
-  {"UNBAL", "Unbalanced", "UNBAL", 1, 1},
-  {"SBAL", "Semi-balanced", "SBAL", 1, 1},
-  {"UNSBAL", "Not semi-BAL", "notSBAL", 1, 1},
-
-  {"EFF_MDIFF", "Eff. S-H", "EffSH", 2, 40},
-  {"EFF_MABSDIFF", "Eff. abs(S-H)", "EffSHdiff", 2, 40},
-  {"EFF_MMAX", "Eff. max(S,H)", "EffSHmax", 2, 40},
-  {"EFF_MMIN", "Eff. min(S,H)", "EffSHmin", 2, 40},
-  {"EFF_mMAX", "Eff. max(D,C)", "EffDCmax", 2, 40},
-  {"EFF_mMIN", "Eff. min(D,C)", "EffDCmin", 2, 40},
-
-  {"EFF_L1", "Eff. 1st len", "Eff1", 2, 40},
-  {"EFF_L2", "Eff. 2nd len", "Eff2", 2, 40},
-  {"EFF_L3", "Eff. 3rd len", "Eff3", 2, 40},
-  {"EFF_L4", "Eff. 4th len", "Eff4", 2, 40},
-
-  {"MCONC", "Major conc.", "Mconc", 1, 1},
-  {"TWOCONC", "Top-2 conc.", "Top2conc", 1, 1},
-
-  {"HCP_SHORTEST", "Short HCP", "ShortHCP", 1, 1},
-  {"HCP_LONGEST", "Long HCP", "LongHCP", 1, 1},
-  {"HCP_LONG12", "Long12 HCP", "Long12HCP", 1, 1},
-  {"SPADES", "Spades", "spades", 1, 1}
-};
-*/
+array<map<unsigned, SuitMapEntry>, BRIDGE_TRICKS+1> suitArrayMap;
 
 
 Valuation::Valuation()
@@ -199,11 +152,22 @@ void Valuation::setTables()
 void Valuation::setSuitTables()
 {
   CardArray cards;
+  unsigned reducedSuitNumber = 0;
 
   for (unsigned holding = 0; holding <= MAX_HOLDING; holding++)
   {
     // Also SPOT_SUM and SPOT_SUM3.
     Valuation::setSuitLength(SUIT_LIST[holding], cards, holding);
+
+    // Lookup table based on tops.
+    const unsigned l = 
+      static_cast<unsigned>(SUIT_LIST[holding][VS_LENGTH]);
+    const unsigned tops = holding >> 7; // AKQJT9
+    auto it = suitArrayMap[l].find(tops);
+    if (it == suitArrayMap[l].end())
+      suitArrayMap[l][tops] = { reducedSuitNumber++, 1 };
+    else
+      it->second.count++;
 
     // Also AHCP.
     Valuation::setSuitHCP(SUIT_LIST[holding], cards);
@@ -213,6 +177,9 @@ void Valuation::setSuitTables()
 
     // Needs tops and controls.
     Valuation::setSuitCCCC(SUIT_LIST[holding], cards);
+
+    // Similar to CCCC.
+    Valuation::setSuitCCCClight(SUIT_LIST[holding], cards);
 
     Valuation::setSuitZar(SUIT_LIST[holding], cards);
     Valuation::setSuitFL(SUIT_LIST[holding]);
@@ -306,6 +273,7 @@ void Valuation::setSuitLength(
   list[VS_LENGTH] = 0;
   list[VS_SPOT_SUM] = 0;
   list[VS_SPOT_SUM3] = 0;
+  list[VS_RAW] = static_cast<int>(holding);
 
   for (unsigned bit = 0; bit < BRIDGE_TRICKS; bit++)
   {
@@ -457,6 +425,119 @@ void Valuation::setSuitCCCC(
     // T with one higher as well as the 9 counts 0.25.
     list[VS_CCCC] += (list[VS_TOP4] == 2 ? 5 :
       (list[VS_TOP4] == 1 && cards[5] ? 5 : 0));
+}
+
+
+void Valuation::setSuitCCCClight(
+  SuitListArray& list,
+  [[maybe_unused]] const CardArray& cards)
+{
+  // Built on:
+  // https://bridgewinners.com/article/view/simplified-advanced-hand-valuation-core-card-count/
+  //
+  // Here multiplied by 4 in order always to have an integer.
+  // (CCCC-light points are multiples of 0.25.)
+  //
+  // Global adjustments as well as suit-quality adjustments per the
+  // article are not made.
+  
+  list[VS_CCCC_LIGHT] = 0;
+
+  // 4-3-2-1 count.
+  int adder = 4 * list[VS_HCP];
+
+  // Here is an even more simplified version where the adjustments
+  // are also in general smaller.
+
+  if (list[VS_LENGTH] == 2)
+  {
+    if (list[VS_TOP4] >= 1)
+    {
+      if (list[VS_TOP3] == 2)
+        adder -= 2; // -0.50 if stiff AK, AQ, KQ
+      else
+        adder--; // -0.25 if AJ, KJ, QJ or Hx
+    }
+  }
+
+  if (cards[4] == 1 && list[VS_TOP5] + cards[5] >= 3) // Strong ten
+    adder++; // +0.25 if at least two of AKQJ9
+
+/*
+  if (cards[0]) // Ace
+  {
+    if (list[VS_LENGTH] == 1)
+      adder -= 2; // -0.50 if stiff ace
+    else if (list[VS_LENGTH] >= 3)
+      adder += 2; // +0.50 if Axx(+)
+  }
+
+  if (cards[1]) // King
+  {
+    if (list[VS_LENGTH] == 1)
+      adder -= 8; // -2.00 if stiff king
+    else if (list[VS_LENGTH] == 2 && ! cards[2] && ! cards[3])
+      adder -= 2; // -0.50 if AK or Ax stiff (but not KQ, KJ)
+  }
+
+  if (cards[2]) // Queen
+  {
+    if (list[VS_LENGTH] == 1)
+      adder -= 6; // -1.50 if stiff queen
+    else if (list[VS_LENGTH] == 2)
+    {
+      if (cards[0] || cards[1])
+      {
+        adder -= 3; // -0.75 if AQ or KQ stiff
+      }
+      else if (! cards[3])
+        adder -= 4; // -1.00 if Qx stiff
+    }
+    else if (! cards[0] && ! cards[1] && ! cards[3])
+    {
+      adder -= 2; // -0.50 if Qxx(+)
+    }
+    else if (cards[0] || cards[1])
+      adder--; // -0.25 if AQx(+), KQx(+)
+  }
+
+  if (cards[3]) // Jack
+  {
+    if (list[VS_LENGTH] == 1)
+      adder -= 4; // -1.00 if stiff jack
+    else 
+    if (list[VS_LENGTH] == 2)
+    {
+      if (cards[0] || cards[1] || cards[2])
+        adder -= 2; // -0.50 if AJ, KJ, QJ stiff
+      else
+        adder -= 3; // -0.75 if Jx stiff
+    }
+    else if (cards[0] || cards[1] || cards[2])
+    {
+      adder--; // -0.25 if third or more with one+ of AKQ
+    }
+    else
+      adder -= 2; // -0.50 if third or more without a top
+  }
+
+  if (cards[4] && list[VS_LENGTH] >= 3) // Ten
+  {
+    if (list[VS_TOP5] + cards[5] >= 3)
+      adder += 2; // +0.50 if at least two of AKQJ9
+    else if (list[VS_TOP5] + cards[5] == 2)
+      adder++; // +0.25 if exactly one of AKQJ9
+  }
+
+  if (cards[5] && list[VS_LENGTH] >= 3) // Nine
+  {
+    if (list[VS_TOP5] + cards[6] >= 2)
+      adder++; // +0.25 if at least two of AKQJT8
+  }
+*/
+
+  list[VS_CCCC_LIGHT] += adder;
+
 }
 
 
@@ -1006,6 +1087,30 @@ string Valuation::strEntry(
 }
 
 
+string Valuation::strCorrData() const
+{
+  // Return a string with numbers that are useful for correlating
+  // holdings with suit valuations.
+  
+  auto it = distCodeMap.find(Valuation::handFullDist());
+  if (it == distCodeMap.end())
+    THROW("Could not find distKey\n");
+  string st = to_string(it->second);
+
+  for (unsigned s = 0; s < BRIDGE_SUITS; s++)
+  {
+    const unsigned l = static_cast<unsigned>((*suitValues[s])[VS_LENGTH]);
+    const unsigned h = 
+      static_cast<unsigned>((*suitValues[s])[VS_RAW]) >> 7;
+    auto itd = suitArrayMap[l].find(h);
+    if (itd == suitArrayMap[l].end())
+      THROW("Could not find suit holding\n");
+    st += "," + to_string(itd->second.no);
+  }
+  return st;
+}
+
+
 string Valuation::str() const
 {
   if (! setFlag)
@@ -1056,6 +1161,22 @@ int Valuation::handDist() const
   return ((*suitValues[0])[VS_LENGTH] << 8) |
       ((*suitValues[1])[VS_LENGTH] << 4) |
        (*suitValues[2])[VS_LENGTH];
+}
+
+
+int Valuation::handFullDist() const
+{
+  // This is a 16-bit entry with 4 groups of 4 bits.
+  // Each group is the number of cards held in that suit.
+
+  if (! setFlag)
+    return 0;
+
+  return
+    ((*suitValues[0])[VS_LENGTH] << 12) |
+    ((*suitValues[1])[VS_LENGTH] << 8) |
+    ((*suitValues[2])[VS_LENGTH] << 4) |
+     (*suitValues[3])[VS_LENGTH];
 }
 
 

@@ -10,6 +10,7 @@
 #ifndef BRIDGE_VALUATION_H
 #define BRIDGE_VALUATION_H
 
+#include <map>
 #include <array>
 #include <string>
 
@@ -41,6 +42,8 @@ using namespace std;
 
    * CCCC, which is the Kaplan-Rubens 4 C's score multiplied by 20
      in order to get integers (suit component only).
+
+   * CCCClight, which is a simplified version of CCCC.
 
    * ZAR, Zar points (ZP).  The suit-related part, which is counted
      here, is HCP + CONTROLS, except that stiff honors are counted
@@ -120,6 +123,7 @@ using namespace std;
    * HCP,
    * AHCP,
    * CCCC,
+   * CCCC_LIGHT,
    * ZAR,
    * FL,
    * CONTROLS,
@@ -178,27 +182,30 @@ enum ValSuitParams
   VS_HCP = 0,
   VS_AHCP = 1,
   VS_CCCC = 2,
-  VS_ZAR = 3,
-  VS_FL = 4,
+  VS_CCCC_LIGHT = 3,
+  VS_ZAR = 4,
+  VS_FL = 5,
 
-  VS_CONTROLS = 5,
-  VS_PLAY_TRICKS = 6,
-  VS_QUICK_TRICKS = 7,
-  VS_LOSERS = 8,
+  VS_CONTROLS = 6,
+  VS_PLAY_TRICKS = 7,
+  VS_QUICK_TRICKS = 8,
+  VS_LOSERS = 9,
 
-  VS_TOP1 = 9,
-  VS_TOP2 = 10,
-  VS_TOP3 = 11,
-  VS_TOP4 = 12,
-  VS_TOP5 = 13,
+  VS_TOP1 = 10,
+  VS_TOP2 = 11,
+  VS_TOP3 = 12,
+  VS_TOP4 = 13,
+  VS_TOP5 = 14,
 
-  VS_LENGTH = 14,
-  VS_EFF_LENGTH = 15,
+  VS_LENGTH = 15,
+  VS_EFF_LENGTH = 16,
 
-  VS_SPOT_SUM = 16,
-  VS_SPOT_SUM3 = 17,
+  VS_SPOT_SUM = 17,
+  VS_SPOT_SUM3 = 18,
 
-  VS_SIZE = 18
+  VS_RAW = 19,
+
+  VS_SIZE = 20
 };
 
 typedef array<int, VS_SIZE> SuitListArray;
@@ -234,55 +241,6 @@ enum ValDistParams
 typedef array<int, VD_SIZE> DistListArray;
 
 enum CompositeParams: unsigned;
-/*
-{
-  VC_HCP = 0,
-  VC_AHCP = 1,
-  VC_CCCC = 2,
-  VC_ZAR = 3,
-  VC_FL = 4,
-
-  VC_CONTROLS = 5,
-  VC_PLAY_TRICKS = 6,
-  VC_QUICK_TRICKS = 7,
-  VC_LOSERS = 8,
-
-  VC_OUTTOPS1 = 9,
-  VC_OUTTOPS2 = 10,
-  VC_OUTTOPS3 = 11,
-  VC_OUTTOPS4 = 12,
-  VC_OUTTOPS5 = 13,
-
-  VC_BAL = 14,
-  VC_UNBAL = 15,
-  VC_SBAL = 16,
-  VC_UNSBAL = 17,
-
-  VC_EFF_MDIFF = 18,
-  VC_EFF_MABSDIFF = 19,
-  VC_EFF_MMAX = 20,
-  VC_EFF_MMIN = 21,
-  VC_EFF_mMAX = 22,
-  VC_EFF_mMIN = 23,
-
-  VC_EFF_L1 = 24,
-  VC_EFF_L2 = 25,
-  VC_EFF_L3 = 26,
-  VC_EFF_L4 = 27,
-
-  VC_MCONC = 28,
-  VC_TWOCONC = 29,
-
-  VC_HCP_SHORTEST = 30,
-  VC_HCP_LONGEST = 31,
-  VC_HCP_LONG12 = 32,
-  VC_SPADES = 33,
-
-  VC_SIZE = 34
-};
-
-typedef array<int, VC_SIZE> CompositeArray;
-*/
 
 
 class Valuation
@@ -313,6 +271,10 @@ class Valuation
       const CardArray& cards);
 
     void setSuitCCCC(
+      SuitListArray& list,
+      const CardArray& cards);
+
+    void setSuitCCCClight(
       SuitListArray& list,
       const CardArray& cards);
 
@@ -367,9 +329,12 @@ class Valuation
 
     string strName(const CompositeParams cparam) const;
 
+    string strCorrData() const;
+
     string str() const;
 
     int handDist() const;
+    int handFullDist() const;
 
     void getLengths(vector<unsigned>& lengths) const;
 

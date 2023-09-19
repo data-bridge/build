@@ -148,7 +148,10 @@ void dispatch(
           flog << "Pass stats\n" << endl;
         
         allStats.timersPtr->start(BRIDGE_TIMER_PASS, task.formatInput);
-        dispatchPasses(group, options,
+        dispatchPasses(
+          group, 
+          options,
+          task.fileInput,
           * allStats.paramStats1DPtr, 
           * allStats.paramStats2DPtr, 
           * allStats.ruleStatsPtr, 

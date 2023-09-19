@@ -228,8 +228,8 @@ PassMatch PassRow::match(const Valuation& valuation) const
 
   if (algoFlag)
   {
-    const unsigned cccc = valuation.getCompositeParam(VC_CCCC);
-    const float ccccFloat = static_cast<float>(cccc) / 20.f;
+    const unsigned cccc = valuation.getCompositeParam(VC_CCCC_LIGHT);
+    const float ccccFloat = static_cast<float>(cccc) / 4.f;
     return {true, true, sigmoid.calc(sigmoidData, ccccFloat)};
   }
   else
