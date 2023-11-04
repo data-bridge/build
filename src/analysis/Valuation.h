@@ -325,6 +325,12 @@ class Valuation
 
     int distance(const Term& term) const;
 
+    unsigned getSuitParam(
+      const Denom denom,
+      const ValSuitParams sparam) const;
+
+    unsigned getDistParam(const ValDistParams dparam) const;
+
     unsigned getCompositeParam(const CompositeParams cparam) const;
 
     string strName(const CompositeParams cparam) const;

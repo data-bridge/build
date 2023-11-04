@@ -28,6 +28,7 @@
 #include "../analysis/Distributions.h"
 
 #include "funcPasses.h"
+#include "Openings.h"
 
 #include "../util/parse.h"
 
@@ -264,7 +265,10 @@ void strTriplet(
     cout << strBidData(board, instance, relPlayers, params, 
         boardTag, pno, 0, matchTag);
   }
-  else if (params[pno][PASS_HCP] >= 10 && params[pno][PASS_HCP] <= 12 &&
+  else if (
+    params[pno][PASS_HCP] >= 11 && 
+    // params[pno][PASS_HCP] >= 10 && 
+    // params[pno][PASS_HCP] <= 12 &&
     isAboveOneLevel(instance.strCall(pno, BRIDGE_FORMAT_TXT)))
   {
     cout << strBidData(board, instance, relPlayers, params, 
@@ -481,6 +485,227 @@ void passWrite(
 }
 
 
+Opening classifyTwoSpades(
+  const Valuation& valuation,
+  const vector<unsigned>& relPlayerParam)
+{
+  if (valuation.getSuitParam(BRIDGE_SPADES, VS_LENGTH) >= 6)
+  {
+    // Catches a few two-suiters as well.
+
+    if (relPlayerParam[PASS_HCP] >= 17)
+      return OPENING_2S_STRONG;
+    else if (relPlayerParam[PASS_HCP] >= 12)
+      return OPENING_2S_INTERMED;
+    else
+      return OPENING_2S_WEAK;
+  }
+  else
+    return OPENING_UNCLASSIFIED;
+}
+
+
+Opening classifyTwoHearts(
+  const Valuation& valuation,
+  const vector<unsigned>& relPlayerParam)
+{
+  if (valuation.getSuitParam(BRIDGE_HEARTS, VS_LENGTH) >= 6)
+  {
+    // Catches a few two-suiters as well.
+
+    if (relPlayerParam[PASS_HCP] >= 17)
+      return OPENING_2H_STRONG;
+    else if (relPlayerParam[PASS_HCP] >= 12)
+      return OPENING_2H_INTERMED;
+    else
+      return OPENING_2H_WEAK;
+  }
+  else
+    return OPENING_UNCLASSIFIED;
+}
+
+
+Opening classifyTwoNT(
+  const Valuation& valuation,
+  const vector<unsigned>& relPlayerParam)
+{
+  const unsigned longest1 = valuation.getDistParam(VD_L1);
+  const unsigned longest2 = valuation.getDistParam(VD_L2);
+  const unsigned longest4 = valuation.getDistParam(VD_L4);
+
+  if (relPlayerParam[PASS_HCP] >= 17)
+  {
+    // Kind-of semi-balanced.
+    if (longest1 <= 5 && longest2 <= 4 && longest4 >= 2)
+      return OPENING_2NT_STRONG_SBAL;
+    else
+      return OPENING_2NT_STRONG_OTHER;
+  }
+
+  const unsigned clubs = 
+    valuation.getSuitParam(BRIDGE_CLUBS, VS_LENGTH);
+  const unsigned diamonds = 
+    valuation.getSuitParam(BRIDGE_DIAMONDS, VS_LENGTH);
+
+  if (relPlayerParam[PASS_HCP] <= 10)
+  {
+
+    if ((clubs >= 5 && diamonds >= 4) ||
+        (clubs == 4 && diamonds >= 5))
+      return OPENING_2NT_WEAK_MINS;
+    else if (clubs >= 6 || diamonds >= 6)
+      return OPENING_2NT_WEAK_ONE_MIN;
+    else if (longest1 >= 5 && longest2 >= 5)
+      return OPENING_2NT_WEAK_TWO_SUITER;
+    else
+      return OPENING_UNCLASSIFIED;
+  }
+
+  if (clubs >= 6 || diamonds >= 6)
+    return OPENING_2NT_OPEN_ONE_MIN;
+
+  if (relPlayerParam[PASS_HCP] >= 10)
+  {
+    if (longest1 >= 5 && longest2 >= 4)
+      return OPENING_2NT_OPEN_TWO_SUITER;
+  }
+
+  return OPENING_UNCLASSIFIED;
+
+}
+
+
+void passWriteOpenings(
+  const Group& group,
+  const string& fname)
+{
+  regex pattern(R"([\\/]([0-9]+)\.lin$)");
+  smatch match;
+  assert(regex_search(fname, match, pattern) && match.size() > 1);
+
+  regex bpattern(R"(\|([^|]+)\|)");
+  smatch bmatch;
+
+  Opening opening;
+
+  for (auto &segment: group)
+  {
+    for (auto &bpair: segment)
+    {
+      const Board& board = bpair.board;
+      const unsigned dealer = static_cast<unsigned>(board.getDealer());
+      const vector<Valuation>& valuations = board.getValuations();
+
+      // 0 is the dealer.
+      const vector<unsigned> relPlayers =
+        { dealer, (dealer + 1) % 4, (dealer + 2) % 4, (dealer + 3) % 4 };
+
+      // First dimension is the player -- 0 is the dealer.
+      // Second dimension is the local parameter.
+      vector<vector<unsigned>> params;
+      setPassParams(params, relPlayers, valuations);
+
+      for (unsigned i = 0; i < board.countAll(); i++)
+      {
+        const Instance& instance = board.getInstance(i);
+        if (board.skipped(i))
+          continue;
+
+        const string boardTag = 
+          instance.strRoom(bpair.extNo, BRIDGE_FORMAT_LIN);
+        assert(regex_search(boardTag, bmatch, bpattern) && 
+         bmatch.size() > 1);
+
+        const string wholeTag = match[1].str() + "-" + bmatch[1].str();
+
+        VulRelative vulDealer, vulNonDealer;
+        instance.getVulRelative(vulDealer, vulNonDealer);
+
+        const vector<VulRelative> sequentialVuls =
+          { vulDealer, vulNonDealer, vulDealer, vulNonDealer };
+
+        for (unsigned pos = 0; pos < BRIDGE_PLAYERS; pos++)
+        {
+          const bool cumPasses = 
+            instance.auctionStarts(sequentialPasses[pos]);
+
+          const string call = instance.strCall(pos, BRIDGE_FORMAT_TXT);
+          assert(call == "P" || call.size() > 1);
+
+          if (cumPasses)
+            opening = OPENING_PASS;
+          else if (call[0] == '1')
+          {
+            // Will be wrong for strong-pass systems.
+            opening = OPENING_NOT_WEAK;
+
+              // cout << "XXX " << params[pos][PASS_HCP] << "\n";
+
+                /*
+                FilterParams filterParams;
+                filterParams.distFilterFlag = false;
+                filterParams.hcpFlag = false;
+                filterParams.hcpValue = params[pos][PASS_HCP];
+                filterParams.playerFlag = false;
+                filterParams.playerTag = "shein";
+                filterParams.stats2DFlag = false;
+                filterParams.handsFlag = true;
+
+                strTriplet(board, instance, relPlayers, params,
+                  boardTag, pos, 0, cumPasses, filterParams);
+                */
+          }
+          else if (pos <= 2 && call == "2S")
+          {
+            opening = classifyTwoSpades(
+              valuations[relPlayers[pos]], params[pos]);
+          }
+          else if (pos <= 2 && call == "2H")
+          {
+            opening = classifyTwoHearts(
+              valuations[relPlayers[pos]], params[pos]);
+          }
+          else if (pos <= 2 && call == "2NT")
+          {
+            opening = classifyTwoNT(
+              valuations[relPlayers[pos]], params[pos]);
+
+            if (opening == OPENING_UNCLASSIFIED)
+            {
+              cout << "XXX " << params[pos][PASS_HCP] << "\n";
+
+              FilterParams filterParams;
+              filterParams.distFilterFlag = false;
+              filterParams.hcpFlag = false;
+              filterParams.hcpValue = params[pos][PASS_HCP];
+              filterParams.playerFlag = false;
+              filterParams.playerTag = "shein";
+              filterParams.stats2DFlag = false;
+              filterParams.handsFlag = true;
+
+              strTriplet(board, instance, relPlayers, params,
+                boardTag, pos, 0, cumPasses, filterParams);
+            }
+          }
+          else
+            opening = OPENING_UNCLASSIFIED;
+
+          cout << 
+            wholeTag << "," <<
+            pos << "," <<
+            sequentialVuls[pos] << "," <<
+            opening << "," <<
+            valuations[relPlayers[pos]].strCorrData() << "\n";
+
+          if (! cumPasses)
+            break;
+        }
+      }
+    }
+  }
+}
+
+
 void passStatsContrib(
   const Group& group,
   [[maybe_unused]] const Options& options,
@@ -638,7 +863,8 @@ void dispatchPasses(
   try
   {
     // passStats(group, options, paramStats1D, paramStats2D);
-    passWrite(group,  fname);
+    // passWrite(group,  fname);
+    passWriteOpenings(group,  fname);
     // passStatsContrib(group, options, ruleStats);
   }
   catch (Bexcept& bex)

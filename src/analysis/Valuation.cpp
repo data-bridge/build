@@ -1048,6 +1048,23 @@ int Valuation::distance(const Term& term) const
 }
 
 
+unsigned Valuation::getSuitParam(
+ const Denom denom,
+ const ValSuitParams sparam) const
+{
+  assert(denom < BRIDGE_NOTRUMP);
+  assert(sparam < VS_SIZE);
+  return static_cast<unsigned>((*suitValues[denom])[sparam]);
+}
+
+
+unsigned Valuation::getDistParam(const ValDistParams dparam) const
+{
+  assert(dparam < VD_SIZE);
+  return static_cast<unsigned>((*distValues)[dparam]);
+}
+
+
 unsigned Valuation::getCompositeParam(const CompositeParams cparam) const
 {
   assert(cparam < VC_SIZE);
