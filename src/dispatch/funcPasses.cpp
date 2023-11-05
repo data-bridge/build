@@ -485,26 +485,6 @@ void passWrite(
 }
 
 
-Opening classifyTwoSpades(
-  const Valuation& valuation,
-  const vector<unsigned>& relPlayerParam)
-{
-  if (valuation.getSuitParam(BRIDGE_SPADES, VS_LENGTH) >= 6)
-  {
-    // Catches a few two-suiters as well.
-
-    if (relPlayerParam[PASS_HCP] >= 17)
-      return OPENING_2S_STRONG;
-    else if (relPlayerParam[PASS_HCP] >= 12)
-      return OPENING_2S_INTERMED;
-    else
-      return OPENING_2S_WEAK;
-  }
-  else
-    return OPENING_UNCLASSIFIED;
-}
-
-
 Opening classifyTwoHearts(
   const Valuation& valuation,
   const vector<unsigned>& relPlayerParam)
@@ -525,6 +505,107 @@ Opening classifyTwoHearts(
 }
 
 
+Opening classifyTwoSpades(
+  const Valuation& valuation,
+  const vector<unsigned>& relPlayerParam)
+{
+  const unsigned clubs = valuation.getSuitParam(BRIDGE_CLUBS, VS_LENGTH);
+  const unsigned diamonds = 
+    valuation.getSuitParam(BRIDGE_DIAMONDS, VS_LENGTH);
+  const unsigned hearts = valuation.getSuitParam(BRIDGE_HEARTS, VS_LENGTH);
+  const unsigned spades = valuation.getSuitParam(BRIDGE_SPADES, VS_LENGTH);
+
+  if (relPlayerParam[PASS_HCP] >= 16)
+  {
+    if (spades >= 5)
+      return OPENING_2S_STRONG;
+
+    if (clubs >= 6)
+      return OPENING_2S_STRONG_CLUBS;
+    else if (diamonds >= 6)
+      return OPENING_2S_STRONG_DIAMONDS;
+    else if (hearts >= 6)
+      return OPENING_2S_STRONG_HEARTS;
+
+    unsigned numSuits = 0;
+    if (spades == 4) numSuits++;
+    if (hearts >= 4) numSuits++;
+    if (diamonds >= 4) numSuits++;
+    if (clubs >= 4) numSuits++;
+
+    if (numSuits == 3)
+      return OPENING_2S_STRONG_THREE_SUITER;
+  }
+
+  if (relPlayerParam[PASS_HCP] <= 10)
+  {
+    // Catches a few two-suiters as well.
+    if (spades >= 6)
+      return OPENING_2S_WEAK;
+    else if (spades == 5)
+    {
+      if (clubs >= 4 || diamonds >= 4)
+        return OPENING_2S_WEAK_WITH_MIN;
+      else if (hearts >= 4)
+        return OPENING_2S_WEAK_WITH_HEARTS;
+      else
+        return OPENING_2S_WEAK_5332;
+    }
+    else if (clubs >= 4 && diamonds >= 4 && clubs + diamonds >= 9)
+      return OPENING_2S_WEAK_MINS;
+    else if (clubs >= 6 || diamonds >= 6)
+      return OPENING_2S_WEAK_MINOR;
+    else if (hearts >= 6)
+      return OPENING_2S_WEAK_HEARTS;
+    else if (spades == 4 && (clubs >= 5 || diamonds >= 5 || hearts >= 5))
+      return OPENING_2S_WEAK_45;
+    else if (spades == 4 && (clubs == 4 || diamonds == 4))
+      return OPENING_2S_WEAK_44;
+    else if (hearts == 5 && (clubs >= 5 || diamonds >= 5))
+      return OPENING_2S_WEAK_HEARTS_MIN;
+    else if (hearts == 5 && (spades >= 4 || diamonds >= 4 || clubs >= 4))
+      return OPENING_2S_WEAK_HEARTS_OTHER;
+    else
+      return OPENING_UNCLASSIFIED;
+  }
+
+  if (spades >= 6)
+    return OPENING_2S_INTERMED_NAT;
+  else if (spades == 5)
+  {
+    if (relPlayerParam[PASS_HCP] >= 11)
+      return OPENING_2S_INTERMED_NAT;
+    else
+      return OPENING_UNCLASSIFIED;
+  }
+  else if (spades == 4)
+  {
+    if (clubs >= 5 || diamonds >= 5 || hearts >= 5)
+      return OPENING_2S_INTERMED_45;
+
+    unsigned numSuits = 1;
+    if (hearts >= 4) numSuits++;
+    if (diamonds >= 4) numSuits++;
+    if (clubs >= 4) numSuits++;
+
+    if (numSuits == 3)
+      return OPENING_2S_INTERMED_THREE_SUITER;
+    else
+      return OPENING_UNCLASSIFIED;
+  }
+  else if (clubs >= 4 && diamonds >= 4 && clubs + diamonds >= 9)
+    return OPENING_2S_INTERMED_MINS;
+  else if (clubs >= 6 || diamonds >= 6)
+    return OPENING_2S_INTERMED_MIN;
+  else if (hearts == 5 && (clubs >= 5 || diamonds >= 5))
+    return OPENING_2S_INTERMED_HEARTS_MIN;
+  else if (spades <= 1 && hearts >= 3 && diamonds >= 3 && clubs >= 3)
+    return OPENING_2S_INTERMED_SHORT_SPADES;
+  else
+    return OPENING_UNCLASSIFIED;
+}
+
+
 Opening classifyTwoNT(
   const Valuation& valuation,
   const vector<unsigned>& relPlayerParam)
@@ -533,7 +614,7 @@ Opening classifyTwoNT(
   const unsigned longest2 = valuation.getDistParam(VD_L2);
   const unsigned longest4 = valuation.getDistParam(VD_L4);
 
-  if (relPlayerParam[PASS_HCP] >= 17)
+  if (relPlayerParam[PASS_HCP] >= 15)
   {
     // Kind-of semi-balanced.
     if (longest1 <= 5 && longest2 <= 4 && longest4 >= 2)
@@ -557,20 +638,18 @@ Opening classifyTwoNT(
       return OPENING_2NT_WEAK_ONE_MIN;
     else if (longest1 >= 5 && longest2 >= 5)
       return OPENING_2NT_WEAK_TWO_SUITER;
+    else if (longest1 >= 7)
+      return OPENING_2NT_WEAK_ONE_SUITER;
     else
-      return OPENING_UNCLASSIFIED;
+      return OPENING_2NT_WEAK_OTHER;
   }
 
   if (clubs >= 6 || diamonds >= 6)
     return OPENING_2NT_OPEN_ONE_MIN;
-
-  if (relPlayerParam[PASS_HCP] >= 10)
-  {
-    if (longest1 >= 5 && longest2 >= 4)
-      return OPENING_2NT_OPEN_TWO_SUITER;
-  }
-
-  return OPENING_UNCLASSIFIED;
+  else if (longest1 >= 5 && longest2 >= 4)
+    return OPENING_2NT_OPEN_TWO_SUITER;
+  else
+  return OPENING_2NT_OPEN_OTHER;
 
 }
 
@@ -638,36 +717,15 @@ void passWriteOpenings(
           {
             // Will be wrong for strong-pass systems.
             opening = OPENING_NOT_WEAK;
-
-              // cout << "XXX " << params[pos][PASS_HCP] << "\n";
-
-                /*
-                FilterParams filterParams;
-                filterParams.distFilterFlag = false;
-                filterParams.hcpFlag = false;
-                filterParams.hcpValue = params[pos][PASS_HCP];
-                filterParams.playerFlag = false;
-                filterParams.playerTag = "shein";
-                filterParams.stats2DFlag = false;
-                filterParams.handsFlag = true;
-
-                strTriplet(board, instance, relPlayers, params,
-                  boardTag, pos, 0, cumPasses, filterParams);
-                */
-          }
-          else if (pos <= 2 && call == "2S")
-          {
-            opening = classifyTwoSpades(
-              valuations[relPlayers[pos]], params[pos]);
           }
           else if (pos <= 2 && call == "2H")
           {
             opening = classifyTwoHearts(
               valuations[relPlayers[pos]], params[pos]);
           }
-          else if (pos <= 2 && call == "2NT")
+          else if (pos <= 1 && call == "2S")
           {
-            opening = classifyTwoNT(
+            opening = classifyTwoSpades(
               valuations[relPlayers[pos]], params[pos]);
 
             if (opening == OPENING_UNCLASSIFIED)
@@ -686,6 +744,11 @@ void passWriteOpenings(
               strTriplet(board, instance, relPlayers, params,
                 boardTag, pos, 0, cumPasses, filterParams);
             }
+          }
+          else if (pos <= 2 && call == "2NT")
+          {
+            opening = classifyTwoNT(
+              valuations[relPlayers[pos]], params[pos]);
           }
           else
             opening = OPENING_UNCLASSIFIED;
