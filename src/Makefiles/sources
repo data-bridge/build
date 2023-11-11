@@ -34,6 +34,7 @@ dispatch/funcTrace.cpp          \
 dispatch/funcValidate.cpp       \
 dispatch/funcValuation.cpp      \
 dispatch/funcWrite.cpp          \
+dispatch/Opening.cpp            \
                                 \
 edits/RefAction.cpp             \
 edits/RefComment.cpp            \

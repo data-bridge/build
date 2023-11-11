@@ -28,6 +28,7 @@
 #include "../analysis/Distributions.h"
 
 #include "funcPasses.h"
+#include "Opening.h"
 #include "Openings.h"
 
 #include "../util/parse.h"
@@ -44,27 +45,9 @@
 
 static PassTables passTables;
 
-// Effectively a subset of CompositeParams, but more compactly 
-// numbered for memory efficiency.
+static Opening opening;
 
-// TODO Currently adding one at the end that is not really spades,
-// but instead the table where we log the counts of each row (line)
-// in the manually curated table of pass probabilities and criteria.
-
-enum LocalParams
-{
-  PASS_HCP = 0,
-  PASS_SPADES = 1,
-  PASS_CCCC_LIGHT = 2,
-  PASS_QTRICKS = 3,
-  PASS_CONTROLS = 4,
-  PASS_HCP_SHORTEST = 5,
-  PASS_HCP_LONGEST = 6,
-  PASS_HCP_LONG12 = 7,
-  PASS_SIZE = 8
-};
-
-// The mapping between the two.
+// The mapping between CompositeParams and PassParams.
 
 static vector<CompositeParams> LOCAL_TO_COMPOSITE =
 {
@@ -485,283 +468,6 @@ void passWrite(
 }
 
 
-Opening classifyTwoHearts(
-  const Valuation& valuation,
-  const vector<unsigned>& relPlayerParam)
-{
-  const unsigned clubs = valuation.getSuitParam(BRIDGE_CLUBS, VS_LENGTH);
-  const unsigned diamonds = 
-    valuation.getSuitParam(BRIDGE_DIAMONDS, VS_LENGTH);
-  const unsigned hearts = valuation.getSuitParam(BRIDGE_HEARTS, VS_LENGTH);
-  const unsigned spades = valuation.getSuitParam(BRIDGE_SPADES, VS_LENGTH);
-
-  if (relPlayerParam[PASS_HCP] >= 16)
-  {
-    // Catches a few two-suiters as well.
-    if (hearts >= 5)
-      return OPENING_2H_STRONG_HEARTS;
-    else if (spades >= 5 && hearts == 4 &&
-        relPlayerParam[PASS_HCP] == 16)
-      return OPENING_2H_INTERMED_MAJS;
-    else if (spades >= 6)
-      return OPENING_2H_STRONG_SPADES;
-    else if (spades >= 2 && spades <= 5 &&
-        hearts >= 2 && hearts <= 4 &&
-        diamonds >= 2 && diamonds <= 6 &&
-        clubs >= 2 && clubs <= 6)
-      return OPENING_2H_STRONG_BAL;
-
-    unsigned numSuits = 0;
-    if (spades >= 4) numSuits++;
-    if (hearts >= 4) numSuits++;
-    if (diamonds >= 4) numSuits++;
-    if (clubs >= 4) numSuits++;
-
-    if (numSuits == 3)
-      return OPENING_2H_STRONG_THREE_SUITER;
-    else if (diamonds <= 1 && (clubs == 4 || clubs == 5) &&
-      hearts <= 4 && spades <= 4)
-    {
-      // This assumes that it's really an intermediate hand.
-      // In practice this happens very rarely anyway.  See below.
-      // 4=4=1=4, 3=4=1=5, 4=3=1=5.
-      return OPENING_2H_INTERMED_THREE_SUITER_SHORT_D;
-    }
-    else
-      return OPENING_2H_STRONG_MISC;
-  }
-
-  if (relPlayerParam[PASS_HCP] <= 10)
-  {
-    // Catches a few two-suiters as well.
-    if (hearts >= 6)
-      return OPENING_2H_WEAK_HEARTS;
-    else if (hearts == 5)
-    {
-      if (clubs >= 4 || diamonds >= 4)
-        return OPENING_2H_WEAK_WITH_MIN;
-      else if (spades >= 4)
-        return OPENING_2H_WEAK_WITH_SPADES;
-      else
-        return OPENING_2H_WEAK_5332;
-    }
-
-    const unsigned prod = spades * hearts * diamonds * clubs;
-    if (prod == 96 || prod == 108)
-      // 4432, 4333.
-      return OPENING_2H_WEAK_BAL;
-
-    if (hearts == 4)
-    {
-      if (spades >= 4)
-        return OPENING_2H_WEAK_WITH_SPADES;
-      else if (clubs >= 5 || diamonds >= 5)
-        return OPENING_2H_WEAK_45_MIN;
-      // Might fall through.
-    }
-    else if (spades >= 6)
-      return OPENING_2H_WEAK_SPADES;
-    else if (spades == 5)
-    {
-      if (clubs >= 4 || diamonds >= 4)
-        return OPENING_2H_WEAK_SPADES_MIN;
-      else
-        return OPENING_2H_WEAK_SPADES_5332;
-    }
-    else if (hearts <= 3 && clubs >= 4 && diamonds >= 4 &&
-        clubs + diamonds >= 9)
-      return OPENING_2H_WEAK_MINS;
-    else if (clubs >= 7 || diamonds >= 7)
-      return OPENING_2H_WEAK_MIN;
-
-    // This covers 4 spades with 5+ of a minor, 1=4=4=4,
-    // "4=4=1=4 +/- one card", and bluffs of both Majors,
-    //  5 hearts with 4+ of a minor, etc.
-    return OPENING_2H_WEAK_MISC;
-  }
-
-  if (hearts >= 6)
-    return OPENING_2H_INTERMED_HEARTS;
-  else if (spades >= 6)
-    return OPENING_2H_INTERMED_HEARTS;
-  else if (hearts == 5 && spades < 4)
-    return OPENING_2H_INTERMED_HEARTS;
-  else if (hearts >= 4 && spades >= 4)
-    return OPENING_2H_INTERMED_MAJS;
-  else if (diamonds <= 1 && (clubs == 4 || clubs == 5) &&
-      hearts <= 4 && spades <= 4)
-  {
-    // 4=4=1=4, 3=4=1=5, 4=3=1=5.
-    return OPENING_2H_INTERMED_THREE_SUITER_SHORT_D;
-  }
-  else if ((spades == 3 || spades == 4) && hearts <= 1 && 
-      (diamonds == 4 || diamonds == 5) &&
-      (clubs == 4 || clubs == 5))
-    return OPENING_2H_INTERMED_THREE_SUITER_SHORT_H;
-  else if (hearts == 4)
-  {
-    if (clubs >= 5 || diamonds >= 5)
-      return OPENING_2H_INTERMED_45_MIN;
-    else
-      return OPENING_2H_INTERMED_MISC;
-  }
-  else if (spades == 5 && (clubs >= 5 || diamonds >= 5))
-    return OPENING_2H_INTERMED_SPADES_MIN;
-  else if (clubs >= 5 && diamonds >= 5)
-    return OPENING_2H_INTERMED_MINS;
-  else
-    return OPENING_2H_INTERMED_MISC;
-}
-
-
-Opening classifyTwoSpades(
-  const Valuation& valuation,
-  const vector<unsigned>& relPlayerParam)
-{
-  const unsigned clubs = valuation.getSuitParam(BRIDGE_CLUBS, VS_LENGTH);
-  const unsigned diamonds = 
-    valuation.getSuitParam(BRIDGE_DIAMONDS, VS_LENGTH);
-  const unsigned hearts = valuation.getSuitParam(BRIDGE_HEARTS, VS_LENGTH);
-  const unsigned spades = valuation.getSuitParam(BRIDGE_SPADES, VS_LENGTH);
-
-  if (relPlayerParam[PASS_HCP] >= 16)
-  {
-    if (spades >= 5)
-      return OPENING_2S_STRONG_SPADES;
-    else if (clubs >= 6)
-      return OPENING_2S_STRONG_CLUBS;
-    else if (diamonds >= 6)
-      return OPENING_2S_STRONG_DIAMONDS;
-    else if (hearts >= 6)
-      return OPENING_2S_STRONG_HEARTS;
-
-    unsigned numSuits = 0;
-    if (spades == 4) numSuits++;
-    if (hearts >= 4) numSuits++;
-    if (diamonds >= 4) numSuits++;
-    if (clubs >= 4) numSuits++;
-
-    if (numSuits == 3)
-      return OPENING_2S_STRONG_THREE_SUITER;
-  }
-
-  if (relPlayerParam[PASS_HCP] <= 10)
-  {
-    // Catches a few two-suiters as well.
-    if (spades >= 6)
-      return OPENING_2S_WEAK_SPADES;
-    else if (spades == 5)
-    {
-      if (clubs >= 4 || diamonds >= 4)
-        return OPENING_2S_WEAK_WITH_MIN;
-      else if (hearts >= 4)
-        return OPENING_2S_WEAK_WITH_HEARTS;
-      else
-        return OPENING_2S_WEAK_5332;
-    }
-    else if (clubs >= 4 && diamonds >= 4 && clubs + diamonds >= 9)
-      return OPENING_2S_WEAK_MINS;
-    else if (clubs >= 6 || diamonds >= 6)
-      return OPENING_2S_WEAK_MINOR;
-    else if (hearts >= 6)
-      return OPENING_2S_WEAK_HEARTS;
-    else if (spades == 4 && (clubs >= 5 || diamonds >= 5 || hearts >= 5))
-      return OPENING_2S_WEAK_45;
-    else if (spades == 4 && (clubs == 4 || diamonds == 4))
-      return OPENING_2S_WEAK_44;
-    else if (hearts == 5 && (clubs >= 5 || diamonds >= 5))
-      return OPENING_2S_WEAK_HEARTS_MIN;
-    else if (hearts == 5 && (spades >= 4 || diamonds >= 4 || clubs >= 4))
-      return OPENING_2S_WEAK_HEARTS_OTHER;
-    else
-      return OPENING_UNCLASSIFIED;
-  }
-
-  if (spades >= 6)
-    return OPENING_2S_INTERMED_SPADES;
-  else if (spades == 5)
-  {
-    if (relPlayerParam[PASS_HCP] >= 11)
-      return OPENING_2S_INTERMED_SPADES;
-    else
-      return OPENING_UNCLASSIFIED;
-  }
-  else if (spades == 4)
-  {
-    if (clubs >= 5 || diamonds >= 5 || hearts >= 5)
-      return OPENING_2S_INTERMED_45;
-
-    unsigned numSuits = 1;
-    if (hearts >= 4) numSuits++;
-    if (diamonds >= 4) numSuits++;
-    if (clubs >= 4) numSuits++;
-
-    if (numSuits == 3)
-      return OPENING_2S_INTERMED_THREE_SUITER;
-    else
-      return OPENING_UNCLASSIFIED;
-  }
-  else if (clubs >= 4 && diamonds >= 4 && clubs + diamonds >= 9)
-    return OPENING_2S_INTERMED_MINS;
-  else if (clubs >= 6 || diamonds >= 6)
-    return OPENING_2S_INTERMED_MIN;
-  else if (hearts == 5 && (clubs >= 5 || diamonds >= 5))
-    return OPENING_2S_INTERMED_HEARTS_MIN;
-  else if (spades <= 1 && hearts >= 3 && diamonds >= 3 && clubs >= 3)
-    return OPENING_2S_INTERMED_SHORT_SPADES;
-  else
-    return OPENING_UNCLASSIFIED;
-}
-
-
-Opening classifyTwoNT(
-  const Valuation& valuation,
-  const vector<unsigned>& relPlayerParam)
-{
-  const unsigned longest1 = valuation.getDistParam(VD_L1);
-  const unsigned longest2 = valuation.getDistParam(VD_L2);
-  const unsigned longest4 = valuation.getDistParam(VD_L4);
-
-  if (relPlayerParam[PASS_HCP] >= 15)
-  {
-    // Kind-of semi-balanced.
-    if (longest1 <= 5 && longest2 <= 4 && longest4 >= 2)
-      return OPENING_2NT_STRONG_SBAL;
-    else
-      return OPENING_2NT_STRONG_OTHER;
-  }
-
-  const unsigned clubs = 
-    valuation.getSuitParam(BRIDGE_CLUBS, VS_LENGTH);
-  const unsigned diamonds = 
-    valuation.getSuitParam(BRIDGE_DIAMONDS, VS_LENGTH);
-
-  if (relPlayerParam[PASS_HCP] <= 10)
-  {
-
-    if ((clubs >= 5 && diamonds >= 4) ||
-        (clubs == 4 && diamonds >= 5))
-      return OPENING_2NT_WEAK_MINS;
-    else if (clubs >= 6 || diamonds >= 6)
-      return OPENING_2NT_WEAK_ONE_MIN;
-    else if (longest1 >= 5 && longest2 >= 5)
-      return OPENING_2NT_WEAK_TWO_SUITER;
-    else if (longest1 >= 7)
-      return OPENING_2NT_WEAK_ONE_SUITER;
-    else
-      return OPENING_2NT_WEAK_OTHER;
-  }
-
-  if (clubs >= 6 || diamonds >= 6)
-    return OPENING_2NT_OPEN_ONE_MIN;
-  else if (longest1 >= 5 && longest2 >= 4)
-    return OPENING_2NT_OPEN_TWO_SUITER;
-  else
-  return OPENING_2NT_OPEN_OTHER;
-
-}
-
-
 void passWriteOpenings(
   const Group& group,
   const string& fname)
@@ -773,7 +479,7 @@ void passWriteOpenings(
   regex bpattern(R"(\|([^|]+)\|)");
   smatch bmatch;
 
-  Opening opening;
+  Openings op;
 
   for (auto &segment: group)
   {
@@ -820,18 +526,18 @@ void passWriteOpenings(
           assert(call == "P" || call.size() > 1);
 
           if (cumPasses)
-            opening = OPENING_PASS;
+            op = OPENING_PASS;
           else if (call[0] == '1')
           {
             // Will be wrong for strong-pass systems.
-            opening = OPENING_NOT_WEAK;
+            op = OPENING_NOT_WEAK;
           }
           else if (pos <= 1 && call == "2H")
           {
-            opening = classifyTwoHearts(
+            op = opening.classify(call, 
               valuations[relPlayers[pos]], params[pos]);
 
-            if (opening == OPENING_UNCLASSIFIED)
+            if (op == OPENING_UNCLASSIFIED)
             {
               cout << "XXX " << params[pos][PASS_HCP] << "\n";
 
@@ -850,22 +556,22 @@ void passWriteOpenings(
           }
           else if (pos <= 1 && call == "2S")
           {
-            opening = classifyTwoSpades(
+            op = opening.classify(call,
               valuations[relPlayers[pos]], params[pos]);
           }
           else if (pos <= 2 && call == "2NT")
           {
-            opening = classifyTwoNT(
+            op = opening.classify(call,
               valuations[relPlayers[pos]], params[pos]);
           }
           else
-            opening = OPENING_UNCLASSIFIED;
+            op = OPENING_UNCLASSIFIED;
 
           cout << 
             wholeTag << "," <<
             pos << "," <<
             sequentialVuls[pos] << "," <<
-            opening << "," <<
+            op << "," <<
             valuations[relPlayers[pos]].strCorrData() << "\n";
 
           if (! cumPasses)

@@ -12,7 +12,29 @@
 
 using namespace std;
 
-enum Opening
+
+enum PassParams
+{
+  // Effectively a subset of CompositeParams, but more compactly
+  // numbered for memory efficiency.
+
+  // TODO Currently adding one at the end that is not really spades,
+  // but instead the table where we log the counts of each row (line)
+  // in the manually curated table of pass probabilities and criteria.
+
+  PASS_HCP = 0,
+  PASS_SPADES = 1,
+  PASS_CCCC_LIGHT = 2,
+  PASS_QTRICKS = 3,
+  PASS_CONTROLS = 4,
+  PASS_HCP_SHORTEST = 5,
+  PASS_HCP_LONGEST = 6,
+  PASS_HCP_LONG12 = 7,
+  PASS_SIZE = 8
+};
+
+
+enum Openings: unsigned
 {
   OPENING_PASS = 0,
   OPENING_NOT_WEAK = 1,
@@ -90,6 +112,7 @@ enum Opening
   OPENING_2S_INTERMED_MIN = 51,
   OPENING_2S_INTERMED_45 = 52,
   OPENING_2S_INTERMED_MINS = 53,
+  OPENING_2S_INTERMED_HEARTS = 54,
   OPENING_2S_INTERMED_HEARTS_MIN = 54,
   OPENING_2S_INTERMED_THREE_SUITER = 55,
   OPENING_2S_INTERMED_SHORT_SPADES = 56,

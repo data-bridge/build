@@ -185,7 +185,8 @@ dispatch/funcPasses.obj: analysis/PlayError.h records/GivenScore.h
 dispatch/funcPasses.obj: analysis/Valuation.h analysis/Term.h
 dispatch/funcPasses.obj: analysis/Composites.h analysis/Distribution.h
 dispatch/funcPasses.obj: analysis/Distributions.h dispatch/funcPasses.h
-dispatch/funcPasses.obj: util/parse.h stats/ParamStats1D.h stats/Stats1D.h
+dispatch/funcPasses.obj: dispatch/Opening.h dispatch/Openings.h util/parse.h
+dispatch/funcPasses.obj: stats/ParamStats1D.h stats/Stats1D.h
 dispatch/funcPasses.obj: stats/StatsInfo.h stats/ParamStats2D.h
 dispatch/funcPasses.obj: stats/Stats2D.h stats/RuleStats.h stats/Rules.h
 dispatch/funcPasses.obj: stats/Rule.h handling/Bexcept.h
@@ -299,6 +300,10 @@ dispatch/funcWrite.obj: analysis/Composites.h formats/fileLIN.h
 dispatch/funcWrite.obj: formats/filePBN.h formats/fileRBN.h formats/fileTXT.h
 dispatch/funcWrite.obj: formats/fileEML.h formats/fileREC.h
 dispatch/funcWrite.obj: formats/writeInfo.h util/parse.h handling/Bexcept.h
+dispatch/Opening.obj: dispatch/Opening.h dispatch/Openings.h
+dispatch/Opening.obj: analysis/Valuation.h analysis/Term.h
+dispatch/Opening.obj: analysis/Composites.h include/bridge.h include/Format.h
+dispatch/Opening.obj: include/Label.h
 edits/RefAction.obj: edits/RefAction.h edits/refconst.h include/Format.h
 edits/RefAction.obj: handling/Bexcept.h
 edits/RefComment.obj: edits/RefComment.h edits/RefEntry.h edits/RefCount.h
