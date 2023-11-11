@@ -62,6 +62,14 @@ class Opening
 
     Openings classifyThreeClubs(const Valuation& valuation) const;
 
+    Openings classifyThreeDiamondsStrong() const;
+    Openings classifyThreeDiamondsWeak(
+      const Valuation& valuation) const;
+    Openings classifyThreeDiamondsIntermed(
+      const Valuation& valuation) const;
+
+    Openings classifyThreeDiamonds(const Valuation& valuation) const;
+
 
   public:
 

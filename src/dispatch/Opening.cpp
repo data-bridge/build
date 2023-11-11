@@ -409,6 +409,85 @@ Openings Opening::classifyThreeClubs(const Valuation& valuation) const
 }
 
 
+Openings Opening::classifyThreeDiamondsStrong() const
+{
+  if (spades >= 5 && (clubs >= 5 || diamonds >= 5))
+    return OPENING_3D_STRONG_SPADES_MIN;
+  else if (hearts >= 6 && diamonds >= 5)
+    return OPENING_3D_STRONG_REDS;
+  else
+    return OPENING_SIZE;
+}
+
+
+Openings Opening::classifyThreeDiamondsWeak(
+  const Valuation& valuation) const
+{
+  if (diamonds >= 6)
+    return OPENING_3D_WEAK_DIAMONDS;
+  else if (spades >= 6 || hearts >= 6)
+    return OPENING_3D_WEAK_MAJ;
+  else if (spades >= 5 && hearts >= 5)
+    return OPENING_3D_WEAK_MAJORS;
+
+  if (diamonds == 5)
+  {
+    const unsigned longest1 = valuation.getDistParam(VD_L1);
+    const unsigned longest2 = valuation.getDistParam(VD_L2);
+
+    if (longest1 == 5 && (longest2 < 5 || clubs == 5))
+      return OPENING_3D_WEAK_DIAMONDS;
+    else if (longest1 == 5 && (spades == 5 || hearts == 5))
+      return OPENING_3D_WEAK_WITH_MAJ;
+    else
+      return OPENING_UNCLASSIFIED;
+  }
+  else
+    return OPENING_UNCLASSIFIED;
+}
+
+
+Openings Opening::classifyThreeDiamondsIntermed(
+   const Valuation& valuation) const
+{
+  if (diamonds >= 6)
+  {
+    const unsigned longest1 = valuation.getDistParam(VD_L1);
+    const unsigned longest2 = valuation.getDistParam(VD_L2);
+
+    if (longest1 == diamonds && longest2 <= 4)
+      return OPENING_3D_WEAK_DIAMONDS;
+    else if (spades >= 5 || hearts >= 5)
+      return OPENING_3D_WEAK_WITH_MAJ;
+    else
+      return OPENING_UNCLASSIFIED;
+  }
+  else if (spades >= 7 || hearts >= 7)
+    return OPENING_3D_WEAK_MAJ;
+  else if (diamonds >= 5 && hearts >= 5)
+    return OPENING_3D_INTERMED_REDS;
+  else
+    return OPENING_UNCLASSIFIED;
+}
+
+
+Openings Opening::classifyThreeDiamonds(const Valuation& valuation) const
+{
+  if (hcp >= 16)
+  {
+    const Openings op = Opening::classifyThreeDiamondsStrong();
+    if (op != OPENING_SIZE)
+      return op;
+    // Otherwise fall through to intermediate openings.
+  }
+
+  if (hcp <= 10)
+    return Opening::classifyThreeDiamondsWeak(valuation);
+  else
+    return Opening::classifyThreeDiamondsIntermed(valuation);
+}
+
+
 Openings Opening::classify(
   const string& call,
   const Valuation& valuation,
@@ -424,6 +503,8 @@ Openings Opening::classify(
     return Opening::classifyTwoNT(valuation);
   else if (call == "3C")
     return Opening::classifyThreeClubs(valuation);
+  else if (call == "3D")
+    return Opening::classifyThreeDiamonds(valuation);
   else
     return OPENING_SIZE;
 }

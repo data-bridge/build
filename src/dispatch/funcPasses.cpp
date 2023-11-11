@@ -551,6 +551,11 @@ void passWriteOpenings(
           {
             op = opening.classify(call,
               valuations[relPlayers[pos]], params[pos]);
+          }
+          else if (pos <= 1 && call == "3D")
+          {
+            op = opening.classify(call,
+              valuations[relPlayers[pos]], params[pos]);
 
             if (op == OPENING_UNCLASSIFIED)
             {
