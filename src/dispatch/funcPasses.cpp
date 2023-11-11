@@ -536,6 +536,21 @@ void passWriteOpenings(
           {
             op = opening.classify(call, 
               valuations[relPlayers[pos]], params[pos]);
+          }
+          else if (pos <= 1 && call == "2S")
+          {
+            op = opening.classify(call,
+              valuations[relPlayers[pos]], params[pos]);
+          }
+          else if (pos <= 2 && call == "2NT")
+          {
+            op = opening.classify(call,
+              valuations[relPlayers[pos]], params[pos]);
+          }
+          else if (pos <= 1 && call == "3C")
+          {
+            op = opening.classify(call,
+              valuations[relPlayers[pos]], params[pos]);
 
             if (op == OPENING_UNCLASSIFIED)
             {
@@ -553,16 +568,6 @@ void passWriteOpenings(
               strTriplet(board, instance, relPlayers, params,
                 boardTag, pos, 0, cumPasses, filterParams);
             }
-          }
-          else if (pos <= 1 && call == "2S")
-          {
-            op = opening.classify(call,
-              valuations[relPlayers[pos]], params[pos]);
-          }
-          else if (pos <= 2 && call == "2NT")
-          {
-            op = opening.classify(call,
-              valuations[relPlayers[pos]], params[pos]);
           }
           else
             op = OPENING_UNCLASSIFIED;

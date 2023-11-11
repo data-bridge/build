@@ -28,6 +28,18 @@ void Opening::set(
 }
 
 
+bool Opening::threeSuiter() const
+{
+  unsigned numSuits = 0;
+  if (spades >= 4) numSuits++;
+  if (hearts >= 4) numSuits++;
+  if (diamonds >= 4) numSuits++;
+  if (clubs >= 4) numSuits++;
+
+  return (numSuits == 3);
+}
+
+
 Openings Opening::classifyTwoHeartsStrong() const
 {
   if (hearts >= 5)
@@ -48,13 +60,7 @@ Openings Opening::classifyTwoHeartsStrong() const
       clubs >= 2 && clubs <= 6)
     return OPENING_2H_STRONG_BAL;
 
-  unsigned numSuits = 0;
-  if (spades >= 4) numSuits++;
-  if (hearts >= 4) numSuits++;
-  if (diamonds >= 4) numSuits++;
-  if (clubs >= 4) numSuits++;
-
-  if (numSuits == 3)
+  if (Opening::threeSuiter())
     return OPENING_2H_STRONG_THREE_SUITER;
   else if (diamonds <= 1 && (clubs == 4 || clubs == 5) &&
     hearts <= 4 && spades <= 4)
@@ -181,13 +187,7 @@ Openings Opening::classifyTwoSpadesStrong() const
   else if (hearts >= 6)
     return OPENING_2S_STRONG_HEARTS;
 
-  unsigned numSuits = 0;
-  if (spades == 4) numSuits++;
-  if (hearts >= 4) numSuits++;
-  if (diamonds >= 4) numSuits++;
-  if (clubs >= 4) numSuits++;
-
-  if (numSuits == 3)
+  if (Opening::threeSuiter())
     return OPENING_2S_STRONG_THREE_SUITER;
   else
   {
@@ -248,12 +248,7 @@ Openings Opening::classifyTwoSpadesIntermed() const
     if (clubs >= 5 || diamonds >= 5 || hearts >= 5)
       return OPENING_2S_INTERMED_45;
 
-    unsigned numSuits = 1;
-    if (hearts >= 4) numSuits++;
-    if (diamonds >= 4) numSuits++;
-    if (clubs >= 4) numSuits++;
-
-    if (numSuits == 3)
+    if (Opening::threeSuiter())
       return OPENING_2S_INTERMED_THREE_SUITER;
     else
       return OPENING_UNCLASSIFIED;
@@ -326,6 +321,94 @@ Openings Opening::classifyTwoNT(const Valuation& valuation) const
 }
 
 
+Openings Opening::classifyThreeClubsStrong(const Valuation& valuation) const
+{
+  const unsigned longest1 = valuation.getDistParam(VD_L1);
+  const unsigned longest2 = valuation.getDistParam(VD_L2);
+
+  if (clubs >= 5 && longest1 >= 5 && longest2 >= 5)
+    return OPENING_3C_STRONG_TWO_SUITER;
+  else if (Opening::threeSuiter())
+    return OPENING_3C_STRONG_THREE_SUITER;
+  else
+  {
+    // Fall through to intermediate strength.
+    return OPENING_SIZE;
+  }
+}
+
+
+Openings Opening::classifyThreeClubsWeak() const
+{
+  if (spades >= 4 && hearts >= 4 && spades + hearts >= 9)
+    return OPENING_3C_WEAK_MAJORS;
+  else if (spades >= 6 || hearts >= 6)
+    return OPENING_3C_WEAK_MAJ;
+  else if (clubs <= 4 && diamonds >= 6)
+    return OPENING_3C_WEAK_DIAMONDS;
+
+  if (clubs >= 5)
+  {
+    if (diamonds >= 4)
+      return OPENING_3C_WEAK_MINS;
+    else if (spades >= 5 || hearts >= 5)
+      return OPENING_3C_WEAK_WITH_MAJOR;
+    else if (clubs >= 6)
+      return OPENING_3C_WEAK_CLUBS;
+    else
+      return OPENING_3C_WEAK_CLUBS;
+  }
+  else
+    return OPENING_UNCLASSIFIED;
+}
+
+
+Openings Opening::classifyThreeClubsIntermed(
+  const Valuation& valuation) const
+{
+  if (clubs >= 6)
+  {
+    // Assume untraditional preempt even if intermediate.
+    return OPENING_3C_WEAK_CLUBS;
+  }
+  else if (diamonds >= 6)
+    return OPENING_3C_WEAK_DIAMONDS;
+  else if (spades >= 7 || hearts >= 7)
+    return OPENING_3C_WEAK_MAJ;
+
+  const unsigned longest1 = valuation.getDistParam(VD_L1);
+  const unsigned longest2 = valuation.getDistParam(VD_L2);
+
+  if (clubs == 5 && longest2 >= 5)
+    return OPENING_3C_INTERMED_CLUB_OTHER;
+  else if (longest1 + longest2 >= 10)
+    return OPENING_3C_INTERMED_TWO_SUITER;
+  else if (spades + hearts == 9)
+    return OPENING_3C_INTERMED_MAJORS;
+  else if (clubs == 5 && hcp <= 13)
+    return OPENING_3C_WEAK_CLUBS;
+  else
+    return OPENING_UNCLASSIFIED;
+}
+
+
+Openings Opening::classifyThreeClubs(const Valuation& valuation) const
+{
+  if (hcp >= 16)
+  {
+    const Openings op = Opening::classifyThreeClubsStrong(valuation);
+    if (op != OPENING_SIZE)
+      return op;
+    // Otherwise fall through to intermediate openings.
+  }
+
+  if (hcp <= 10)
+    return Opening::classifyThreeClubsWeak();
+  else
+    return Opening::classifyThreeClubsIntermed(valuation);
+}
+
+
 Openings Opening::classify(
   const string& call,
   const Valuation& valuation,
@@ -339,6 +422,8 @@ Openings Opening::classify(
     return Opening::classifyTwoSpades();
   else if (call == "2NT")
     return Opening::classifyTwoNT(valuation);
+  else if (call == "3C")
+    return Opening::classifyThreeClubs(valuation);
   else
     return OPENING_SIZE;
 }

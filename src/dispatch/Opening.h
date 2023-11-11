@@ -40,6 +40,8 @@ class Opening
       const Valuation& valuation,
       const vector<unsigned>& params);
 
+    bool threeSuiter() const;
+
     Openings classifyTwoHeartsStrong() const;
     Openings classifyTwoHeartsWeak() const;
     Openings classifyTwoHeartsIntermed() const;
@@ -54,6 +56,12 @@ class Opening
 
     Openings classifyTwoNT(const Valuation& valuation) const;
       
+    Openings classifyThreeClubsStrong(const Valuation& valuation) const;
+    Openings classifyThreeClubsWeak() const;
+    Openings classifyThreeClubsIntermed(const Valuation& valuation) const;
+
+    Openings classifyThreeClubs(const Valuation& valuation) const;
+
 
   public:
 
