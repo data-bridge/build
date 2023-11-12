@@ -18,6 +18,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 using namespace std;
 
@@ -30,10 +31,19 @@ class Opening
 {
   private:
 
+    typedef Openings (Opening::*ClassifyPtr)() const;
+
+    static map<string, vector<ClassifyPtr>> classifyMap;
+
     unsigned spades;
     unsigned hearts;
     unsigned diamonds;
     unsigned clubs;
+
+    unsigned longest1;
+    unsigned longest2;
+    unsigned longest4;
+
     unsigned hcp;
 
     void set(
@@ -54,24 +64,32 @@ class Opening
 
     Openings classifyTwoSpades() const;
 
-    Openings classifyTwoNT(const Valuation& valuation) const;
-      
-    Openings classifyThreeClubsStrong(const Valuation& valuation) const;
-    Openings classifyThreeClubsWeak() const;
-    Openings classifyThreeClubsIntermed(const Valuation& valuation) const;
+    Openings classifyTwoNTStrong() const;
+    Openings classifyTwoNTWeak() const;
+    Openings classifyTwoNTIntermed() const;
 
-    Openings classifyThreeClubs(const Valuation& valuation) const;
+    Openings classifyTwoNT() const;
+      
+    Openings classifyThreeClubsStrong() const;
+    Openings classifyThreeClubsWeak() const;
+    Openings classifyThreeClubsIntermed() const;
+
+    Openings classifyThreeClubs() const;
 
     Openings classifyThreeDiamondsStrong() const;
-    Openings classifyThreeDiamondsWeak(
-      const Valuation& valuation) const;
-    Openings classifyThreeDiamondsIntermed(
-      const Valuation& valuation) const;
+    Openings classifyThreeDiamondsWeak() const;
+    Openings classifyThreeDiamondsIntermed() const;
 
-    Openings classifyThreeDiamonds(const Valuation& valuation) const;
+    Openings classifyThreeDiamonds() const;
+
+    Openings classifyThreeHeartsStrong() const;
+    Openings classifyThreeHeartsWeak() const;
+    Openings classifyThreeHeartsIntermed() const;
 
 
   public:
+
+    static void init();
 
     Openings classify(
       const string& call,

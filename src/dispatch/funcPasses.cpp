@@ -113,6 +113,8 @@ struct FilterParams
 void setPassTables(vector<AllStats>& allStatsList)
 {
   passTables.read(allStatsList);
+
+  opening.init();
 }
 
 
@@ -553,6 +555,11 @@ void passWriteOpenings(
               valuations[relPlayers[pos]], params[pos]);
           }
           else if (pos <= 1 && call == "3D")
+          {
+            op = opening.classify(call,
+              valuations[relPlayers[pos]], params[pos]);
+          }
+          else if (pos <= 1 && call == "3H")
           {
             op = opening.classify(call,
               valuations[relPlayers[pos]], params[pos]);
