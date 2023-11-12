@@ -74,17 +74,17 @@ class Opening
     Openings classifyThreeClubsWeak() const;
     Openings classifyThreeClubsIntermed() const;
 
-    Openings classifyThreeClubs() const;
-
     Openings classifyThreeDiamondsStrong() const;
     Openings classifyThreeDiamondsWeak() const;
     Openings classifyThreeDiamondsIntermed() const;
 
-    Openings classifyThreeDiamonds() const;
-
     Openings classifyThreeHeartsStrong() const;
     Openings classifyThreeHeartsWeak() const;
     Openings classifyThreeHeartsIntermed() const;
+
+    Openings classifyThreeSpadesStrong() const;
+    Openings classifyThreeSpadesWeak() const;
+    Openings classifyThreeSpadesIntermed() const;
 
 
   public:

@@ -534,14 +534,9 @@ void passWriteOpenings(
             // Will be wrong for strong-pass systems.
             op = OPENING_NOT_WEAK;
           }
-          else if (pos <= 1 && call == "2H")
+          else if (pos <= 1 && (call == "2H" || call == "2S"))
           {
             op = opening.classify(call, 
-              valuations[relPlayers[pos]], params[pos]);
-          }
-          else if (pos <= 1 && call == "2S")
-          {
-            op = opening.classify(call,
               valuations[relPlayers[pos]], params[pos]);
           }
           else if (pos <= 2 && call == "2NT")
@@ -549,17 +544,13 @@ void passWriteOpenings(
             op = opening.classify(call,
               valuations[relPlayers[pos]], params[pos]);
           }
-          else if (pos <= 1 && call == "3C")
+          else if (pos <= 1 && 
+            (call == "3C" || call == "3D" || call == "3H"))
           {
             op = opening.classify(call,
               valuations[relPlayers[pos]], params[pos]);
           }
-          else if (pos <= 1 && call == "3D")
-          {
-            op = opening.classify(call,
-              valuations[relPlayers[pos]], params[pos]);
-          }
-          else if (pos <= 1 && call == "3H")
+          else if (pos <= 1 && call == "3S")
           {
             op = opening.classify(call,
               valuations[relPlayers[pos]], params[pos]);
