@@ -541,7 +541,7 @@ Openings Opening::classifyThreeHeartsWeak() const
     return OPENING_3H_WEAK_SPADES;
   else if (spades >= 5 && hearts >= 5)
     return OPENING_3H_WEAK_MAJORS;
-  else if (hearts == 5 || longest2 <= 5)
+  else if (hearts == 5 && hearts == longest1 && longest2 <= 5)
     return OPENING_3H_WEAK_HEARTS;
   else if (clubs >= 8 || diamonds >= 8)
     return OPENING_3H_WEAK_MIN;
@@ -560,7 +560,12 @@ Openings Opening::classifyThreeHeartsIntermed() const
 
 Openings Opening::classifyThreeSpadesStrong() const
 {
-  return OPENING_UNCLASSIFIED;
+  if (spades >= 7)
+    return OPENING_3S_STRONG_SPADES;
+  else if (spades == 6 && longest2 >= 5)
+    return OPENING_3S_STRONG_SPADES_OTHER;
+  else
+    return OPENING_UNCLASSIFIED;
 }
 
 
@@ -568,6 +573,28 @@ Openings Opening::classifyThreeSpadesWeak() const
 {
   if (spades >= 6)
     return OPENING_3S_WEAK_SPADES;
+  else if (spades == 5 && (clubs >= 5 || diamonds >= 5))
+    return OPENING_3S_WEAK_SPADES_MIN;
+  else if (spades == 5 && spades == longest1 && longest2 <= 5)
+    return OPENING_3S_WEAK_SPADES;
+  else if (hcp >= 9)
+  {
+    // This correlates very well with a solid suit.
+    // The suit won't be spades as we have already taken out the
+    // spade suits, and I don't feel like testing for a solid suit.
+    if (hearts >= 7)
+      return OPENING_3S_SOLID_HEARTS;
+    else if (diamonds >= 7)
+      return OPENING_3S_SOLID_DIAMONDS;
+    else if (clubs >= 7)
+      return OPENING_3S_SOLID_CLUBS;
+    else
+      return OPENING_UNCLASSIFIED;
+  }
+  else if (diamonds >= 7)
+    return OPENING_3S_WEAK_BROKEN_DIAMONDS;
+  else if (clubs >= 7)
+    return OPENING_3S_WEAK_BROKEN_CLUBS;
   else
     return OPENING_UNCLASSIFIED;
 }
@@ -592,7 +619,7 @@ Openings Opening::classify(
     return Opening::classifyTwoSpades();
   else if (call == "2NT")
     return Opening::classifyTwoNT();
-  else if (call == "3C" || call == "3D" || call == "3H")
+  else if (call == "3C" || call == "3D" || call == "3H" || call == "3S")
   {
     if (hcp >= 16)
     {
