@@ -72,9 +72,38 @@ void Opening::init()
       { &Opening::classifyThreeSpadesWeak, 
         &Opening::classifyThreeSpadesIntermed,
         &Opening::classifyThreeSpadesStrong }
+    },
+
+    { "3NT", 
+      { &Opening::classifyThreeNTWeak, 
+        &Opening::classifyThreeNTIntermed,
+        &Opening::classifyThreeNTStrong }
     }
 
   };
+}
+
+
+bool Opening::checkSolid(
+  const Valuation& valuation,
+  const unsigned longest,
+  const ValSuitParams sparam,
+  const unsigned target) const
+{
+  if (spades == longest && 
+      valuation.getSuitParam(BRIDGE_SPADES, sparam) == target)
+    return true;
+  else if (hearts == longest &&
+      valuation.getSuitParam(BRIDGE_HEARTS, sparam) == target)
+    return true;
+  else if (diamonds == longest &&
+      valuation.getSuitParam(BRIDGE_DIAMONDS, sparam) == target)
+    return true;
+  else if (clubs == longest &&
+      valuation.getSuitParam(BRIDGE_CLUBS, sparam) == target)
+    return true;
+  else
+    return false;
 }
 
 
@@ -92,6 +121,25 @@ void Opening::set(
   longest4 = valuation.getDistParam(VD_L4);
 
   hcp = params[PASS_HCP];
+
+  if (longest1 == 6)
+  {
+    // AKQxxx is not really solid, but it shows up in a number
+    // of 3NT openings.
+    solidFlag = checkSolid(valuation, longest1, VS_TOP3, 3);
+  }
+  else if (longest1 == 7)
+  {
+    // AKQxxxx.
+    solidFlag = checkSolid(valuation, longest1, VS_TOP3, 3);
+  }
+  else if (longest1 >= 8)
+  {
+    // AK eighth+.
+    solidFlag = checkSolid(valuation, longest1, VS_TOP2, 2);
+  }
+  else
+    solidFlag = false;
 }
 
 
@@ -571,18 +619,11 @@ Openings Opening::classifyThreeSpadesStrong() const
 
 Openings Opening::classifyThreeSpadesWeak() const
 {
-  if (spades >= 6)
-    return OPENING_3S_WEAK_SPADES;
-  else if (spades == 5 && (clubs >= 5 || diamonds >= 5))
-    return OPENING_3S_WEAK_SPADES_MIN;
-  else if (spades == 5 && spades == longest1 && longest2 <= 5)
-    return OPENING_3S_WEAK_SPADES;
-  else if (hcp >= 9)
+  if (solidFlag)
   {
-    // This correlates very well with a solid suit.
-    // The suit won't be spades as we have already taken out the
-    // spade suits, and I don't feel like testing for a solid suit.
-    if (hearts >= 7)
+    if (spades >= 7)
+      return OPENING_3S_SOLID_SPADES;
+    else if (hearts >= 7)
       return OPENING_3S_SOLID_HEARTS;
     else if (diamonds >= 7)
       return OPENING_3S_SOLID_DIAMONDS;
@@ -591,6 +632,13 @@ Openings Opening::classifyThreeSpadesWeak() const
     else
       return OPENING_UNCLASSIFIED;
   }
+
+  if (spades >= 6)
+    return OPENING_3S_WEAK_SPADES;
+  else if (spades == 5 && (clubs >= 5 || diamonds >= 5))
+    return OPENING_3S_WEAK_SPADES_MIN;
+  else if (spades == 5 && spades == longest1 && longest2 <= 5)
+    return OPENING_3S_WEAK_SPADES;
   else if (diamonds >= 7)
     return OPENING_3S_WEAK_BROKEN_DIAMONDS;
   else if (clubs >= 7)
@@ -603,6 +651,106 @@ Openings Opening::classifyThreeSpadesWeak() const
 Openings Opening::classifyThreeSpadesIntermed() const
 {
   return classifyThreeSpadesWeak();
+}
+
+
+Openings Opening::classifyThreeNTStrong() const
+{
+  if (hcp >= 22 && longest1 <= 5 && longest4 >= 2)
+    return OPENING_3NT_STRONG_BAL;
+  else if (longest1 >= 7 && solidFlag)
+  {
+    if (spades == longest1 || hearts == longest1)
+      return OPENING_3NT_STRONG_SOLID_MAJOR;
+    else
+      return OPENING_3NT_STRONG_SOLID_MINOR;
+  }
+  else if (longest1 == 6 && solidFlag)
+  {
+    if (spades == longest1 || hearts == longest1)
+      return OPENING_3NT_STRONG_AKQxxx_MAJOR;
+    else
+      return OPENING_3NT_STRONG_AKQxxx_MINOR;
+  }
+  else if (spades >= 7)
+    return OPENING_3NT_STRONG_SPADES;
+  else if (hearts >= 7)
+    return OPENING_3NT_STRONG_HEARTS;
+  else if (spades >= 5 && hearts >= 5)
+    return OPENING_3NT_STRONG_MAJORS;
+  else if (clubs >= 6 || diamonds >= 6)
+  {
+    if (hcp <= 18)
+      return OPENING_3NT_INTERMED_MINOR;
+    else
+      return OPENING_3NT_STRONG_MINOR;
+  }
+  else if (hcp >= 20)
+    return OPENING_3NT_STRONG_OTHER;
+  else
+    return OPENING_UNCLASSIFIED;
+}
+
+
+Openings Opening::classifyThreeNTWeak() const
+{
+  if (clubs >= 7 || diamonds >= 7)
+  {
+    if (solidFlag)
+      return OPENING_3NT_WEAK_SOLID_MINOR;
+    else
+      return OPENING_3NT_WEAK_BROKEN_MINOR;
+  }
+  else if (hearts >= 7 || spades >= 7)
+  {
+    if (solidFlag)
+      return OPENING_3NT_WEAK_SOLID_MAJOR;
+    else
+      return OPENING_3NT_WEAK_BROKEN_MAJOR;
+  }
+  else if (clubs >= 5 && diamonds >= 5)
+    return OPENING_3NT_WEAK_MINORS;
+  else if (hearts >= 5 && spades >= 5)
+    return OPENING_3NT_WEAK_MAJORS;
+  else if (clubs == 6 || diamonds == 6)
+  {
+    if (solidFlag)
+      return OPENING_3NT_WEAK_AKQxxx_MINOR;
+    else
+      return OPENING_3NT_WEAK_BROKEN_MINOR;
+  }
+  else if (hearts == 6 || spades == 6)
+  {
+    if (solidFlag)
+      return OPENING_3NT_WEAK_AKQxxx_MAJOR;
+    else
+      return OPENING_3NT_WEAK_BROKEN_MAJOR;
+  }
+  else
+    return OPENING_UNCLASSIFIED;
+}
+
+
+Openings Opening::classifyThreeNTIntermed() const
+{
+  if (longest1 >= 7 && solidFlag)
+  {
+    if (spades == longest1 || hearts == longest1)
+      return OPENING_3NT_INTERMED_SOLID_MAJOR;
+    else
+      return OPENING_3NT_INTERMED_SOLID_MINOR;
+  }
+  else if (longest1 == 6 && solidFlag)
+  {
+    if (spades == longest1 || hearts == longest1)
+      return OPENING_3NT_INTERMED_AKQxxx_MAJOR;
+    else
+      return OPENING_3NT_INTERMED_AKQxxx_MINOR;
+  }
+  else if (hcp >= 13 && (clubs >= 6 || diamonds >= 6))
+    return OPENING_3NT_INTERMED_MINOR;
+  else
+    return classifyThreeNTWeak();
 }
 
 
@@ -619,7 +767,8 @@ Openings Opening::classify(
     return Opening::classifyTwoSpades();
   else if (call == "2NT")
     return Opening::classifyTwoNT();
-  else if (call == "3C" || call == "3D" || call == "3H" || call == "3S")
+  else if (call == "3C" || call == "3D" || call == "3H" || 
+      call == "3S" || call == "3NT")
   {
     if (hcp >= 16)
     {

@@ -177,7 +177,7 @@ using namespace std;
 // It's an enum abuse that the first parameters have the same
 // values in ValSuitParams and CompositeParams...
 
-enum ValSuitParams
+enum ValSuitParams: unsigned
 {
   VS_HCP = 0,
   VS_AHCP = 1,

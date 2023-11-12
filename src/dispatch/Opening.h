@@ -25,6 +25,7 @@ using namespace std;
 class Valuation;
 
 enum Openings: unsigned;
+enum ValSuitParams: unsigned;
 
 
 class Opening
@@ -40,6 +41,8 @@ class Opening
     unsigned diamonds;
     unsigned clubs;
 
+    bool solidFlag;
+
     unsigned longest1;
     unsigned longest2;
     unsigned longest4;
@@ -49,6 +52,12 @@ class Opening
     void set(
       const Valuation& valuation,
       const vector<unsigned>& params);
+
+    bool checkSolid(
+      const Valuation& valuation,
+      const unsigned longest,
+      const ValSuitParams ValSuitParams,
+      const unsigned target) const;
 
     bool threeSuiter() const;
 
@@ -85,6 +94,10 @@ class Opening
     Openings classifyThreeSpadesStrong() const;
     Openings classifyThreeSpadesWeak() const;
     Openings classifyThreeSpadesIntermed() const;
+
+    Openings classifyThreeNTStrong() const;
+    Openings classifyThreeNTWeak() const;
+    Openings classifyThreeNTIntermed() const;
 
 
   public:
