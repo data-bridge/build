@@ -554,6 +554,11 @@ void passWriteOpenings(
           {
             op = opening.classify(call,
               valuations[relPlayers[pos]], params[pos]);
+          }
+          else if (call == "4C")
+          {
+            op = opening.classify(call,
+              valuations[relPlayers[pos]], params[pos]);
 
             if (op == OPENING_UNCLASSIFIED)
             {

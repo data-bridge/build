@@ -78,6 +78,18 @@ void Opening::init()
       { &Opening::classifyThreeNTWeak, 
         &Opening::classifyThreeNTIntermed,
         &Opening::classifyThreeNTStrong }
+    },
+
+    { "4C", 
+      { &Opening::classifyFourClubsWeak, 
+        &Opening::classifyFourClubsIntermed,
+        &Opening::classifyFourClubsStrong },
+    },
+
+    { "4D", 
+      { &Opening::classifyFourDiamondsWeak, 
+        &Opening::classifyFourDiamondsIntermed,
+        &Opening::classifyFourDiamondsStrong }
     }
 
   };
@@ -754,6 +766,65 @@ Openings Opening::classifyThreeNTIntermed() const
 }
 
 
+Openings Opening::classifyFourClubsStrong() const
+{
+  if (hearts >= 6)
+    return OPENING_4C_STRONG_NAMYATS;
+  else if (clubs >= 7)
+    return OPENING_4C_STRONG_CLUBS;
+  else
+    return OPENING_UNCLASSIFIED;
+}
+
+
+Openings Opening::classifyFourClubsWeak() const
+{
+  if (hearts >= 7)
+    return OPENING_4C_WEAK_NAMYATS;
+  else if (diamonds >= 7)
+    return OPENING_4C_WEAK_DIAMONDS;
+  else if (clubs >= 5 && (spades >= 5 || hearts >= 5))
+    return OPENING_4C_WEAK_WITH_MAJ;
+  else if (clubs >= 6)
+    return OPENING_4C_WEAK_CLUBS;
+  else if (clubs == 5 && diamonds == 5)
+    return OPENING_4C_WEAK_CLUBS;
+  else
+    return OPENING_UNCLASSIFIED;
+}
+
+
+Openings Opening::classifyFourClubsIntermed() const
+{
+  if (hearts >= 6)
+    return OPENING_4C_INTERMED_NAMYATS;
+  else if (clubs >= 5 && (spades >= 5 || hearts >= 5))
+    return OPENING_4C_INTERMED_WITH_MAJ;
+  else if (clubs >= 6)
+    return OPENING_4C_INTERMED_CLUBS;
+  else
+    return OPENING_UNCLASSIFIED;
+}
+
+
+Openings Opening::classifyFourDiamondsStrong() const
+{
+  return OPENING_UNCLASSIFIED;
+}
+
+
+Openings Opening::classifyFourDiamondsWeak() const
+{
+  return OPENING_UNCLASSIFIED;
+}
+
+
+Openings Opening::classifyFourDiamondsIntermed() const
+{
+  return OPENING_UNCLASSIFIED;
+}
+
+
 Openings Opening::classify(
   const string& call,
   const Valuation& valuation,
@@ -768,7 +839,7 @@ Openings Opening::classify(
   else if (call == "2NT")
     return Opening::classifyTwoNT();
   else if (call == "3C" || call == "3D" || call == "3H" || 
-      call == "3S" || call == "3NT")
+      call == "3S" || call == "3NT" || call == "4C")
   {
     if (hcp >= 16)
     {
