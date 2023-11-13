@@ -107,6 +107,14 @@ class Opening
     Openings classifyFourDiamondsWeak() const;
     Openings classifyFourDiamondsIntermed() const;
 
+    Openings classifyFourHeartsStrong() const;
+    Openings classifyFourHeartsWeak() const;
+    Openings classifyFourHeartsIntermed() const;
+
+    Openings classifyFourSpadesStrong() const;
+    Openings classifyFourSpadesWeak() const;
+    Openings classifyFourSpadesIntermed() const;
+
 
   public:
 

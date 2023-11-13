@@ -90,6 +90,18 @@ void Opening::init()
       { &Opening::classifyFourDiamondsWeak, 
         &Opening::classifyFourDiamondsIntermed,
         &Opening::classifyFourDiamondsStrong }
+    },
+
+    { "4H", 
+      { &Opening::classifyFourHeartsWeak, 
+        &Opening::classifyFourHeartsIntermed,
+        &Opening::classifyFourHeartsStrong }
+    },
+
+    { "4S", 
+      { &Opening::classifyFourSpadesWeak, 
+        &Opening::classifyFourSpadesIntermed,
+        &Opening::classifyFourSpadesStrong }
     }
 
   };
@@ -809,19 +821,110 @@ Openings Opening::classifyFourClubsIntermed() const
 
 Openings Opening::classifyFourDiamondsStrong() const
 {
-  return OPENING_UNCLASSIFIED;
+  if (spades >= 6)
+    return OPENING_4D_STRONG_NAMYATS;
+  else if (diamonds >= 7)
+    return OPENING_4D_STRONG_DIAMONDS;
+  else if (diamonds >= 5 && (spades >= 5 || hearts >= 5))
+    return OPENING_4D_STRONG_WITH_MAJ;
+  else
+    return OPENING_4D_STRONG_OTHER;
 }
 
 
 Openings Opening::classifyFourDiamondsWeak() const
 {
-  return OPENING_UNCLASSIFIED;
+  if (spades >= 7)
+    return OPENING_4D_WEAK_NAMYATS;
+  else if (hearts >= 7 || (hearts == 6 && diamonds <= 3))
+    return OPENING_4D_WEAK_HEARTS;
+  else if (diamonds >= 7)
+    return OPENING_4D_WEAK_DIAMONDS;
+  else if (diamonds >= 5 && (spades >= 5 || hearts >= 5))
+    return OPENING_4D_WEAK_WITH_MAJ;
+  else if (diamonds >= 6)
+    return OPENING_4D_WEAK_DIAMONDS;
+  else if (clubs == 5 && diamonds == 5)
+    return OPENING_4D_WEAK_DIAMONDS;
+  else
+    return OPENING_UNCLASSIFIED;
 }
 
 
 Openings Opening::classifyFourDiamondsIntermed() const
 {
-  return OPENING_UNCLASSIFIED;
+  if (spades >= 6)
+    return OPENING_4D_INTERMED_NAMYATS;
+  else if (hearts >= 7)
+    return OPENING_4D_INTERMED_HEARTS;
+  else if (diamonds >= 5 && (spades >= 5 || hearts >= 5))
+    return OPENING_4D_INTERMED_WITH_MAJ;
+  else if (spades >= 5 && hearts >= 5)
+    return OPENING_4D_INTERMED_MAJS;
+  else if (diamonds >= 6)
+    return OPENING_4D_INTERMED_DIAMONDS;
+  else
+    return OPENING_UNCLASSIFIED;
+}
+
+
+Openings Opening::classifyFourHeartsStrong() const
+{
+  if (hearts >= 6)
+    return OPENING_4H_STRONG_HEARTS;
+  else if (spades >= 6 && hearts <= 4)
+    return OPENING_4H_STRONG_SPADES;
+  else
+    return OPENING_UNCLASSIFIED;
+}
+
+
+Openings Opening::classifyFourHeartsWeak() const
+{
+  if (hearts >= 6)
+    return OPENING_4H_WEAK_HEARTS;
+  else if (spades >= 6 && hearts <= 4)
+    return OPENING_4H_WEAK_SPADES;
+  else
+    return OPENING_UNCLASSIFIED;
+}
+
+
+Openings Opening::classifyFourHeartsIntermed() const
+{
+  if (hearts >= 6)
+    return OPENING_4H_INTERMED_HEARTS;
+  else if (spades >= 6 && hearts <= 4)
+    return OPENING_4H_INTERMED_SPADES;
+  else
+    return OPENING_UNCLASSIFIED;
+}
+
+
+Openings Opening::classifyFourSpadesStrong() const
+{
+  if (hearts >= 7)
+    return OPENING_4S_STRONG_SPADES;
+  else
+    return OPENING_UNCLASSIFIED;
+}
+
+
+Openings Opening::classifyFourSpadesWeak() const
+{
+  if (spades >= 7)
+    return OPENING_4S_WEAK_SPADES;
+  else
+    return OPENING_UNCLASSIFIED;
+}
+
+
+Openings Opening::classifyFourSpadesIntermed() const
+{
+  if (spades >= 7)
+    return OPENING_4S_INTERMED_SPADES;
+  else
+    return OPENING_UNCLASSIFIED;
 }
 
 
@@ -838,8 +941,11 @@ Openings Opening::classify(
     return Opening::classifyTwoSpades();
   else if (call == "2NT")
     return Opening::classifyTwoNT();
-  else if (call == "3C" || call == "3D" || call == "3H" || 
-      call == "3S" || call == "3NT" || call == "4C")
+  else if (
+      call == "3C" || call == "3D" || 
+      call == "3H" || call == "3S" || call == "3NT" || 
+      call == "4C" || call == "4D" ||
+      call == "4H" || call == "4S")
   {
     if (hcp >= 16)
     {
