@@ -102,6 +102,12 @@ void Opening::init()
       { &Opening::classifyFourSpadesWeak, 
         &Opening::classifyFourSpadesIntermed,
         &Opening::classifyFourSpadesStrong }
+    },
+
+    { "4NT", 
+      { &Opening::classifyFourNTWeak, 
+        &Opening::classifyFourNTIntermed,
+        &Opening::classifyFourNTStrong }
     }
 
   };
@@ -934,6 +940,27 @@ Openings Opening::classifyFourSpadesIntermed() const
 }
 
 
+Openings Opening::classifyFourNTStrong() const
+{
+  if (clubs >= 5 && diamonds >= 5)
+    return OPENING_4NT_MINS;
+  else
+    return OPENING_4NT_ACES;
+}
+
+
+Openings Opening::classifyFourNTWeak() const
+{
+  return Opening::classifyFourNTStrong();
+}
+
+
+Openings Opening::classifyFourNTIntermed() const
+{
+  return Opening::classifyFourNTStrong();
+}
+
+
 Openings Opening::classify(
   const string& call,
   const Valuation& valuation,
@@ -951,7 +978,7 @@ Openings Opening::classify(
       call == "3C" || call == "3D" || 
       call == "3H" || call == "3S" || call == "3NT" || 
       call == "4C" || call == "4D" ||
-      call == "4H" || call == "4S")
+      call == "4H" || call == "4S" || call == "4NT")
   {
     if (hcp >= 16)
     {

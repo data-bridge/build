@@ -115,6 +115,10 @@ class Opening
     Openings classifyFourSpadesWeak() const;
     Openings classifyFourSpadesIntermed() const;
 
+    Openings classifyFourNTStrong() const;
+    Openings classifyFourNTWeak() const;
+    Openings classifyFourNTIntermed() const;
+
 
   public:
 
