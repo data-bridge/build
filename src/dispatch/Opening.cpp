@@ -903,8 +903,10 @@ Openings Opening::classifyFourHeartsIntermed() const
 
 Openings Opening::classifyFourSpadesStrong() const
 {
-  if (hearts >= 7)
+  if (spades >= 6)
     return OPENING_4S_STRONG_SPADES;
+  else if (spades == 5)
+    return OPENING_4S_STRONG_FIVE_SPADES;
   else
     return OPENING_UNCLASSIFIED;
 }
@@ -912,8 +914,10 @@ Openings Opening::classifyFourSpadesStrong() const
 
 Openings Opening::classifyFourSpadesWeak() const
 {
-  if (spades >= 7)
+  if (spades >= 6)
     return OPENING_4S_WEAK_SPADES;
+  else if (spades == 5)
+    return OPENING_4S_WEAK_FIVE_SPADES;
   else
     return OPENING_UNCLASSIFIED;
 }
@@ -921,8 +925,10 @@ Openings Opening::classifyFourSpadesWeak() const
 
 Openings Opening::classifyFourSpadesIntermed() const
 {
-  if (spades >= 7)
+  if (spades >= 6)
     return OPENING_4S_INTERMED_SPADES;
+  else if (spades == 5)
+    return OPENING_4S_INTERMED_FIVE_SPADES;
   else
     return OPENING_UNCLASSIFIED;
 }
