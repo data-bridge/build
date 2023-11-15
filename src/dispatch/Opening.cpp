@@ -52,11 +52,8 @@ void Opening::init()
         &Opening::threeClubsInt, &Opening::threeClubsStrong }
     },
 
-    { "3D", 
-      { &Opening::classifyThreeDiamondsWeak, 
-        &Opening::classifyThreeDiamondsIntermed,
-        &Opening::classifyThreeDiamondsStrong }
-    },
+    { "3D", { &Opening::threeDiamondsWeak, 
+        &Opening::threeDiamondsInt, &Opening::threeDiamondsStrong } },
 
     { "3H", 
       { &Opening::classifyThreeHeartsWeak, 
@@ -591,20 +588,9 @@ Openings Opening::threeClubsStrong() const
 }
 
 
-// ----------------- Three clubs -------------------
+// ----------------- Three diamonds ----------------
 
-Openings Opening::classifyThreeDiamondsStrong() const
-{
-  if (spades >= 5 && (clubs >= 5 || diamonds >= 5))
-    return OPENING_3D_STRONG_SPADES_MIN;
-  else if (hearts >= 6 && diamonds >= 5)
-    return OPENING_3D_STRONG_REDS;
-  else
-    return OPENING_SIZE;
-}
-
-
-Openings Opening::classifyThreeDiamondsWeak() const
+Openings Opening::threeDiamondsWeak() const
 {
   if (diamonds >= 6)
     return OPENING_3D_WEAK_DIAMONDS;
@@ -627,7 +613,7 @@ Openings Opening::classifyThreeDiamondsWeak() const
 }
 
 
-Openings Opening::classifyThreeDiamondsIntermed() const
+Openings Opening::threeDiamondsInt() const
 {
   if (diamonds >= 6)
   {
@@ -643,7 +629,19 @@ Openings Opening::classifyThreeDiamondsIntermed() const
   else if (diamonds >= 5 && hearts >= 5)
     return OPENING_3D_INTERMED_REDS;
   else
-    return OPENING_UNCLASSIFIED;
+    return OPENING_3D_INTERMED_OTHER;
+}
+
+
+Openings Opening::threeDiamondsStrong() const
+{
+  if ((spades >= 5 || hearts >= 5) && (clubs >= 5 || diamonds >= 5))
+    return OPENING_3D_STRONG_MAJ_MIN;
+  else
+  {
+    // Fall through to intermediate strength.
+    return OPENING_SIZE;
+  }
 }
 
 

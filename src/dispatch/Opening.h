@@ -73,45 +73,45 @@ class Opening
 
     Openings classifyTwoSpades() const;
 
-    Openings twoNTStrong() const;
     Openings twoNTWeak() const;
     Openings twoNTInt() const;
+    Openings twoNTStrong() const;
 
-    Openings threeClubsStrong() const;
     Openings threeClubsWeak() const;
     Openings threeClubsInt() const;
+    Openings threeClubsStrong() const;
 
-    Openings classifyThreeDiamondsStrong() const;
-    Openings classifyThreeDiamondsWeak() const;
-    Openings classifyThreeDiamondsIntermed() const;
+    Openings threeDiamondsWeak() const;
+    Openings threeDiamondsInt() const;
+    Openings threeDiamondsStrong() const;
 
-    Openings classifyThreeHeartsStrong() const;
     Openings classifyThreeHeartsWeak() const;
     Openings classifyThreeHeartsIntermed() const;
+    Openings classifyThreeHeartsStrong() const;
 
-    Openings classifyThreeSpadesStrong() const;
     Openings classifyThreeSpadesWeak() const;
     Openings classifyThreeSpadesIntermed() const;
+    Openings classifyThreeSpadesStrong() const;
 
-    Openings classifyThreeNTStrong() const;
     Openings classifyThreeNTWeak() const;
     Openings classifyThreeNTIntermed() const;
+    Openings classifyThreeNTStrong() const;
 
-    Openings classifyFourClubsStrong() const;
     Openings classifyFourClubsWeak() const;
     Openings classifyFourClubsIntermed() const;
+    Openings classifyFourClubsStrong() const;
 
-    Openings classifyFourDiamondsStrong() const;
     Openings classifyFourDiamondsWeak() const;
     Openings classifyFourDiamondsIntermed() const;
+    Openings classifyFourDiamondsStrong() const;
 
-    Openings classifyFourHeartsStrong() const;
     Openings classifyFourHeartsWeak() const;
     Openings classifyFourHeartsIntermed() const;
+    Openings classifyFourHeartsStrong() const;
 
-    Openings classifyFourSpadesStrong() const;
     Openings classifyFourSpadesWeak() const;
     Openings classifyFourSpadesIntermed() const;
+    Openings classifyFourSpadesStrong() const;
 
     Openings fourNT() const;
     Openings fiveClubs() const;
