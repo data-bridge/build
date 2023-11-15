@@ -85,9 +85,9 @@ class Opening
     Openings threeDiamondsInt() const;
     Openings threeDiamondsStrong() const;
 
-    Openings classifyThreeHeartsWeak() const;
-    Openings classifyThreeHeartsIntermed() const;
-    Openings classifyThreeHeartsStrong() const;
+    Openings threeHeartsWeak() const;
+    Openings threeHeartsInt() const;
+    Openings threeHeartsStrong() const;
 
     Openings classifyThreeSpadesWeak() const;
     Openings classifyThreeSpadesIntermed() const;

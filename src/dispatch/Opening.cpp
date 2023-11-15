@@ -55,10 +55,8 @@ void Opening::init()
     { "3D", { &Opening::threeDiamondsWeak, 
         &Opening::threeDiamondsInt, &Opening::threeDiamondsStrong } },
 
-    { "3H", 
-      { &Opening::classifyThreeHeartsWeak, 
-        &Opening::classifyThreeHeartsIntermed,
-        &Opening::classifyThreeHeartsStrong }
+    { "3H", { &Opening::threeHeartsWeak, 
+        &Opening::threeHeartsInt, &Opening::threeHeartsStrong }
     },
 
     { "3S", 
@@ -647,7 +645,7 @@ Openings Opening::threeDiamondsStrong() const
 
 // ----------------- Three hearts ------------------
 
-Openings Opening::classifyThreeHeartsWeak() const
+Openings Opening::threeHeartsWeak() const
 {
   if (hearts >= 6 && spades <= 4)
     return OPENING_3H_WEAK_HEARTS;
@@ -666,13 +664,16 @@ Openings Opening::classifyThreeHeartsWeak() const
 }
 
 
-Openings Opening::classifyThreeHeartsIntermed() const
+Openings Opening::threeHeartsInt() const
 {
-  return classifyThreeHeartsWeak();
+  if (hearts >= 6 && spades <= 4)
+    return OPENING_3H_INTERMED_HEARTS;
+  else
+    return OPENING_3H_INTERMED_OTHER;
 }
 
 
-Openings Opening::classifyThreeHeartsStrong() const
+Openings Opening::threeHeartsStrong() const
 {
   if (spades >= 5)
   {
@@ -683,10 +684,14 @@ Openings Opening::classifyThreeHeartsStrong() const
     else
       return OPENING_UNCLASSIFIED;
   }
+  else if (hearts >= 6 && hcp <= 17)
+    return OPENING_3H_INTERMED_HEARTS;
   else
     return OPENING_UNCLASSIFIED;
 }
 
+
+// ----------------- Three spades ------------------
 
 Openings Opening::classifyThreeSpadesStrong() const
 {
