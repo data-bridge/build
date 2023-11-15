@@ -67,11 +67,9 @@ class Opening
 
     Openings classifyTwoHearts() const;
       
-    Openings classifyTwoSpadesStrong() const;
-    Openings classifyTwoSpadesWeak() const;
-    Openings classifyTwoSpadesIntermed() const;
-
-    Openings classifyTwoSpades() const;
+    Openings twoSpadesWeak() const;
+    Openings twoSpadesInt() const;
+    Openings twoSpadesStrong() const;
 
     Openings twoNTWeak() const;
     Openings twoNTInt() const;
@@ -89,29 +87,30 @@ class Opening
     Openings threeHeartsInt() const;
     Openings threeHeartsStrong() const;
 
-    Openings classifyThreeSpadesWeak() const;
-    Openings classifyThreeSpadesIntermed() const;
-    Openings classifyThreeSpadesStrong() const;
+    Openings threeSpadesSolid() const;
+    Openings threeSpadesWeak() const;
+    Openings threeSpadesInt() const;
+    Openings threeSpadesStrong() const;
 
-    Openings classifyThreeNTWeak() const;
-    Openings classifyThreeNTIntermed() const;
-    Openings classifyThreeNTStrong() const;
+    Openings threeNTWeak() const;
+    Openings threeNTInt() const;
+    Openings threeNTStrong() const;
 
-    Openings classifyFourClubsWeak() const;
-    Openings classifyFourClubsIntermed() const;
-    Openings classifyFourClubsStrong() const;
+    Openings fourClubsWeak() const;
+    Openings fourClubsInt() const;
+    Openings fourClubsStrong() const;
 
-    Openings classifyFourDiamondsWeak() const;
-    Openings classifyFourDiamondsIntermed() const;
-    Openings classifyFourDiamondsStrong() const;
+    Openings fourDiamondsWeak() const;
+    Openings fourDiamondsInt() const;
+    Openings fourDiamondsStrong() const;
 
-    Openings classifyFourHeartsWeak() const;
-    Openings classifyFourHeartsIntermed() const;
-    Openings classifyFourHeartsStrong() const;
+    Openings fourHeartsWeak() const;
+    Openings fourHeartsInt() const;
+    Openings fourHeartsStrong() const;
 
-    Openings classifyFourSpadesWeak() const;
-    Openings classifyFourSpadesIntermed() const;
-    Openings classifyFourSpadesStrong() const;
+    Openings fourSpadesWeak() const;
+    Openings fourSpadesInt() const;
+    Openings fourSpadesStrong() const;
 
     Openings fourNT() const;
     Openings fiveClubs() const;
