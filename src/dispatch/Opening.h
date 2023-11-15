@@ -73,15 +73,13 @@ class Opening
 
     Openings classifyTwoSpades() const;
 
-    Openings classifyTwoNTStrong() const;
-    Openings classifyTwoNTWeak() const;
-    Openings classifyTwoNTIntermed() const;
+    Openings twoNTStrong() const;
+    Openings twoNTWeak() const;
+    Openings twoNTInt() const;
 
-    Openings classifyTwoNT() const;
-      
-    Openings classifyThreeClubsStrong() const;
-    Openings classifyThreeClubsWeak() const;
-    Openings classifyThreeClubsIntermed() const;
+    Openings threeClubsStrong() const;
+    Openings threeClubsWeak() const;
+    Openings threeClubsInt() const;
 
     Openings classifyThreeDiamondsStrong() const;
     Openings classifyThreeDiamondsWeak() const;
@@ -115,69 +113,22 @@ class Opening
     Openings classifyFourSpadesWeak() const;
     Openings classifyFourSpadesIntermed() const;
 
-    Openings classifyFourNTStrong() const;
-    Openings classifyFourNTWeak() const;
-    Openings classifyFourNTIntermed() const;
-
-    Openings classifyFiveClubsStrong() const;
-    Openings classifyFiveClubsWeak() const;
-    Openings classifyFiveClubsIntermed() const;
-
-    Openings classifyFiveDiamondsStrong() const;
-    Openings classifyFiveDiamondsWeak() const;
-    Openings classifyFiveDiamondsIntermed() const;
-
-    Openings classifyFiveHeartsStrong() const;
-    Openings classifyFiveHeartsWeak() const;
-    Openings classifyFiveHeartsIntermed() const;
-
-    Openings classifyFiveSpadesStrong() const;
-    Openings classifyFiveSpadesWeak() const;
-    Openings classifyFiveSpadesIntermed() const;
-
-    Openings fiveNTStrong() const;
-    Openings fiveNTWeak() const;
-    Openings fiveNTInt() const;
-
-    Openings sixCStrong() const;
-    Openings sixCWeak() const;
-    Openings sixCInt() const;
-
-    Openings sixDStrong() const;
-    Openings sixDWeak() const;
-    Openings sixDInt() const;
-
-    Openings sixHStrong() const;
-    Openings sixHWeak() const;
-    Openings sixHInt() const;
-
-    Openings sixSStrong() const;
-    Openings sixSWeak() const;
-    Openings sixSInt() const;
-
-    Openings sixNTStrong() const;
-    Openings sixNTWeak() const;
-    Openings sixNTInt() const;
-
-    Openings sevenCStrong() const;
-    Openings sevenCWeak() const;
-    Openings sevenCInt() const;
-
-    Openings sevenDStrong() const;
-    Openings sevenDWeak() const;
-    Openings sevenDInt() const;
-
-    Openings sevenHStrong() const;
-    Openings sevenHWeak() const;
-    Openings sevenHInt() const;
-
-    Openings sevenSStrong() const;
-    Openings sevenSWeak() const;
-    Openings sevenSInt() const;
-
-    Openings sevenNTStrong() const;
-    Openings sevenNTWeak() const;
-    Openings sevenNTInt() const;
+    Openings fourNT() const;
+    Openings fiveClubs() const;
+    Openings fiveDiamonds() const;
+    Openings fiveHearts() const;
+    Openings fiveSpades() const;
+    Openings fiveNT() const;
+    Openings sixC() const;
+    Openings sixD() const;
+    Openings sixH() const;
+    Openings sixS() const;
+    Openings sixNT() const;
+    Openings sevenC() const;
+    Openings sevenD() const;
+    Openings sevenH() const;
+    Openings sevenS() const;
+    Openings sevenNT() const;
 
 
   public:

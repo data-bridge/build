@@ -539,29 +539,13 @@ void passWriteOpenings(
             op = opening.classify(call, 
               valuations[relPlayers[pos]], params[pos]);
           }
-          else if (pos <= 2 && call == "2NT")
-          {
-            op = opening.classify(call,
-              valuations[relPlayers[pos]], params[pos]);
-          }
           else if (pos <= 1 && 
-            (call == "3C" || call == "3D" || call == "3H" || call == "3S"))
+            (call == "3D" || call == "3H" || call == "3S"))
           {
             op = opening.classify(call,
               valuations[relPlayers[pos]], params[pos]);
           }
-          else if (call == "3NT" || call == "4C" || call == "4D" ||
-              call == "4H" || call == "4S" || call == "4NT" ||
-              call == "5C" || call == "5D" || call == "5H" ||
-              call == "5S")
-          {
-            op = opening.classify(call,
-              valuations[relPlayers[pos]], params[pos]);
-          }
-          else if (call == "5NT" || call == "6C" || call == "6D" ||
-              call == "6H" || call == "6S" || call == "6NT" ||
-              call == "7C" || call == "7D" || call == "7H" ||
-              call == "7S" || call == "7NT")
+          else if (call == "3D")
           {
             op = opening.classify(call,
               valuations[relPlayers[pos]], params[pos]);
@@ -582,6 +566,15 @@ void passWriteOpenings(
               strTriplet(board, instance, relPlayers, params,
                 boardTag, pos, 0, cumPasses, filterParams);
             }
+          }
+          else if (call == "2NT" || 
+              call == "3C" || 
+              call == "3NT" || 
+              call[0] == '4' || call[0] == '5' ||
+              call[0] == '6' || call[0] == '7')
+          {
+            op = opening.classify(call,
+              valuations[relPlayers[pos]], params[pos]);
           }
           else
             op = OPENING_UNCLASSIFIED;
