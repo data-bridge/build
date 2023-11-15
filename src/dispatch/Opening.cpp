@@ -108,6 +108,18 @@ void Opening::init()
       { &Opening::classifyFourNTWeak, 
         &Opening::classifyFourNTIntermed,
         &Opening::classifyFourNTStrong }
+    },
+
+    { "5C", 
+      { &Opening::classifyFiveClubsWeak, 
+        &Opening::classifyFiveClubsIntermed,
+        &Opening::classifyFiveClubsStrong }
+    },
+
+    { "5D", 
+      { &Opening::classifyFiveDiamondsWeak, 
+        &Opening::classifyFiveDiamondsIntermed,
+        &Opening::classifyFiveDiamondsStrong }
     }
 
   };
@@ -961,6 +973,54 @@ Openings Opening::classifyFourNTIntermed() const
 }
 
 
+Openings Opening::classifyFiveClubsStrong() const
+{
+  if (clubs >= 8)
+    return OPENING_5C_CLUBS_LONG;
+  else if (clubs >= 6 && clubs == longest1 &&
+      longest1 + longest2 >= 11)
+    return OPENING_5C_CLUBS_11_IN_TWO;
+  else
+    return OPENING_5C_CLUBS_OTHER;
+}
+
+
+Openings Opening::classifyFiveClubsWeak() const
+{
+  return Opening::classifyFiveClubsStrong();
+}
+
+
+Openings Opening::classifyFiveClubsIntermed() const
+{
+  return Opening::classifyFiveClubsStrong();
+}
+
+
+Openings Opening::classifyFiveDiamondsStrong() const
+{
+  if (diamonds >= 8)
+    return OPENING_5D_DIAMONDS_LONG;
+  else if (diamonds >= 6 && diamonds == longest1 &&
+      longest1 + longest2 >= 11)
+    return OPENING_5D_DIAMONDS_11_IN_TWO;
+  else
+    return OPENING_5D_DIAMONDS_OTHER;
+}
+
+
+Openings Opening::classifyFiveDiamondsWeak() const
+{
+  return Opening::classifyFiveDiamondsStrong();
+}
+
+
+Openings Opening::classifyFiveDiamondsIntermed() const
+{
+  return Opening::classifyFiveDiamondsStrong();
+}
+
+
 Openings Opening::classify(
   const string& call,
   const Valuation& valuation,
@@ -978,7 +1038,8 @@ Openings Opening::classify(
       call == "3C" || call == "3D" || 
       call == "3H" || call == "3S" || call == "3NT" || 
       call == "4C" || call == "4D" ||
-      call == "4H" || call == "4S" || call == "4NT")
+      call == "4H" || call == "4S" || call == "4NT" ||
+      call == "5C" || call == "5D")
   {
     if (hcp >= 16)
     {

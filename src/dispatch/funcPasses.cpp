@@ -551,12 +551,13 @@ void passWriteOpenings(
               valuations[relPlayers[pos]], params[pos]);
           }
           else if (call == "3NT" || call == "4C" || call == "4D" ||
-              call == "4H" || call == "4S")
+              call == "4H" || call == "4S" || call == "4NT" ||
+              call == "5C")
           {
             op = opening.classify(call,
               valuations[relPlayers[pos]], params[pos]);
           }
-          else if (call == "4NT")
+          else if (call == "5D")
           {
             op = opening.classify(call,
               valuations[relPlayers[pos]], params[pos]);

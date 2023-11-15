@@ -119,6 +119,14 @@ class Opening
     Openings classifyFourNTWeak() const;
     Openings classifyFourNTIntermed() const;
 
+    Openings classifyFiveClubsStrong() const;
+    Openings classifyFiveClubsWeak() const;
+    Openings classifyFiveClubsIntermed() const;
+
+    Openings classifyFiveDiamondsStrong() const;
+    Openings classifyFiveDiamondsWeak() const;
+    Openings classifyFiveDiamondsIntermed() const;
+
 
   public:
 
