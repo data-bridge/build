@@ -61,12 +61,10 @@ class Opening
 
     bool threeSuiter() const;
 
-    Openings classifyTwoHeartsStrong() const;
-    Openings classifyTwoHeartsWeak() const;
-    Openings classifyTwoHeartsIntermed() const;
+    Openings twoHWeak() const;
+    Openings twoHInt() const;
+    Openings twoHStrong() const;
 
-    Openings classifyTwoHearts() const;
-      
     Openings twoSWeak() const;
     Openings twoSInt() const;
     Openings twoSStrong() const;

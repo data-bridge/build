@@ -534,10 +534,9 @@ void passWriteOpenings(
             // Will be wrong for strong-pass systems.
             op = OPENING_NOT_WEAK;
           }
-          else if (pos <= 1 && call == "2H")
+          else if (call == "2D" || call == "2C")
           {
-            op = opening.classify(call, 
-              valuations[relPlayers[pos]], params[pos]);
+            // TODO Not implemented yet
           }
           else if (call == "2H")
           {
@@ -561,16 +560,11 @@ void passWriteOpenings(
                 boardTag, pos, 0, cumPasses, filterParams);
             }
           }
-          else if (call == "2S" || call == "2NT" || 
-              call[0] == '3' ||
-              call[0] == '4' || call[0] == '5' ||
-              call[0] == '6' || call[0] == '7')
+          else
           {
             op = opening.classify(call,
               valuations[relPlayers[pos]], params[pos]);
           }
-          else
-            op = OPENING_UNCLASSIFIED;
 
           cout << 
             wholeTag << "," <<

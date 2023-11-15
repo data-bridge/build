@@ -33,11 +33,8 @@ void Opening::init()
 {
   classifyMap =
   {
-    { "2H", 
-      { &Opening::classifyTwoHeartsWeak, 
-        &Opening::classifyTwoHeartsIntermed,
-        &Opening::classifyTwoHeartsStrong }
-    },
+    { "2H", { &Opening::twoHWeak, 
+        &Opening::twoHInt, &Opening::twoHStrong } },
 
     { "2S", { &Opening::twoSWeak, 
         &Opening::twoSInt, &Opening::twoSStrong } },
@@ -181,42 +178,9 @@ bool Opening::threeSuiter() const
 }
 
 
-Openings Opening::classifyTwoHeartsStrong() const
-{
-  if (hearts >= 5)
-  {
-    // Catches a few two-suiters as well.
-    return OPENING_2H_STRONG_HEARTS;
-  }
-  else if (spades >= 5 && hearts == 4 && hcp == 16)
-  {
-    // Assume this is not really strong.
-    return OPENING_2H_INTERMED_MAJS;
-  }
-  else if (spades >= 6)
-    return OPENING_2H_STRONG_SPADES;
-  else if (spades >= 2 && spades <= 5 &&
-      hearts >= 2 && hearts <= 4 &&
-      diamonds >= 2 && diamonds <= 6 &&
-      clubs >= 2 && clubs <= 6)
-    return OPENING_2H_STRONG_BAL;
+// ----------------- Two hearts --------------------
 
-  if (Opening::threeSuiter())
-    return OPENING_2H_STRONG_THREE_SUITER;
-  else if (diamonds <= 1 && (clubs == 4 || clubs == 5) &&
-    hearts <= 4 && spades <= 4)
-  {
-    // This assumes that it's really an intermediate hand.
-    // In practice this happens very rarely anyway.  See below.
-    // 4=4=1=4, 3=4=1=5, 4=3=1=5.
-    return OPENING_2H_INTERMED_THREE_SUITER_SHORT_D;
-  }
-  else
-    return OPENING_2H_STRONG_MISC;
-}
-
-
-Openings Opening::classifyTwoHeartsWeak() const
+Openings Opening::twoHWeak() const
 {
   if (hearts >= 6)
   {
@@ -270,7 +234,7 @@ Openings Opening::classifyTwoHeartsWeak() const
 }
 
 
-Openings Opening::classifyTwoHeartsIntermed() const
+Openings Opening::twoHInt() const
 {
   if (hearts >= 6)
     return OPENING_2H_INTERMED_HEARTS;
@@ -306,14 +270,38 @@ Openings Opening::classifyTwoHeartsIntermed() const
 }
 
 
-Openings Opening::classifyTwoHearts() const
+Openings Opening::twoHStrong() const
 {
-  if (hcp >= 16)
-    return Opening::classifyTwoHeartsStrong();
-  else if (hcp <= 10)
-    return Opening::classifyTwoHeartsWeak();
+  if (hearts >= 5)
+  {
+    // Catches a few two-suiters as well.
+    return OPENING_2H_STRONG_HEARTS;
+  }
+  else if (spades >= 5 && hearts == 4 && hcp == 16)
+  {
+    // Assume this is not really strong.
+    return OPENING_2H_INTERMED_MAJS;
+  }
+  else if (spades >= 6)
+    return OPENING_2H_STRONG_SPADES;
+  else if (spades >= 2 && spades <= 5 &&
+      hearts >= 2 && hearts <= 4 &&
+      diamonds >= 2 && diamonds <= 6 &&
+      clubs >= 2 && clubs <= 6)
+    return OPENING_2H_STRONG_BAL;
+
+  if (Opening::threeSuiter())
+    return OPENING_2H_STRONG_THREE_SUITER;
+  else if (diamonds <= 1 && (clubs == 4 || clubs == 5) &&
+    hearts <= 4 && spades <= 4)
+  {
+    // This assumes that it's really an intermediate hand.
+    // In practice this happens very rarely anyway.  See below.
+    // 4=4=1=4, 3=4=1=5, 4=3=1=5.
+    return OPENING_2H_INTERMED_THREE_SUITER_SHORT_D;
+  }
   else
-    return Opening::classifyTwoHeartsIntermed();
+    return OPENING_2H_STRONG_MISC;
 }
 
 
@@ -1204,36 +1192,17 @@ Openings Opening::classify(
     assert(false);
   }
 
-  if (call == "2H")
-    return Opening::classifyTwoHearts();
-  else if (
-      call == "2S" || call == "2NT" ||
-      call == "3C" || call == "3D" || 
-      call == "3H" || call == "3S" || call == "3NT" || 
-      call == "4C" || call == "4D" ||
-      call == "4H" || call == "4S" || call == "4NT" ||
-      call == "5C" || call == "5D" ||
-      call == "5H" || call == "5S" || call == "5NT" ||
-      call == "6C" || call == "6D" ||
-      call == "6H" || call == "6S" || call == "6NT" ||
-      call == "7C" || call == "7D" ||
-      call == "7H" || call == "7S" || call == "7NT")
+  if (hcp >= 16)
   {
-    if (hcp >= 16)
-    {
-      const Openings op = (this->*(classifyMap[call][STRENGTH_STRONG]))();
-      if (op != OPENING_SIZE)
-        return op;
-      // Otherwise fall through to intermediate openings.
-    }
-
-    if (hcp <= 10)
-      return (this->*(classifyMap[call][STRENGTH_WEAK]))();
-    else
-      return (this->*(classifyMap[call][STRENGTH_INTERMED]))();
+    const Openings op = (this->*(classifyMap[call][STRENGTH_STRONG]))();
+    if (op != OPENING_SIZE)
+      return op;
+    // Otherwise fall through to intermediate openings.
   }
-  else
-    return OPENING_SIZE;
-}
 
+  if (hcp <= 10)
+    return (this->*(classifyMap[call][STRENGTH_WEAK]))();
+  else
+    return (this->*(classifyMap[call][STRENGTH_INTERMED]))();
+}
 
