@@ -67,56 +67,56 @@ class Opening
 
     Openings classifyTwoHearts() const;
       
-    Openings twoSpadesWeak() const;
-    Openings twoSpadesInt() const;
-    Openings twoSpadesStrong() const;
+    Openings twoSWeak() const;
+    Openings twoSInt() const;
+    Openings twoSStrong() const;
 
     Openings twoNTWeak() const;
     Openings twoNTInt() const;
     Openings twoNTStrong() const;
 
-    Openings threeClubsWeak() const;
-    Openings threeClubsInt() const;
-    Openings threeClubsStrong() const;
+    Openings threeCWeak() const;
+    Openings threeCInt() const;
+    Openings threeCStrong() const;
 
-    Openings threeDiamondsWeak() const;
-    Openings threeDiamondsInt() const;
-    Openings threeDiamondsStrong() const;
+    Openings threeDWeak() const;
+    Openings threeDInt() const;
+    Openings threeDStrong() const;
 
-    Openings threeHeartsWeak() const;
-    Openings threeHeartsInt() const;
-    Openings threeHeartsStrong() const;
+    Openings threeHWeak() const;
+    Openings threeHInt() const;
+    Openings threeHStrong() const;
 
-    Openings threeSpadesSolid() const;
-    Openings threeSpadesWeak() const;
-    Openings threeSpadesInt() const;
-    Openings threeSpadesStrong() const;
+    Openings threeSSolid() const;
+    Openings threeSWeak() const;
+    Openings threeSInt() const;
+    Openings threeSStrong() const;
 
     Openings threeNTWeak() const;
     Openings threeNTInt() const;
     Openings threeNTStrong() const;
 
-    Openings fourClubsWeak() const;
-    Openings fourClubsInt() const;
-    Openings fourClubsStrong() const;
+    Openings fourCWeak() const;
+    Openings fourCInt() const;
+    Openings fourCStrong() const;
 
-    Openings fourDiamondsWeak() const;
-    Openings fourDiamondsInt() const;
-    Openings fourDiamondsStrong() const;
+    Openings fourDWeak() const;
+    Openings fourDInt() const;
+    Openings fourDStrong() const;
 
-    Openings fourHeartsWeak() const;
-    Openings fourHeartsInt() const;
-    Openings fourHeartsStrong() const;
+    Openings fourHWeak() const;
+    Openings fourHInt() const;
+    Openings fourHStrong() const;
 
-    Openings fourSpadesWeak() const;
-    Openings fourSpadesInt() const;
-    Openings fourSpadesStrong() const;
+    Openings fourSWeak() const;
+    Openings fourSInt() const;
+    Openings fourSStrong() const;
 
     Openings fourNT() const;
-    Openings fiveClubs() const;
-    Openings fiveDiamonds() const;
-    Openings fiveHearts() const;
-    Openings fiveSpades() const;
+    Openings fiveC() const;
+    Openings fiveD() const;
+    Openings fiveH() const;
+    Openings fiveS() const;
     Openings fiveNT() const;
     Openings sixC() const;
     Openings sixD() const;

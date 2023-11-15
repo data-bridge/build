@@ -539,7 +539,7 @@ void passWriteOpenings(
             op = opening.classify(call, 
               valuations[relPlayers[pos]], params[pos]);
           }
-          else if (call == "2S")
+          else if (call == "2H")
           {
             op = opening.classify(call,
               valuations[relPlayers[pos]], params[pos]);
@@ -561,7 +561,7 @@ void passWriteOpenings(
                 boardTag, pos, 0, cumPasses, filterParams);
             }
           }
-          else if (call == "2NT" || 
+          else if (call == "2S" || call == "2NT" || 
               call[0] == '3' ||
               call[0] == '4' || call[0] == '5' ||
               call[0] == '6' || call[0] == '7')

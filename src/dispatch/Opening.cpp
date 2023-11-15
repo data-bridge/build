@@ -39,88 +39,72 @@ void Opening::init()
         &Opening::classifyTwoHeartsStrong }
     },
 
-    { "2S", { &Opening::twoSpadesWeak, 
-        &Opening::twoSpadesInt, &Opening::twoSpadesStrong } },
+    { "2S", { &Opening::twoSWeak, 
+        &Opening::twoSInt, &Opening::twoSStrong } },
 
     { "2NT", { &Opening::twoNTWeak, 
         &Opening::twoNTInt, &Opening::twoNTStrong } },
 
-    { "3C", { &Opening::threeClubsWeak, 
-        &Opening::threeClubsInt, &Opening::threeClubsStrong }
+    { "3C", { &Opening::threeCWeak, 
+        &Opening::threeCInt, &Opening::threeCStrong }
     },
 
-    { "3D", { &Opening::threeDiamondsWeak, 
-        &Opening::threeDiamondsInt, &Opening::threeDiamondsStrong } },
+    { "3D", { &Opening::threeDWeak, 
+        &Opening::threeDInt, &Opening::threeDStrong } },
 
-    { "3H", { &Opening::threeHeartsWeak, 
-        &Opening::threeHeartsInt, &Opening::threeHeartsStrong }
+    { "3H", { &Opening::threeHWeak, 
+        &Opening::threeHInt, &Opening::threeHStrong }
     },
 
-    { "3S", { &Opening::threeSpadesWeak, 
-        &Opening::threeSpadesInt, &Opening::threeSpadesStrong } },
+    { "3S", { &Opening::threeSWeak, 
+        &Opening::threeSInt, &Opening::threeSStrong } },
 
     { "3NT", { &Opening::threeNTWeak, 
         &Opening::threeNTInt, &Opening::threeNTStrong } },
 
-    { "4C", { &Opening::fourClubsWeak, 
-        &Opening::fourClubsInt, &Opening::fourClubsStrong } },
+    { "4C", { &Opening::fourCWeak, 
+        &Opening::fourCInt, &Opening::fourCStrong } },
 
-    { "4D", { &Opening::fourDiamondsWeak, 
-        &Opening::fourDiamondsInt, &Opening::fourDiamondsStrong } },
+    { "4D", { &Opening::fourDWeak, 
+        &Opening::fourDInt, &Opening::fourDStrong } },
 
-    { "4H", { &Opening::fourHeartsWeak, 
-        &Opening::fourHeartsInt, &Opening::fourHeartsStrong } },
+    { "4H", { &Opening::fourHWeak, 
+        &Opening::fourHInt, &Opening::fourHStrong } },
 
-    { "4S", { &Opening::fourSpadesWeak, 
-        &Opening::fourSpadesInt, &Opening::fourSpadesStrong } },
+    { "4S", { &Opening::fourSWeak, 
+        &Opening::fourSInt, &Opening::fourSStrong } },
 
-    { "4NT", { &Opening::fourNT, 
-        &Opening::fourNT, &Opening::fourNT } },
+    { "4NT", { &Opening::fourNT, &Opening::fourNT, &Opening::fourNT } },
 
-    { "5C", { &Opening::fiveClubs, 
-        &Opening::fiveClubs, &Opening::fiveClubs } },
+    { "5C", { &Opening::fiveC, &Opening::fiveC, &Opening::fiveC } },
 
-    { "5D", { &Opening::fiveDiamonds, 
-        &Opening::fiveDiamonds, &Opening::fiveDiamonds } },
+    { "5D", { &Opening::fiveD, &Opening::fiveD, &Opening::fiveD} },
 
-    { "5H", { &Opening::fiveHearts, 
-        &Opening::fiveHearts, &Opening::fiveHearts } },
+    { "5H", { &Opening::fiveH, &Opening::fiveH, &Opening::fiveH} },
 
-    { "5S", { &Opening::fiveSpades, 
-        &Opening::fiveSpades, &Opening::fiveSpades } },
+    { "5S", { &Opening::fiveS, &Opening::fiveS, &Opening::fiveS} },
 
-    { "5NT", { &Opening::fiveNT, 
-        &Opening::fiveNT, &Opening::fiveNT} },
+    { "5NT", { &Opening::fiveNT, &Opening::fiveNT, &Opening::fiveNT} },
 
-    { "6C", { &Opening::sixC, 
-        &Opening::sixC, &Opening::sixC } },
+    { "6C", { &Opening::sixC, &Opening::sixC, &Opening::sixC } },
 
-    { "6D", { &Opening::sixD, 
-        &Opening::sixD, &Opening::sixD } },
+    { "6D", { &Opening::sixD, &Opening::sixD, &Opening::sixD } },
 
-    { "6H", { &Opening::sixH, 
-        &Opening::sixH, &Opening::sixH } },
+    { "6H", { &Opening::sixH, &Opening::sixH, &Opening::sixH } },
 
-    { "6S", { &Opening::sixS, 
-        &Opening::sixS, &Opening::sixS } },
+    { "6S", { &Opening::sixS, &Opening::sixS, &Opening::sixS } },
 
-    { "6NT", { &Opening::sixNT, 
-        &Opening::sixNT, &Opening::sixNT } },
+    { "6NT", { &Opening::sixNT, &Opening::sixNT, &Opening::sixNT } },
 
-    { "7C", { &Opening::sevenC, 
-        &Opening::sevenC, &Opening::sevenC } },
+    { "7C", { &Opening::sevenC, &Opening::sevenC, &Opening::sevenC } },
 
-    { "7D", { &Opening::sevenD, 
-        &Opening::sevenD, &Opening::sevenD } },
+    { "7D", { &Opening::sevenD, &Opening::sevenD, &Opening::sevenD } },
 
-    { "7H", { &Opening::sevenH, 
-        &Opening::sevenH, &Opening::sevenH } },
+    { "7H", { &Opening::sevenH, &Opening::sevenH, &Opening::sevenH } },
 
-    { "7S", { &Opening::sevenS, 
-        &Opening::sevenS, &Opening::sevenS } },
+    { "7S", { &Opening::sevenS, &Opening::sevenS, &Opening::sevenS } },
 
-    { "7NT", { &Opening::sevenNT, 
-        &Opening::sevenNT, &Opening::sevenNT } },
+    { "7NT", { &Opening::sevenNT, &Opening::sevenNT, &Opening::sevenNT } },
 
   };
 }
@@ -335,7 +319,7 @@ Openings Opening::classifyTwoHearts() const
 
 // ----------------- Two notrump -------------------
 
-Openings Opening::twoSpadesWeak() const
+Openings Opening::twoSWeak() const
 {
   if (spades >= 6)
   {
@@ -370,7 +354,7 @@ Openings Opening::twoSpadesWeak() const
 }
 
 
-Openings Opening::twoSpadesInt() const
+Openings Opening::twoSInt() const
 {
   if (spades >= 6)
     return OPENING_2S_INTERMED_SPADES;
@@ -389,7 +373,7 @@ Openings Opening::twoSpadesInt() const
     if (Opening::threeSuiter())
       return OPENING_2S_INTERMED_THREE_SUITER;
     else
-      return OPENING_UNCLASSIFIED;
+      return OPENING_2S_INTERMED_OTHER;
   }
   else if (clubs >= 4 && diamonds >= 4 && clubs + diamonds >= 9)
     return OPENING_2S_INTERMED_MINS;
@@ -404,7 +388,7 @@ Openings Opening::twoSpadesInt() const
 }
 
 
-Openings Opening::twoSpadesStrong() const
+Openings Opening::twoSStrong() const
 {
   if (spades >= 5)
     return OPENING_2S_STRONG_SPADES;
@@ -420,7 +404,7 @@ Openings Opening::twoSpadesStrong() const
   else
   {
     // Fall through to intermediate strength.
-    return OPENING_SIZE;
+    return OPENING_2S_STRONG_OTHER;
   }
 }
 
@@ -476,17 +460,17 @@ Openings Opening::twoNTWeak() const
 Openings Opening::twoNTInt() const
 {
   if (clubs >= 6 || diamonds >= 6)
-    return OPENING_2NT_OPEN_ONE_MIN;
+    return OPENING_2NT_INTERMED_ONE_MIN;
   else if (longest1 >= 5 && longest2 >= 4)
-    return OPENING_2NT_OPEN_TWO_SUITER;
+    return OPENING_2NT_INTERMED_TWO_SUITER;
   else
-    return OPENING_2NT_OPEN_OTHER;
+    return OPENING_2NT_INTERMED_OTHER;
 }
 
 
 // ----------------- Three clubs -------------------
 
-Openings Opening::threeClubsWeak() const
+Openings Opening::threeCWeak() const
 {
   if (spades >= 4 && hearts >= 4 && spades + hearts >= 9)
     return OPENING_3C_WEAK_MAJORS;
@@ -511,7 +495,7 @@ Openings Opening::threeClubsWeak() const
 }
 
 
-Openings Opening::threeClubsInt() const
+Openings Opening::threeCInt() const
 {
   if (clubs >= 6)
   {
@@ -536,7 +520,7 @@ Openings Opening::threeClubsInt() const
 }
 
 
-Openings Opening::threeClubsStrong() const
+Openings Opening::threeCStrong() const
 {
   if (clubs >= 5 && longest1 >= 5 && longest2 >= 5)
     return OPENING_3C_STRONG_TWO_SUITER;
@@ -552,7 +536,7 @@ Openings Opening::threeClubsStrong() const
 
 // ----------------- Three diamonds ----------------
 
-Openings Opening::threeDiamondsWeak() const
+Openings Opening::threeDWeak() const
 {
   if (diamonds >= 6)
     return OPENING_3D_WEAK_DIAMONDS;
@@ -575,7 +559,7 @@ Openings Opening::threeDiamondsWeak() const
 }
 
 
-Openings Opening::threeDiamondsInt() const
+Openings Opening::threeDInt() const
 {
   if (diamonds >= 6)
   {
@@ -595,7 +579,7 @@ Openings Opening::threeDiamondsInt() const
 }
 
 
-Openings Opening::threeDiamondsStrong() const
+Openings Opening::threeDStrong() const
 {
   if ((spades >= 5 || hearts >= 5) && (clubs >= 5 || diamonds >= 5))
     return OPENING_3D_STRONG_MAJ_MIN;
@@ -609,7 +593,7 @@ Openings Opening::threeDiamondsStrong() const
 
 // ----------------- Three hearts ------------------
 
-Openings Opening::threeHeartsWeak() const
+Openings Opening::threeHWeak() const
 {
   if (hearts >= 6 && spades <= 4)
     return OPENING_3H_WEAK_HEARTS;
@@ -628,7 +612,7 @@ Openings Opening::threeHeartsWeak() const
 }
 
 
-Openings Opening::threeHeartsInt() const
+Openings Opening::threeHInt() const
 {
   if (hearts >= 6 && spades <= 4)
     return OPENING_3H_INTERMED_HEARTS;
@@ -637,7 +621,7 @@ Openings Opening::threeHeartsInt() const
 }
 
 
-Openings Opening::threeHeartsStrong() const
+Openings Opening::threeHStrong() const
 {
   if (spades >= 5)
   {
@@ -657,7 +641,7 @@ Openings Opening::threeHeartsStrong() const
 
 // ----------------- Three spades ------------------
 
-Openings Opening::threeSpadesSolid() const
+Openings Opening::threeSSolid() const
 {
   if (solidFlag)
   {
@@ -675,9 +659,9 @@ Openings Opening::threeSpadesSolid() const
 }
 
 
-Openings Opening::threeSpadesWeak() const
+Openings Opening::threeSWeak() const
 {
-  const Openings op = Opening::threeSpadesSolid();
+  const Openings op = Opening::threeSSolid();
   if (op != OPENING_SIZE)
     return op;
 
@@ -696,9 +680,9 @@ Openings Opening::threeSpadesWeak() const
 }
 
 
-Openings Opening::threeSpadesInt() const
+Openings Opening::threeSInt() const
 {
-  const Openings op = Opening::threeSpadesSolid();
+  const Openings op = Opening::threeSSolid();
   if (op != OPENING_SIZE)
     return op;
 
@@ -714,7 +698,7 @@ Openings Opening::threeSpadesInt() const
 }
 
 
-Openings Opening::threeSpadesStrong() const
+Openings Opening::threeSStrong() const
 {
   if (spades >= 7)
     return OPENING_3S_STRONG_SPADES;
@@ -829,7 +813,7 @@ Openings Opening::threeNTStrong() const
 
 // ----------------- Four clubs --------------------
 
-Openings Opening::fourClubsWeak() const
+Openings Opening::fourCWeak() const
 {
   if (hearts >= 7)
     return OPENING_4C_WEAK_NAMYATS;
@@ -846,7 +830,7 @@ Openings Opening::fourClubsWeak() const
 }
 
 
-Openings Opening::fourClubsInt() const
+Openings Opening::fourCInt() const
 {
   if (hearts >= 6)
     return OPENING_4C_INTERMED_NAMYATS;
@@ -859,7 +843,7 @@ Openings Opening::fourClubsInt() const
 }
 
 
-Openings Opening::fourClubsStrong() const
+Openings Opening::fourCStrong() const
 {
   if (hearts >= 6)
     return OPENING_4C_STRONG_NAMYATS;
@@ -872,7 +856,7 @@ Openings Opening::fourClubsStrong() const
 
 // ----------------- Four diamonds -----------------
 
-Openings Opening::fourDiamondsWeak() const
+Openings Opening::fourDWeak() const
 {
   if (spades >= 7)
     return OPENING_4D_WEAK_NAMYATS;
@@ -891,7 +875,7 @@ Openings Opening::fourDiamondsWeak() const
 }
 
 
-Openings Opening::fourDiamondsInt() const
+Openings Opening::fourDInt() const
 {
   if (spades >= 6)
     return OPENING_4D_INTERMED_NAMYATS;
@@ -908,7 +892,7 @@ Openings Opening::fourDiamondsInt() const
 }
 
 
-Openings Opening::fourDiamondsStrong() const
+Openings Opening::fourDStrong() const
 {
   if (spades >= 6)
     return OPENING_4D_STRONG_NAMYATS;
@@ -923,7 +907,7 @@ Openings Opening::fourDiamondsStrong() const
 
 // ----------------- Four hearts -------------------
 
-Openings Opening::fourHeartsWeak() const
+Openings Opening::fourHWeak() const
 {
   if (hearts >= 6)
     return OPENING_4H_WEAK_HEARTS;
@@ -934,7 +918,7 @@ Openings Opening::fourHeartsWeak() const
 }
 
 
-Openings Opening::fourHeartsInt() const
+Openings Opening::fourHInt() const
 {
   if (hearts >= 6)
     return OPENING_4H_INTERMED_HEARTS;
@@ -945,7 +929,7 @@ Openings Opening::fourHeartsInt() const
 }
 
 
-Openings Opening::fourHeartsStrong() const
+Openings Opening::fourHStrong() const
 {
   if (hearts >= 6)
     return OPENING_4H_STRONG_HEARTS;
@@ -958,7 +942,7 @@ Openings Opening::fourHeartsStrong() const
 
 // ----------------- Four spades -------------------
 
-Openings Opening::fourSpadesWeak() const
+Openings Opening::fourSWeak() const
 {
   if (spades >= 6)
     return OPENING_4S_WEAK_SPADES;
@@ -969,7 +953,7 @@ Openings Opening::fourSpadesWeak() const
 }
 
 
-Openings Opening::fourSpadesInt() const
+Openings Opening::fourSInt() const
 {
   if (spades >= 6)
     return OPENING_4S_INTERMED_SPADES;
@@ -980,7 +964,7 @@ Openings Opening::fourSpadesInt() const
 }
 
 
-Openings Opening::fourSpadesStrong() const
+Openings Opening::fourSStrong() const
 {
   if (spades >= 6)
     return OPENING_4S_STRONG_SPADES;
@@ -1004,7 +988,7 @@ Openings Opening::fourNT() const
 
 // ----------------- Five clubs --------------------
 
-Openings Opening::fiveClubs() const
+Openings Opening::fiveC() const
 {
   if (clubs >= 8)
     return OPENING_5C_CLUBS_LONG;
@@ -1018,7 +1002,7 @@ Openings Opening::fiveClubs() const
 
 // ----------------- Five diamonds------------------
 
-Openings Opening::fiveDiamonds() const
+Openings Opening::fiveD() const
 {
   if (diamonds >= 8)
     return OPENING_5D_DIAMONDS_LONG;
@@ -1032,7 +1016,7 @@ Openings Opening::fiveDiamonds() const
 
 // ----------------- Five hearts -------------------
 
-Openings Opening::fiveHearts() const
+Openings Opening::fiveH() const
 {
   if (hearts >= 8)
     return OPENING_5H_HEARTS_LONG;
@@ -1046,7 +1030,7 @@ Openings Opening::fiveHearts() const
 
 // ----------------- Five spades -------------------
 
-Openings Opening::fiveSpades() const
+Openings Opening::fiveS() const
 {
   if (spades >= 8)
     return OPENING_5S_SPADES_LONG;
@@ -1222,8 +1206,6 @@ Openings Opening::classify(
 
   if (call == "2H")
     return Opening::classifyTwoHearts();
-  // else if (call == "2S")
-    // return Opening::classifyTwoSpades();
   else if (
       call == "2S" || call == "2NT" ||
       call == "3C" || call == "3D" || 
