@@ -127,6 +127,58 @@ class Opening
     Openings classifyFiveDiamondsWeak() const;
     Openings classifyFiveDiamondsIntermed() const;
 
+    Openings classifyFiveHeartsStrong() const;
+    Openings classifyFiveHeartsWeak() const;
+    Openings classifyFiveHeartsIntermed() const;
+
+    Openings classifyFiveSpadesStrong() const;
+    Openings classifyFiveSpadesWeak() const;
+    Openings classifyFiveSpadesIntermed() const;
+
+    Openings fiveNTStrong() const;
+    Openings fiveNTWeak() const;
+    Openings fiveNTInt() const;
+
+    Openings sixCStrong() const;
+    Openings sixCWeak() const;
+    Openings sixCInt() const;
+
+    Openings sixDStrong() const;
+    Openings sixDWeak() const;
+    Openings sixDInt() const;
+
+    Openings sixHStrong() const;
+    Openings sixHWeak() const;
+    Openings sixHInt() const;
+
+    Openings sixSStrong() const;
+    Openings sixSWeak() const;
+    Openings sixSInt() const;
+
+    Openings sixNTStrong() const;
+    Openings sixNTWeak() const;
+    Openings sixNTInt() const;
+
+    Openings sevenCStrong() const;
+    Openings sevenCWeak() const;
+    Openings sevenCInt() const;
+
+    Openings sevenDStrong() const;
+    Openings sevenDWeak() const;
+    Openings sevenDInt() const;
+
+    Openings sevenHStrong() const;
+    Openings sevenHWeak() const;
+    Openings sevenHInt() const;
+
+    Openings sevenSStrong() const;
+    Openings sevenSWeak() const;
+    Openings sevenSInt() const;
+
+    Openings sevenNTStrong() const;
+    Openings sevenNTWeak() const;
+    Openings sevenNTInt() const;
+
 
   public:
 
