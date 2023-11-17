@@ -43,23 +43,33 @@ class Opening
 
     bool solidFlag;
 
+    unsigned losers;
+
     unsigned longest1;
     unsigned longest2;
     unsigned longest4;
 
     unsigned hcp;
 
-    void set(
-      const Valuation& valuation,
-      const vector<unsigned>& params);
-
-    bool checkSolid(
+    bool solid(
       const Valuation& valuation,
       const unsigned longest,
       const ValSuitParams ValSuitParams,
       const unsigned target) const;
 
+    void set(
+      const Valuation& valuation,
+      const vector<unsigned>& params);
+
     bool threeSuiter() const;
+
+    Openings twoCWeak() const;
+    Openings twoCInt() const;
+    Openings twoCStrong() const;
+
+    Openings twoDWeak() const;
+    Openings twoDInt() const;
+    Openings twoDStrong() const;
 
     Openings twoHWeak() const;
     Openings twoHInt() const;

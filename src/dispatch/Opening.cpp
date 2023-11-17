@@ -33,6 +33,12 @@ void Opening::init()
 {
   classifyMap =
   {
+    { "2C", { &Opening::twoCWeak, 
+        &Opening::twoCInt, &Opening::twoCStrong } },
+
+    { "2D", { &Opening::twoDWeak, 
+        &Opening::twoDInt, &Opening::twoDStrong } },
+
     { "2H", { &Opening::twoHWeak, 
         &Opening::twoHInt, &Opening::twoHStrong } },
 
@@ -107,7 +113,7 @@ void Opening::init()
 }
 
 
-bool Opening::checkSolid(
+bool Opening::solid(
   const Valuation& valuation,
   const unsigned longest,
   const ValSuitParams sparam,
@@ -145,21 +151,24 @@ void Opening::set(
 
   hcp = params[PASS_HCP];
 
+  // Doubled, so 3 is 1.5 losers.
+  losers = valuation.getCompositeParam(VC_LOSERS);
+
   if (longest1 == 6)
   {
     // AKQxxx is not really solid, but it shows up in a number
     // of 3NT openings.
-    solidFlag = checkSolid(valuation, longest1, VS_TOP3, 3);
+    solidFlag = solid(valuation, longest1, VS_TOP3, 3);
   }
   else if (longest1 == 7)
   {
     // AKQxxxx.
-    solidFlag = checkSolid(valuation, longest1, VS_TOP3, 3);
+    solidFlag = solid(valuation, longest1, VS_TOP3, 3);
   }
   else if (longest1 >= 8)
   {
     // AK eighth+.
-    solidFlag = checkSolid(valuation, longest1, VS_TOP2, 2);
+    solidFlag = solid(valuation, longest1, VS_TOP2, 2);
   }
   else
     solidFlag = false;
@@ -175,6 +184,145 @@ bool Opening::threeSuiter() const
   if (clubs >= 4) numSuits++;
 
   return (numSuits == 3);
+}
+
+
+// ----------------- Two clubs ---------------------
+
+
+Openings Opening::twoCWeak() const
+{
+  if (diamonds >= 6 && hearts <= 4 && spades <= 4)
+    return OPENING_2C_WEAK_DIAMONDS;
+  else if (hearts >= 4 && spades >= 4)
+    return OPENING_2C_WEAK_MAJS;
+  else if (hearts >= 6 || spades >= 6)
+    return OPENING_2C_WEAK_MAJ;
+  if (clubs >= 6 && hearts < 4 && spades < 4)
+  {
+    if (hcp == 10)
+      return OPENING_2C_INTERMED_CLUBS;
+    else
+      return OPENING_2C_WEAK_CLUBS;
+  }
+  else if ((clubs >= 5 && (hearts >= 4 || spades >= 4)) ||
+      (clubs == 4 && (hearts >= 5 || spades >= 5)))
+  {
+    if (hcp == 10)
+      return OPENING_2C_INTERMED_CLUBS_MAJ;
+    else
+      return OPENING_2C_WEAK_CLUBS_MAJ;
+  }
+  else if (clubs >= 5 && diamonds >= 4)
+  {
+    if (hcp == 10)
+      return OPENING_2C_INTERMED_MINS;
+    else
+      return OPENING_2C_WEAK_MINS;
+  }
+  else if (diamonds == 5)
+    return OPENING_2C_WEAK_DIAMONDS;
+  else if (clubs == 5)
+    return OPENING_2C_WEAK_CLUBS;
+  else if (hearts >= 5 || spades >= 5)
+  {
+    if (diamonds >= 4 || clubs >= 4)
+      return OPENING_2C_WEAK_MAJ_MIN;
+    else
+      return OPENING_2C_WEAK_MAJ;
+  }
+  else
+  {
+    // 4-4-3-2, 4-4-4-1, 4-3-3-3.
+    return OPENING_2C_WEAK_BAL;
+  }
+}
+
+
+Openings Opening::twoCInt() const
+{
+  if (losers < 10)
+    return OPENING_2C_STRONG_OTHER;
+  else if (losers >= 14)
+    return Opening::twoCWeak();
+
+  if (diamonds >= 6 && hearts <= 4 && spades <= 4)
+  {
+    if (hcp <= 11)
+      return OPENING_2C_WEAK_DIAMONDS;
+    else
+      return OPENING_2C_INTERMED_DIAMONDS;
+  }
+
+  if (clubs >= 6 && hearts < 4 && spades < 4)
+    return OPENING_2C_INTERMED_CLUBS;
+  else if (hearts >= 4 && spades >= 4)
+    return OPENING_2C_INTERMED_MAJS;
+  else if (clubs >= 5 && (hearts >= 4 || spades >= 4))
+    return OPENING_2C_INTERMED_CLUBS_MAJ;
+  else if (clubs == 4 && (hearts >= 5 || spades >= 5))
+    return OPENING_2C_INTERMED_CLUBS_MAJ;
+  else if (clubs >= 5)
+    return OPENING_2C_INTERMED_CLUBS;
+  else if ((hearts >= 5 || spades >= 5) && diamonds >= 5)
+  {
+    return OPENING_2C_INTERMED_DIAMONDS_MAJ;
+  }
+  else if (hearts >= 6 || spades >= 6)
+  {
+    if (losers < 12)
+      return OPENING_2C_STRONG_OTHER;
+    else
+      return OPENING_2C_INTERMED_MAJ;
+  }
+  else if (longest1 <= 5 && longest4 <= 1)
+    return OPENING_2C_INTERMED_THREE_SUITER;
+  else
+    return OPENING_2C_INTERMED_OTHER;
+}
+
+
+Openings Opening::twoCStrong() const
+{
+  if (longest1 <= 7 && longest4 >= 2)
+    return OPENING_2C_STRONG_SBAL;
+
+  if (hcp >= 18 || losers < 10)
+    return OPENING_2C_STRONG_OTHER;
+
+  if ((hearts >= 6 || spades >= 6 || diamonds >= 6) && losers <= 12)
+    return OPENING_2C_STRONG_OTHER;
+
+  if (clubs >= 6 && hearts < 4 && spades < 4)
+    return OPENING_2C_INTERMED_CLUBS;
+  else if (clubs >= 5 && (hearts == 4 || spades == 4))
+    return OPENING_2C_INTERMED_CLUBS_MAJ;
+  else
+  {
+    // Bit catch-all, often 4-4-4-1, not necessarily super strong.
+    return OPENING_2C_STRONG_OTHER;
+  }
+}
+
+
+// ----------------- Two diamonds ------------------
+
+
+Openings Opening::twoDWeak() const
+{
+  return OPENING_UNCLASSIFIED;
+}
+
+
+Openings Opening::twoDInt() const
+{
+  return OPENING_UNCLASSIFIED;
+}
+
+
+Openings Opening::twoDStrong() const
+{
+  return OPENING_UNCLASSIFIED;
 }
 
 
