@@ -310,19 +310,108 @@ Openings Opening::twoCStrong() const
 
 Openings Opening::twoDWeak() const
 {
-  return OPENING_UNCLASSIFIED;
+  if (diamonds >= 6 && hearts <= 4 && spades <= 4)
+    return OPENING_2D_WEAK_DIAMONDS;
+  else if (hearts >= 4 && spades >= 4)
+    return OPENING_2D_WEAK_MAJS;
+  else if (hearts >= 6 || spades >= 6)
+    return OPENING_2D_WEAK_MAJ;
+  else if (spades == 5 || hearts == 5)
+  {
+    if (clubs >= 4 || diamonds >= 4)
+      return OPENING_2D_WEAK_MAJ_MIN;
+    else
+      return OPENING_2D_WEAK_MAJ;
+  }
+  else if (diamonds == 5)
+    return OPENING_2D_WEAK_DIAMONDS;
+
+  const unsigned prod = spades * hearts * diamonds * clubs;
+  if (Opening::threeSuiter() || prod == 60)
+  {
+    // 4-4-4-1, 4-4-5-0, any 5-4-3-1 without both Majors.
+    return OPENING_2D_WEAK_THREE_SUITER;
+  }
+  else if (prod == 96 || prod == 108)
+    return OPENING_2D_WEAK_BAL;
+  else if (clubs >= 6)
+    return OPENING_2D_WEAK_CLUBS;
+  else
+    return OPENING_2D_WEAK_OTHER;
 }
 
 
 Openings Opening::twoDInt() const
 {
-  return OPENING_UNCLASSIFIED;
+  if (losers < 10)
+    return OPENING_2D_STRONG_OTHER;
+  else if (losers >= 14 && hcp <= 12)
+  {
+    const Openings op = Opening::twoDWeak();
+    if (op != OPENING_UNCLASSIFIED)
+      return op;
+  }
+
+  if (diamonds >= 6 && hearts <= 4 && spades <= 4)
+    return OPENING_2D_INTERMED_DIAMONDS;
+  else if (clubs >= 6 && hearts <= 4 && spades <= 4)
+    return OPENING_2D_INTERMED_CLUBS;
+  else if (hearts >= 6 || spades >= 6)
+    return OPENING_2D_INTERMED_MAJ;
+  else if (diamonds >= 4 && (hearts == 5 || spades == 5))
+    return OPENING_2D_INTERMED_DIAMONDS_MAJ;
+  else if (clubs >= 4 && (hearts == 5 || spades == 5))
+    return OPENING_2D_INTERMED_CLUBS_MAJ;
+
+  const unsigned prod = spades * hearts * diamonds * clubs;
+
+  if (Opening::threeSuiter() ||
+      (prod == 60 && spades <= 4 && hearts <= 4))
+  {
+    // 4-4-4-1, 4-3-1-5 without 5-card Major, 4-4-5-0 ditto.
+    return OPENING_2D_INTERMED_THREE_SUITER;
+  }
+  else if (hearts >= 4 && spades >= 4 && hearts + spades >= 9)
+    return OPENING_2D_INTERMED_MAJS;
+  else if (diamonds >= 5 && clubs >= 4)
+    return OPENING_2D_INTERMED_MINS;
+  else if (longest4 >= 2)
+  {
+    if (clubs == 5)
+      return OPENING_2D_INTERMED_SBAL_CLUBS;
+    else if (diamonds == 5)
+      return OPENING_2D_INTERMED_SBAL_DIAMONDS;
+    else if (spades == 5 || hearts == 5)
+      return OPENING_2D_INTERMED_SBAL_MAJ;
+  }
+
+  return OPENING_2D_INTERMED_OTHER;
 }
 
 
 Openings Opening::twoDStrong() const
 {
-  return OPENING_UNCLASSIFIED;
+  if (longest1 <= 7 && longest4 >= 2)
+    return OPENING_2D_STRONG_SBAL;
+  else if (hcp >= 18 || losers < 10)
+    return OPENING_2D_STRONG_OTHER;
+  else if (longest1 >= 6 && losers <= 12)
+    return OPENING_2D_STRONG_OTHER;
+
+  const unsigned prod = spades * hearts * diamonds * clubs;
+
+  if (Opening::threeSuiter() ||
+      (prod == 60 && spades <= 4 && hearts <= 4))
+  {
+    // 4-4-4-1, 4-3-1-5 without 5-card Major, 4-4-5-0 ditto.
+    return OPENING_2D_INTERMED_THREE_SUITER;
+  }
+  else if (hearts >= 4 && spades >= 4 && hearts + spades >= 9)
+    return OPENING_2D_INTERMED_MAJS;
+  else if (diamonds >= 5 && clubs >= 4)
+    return OPENING_2D_INTERMED_MINS;
+  else
+    return Opening::twoDInt();
 }
 
 
@@ -401,7 +490,10 @@ Openings Opening::twoHInt() const
   else if ((spades == 3 || spades == 4) && hearts <= 1 && 
       (diamonds == 4 || diamonds == 5) &&
       (clubs == 4 || clubs == 5))
+  {
+    // 4=1=4=4, 3=1=4=5, 4=1=3=5.
     return OPENING_2H_INTERMED_THREE_SUITER_SHORT_H;
+  }
   else if (hearts == 4)
   {
     if (clubs >= 5 || diamonds >= 5)

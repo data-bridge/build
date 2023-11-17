@@ -534,7 +534,7 @@ void passWriteOpenings(
             // Will be wrong for strong-pass systems.
             op = OPENING_NOT_WEAK;
           }
-          else if (call == "2C")
+          else if (call == "2D")
           {
             op = opening.classify(call,
               valuations[relPlayers[pos]], params[pos]);
@@ -555,10 +555,6 @@ void passWriteOpenings(
               strTriplet(board, instance, relPlayers, params,
                 boardTag, pos, 0, cumPasses, filterParams);
             }
-          }
-          else if (call == "2D")
-          {
-            // TODO Not implemented yet
           }
           else
           {
