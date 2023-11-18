@@ -246,19 +246,112 @@ Openings Opening::oneDStrong() const
 
 Openings Opening::oneHWeak() const
 {
-  return OPENING_UNCLASSIFIED;
+  if (hearts >= 5)
+  {
+    if (hearts == longest1)
+      return OPENING_1H_WEAK_FIVE;
+    else if (hearts == longest2)
+    {
+      if (clubs == 6 || diamonds == 6)
+        return OPENING_1H_WEAK_FIVE;
+      else
+        return OPENING_1H_WEAK_CANAPE;
+    }
+    else
+      return OPENING_UNCLASSIFIED;
+  }
+  else if (hearts == 4)
+  {
+    if (hearts == longest1)
+      return OPENING_1H_WEAK_FOUR;
+    else if (hearts == longest2)
+      return OPENING_1H_WEAK_CANAPE;
+    else
+      return OPENING_UNCLASSIFIED;
+  }
+  else
+  {
+    if (spades >= 4)
+      return OPENING_1H_WEAK_SPADES;
+    else if (clubs >= 4)
+      return OPENING_1H_WEAK_CLUBS;
+    else
+      return OPENING_1H_WEAK_OTHER;
+  }
 }
 
 
 Openings Opening::oneHInt() const
 {
-  return OPENING_UNCLASSIFIED;
+  if (hearts >= 5)
+  {
+    if (hearts == longest1)
+      return OPENING_1H_INTERMED_FIVE;
+    else if (hearts == longest2)
+    {
+      if (clubs == 6 || diamonds == 6)
+        return OPENING_1H_INTERMED_FIVE;
+      else
+        return OPENING_1H_INTERMED_CANAPE;
+    }
+    else
+      return OPENING_UNCLASSIFIED;
+  }
+  else if (hearts == 4)
+  {
+    if (hearts == longest1)
+      return OPENING_1H_INTERMED_FOUR;
+    else if (hearts == longest2)
+      return OPENING_1H_INTERMED_CANAPE;
+    else
+      return OPENING_UNCLASSIFIED;
+  }
+  else
+  {
+    if (spades >= 4)
+      return OPENING_1H_INTERMED_SPADES;
+    else if (clubs >= 4)
+      return OPENING_1H_INTERMED_CLUBS;
+    else
+      return OPENING_1H_INTERMED_OTHER;
+  }
 }
 
 
 Openings Opening::oneHStrong() const
 {
-  return OPENING_UNCLASSIFIED;
+  if (hearts >= 5)
+  {
+    if (hearts == longest1)
+      return OPENING_1H_INTERMED_FIVE;
+    else if (hearts == longest2)
+    {
+      if (clubs == 6 || diamonds == 6)
+        return OPENING_1H_INTERMED_FIVE;
+      else
+        return OPENING_1H_INTERMED_CANAPE;
+    }
+    else
+      return OPENING_UNCLASSIFIED;
+  }
+  else if (hearts == 4)
+  {
+    if (hearts == longest1)
+      return OPENING_1H_STRONG_FOUR;
+    else if (hearts == longest2)
+      return OPENING_1H_STRONG_CANAPE;
+    else
+      return OPENING_UNCLASSIFIED;
+  }
+  else
+  {
+    if (spades >= 4)
+      return OPENING_1H_STRONG_SPADES;
+    else if (clubs >= 4)
+      return OPENING_1H_STRONG_CLUBS;
+    else
+      return OPENING_1H_STRONG_OTHER;
+  }
 }
 
 
@@ -268,23 +361,6 @@ Openings Opening::oneSWeak() const
 {
   const unsigned prod = spades * hearts * diamonds * clubs;
 
-  if (spades < 4)
-  {
-    if (clubs >= 4 && diamonds >= 4 && clubs + diamonds >= 9)
-      return OPENING_1S_WEAK_MINS;
-    else if (clubs >= 6 || diamonds >= 6)
-      return OPENING_1S_WEAK_MIN;
-    else if (hearts >= 5)
-      return OPENING_1S_WEAK_HEARTS;
-    else if (prod == 108 || prod == 96 || prod == 90)
-    {
-      // 4-3-3-3, 4-4-3-2, 5-3-3-2.
-      return OPENING_1S_WEAK_BAL;
-    }
-    else
-      return OPENING_1S_WEAK_OTHER;
-  }
-    
   if (spades >= 5)
   {
     if (spades == longest1)
@@ -309,30 +385,27 @@ Openings Opening::oneSWeak() const
       return OPENING_UNCLASSIFIED;
   }
   else
-    return OPENING_UNCLASSIFIED;
+  {
+    if (clubs >= 4 && diamonds >= 4 && clubs + diamonds >= 9)
+      return OPENING_1S_WEAK_MINS;
+    else if (clubs >= 6 || diamonds >= 6)
+      return OPENING_1S_WEAK_MIN;
+    else if (hearts >= 5)
+      return OPENING_1S_WEAK_HEARTS;
+    else if (prod == 108 || prod == 96 || prod == 90)
+    {
+      // 4-3-3-3, 4-4-3-2, 5-3-3-2.
+      return OPENING_1S_WEAK_BAL;
+    }
+    else
+      return OPENING_1S_WEAK_OTHER;
+  }
 }
 
 
 Openings Opening::oneSInt() const
 {
   const unsigned prod = spades * hearts * diamonds * clubs;
-
-  if (spades < 4)
-  {
-    if (clubs >= 4 && diamonds >= 4 && clubs + diamonds >= 9)
-      return OPENING_1S_INTERMED_MINS;
-    else if (clubs >= 6 || diamonds >= 6)
-      return OPENING_1S_INTERMED_MIN;
-    else if (hearts >= 5)
-      return OPENING_1S_INTERMED_HEARTS;
-    else if (prod == 108 || prod == 96 || prod == 90)
-    {
-      // 4-3-3-3, 4-4-3-2, 5-3-3-2.
-      return OPENING_1S_INTERMED_BAL;
-    }
-    else
-      return OPENING_1S_INTERMED_OTHER;
-  }
 
   if (spades >= 5)
   {
@@ -358,30 +431,27 @@ Openings Opening::oneSInt() const
       return OPENING_UNCLASSIFIED;
   }
   else
-    return OPENING_UNCLASSIFIED;
+  {
+    if (clubs >= 4 && diamonds >= 4 && clubs + diamonds >= 9)
+      return OPENING_1S_INTERMED_MINS;
+    else if (clubs >= 6 || diamonds >= 6)
+      return OPENING_1S_INTERMED_MIN;
+    else if (hearts >= 5)
+      return OPENING_1S_INTERMED_HEARTS;
+    else if (prod == 108 || prod == 96 || prod == 90)
+    {
+      // 4-3-3-3, 4-4-3-2, 5-3-3-2.
+      return OPENING_1S_INTERMED_BAL;
+    }
+    else
+      return OPENING_1S_INTERMED_OTHER;
+  }
 }
 
 
 Openings Opening::oneSStrong() const
 {
   const unsigned prod = spades * hearts * diamonds * clubs;
-
-  if (spades < 4)
-  {
-    if (clubs >= 4 && diamonds >= 4 && clubs + diamonds >= 9)
-      return OPENING_1S_STRONG_MINS;
-    else if (clubs >= 6 || diamonds >= 6)
-      return OPENING_1S_STRONG_MIN;
-    else if (hearts >= 5)
-      return OPENING_1S_STRONG_HEARTS;
-    else if (prod == 108 || prod == 96 || prod == 90)
-    {
-      // 4-3-3-3, 4-4-3-2, 5-3-3-2.
-      return OPENING_1S_STRONG_BAL;
-    }
-    else
-      return OPENING_1S_STRONG_OTHER;
-  }
 
   if (spades >= 5)
   {
@@ -407,7 +477,21 @@ Openings Opening::oneSStrong() const
       return OPENING_UNCLASSIFIED;
   }
   else
-    return OPENING_UNCLASSIFIED;
+  {
+    if (clubs >= 4 && diamonds >= 4 && clubs + diamonds >= 9)
+      return OPENING_1S_STRONG_MINS;
+    else if (clubs >= 6 || diamonds >= 6)
+      return OPENING_1S_STRONG_MIN;
+    else if (hearts >= 5)
+      return OPENING_1S_STRONG_HEARTS;
+    else if (prod == 108 || prod == 96 || prod == 90)
+    {
+      // 4-3-3-3, 4-4-3-2, 5-3-3-2.
+      return OPENING_1S_STRONG_BAL;
+    }
+    else
+      return OPENING_1S_STRONG_OTHER;
+  }
 }
 
 

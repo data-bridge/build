@@ -529,7 +529,7 @@ void passWriteOpenings(
 
           if (cumPasses)
             op = OPENING_PASS;
-          else if (call == "1S")
+          else if (call == "1H")
           {
             op = opening.classify(call,
               valuations[relPlayers[pos]], params[pos]);
