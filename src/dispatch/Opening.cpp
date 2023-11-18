@@ -33,6 +33,21 @@ void Opening::init()
 {
   classifyMap =
   {
+    { "1C", { &Opening::oneCWeak, 
+        &Opening::oneCInt, &Opening::oneCStrong } },
+
+    { "1D", { &Opening::oneDWeak, 
+        &Opening::oneDInt, &Opening::oneDStrong } },
+
+    { "1H", { &Opening::oneHWeak, 
+        &Opening::oneHInt, &Opening::oneHStrong } },
+
+    { "1S", { &Opening::oneSWeak, 
+        &Opening::oneSInt, &Opening::oneSStrong } },
+
+    { "1NT", { &Opening::oneNTWeak, 
+        &Opening::oneNTInt, &Opening::oneNTStrong } },
+
     { "2C", { &Opening::twoCWeak, 
         &Opening::twoCInt, &Opening::twoCStrong } },
 
@@ -184,6 +199,322 @@ bool Opening::threeSuiter() const
   if (clubs >= 4) numSuits++;
 
   return (numSuits == 3);
+}
+
+
+// ----------------- One club ----------------------
+
+Openings Opening::oneCWeak() const
+{
+  return OPENING_UNCLASSIFIED;
+}
+
+
+Openings Opening::oneCInt() const
+{
+  return OPENING_UNCLASSIFIED;
+}
+
+
+Openings Opening::oneCStrong() const
+{
+  return OPENING_UNCLASSIFIED;
+}
+
+
+// ----------------- One diamond -------------------
+
+Openings Opening::oneDWeak() const
+{
+  return OPENING_UNCLASSIFIED;
+}
+
+
+Openings Opening::oneDInt() const
+{
+  return OPENING_UNCLASSIFIED;
+}
+
+
+Openings Opening::oneDStrong() const
+{
+  return OPENING_UNCLASSIFIED;
+}
+
+
+// ----------------- One heart ---------------------
+
+Openings Opening::oneHWeak() const
+{
+  return OPENING_UNCLASSIFIED;
+}
+
+
+Openings Opening::oneHInt() const
+{
+  return OPENING_UNCLASSIFIED;
+}
+
+
+Openings Opening::oneHStrong() const
+{
+  return OPENING_UNCLASSIFIED;
+}
+
+
+// ----------------- One spade ---------------------
+
+Openings Opening::oneSWeak() const
+{
+  const unsigned prod = spades * hearts * diamonds * clubs;
+
+  if (spades < 4)
+  {
+    if (clubs >= 4 && diamonds >= 4 && clubs + diamonds >= 9)
+      return OPENING_1S_WEAK_MINS;
+    else if (clubs >= 6 || diamonds >= 6)
+      return OPENING_1S_WEAK_MIN;
+    else if (hearts >= 5)
+      return OPENING_1S_WEAK_HEARTS;
+    else if (prod == 108 || prod == 96 || prod == 90)
+    {
+      // 4-3-3-3, 4-4-3-2, 5-3-3-2.
+      return OPENING_1S_WEAK_BAL;
+    }
+    else
+      return OPENING_1S_WEAK_OTHER;
+  }
+    
+  if (spades >= 5)
+  {
+    if (spades == longest1)
+      return OPENING_1S_WEAK_FIVE;
+    else if (spades == longest2)
+    {
+      if (clubs == 6 || diamonds == 6)
+        return OPENING_1S_WEAK_FIVE;
+      else
+        return OPENING_1S_WEAK_CANAPE;
+    }
+    else
+      return OPENING_UNCLASSIFIED;
+  }
+  else if (spades == 4)
+  {
+    if (spades == longest1)
+      return OPENING_1S_WEAK_FOUR;
+    else if (spades == longest2)
+      return OPENING_1S_WEAK_CANAPE;
+    else
+      return OPENING_UNCLASSIFIED;
+  }
+  else
+    return OPENING_UNCLASSIFIED;
+}
+
+
+Openings Opening::oneSInt() const
+{
+  const unsigned prod = spades * hearts * diamonds * clubs;
+
+  if (spades < 4)
+  {
+    if (clubs >= 4 && diamonds >= 4 && clubs + diamonds >= 9)
+      return OPENING_1S_INTERMED_MINS;
+    else if (clubs >= 6 || diamonds >= 6)
+      return OPENING_1S_INTERMED_MIN;
+    else if (hearts >= 5)
+      return OPENING_1S_INTERMED_HEARTS;
+    else if (prod == 108 || prod == 96 || prod == 90)
+    {
+      // 4-3-3-3, 4-4-3-2, 5-3-3-2.
+      return OPENING_1S_INTERMED_BAL;
+    }
+    else
+      return OPENING_1S_INTERMED_OTHER;
+  }
+
+  if (spades >= 5)
+  {
+    if (spades == longest1)
+      return OPENING_1S_INTERMED_FIVE;
+    else if (spades == longest2)
+    {
+      if (clubs == 6 || diamonds == 6)
+        return OPENING_1S_INTERMED_FIVE;
+      else
+        return OPENING_1S_INTERMED_CANAPE;
+    }
+    else
+      return OPENING_UNCLASSIFIED;
+  }
+  else if (spades == 4)
+  {
+    if (spades == longest1)
+      return OPENING_1S_INTERMED_FOUR;
+    else if (spades == longest2)
+      return OPENING_1S_INTERMED_CANAPE;
+    else
+      return OPENING_UNCLASSIFIED;
+  }
+  else
+    return OPENING_UNCLASSIFIED;
+}
+
+
+Openings Opening::oneSStrong() const
+{
+  const unsigned prod = spades * hearts * diamonds * clubs;
+
+  if (spades < 4)
+  {
+    if (clubs >= 4 && diamonds >= 4 && clubs + diamonds >= 9)
+      return OPENING_1S_STRONG_MINS;
+    else if (clubs >= 6 || diamonds >= 6)
+      return OPENING_1S_STRONG_MIN;
+    else if (hearts >= 5)
+      return OPENING_1S_STRONG_HEARTS;
+    else if (prod == 108 || prod == 96 || prod == 90)
+    {
+      // 4-3-3-3, 4-4-3-2, 5-3-3-2.
+      return OPENING_1S_STRONG_BAL;
+    }
+    else
+      return OPENING_1S_STRONG_OTHER;
+  }
+
+  if (spades >= 5)
+  {
+    if (spades == longest1)
+      return OPENING_1S_STRONG_FIVE;
+    else if (spades == longest2)
+    {
+      if (clubs == 6 || diamonds == 6)
+        return OPENING_1S_STRONG_FIVE;
+      else
+        return OPENING_1S_STRONG_CANAPE;
+    }
+    else
+      return OPENING_UNCLASSIFIED;
+  }
+  else if (spades == 4)
+  {
+    if (spades == longest1)
+      return OPENING_1S_STRONG_FOUR;
+    else if (spades == longest2)
+      return OPENING_1S_STRONG_CANAPE;
+    else
+      return OPENING_UNCLASSIFIED;
+  }
+  else
+    return OPENING_UNCLASSIFIED;
+}
+
+
+// ----------------- One notrump -------------------
+
+Openings Opening::oneNTWeak() const
+{
+  if (hcp < 8)
+    return OPENING_1NT_WEAK_BLUFF;
+
+  const unsigned prod = spades * hearts * diamonds * clubs;
+
+  if (prod == 108 || prod == 96 || prod == 90 || prod == 80 || prod == 72)
+  {
+    // 4-3-3-3, 4-4-3-2, 5-3-3-2, 5-4-2-2, 6m-3-2-2.
+    return OPENING_1NT_WEAK_SBAL;
+  }
+  else if (prod == 64)
+  {
+    // 4-4-4-1.
+    return OPENING_1NT_WEAK_4441;
+  }
+  else if (prod == 60)
+  {
+    // 5-4-3-1.
+    return OPENING_1NT_WEAK_5431;
+  }
+  else if (prod == 54 && (clubs == 6 || diamonds == 6))
+  {
+    // 6m-3-3-1.
+    return OPENING_1NT_WEAK_6331;
+  }
+  else if (prod == 56 && (clubs == 7 || diamonds == 7))
+  {
+    // 7m-2-2-2.
+    return OPENING_1NT_WEAK_7222;
+  }
+  else
+    return OPENING_1NT_WEAK_ATYPICAL;
+}
+
+
+Openings Opening::oneNTInt() const
+{
+  const unsigned prod = spades * hearts * diamonds * clubs;
+
+  if (prod == 108 || prod == 96 || prod == 90 || prod == 80 || prod == 72)
+  {
+    // 4-3-3-3, 4-4-3-2, 5-3-3-2, 5-4-2-2, 6m-3-2-2.
+    return OPENING_1NT_INTERMED_SBAL;
+  }
+  else if (prod == 64)
+  {
+    // 4-4-4-1.
+    return OPENING_1NT_INTERMED_4441;
+  }
+  else if (prod == 60)
+  {
+    // 5-4-3-1.
+    return OPENING_1NT_INTERMED_5431;
+  }
+  else if (prod == 54 && (clubs == 6 || diamonds == 6))
+  {
+    // 6m-3-3-1.
+    return OPENING_1NT_INTERMED_6331;
+  }
+  else if (prod == 56 && (clubs == 7 || diamonds == 7))
+  {
+    // 7m-2-2-2.
+    return OPENING_1NT_INTERMED_7222;
+  }
+  else
+    return OPENING_1NT_INTERMED_ATYPICAL;
+}
+
+
+Openings Opening::oneNTStrong() const
+{
+  const unsigned prod = spades * hearts * diamonds * clubs;
+
+  if (prod == 108 || prod == 96 || prod == 90 || prod == 80 || prod == 72)
+  {
+    // 4-3-3-3, 4-4-3-2, 5-3-3-2, 5-4-2-2, 6m-3-2-2.
+    return OPENING_1NT_STRONG_SBAL;
+  }
+  else if (prod == 64)
+  {
+    // 4-4-4-1.
+    return OPENING_1NT_STRONG_4441;
+  }
+  else if (prod == 60)
+  {
+    // 5-4-3-1.
+    return OPENING_1NT_STRONG_5431;
+  }
+  else if (prod == 54 && (clubs == 6 || diamonds == 6))
+  {
+    // 6m-3-3-1.
+    return OPENING_1NT_STRONG_6331;
+  }
+  else if (prod == 56 && (clubs == 7 || diamonds == 7))
+  {
+    // 7m-2-2-2.
+    return OPENING_1NT_STRONG_7222;
+  }
+  else
+    return OPENING_1NT_STRONG_ATYPICAL;
 }
 
 

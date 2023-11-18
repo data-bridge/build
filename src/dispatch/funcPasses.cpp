@@ -251,10 +251,10 @@ void strTriplet(
         boardTag, pno, 0, matchTag);
   }
   else if (
-    params[pno][PASS_HCP] >= 10 && 
+    params[pno][PASS_HCP] >= 10) // && 
     // params[pno][PASS_HCP] >= 10 && 
     // params[pno][PASS_HCP] <= 12 &&
-    isAboveOneLevel(instance.strCall(pno, BRIDGE_FORMAT_TXT)))
+    // isAboveOneLevel(instance.strCall(pno, BRIDGE_FORMAT_TXT)))
   {
     cout << strBidData(board, instance, relPlayers, params, 
       boardTag, pno, 1, matchTag);
@@ -529,12 +529,7 @@ void passWriteOpenings(
 
           if (cumPasses)
             op = OPENING_PASS;
-          else if (call[0] == '1')
-          {
-            // Will be wrong for strong-pass systems.
-            op = OPENING_NOT_WEAK;
-          }
-          else if (call == "2D")
+          else if (call == "1S")
           {
             op = opening.classify(call,
               valuations[relPlayers[pos]], params[pos]);
@@ -555,6 +550,11 @@ void passWriteOpenings(
               strTriplet(board, instance, relPlayers, params,
                 boardTag, pos, 0, cumPasses, filterParams);
             }
+          }
+          else if (call[0] == '1')
+          {
+            // Will be wrong for strong-pass systems.
+            op = OPENING_NOT_WEAK;
           }
           else
           {

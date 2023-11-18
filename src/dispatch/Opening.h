@@ -63,6 +63,26 @@ class Opening
 
     bool threeSuiter() const;
 
+    Openings oneCWeak() const;
+    Openings oneCInt() const;
+    Openings oneCStrong() const;
+
+    Openings oneDWeak() const;
+    Openings oneDInt() const;
+    Openings oneDStrong() const;
+
+    Openings oneHWeak() const;
+    Openings oneHInt() const;
+    Openings oneHStrong() const;
+
+    Openings oneSWeak() const;
+    Openings oneSInt() const;
+    Openings oneSStrong() const;
+
+    Openings oneNTWeak() const;
+    Openings oneNTInt() const;
+    Openings oneNTStrong() const;
+
     Openings twoCWeak() const;
     Openings twoCInt() const;
     Openings twoCStrong() const;
