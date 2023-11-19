@@ -529,37 +529,25 @@ void passWriteOpenings(
 
           if (cumPasses)
             op = OPENING_PASS;
-          else if (call == "1H")
-          {
-            op = opening.classify(call,
-              valuations[relPlayers[pos]], params[pos]);
-
-            if (op == OPENING_UNCLASSIFIED)
-            {
-              cout << "XXX " << params[pos][PASS_HCP] << "\n";
-
-              FilterParams filterParams;
-              filterParams.distFilterFlag = false;
-              filterParams.hcpFlag = false;
-              filterParams.hcpValue = params[pos][PASS_HCP];
-              filterParams.playerFlag = false;
-              filterParams.playerTag = "shein";
-              filterParams.stats2DFlag = false;
-              filterParams.handsFlag = true;
-
-              strTriplet(board, instance, relPlayers, params,
-                boardTag, pos, 0, cumPasses, filterParams);
-            }
-          }
-          else if (call[0] == '1')
-          {
-            // Will be wrong for strong-pass systems.
-            op = OPENING_NOT_WEAK;
-          }
           else
-          {
             op = opening.classify(call,
               valuations[relPlayers[pos]], params[pos]);
+
+          if (op == OPENING_UNCLASSIFIED)
+          {
+            cout << "XXX " << params[pos][PASS_HCP] << "\n";
+
+            FilterParams filterParams;
+            filterParams.distFilterFlag = false;
+            filterParams.hcpFlag = false;
+            filterParams.hcpValue = params[pos][PASS_HCP];
+            filterParams.playerFlag = false;
+            filterParams.playerTag = "shein";
+            filterParams.stats2DFlag = false;
+            filterParams.handsFlag = true;
+
+            strTriplet(board, instance, relPlayers, params,
+              boardTag, pos, 0, cumPasses, filterParams);
           }
 
           cout << 

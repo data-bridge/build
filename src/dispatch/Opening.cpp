@@ -206,19 +206,96 @@ bool Opening::threeSuiter() const
 
 Openings Opening::oneCWeak() const
 {
-  return OPENING_UNCLASSIFIED;
+  const unsigned prod = spades * hearts * diamonds * clubs;
+
+  if (clubs == longest1 && longest2 < longest1)
+    return OPENING_1C_WEAK_CLUBS;
+
+  if (hearts < 5 && spades < 5)
+  {
+    if (prod == 108 || prod == 96 || prod == 90 || 
+        prod == 80 || prod == 72)
+    {
+      // 4-3-3-3, 4-4-3-2, 5-3-3-2, 5-4-2-2, 6m-3-2-2.
+      return OPENING_1C_WEAK_SBAL;
+    }
+    else if (clubs > diamonds)
+      return OPENING_1C_WEAK_LONGEST_MIN;
+    else if (clubs >= 4)
+      return OPENING_1C_WEAK_SHORTEST_MIN;
+  }
+
+
+  // Many forcing-pass openings.
+  return OPENING_1C_WEAK_OTHER;
 }
 
 
 Openings Opening::oneCInt() const
 {
+  const unsigned prod = spades * hearts * diamonds * clubs;
+
+  if (clubs == longest1)
+  {
+    if (longest2 < longest1)
+      return OPENING_1C_INTERMED_CLUBS;
+    else if (spades == clubs)
+      return OPENING_1C_INTERMED_CLUBS;
+  }
+
+  if (hearts >= 5 || spades >= 5)
+  {
+    if (prod == 90 || prod == 80)
+    {
+      // 5-3-3-2, 5-4-2-2.
+      return OPENING_1C_INTERMED_SBAL_MAJ;
+    }
+    else if (hearts >= 5)
+      return OPENING_1C_INTERMED_HEARTS;
+    else
+      return OPENING_1C_INTERMED_SPADES;
+  }
+  else if (prod == 108 || prod == 96 || prod == 90 || 
+      prod == 80 || prod == 72)
+  {
+    // 4-3-3-3, 4-4-3-2, 5m-3-3-2, 5m-4-2-2, 6m-3-2-2.
+    return OPENING_1C_INTERMED_SBAL;
+  }
+  else if (clubs > diamonds)
+    return OPENING_1C_INTERMED_LONGEST_MIN;
+  else if (clubs >= 4)
+    return OPENING_1C_INTERMED_SHORTEST_MIN;
+  else if (diamonds >= 5)
+    return OPENING_1C_INTERMED_DIAMONDS;
+  else if (prod == 64 && clubs == 1)
+    return OPENING_1C_INTERMED_4441;
+
   return OPENING_UNCLASSIFIED;
 }
 
 
 Openings Opening::oneCStrong() const
 {
-  return OPENING_UNCLASSIFIED;
+  const unsigned prod = spades * hearts * diamonds * clubs;
+
+  if (clubs == longest1 && longest2 < longest1)
+    return OPENING_1C_STRONG_CLUBS;
+
+  if (hearts < 5 && spades < 5)
+  {
+    if (prod == 108 || prod == 96 || prod == 90 || 
+        prod == 80 || prod == 72)
+    {
+      // 4-3-3-3, 4-4-3-2, 5-3-3-2, 5-4-2-2, 6m-3-2-2.
+      return OPENING_1C_STRONG_SBAL;
+    }
+    else if (clubs > diamonds)
+      return OPENING_1C_STRONG_LONGEST_MIN;
+    else if (clubs >= 4)
+      return OPENING_1C_STRONG_SHORTEST_MIN;
+  }
+
+  return OPENING_1D_STRONG_OTHER;
 }
 
 
@@ -226,19 +303,89 @@ Openings Opening::oneCStrong() const
 
 Openings Opening::oneDWeak() const
 {
-  return OPENING_UNCLASSIFIED;
+  const unsigned prod = spades * hearts * diamonds * clubs;
+
+  if (diamonds == longest1 && hearts < longest1 && spades < longest1)
+    return OPENING_1D_WEAK_DIAMONDS;
+  else if (hearts >= 5 && hearts == longest1)
+    return OPENING_1D_WEAK_HEARTS;
+  else if (spades >= 5 && spades == longest1)
+    return OPENING_1D_WEAK_SPADES;
+
+  if (hearts < 5 && spades < 5)
+  {
+    if (prod == 108 || prod == 96 || prod == 90 || 
+        prod == 80 || prod == 72)
+    {
+      // 4-3-3-3, 4-4-3-2, 5-3-3-2, 5-4-2-2, 6m-3-2-2.
+      return OPENING_1D_WEAK_SBAL;
+    }
+    else if (diamonds >= clubs)
+      return OPENING_1D_WEAK_LONGEST_MIN;
+    else if (diamonds >= 4)
+      return OPENING_1D_WEAK_SHORTEST_MIN;
+    else if (hcp >= 9)
+      return OPENING_1D_INTERMED_CATCHALL;
+  }
+
+  return OPENING_1D_WEAK_OTHER;
 }
 
 
 Openings Opening::oneDInt() const
 {
+  const unsigned prod = spades * hearts * diamonds * clubs;
+
+  if (diamonds == longest1 && hearts < longest1 && spades < longest1)
+    return OPENING_1D_INTERMED_DIAMONDS;
+
+  if (hearts >= 5 && hearts > diamonds)
+    return OPENING_1D_INTERMED_HEARTS;
+
+  if (hearts < 5 && spades < 5)
+  {
+    if (prod == 108 || prod == 96 || prod == 90 || 
+        prod == 80 || prod == 72)
+    {
+      // 4-3-3-3, 4-4-3-2, 5-3-3-2, 5-4-2-2, 6m-3-2-2.
+      return OPENING_1D_INTERMED_SBAL;
+    }
+    else if (diamonds >= clubs)
+      return OPENING_1D_INTERMED_LONGEST_MIN;
+    else if (diamonds >= 4 && clubs > diamonds)
+      return OPENING_1D_INTERMED_SHORTEST_MIN;
+    else
+      return OPENING_1D_INTERMED_CATCHALL;
+  }
+  else if (diamonds >= 4)
+      return OPENING_1D_INTERMED_CANAPE;
+  else if (spades >= 5)
+      return OPENING_1D_INTERMED_SPADES;
+
   return OPENING_UNCLASSIFIED;
 }
 
 
 Openings Opening::oneDStrong() const
 {
-  return OPENING_UNCLASSIFIED;
+  const unsigned prod = spades * hearts * diamonds * clubs;
+
+  if (diamonds == longest1 && hearts < longest1 && spades < longest1)
+    return OPENING_1D_STRONG_DIAMONDS;
+
+  if (hearts < 5 && spades < 5)
+  {
+    if (prod == 108 || prod == 96 || prod == 90 || 
+        prod == 80 || prod == 72)
+    {
+      // 4-3-3-3, 4-4-3-2, 5-3-3-2, 5-4-2-2, 6m-3-2-2.
+      return OPENING_1D_STRONG_SBAL;
+    }
+    else if (diamonds >= clubs)
+      return OPENING_1D_STRONG_LONGEST_MIN;
+  }
+
+  return OPENING_1D_STRONG_OTHER;
 }
 
 
