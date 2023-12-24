@@ -17,6 +17,22 @@ if ($#ARGV != 0)
   exit;
 }
 
+my @DIST_SELECT;
+my $POS_SELECT = 3;
+my $VUL_SELECT = 3;
+
+# 6 spades.
+weak_two_spades();
+
+# 6 hearts.
+weak_two_hearts();
+
+# 6 diamonds.
+weak_two_diamonds();
+
+my $BIN_SIZE = 0.2;
+my $SMOOTH_PLUS_MINUS = 4;
+
 my $file = $ARGV[0];
 
 my (@SUIT_NAMES, @SUIT_VALUES);
@@ -27,10 +43,8 @@ read_dist_names("DISTMAP");
 
 my $NUM_BIDS = 3400;
 my $NUM_DIST = 560;
-
-my $DIST_SELECT = 451;
-my $POS_SELECT = 0;
-my $VUL_SELECT = 0;
+my $MAX_HCP = 39;
+my $MAX_STRENGTH = int(0.5 + $MAX_HCP / $BIN_SIZE);
 
 my ($pos, $vul, $open, $dist);
 my (@store, @used);
@@ -38,7 +52,7 @@ my (@store_groups, @groups_used);
 my (@dist_groups_used, @dist_used, @dist_passed, @dist_stats);
 
 my (@select_value_hist, @select_hcp_hist, @select_groups_used,
-  @select_hcp_used);
+  @select_hcp_used, @select_value_used);
 
 for my $open (0 .. $NUM_BIDS)
 {
@@ -46,14 +60,12 @@ for my $open (0 .. $NUM_BIDS)
   $groups_used[$open] = 0;
   $select_groups_used[$open] = 0;
 
-  for my $v (0 .. 39)
-  {
-    $select_value_hist[$open][$v] = 0;
-    $select_hcp_hist[$open][$v] = 0;
-  }
+  $select_hcp_hist[$open][$_] = 0 for (0 .. $MAX_HCP);
+  $select_value_hist[$open][$_] = 0 for (0 .. $MAX_STRENGTH);
 }
 
-$select_hcp_used[$_] = 0 for (0 .. 39);
+$select_hcp_used[$_] = 0 for (0 .. $MAX_HCP);
+$select_value_used[$_] = 0 for (0 .. $MAX_STRENGTH);
 
 for my $d (0 .. $NUM_DIST-1)
 {
@@ -154,7 +166,8 @@ while (my $line = <$fr>)
   $dist_used[$dist]++;
   $dist_passed[$dist]++ if ($gused == $PASS);
 
-  if ($dist == $DIST_SELECT && $pos == $POS_SELECT &&
+  if ((defined $DIST_SELECT[$dist]) && $pos == $POS_SELECT &&
+  # if ((defined $DIST_SELECT[$dist]) && $gused == $WEAK_TWO_MINOR && $pos == $POS_SELECT &&
       $vul == $VUL_SELECT)
   {
     my $value_sum = 
@@ -164,27 +177,31 @@ while (my $line = <$fr>)
       $SUIT_VALUES[$a[8]];
     my $hcp_sum = hcp($a[5]) + hcp($a[6]) + hcp($a[7]) + hcp($a[8]);
 
-    $select_value_hist[$gused][int($value_sum)]++;
     $select_hcp_hist[$gused][int($hcp_sum)]++;
-    $select_groups_used[$gused]++;
     $select_hcp_used[$hcp_sum]++;
+    $select_groups_used[$gused]++;
 
-    printf("%-8s  %s, %s, %s, %s: %2d, %7.2f\n",
-      defined $BID_NAMES[$gused] ? $BID_NAMES[$gused] : $open,
-      $SUIT_NAMES[$a[5]],
-      $SUIT_NAMES[$a[6]],
-      $SUIT_NAMES[$a[7]],
-      $SUIT_NAMES[$a[8]], 
-      $hcp_sum,
-      $value_sum);
+    my $value_bin = int($value_sum / $BIN_SIZE);
+    $select_value_hist[$gused][$value_bin]++;
+    $select_value_used[$value_bin]++;
+
+    # printf("%-8s  %s, %s, %s, %s: %2d, %7.2f\n",
+      # defined $BID_NAMES[$gused] ? $BID_NAMES[$gused] : $open,
+      # $SUIT_NAMES[$a[5]],
+      # $SUIT_NAMES[$a[6]],
+      # $SUIT_NAMES[$a[7]],
+      # $SUIT_NAMES[$a[8]], 
+      # $hcp_sum,
+      # $value_sum);
+    # print("open $open\n");
   }
 }
 close $fr;
 
-print_hist(\@store, \@used, "Full");
-print_hist(\@store_groups, \@groups_used, "Groups");
+# print_hist(\@store, \@used, "Full");
+# print_hist(\@store_groups, \@groups_used, "Groups");
 
-print_dist();
+# print_dist();
 
 printf("%8s", "");
 for my $open (0 .. $NUM_BIDS)
@@ -194,16 +211,62 @@ for my $open (0 .. $NUM_BIDS)
 }
 print "\n";
 
-for my $v (0 .. 39)
+for my $v (0 .. $MAX_HCP)
 {
   next unless $select_hcp_used[$v];
   printf("%2d%6d", $v, $select_hcp_used[$v]);
   for my $open (0 .. $NUM_BIDS)
   {
     next unless $select_groups_used[$open];
-    printf("%4d%4d", 
-      $select_value_hist[$open][$v],
-      $select_hcp_hist[$open][$v]);
+    printf("%8d", $select_hcp_hist[$open][$v]);
+  }
+  print "\n";
+}
+print "\n";
+
+printf("%14s", "");
+for my $open (0 .. $NUM_BIDS)
+{
+  printf("%8s", (defined $BID_NAMES[$open] ? $BID_NAMES[$open] : $open))
+    if $select_groups_used[$open];
+}
+print "\n";
+
+# Smooth the curve for preempts.
+my @smoothed;
+
+for my $v ($SMOOTH_PLUS_MINUS .. $MAX_STRENGTH - $SMOOTH_PLUS_MINUS)
+{
+  $smoothed[$v] = 0;
+  my $running_num = 0;
+  my $running_denom = 0;
+  for my $r ($v - $SMOOTH_PLUS_MINUS .. $v + $SMOOTH_PLUS_MINUS)
+  {
+    $running_num += $select_value_hist[$WEAK_TWO_MAJOR][$v] +
+      $select_value_hist[$WEAK_THREE_MAJOR][$v];
+    $running_num += $select_value_hist[$WEAK_TWO_MINOR][$v] +
+      $select_value_hist[$WEAK_THREE_MINOR][$v];
+    $running_denom += $select_value_used[$v];
+  }
+  if ($running_denom > 0)
+  {
+    $smoothed[$v] = $running_num / $running_denom;
+  }
+}
+
+
+for my $v (0 .. $MAX_STRENGTH)
+{
+  # next unless $select_value_used[$v];
+  printf("%8.2f%6d", $BIN_SIZE * $v, $select_value_used[$v]);
+  for my $open (0 .. $NUM_BIDS)
+  {
+    next unless $select_groups_used[$open];
+    printf("%8d", $select_value_hist[$open][$v]);
+  }
+  if (defined $smoothed[$v])
+  {
+    printf("%8.2f", $smoothed[$v]);
   }
   print "\n";
 }
@@ -216,9 +279,10 @@ sub bid_group
 
   return $PASS if ($open == 0);
 
-  return $ONE if ($open <600);
+  return $ONE if ($open < 600);
 
-  return $WEAK_TWO_MINOR if ($open == 600 || $open == 606 || $open == 701);
+  return $WEAK_TWO_MINOR if ($open == 600 || $open == 606 || 
+    $open == 700 || $open == 701);
 
   return $WEAK_TWO_BOTH_MAJORS
     if ($open == 603 || $open == 704 || $open == 805 || $open == 903);
@@ -229,7 +293,7 @@ sub bid_group
 
   return $WEAK_TWO_MAJOR
     if ($open == 601 || $open == 702 || $open == 800 ||
-      $open == 802 || $open == 900);
+      $open == 802 || $open == 900 || $open == 906);
 
   return $WEAK_TWO_BOTH_MINORS if ($open == 604);
 
@@ -250,7 +314,8 @@ sub bid_group
 
   return $WEAK_THREE_BOTH_MAJORS if ($open == 1004);
 
-  return $WEAK_THREE_MAJOR if ($open == 1105 || $open == 1201 ||
+  return $WEAK_THREE_MAJOR if (
+    $open == 1105 || $open == 1201 ||
     $open == 1300 || $open == 1301 || $open == 1400);
 
   return $WEAK_FOUR_MINOR if ($open == 1504 || $open == 1505 || 
@@ -395,3 +460,46 @@ sub hcp
   $p += 1 if $sname =~ /J/;
   return $p;
 }
+
+
+sub weak_two_spades
+{
+  $DIST_SELECT[451] = 1; # 6=1=3=3
+  $DIST_SELECT[462] = 1; # 6=3=1=3
+  $DIST_SELECT[464] = 1; # 6=3=3=1
+
+  $DIST_SELECT[457] = 1; # 6=2=2=3
+  $DIST_SELECT[458] = 1; # 6=2=3=2
+  $DIST_SELECT[463] = 1; # 6=3=2=2
+}
+
+
+sub weak_two_hearts
+{
+  # 6 hearts.
+
+  $DIST_SELECT[171] = 1; # 1=6=3=3
+  $DIST_SELECT[326] = 1; # 3=6=1=3
+  $DIST_SELECT[328] = 1; # 3=6=3=1
+
+  $DIST_SELECT[255] = 1; # 2=6=2=3
+  $DIST_SELECT[256] = 1; # 2=6=3=2
+  $DIST_SELECT[327] = 1; # 3=6=2=2
+}
+
+
+
+sub weak_two_diamonds
+{
+  # 6 diamonds.
+
+  $DIST_SELECT[147] = 1; # 1=3=6=3
+  $DIST_SELECT[291] = 1; # 3=1=6=3
+  $DIST_SELECT[310] = 1; # 3=3=6=1
+
+  $DIST_SELECT[225] = 1; # 2=2=6=3
+  $DIST_SELECT[235] = 1; # 2=3=6=2
+  $DIST_SELECT[301] = 1; # 3=2=6=2
+}
+
+

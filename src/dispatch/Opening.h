@@ -25,6 +25,7 @@ using namespace std;
 class Valuation;
 
 enum Openings: unsigned;
+enum Triages: unsigned;
 enum ValSuitParams: unsigned;
 
 
@@ -166,6 +167,8 @@ class Opening
       const string& call,
       const Valuation& valuation,
       const vector<unsigned>& params);
+
+    Triages triage(const Openings op) const;
 };
 
 #endif

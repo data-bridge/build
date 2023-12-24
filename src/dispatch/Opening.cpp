@@ -1239,7 +1239,12 @@ Openings Opening::twoNTWeak() const
   else if (clubs >= 6 || diamonds >= 6)
     return OPENING_2NT_WEAK_ONE_MIN;
   else if (longest1 >= 5 && longest2 >= 5)
-    return OPENING_2NT_WEAK_TWO_SUITER;
+  {
+    if (diamonds >= 5)
+      return OPENING_2NT_WEAK_MAJ_MIN;
+    else
+      return OPENING_2NT_WEAK_MAJORS;
+  }
   else if (longest1 >= 7)
     return OPENING_2NT_WEAK_ONE_SUITER;
   else
@@ -1483,6 +1488,8 @@ Openings Opening::threeSInt() const
     else
       return OPENING_3S_INTERMED_SPADES;
   }
+  else if (spades >= 4 && losers <= 10 && spades < longest1)
+    return OPENING_3S_STRONG_OTHER;
   else
     return OPENING_UNCLASSIFIED;
 }
@@ -2006,5 +2013,53 @@ Openings Opening::classify(
     return (this->*(classifyMap[call][STRENGTH_WEAK]))();
   else
     return (this->*(classifyMap[call][STRENGTH_INTERMED]))();
+}
+
+
+Triages Opening::triage(const Openings op) const
+{
+  if (op == OPENING_PASS)
+    return TRIAGE_PASS;
+
+  if (op >= OPENING_1C_INTERMED_CLUBS && op < OPENING_1D_WEAK_DIAMONDS)
+    return TRIAGE_NON_PREEMPT;
+  if (op >= OPENING_1D_INTERMED_DIAMONDS && op < OPENING_1H_WEAK_FIVE)
+    return TRIAGE_NON_PREEMPT;
+  if (op >= OPENING_1H_INTERMED_FIVE && op < OPENING_1S_WEAK_FIVE)
+    return TRIAGE_NON_PREEMPT;
+  if (op >= OPENING_1S_INTERMED_FIVE && op < OPENING_1NT_WEAK_SBAL)
+    return TRIAGE_NON_PREEMPT;
+  if (op >= OPENING_1NT_INTERMED_SBAL && op < OPENING_2C_WEAK_CLUBS)
+    return TRIAGE_NON_PREEMPT;
+  if (op >= OPENING_2C_INTERMED_CLUBS && op < OPENING_2D_WEAK_CLUBS)
+    return TRIAGE_NON_PREEMPT;
+  if (op >= OPENING_2D_INTERMED_CLUBS && op < OPENING_2H_WEAK_HEARTS)
+    return TRIAGE_NON_PREEMPT;
+  if (op >= OPENING_2H_INTERMED_HEARTS && op < OPENING_2S_WEAK_SPADES)
+    return TRIAGE_NON_PREEMPT;
+  if (op >= OPENING_2S_INTERMED_SPADES && op < OPENING_2NT_WEAK_MINS)
+    return TRIAGE_NON_PREEMPT;
+  if (op >= OPENING_2NT_INTERMED_TWO_SUITER && op < OPENING_3C_WEAK_CLUBS)
+    return TRIAGE_NON_PREEMPT;
+  if (op >= OPENING_3C_INTERMED_CLUB_OTHER && op < OPENING_3D_WEAK_DIAMONDS)
+    return TRIAGE_NON_PREEMPT;
+  if (op >= OPENING_3D_INTERMED_REDS && op < OPENING_3H_WEAK_HEARTS)
+    return TRIAGE_NON_PREEMPT;
+  if (op >= OPENING_3H_INTERMED_HEARTS && op < OPENING_3S_WEAK_SPADES)
+    return TRIAGE_NON_PREEMPT;
+  if (op >= OPENING_3S_INTERMED_SPADES && op < OPENING_3NT_WEAK_MINORS)
+    return TRIAGE_NON_PREEMPT;
+  if (op >= OPENING_3NT_INTERMED_SOLID_MAJOR && op < OPENING_4C_WEAK_CLUBS)
+    return TRIAGE_NON_PREEMPT;
+  if (op >= OPENING_4C_INTERMED_CLUBS && op < OPENING_4D_WEAK_DIAMONDS)
+    return TRIAGE_NON_PREEMPT;
+  if (op >= OPENING_4D_INTERMED_DIAMONDS && op < OPENING_4H_WEAK_HEARTS)
+    return TRIAGE_NON_PREEMPT;
+  if (op >= OPENING_4H_INTERMED_HEARTS && op < OPENING_4S_WEAK_SPADES)
+    return TRIAGE_NON_PREEMPT;
+  if (op >= OPENING_4S_INTERMED_SPADES)
+    return TRIAGE_NON_PREEMPT;
+
+  return TRIAGE_PREEMPT;
 }
 

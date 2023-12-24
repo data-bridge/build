@@ -550,11 +550,15 @@ void passWriteOpenings(
               boardTag, pos, 0, cumPasses, filterParams);
           }
 
+          const Triages triop = opening.triage(op);
+
           cout << 
             wholeTag << "," <<
             pos << "," <<
             sequentialVuls[pos] << "," <<
-            op << "," <<
+            // (op == OPENING_PASS ? 0 : 1) << "," <<
+            // op << "," <<
+            triop << "," <<
             valuations[relPlayers[pos]].strCorrData() << "\n";
 
           if (! cumPasses)
