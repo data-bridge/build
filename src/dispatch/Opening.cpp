@@ -762,7 +762,7 @@ Openings Opening::twoCWeak() const
     return OPENING_2C_WEAK_MAJ;
   if (clubs >= 6 && hearts < 4 && spades < 4)
   {
-    if (hcp == 10)
+    if (hcp >= 10)
       return OPENING_2C_INTERMED_CLUBS;
     else
       return OPENING_2C_WEAK_CLUBS;
@@ -770,14 +770,14 @@ Openings Opening::twoCWeak() const
   else if ((clubs >= 5 && (hearts >= 4 || spades >= 4)) ||
       (clubs == 4 && (hearts >= 5 || spades >= 5)))
   {
-    if (hcp == 10)
+    if (hcp >= 10)
       return OPENING_2C_INTERMED_CLUBS_MAJ;
     else
       return OPENING_2C_WEAK_CLUBS_MAJ;
   }
   else if (clubs >= 5 && diamonds >= 4)
   {
-    if (hcp == 10)
+    if (hcp >= 10)
       return OPENING_2C_INTERMED_MINS;
     else
       return OPENING_2C_WEAK_MINS;

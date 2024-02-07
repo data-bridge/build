@@ -483,8 +483,16 @@ void passWriteOpenings(
 
   Openings op;
 
+  // if (group.size() > 1)
+    // cout << match[1] << " " << "Multiple segments\n";
+
   for (auto &segment: group)
   {
+    // Make a simple record of the player names.
+    // if (group.size() == 1)
+      // cout << match[1] << " " << 
+        // segment.strPlayers(BRIDGE_FORMAT_LIN) << "\n";
+
     for (auto &bpair: segment)
     {
       const Board& board = bpair.board;
@@ -550,16 +558,26 @@ void passWriteOpenings(
               boardTag, pos, 0, cumPasses, filterParams);
           }
 
+          // detail  : op
+          // passes  : OPENING_PASS ? 1 : 0
+          // openings: OPENING_PASS ? 0 : 1
+          // triages : triop
+          // strongs : 2 ? 0 : triop
+
           const Triages triop = opening.triage(op);
 
           cout << 
             wholeTag << "," <<
             pos << "," <<
             sequentialVuls[pos] << "," <<
-            // (op == OPENING_PASS ? 0 : 1) << "," <<
             // op << "," <<
-            triop << "," <<
-            valuations[relPlayers[pos]].strCorrData() << "\n";
+            // (op == OPENING_PASS ? 0 : 1) << "," <<
+            // (op == OPENING_PASS ? 1 : 0) << "," <<
+            // triop << "," <<
+            (triop == 2 ? 0 : triop) << "," <<
+            valuations[relPlayers[pos]].strCorrData() << "," <<
+            call <<
+            "\n";
 
           if (! cumPasses)
             break;
