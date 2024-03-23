@@ -470,6 +470,28 @@ void passWrite(
 }
 
 
+void passWriteHeaders(
+  const Group& group,
+  const string& fname)
+{
+  regex pattern(R"([\\/]([0-9]+)\.lin$)");
+  smatch match;
+  assert(regex_search(fname, match, pattern) && match.size() > 1);
+
+  for (auto &segment: group)
+  {
+    cout << "BBONO " << match[1].str() << "\n";
+    cout << "TITLE " << segment.strTitle(BRIDGE_FORMAT_TXT);
+    cout << "DATE " << segment.strDate(BRIDGE_FORMAT_TXT);
+    cout << "LOCATION " << segment.strLocation(BRIDGE_FORMAT_TXT);
+    cout << "EVENT " << segment.strEvent(BRIDGE_FORMAT_TXT);
+    cout << "SESSION " << segment.strSession(BRIDGE_FORMAT_TXT);
+    cout << "SCORING " << segment.strScoring(BRIDGE_FORMAT_LIN) << "\n";
+    cout << "TEAMS " << segment.strTeams(BRIDGE_FORMAT_TXT) << "\n\n";
+  }
+}
+
+
 void passWriteOpenings(
   const Group& group,
   const string& fname)
@@ -746,7 +768,8 @@ void dispatchPasses(
   {
     // passStats(group, options, paramStats1D, paramStats2D);
     // passWrite(group,  fname);
-    passWriteOpenings(group,  fname);
+    // passWriteOpenings(group,  fname);
+    passWriteHeaders(group,  fname);
     // passStatsContrib(group, options, ruleStats);
   }
   catch (Bexcept& bex)
