@@ -1139,6 +1139,13 @@ Openings Opening::twoSWeak() const
     return OPENING_2S_WEAK_HEARTS_MIN;
   else if (hearts == 5 && (spades >= 4 || diamonds >= 4 || clubs >= 4))
     return OPENING_2S_WEAK_HEARTS_OTHER;
+
+  const unsigned prod = spades * hearts * diamonds * clubs;
+  if (prod == 96 || prod == 108)
+  {
+    // 4432, 4333
+    return OPENING_2S_WEAK_BAL;
+  }
   else
     return OPENING_UNCLASSIFIED;
 }
@@ -1306,8 +1313,11 @@ Openings Opening::threeCInt() const
     return OPENING_3C_INTERMED_CLUB_OTHER;
   else if (longest1 + longest2 >= 10)
     return OPENING_3C_INTERMED_TWO_SUITER;
-  else if (spades + hearts == 9)
+  else if (spades + hearts == 9 && spades >= 4 && hearts >= 4)
     return OPENING_3C_INTERMED_MAJORS;
+  else if ((spades >= 6 && hearts <= 3) ||
+    (spades <= 4 && hearts >= 6))
+    return OPENING_3C_INTERMED_MAJOR;
   else if (clubs == 5 && hcp <= 13)
     return OPENING_3C_WEAK_CLUBS;
   else
@@ -1440,13 +1450,13 @@ Openings Opening::threeSSolid() const
 {
   if (solidFlag)
   {
-    if (spades >= 7)
+    if (spades >= 6)
       return OPENING_3S_SOLID_SPADES;
-    else if (hearts >= 7)
+    else if (hearts >= 6)
       return OPENING_3S_SOLID_HEARTS;
-    else if (diamonds >= 7)
+    else if (diamonds >= 6)
       return OPENING_3S_SOLID_DIAMONDS;
-    else if (clubs >= 7)
+    else if (clubs >= 6)
       return OPENING_3S_SOLID_CLUBS;
   }
 
@@ -1618,6 +1628,8 @@ Openings Opening::fourCWeak() const
     return OPENING_4C_WEAK_DIAMONDS;
   else if (clubs >= 5 && (spades >= 5 || hearts >= 5))
     return OPENING_4C_WEAK_WITH_MAJ;
+  else if (spades >= 5 && hearts >= 5)
+    return OPENING_4C_WEAK_MAJORS;
   else if (clubs >= 6)
     return OPENING_4C_WEAK_CLUBS;
   else if (clubs == 5 && diamonds == 5)

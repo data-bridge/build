@@ -483,72 +483,6 @@ void passWrite(
 }
 
 
-void marieWrite(
-  const Group& group,
-  const string& fname)
-{
-  // 2024-09-01: Special version for Marie E.
-  regex pattern(R"([\\/]([0-9]+)\.lin$)");
-  smatch match;
-  assert(regex_search(fname, match, pattern) && match.size() > 1);
-
-  regex bpattern(R"(\|([^|]+)\|)");
-  smatch bmatch;
-
-  for (auto &segment: group)
-  {
-    for (auto &bpair: segment)
-    {
-      const Board& board = bpair.board;
-      const unsigned dealer = static_cast<unsigned>(board.getDealer());
-      const vector<Valuation>& valuations = board.getValuations();
-
-      // 0 is the dealer.
-      const vector<unsigned> relPlayers =
-        { dealer, (dealer + 1) % 4, (dealer + 2) % 4, (dealer + 3) % 4 };
-
-      // First dimension is the player -- 0 is the dealer.
-      // Second dimension is the local parameter.
-      vector<vector<unsigned>> params;
-      setPassParams(params, relPlayers, valuations);
-
-      const static vector<string> sequentialMarie =
-        {"1H", "P", "P"};
-
-      for (unsigned i = 0; i < board.countAll(); i++)
-      {
-        const Instance& instance = board.getInstance(i);
-        if (board.skipped(i))
-          continue;
-
-        const string boardTag = 
-          instance.strRoom(bpair.extNo, BRIDGE_FORMAT_LIN);
-        assert(regex_search(boardTag, bmatch, bpattern) && 
-         bmatch.size() > 1);
-
-        const string wholeTag = match[1].str() + "-" + bmatch[1].str();
-
-        VulRelative vulDealer, vulNonDealer;
-        instance.getVulRelative(vulDealer, vulNonDealer);
-
-        const vector<VulRelative> sequentialVuls =
-          { vulDealer, vulNonDealer, vulDealer, vulNonDealer };
-
-        const unsigned pos = 3;
-        if (instance.auctionStarts(sequentialMarie))
-        {
-          cout << 
-            wholeTag << "," <<
-            pos << "," <<
-            sequentialVuls[pos] << "," <<
-            valuations[relPlayers[pos]].getCompositeParam(VC_HCP) << "\n";
-        }
-      }
-    }
-  }
-}
-
-
 void passWriteHeaders(
   const Group& group,
   const string& fname,
@@ -856,19 +790,16 @@ void dispatchPasses(
   try
   {
     // passStats(group, options, paramStats1D, paramStats2D);
-    // passWrite(group,  fname);
+    passWrite(group,  fname);
 
     // Good for writing out the first non-pass bid.
     // Also good for finding openings that are abbreviated sequences.
-    passWriteOpenings(group, fname);
+    // passWriteOpenings(group, fname);
 
     // This writes the BBO headers for processing e.g. by Perl scripts.
     // passWriteHeaders(group,  fname, refLines);
 
     // passStatsContrib(group, options, ruleStats);
-
-
-    //// marieWrite(group, fname);
   }
   catch (Bexcept& bex)
   {
