@@ -70,8 +70,6 @@ class DuplStat
 
     DuplStat();
 
-    ~DuplStat();
-
     void reset();
 
     void set(

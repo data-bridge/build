@@ -25,11 +25,6 @@ DuplStat::DuplStat()
 }
 
 
-DuplStat::~DuplStat()
-{
-}
-
-
 void DuplStat::reset()
 {
   fname = "";

@@ -329,6 +329,35 @@ void Board::performValuation([[maybe_unused]] const bool fullFlag)
 }
 
 
+void Board::updateRoomCount(
+  unsigned &open,
+  unsigned &closed,
+  unsigned &both) const
+{
+  unsigned count = 0;
+  for (unsigned b = 0; b < len; b++)
+  {
+    if (skip[b])
+      continue;
+
+    const Room room = instances[b].room();
+    if (room == BRIDGE_ROOM_OPEN)
+    {
+      open++;
+      count++;
+    }
+    else if (room == BRIDGE_ROOM_CLOSED)
+    {
+      closed++;
+      count++;
+    }
+  }
+
+  if (count == 2)
+    both++;
+}
+
+
 bool Board::operator == (const Board& board2) const
 {
   if (len != board2.len)

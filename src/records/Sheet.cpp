@@ -604,7 +604,7 @@ unsigned Sheet::tagNo(
   if (c % 2)
     return 0;
 
-  return c/2;
+  return 1 + c/2;
 }
 
 
@@ -734,5 +734,25 @@ string Sheet::str() const
   }
 
   return ss.str() + "\n" + notes.str();
+}
+
+
+string Sheet::strDelete(const string& label) const
+{
+  stringstream ss;
+
+  for (unsigned i = 0; i < hands.size(); i++)
+  {
+    auto& hand = hands[i];
+    if (hand.label == label)
+    {
+      ss << Sheet::handRange(i);
+      ss << " delete {ERR_LIN_HAND_AUCTION_ABBR(0,1,1)}";
+      return ss.str();
+    }
+  }
+
+  return "LABEL NOT FOUND\n";
+
 }
 

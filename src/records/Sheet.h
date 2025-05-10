@@ -123,6 +123,7 @@ class Sheet
     bool read(const string& fname);
 
     string str() const;
+    string strDelete(const string& label) const;
 };
 
 #endif

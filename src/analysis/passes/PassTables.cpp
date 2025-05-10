@@ -152,7 +152,7 @@ void PassTables::read(vector<AllStats>& allStatsList)
 
   list<string> files;
   PassTables::makeFileList(
-    "../../Valet3/scripts/cluster/passes/tables", files);
+    "../../Valet/scripts/cluster/passes/tables", files);
   Distribution distribution;
 
   vector<string> parts;

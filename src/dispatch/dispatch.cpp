@@ -150,6 +150,7 @@ void dispatch(
         allStats.timersPtr->start(BRIDGE_TIMER_PASS, task.formatInput);
         dispatchPasses(
           group, 
+          refLines,
           options,
           task.fileInput,
           * allStats.paramStats1DPtr, 

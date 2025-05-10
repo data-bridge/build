@@ -18,6 +18,7 @@ class ParamStats1D;
 class ParamStats2D;
 struct AllStats;
 class RuleStats;
+class RefLines;
 struct Options;
 
 using namespace std;
@@ -27,6 +28,7 @@ void setPassTables(vector<AllStats>& allStatsList);
 
 void dispatchPasses(
   const Group& group,
+  const RefLines& refLines,
   const Options& options,
   const string& fname,
   vector<ParamStats1D>& paramStats1D,

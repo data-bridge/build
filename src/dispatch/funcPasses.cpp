@@ -23,6 +23,7 @@
 #include "../control/Options.h"
 
 #include "../records/Group.h"
+#include "../records/Sheet.h"
 
 #include "../analysis/Distribution.h"
 #include "../analysis/Distributions.h"
@@ -32,6 +33,8 @@
 #include "Openings.h"
 
 #include "../util/parse.h"
+
+#include "../edits/RefLines.h"
 
 #include "../stats/ParamStats1D.h"
 #include "../stats/ParamStats2D.h"
@@ -267,6 +270,16 @@ void strTriplet(
 }
 
 
+string strDelete(
+  const string& fname,
+  const string& boardTag)
+{
+  Sheet sheet;
+  sheet.read(fname);
+  return sheet.strDelete(boardTag);
+}
+
+
 void updatePassStatistics(
   const Instance& instance,
   const vector<unsigned>& relPlayers,
@@ -470,9 +483,76 @@ void passWrite(
 }
 
 
-void passWriteHeaders(
+void marieWrite(
   const Group& group,
   const string& fname)
+{
+  // 2024-09-01: Special version for Marie E.
+  regex pattern(R"([\\/]([0-9]+)\.lin$)");
+  smatch match;
+  assert(regex_search(fname, match, pattern) && match.size() > 1);
+
+  regex bpattern(R"(\|([^|]+)\|)");
+  smatch bmatch;
+
+  for (auto &segment: group)
+  {
+    for (auto &bpair: segment)
+    {
+      const Board& board = bpair.board;
+      const unsigned dealer = static_cast<unsigned>(board.getDealer());
+      const vector<Valuation>& valuations = board.getValuations();
+
+      // 0 is the dealer.
+      const vector<unsigned> relPlayers =
+        { dealer, (dealer + 1) % 4, (dealer + 2) % 4, (dealer + 3) % 4 };
+
+      // First dimension is the player -- 0 is the dealer.
+      // Second dimension is the local parameter.
+      vector<vector<unsigned>> params;
+      setPassParams(params, relPlayers, valuations);
+
+      const static vector<string> sequentialMarie =
+        {"1H", "P", "P"};
+
+      for (unsigned i = 0; i < board.countAll(); i++)
+      {
+        const Instance& instance = board.getInstance(i);
+        if (board.skipped(i))
+          continue;
+
+        const string boardTag = 
+          instance.strRoom(bpair.extNo, BRIDGE_FORMAT_LIN);
+        assert(regex_search(boardTag, bmatch, bpattern) && 
+         bmatch.size() > 1);
+
+        const string wholeTag = match[1].str() + "-" + bmatch[1].str();
+
+        VulRelative vulDealer, vulNonDealer;
+        instance.getVulRelative(vulDealer, vulNonDealer);
+
+        const vector<VulRelative> sequentialVuls =
+          { vulDealer, vulNonDealer, vulDealer, vulNonDealer };
+
+        const unsigned pos = 3;
+        if (instance.auctionStarts(sequentialMarie))
+        {
+          cout << 
+            wholeTag << "," <<
+            pos << "," <<
+            sequentialVuls[pos] << "," <<
+            valuations[relPlayers[pos]].getCompositeParam(VC_HCP) << "\n";
+        }
+      }
+    }
+  }
+}
+
+
+void passWriteHeaders(
+  const Group& group,
+  const string& fname,
+  const RefLines& refLines)
 {
   regex pattern(R"([\\/]([0-9]+)\.lin$)");
   smatch match;
@@ -487,7 +567,10 @@ void passWriteHeaders(
     cout << "EVENT " << segment.strEvent(BRIDGE_FORMAT_TXT);
     cout << "SESSION " << segment.strSession(BRIDGE_FORMAT_TXT);
     cout << "SCORING " << segment.strScoring(BRIDGE_FORMAT_LIN) << "\n";
-    cout << "TEAMS " << segment.strTeams(BRIDGE_FORMAT_TXT) << "\n\n";
+    // cout << "PLAYERS " << segment.strPlayers(BRIDGE_FORMAT_LIN);
+    cout << "TEAMS " << segment.strTeams(BRIDGE_FORMAT_TXT) << "\n";
+    cout << "BOARDS " << segment.strBoards(BRIDGE_FORMAT_PAR);
+    cout << " | " << refLines.numLines() << " lines\n\n";
   }
 }
 
@@ -578,6 +661,11 @@ void passWriteOpenings(
 
             strTriplet(board, instance, relPlayers, params,
               boardTag, pos, 0, cumPasses, filterParams);
+
+            const string roomLIN = 
+              instance.strRoom(bpair.extNo, BRIDGE_FORMAT_LIN);
+            const string label = roomLIN.substr(3, roomLIN.size() - 4);
+            cout << strDelete(fname, label) << "\n\n";
           }
 
           // detail  : op
@@ -757,6 +845,7 @@ void passPostprocess(vector<ParamStats1D>& paramStats1D)
 
 void dispatchPasses(
   const Group& group,
+  [[maybe_unused]] const RefLines& refLines,
   [[maybe_unused]] const Options& options,
   const string& fname,
   [[maybe_unused]] vector<ParamStats1D>& paramStats1D,
@@ -768,9 +857,18 @@ void dispatchPasses(
   {
     // passStats(group, options, paramStats1D, paramStats2D);
     // passWrite(group,  fname);
-    // passWriteOpenings(group,  fname);
-    passWriteHeaders(group,  fname);
+
+    // Good for writing out the first non-pass bid.
+    // Also good for finding openings that are abbreviated sequences.
+    passWriteOpenings(group, fname);
+
+    // This writes the BBO headers for processing e.g. by Perl scripts.
+    // passWriteHeaders(group,  fname, refLines);
+
     // passStatsContrib(group, options, ruleStats);
+
+
+    //// marieWrite(group, fname);
   }
   catch (Bexcept& bex)
   {

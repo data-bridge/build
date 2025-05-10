@@ -245,7 +245,10 @@ string RefLine::unquote(const string& entry) const
     if (l == 1)
       THROW("Single quote");
     if (entry.at(l-1) != '\'')
-      THROW("Not ending on single quote");
+    {
+      // Single quotes don't match, but could be e.g. 't Onstein
+      return entry;
+    }
     if (l == 2)
       return "";
     else

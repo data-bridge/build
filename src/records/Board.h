@@ -120,6 +120,11 @@ class Board
 
     void performValuation(const bool fullFlag = false);
 
+    void updateRoomCount(
+      unsigned& open,
+      unsigned& closed,
+      unsigned& both) const;
+
     bool operator == (const Board& b2) const;
     bool operator != (const Board& b2) const;
     bool operator <= (const Board& b2) const;

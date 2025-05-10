@@ -920,6 +920,28 @@ string Segment::strBoards(const Format format) const
     case BRIDGE_FORMAT_LIN_TRN:
       return "";
 
+    case BRIDGE_FORMAT_PAR:
+    {
+      ss << "header " << bmin << " " << bmax << " | ";
+      unsigned actmin = numeric_limits<unsigned>::max();
+      unsigned actmax = 0;
+      unsigned open = 0, closed = 0, both = 0;
+      for (auto &p: boards)
+      {
+        const unsigned bno = p.extNo;
+        if (bno < actmin)
+          actmin = bno;
+        if (bno > actmax)
+          actmax = bno;
+
+        p.board.updateRoomCount(open, closed, both);
+      }
+
+      ss << "actual " << actmin << " " << actmax << " | ";
+      ss << "counts " << open << " " << closed << " " << both;
+      return ss.str();
+    }
+
     default:
       THROW("Invalid format: " + to_string(format));
   }

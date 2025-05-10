@@ -47,8 +47,6 @@ class RefComment
 
     RefComment();
 
-    ~RefComment();
-
     void reset();
 
     void parse(

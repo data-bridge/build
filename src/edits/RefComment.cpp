@@ -129,11 +129,6 @@ RefComment::RefComment()
 }
 
 
-RefComment::~RefComment()
-{
-}
-
-
 void RefComment::reset()
 {
   setFlag = false;

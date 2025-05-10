@@ -71,6 +71,7 @@ class RefLines
     bool hasComments() const;
     bool skip() const;
     bool validate() const;
+    unsigned numLines() const;
 
     void setOrder(const BoardOrder order);
     bool orderCOCO() const;

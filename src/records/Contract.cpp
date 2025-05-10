@@ -338,7 +338,11 @@ void Contract::setContract(
         contract.level != level ||
 	contract.denom != denom ||
 	contract.mult != mult)
-      THROW("Contract already set differently");
+    {
+      Contract ctmp;
+      ctmp.setContract(vulIn, declarer, level, denom, mult);
+      THROW("Contract already set differently, now " + ctmp.strTXT());
+    }
   }
   else if (level == 0)
     THROW("level must be > 0");
@@ -467,7 +471,9 @@ void Contract::setTricks(const unsigned tricksIn)
     if (tricksRelative != trel)
     {
       if (! Contract::isPassedOut() || tricksIn != 0)
-        THROW("Tricks already set to " + to_string(Contract::getTricks()));
+        THROW("Tricks already set to " + 
+          to_string(Contract::getTricks()) +
+          ", now " + to_string(tricksIn));
     }
   }
   else if (! setContractFlag)
@@ -1374,7 +1380,10 @@ string Contract::strDiffTag(const Contract& c2) const
   if (diffs >= 2)
     return "ERR_LIN_RS_REPLACE";
   if (diffs == 0)
-    return "SAME!";
+  {
+    return (tricksRelative == c2.tricksRelative ? "SAME!" :
+      "ERR_LIN_RS_TRICKS");
+  }
 
   if (contract.level != c2.contract.level)
   {

@@ -120,6 +120,12 @@ bool RefLines::validate() const
 }
 
 
+unsigned RefLines::numLines() const
+{
+  return bufferLines;
+}
+
+
 void RefLines::setOrder(const BoardOrder order)
 {
   if (order == ORDER_OCOC)
