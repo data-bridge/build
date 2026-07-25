@@ -94,6 +94,8 @@ class Instance
 
     bool isPassedOut() const;
 
+    const Auction& getAuction() const;
+
     unsigned lengthAuction() const;
 
     void setContract(

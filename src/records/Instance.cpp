@@ -214,6 +214,12 @@ bool Instance::isPassedOut() const
 }
 
 
+const Auction& Instance::getAuction() const
+{
+  return auction;
+}
+
+
 unsigned Instance::lengthAuction() const
 {
   return auction.length();

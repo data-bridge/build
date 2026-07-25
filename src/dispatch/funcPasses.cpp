@@ -227,7 +227,7 @@ string strBidData(
 }
 
 
-void strTriplet(
+bool strTriplet(
   const Board& board,
   const Instance& instance,
   const vector<unsigned>& relPlayers,
@@ -239,34 +239,51 @@ void strTriplet(
   const FilterParams& filterParams)
 {
   if (! filterParams.handsFlag)
-    return;
+    return false;
 
   if (filterParams.playerFlag &&
     instance.strPlayer(static_cast<Player>(relPlayers[pno]),
       BRIDGE_FORMAT_TXT) != filterParams.playerTag)
-    return;
+    return false;
 
   const string matchTag = DISTRIBUTION_NAMES[matchNumber];
 
+  if (! passFlag)
+  {
+    // TODO TMP
+    cout << strBidData(board, instance, relPlayers, params, 
+      boardTag, pno, 1, matchTag);
+    return true;
+  }
+
   if (! passFlag && params[pno][PASS_HCP] < 10)
   {
+    // TODO Can comment in or out
+    return false;
     cout << strBidData(board, instance, relPlayers, params, 
         boardTag, pno, 0, matchTag);
+    return true;
   }
   else if (
-    params[pno][PASS_HCP] >= 10) // && 
+    params[pno][PASS_HCP] >= 99) // && 
+    // params[pno][PASS_HCP] >= 10) // && 
     // params[pno][PASS_HCP] >= 10 && 
     // params[pno][PASS_HCP] <= 12 &&
     // isAboveOneLevel(instance.strCall(pno, BRIDGE_FORMAT_TXT)))
   {
     cout << strBidData(board, instance, relPlayers, params, 
       boardTag, pno, 1, matchTag);
+    return true;
   }
   else if (passFlag && params[pno][PASS_HCP] > 12)
   {
+    // Just a string, not necessarily a file name.
     cout << strBidData(board, instance, relPlayers, params, 
       boardTag, pno, 2, matchTag);
+    return true;
   }
+
+  return false;
 }
 
 
@@ -309,6 +326,7 @@ void updatePassStatistics(
 
 void passStats(
   const Group& group,
+  const string& fname,
   const Options& options,
   vector<ParamStats1D>& paramStats1D,
   vector<ParamStats2D>& paramStats2D)
@@ -320,7 +338,7 @@ void passStats(
   filterParams.playerFlag = false;
   filterParams.playerTag = "shein";
   filterParams.stats2DFlag = false;
-  filterParams.handsFlag = false;
+  filterParams.handsFlag = true;
 
   Distribution distribution;
 
@@ -402,8 +420,17 @@ cout << "board " << boardTag << " pos " << pos << " vul " <<
               pos, distNo, sequentialVuls, seqPassFlag, filterParams,
               paramStats1D, paramStats2D);
 
-            strTriplet(board, instance, relPlayers, params,
-              boardTag, pos, distNo, seqPassFlag, filterParams);
+            const string roomLIN = 
+              instance.strRoom(bpair.extNo, BRIDGE_FORMAT_LIN);
+            const string label = roomLIN.substr(3, roomLIN.size() - 4);
+
+            if (strTriplet(board, instance, relPlayers, params, 
+              boardTag, pos, distNo, seqPassFlag, filterParams))
+            {
+              cout << "File " << fname << "\n";
+              cout << strDelete(fname, label) << "\n\n";
+            }
+
           }
 
           if (! seqPassFlag)
@@ -528,9 +555,10 @@ void passWriteOpenings(
   for (auto &segment: group)
   {
     // Make a simple record of the player names.
-    // if (group.size() == 1)
-      // cout << match[1] << " " << 
-        // segment.strPlayers(BRIDGE_FORMAT_LIN) << "\n";
+    if (group.size() == 1)
+      cout << match[1] << " " << 
+        segment.strPlayers(BRIDGE_FORMAT_LIN);
+    continue;
 
     for (auto &bpair: segment)
     {
@@ -573,6 +601,34 @@ void passWriteOpenings(
 
           const string call = instance.strCall(pos, BRIDGE_FORMAT_TXT);
           assert(call == "P" || call.size() > 1);
+
+          if (call.size() > 1 && call.at(0) >= '3')
+          {
+            // This is temporary.  It prints certain openings
+            // for inspection.
+            FilterParams filterParams;
+            filterParams.distFilterFlag = false;
+            filterParams.hcpFlag = false;
+            filterParams.hcpValue = params[pos][PASS_HCP];
+            filterParams.playerFlag = false;
+            filterParams.playerTag = "shein";
+            filterParams.stats2DFlag = false;
+            filterParams.handsFlag = true;
+
+            if (strTriplet(board, instance, relPlayers, params,
+              boardTag, pos, 0, cumPasses, filterParams))
+            {
+              const string roomLIN = 
+                instance.strRoom(bpair.extNo, BRIDGE_FORMAT_LIN);
+              const string label = roomLIN.substr(3, roomLIN.size() - 4);
+
+              cout << "File " << fname << "\n";
+              cout << strDelete(fname, label) << "\n\n";
+            }
+          }
+          if (! cumPasses)
+            break;
+
 
           if (cumPasses)
             op = OPENING_PASS;
@@ -625,6 +681,102 @@ void passWriteOpenings(
 
           if (! cumPasses)
             break;
+        }
+      }
+    }
+  }
+}
+
+void passWriteSingles(
+  const Group& group,
+  const string& fname)
+{
+  regex pattern(R"([\\/]([0-9]+)\.lin$)");
+  smatch match;
+  assert(regex_search(fname, match, pattern) && match.size() > 1);
+
+  regex bpattern(R"(\|([^|]+)\|)");
+  smatch bmatch;
+
+  for (auto &segment: group)
+  {
+    for (auto &bpair: segment)
+    {
+      const Board& board = bpair.board;
+      const unsigned dealer = static_cast<unsigned>(board.getDealer());
+      const vector<Valuation>& valuations = board.getValuations();
+
+      // 0 is the dealer.
+      const vector<unsigned> relPlayers =
+        { dealer, (dealer + 1) % 4, (dealer + 2) % 4, (dealer + 3) % 4 };
+
+      // First dimension is the player -- 0 is the dealer.
+      // Second dimension is the local parameter.
+      vector<vector<unsigned>> params;
+      setPassParams(params, relPlayers, valuations);
+
+      for (unsigned i = 0; i < board.countAll(); i++)
+      {
+        const Instance& instance = board.getInstance(i);
+        if (board.skipped(i))
+          continue;
+
+        const string boardTag = 
+          instance.strRoom(bpair.extNo, BRIDGE_FORMAT_LIN);
+        assert(regex_search(boardTag, bmatch, bpattern) && 
+         bmatch.size() > 1);
+
+        const Auction& auction = instance.getAuction();
+        unsigned realbids = 0;
+        unsigned highbids = 0;
+        unsigned pos = 999;
+        for (unsigned bidno = 0; bidno < auction.length(); bidno++)
+        {
+          const string call = instance.strCall(bidno, BRIDGE_FORMAT_TXT);
+          if (call.size() > 1 && call.at(0) >= '1' && call.at(0) <= '7')
+          {
+            realbids++;
+            // if (call.at(0) >= '3')
+            if (call == "2H")
+            {
+              highbids++;
+              pos = bidno;
+            }
+            if (realbids > 1)
+              break;
+          }
+        }
+
+        if (realbids == 1 && highbids == 1 && pos < 4)
+          // params[pos][PASS_HCP] < 18)
+        {
+          FilterParams filterParams;
+          filterParams.distFilterFlag = false;
+          filterParams.hcpFlag = false;
+          filterParams.hcpValue = 0;
+          filterParams.playerFlag = false;
+          filterParams.playerTag = "shein";
+          filterParams.stats2DFlag = false;
+          filterParams.handsFlag = true;
+
+          Openings op = opening.classify("2H",
+            valuations[relPlayers[pos]], params[pos]);
+
+          if (op == OPENING_2D_WEAK_DIAMONDS ||
+              op == OPENING_2D_WEAK_MAJ)
+          {
+            continue;
+          }
+
+          cout << strBidData(board, instance, relPlayers, params, 
+            boardTag, pos, 0, "");
+
+          const string roomLIN = 
+            instance.strRoom(bpair.extNo, BRIDGE_FORMAT_LIN);
+          const string label = roomLIN.substr(3, roomLIN.size() - 4);
+
+          cout << "File " << fname << "\n";
+          cout << strDelete(fname, label) << "\n\n";
         }
       }
     }
@@ -781,7 +933,7 @@ void dispatchPasses(
   const Group& group,
   [[maybe_unused]] const RefLines& refLines,
   [[maybe_unused]] const Options& options,
-  const string& fname,
+  [[maybe_unused]] const string& fname,
   [[maybe_unused]] vector<ParamStats1D>& paramStats1D,
   [[maybe_unused]] vector<ParamStats2D>& paramStats2D,
   [[maybe_unused]] RuleStats& ruleStats,
@@ -789,12 +941,17 @@ void dispatchPasses(
 {
   try
   {
-    // passStats(group, options, paramStats1D, paramStats2D);
-    passWrite(group,  fname);
+    // This can write passes with many points.
+    // passStats(group, fname, options, paramStats1D, paramStats2D);
+
+    // passWrite(group,  fname);
 
     // Good for writing out the first non-pass bid.
     // Also good for finding openings that are abbreviated sequences.
-    // passWriteOpenings(group, fname);
+    passWriteOpenings(group, fname);
+
+    // Single bid - a.p., perhaps doubled.
+    // passWriteSingles(group, fname);
 
     // This writes the BBO headers for processing e.g. by Perl scripts.
     // passWriteHeaders(group,  fname, refLines);
