@@ -48,6 +48,7 @@ struct Options
   bool equalFlag; // -e, --equal
   bool valuationFlag; // -V, --valuation
   bool solveFlag; // -S, --solve
+  bool leadsFlag; // -L, --leads
   bool traceFlag; // -T, --trace
 
   bool formatSetFlag; // -f, --format

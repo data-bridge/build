@@ -15,6 +15,7 @@
 
 #include "Deal.h"
 #include "Tableau.h"
+#include "LeadTableau.h"
 #include "Instance.h"
 #include "GivenScore.h"
 
@@ -31,6 +32,7 @@ class Board
 
     Deal deal;
     Tableau tableau;
+    LeadTableau leadTableau;
     vector<Valuation> valuation;
     vector<Instance> instances;
     vector<bool> skip;
@@ -89,7 +91,7 @@ class Board
       const string& text,
       const Format format);
 
-    void setTableauDDS(const int res[5][4]);
+    void setTableauDDS(const int res[BRIDGE_DENOMS][BRIDGE_PLAYERS]);
 
     bool setTableauEntry(
       const Player player,
@@ -99,6 +101,14 @@ class Board
     unsigned getTableauEntry(
       const Player player,
       const Denom denom) const;
+
+    void setLeadTableau(
+      const string& text,
+      const Format format);
+
+    void setLeadTableauDDS(
+      const array<array<array<LeadTriple, BRIDGE_TRICKS>, 
+        BRIDGE_PLAYERS>, BRIDGE_DENOMS>& res);
 
     Player getDealer() const;
 
@@ -139,6 +149,8 @@ class Board
       const Format format) const;
 
     string strTableau(const Format format) const;
+
+    string strLeadTableau(const Format format) const;
 
     string strContract(
       const unsigned instNo,

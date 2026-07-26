@@ -22,13 +22,15 @@ typedef map<string, string> CaseResults;
 enum DDInfoType
 {
   BRIDGE_DD_INFO_SOLVE = 0,
-  BRIDGE_DD_INFO_TRACE = 1,
-  BRIDGE_DD_INFO_SIZE = 2
+  BRIDGE_DD_INFO_LEADS = 1,
+  BRIDGE_DD_INFO_TRACE = 2,
+  BRIDGE_DD_INFO_SIZE = 3
 };
 
 const string DDInfoNames[]
 {
   "tableaux.log",
+  "leads.log",
   "traces.log"
 };
 

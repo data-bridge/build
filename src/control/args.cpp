@@ -27,7 +27,7 @@ struct OptEntry
   unsigned numArgs;
 };
 
-#define BRIDGE_NUM_OPTIONS 22
+#define BRIDGE_NUM_OPTIONS 23
 
 static const OptEntry OPT_LIST[BRIDGE_NUM_OPTIONS] =
 {
@@ -47,6 +47,7 @@ static const OptEntry OPT_LIST[BRIDGE_NUM_OPTIONS] =
   {"e", "equal", 0},
   {"V", "valuation", 0},
   {"S", "solve", 0},
+  {"L", "leads", 0},
   {"T", "trace", 0},
   {"f", "format", 1},
   {"s", "stats", 0},
@@ -118,6 +119,9 @@ void usage(
     "                   (Default: not set)\n" <<
     "\n" <<
     "-S, --solve        Perform double-dummy tableau analysis.\n" <<
+    "                   (Default: not set)\n" <<
+    "\n" <<
+    "-L, --leads        Perform double-dummy lead analysis.\n" <<
     "                   (Default: not set)\n" <<
     "\n" <<
     "-T, --trace        Perform double-dummy trace analysis.\n" <<
@@ -215,6 +219,7 @@ static void setDefaults(Options& options)
   options.equalFlag = false;
   options.valuationFlag = false;
   options.solveFlag = false;
+  options.leadsFlag = false;
   options.traceFlag = false;
 
   options.formatSetFlag = false;
@@ -282,6 +287,11 @@ void printOptions(const Options& options)
     cout << setw(12) << "solve" << setw(12) << "set" << "\n";
   else
     cout << setw(12) << "solve" << setw(12) << "not set" << "\n";
+
+  if (options.leadsFlag)
+    cout << setw(12) << "leads" << setw(12) << "set" << "\n";
+  else
+    cout << setw(12) << "leads" << setw(12) << "not set" << "\n";
 
   if (options.traceFlag)
     cout << setw(12) << "trace" << setw(12) << "set" << "\n";
@@ -352,9 +362,11 @@ static void checkArgs(const Options& options)
   if (! options.fileOutput.setFlag && ! options.dirOutput.setFlag &&
       ! options.fileRef.setFlag && ! options.dirRef.setFlag &&
       ! options.fileDigest.setFlag && ! options.dirDigest.setFlag &&
-      ! options.passStatsFlag && ! options.solveFlag)
+      ! options.passStatsFlag && ! options.solveFlag &&
+      ! options.leadsFlag)
   {
-    cout << "Need at least one of -o, -O, -r, -R, -d, -D, -Q, -S." << endl;
+    cout << "Need at least one of -o, -O, -r, -R, -d, -D, -Q, -S, -L." <<
+      endl;
     exit(0);
   }
 
@@ -463,6 +475,10 @@ void readArgs(
 
       case 'S':
         options.solveFlag = true;
+        break;
+
+      case 'L':
+        options.leadsFlag = true;
         break;
 
       case 'T':

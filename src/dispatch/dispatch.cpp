@@ -33,6 +33,7 @@
 #include "funcDigest.h"
 #include "funcDupl.h"
 #include "funcIMPSheet.h"
+#include "funcLeads.h"
 #include "funcPasses.h"
 #include "funcRead.h"
 #include "funcPlayerVal.h"
@@ -119,6 +120,9 @@ void dispatch(
 
     if (options.solveFlag)
       dispatchDD(group, files, task.fileInput, flog);
+
+    if (options.leadsFlag)
+      dispatchLeads(group, files, task.fileInput, flog);
 
     if (options.traceFlag)
       dispatchTrace(group, files, task.fileInput, flog);

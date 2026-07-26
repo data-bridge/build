@@ -25,6 +25,7 @@ dispatch/funcDigest.cpp         \
 dispatch/funcDupl.cpp           \
 dispatch/funcEquals.cpp         \
 dispatch/funcIMPSheet.cpp       \
+dispatch/funcLeads.cpp          \
 dispatch/funcPasses.cpp         \
 dispatch/funcPlayerVal.cpp      \
 dispatch/funcRead.cpp           \
@@ -69,6 +70,7 @@ records/GivenScore.cpp          \
 records/Group.cpp               \
 records/HeaderLIN.cpp           \
 records/Instance.cpp            \
+records/LeadTableau.cpp         \
 records/Location.cpp            \
 records/Play.cpp                \
 records/PlayTrace.cpp           \

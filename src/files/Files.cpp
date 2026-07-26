@@ -173,6 +173,12 @@ void Files::readDDInfoFile(
     infoDD[BRIDGE_DD_INFO_SOLVE].read(resName);
   }
 
+  if (options.leadsFlag)
+  {
+    const string resName = dir + "/" + DDInfoNames[BRIDGE_DD_INFO_LEADS];
+    infoDD[BRIDGE_DD_INFO_LEADS].read(resName);
+  }
+
   if (options.traceFlag)
   {
     const string resName = dir + "/" + DDInfoNames[BRIDGE_DD_INFO_TRACE];
@@ -186,7 +192,7 @@ void Files::set(const Options& options)
   vector<FileEntry> inputList, refList, outputList;
   map<string, vector<FileEntry>> refMap;
 
-  if (options.solveFlag || options.traceFlag)
+  if (options.solveFlag || options.leadsFlag ||options.traceFlag)
     infoDD.resize(BRIDGE_DD_INFO_SIZE);
 
   // Set inputList

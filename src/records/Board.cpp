@@ -269,6 +269,22 @@ unsigned Board::getTableauEntry(
 }
 
 
+void Board::setLeadTableau(
+  const string& text,
+  const Format format)
+{
+  leadTableau.set(text, format);
+}
+
+
+void Board::setLeadTableauDDS(
+  const array<array<array<LeadTriple, BRIDGE_TRICKS>, 
+    BRIDGE_PLAYERS>, BRIDGE_DENOMS>& res)
+{
+  leadTableau.setDDS(res);
+}
+
+
 Player Board::getDealer() const
 {
   assert(instances.size() > 0);
@@ -460,6 +476,12 @@ string Board::strDeal(
 string Board::strTableau(const Format format) const
 {
   return tableau.str(format);
+}
+
+
+string Board::strLeadTableau(const Format format) const
+{
+  return leadTableau.str(format);
 }
 
 
