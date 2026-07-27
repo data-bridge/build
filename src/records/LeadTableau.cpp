@@ -13,6 +13,7 @@
 #include <vector>
 #include <array>
 #include <algorithm>
+#include <cassert>
 
 #include "LeadTableau.h"
 
@@ -20,6 +21,11 @@
 #include "../handling/Bexcept.h"
 #include "../handling/Bdiff.h"
 
+namespace 
+{
+  // constexpr char HEX_DIGITS[] = "0123456789ABCDEF";
+  constexpr char CARD_NAMES[] = "..23456789TJQKA";
+}
 
 
 LeadTableau::LeadTableau()
@@ -60,7 +66,7 @@ bool LeadTableau::set(
 }
 
 
-void LeadTableau::constantTricks()
+void LeadTableau::gradeTricks()
 {
   if (! LeadTableau::isComplete())
     return;
@@ -69,38 +75,101 @@ void LeadTableau::constantTricks()
   {
     for (unsigned leader = 0; leader < BRIDGE_PLAYERS; leader++)
     {
-      array<array<unsigned, BRIDGE_TRICKS+1>, BRIDGE_SUITS> suitHisto{};
-      array<unsigned, BRIDGE_SUITS> suitCount{};
-      array<unsigned, BRIDGE_SUITS> suitScore{};
+      // For [suit][tricks], a list of indices into table[strain][leader].
+      array<array<list<unsigned>, BRIDGE_TRICKS+1>, BRIDGE_SUITS> 
+        suitIndices;
+
+      // For [suit], a list of trick values (not yet sorted).
+      array<list<unsigned>, BRIDGE_SUITS> trickValues{};
 
       for (unsigned card = 0; card < BRIDGE_TRICKS; card++)
       {
         auto& triple = table[strain][leader][card];
         unsigned suit = static_cast<unsigned>(triple.suit);
-        unsigned score = static_cast<unsigned>(triple.score);
-        if (suitHisto[suit][score] == 0)
+        unsigned tricks = static_cast<unsigned>(triple.score);
+        if (suitIndices[suit][tricks].size() == 0)
         {
-          suitCount[suit]++;
-          suitScore[suit] = score;
+          trickValues[suit].push_back(tricks);
         }
 
-        suitHisto[suit][score]++;
+        suitIndices[suit][tricks].push_back(card);
+      }
+
+      auto& sg = suitGroups[strain][leader];
+
+      for (unsigned suit = 0; suit < BRIDGE_SUITS; suit++)
+      {
+        trickValues[suit].sort();
+        for (auto tricks: trickValues[suit])
+        {
+          sg[suit].emplace_back(LeadGroup());
+          auto& lg = sg[suit].back();
+          lg.clear();
+
+          lg.tricks = tricks;
+          for (auto card: suitIndices[suit][tricks])
+          {
+            const auto& triple = table[strain][leader][card];
+
+            if (lg.numCards == 0 || 
+                static_cast<unsigned>(triple.rank + 1) != lg.lastSeenRank)
+            {
+              lg.numRanks++;
+              lg.lastSeenRank = static_cast<unsigned>(triple.rank);
+            }
+
+            lg.numCards++;
+            lg.text += CARD_NAMES[triple.rank];
+          }
+        }
       }
 
       cout << "Strain " << strain << " leader " << leader << "\n";
       for (unsigned suit = 0; suit < BRIDGE_SUITS; suit++)
       {
-        if (suitCount[suit] == 0)
+        if (sg[suit].size() == 0)
         {
           cout << "Suit " << suit << ": void\n";
         }
-        else if (suitCount[suit] == 1)
+        else if (sg[suit].size() == 1)
         {
-          cout << "Suit " << suit << ": CONST " << suitScore[suit]<< "\n";
+          cout << "Suit " << suit << ": CONST " << 
+            sg[suit].front().tricks << "\n";
+        }
+        else if (sg[suit].size() == 2)
+        {
+          const auto& lg1 = sg[suit].front();
+          const auto& lg2 = sg[suit].back();
+
+          if (lg1.numRanks > 1 && lg2.numRanks == 1)
+          {
+            cout << "Suit " << suit << 
+              ": MOSTLY " << lg1.tricks << 
+              " except " << lg2.tricks << 
+              " (" << lg2.text << ")\n";
+          }
+          else if (lg1.numRanks == 1 && lg2.numRanks > 1)
+          {
+            cout << "Suit " << suit << 
+              ": MOSTLY " << lg2.tricks << 
+              " except " << lg1.tricks << 
+              " (" << lg1.text << ")\n";
+          }
+          else
+          {
+            cout << "Suit " << suit << 
+              ": BIMODAL " << lg1.tricks << " (" << lg1.text << ") " <<
+              lg2.tricks << " (" << lg2.text << ")\n";
+          }
         }
         else
         {
-          cout << "Suit " << suit << ": VARIABLE\n";
+          cout << "Suit " << suit << " GENERAL";
+          for (const auto& lg: sg[suit])
+          {
+            cout << " " << lg.tricks << " (" << lg.text << ")";
+          }
+          cout << "\n";
         }
       }
       cout << "\n";
@@ -121,7 +190,7 @@ void LeadTableau::setDDS(
   
   setNum = BRIDGE_DENOMS * BRIDGE_PLAYERS * BRIDGE_TRICKS;
 
-  LeadTableau::constantTricks();
+  LeadTableau::gradeTricks();
 }
 
 
