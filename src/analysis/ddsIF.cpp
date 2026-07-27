@@ -104,16 +104,12 @@ void transfer13Leads(
   unsigned count = 0;
   for (int c = 0; c < solved.cards; c++)
   {
-    auto& triple = boardOutput[count];
-
     const int suit = solved.suit[c];
     int rank = solved.rank[c];
     const int score = solved.score[c];
     int equals = solved.equals[c];
 
-    triple.suit = suit;
-    triple.rank = rank;
-    triple.score = score;
+    boardOutput[count].fill(suit, rank, score);
     count++;
 
     rank = 0;
@@ -121,10 +117,7 @@ void transfer13Leads(
     {
       if (equals & 1)
       {
-        triple = boardOutput[count];
-        triple.suit = suit;
-        triple.rank = rank;
-        triple.score = score;
+        boardOutput[count].fill(suit, rank, score);
         count++;
       }
       equals >>= 1;

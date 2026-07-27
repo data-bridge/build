@@ -16,6 +16,13 @@ struct LeadTriple
   int rank;
   int score;
 
+  void fill(int su, int ra, int sc)
+  {
+    suit = su;
+    rank = ra;
+    score = sc;
+  };
+
   bool operator==(const LeadTriple& lt2) const
   {
     return (suit == lt2.suit &&

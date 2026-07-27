@@ -65,56 +65,45 @@ void LeadTableau::constantTricks()
   if (! LeadTableau::isComplete())
     return;
 
-  for (unsigned d = 0; d < BRIDGE_DENOMS; d++)
+  for (unsigned strain = 0; strain < BRIDGE_DENOMS; strain++)
   {
-    array<unsigned, BRIDGE_PLAYERS> constantFlags;
-    array<int, BRIDGE_PLAYERS> constantValues;
-    unsigned overallConstant = 1;
-
-    for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
+    for (unsigned leader = 0; leader < BRIDGE_PLAYERS; leader++)
     {
-      unsigned flag = 1;
-      auto& ttable = table[d][p];
-      int value = ttable[0].score;
-      for (unsigned t = 1; t < BRIDGE_TRICKS; t++)
+      array<array<unsigned, BRIDGE_TRICKS+1>, BRIDGE_SUITS> suitHisto{};
+      array<unsigned, BRIDGE_SUITS> suitCount{};
+      array<unsigned, BRIDGE_SUITS> suitScore{};
+
+      for (unsigned card = 0; card < BRIDGE_TRICKS; card++)
       {
-        if (ttable[t].score != value)
+        auto& triple = table[strain][leader][card];
+        unsigned suit = static_cast<unsigned>(triple.suit);
+        unsigned score = static_cast<unsigned>(triple.score);
+        if (suitHisto[suit][score] == 0)
         {
-          flag = 0;
-          break;
+          suitCount[suit]++;
+          suitScore[suit] = score;
         }
+
+        suitHisto[suit][score]++;
       }
 
-      constantFlags[p] = flag;
-      constantValues[p] = value;
-
-      if (flag == 0)
-        overallConstant = 0;
-    }
-
-cout << "Denom " << d << ": " <<
-  constantValues[0] << 
-  constantValues[1] << 
-  constantValues[2] << 
-  constantValues[3] << ", ";
-
-    if (overallConstant)
-    {
-      cout << "FULLCONST\n";
-    }
-    else if (constantValues[BRIDGE_NORTH] != constantValues[BRIDGE_SOUTH] ||
-        constantValues[BRIDGE_EAST] != constantValues[BRIDGE_WEST])
-    {
-      cout << "NOTCONST\n";
-    }
-    else if (constantValues[BRIDGE_NORTH] + constantValues[BRIDGE_EAST] !=
-        BRIDGE_TRICKS)
-    {
-      cout << "HALFCONST\n";
-    }
-    else
-    {
-      cout << "SYMMCONST\n";
+      cout << "Strain " << strain << " leader " << leader << "\n";
+      for (unsigned suit = 0; suit < BRIDGE_SUITS; suit++)
+      {
+        if (suitCount[suit] == 0)
+        {
+          cout << "Suit " << suit << ": void\n";
+        }
+        else if (suitCount[suit] == 1)
+        {
+          cout << "Suit " << suit << ": CONST " << suitScore[suit]<< "\n";
+        }
+        else
+        {
+          cout << "Suit " << suit << ": VARIABLE\n";
+        }
+      }
+      cout << "\n";
     }
   }
 }
