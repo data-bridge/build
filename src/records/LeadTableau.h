@@ -39,6 +39,12 @@ struct LeadGroup
   };
 };
 
+struct SuitProfile
+{
+  unsigned voidFlag;
+  unsigned constantFlag;
+  unsigned value;
+};
 
 
 class LeadTableau
@@ -55,8 +61,26 @@ class LeadTableau
     array<array<array<list<LeadGroup>, BRIDGE_SUITS>, 
       BRIDGE_PLAYERS>, BRIDGE_DENOMS> suitGroups;
 
+    array<array<array<SuitProfile, BRIDGE_SUITS>, 
+      BRIDGE_PLAYERS>, BRIDGE_DENOMS> suitProfiles;
+
     
-    void gradeTricks();
+    void makeSuitGroups();
+
+    void makeSuitProfiles();
+
+    bool singleValue(
+      const unsigned strain,
+      const unsigned leader,
+      unsigned& value) const;
+
+    bool flatValues(
+      const unsigned strain,
+      const unsigned leader) const;
+
+    string strFlatValues(
+      const unsigned strain,
+      const unsigned leader) const;
 
   public:
 
