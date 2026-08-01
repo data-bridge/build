@@ -182,6 +182,8 @@ void tableauLeadsDD(
   assert(step <= MAXNOOFBOARDS);
 
   boardsPBN bop;
+  bop.noOfBoards = 0;
+
   solvedBoards sob;
 
   leadsDDS->results.resize(static_cast<unsigned>(tablePBN->noOfTables));
