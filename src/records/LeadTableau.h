@@ -46,6 +46,10 @@ struct SuitProfile
   unsigned value;
 };
 
+typedef array<list<LeadGroup>, BRIDGE_SUITS> SuitGroupElem;
+typedef array<array<list<unsigned>, BRIDGE_TRICKS+1>, BRIDGE_SUITS> 
+  SuitIndicesElem;
+
 
 class LeadTableau
 {
@@ -55,32 +59,19 @@ class LeadTableau
 
     LeadTriple table[BRIDGE_DENOMS][BRIDGE_PLAYERS][BRIDGE_TRICKS];
 
-    // TODO Not yet used.
-    string tableStr[BRIDGE_DENOMS][BRIDGE_PLAYERS][BRIDGE_TRICKS];
+    void makeSuitGroups(
+      array<array<SuitGroupElem, BRIDGE_PLAYERS>, BRIDGE_DENOMS>&
+          suitGroups,
+      array<array<SuitIndicesElem, BRIDGE_PLAYERS>, BRIDGE_DENOMS>&
+          suitIndices) const;
 
-    array<array<array<list<LeadGroup>, BRIDGE_SUITS>, 
-      BRIDGE_PLAYERS>, BRIDGE_DENOMS> suitGroups;
+    string strElementTXT(
+      const SuitGroupElem& leadGroups,
+      const SuitIndicesElem& trickIndices) const;
 
-    array<array<array<SuitProfile, BRIDGE_SUITS>, 
-      BRIDGE_PLAYERS>, BRIDGE_DENOMS> suitProfiles;
+    string strRBN() const; // Not really
 
-    
-    void makeSuitGroups();
-
-    void makeSuitProfiles();
-
-    bool singleValue(
-      const unsigned strain,
-      const unsigned leader,
-      unsigned& value) const;
-
-    bool flatValues(
-      const unsigned strain,
-      const unsigned leader) const;
-
-    string strFlatValues(
-      const unsigned strain,
-      const unsigned leader) const;
+    string strTXT() const;
 
   public:
 

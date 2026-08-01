@@ -23,9 +23,11 @@
 
 namespace 
 {
-  // constexpr char HEX_DIGITS[] = "0123456789ABCDEF";
+  constexpr char HEX_DIGITS[] = "0123456789ABCDEF";
   constexpr char CARD_NAMES[] = "..23456789TJQKA";
   constexpr char SUIT_NAMES[] = "SHDC";
+  constexpr char DENOM_NAMES[] = "SHDCN";
+  constexpr char POSITION_NAMES[] = "NESW";
 }
 
 
@@ -67,33 +69,40 @@ bool LeadTableau::set(
 }
 
 
-void LeadTableau::makeSuitGroups()
+void LeadTableau::makeSuitGroups(
+  array<array<SuitGroupElem, BRIDGE_PLAYERS>, BRIDGE_DENOMS>&
+    suitGroups,
+  array<array<SuitIndicesElem, BRIDGE_PLAYERS>, BRIDGE_DENOMS>&
+  suitIndices) const
 {
   if (! LeadTableau::isComplete())
     return;
 
+  // suitGroups[strain][leader][lead suit] is a list of groups.
+  // A group leads to the same number of tricks.
+  // suitIndices[strain][leader][lead suit][tricks] is a list of
+  // indices into table[strain][leader] that yield the same number
+  // of tricks.
   for (unsigned strain = 0; strain < BRIDGE_DENOMS; strain++)
   {
     for (unsigned leader = 0; leader < BRIDGE_PLAYERS; leader++)
     {
-      // For [suit][tricks], a list of indices into table[strain][leader].
-      array<array<list<unsigned>, BRIDGE_TRICKS+1>, BRIDGE_SUITS> 
-        suitIndices;
-
       // For [suit], a list of trick values (not yet sorted).
       array<list<unsigned>, BRIDGE_SUITS> trickValues{};
+
+      auto& si = suitIndices[strain][leader];
 
       for (unsigned card = 0; card < BRIDGE_TRICKS; card++)
       {
         auto& triple = table[strain][leader][card];
         unsigned suit = static_cast<unsigned>(triple.suit);
         unsigned tricks = static_cast<unsigned>(triple.score);
-        if (suitIndices[suit][tricks].size() == 0)
+        if (si[suit][tricks].size() == 0)
         {
           trickValues[suit].push_back(tricks);
         }
 
-        suitIndices[suit][tricks].push_back(card);
+        si[suit][tricks].push_back(card);
       }
 
       auto& sg = suitGroups[strain][leader];
@@ -108,7 +117,7 @@ void LeadTableau::makeSuitGroups()
           lg.clear();
 
           lg.tricks = tricks;
-          for (auto card: suitIndices[suit][tricks])
+          for (auto card: si[suit][tricks])
           {
             const auto& triple = table[strain][leader][card];
 
@@ -129,125 +138,6 @@ void LeadTableau::makeSuitGroups()
 }
 
 
-void LeadTableau::makeSuitProfiles()
-{
-  for (unsigned strain = 0; strain < BRIDGE_DENOMS; strain++)
-  {
-    for (unsigned leader = 0; leader < BRIDGE_PLAYERS; leader++)
-    {
-      const auto& sg = suitGroups[strain][leader];
-      auto& sp = suitProfiles[strain][leader];
-
-      for (unsigned suit = 0; suit < BRIDGE_SUITS; suit++)
-      {
-        const auto count = sg[suit].size();
-        if (count >= 2)
-        {
-          sp[suit].voidFlag = 0;
-          sp[suit].constantFlag = 0;
-        }
-        else if (count == 0)
-        {
-          sp[suit].voidFlag = 1;
-          sp[suit].constantFlag = 1;
-        }
-        else
-        {
-          sp[suit].voidFlag = 0;
-          sp[suit].constantFlag = 1;
-          sp[suit].value = sg[suit].front().tricks;
-        }
-      }
-    }
-  }
-}
-
-
-bool LeadTableau::singleValue(
-  const unsigned strain,
-  const unsigned leader,
-  unsigned& value) const
-{
-  unsigned flag = 0, v;
-
-  const auto& sp = suitProfiles[strain][leader];
-  for (unsigned suit = 0; suit < BRIDGE_SUITS; suit++)
-  {
-    if (! sp[suit].constantFlag)
-      return false;
-    else if (sp[suit].voidFlag)
-      continue;
-    else if (flag == 0)
-    {
-      flag = 1;
-      v = sp[suit].value;
-    }
-    else if (v != sp[suit].value)
-    {
-      return false;
-    }
-  }
-
-  value = v;
-  return true;
-}
-
-
-bool LeadTableau::flatValues(
-  const unsigned strain,
-  const unsigned leader) const
-{
-  // For each suit led, there is only one number of tricks possible.
-  // This could differ among suits.
-  const auto& sp = suitProfiles[strain][leader];
-  for (unsigned suit = 0; suit < BRIDGE_SUITS; suit++)
-  {
-    if (! sp[suit].constantFlag)
-      return false;
-  }
-  return true;
-}
-
-
-string LeadTableau::strFlatValues(
-  const unsigned strain,
-  const unsigned leader) const
-{
-  // For each suit led, there is only one number of tricks possible.
-  // This could differ among suits.
-  const auto& sp = suitProfiles[strain][leader];
-  string s;
-
-  array<unsigned, BRIDGE_SUITS> seen{};
-  unsigned count = 0;
-
-  for (unsigned suit = 0; suit < BRIDGE_SUITS; suit++)
-  {
-    if (sp[suit].voidFlag || seen[suit])
-    {
-      count++;
-      continue;
-    }
-
-    const unsigned v = sp[suit].value;
-    for (unsigned suit2 = suit; suit2 < BRIDGE_SUITS; suit2++)
-    {
-      if (sp[suit2].value == v)
-      {
-        s += SUIT_NAMES[suit2];
-        seen[suit2] = 1;
-        count++;
-      }
-    }
-
-    s += " " + to_string(v);
-    if (count < BRIDGE_SUITS)
-      s += " ";
-  }
-  return s;
-}
-
-
 void LeadTableau::setDDS(
   const array<array<array<LeadTriple, BRIDGE_TRICKS>, 
     BRIDGE_PLAYERS>, BRIDGE_DENOMS> res)
@@ -260,81 +150,8 @@ void LeadTableau::setDDS(
   
   setNum = BRIDGE_DENOMS * BRIDGE_PLAYERS * BRIDGE_TRICKS;
 
-  LeadTableau::makeSuitGroups();
-  LeadTableau::makeSuitProfiles();
-
-  unsigned value;
-
-  for (unsigned strain = 0; strain < BRIDGE_DENOMS; strain++)
-  {
-    for (unsigned leader = 0; leader < BRIDGE_PLAYERS; leader++)
-    {
-      cout << "Strain " << strain << " leader " << leader << "\n";
-
-      if (LeadTableau::singleValue(strain, leader, value))
-      {
-        cout << "ALLSUITS " << value << "\n\n";
-        continue;
-      }
-
-      if (LeadTableau::flatValues(strain, leader))
-      {
-        cout << "FLATSUITS " << 
-          LeadTableau::strFlatValues(strain, leader) << "\n\n";
-        continue;
-      }
-
-      const auto& sg = suitGroups[strain][leader];
-      for (unsigned suit = 0; suit < BRIDGE_SUITS; suit++)
-      {
-        if (sg[suit].size() == 0)
-        {
-          cout << "Suit " << suit << ": void\n";
-        }
-        else if (sg[suit].size() == 1)
-        {
-          cout << "Suit " << suit << ": CONST " << 
-            sg[suit].front().tricks << "\n";
-        }
-        else if (sg[suit].size() == 2)
-        {
-          const auto& lg1 = sg[suit].front();
-          const auto& lg2 = sg[suit].back();
-
-          if (lg1.numRanks > 1 && lg2.numRanks == 1)
-          {
-            cout << "Suit " << suit << 
-              ": MOSTLY " << lg1.tricks << 
-              " except " << lg2.tricks << 
-              " (" << lg2.text << ")\n";
-          }
-          else if (lg1.numRanks == 1 && lg2.numRanks > 1)
-          {
-            cout << "Suit " << suit << 
-              ": MOSTLY " << lg2.tricks << 
-              " except " << lg1.tricks << 
-              " (" << lg1.text << ")\n";
-          }
-          else
-          {
-            cout << "Suit " << suit << 
-              ": BIMODAL " << lg1.tricks << " (" << lg1.text << ") " <<
-              lg2.tricks << " (" << lg2.text << ")\n";
-          }
-        }
-        else
-        {
-          cout << "Suit " << suit << " GENERAL";
-          for (const auto& lg: sg[suit])
-          {
-            cout << " " << lg.tricks << " (" << lg.text << ")";
-          }
-          cout << "\n";
-        }
-      }
-      cout << "\n";
-    }
-  }
+  // TODO Only temporary
+  cout << LeadTableau::strRBN() << "\n";
 }
 
 
@@ -381,6 +198,133 @@ bool LeadTableau::operator != (const LeadTableau& tableau2) const
 }
 
 
+string LeadTableau::strRBN() const
+{
+  // This is not real RBN.
+  string s = "";
+  for (unsigned strain = 0; strain < BRIDGE_DENOMS; strain++)
+  {
+    for (unsigned leader = 0; leader < BRIDGE_PLAYERS; leader++)
+    {
+      s += DENOM_NAMES[strain];
+      s += POSITION_NAMES[leader];
+      s += ":";
+
+      auto& tb = table[strain][leader];
+
+      for (unsigned tricks = 0; tricks < BRIDGE_TRICKS; tricks++)
+        s += HEX_DIGITS[tb[tricks].score];
+      
+      s += "\n";
+    }
+  }
+
+  return s;
+
+}
+
+
+string LeadTableau::strElementTXT(
+  const SuitGroupElem& leadGroups,
+  const SuitIndicesElem& trickIndices) const
+{
+  array<unsigned, BRIDGE_TRICKS+1> tricksOverall{};
+
+  for (unsigned suit = 0; suit < BRIDGE_SUITS; suit++)
+  {
+    for (unsigned tricks = 0; tricks <= BRIDGE_TRICKS; tricks++)
+    {
+      if (trickIndices[suit][tricks].size() > 0)
+        tricksOverall[tricks] = 1;
+    }
+  }
+
+  string s = "";
+  for (unsigned tricks = 0; tricks <= BRIDGE_TRICKS; tricks++)
+  {
+    if (tricksOverall[tricks] == 0)
+      continue;
+
+    s += " " + to_string(tricks) + " (";
+    unsigned flag = 0;
+
+    // Suits with exactly one number of tricks.
+    for (unsigned suit = 0; suit < BRIDGE_SUITS; suit++)
+    {
+      if (leadGroups[suit].size() == 1 &&
+          leadGroups[suit].front().tricks == tricks)
+      {
+        s += SUIT_NAMES[suit];
+        flag = 1;
+      }
+    }
+
+    // Suits with multiple outcomes.
+    unsigned flag2 = 0;
+    for (unsigned suit = 0; suit < BRIDGE_SUITS; suit++)
+    {
+      if (leadGroups[suit].size() <= 1)
+        continue;
+
+
+      for (const auto& lg: leadGroups[suit])
+      {
+
+        if (lg.tricks == tricks)
+        {
+          if (flag || flag2)
+            s += " ";
+
+          if (! flag2)
+          {
+            s += SUIT_NAMES[suit];
+            s += ":";
+          }
+
+          s += lg.text;
+          flag2 = 1;
+        }
+      }
+    }
+
+    s += ")";
+  }
+
+  return s;
+}
+
+
+string LeadTableau::strTXT() const
+{
+  // This one is more semantic than strRBN, but there is no real
+  // RBN for this.
+
+  array<array<SuitGroupElem, BRIDGE_PLAYERS>, BRIDGE_DENOMS> 
+    suitGroups;
+  array<array<SuitIndicesElem, BRIDGE_PLAYERS>, BRIDGE_DENOMS> 
+    suitIndices;
+
+  LeadTableau::makeSuitGroups(suitGroups, suitIndices);
+
+  string s = "";
+  for (unsigned strain = 0; strain < BRIDGE_DENOMS; strain++)
+  {
+    for (unsigned leader = 0; leader < BRIDGE_PLAYERS; leader++)
+    {
+      s += DENOM_NAMES[strain];
+      s += POSITION_NAMES[leader];
+      s += ":";
+
+      s += LeadTableau::strElementTXT(
+          suitGroups[strain][leader],
+          suitIndices[strain][leader]) + "\n";
+    }
+  }
+
+  return s;
+}
+
+
 string LeadTableau::str(const Format format) const
 {
   if (! LeadTableau::isComplete())
@@ -391,24 +335,19 @@ string LeadTableau::str(const Format format) const
   switch(format)
   {
     case BRIDGE_FORMAT_LIN:
-      return "XXXXXXXXXXXX";
-      // THROW("Unknown format: " + to_string(format));
+      THROW("Unknown format: " + to_string(format));
 
     case BRIDGE_FORMAT_PBN:
-      return "XXXXXXXXXXXX";
-      // THROW("Unknown format: " + to_string(format));
+      THROW("Unknown format: " + to_string(format));
 
     case BRIDGE_FORMAT_RBN:
-      return "XXXXXXXXXXXX";
-      // THROW("Unknown format: " + to_string(format));
+      return LeadTableau::strRBN();
 
     case BRIDGE_FORMAT_TXT:
-      return "XXXXXXXXXXXX";
-      // THROW("Unknown format: " + to_string(format));
+      return LeadTableau::strTXT();
     
     default:
-      return "XXXXXXXXXXXX";
-      // THROW("Unknown format: " + to_string(format));
+      THROW("Unknown format: " + to_string(format));
   }
 }
 
