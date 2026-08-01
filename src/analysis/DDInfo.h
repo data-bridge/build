@@ -61,6 +61,8 @@ class DDInfo
 
     void read(const string& resName);
 
+    void readLeads(const string& resName);
+
     bool haveResults(
       const string& fname,
       const vector<string>& casesIn,

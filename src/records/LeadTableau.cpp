@@ -25,9 +25,10 @@ namespace
 {
   constexpr char HEX_DIGITS[] = "0123456789ABCDEF";
   constexpr char CARD_NAMES[] = "..23456789TJQKA";
+  constexpr char RANK_NAMES[] = "AKQJT98765432";
   constexpr char SUIT_NAMES[] = "SHDC";
-  constexpr char DENOM_NAMES[] = "SHDCN";
-  constexpr char POSITION_NAMES[] = "NESW";
+  constexpr string_view DENOM_NAMES = "SHDCN";
+  constexpr string_view POSITION_NAMES = "NESW";
 }
 
 
@@ -40,6 +41,7 @@ LeadTableau::LeadTableau()
 void LeadTableau::reset()
 {
   setNum = 0;
+  cardsKnownFlag = false;
   for (unsigned d = 0; d < BRIDGE_DENOMS; d++)
     for (unsigned p = 0; p < BRIDGE_PLAYERS; p++)
       for (unsigned t = 0; t < BRIDGE_TRICKS; t++)
@@ -53,19 +55,203 @@ bool LeadTableau::isComplete() const
 }
 
 
-bool LeadTableau::set(
-  [[maybe_unused]] const string& text,
+int LeadTableau::lookupSuit(const char suitChar) const
+{
+  const char * ps = strchr(SUIT_NAMES, suitChar);
+  if (ps == nullptr)
+    THROW("Bad suit '" + string(1, suitChar) + "'");
+
+  return static_cast<int>(ps - SUIT_NAMES);
+}
+
+
+int LeadTableau::lookupRank(const char rankChar) const
+{
+  const char * pr = strchr(RANK_NAMES, rankChar);
+  if (pr == nullptr)
+    THROW("Bad rank '" + string(1, rankChar) + "'");
+
+  return static_cast<int>(pr - RANK_NAMES);
+}
+
+
+void LeadTableau::setCard(
+  LeadTriple tmp[BRIDGE_SUITS][BRIDGE_TRICKS],
+  bool seen[BRIDGE_SUITS][BRIDGE_TRICKS],
+  const int suit,
+  const int rank,
+  const int tricks)
+{
+  if (seen[suit][rank])
+    THROW("Card assigned twice: " +
+      string(1, SUIT_NAMES[suit]) +
+      string(1, RANK_NAMES[rank]));
+
+  seen[suit][rank] = true;
+
+  tmp[suit][rank].suit = suit;
+  tmp[suit][rank].rank = rank;
+  tmp[suit][rank].score = tricks;
+}
+
+
+void LeadTableau::flattenTable(
+  const LeadTriple tmp[BRIDGE_SUITS][BRIDGE_TRICKS],
+  const bool seen[BRIDGE_SUITS][BRIDGE_TRICKS],
+  LeadTriple dst[BRIDGE_TRICKS])
+{
+  unsigned n = 0;
+
+  for (int suit = 0; suit < BRIDGE_SUITS; suit++)
+  {
+    for (int rank = 0; rank < BRIDGE_TRICKS; rank++)
+    {
+      if (seen[suit][rank])
+        dst[n++] = tmp[suit][rank];
+    }
+  }
+
+  if (n != BRIDGE_TRICKS)
+    THROW("Expected 13 cards, got " + to_string(n));
+}
+
+
+void LeadTableau::setRBNline(
+  const size_t strain,
+  const size_t leader,
+  const string& text)
+{
+  LeadTriple tmp[BRIDGE_SUITS][BRIDGE_TRICKS];
+  bool seen[BRIDGE_SUITS][BRIDGE_TRICKS] = {};
+
+  size_t pos = 0;
+  while (pos < text.size())
+  {
+    while (pos < text.size() && text[pos] == ' ')
+      pos++;
+
+    if (pos >= text.size())
+      break;
+
+    size_t len;
+    const int tricks = stoi(text.substr(pos), &len);
+    pos += len;
+
+    while (pos < text.size() && text[pos] == ' ')
+      pos++;
+
+    if (pos >= text.size() || text[pos] != '(')
+      THROW("Expected '(' in '" + text + "'");
+
+    const size_t close = text.find(')', pos);
+    if (close == string::npos)
+      THROW("Missing ')' in '" + text + "'");
+
+    const string desc = text.substr(pos + 1, close - pos - 1);
+    pos = close + 1;
+
+    vector<string> tokens;
+    tokenize(desc, tokens, " ");
+
+    for (const string& tok: tokens)
+    {
+      const size_t colon = tok.find(':');
+
+      if (colon == string::npos)
+      {
+        for (char suitChar: tok)
+        {
+          const int suit = LeadTableau::lookupSuit(suitChar);
+          for (char rankChar: cardStrings[suit])
+          {
+            const int rank = lookupRank(rankChar);
+            LeadTableau::setCard(tmp, seen, suit, rank, tricks);
+          }
+        }
+      }
+      else
+      {
+        if (colon != 1)
+          THROW("Bad token '" + tok + "'");
+
+        const int suit = LeadTableau::lookupSuit(tok[0]);
+
+        for (size_t i = colon + 1; i < tok.size(); i++)
+        {
+          const int rank = lookupRank(tok[i]);
+          LeadTableau::setCard(tmp, seen, suit, rank, tricks);
+        }
+      }
+    }
+  }
+
+  LeadTableau::flattenTable(tmp, seen, table[strain][leader]);
+}
+
+
+void LeadTableau::setRBN(const string& text)
+{
+  if (text == "")
+    THROW("Empty text");
+
+  if (LeadTableau::isComplete())
+    THROW("LeadTableau is already complete");
+
+  if (! cardsKnownFlag)
+    THROW("Cards must be known");
+
+  istringstream iss(text);
+  string line;
+
+  while (getline(iss, line))
+  {
+    if (line.empty())
+      continue;
+
+    const size_t colon = line.find(':');
+    if (colon != 2)
+      THROW("Bad line: " + line);
+
+    const size_t strain = DENOM_NAMES.find(line[0]);
+    const size_t leader = POSITION_NAMES.find(line[1]);
+
+    if (strain == string::npos || leader == string::npos)
+      THROW("Bad prefix in line: " + line);
+
+    LeadTableau::setRBNline(strain, leader, line.substr(3));
+  }
+
+  setNum = BRIDGE_DENOMS * BRIDGE_PLAYERS * BRIDGE_TRICKS;
+}
+
+
+void LeadTableau::set(
+  const string& text,
   const Format format)
 {
   switch(format)
   {
     case BRIDGE_FORMAT_RBN:
-      // return LeadTableau::setRBN(text);
-      THROW("LeadTableau format not implemented:" + to_string(format));
+      return LeadTableau::setRBN(text);
 
     default:
-      THROW("LeadTableau format not implemented:" + to_string(format));
+      THROW("LeadTableau format not implemented: " + to_string(format));
   }
+}
+
+
+void LeadTableau::setCards(const string cards[BRIDGE_SUITS])
+{
+  if (LeadTableau::isComplete())
+    THROW("LeadTableau already complete before cards");
+
+  if (cardsKnownFlag)
+    THROW("Cards already known");
+
+  for (unsigned suit = 0; suit < BRIDGE_SUITS; suit++)
+    cardStrings[suit] = cards[suit];
+
+  cardsKnownFlag = true;
 }
 
 
@@ -149,9 +335,6 @@ void LeadTableau::setDDS(
         table[strain][leader][t] = res[strain][leader][t];
   
   setNum = BRIDGE_DENOMS * BRIDGE_PLAYERS * BRIDGE_TRICKS;
-
-  // TODO Only temporary
-  cout << LeadTableau::strRBN() << "\n";
 }
 
 
@@ -306,7 +489,8 @@ string LeadTableau::strTXT() const
 
   LeadTableau::makeSuitGroups(suitGroups, suitIndices);
 
-  string s = "";
+  // In order to have separation from the board number.
+  string s = "\n";
   for (unsigned strain = 0; strain < BRIDGE_DENOMS; strain++)
   {
     for (unsigned leader = 0; leader < BRIDGE_PLAYERS; leader++)

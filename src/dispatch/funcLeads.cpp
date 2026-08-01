@@ -35,8 +35,7 @@ void makeTableauLeads(
     const size_t u = static_cast<unsigned>(i);
     bpMissing[u]->setLeadTableauDDS(leadsDDS.results[u]);
 
-    const string s = bpMissing[u]->strLeadTableau(BRIDGE_FORMAT_RBN);
-    infoMissing.push_back(s.substr(4, s.length()-6));
+    infoMissing.push_back(bpMissing[u]->strLeadTableau(BRIDGE_FORMAT_TXT));
   }
 
   tablePBN->noOfTables = 0;
@@ -93,7 +92,7 @@ void makeLeads(
       // Fill out the instance traces from file memory.
       Board * bd;
       str2BoardLeads(itSeen.first, segptr, &bd);
-      bd->setLeadTableau("::" + itSeen.second, BRIDGE_FORMAT_RBN);
+      bd->setLeadTableau(itSeen.second, BRIDGE_FORMAT_RBN);
     }
 
     for (string extStr: boardsMissAll)

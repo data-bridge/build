@@ -41,7 +41,10 @@ void DDInfo::read(const string& resName)
   if (! resstr.is_open())
     return; // File not found
 
-  const string path = filepath(resName);
+  string path = filepath(resName);
+  if (! path.empty() && path.back() == '/')
+    path.pop_back();
+
   auto itDir = dirResults.find(path);
   if (itDir != dirResults.end())
     THROW("Already looked in directory " + path);
@@ -92,13 +95,103 @@ void DDInfo::read(const string& resName)
 }
 
 
+void DDInfo::readLeads(const string& resName)
+{
+  ifstream resstr(resName.c_str());
+  if (! resstr.is_open())
+    return; // File not found
+
+  string path = filepath(resName);
+  if (! path.empty() && path.back() == '/')
+    path.pop_back();
+
+  auto itDir = dirResults.find(path);
+  if (itDir != dirResults.end())
+    THROW("Already looked in directory " + path);
+
+  fileResults.emplace_back(FileResults());
+  FileResults& fres = fileResults.back();
+
+  dirResults[path].fileRes = &fres;
+  dirResults[path].fnameDD = basefile(resName);
+  dirResults[path].dirtyFlag = false;
+
+  string line;
+  CaseResults * bres = nullptr;
+
+  string boardNo;
+  string boardData;
+
+  while (getline(resstr, line))
+  {
+    if (! line.empty() && line.front() == '%')
+      continue;
+    
+    if (line.back()  == ':')
+    {
+      if (! boardNo.empty())
+      {
+        (*bres)[boardNo] = boardData;
+        boardNo.clear();
+        boardData.clear();
+      }
+
+      const string fname = line.substr(0, line.size()-1);
+      auto itFile = fres.find(fname);
+      if (itFile != fres.end())
+        THROW("In directory " + path + ", file " + fname + " already seen");
+      
+      caseResults.emplace_back(CaseResults());
+      bres = &caseResults.back();
+      fres[fname] = bres;
+      continue;
+    }
+
+    if (bres == nullptr)
+      THROW("In directory " + path + ", no file is entered in " + resName);
+
+    if (line.empty())
+    {
+      if (! boardNo.empty())
+      {
+        (*bres)[boardNo] = boardData;
+        boardNo.clear();
+        boardData.clear();
+      }
+      continue;
+    }
+
+    if (boardNo.empty())
+    {
+      boardNo = line;
+      while (!boardNo.empty() && boardNo.back() == ' ')
+        boardNo.pop_back();
+    }
+    else
+    {
+      if (! boardData.empty())
+        boardData += "\n";
+      boardData += line;
+    }
+  }
+
+  if (! boardNo.empty())
+    (*bres)[boardNo] = boardData;
+
+  resstr.close();
+}
+
+
 bool DDInfo::haveResults(
   const string& fname,
   const vector<string>& casesIn,
   CaseResults& infoSeen,
   vector<string>& casesMissing) const
 {
-  const string path = filepath(fname);
+  string path = filepath(fname);
+  if (! path.empty() && path.back() == '/')
+    path.pop_back();
+
   const string base = basefile(fname);
 
   auto itDir = dirResults.find(path);

@@ -176,7 +176,7 @@ void Files::readDDInfoFile(
   if (options.leadsFlag)
   {
     const string resName = dir + "/" + DDInfoNames[BRIDGE_DD_INFO_LEADS];
-    infoDD[BRIDGE_DD_INFO_LEADS].read(resName);
+    infoDD[BRIDGE_DD_INFO_LEADS].readLeads(resName);
   }
 
   if (options.traceFlag)
@@ -202,7 +202,10 @@ void Files::set(const Options& options)
     if (Files::fillEntry(options.fileInput.name, e))
     {
       inputList.push_back(e);
-      const string dir = filepath(options.fileInput.name);
+      string dir = filepath(options.fileInput.name);
+      if (! dir.empty() && dir.back() == '/')
+        dir.pop_back();
+
       Files::readDDInfoFile(dir, options);
     }
   }
@@ -212,7 +215,7 @@ void Files::set(const Options& options)
     Files::buildFileList(options.dirInput.name, inputList, 
       BRIDGE_FORMAT_SIZE);
 
-    if (options.solveFlag || options.traceFlag)
+    if (options.solveFlag || options.leadsFlag || options.traceFlag)
     {
       for (auto &s: dirList)
         Files::readDDInfoFile(s, options);

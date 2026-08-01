@@ -50,6 +50,8 @@ int main(int argc, char * argv[])
     // passPostprocess(* allStatsList[0].paramStats1DPtr);
   if (options.solveFlag)
     files.writeDDInfo(BRIDGE_DD_INFO_SOLVE);
+  if (options.leadsFlag)
+    files.writeDDInfo(BRIDGE_DD_INFO_LEADS);
   if (options.traceFlag)
     files.writeDDInfo(BRIDGE_DD_INFO_TRACE);
 
