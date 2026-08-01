@@ -273,7 +273,7 @@ void Board::setLeadTableau(
   const string& text,
   const Format format)
 {
-  leadTableau.set(text, format);
+  leadTableau.set(deal, text, format);
 }
 
 

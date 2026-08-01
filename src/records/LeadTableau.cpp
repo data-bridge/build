@@ -16,6 +16,7 @@
 #include <cassert>
 
 #include "LeadTableau.h"
+#include "Deal.h"
 
 #include "../util/parse.h"
 #include "../handling/Bexcept.h"
@@ -71,48 +72,7 @@ int LeadTableau::lookupRank(const char rankChar) const
   if (pr == nullptr)
     THROW("Bad rank '" + string(1, rankChar) + "'");
 
-  return static_cast<int>(pr - RANK_NAMES);
-}
-
-
-void LeadTableau::setCard(
-  LeadTriple tmp[BRIDGE_SUITS][BRIDGE_TRICKS],
-  bool seen[BRIDGE_SUITS][BRIDGE_TRICKS],
-  const int suit,
-  const int rank,
-  const int tricks)
-{
-  if (seen[suit][rank])
-    THROW("Card assigned twice: " +
-      string(1, SUIT_NAMES[suit]) +
-      string(1, RANK_NAMES[rank]));
-
-  seen[suit][rank] = true;
-
-  tmp[suit][rank].suit = suit;
-  tmp[suit][rank].rank = rank;
-  tmp[suit][rank].score = tricks;
-}
-
-
-void LeadTableau::flattenTable(
-  const LeadTriple tmp[BRIDGE_SUITS][BRIDGE_TRICKS],
-  const bool seen[BRIDGE_SUITS][BRIDGE_TRICKS],
-  LeadTriple dst[BRIDGE_TRICKS])
-{
-  unsigned n = 0;
-
-  for (int suit = 0; suit < BRIDGE_SUITS; suit++)
-  {
-    for (int rank = 0; rank < BRIDGE_TRICKS; rank++)
-    {
-      if (seen[suit][rank])
-        dst[n++] = tmp[suit][rank];
-    }
-  }
-
-  if (n != BRIDGE_TRICKS)
-    THROW("Expected 13 cards, got " + to_string(n));
+  return static_cast<int>(BRIDGE_TRICKS + 1 + RANK_NAMES - pr);
 }
 
 
@@ -121,10 +81,10 @@ void LeadTableau::setRBNline(
   const size_t leader,
   const string& text)
 {
-  LeadTriple tmp[BRIDGE_SUITS][BRIDGE_TRICKS];
-  bool seen[BRIDGE_SUITS][BRIDGE_TRICKS] = {};
-
   size_t pos = 0;
+  unsigned nextCard = 0;
+  auto& tb = table[strain][leader];
+
   while (pos < text.size())
   {
     while (pos < text.size() && text[pos] == ' ')
@@ -162,10 +122,13 @@ void LeadTableau::setRBNline(
         for (char suitChar: tok)
         {
           const int suit = LeadTableau::lookupSuit(suitChar);
-          for (char rankChar: cardStrings[suit])
+          for (char rankChar: cardStrings[leader][suit])
           {
             const int rank = lookupRank(rankChar);
-            LeadTableau::setCard(tmp, seen, suit, rank, tricks);
+            tb[nextCard].suit = suit;
+            tb[nextCard].rank = rank;
+            tb[nextCard].score = tricks;
+            nextCard++;
           }
         }
       }
@@ -178,14 +141,31 @@ void LeadTableau::setRBNline(
 
         for (size_t i = colon + 1; i < tok.size(); i++)
         {
-          const int rank = lookupRank(tok[i]);
-          LeadTableau::setCard(tmp, seen, suit, rank, tricks);
+          const int rank = LeadTableau::lookupRank(tok[i]);
+          tb[nextCard].suit = suit;
+          tb[nextCard].rank = rank;
+          tb[nextCard].score = tricks;
+          nextCard++;
         }
       }
     }
   }
 
-  LeadTableau::flattenTable(tmp, seen, table[strain][leader]);
+  if (nextCard != BRIDGE_TRICKS)
+    THROW("Expected 13 cards: " + text);
+
+  std::sort(
+    tb,
+    tb + BRIDGE_TRICKS,
+    [](
+      const LeadTriple& a,
+      const LeadTriple& b)
+    {
+      if (a.suit != b.suit)
+        return a.suit < b.suit;  // ascending suit
+  
+      return a.rank < b.rank;    // descending bridge rank
+    });
 }
 
 
@@ -226,12 +206,14 @@ void LeadTableau::setRBN(const string& text)
 
 
 void LeadTableau::set(
+  const Deal& deal,
   const string& text,
   const Format format)
 {
   switch(format)
   {
     case BRIDGE_FORMAT_RBN:
+      LeadTableau::setCards(deal);
       return LeadTableau::setRBN(text);
 
     default:
@@ -240,7 +222,7 @@ void LeadTableau::set(
 }
 
 
-void LeadTableau::setCards(const string cards[BRIDGE_SUITS])
+void LeadTableau::setCards(const Deal& deal)
 {
   if (LeadTableau::isComplete())
     THROW("LeadTableau already complete before cards");
@@ -248,8 +230,28 @@ void LeadTableau::setCards(const string cards[BRIDGE_SUITS])
   if (cardsKnownFlag)
     THROW("Cards already known");
 
-  for (unsigned suit = 0; suit < BRIDGE_SUITS; suit++)
-    cardStrings[suit] = cards[suit];
+  for (unsigned player = 0; player < BRIDGE_PLAYERS; player++)
+  {
+    const string s = deal.strHand(
+      static_cast<Player>(player), BRIDGE_FORMAT_TXT);
+    vector<string> cards;
+    tokenize(s, cards, ",");
+
+    if (cards.size() != 4)
+      THROW("Expected 4 suits in " + s);
+
+    for (unsigned sno = 0; sno < BRIDGE_SUITS; sno++)
+    {
+      string c = cards[sno];
+      while (! c.empty() && c.front() == ' ')
+        c.erase(0, 1);
+
+      while (! c.empty() && c.back() == ' ')
+        c.pop_back();
+
+      cardStrings[player][sno] = c;
+    }
+  }
 
   cardsKnownFlag = true;
 }
@@ -429,7 +431,7 @@ string LeadTableau::strElementTXT(
       continue;
 
     s += " " + to_string(tricks) + " (";
-    unsigned flag = 0;
+    unsigned flagConstantSuits = 0;
 
     // Suits with exactly one number of tricks.
     for (unsigned suit = 0; suit < BRIDGE_SUITS; suit++)
@@ -438,35 +440,44 @@ string LeadTableau::strElementTXT(
           leadGroups[suit].front().tricks == tricks)
       {
         s += SUIT_NAMES[suit];
-        flag = 1;
+        flagConstantSuits = 1;
       }
     }
 
     // Suits with multiple outcomes.
-    unsigned flag2 = 0;
+    unsigned flagMultipleOutput = 0;
     for (unsigned suit = 0; suit < BRIDGE_SUITS; suit++)
     {
+      // Suit symbol output already?
+      unsigned flagSuitSymbol = 0;
       if (leadGroups[suit].size() <= 1)
         continue;
 
-
       for (const auto& lg: leadGroups[suit])
       {
-
-        if (lg.tricks == tricks)
+        if (lg.tricks != tricks)
+          continue;
+      
+        if (flagConstantSuits)
         {
-          if (flag || flag2)
-            s += " ";
-
-          if (! flag2)
-          {
-            s += SUIT_NAMES[suit];
-            s += ":";
-          }
-
-          s += lg.text;
-          flag2 = 1;
+          // Need a space the first time if there are 
+          // constant suits already.
+          s += " ";
+          flagConstantSuits = 0;
         }
+        else if (flagMultipleOutput)
+          s += " ";
+
+        flagMultipleOutput = 1;
+
+        if (! flagSuitSymbol)
+        {
+          s += SUIT_NAMES[suit];
+          s += ":";
+          flagSuitSymbol = 1;
+        }
+
+        s += lg.text;
       }
     }
 

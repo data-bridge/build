@@ -50,6 +50,8 @@ typedef array<list<LeadGroup>, BRIDGE_SUITS> SuitGroupElem;
 typedef array<array<list<unsigned>, BRIDGE_TRICKS+1>, BRIDGE_SUITS> 
   SuitIndicesElem;
 
+class Deal;
+
 
 class LeadTableau
 {
@@ -59,11 +61,11 @@ class LeadTableau
 
     bool cardsKnownFlag;
 
-    string cardStrings[BRIDGE_SUITS];
+    string cardStrings[BRIDGE_PLAYERS][BRIDGE_SUITS];
 
     LeadTriple table[BRIDGE_DENOMS][BRIDGE_PLAYERS][BRIDGE_TRICKS];
 
-    void setCards(const string cards[BRIDGE_SUITS]);
+    void setCards(const Deal& deal);
 
     void makeSuitGroups(
       array<array<SuitGroupElem, BRIDGE_PLAYERS>, BRIDGE_DENOMS>&
@@ -74,18 +76,6 @@ class LeadTableau
     int lookupSuit(const char suitChar) const;
 
     int lookupRank(const char rankChar) const;
-
-    void setCard(
-      LeadTriple tmp[BRIDGE_SUITS][BRIDGE_TRICKS],
-      bool seen[BRIDGE_SUITS][BRIDGE_TRICKS],
-      const int suit,
-      const int rank,
-      const int tricks);
-  
-    void flattenTable(
-      const LeadTriple tmp[BRIDGE_SUITS][BRIDGE_TRICKS],
-      const bool seen[BRIDGE_SUITS][BRIDGE_TRICKS],
-      LeadTriple dst[BRIDGE_TRICKS]);
 
     void setRBNline(
       const size_t strain,
@@ -109,6 +99,7 @@ class LeadTableau
     void reset();
 
     void set(
+      const Deal& deal,
       const string& text,
       const Format format);
 
