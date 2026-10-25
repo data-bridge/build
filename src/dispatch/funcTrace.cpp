@@ -59,7 +59,8 @@ void makeInstanceList(
   for (unsigned bno = firstBno; bno <= lastBno; bno++)
   {
     if (segment.getBoard(bno) == nullptr)
-      THROW("Bad board");
+      continue;
+
     Board * bd = segment.acquireBoard(bno);
 
     for (unsigned i = 0; i < bd->countAll(); i++)

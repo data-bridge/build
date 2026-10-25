@@ -11,6 +11,7 @@
 #include <iomanip>
 #include <sstream>
 #include <fstream>
+#include <algorithm>
 #include <mutex>
 
 #include "DDInfo.h"
@@ -277,6 +278,43 @@ void DDInfo::add(
 }
 
 
+// To make the board numbers come out in the expected order.
+
+struct Key
+{
+    char prefix;  // 'o', 'c', or 0 for plain numbers
+    int num;
+};
+
+
+Key parseKey(const string& s)
+{
+  if (!s.empty() && (s[0] == 'o' || s[0] == 'c'))
+    return {s[0], std::stoi(s.substr(1))};
+
+  return {'\0', std::stoi(s)};
+}
+
+
+bool lessKey(
+  const pair<string, string>& a,
+  const pair<string, string>& b)
+{
+  Key ka = parseKey(a.first);
+  Key kb = parseKey(b.first);
+
+  // Plain numeric case
+  if (ka.prefix == '\0' && kb.prefix == '\0')
+    return ka.num < kb.num;
+
+  // o/c case
+  if (ka.num != kb.num)
+    return ka.num < kb.num;
+
+  return ka.prefix > kb.prefix;  // 'o' > 'c', so o1 before c1
+}
+
+
 void DDInfo::write(const string& resName) const
 {
   for (auto const &itDir: dirResults)
@@ -298,7 +336,12 @@ void DDInfo::write(const string& resName) const
       CaseResults& bres = *(itFile.second);
 
       dd << inFile << ":\n";
-      for (auto const &itCase: bres)
+
+      vector<pair<string, string>> v(bres.begin(), bres.end());
+      sort(v.begin(), v.end(), lessKey);
+
+      // for (auto const &itCase: bres)
+      for (auto const &itCase: v)
         dd << itCase.first << " " << itCase.second << "\n";
       dd << "\n";
     }

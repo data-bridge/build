@@ -295,8 +295,18 @@ string PlayTrace::str() const
 }
 
 
-string PlayTrace::strCompact() const
+string PlayTrace::strHex() const
 {
+  // This makes outputs such as
+  // c20 *7B*4C
+  // c21 *E8999^148*49
+  // c22 *97^1C8
+  //
+  // It is a compact way to encode the tricks along the way,
+  // so for c20:
+  // 7 times B = 11 tricks, then 4 times C = 12 tricks, then claim.
+  // But it doesn't make it easy to tell which player made the error.
+
   string st = "";
   unsigned i = 0;
   while (i < len)
@@ -341,5 +351,35 @@ string PlayTrace::strCompact() const
   }
 
   return st;
+}
+
+
+string PlayTrace::strErrors() const
+{
+  if (len == 0)
+    return "";
+
+  string st = to_string(playedBy[0]) + ":";
+  st += PlayTrace::unsigned2hexchar(tricks[0]);
+
+  for (auto &pe: playErrors)
+  {
+    st += " " + to_string(pe.trickNo) + "," + 
+      to_string(pe.posNo) + "," +
+      to_string(pe.player) + ":";
+    st += PlayTrace::unsigned2hexchar(pe.is);
+  }
+
+  return st;
+}
+
+
+string PlayTrace::strCompact() const
+{
+  // We currentonly only know how to read existing hex files,
+  // not existing error files.
+  // return PlayTrace::strHex();
+  
+  return PlayTrace::strErrors();
 }
 

@@ -630,7 +630,7 @@ void Play::getPlayedBy(vector<Player>& playedBy) const
   for (unsigned c = 0; c < lm; c += 4)
   {
     const unsigned t = c >> 2;
-    const unsigned m = (t == ttp ? len - 4*ttp : 4);
+    const unsigned m = (t == ttp ? lm - 4*ttp : 4);
     const unsigned l = static_cast<unsigned>(leads[t].leader);
     for (unsigned r = 0; r < m; r++)
     {

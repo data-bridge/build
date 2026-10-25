@@ -54,6 +54,10 @@ class PlayTrace
     void deriveErrors();
     void deriveErrors(const vector<PlayError>& playedByIn);
 
+    string strHex() const;
+
+    string strErrors() const;
+
   public:
 
     PlayTrace();
@@ -90,6 +94,7 @@ class PlayTrace
     bool operator != (const PlayTrace& pt2) const;
 
     string str() const;
+
     string strCompact() const;
 };
 

@@ -363,9 +363,9 @@ static void checkArgs(const Options& options)
       ! options.fileRef.setFlag && ! options.dirRef.setFlag &&
       ! options.fileDigest.setFlag && ! options.dirDigest.setFlag &&
       ! options.passStatsFlag && ! options.solveFlag &&
-      ! options.leadsFlag)
+      ! options.leadsFlag && ! options.traceFlag)
   {
-    cout << "Need at least one of -o, -O, -r, -R, -d, -D, -Q, -S, -L." <<
+    cout << "Need at least one of -o, -O, -r, -R, -d, -D, -Q, -S, -L, -T." <<
       endl;
     exit(0);
   }
