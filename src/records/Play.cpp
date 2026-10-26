@@ -16,6 +16,9 @@
 
 #include "Play.h"
 #include "Contract.h"
+#include "SDPoints.h"
+#include "SDKnowledge.h"
+#include "SDPoints.h"
 
 #include "../util/parse.h"
 #include "../handling/Bexcept.h"
@@ -62,6 +65,8 @@ static CardInfo PLAY_NO_TO_INFO[PLAY_NUM_CARDS];
 
 static unsigned TRICK_RANKS[BRIDGE_DENOMS][BRIDGE_SUITS][PLAY_NUM_CARDS];
 
+static unsigned WEIGHT[8192];
+
 static bool setPlayTables = false;
 
 static bool bothAreSpaces(char lhs, char rhs);
@@ -102,6 +107,7 @@ void Play::reset()
 
 void Play::setTables()
 {
+  // TODO Not sure why this is done twice.
   for (unsigned d = 0; d < 2 * BRIDGE_DENOMS; d++)
   {
     for (unsigned p = 0; p < BRIDGE_TRICKS; p++)
@@ -148,6 +154,17 @@ void Play::setTables()
       // Trumps.
       for (unsigned c = 0; c < BRIDGE_TRICKS; c++)
         TRICK_RANKS[d][lead][BRIDGE_TRICKS*d + c] = c + BRIDGE_TRICKS;
+    }
+  }
+
+  for (unsigned w = 0; w < 8192; w++)
+  {
+    WEIGHT[w] = 0;
+    unsigned c = w;
+    while (c)
+    {
+      WEIGHT[w]++;
+      c >>= 1;
     }
   }
 }
@@ -205,8 +222,13 @@ void Play::setHoldingDDS(const unsigned h[][BRIDGE_SUITS])
 
   // No error checking.
   for (int p = 0; p < BRIDGE_PLAYERS; p++)
+  {
     for (int d = 0; d < BRIDGE_SUITS; d++)
+    {
       holding[p][d] = h[p][d];
+      distribution[p][d] = WEIGHT[h[p][d] >> 2];
+    }
+  }
 }
 
 
@@ -585,6 +607,36 @@ bool Play::hasClaim() const
 unsigned Play::getTricks() const
 {
   return tricksDecl;
+}
+
+
+void Play::getSingleDummyPoints(vector<SDPoints>& points) const
+{
+  points.resize(BRIDGE_PLAYERS);
+  for (unsigned i = 0; i < BRIDGE_PLAYERS; i++)
+    points[i].reset();
+
+  const unsigned dummy = (static_cast<unsigned>(declarer + 2)) % 4;
+  points[dummy].dummyFlag = true;
+
+  // I started writing this, thinking I would pinpoint the card
+  // number during play where one of the three players knows the original
+  // distribution completely.  But it doesn't happen that much, I guess
+  // because people claim before then.
+
+  SDKnowledge knowledges;
+  knowledges.init(distribution, dummy);
+
+  vector<Player> playedBy;
+  Play::getPlayedBy(playedBy);
+
+  vector<unsigned> suitsPlayed;
+  suitsPlayed.resize(playedBy.size());
+
+  for (unsigned i = 0; i < playedBy.size(); i++)
+    suitsPlayed[i] = PLAY_NO_TO_INFO[sequence[i]].suit;
+
+  knowledges.set(suitsPlayed, playedBy, points);
 }
 
 

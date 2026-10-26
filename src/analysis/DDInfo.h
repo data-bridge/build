@@ -19,19 +19,24 @@ using namespace std;
 
 typedef map<string, string> CaseResults;
 
+struct SDPoints;
+
+
 enum DDInfoType
 {
   BRIDGE_DD_INFO_SOLVE = 0,
   BRIDGE_DD_INFO_LEADS = 1,
   BRIDGE_DD_INFO_TRACE = 2,
-  BRIDGE_DD_INFO_SIZE = 3
+  BRIDGE_DD_INFO_CLEAR = 3,
+  BRIDGE_DD_INFO_SIZE = 4
 };
 
 const string DDInfoNames[]
 {
   "tableaux.log",
   "leads.log",
-  "traces.log"
+  "traces.log",
+  "singdum.log"
 };
 
 
@@ -73,6 +78,11 @@ class DDInfo
       const string& fname,
       const vector<string>& casesMissing,
       const vector<string>& infoMissing);
+
+    void addSingleDummyPoints(
+      const string& fname,
+      const string& boardName,
+      const vector<SDPoints>& points);
 
     void write(const string& fnameDD = "tableaux.log") const;
 };

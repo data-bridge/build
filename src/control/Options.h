@@ -50,6 +50,7 @@ struct Options
   bool solveFlag; // -S, --solve
   bool leadsFlag; // -L, --leads
   bool traceFlag; // -T, --trace
+  bool clearFlag; // -C, --clear
 
   bool formatSetFlag; // -f, --format
   Format format;

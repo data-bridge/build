@@ -16,6 +16,7 @@
 
 #include "DDInfo.h"
 
+#include "../records/SDPoints.h"
 #include "../util/parse.h"
 #include "../handling/Bexcept.h"
 
@@ -275,6 +276,60 @@ void DDInfo::add(
       THROW("Attempting to reset an existing DD value: " + fname +
         ", " + to_string(i) + ", " + casesMissing[i]);
   }
+}
+
+
+void DDInfo::addSingleDummyPoints(
+  const string& fname,
+  const string& boardName,
+  const vector<SDPoints>& points)
+{
+  mtx.lock();
+
+  FileResults * fresp;
+  const string path = filepath(fname);
+  auto itDir = dirResults.find(path);
+  if (itDir == dirResults.end())
+  {
+    fileResults.emplace_back(FileResults());
+    fresp = &fileResults.back();
+    dirResults[path] = {fresp, "", true};
+  }
+  else
+  {
+    fresp = itDir->second.fileRes;
+    dirResults[path].dirtyFlag = true;
+  }
+
+  FileResults& fres = * fresp;
+  const string base = basefile(fname);
+
+  CaseResults * bresp;
+  auto itFile = fres.find(base);
+  if (itFile == fres.end())
+  {
+    caseResults.emplace_back(CaseResults());
+    bresp = &caseResults.back();
+    fres[base] = bresp;
+  }
+  else
+    bresp = itFile->second;
+  
+  mtx.unlock();
+
+  CaseResults& bres = * bresp;
+  auto itCase = bres.find(boardName);
+  if (itCase == bres.end())
+  {
+    bres[boardName] = 
+      "0: " + points[0].str() + " " +
+      "0: " + points[1].str() + " " +
+      "0: " + points[2].str() + " " +
+      "0: " + points[3].str();
+  }
+  else
+    THROW("Attempting to reset an existing DD value: " + fname +
+      ", " + boardName);
 }
 
 

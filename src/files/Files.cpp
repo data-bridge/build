@@ -184,6 +184,12 @@ void Files::readDDInfoFile(
     const string resName = dir + "/" + DDInfoNames[BRIDGE_DD_INFO_TRACE];
     infoDD[BRIDGE_DD_INFO_TRACE].read(resName);
   }
+
+  if (options.clearFlag)
+  {
+    const string resName = dir + "/" + DDInfoNames[BRIDGE_DD_INFO_CLEAR];
+    infoDD[BRIDGE_DD_INFO_CLEAR].read(resName);
+  }
 }
 
 
@@ -192,7 +198,8 @@ void Files::set(const Options& options)
   vector<FileEntry> inputList, refList, outputList;
   map<string, vector<FileEntry>> refMap;
 
-  if (options.solveFlag || options.leadsFlag ||options.traceFlag)
+  if (options.solveFlag || options.leadsFlag ||
+      options.traceFlag || options.clearFlag)
     infoDD.resize(BRIDGE_DD_INFO_SIZE);
 
   // Set inputList
@@ -215,7 +222,8 @@ void Files::set(const Options& options)
     Files::buildFileList(options.dirInput.name, inputList, 
       BRIDGE_FORMAT_SIZE);
 
-    if (options.solveFlag || options.leadsFlag || options.traceFlag)
+    if (options.solveFlag || options.leadsFlag || 
+        options.traceFlag || options.clearFlag)
     {
       for (auto &s: dirList)
         Files::readDDInfoFile(s, options);
@@ -356,6 +364,16 @@ void Files::addDDInfo(
   const vector<string>& infoMissing)
 {
   infoDD[infoNo].add(fname, casesMissing, infoMissing);
+}
+
+
+void Files::addSingleDummyPoints(
+  const string& fname,
+  const string& boardName,
+  const vector<SDPoints>& points)
+{
+  infoDD[BRIDGE_DD_INFO_CLEAR].addSingleDummyPoints(
+    fname, boardName, points);
 }
 
 

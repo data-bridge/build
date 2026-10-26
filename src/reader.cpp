@@ -54,6 +54,8 @@ int main(int argc, char * argv[])
     files.writeDDInfo(BRIDGE_DD_INFO_LEADS);
   if (options.traceFlag)
     files.writeDDInfo(BRIDGE_DD_INFO_TRACE);
+  if (options.clearFlag)
+    files.writeDDInfo(BRIDGE_DD_INFO_CLEAR);
 
   timer.stop();
 

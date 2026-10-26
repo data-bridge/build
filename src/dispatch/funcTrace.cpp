@@ -45,7 +45,9 @@ void makeTraceDDS(
 }
 
 
-void makeInstanceList(
+// A bit lazy -- can eliminate, as same as funcClear.
+
+void makeInstanceListCopy(
   Segment& segment,
   vector<string>& instancesIn)
 {
@@ -78,7 +80,7 @@ void makeInstanceList(
 }
 
 
-void str2BoardInstance(
+void str2BoardInstanceCopy(
   const string& st, 
   Segment * segment,
   Board ** bd, 
@@ -125,7 +127,7 @@ void makeTrace(
     segNo++;
 
     vector<string> instancesIn;
-    makeInstanceList(* segment, instancesIn);
+    makeInstanceListCopy(* segment, instancesIn);
 
     vector<string> instMissAll, instMissing, infoMissing;
     CaseResults infoSeen;
@@ -139,7 +141,7 @@ void makeTrace(
       // Fill out the instance traces from file memory.
       Board * bd;
       Instance * inst;
-      str2BoardInstance(itSeen.first, segptr, &bd, &inst);
+      str2BoardInstanceCopy(itSeen.first, segptr, &bd, &inst);
       inst->setTrace(itSeen.second);
     }
 
@@ -147,7 +149,7 @@ void makeTrace(
     {
       Board * bd;
       Instance * inst;
-      str2BoardInstance(extStr, segptr, &bd, &inst);
+      str2BoardInstanceCopy(extStr, segptr, &bd, &inst);
 
       if (inst->isPassedOut() || ! inst->contractIsSet())
         continue;

@@ -271,6 +271,11 @@ Player Instance::getLeader() const
 }
 
 
+void Instance::getSingleDummyPoints(vector<SDPoints>& points) const
+{
+  play.getSingleDummyPoints(points);
+}
+
 void Instance::setScore(
   const string& text,
   const Format format)

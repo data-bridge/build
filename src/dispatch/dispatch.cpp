@@ -28,6 +28,7 @@
 
 #include "../analysis/passes/PassTable.h"
 
+#include "funcClear.h"
 #include "funcCompare.h"
 #include "funcDD.h"
 #include "funcDigest.h"
@@ -126,6 +127,9 @@ void dispatch(
 
     if (options.traceFlag)
       dispatchTrace(group, files, task.fileInput, flog);
+
+    if (options.clearFlag)
+      dispatchClear(group, files, task.fileInput, flog);
 
     if (options.statsFlag)
     {

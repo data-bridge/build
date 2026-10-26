@@ -20,6 +20,7 @@
 #include "../analysis/DDInfo.h"
 
 struct Options;
+struct SDPoints;
 
 using namespace std;
 
@@ -94,6 +95,11 @@ class Files
       const string& fname,
       const vector<string>& casesMissing,
       const vector<string>& infoMissing);
+
+    void addSingleDummyPoints(
+      const string& fname,
+      const string& boardName,
+      const vector<SDPoints>& points);
 
     void writeDDInfo(const DDInfoType infoNo) const;
 };

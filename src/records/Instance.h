@@ -116,6 +116,8 @@ class Instance
 
     Player getLeader() const;
 
+    void getSingleDummyPoints(vector<SDPoints>& points) const;
+
     void setScore(
       const string& text,
       const Format format);

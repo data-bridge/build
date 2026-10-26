@@ -17,6 +17,7 @@
 #include "../analysis/ddsIF.h"
 
 class Contract;
+struct SDPoints;
 
 using namespace std;
 
@@ -62,6 +63,7 @@ class Play
 
     bool setDealFlag;
     unsigned holding[BRIDGE_PLAYERS][BRIDGE_SUITS];
+    unsigned distribution[BRIDGE_PLAYERS][BRIDGE_SUITS];
 
     unsigned len;
     unsigned lenMax;
@@ -138,6 +140,8 @@ class Play
     bool hasClaim() const;
 
     unsigned getTricks() const;
+
+    void getSingleDummyPoints(vector<SDPoints>& points) const;
 
     void getStateDDS(RunningDD& runningDD) const;
 

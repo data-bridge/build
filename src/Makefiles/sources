@@ -19,6 +19,7 @@ control/args.cpp                \
                                 \
 dispatch/OrderCounts.cpp        \
 dispatch/dispatch.cpp           \
+dispatch/funcClear.cpp          \
 dispatch/funcCompare.cpp        \
 dispatch/funcDD.cpp             \
 dispatch/funcDigest.cpp         \
@@ -76,6 +77,7 @@ records/Play.cpp                \
 records/PlayTrace.cpp           \
 records/Players.cpp             \
 records/Scoring.cpp             \
+records/SDKnowledge.cpp         \
 records/Segment.cpp             \
 records/Session.cpp             \
 records/Sheet.cpp               \

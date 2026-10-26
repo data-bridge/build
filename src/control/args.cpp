@@ -27,7 +27,7 @@ struct OptEntry
   unsigned numArgs;
 };
 
-#define BRIDGE_NUM_OPTIONS 23
+#define BRIDGE_NUM_OPTIONS 24
 
 static const OptEntry OPT_LIST[BRIDGE_NUM_OPTIONS] =
 {
@@ -49,6 +49,7 @@ static const OptEntry OPT_LIST[BRIDGE_NUM_OPTIONS] =
   {"S", "solve", 0},
   {"L", "leads", 0},
   {"T", "trace", 0},
+  {"C", "clear", 0},
   {"f", "format", 1},
   {"s", "stats", 0},
   {"q", "quotes", 0},
@@ -126,6 +127,9 @@ void usage(
     "\n" <<
     "-T, --trace        Perform double-dummy trace analysis.\n" <<
     "                   (Default: not set)\n" <<
+    "\n" <<
+    "-C, --clear        Based on play, when does the whole hand become " <<
+    "                   clear to each active player(Default: not set)\n" <<
     "\n" <<
     "-f, --format s     Output format for -O (default: ALL).\n" <<
     "                   Values LIN, PBN, RBN, TXT, EML, DOC, REC, ALL.\n" <<
@@ -221,6 +225,7 @@ static void setDefaults(Options& options)
   options.solveFlag = false;
   options.leadsFlag = false;
   options.traceFlag = false;
+  options.clearFlag = false;
 
   options.formatSetFlag = false;
   options.format = BRIDGE_FORMAT_SIZE;
@@ -298,6 +303,11 @@ void printOptions(const Options& options)
   else
     cout << setw(12) << "trace" << setw(12) << "not set" << "\n";
 
+  if (options.clearFlag)
+    cout << setw(12) << "clear" << setw(12) << "set" << "\n";
+  else
+    cout << setw(12) << "clear" << setw(12) << "not set" << "\n";
+
   if (options.formatSetFlag)
   {
     cout << setw(12) << "format" << 
@@ -363,9 +373,10 @@ static void checkArgs(const Options& options)
       ! options.fileRef.setFlag && ! options.dirRef.setFlag &&
       ! options.fileDigest.setFlag && ! options.dirDigest.setFlag &&
       ! options.passStatsFlag && ! options.solveFlag &&
-      ! options.leadsFlag && ! options.traceFlag)
+      ! options.leadsFlag && ! options.traceFlag &&
+      ! options.clearFlag)
   {
-    cout << "Need at least one of -o, -O, -r, -R, -d, -D, -Q, -S, -L, -T." <<
+    cout << "Need at least one of -o, -O, -r, -R, -d, -D, -Q, -S, -L, -T, -C." <<
       endl;
     exit(0);
   }
@@ -483,6 +494,10 @@ void readArgs(
 
       case 'T':
         options.traceFlag = true;
+        break;
+
+      case 'C':
+        options.clearFlag = true;
         break;
 
       case 'f':
