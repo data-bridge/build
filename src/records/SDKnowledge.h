@@ -14,6 +14,8 @@
 #include <array>
 #include <string>
 
+#include "Knowledge.h"
+
 #include "../include/bridge.h"
 
 using namespace std;
@@ -24,22 +26,6 @@ struct SDPoints;
 class SDKnowledge
 {
   private:
-
-    struct SuitKnowledge
-    {
-      unsigned min;
-      unsigned max;
-      unsigned known;
-    };
-
-    struct Knowledge
-    {
-      // What we know about a single player in the context
-      // of one of the other two players (dummy not counting).
-      array<SuitKnowledge, BRIDGE_SUITS> suits;
-      unsigned unknown;
-      unsigned minSum;
-    };
 
     // What one player knows about the other players.
     // Overkill, as we only need to keep track of two of them.
@@ -53,24 +39,6 @@ class SDKnowledge
 
 
     void setTable();
-
-    void followSuit(
-      Knowledge& knowledgePlayer,
-      Knowledge& fourthPlayer,
-      const unsigned suit) const;
-
-    void discardSuit(
-      Knowledge& knowledgePlayer,
-      Knowledge& fourthPlayer,
-      const unsigned leadToTrick) const;
-
-    void reduceMax(
-      Knowledge& knowledgePlayer,
-      Knowledge& fourthPlayer) const;
-
-    void completeMirror(
-      Knowledge& player1,
-      Knowledge& player2) const;
 
 
   public:

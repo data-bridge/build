@@ -71,6 +71,7 @@ records/GivenScore.cpp          \
 records/Group.cpp               \
 records/HeaderLIN.cpp           \
 records/Instance.cpp            \
+records/Knowledge.cpp           \
 records/LeadTableau.cpp         \
 records/Location.cpp            \
 records/Play.cpp                \

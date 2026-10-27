@@ -82,116 +82,14 @@ void SDKnowledge::init(
       if (o == dummy || o == p)
         continue;
 
-      auto& knowledge = knowledges[p][o];
-
+      array<unsigned, BRIDGE_SUITS> known;
       for (unsigned s = 0; s < BRIDGE_SUITS; s++)
-      {
-        knowledge.suits[s].min = 0;
-        knowledge.suits[s].max = 13 - 
+        known[s] =  BRIDGE_TRICKS -
           (distribution[p][s] + distribution[dummy][s]);
-      }
-      knowledge.unknown = 13;
-      knowledge.minSum = 0;
+
+      knowledges[p][o].init(known);
     }
   }
-}
-
-
-void SDKnowledge::followSuit(
-  Knowledge& knowledgePlayer,
-  Knowledge& fourthPlayer,
-  const unsigned suit) const
-{
-  auto& kpsuit = knowledgePlayer.suits[suit];
-  auto& opsuit = fourthPlayer.suits[suit];
-
-  if (kpsuit.min == kpsuit.max)
-  {
-    if (kpsuit.known == kpsuit.min)
-    {
-      kpsuit.known++;
-      knowledgePlayer.unknown--;
-    }
-  }
-  else
-  {
-    kpsuit.min++;
-    kpsuit.known++;
-    knowledgePlayer.minSum++;
-    knowledgePlayer.unknown--;
-
-    if (opsuit.max > 0)
-      opsuit.max--;
-  }
-}
-
-
-void SDKnowledge::discardSuit(
-  Knowledge& knowledgePlayer,
-  Knowledge& fourthPlayer,
-  const unsigned leadToTrick) const
-{
-  auto& kplead = knowledgePlayer.suits[leadToTrick];
-  auto& oplead = fourthPlayer.suits[leadToTrick];
-
-  // The key player has exactly the known cards of the suit led.
-  const unsigned deltaOwn = kplead.min - kplead.known;
-  knowledgePlayer.unknown -= deltaOwn;
-  kplead.max = kplead.min;
-  kplead.known = kplead.min;
-
-  // The other player has the rest.
-  const unsigned deltaOther = oplead.max - oplead.known;
-  fourthPlayer.unknown -= deltaOther;
-  fourthPlayer.minSum += oplead.max - oplead.min;
-  oplead.min = oplead.max;
-  oplead.known = oplead.max;
-  fourthPlayer.unknown -= deltaOther;
-}
-
-
-void SDKnowledge::reduceMax(
-  Knowledge& knowledgePlayer,
-  Knowledge& fourthPlayer) const
-{
-  for (unsigned suit = 0; suit < BRIDGE_SUITS; suit++)
-  {
-    auto& kpsuit = knowledgePlayer.suits[suit];
-    const unsigned otherMin = knowledgePlayer.minSum - kpsuit.min;
-    const unsigned highestMax = 13 - otherMin;
-
-    if (kpsuit.max > highestMax)
-    {
-      const unsigned delta = kpsuit.max - highestMax;
-      kpsuit.max = highestMax;
-
-      auto& opsuit = fourthPlayer.suits[suit];
-      opsuit.min += delta;
-    }
-  }
-}
-
-
-void SDKnowledge::completeMirror(
-  Knowledge& player1,
-  Knowledge& player2) const
-{
-  // Player1 just needs the max values to be reduced to min.
-  // Player2 needs to be mirrored.
-
-  for (unsigned suit = 0; suit < BRIDGE_SUITS; suit++)
-  {
-    const unsigned sum1 = player1.suits[suit].min + player2.suits[suit].max;
-    const unsigned sum2 = player1.suits[suit].max + player2.suits[suit].min;
-    assert(sum1 == sum2);
-
-    player1.suits[suit].max = player1.suits[suit].min;
-
-    player2.suits[suit].min = sum1 - player1.suits[suit].min;
-    player2.suits[suit].max = player2.suits[suit].min;
-  }
-
-  player2.minSum = 13;
 }
 
 
@@ -229,49 +127,46 @@ void SDKnowledge::set(
       const unsigned lp = lastPlayer[dummy][keyPlayer][player];
       auto& fourthPlayer = knowledges[keyPlayer][lp];
 
-      if (suit == leadToTrick)
-      {
-        SDKnowledge::followSuit(knowledgePlayer, fourthPlayer, suit);
-      }
-      else
+      if (suit != leadToTrick)
       {
         // Not following suit.
-        SDKnowledge::discardSuit(knowledgePlayer, fourthPlayer, leadToTrick);
-
-        // Also the actual suit of the key player changes.
-        SDKnowledge::followSuit(knowledgePlayer, fourthPlayer, suit);
+        knowledgePlayer.fixAtMin(leadToTrick);
+        fourthPlayer.fixAtMax(leadToTrick);
       }
+
+      // The actual suit of the key player changes no matter what.
+      knowledgePlayer.increaseKnown(suit);
+      knowledgePlayer.increaseMinBy(fourthPlayer, suit, 1);
 
       // A single suit cannot have max higher than 13 minus sum of 
       // other min's.
-      SDKnowledge::reduceMax(knowledgePlayer, fourthPlayer);
-      SDKnowledge::reduceMax(fourthPlayer, knowledgePlayer);
+      knowledgePlayer.reduceMax(fourthPlayer);
+      fourthPlayer.reduceMax(knowledgePlayer);
 
       // If one of the two other players has 4* min==max, 
       // then distribution became known if it wasn't.
       // If also known == min, then single dummy became known.
       if (! points[keyPlayer].distKnown)
       {
-        if (knowledgePlayer.minSum == 13)
+        if (knowledgePlayer.distKnown())
         {
           points[keyPlayer].distKnown = true;
           points[keyPlayer].distKnown = true;
 
-          SDKnowledge::completeMirror(knowledgePlayer, fourthPlayer);
+          knowledgePlayer.adjustToCompleteness(fourthPlayer);
         }
-        else if (fourthPlayer.minSum == 13)
+        else if (fourthPlayer.distKnown())
         {
           points[keyPlayer].distKnown = true;
           points[keyPlayer].distKnown = true;
 
-          SDKnowledge::completeMirror(fourthPlayer, knowledgePlayer);
+          fourthPlayer.adjustToCompleteness(knowledgePlayer);
         }
       }
 
       if (! points[keyPlayer].dealKnown)
       {
-        if (knowledgePlayer.unknown == 0 ||
-            fourthPlayer.unknown == 0)
+        if (knowledgePlayer.dealKnown() || fourthPlayer.dealKnown())
         {
           points[keyPlayer].distKnown = true;
         }
